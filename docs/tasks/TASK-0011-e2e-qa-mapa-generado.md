@@ -3,8 +3,8 @@ type: Task
 id: TASK-0011
 title: "E2E y QA visual del mapa generado"
 description: Cubre con Playwright y capturas la semilla, las salas, los muros, las puertas, los pasillos anchos, la cámara, el HUD y el rendimiento del mapa generado.
-status: draft
-task_status: ready
+status: stable
+task_status: review
 task_type: test
 requirement: REQ-003
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-004, T-006, T-007, T-008]
@@ -13,13 +13,18 @@ unlocks: []
 created_at: 2026-11-07T22:17:27Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0011/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T22:17:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-07T23:32:00Z
+    note: "Verificación independiente: diff completo; `pnpm run verify` (238 tests, docs 70, build 43 módulos) y `pnpm run test:e2e` (16 tests) OK. Revisada `tests/e2e/generated-map-qa.spec.ts` (4 tests): semilla, dos cargas, 32×32, salas, huecos, pasillos anchos, spawns, BFS, cámara, F1/R/F2, HUD, 16:9, muros por borde con comparación de píxeles y rendimiento. Corregida en el intento 2 la captura `wide-corridor.png` para centrarla en el carril real de 2 tiles (y≈13-20), no en el tramo estrecho. Sin cambios de producción, sin tests existentes modificados ni debilitados. Pendiente el playtest del usuario para pasar a `done`."
+    artifacts: artifacts/TASK-0011/attempt-1/
+    commit: b94dd8117efb2d63b56c87d52094ebdb422d670f
 ---
 
 # Objetivo
@@ -42,23 +47,23 @@ rendimiento. El usuario hace el playtest final.
 
 # Criterios de aceptación
 
-- [ ] Una carga con `?seed=279837264` produce un snapshot con grid 32×32, 8-12
+- [x] Una carga con `?seed=279837264` produce un snapshot con grid 32×32, 8-12
       salas, 1-2 pasillos anchos, huecos de puerta y spawns distintos.
-- [ ] Dos cargas con la misma URL producen el mismo snapshot; `R` conserva la
+- [x] Dos cargas con la misma URL producen el mismo snapshot; `R` conserva la
       semilla; `F2` cambia la semilla y el mapa.
-- [ ] El jugador aparece en una sala con salida; el enemigo no está en el
+- [x] El jugador aparece en una sala con salida; el enemigo no está en el
       viewport inicial; la cámara sigue y se limita en los cuatro bordes.
-- [ ] La capa `F1` muestra semilla, salas, huecos, apariciones y anchura de
+- [x] La capa `F1` muestra semilla, salas, huecos, apariciones y anchura de
       pasillos; se puede ocultar.
-- [ ] Los muros cumplen la regla por borde en una muestra de tiles y en las
+- [x] Los muros cumplen la regla por borde en una muestra de tiles y en las
       capturas: sin `wallSide2`, sin caras sobre muros y sin huecos.
-- [ ] Los pasillos anchos se ven con 2 tiles de ancho, sin puertas, y cada sala
+- [x] Los pasillos anchos se ven con 2 tiles de ancho, sin puertas, y cada sala
       conserva al menos un acceso estrecho con hueco.
-- [ ] El HUD, el marco 16:9, el ataque y el feedback siguen funcionando.
-- [ ] La generación de 32×32 se mide por debajo de 100 ms en el entorno de CI y
+- [x] El HUD, el marco 16:9, el ataque y el feedback siguen funcionando.
+- [x] La generación de 32×32 se mide por debajo de 100 ms en el entorno de CI y
       el E2E no detecta tirones.
-- [ ] Las capturas se guardan en `artifacts/TASK-0011/attempt-1/screenshots/`.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni
+- [x] Las capturas se guardan en `artifacts/TASK-0011/attempt-1/screenshots/`.
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni
       debilitan tests existentes.
 - [ ] El usuario hace un playtest y aprueba la sensación del mapa y los muros.
 
@@ -87,12 +92,12 @@ rendimiento. El usuario hace el playtest final.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0011/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0011/attempt-1/test-output.txt`
-- [ ] Capturas de mapa con debug on/off y semilla alternativa
-- [ ] Detalle de muros y pasillo ancho
-- [ ] Medición de rendimiento
-- [ ] Commit SHA en la rama `task/TASK-0011`
+- [x] Informe en `artifacts/TASK-0011/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0011/attempt-1/test-output.txt`
+- [x] Capturas de mapa con debug on/off y semilla alternativa
+- [x] Detalle de muros y pasillo ancho
+- [x] Medición de rendimiento
+- [x] Commit SHA en la rama `task/TASK-0011`
 
 # Restricciones
 

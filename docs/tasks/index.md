@@ -14,9 +14,9 @@ Total: **11**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0008](TASK-0008-motor-generador-bsp.md) | Motor: interfaz MapGenerator, BSP, salas y pasillos estrechos | `done` | REQ-003 | TASK-0006 | P1 |
 | [TASK-0009](TASK-0009-motor-puertas-pasillos-anchos.md) | Motor: huecos de puerta y pasillos anchos de 2 tiles | `done` | REQ-003 | TASK-0008 | P1 |
 | [TASK-0010](TASK-0010-host-mapa-generado-muros-debug.md) | Host: mapa generado, semilla, muros y debug | `done` | REQ-003 | TASK-0009 | P1 |
-| [TASK-0011](TASK-0011-e2e-qa-mapa-generado.md) | E2E y QA visual del mapa generado | `ready` | REQ-003 | TASK-0010 | P1 |
+| [TASK-0011](TASK-0011-e2e-qa-mapa-generado.md) | E2E y QA visual del mapa generado | `review` | REQ-003 | TASK-0010 | P1 |
 
-# ready
+# review
 
 * [TASK-0011 — E2E y QA visual del mapa generado](TASK-0011-e2e-qa-mapa-generado.md)
 
