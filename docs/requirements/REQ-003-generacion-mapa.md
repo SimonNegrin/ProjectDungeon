@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-07T17:35:33Z
-updated_at: 2026-11-07T22:17:27Z
+updated_at: 2026-11-07T23:37:14Z
 related_tasks: [TASK-0007, TASK-0008, TASK-0009, TASK-0010, TASK-0011]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:35:33Z }
 verified:
@@ -21,6 +21,9 @@ verified:
   - by: human:simon
     at: 2026-11-07T22:17:27Z
     note: Aprueba la v2 con pasillos anchos de 2 tiles (1-2 según semilla), cada sala con al menos un acceso estrecho con puerta y validación directa en playtest.
+  - by: human:simon
+    at: 2026-11-07T23:37:14Z
+    note: "Aprueba el playtest del mapa generado: salas, muros, pasillos anchos, cámara, debug y HUD. REQ-003 completada."
 ---
 
 # Contexto
@@ -187,6 +190,7 @@ sala. El ancho 3 queda fuera de este corte.
 | 2026-11-07 | Encapsular la generación tras `MapGenerator`; BSP es la implementación por defecto. | human:simon | aceptada |
 | 2026-11-07 | Incluir 1-2 pasillos anchos de 2 tiles según la semilla, sin puertas, con al menos 4 tiles de longitud; cada sala conserva un acceso estrecho con hueco. | human:simon | aceptada |
 | 2026-11-07 | El ancho 3 y las barricadas quedan fuera de este corte. | human:simon | aceptada |
+| 2026-11-07 | Playtest aprobado: mapa generado, muros, pasillos anchos, cámara, debug y HUD. `REQ-003` completada. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -198,3 +202,4 @@ sala. El ancho 3 queda fuera de este corte.
 - [x] Se puede generar el grafo de tareas de BSP, pasillos anchos, integración y
       QA.
 - [x] No hay contradicciones abiertas.
+- [x] El usuario ha hecho el playtest y ha aprobado el mapa generado.
