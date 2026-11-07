@@ -4,14 +4,14 @@ id: TASK-0011
 title: "E2E y QA visual del mapa generado"
 description: Cubre con Playwright y capturas la semilla, las salas, los muros, las puertas, los pasillos anchos, la cámara, el HUD y el rendimiento del mapa generado.
 status: stable
-task_status: review
+task_status: done
 task_type: test
 requirement: REQ-003
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-004, T-006, T-007, T-008]
 depends_on: [TASK-0010]
 unlocks: []
 created_at: 2026-11-07T22:17:27Z
-completed_at:
+completed_at: 2026-11-07T23:37:14Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0011/
@@ -25,6 +25,9 @@ verified:
     note: "Verificación independiente: diff completo; `pnpm run verify` (238 tests, docs 70, build 43 módulos) y `pnpm run test:e2e` (16 tests) OK. Revisada `tests/e2e/generated-map-qa.spec.ts` (4 tests): semilla, dos cargas, 32×32, salas, huecos, pasillos anchos, spawns, BFS, cámara, F1/R/F2, HUD, 16:9, muros por borde con comparación de píxeles y rendimiento. Corregida en el intento 2 la captura `wide-corridor.png` para centrarla en el carril real de 2 tiles (y≈13-20), no en el tramo estrecho. Sin cambios de producción, sin tests existentes modificados ni debilitados. Pendiente el playtest del usuario para pasar a `done`."
     artifacts: artifacts/TASK-0011/attempt-1/
     commit: b94dd8117efb2d63b56c87d52094ebdb422d670f
+  - by: human:simon
+    at: 2026-11-07T23:37:14Z
+    note: "Aprueba el mapa generado, los muros, el pasillo ancho, la cámara, el debug y el HUD."
 ---
 
 # Objetivo
@@ -65,7 +68,7 @@ rendimiento. El usuario hace el playtest final.
 - [x] Las capturas se guardan en `artifacts/TASK-0011/attempt-1/screenshots/`.
 - [x] `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni
       debilitan tests existentes.
-- [ ] El usuario hace un playtest y aprueba la sensación del mapa y los muros.
+- [x] El usuario hace un playtest y aprueba la sensación del mapa y los muros.
 
 # Plan de test
 
