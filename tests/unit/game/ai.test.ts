@@ -55,7 +55,7 @@ describe('enemy AI', () => {
     expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, actionAvailable: false });
   });
 
-  it('avanza exactamente una casilla por fase aunque tenga 3 MP', () => {
+  it('avanza exactamente una casilla por fase aunque tenga 4 MP', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 5 })],
@@ -65,7 +65,7 @@ describe('enemy AI', () => {
     const moves = result.events.filter((event) => event.type === 'UnitMoved');
 
     expect(moves).toHaveLength(1);
-    expect(result.state.enemies[0]).toMatchObject({ x: 14, y: 5, mp: 2 });
+    expect(result.state.enemies[0]).toMatchObject({ x: 14, y: 5, mp: 3 });
   });
 
   it('espera si no puede avanzar ni atacar', () => {
@@ -95,7 +95,7 @@ describe('enemy AI', () => {
   it('es determinista con el mismo estado', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 3, y: 3 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 20, y: 15 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 10 })],
     });
 
     expect(planEnemyAction(state, state.enemies[0])).toEqual(

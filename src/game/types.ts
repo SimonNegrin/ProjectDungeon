@@ -99,12 +99,12 @@ export interface ReduceResult {
   readonly events: readonly GameEvent[];
 }
 
-export const ROOM_WIDTH = 32;
-export const ROOM_HEIGHT = 24;
+export const ROOM_WIDTH = 20;
+export const ROOM_HEIGHT = 20;
 export const PLAYER_MAX_HP = 20;
 export const ENEMY_MAX_HP = 10;
-export const PLAYER_MAX_MP = 4;
-export const ENEMY_MAX_MP = 3;
+export const PLAYER_MAX_MP = 6;
+export const ENEMY_MAX_MP = 4;
 export const PLAYER_ATTACK_DAMAGE = 5;
 export const ENEMY_ATTACK_DAMAGE = 3;
 export const MOVE_COST = 1;

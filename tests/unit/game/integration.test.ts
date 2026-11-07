@@ -48,7 +48,9 @@ describe('game loop integration', () => {
     expect(result.final.status).toBe('victory');
     expect(result.final.turn).toBe(2);
     expect(result.final.phase).toBe('player');
-    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: 17, mp: 3 });
+    // Turno 1: mueve (6 MP → 5), ataca y termina. Turno 2: se restauran
+    // 6 MP, mueve (6 → 5) y remata.
+    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: 17, mp: 5 });
     expect(result.final.enemies[0]).toMatchObject({ hp: 0 });
 
     expect(result.events.map((event) => event.type)).toEqual([

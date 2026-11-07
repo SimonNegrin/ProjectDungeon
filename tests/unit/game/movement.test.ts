@@ -7,7 +7,7 @@ import {
 } from '../../../src/game/index';
 import { makeState, makeUnit } from './helpers';
 
-const FAR_ENEMY = makeUnit({ id: 'enemy-1', faction: 'enemy', x: 29, y: 21 });
+const FAR_ENEMY = makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 });
 
 function stateWithPlayerAt(x: number, y: number, patch: Partial<GameState> = {}): GameState {
   return makeState({
@@ -66,17 +66,17 @@ describe('movement', () => {
     ]);
   });
 
-  it('permite cuatro movimientos con 4 MP y rechaza el quinto', () => {
+  it('permite seis movimientos con 6 MP y rechaza el séptimo', () => {
     let state = stateWithPlayerAt(10, 10);
 
     for (let step = 0; step < PLAYER_MAX_MP; step += 1) {
       state = reduce(state, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 }).state;
     }
 
-    expect(state.players[0]).toMatchObject({ x: 14, y: 10, mp: 0 });
+    expect(state.players[0]).toMatchObject({ x: 16, y: 10, mp: 0 });
 
     const rejected = reduce(state, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
-    expect(rejected.state.players[0]).toMatchObject({ x: 14, y: 10, mp: 0 });
+    expect(rejected.state.players[0]).toMatchObject({ x: 16, y: 10, mp: 0 });
     expect(rejected.events).toEqual([
       { type: 'CommandRejected', commandType: 'Move', reason: 'no-mp' },
     ]);
@@ -136,11 +136,11 @@ describe('movement', () => {
     ]);
   });
 
-  it('permite la diagonal cuando las dos casillas ortogonales están libres', () => {
+  it('permite la diagonal cuando las dos casillas ortogonales están libres y deja 5 MP', () => {
     const state = stateWithPlayerAt(5, 5);
     const result = reduce(state, { type: 'Move', unitId: 'player-1', dx: 1, dy: 1 });
 
-    expect(result.state.players[0]).toMatchObject({ x: 6, y: 6, mp: 3 });
+    expect(result.state.players[0]).toMatchObject({ x: 6, y: 6, mp: PLAYER_MAX_MP - MOVE_COST });
   });
 
   it('rechaza mover durante la fase enemiga', () => {

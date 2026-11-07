@@ -3,6 +3,8 @@ import {
   createInitialState,
   ENEMY_MAX_HP,
   ENEMY_MAX_MP,
+  INITIAL_ENEMY_POSITION,
+  INITIAL_PLAYER_POSITION,
   isOccupied,
   isWallAt,
   PLAYER_MAX_HP,
@@ -15,13 +17,16 @@ import {
 import { makeState, makeUnit } from './helpers';
 
 describe('engine state', () => {
-  it('crea la sala 32x24 con muros en el borde y suelo transitable', () => {
+  it('crea la sala 20x20 con muros en el borde y suelo transitable', () => {
     const state = createInitialState();
 
-    expect(state.grid.width).toBe(32);
-    expect(state.grid.height).toBe(24);
-    expect(ROOM_WIDTH).toBe(32);
-    expect(ROOM_HEIGHT).toBe(24);
+    expect(state.grid.width).toBe(20);
+    expect(state.grid.height).toBe(20);
+    expect(ROOM_WIDTH).toBe(20);
+    expect(ROOM_HEIGHT).toBe(20);
+    expect(state.grid.tiles).toHaveLength(20 * 20);
+    expect(state.grid.tiles.filter((tile) => tile === 'floor')).toHaveLength(18 * 18);
+    expect(state.grid.tiles.filter((tile) => tile === 'wall')).toHaveLength(20 * 20 - 18 * 18);
 
     for (let x = 0; x < state.grid.width; x += 1) {
       expect(isWallAt(state.grid, x, 0)).toBe(true);
@@ -33,30 +38,38 @@ describe('engine state', () => {
     }
 
     expect(isWallAt(state.grid, 1, 1)).toBe(false);
-    expect(isWallAt(state.grid, 30, 22)).toBe(false);
+    expect(isWallAt(state.grid, 18, 18)).toBe(false);
   });
 
-  it('coloca un jugador y un enemigo con vida, MP y acción iniciales', () => {
+  it('coloca un jugador y un enemigo en (4,4) y (15,15) con vida, MP y acción iniciales', () => {
     const state = createInitialState();
 
+    expect(INITIAL_PLAYER_POSITION).toEqual({ x: 4, y: 4 });
+    expect(INITIAL_ENEMY_POSITION).toEqual({ x: 15, y: 15 });
     expect(state.players).toHaveLength(1);
     expect(state.enemies).toHaveLength(1);
     expect(state.players[0]).toMatchObject({
       id: 'player-1',
+      x: 4,
+      y: 4,
       hp: PLAYER_MAX_HP,
       maxHp: PLAYER_MAX_HP,
-      mp: PLAYER_MAX_MP,
-      maxMp: PLAYER_MAX_MP,
+      mp: 6,
+      maxMp: 6,
       actionAvailable: true,
     });
     expect(state.enemies[0]).toMatchObject({
       id: 'enemy-1',
+      x: 15,
+      y: 15,
       hp: ENEMY_MAX_HP,
       maxHp: ENEMY_MAX_HP,
-      mp: ENEMY_MAX_MP,
-      maxMp: ENEMY_MAX_MP,
+      mp: 4,
+      maxMp: 4,
       actionAvailable: true,
     });
+    expect(PLAYER_MAX_MP).toBe(6);
+    expect(ENEMY_MAX_MP).toBe(4);
     expect(state.phase).toBe('player');
     expect(state.turn).toBe(1);
     expect(state.status).toBe('playing');
@@ -80,7 +93,7 @@ describe('engine state', () => {
     expect(parsed).toEqual(state);
 
     const result = reduce(parsed, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
-    expect(result.state.players[0]).toMatchObject({ x: 3, y: 2, mp: 3 });
+    expect(result.state.players[0]).toMatchObject({ x: 5, y: 4, mp: 5 });
   });
 
   it('reduce es pura y no muta el estado de entrada', () => {

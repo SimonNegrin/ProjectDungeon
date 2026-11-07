@@ -19,8 +19,8 @@ import {
   type Unit,
 } from './types';
 
-export const INITIAL_PLAYER_POSITION: Position = { x: 2, y: 2 };
-export const INITIAL_ENEMY_POSITION: Position = { x: 29, y: 21 };
+export const INITIAL_PLAYER_POSITION: Position = { x: 4, y: 4 };
+export const INITIAL_ENEMY_POSITION: Position = { x: 15, y: 15 };
 
 function createUnit(
   id: string,

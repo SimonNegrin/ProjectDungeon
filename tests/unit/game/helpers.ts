@@ -50,9 +50,9 @@ export interface StateOptions {
 
 export function makeState(options: StateOptions = {}): GameState {
   return {
-    grid: options.grid ?? createRoomGrid(32, 24),
-    players: options.players ?? [makeUnit({ id: 'player-1', faction: 'player', x: 2, y: 2 })],
-    enemies: options.enemies ?? [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 5, y: 2 })],
+    grid: options.grid ?? createRoomGrid(20, 20),
+    players: options.players ?? [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+    enemies: options.enemies ?? [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 15 })],
     phase: options.phase ?? 'player',
     turn: options.turn ?? 1,
     status: options.status ?? 'playing',
@@ -62,7 +62,7 @@ export function makeState(options: StateOptions = {}): GameState {
 export function makeGridWithWalls(
   walls: readonly { readonly x: number; readonly y: number }[],
 ): Grid {
-  const base = createRoomGrid(32, 24);
+  const base = createRoomGrid(20, 20);
   const wallSet = new Set(walls.map(({ x, y }) => `${x},${y}`));
 
   return {

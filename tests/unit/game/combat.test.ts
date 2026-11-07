@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reduce } from '../../../src/game/index';
+import { PLAYER_MAX_MP, reduce } from '../../../src/game/index';
 import { makeState, makeUnit } from './helpers';
 
 describe('combat', () => {
@@ -105,7 +105,12 @@ describe('combat', () => {
       dy: -1,
     });
 
-    expect(moved.state.players[0]).toMatchObject({ x: 5, y: 4, mp: 3, actionAvailable: false });
+    expect(moved.state.players[0]).toMatchObject({
+      x: 5,
+      y: 4,
+      mp: PLAYER_MAX_MP - 1,
+      actionAvailable: false,
+    });
     expect(moved.events).toHaveLength(1);
     expect(moved.events[0].type).toBe('UnitMoved');
   });
@@ -141,7 +146,7 @@ describe('combat', () => {
         makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
         makeUnit({ id: 'player-2', faction: 'player', x: 6, y: 5 }),
       ],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 20, y: 20 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 })],
     });
 
     const result = reduce(state, {
@@ -187,7 +192,7 @@ describe('combat', () => {
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 }),
-        makeUnit({ id: 'enemy-2', faction: 'enemy', x: 20, y: 20 }),
+        makeUnit({ id: 'enemy-2', faction: 'enemy', x: 18, y: 18 }),
       ],
     });
 
@@ -210,7 +215,7 @@ describe('combat', () => {
     const state = makeState({
       players: [
         makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 }),
-        makeUnit({ id: 'player-2', faction: 'player', x: 20, y: 20 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 18, y: 18 }),
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
     });

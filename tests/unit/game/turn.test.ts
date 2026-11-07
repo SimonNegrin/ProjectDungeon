@@ -13,8 +13,8 @@ describe('turn phase', () => {
 
     expect(result.state.phase).toBe('player');
     expect(result.state.turn).toBe(2);
-    expect(result.state.players[0]).toMatchObject({ mp: 4, actionAvailable: true, hp: 20 });
-    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 2 });
+    expect(result.state.players[0]).toMatchObject({ mp: 6, actionAvailable: true, hp: 20 });
+    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 3 });
     expect(result.events.map((event) => event.type)).toEqual([
       'TurnEnded',
       'EnemyPhaseStarted',
@@ -40,7 +40,7 @@ describe('turn phase', () => {
 
     const result = reduce(state, { type: 'EndTurn' });
 
-    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 2 });
+    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 3 });
     expect(result.state.enemies[0].actionAvailable).toBe(true);
   });
 
@@ -66,14 +66,14 @@ describe('turn phase', () => {
         unitId: 'enemy-1',
         from: { x: 10, y: 5 },
         to: { x: 9, y: 5 },
-        mpLeft: 2,
+        mpLeft: 3,
       },
       {
         type: 'UnitMoved',
         unitId: 'enemy-2',
         from: { x: 5, y: 10 },
         to: { x: 5, y: 9 },
-        mpLeft: 2,
+        mpLeft: 3,
       },
     ]);
   });
