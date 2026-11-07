@@ -4,7 +4,7 @@ id: TASK-0004
 title: "Motor: sala 20×20, MP 6/4 y posiciones iniciales"
 description: Ajusta el estado inicial del motor a la sala 20×20, 6 MP de jugador, 4 de enemigo y posiciones (4,4)/(15,15).
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-002
 requirement_ids: [R-008, R-009, R-011, T-004]
