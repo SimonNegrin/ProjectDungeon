@@ -4,14 +4,14 @@ id: TASK-0006
 title: "E2E y QA visual del encuadre 16:9"
 description: Cubre con Playwright el marco 16:9, el mapa 12×12, la cámara, la aparición del enemigo y la legibilidad del HUD en tres tamaños de ventana.
 status: stable
-task_status: review
+task_status: done
 task_type: test
 requirement: REQ-002
 requirement_ids: [R-006, R-007, R-010, R-011, T-004]
 depends_on: [TASK-0005]
 unlocks: []
 created_at: 2026-11-07T17:10:00Z
-completed_at:
+completed_at: 2026-11-07T17:23:07Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0006/
@@ -19,7 +19,12 @@ priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:10:00Z }
-verified: { by: task-lead, at: 2026-11-07T17:20:42Z }
+verified:
+  - by: task-lead
+    at: 2026-11-07T17:20:42Z
+  - by: human:simon
+    at: 2026-11-07T17:23:07Z
+    note: Aprueba el playtest del encuadre 16:9, el mapa 12×12, los laterales negros, la cámara, la aparición del enemigo y el HUD/ataque.
 ---
 
 # Objetivo
@@ -58,8 +63,8 @@ feedback intactos; y enemigo visible en un máximo de 2 turnos desde el spawn.
 - [x] El arte se ve nítido, sin suavizado ni estiramiento, en las capturas.
 - [x] No se borran, saltan ni debilitan tests existentes.
 - [x] `pnpm run verify` y `pnpm run test:e2e` pasan.
-- [ ] El usuario hace un playtest final y aprueba la sensación del encuadre.
-      **Pendiente del usuario; es lo único que impide pasar a `done`.**
+- [x] El usuario hace un playtest final y aprueba la sensación del encuadre.
+      Aprobado por `human:simon` el 2026-11-07.
 
 # Plan de test
 
@@ -135,35 +140,19 @@ fusionada en `main` por fast-forward hasta `f02d832`.
   1920×1080 por usar `clientHeight` entero frente al rect fraccionario. No hay
   deformación ni corte; el spec usa ±1 px para márgenes.
 
-# Pendiente para `done`
+# Aprobación del playtest
 
-Falta **solo** el playtest del usuario: aprobar la sensación del encuadre. La
-tarea queda en `review`; no se marca `completed_at` ni `done`. Instrucciones
-exactas:
+El usuario (`human:simon`) probó la build servida en `http://127.0.0.1:4173` el
+2026-11-07 y aprobó la sensación del encuadre. Comprobó:
 
-1. En la raíz del repo, con `main` en `f02d832` o posterior:
-   ```bash
-   pnpm install
-   pnpm exec vite --port 4173 --host 127.0.0.1
-   ```
-2. Abre `http://127.0.0.1:4173` y prueba:
-   - 1280×720 y 1920×1080: el marco llena el alto disponible y conserva 16:9;
-     el mapa es un cuadrado de 12×12 con laterales negros; el HUD de arriba se
-     lee completo.
-   - 900×700 (o redimensiona a una ventana estrecha): el marco no se deforma y
-     aparecen bandas negras arriba/abajo; el HUD sigue visible.
-   - Muévete con `WASD`/flechas: el jugador se mantiene centrado y la cámara se
-     detiene en los cuatro bordes sin ocultarlo.
-   - Avanza en diagonal hacia el enemigo (`D` + `S` o flechas) y termina turno
-     con `E`: el enemigo debe aparecer en un máximo de 2 turnos.
-   - Acércate y ataca con `Espacio`/`Enter`: debe verse el flash y `-5`, y el
-     HUD debe mostrar enemigo `5/10` y acción `No`.
-   - `R` reinicia y `F1` abre el debug. No debe haber errores en consola.
-3. Cierra el servidor con `Ctrl+C`.
-4. Para aprobar: responde indicando que la sensación del encuadre es correcta
-   (o los ajustes concretos que quieres). El `task-lead` marcará entonces
-   `task_status: done` y `completed_at`; si hay ajustes, se abre una tarea nueva
-   o se reabre el requisito, sin tocar los criterios de esta tarea.
+- marco 16:9 a 1280×720 y 1920×1080, y ventana estrecha sin deformación;
+- mapa cuadrado de 12×12 con laterales negros y HUD legible fuera del marco;
+- cámara que sigue al jugador y se detiene en los bordes;
+- aparición del enemigo en un máximo de 2 turnos;
+- HUD y ataque con flash y número de daño.
+
+Con esta aprobación se cumple el último criterio y la tarea pasa a `done`.
+`REQ-002` queda completada.
 
 # Restricciones
 
