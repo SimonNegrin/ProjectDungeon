@@ -12,3 +12,4 @@
 * **Migration**: Se adopta pnpm 9.15.0, se añade `pnpm-lock.yaml` y se retira `package-lock.json` (ADR-004).
 * **Decision**: Se adopta una política de timeouts explícitos y control de procesos en background (ADR-005).
 * **Validation**: `pnpm run verify`, `pnpm run test:e2e` y `pnpm audit` pasan con la migración a pnpm.
+* **Migration**: Se actualiza pnpm de 9.15.0 a 12.18.0 en `packageManager` y se regenera `pnpm-lock.yaml`. La política de antigüedad mínima de pnpm 12 retiene `rollup` en 4.67.5 (4.68.0 tenía menos de 24 h); se añade `pnpm-workspace.yaml` para permitir el build de `esbuild` (ADR-004).

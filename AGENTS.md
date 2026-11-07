@@ -26,7 +26,8 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 
 ## Gestor de paquetes
 
-- Usa **pnpm 9.15.0**; no uses npm ni npx.
+- Usa la versión de **pnpm** fijada en `packageManager` (12.18.0); no uses npm
+  ni npx.
 - Instala con `pnpm install`.
 - Ejecuta scripts con `pnpm run ...` o `pnpm ...`.
 - Playwright se instala con `pnpm exec playwright install chromium`.

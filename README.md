@@ -24,7 +24,7 @@ agentes y shell de experimentos. Todavía no hay código de juego.
 ## Requisitos
 
 - Node.js >= 20.
-- pnpm 9.15.0.
+- pnpm 12.18.0.
 
 ## Arranque rápido
 
