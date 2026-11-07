@@ -1,0 +1,14 @@
+{
+  "experiment": "EXP-000",
+  "question": "¿El shell permite ajustar parámetros, comparar variantes y exportar una decisión?",
+  "seed": 509514579,
+  "parameters": {
+    "gridSize": 12,
+    "density": 30,
+    "palette": "moss",
+    "showGrid": true
+  },
+  "decision": "random",
+  "notes": "",
+  "decidedAt": "2026-11-07T14:47:43.062Z"
+}

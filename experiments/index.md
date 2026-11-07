@@ -3,7 +3,7 @@
 Páginas interactivas para tomar decisiones. Cada experimento responde una sola
 pregunta y deja una decisión registrada.
 
-* [EXP-000: shell de experimentos](EXP-000-shell-demo/experiment.md) - Prueba de humo del shell; no es una decisión de juego.
+* [EXP-000: shell de experimentos](EXP-000-shell-demo/experiment.md) - Prueba de humo del shell validada; no es una decisión de juego.
 
 ## Arranque
 

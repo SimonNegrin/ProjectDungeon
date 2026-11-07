@@ -1,15 +1,25 @@
 ---
 type: Experiment
 title: "EXP-000: shell de experimentos"
-description: Prueba de humo del shell interactivo, sin decisión de juego.
-status: draft
-experiment_status: ready
+description: Prueba de humo del shell interactivo; validada, sin decisión de juego.
+status: stable
+experiment_status: decided
 id: EXP-000
 question: ¿El shell permite ajustar parámetros, comparar variantes y exportar una decisión?
 related_requirements: []
+seed: 509514579
+parameters:
+  gridSize: 12
+  density: 30
+  palette: moss
+  showGrid: true
+decision: random
+decided_by: human:simon
+decided_at: 2026-11-07T14:47:43.062Z
 created_at: 2026-11-07T14:33:11Z
-updated_at: 2026-11-07T14:33:11Z
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+updated_at: 2026-11-07T14:47:43.062Z
+generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:47:43.062Z }
+verified: { by: human:simon, at: 2026-11-07T14:47:43.062Z }
 ---
 
 # Propósito
@@ -47,19 +57,25 @@ El shell debe permitir:
 El shell arranca, renderiza las dos variantes, responde a los controles y genera
 una decisión exportable. La prueba E2E comprueba el estado y la captura visual.
 
-# Evidencia
-
-- [Captura del shell](../../artifacts/EXP-000-shell-demo/shell-smoke.png)
-- `npm run test:e2e` pasa.
+La opción `random` es una selección de prueba del panel de decisión. No implica
+una preferencia por el algoritmo “Aleatorio” ni una decisión de diseño.
 
 # Decisión
 
-- Opción:
-- Motivo:
-- Fecha:
-- Decidido por:
+- Opción: `random` (selección de prueba).
+- Motivo: validar el flujo de decisión y exportación del shell.
+- Fecha: 2026-11-07T14:47:43.062Z.
+- Decidido por: `human:simon`.
+- Semilla: `509514579`.
+- Parámetros: rejilla 12, densidad 30 %, paleta musgo, rejilla visible.
+
+# Evidencia
+
+- [Captura del shell](../../artifacts/EXP-000-shell-demo/shell-smoke.png)
+- [JSON de la decisión](results/decision-2026-11-07T14-47-43Z.json)
+- `npm run test:e2e` pasa.
 
 # Siguientes pasos
 
-- Si el shell funciona, usarlo como plantilla para el primer experimento real.
-- Si algo falla, crear una tarea de corrección del arnés.
+- El shell queda validado para el primer experimento real.
+- No se deriva ninguna tarea de producción de esta decisión.
