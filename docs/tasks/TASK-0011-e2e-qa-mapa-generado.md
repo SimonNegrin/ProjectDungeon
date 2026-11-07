@@ -4,7 +4,7 @@ id: TASK-0011
 title: "E2E y QA visual del mapa generado"
 description: Cubre con Playwright y capturas la semilla, las salas, los muros, las puertas, los pasillos anchos, la cámara, el HUD y el rendimiento del mapa generado.
 status: draft
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-003
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-004, T-006, T-007, T-008]
