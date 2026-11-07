@@ -4,7 +4,7 @@ id: TASK-0009
 title: "Motor: huecos de puerta y pasillos anchos de 2 tiles"
 description: Añade huecos de puerta en accesos estrechos y 1-2 pasillos anchos de 2 tiles por mapa, sin puertas y con al menos 4 tiles de longitud.
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-003
 requirement_ids: [R-003, R-004, R-005, R-006, R-012, R-013, T-004, T-012, T-013]
