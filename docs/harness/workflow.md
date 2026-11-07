@@ -79,6 +79,22 @@ Ver [experimentos](experiments.md).
 7. Si no se resuelve, escala.
 8. Al cerrar, actualiza la tarea, el tablero y el log.
 
+# Handoffs y sesiones
+
+- El brief sigue [task-brief](../templates/task-brief.md) y el informe
+  [task-report](../templates/task-report.md). Si falta un campo obligatorio, el
+  handoff no es válido.
+- Presupuesto blando: brief e informe ~2 KB; 3–4 KB en tareas grandes. Nunca se
+  trunca. Al 100 % se avisa; al 150 % se justifica.
+- Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado. Nada se
+  borra y el detalle no se lee por defecto.
+- Una sesión por tarea o intento. El estado vive en la tarea y los artefactos, no
+  en el historial del chat.
+- Antes de compactar o cambiar de sesión, escribe el handoff (brief o informe)
+  con el estado actual.
+- No se duplican criterios ni requisitos: la tarea es la fuente y el brief
+  enlaza.
+
 # Estados de tarea
 
 | Estado | Significado |

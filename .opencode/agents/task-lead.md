@@ -44,20 +44,18 @@ dependencias.
 
 # Antes de lanzar
 
-1. Lee la tarea, el requisito, `docs/design/architecture.md`,
-   `docs/quality/test-strategy.md` y `docs/quality/definition-of-ready-done.md`.
+1. Lee la tarea y solo las secciones del requisito que la tarea no cubra; usa
+   anclas. Consulta `docs/design/architecture.md`,
+   `docs/quality/test-strategy.md` y `docs/quality/definition-of-ready-done.md`
+   solo si la tarea no los cubre.
 2. Comprueba Definition of Ready. Si no se cumple, devuelve `blocked` con el
    motivo.
 3. Comprueba que las dependencias están terminadas.
 4. Crea la rama `task/TASK-NNNN` si no existe.
-5. Prepara `artifacts/TASK-NNNN/attempt-N/brief.md` con:
-   - objetivo y contexto mínimo;
-   - criterios de aceptación;
-   - archivos/módulos relevantes;
-   - comandos de test y timeouts;
-   - restricciones y no objetivos;
-   - ruta de artefactos;
-   - qué debe devolver el runner.
+5. Prepara el brief según `docs/templates/task-brief.md`; no copies la tarea,
+   los criterios ni el requisito: enlaza. Presupuesto ~2 KB; desbordamiento en
+   `brief-detalle.md`.
+6. Marca en el brief si el runner debe leer el anexo (`brief-detalle.md`).
 
 Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 

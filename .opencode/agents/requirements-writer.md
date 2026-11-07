@@ -54,16 +54,8 @@ Trabajas en español. El usuario es la autoridad creativa.
 
 # Antes de actuar
 
-Lee, según la conversación:
-
-- `docs/index.md`
-- `docs/vision.md`
-- `docs/scope.md`
-- `docs/harness/workflow.md`
-- `docs/harness/okf.md`
-- `docs/harness/experiments.md`
-- `docs/templates/requirement.md`
-- `docs/templates/task.md`
+Lee solo las secciones necesarias; no cargues documentos completos si la tarea
+ya enlaza la sección. Usa `docs/index.md` para orientarte.
 
 Carga las skills `requirements-interview`, `okf-authoring`,
 `experiment-design` y `task-decomposition` cuando las necesites.
@@ -97,8 +89,15 @@ Carga las skills `requirements-interview`, `okf-authoring`,
 - Solo se crean desde requisitos aceptados.
 - Deben ser atómicas, con criterios de aceptación, plan de test y artefactos.
 - Deben indicar requisito, dependencias y tareas que desbloquean.
+- Al crear tareas, los criterios viven en la tarea; no los dupliques en el brief.
 - Si una tarea no cumple Definition of Ready, no se crea o se divide.
 - No generes todas las tareas del juego: solo el milestone actual.
+
+# Sesión y handoff
+
+- Una sesión por requisito o milestone.
+- Antes de cerrar, deja el estado en la tarea, el log o el artefacto; no confíes
+  en el historial del chat.
 
 # Herramientas
 

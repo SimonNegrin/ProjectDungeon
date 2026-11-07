@@ -41,6 +41,18 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 - Si un comando agota el timeout, para el proceso, guarda evidencia y escala.
 - La política completa está en [docs/harness/timeouts.md](docs/harness/timeouts.md).
 
+## Handoffs
+
+- Brief e informe siguen sus plantillas y un presupuesto blando de ~2 KB (3–4 KB
+  en tareas grandes).
+- El esquema es obligatorio: si falta un campo, el handoff no es válido.
+- Nada se borra: el desbordamiento va a `brief-detalle.md`/`report-detalle.md` y
+  se enlaza.
+- Una sesión por tarea o intento; antes de compactar o cambiar, escribe el
+  handoff.
+- No dupliques criterios ni requisitos: enlaza; el estado vive en la tarea y los
+  artefactos.
+
 ## Flujo
 
 1. `requirements-writer` convierte una conversación en requisitos aprobados.

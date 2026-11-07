@@ -65,13 +65,17 @@ artefactos.
 
 # Ejecución
 
-1. Lee el brief y solo el contexto enlazado.
+1. Lee el brief y solo el contexto enlazado; lee la tarea una vez. Si el brief
+   marca leer anexo, lee `brief-detalle.md`.
 2. Inspecciona el código y tests existentes.
 3. Implementa el cambio mínimo que cumple los criterios.
 4. Escribe tests derivados de los criterios, no de la implementación.
 5. Ejecuta `pnpm run verify` y, si aplica, `pnpm run test:e2e`.
 6. Captura salida, capturas y logs en la ruta de artefactos.
-7. Escribe `report.md` con el formato de plantilla.
+7. Escribe `report.md` según `docs/templates/task-report.md`, ~2 KB; salidas
+   completas en archivos aparte.
+
+No pegues salidas de tests ni diffs completos en el informe.
 
 Carga las skills `game-architecture`, `canvas-rendering`, `visual-qa` y
 `experiment-design` cuando apliquen.

@@ -65,7 +65,9 @@ runner, revisar el resultado y cerrar o escalar.
 1. Leer la tarea, el requisito y la arquitectura.
 2. Comprobar Definition of Ready.
 3. Crear la rama `task/TASK-XXXX`.
-4. Escribir un brief en `artifacts/TASK-XXXX/attempt-N/brief.md`.
+4. Escribir un brief en `artifacts/TASK-XXXX/attempt-N/brief.md` siguiendo
+   [task-brief](../templates/task-brief.md), con presupuesto blando ~2 KB y
+   desbordamiento en `brief-detalle.md`.
 5. Lanzar `task-runner` con el brief.
 6. Esperar el informe.
 7. Verificar de forma independiente:
@@ -100,7 +102,9 @@ honesto, incluido lo que no ha funcionado.
 3. Escribir tests desde los criterios de aceptación.
 4. Ejecutar tests, typecheck y build.
 5. Capturar artefactos: informe, salida de tests, capturas, logs.
-6. Devolver un informe con estado, cambios, pruebas, desviaciones y preguntas.
+6. Devolver un informe con estado, cambios, pruebas, desviaciones y preguntas,
+   siguiendo [task-report](../templates/task-report.md): ~2 KB blando, con la
+   evidencia completa en archivos aparte.
 
 ## No puede
 

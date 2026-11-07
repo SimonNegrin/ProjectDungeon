@@ -6,6 +6,10 @@ status: draft
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 ---
 
+> El brief se escribe aparte con `docs/templates/task-brief.md`. Los criterios
+> viven en esta hoja; el brief los enlaza, no los copia. El informe sigue
+> `docs/templates/task-report.md`.
+
 # Uso
 
 Copiar a `docs/tasks/TASK-NNNN-slug.md`. Una tarea debe producir un resultado

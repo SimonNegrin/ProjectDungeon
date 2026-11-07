@@ -8,9 +8,9 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-07T17:35:33Z
-updated_at: 2026-11-07T23:37:14Z
+updated_at: 2026-11-07T23:50:11Z
 related_tasks: [TASK-0007, TASK-0008, TASK-0009, TASK-0010, TASK-0011]
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:35:33Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-07T23:50:11Z }
 verified:
   - by: human:simon
     at: 2026-11-07T17:43:55Z
@@ -117,36 +117,12 @@ mapa debe guardar la información necesaria para añadirlos después.
 
 # Resultado de EXP-001
 
-**Decisión:** A · BSP (`variant-a`). Semilla `279837264`; `roomTarget 9`,
-`roomMin 4`, `roomMax 11`, `loopRatio 20 %`, `showDoors true`.
-
-**Motivo del usuario:** BSP genera mapas generalmente más interesantes para el
-juego.
-
-| Métrica de referencia (semilla 20261107) | A · BSP | B · Salas+pasillos | C · Híbrido |
-|---|---:|---:|---:|
-| Salas | 10 | 10 | 10 |
-| Grandes (7×7+) | 3 | 2 | 3 |
-| Pequeñas (3×3–5×5) | 3 | 3 | 3 |
-| Suelo | 47,7 % | 33,5 % | 59,8 % |
-| Pasillos | 102 | 38 | 231 |
-| Esquinas | 14 | 4 | 11 |
-| Callejones | 0 | 0 | 73 |
-| Bucles | 2 | 2 | 2 |
-| Tiempo de generación | 250,9 ms | 169,5 ms | 79,7 ms |
-
-A fue la más equilibrada y la que produjo mapas más interesantes. B quedó
-demasiado compacta y usó una colocación de respaldo en la semilla de referencia.
-C resultó demasiado densa y laberíntica.
-
-**Preguntas del usuario que incorpora la v2:**
-
-- El algoritmo debe poder reemplazarse en el futuro. Se resuelve con
-  `MapGenerator` y `BspMapGenerator` (T-011).
-- Se quieren pasillos de 2 tiles sin puertas para combate táctico. Se resuelve
-  con R-003, R-013, T-012 y T-013: 1-2 por mapa según la semilla, al menos 4
-  tiles de longitud y cada sala conserva un acceso estrecho con hueco. El ancho
-  3 queda para una dificultad futura.
+`EXP-001` decidió **A · BSP** con semilla `279837264` y parámetros `9/4/11/20`
+(`roomTarget 9`, `roomMin 4`, `roomMax 11`, `loopRatio 20 %`). La implementación
+queda tras `MapGenerator` (`T-011`) y los pasillos anchos en `R-003`, `R-013` y
+`T-013`. La comparativa A/B/C, el motivo del usuario y las preguntas que
+incorpora la v2 están en el [anexo de EXP-001](REQ-003-anexo-exp-001.md), que es
+informativo y no normativo.
 
 # Fuera de alcance
 
