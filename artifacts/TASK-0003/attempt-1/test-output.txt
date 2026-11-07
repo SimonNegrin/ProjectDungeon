@@ -85,3 +85,9 @@ dist/assets/experiments-DBhEdNHT.js              1.19 kB │ gzip: 0.58 kB
 dist/assets/EXP-000-shell-demo-Dfadx-d2.js      12.98 kB │ gzip: 5.12 kB
 dist/assets/main-DF1VvbTN.js                    16.85 kB │ gzip: 6.18 kB
 ✓ built in 255ms
+
+======================================================================
+cmd: pnpm run docs:check    timeout: 60 s    exit: 0
+======================================================================
+$ node scripts/validate-docs.mjs
+OK: 40 documentos, 3 tareas, 1 experimentos.
