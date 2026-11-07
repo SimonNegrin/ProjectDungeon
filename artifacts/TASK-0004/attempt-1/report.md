@@ -84,7 +84,7 @@ Artefactos:
 | Comando | Timeout del tool | Resultado |
 |---|---:|---|
 | `pnpm run test` | 120 s | OK — 15 archivos, 107 tests, 0 fallos. |
-| `pnpm run verify` | 180 s | OK — docs (45 documentos, 6 tareas), config, 107 tests y build. |
+| `pnpm run verify` | 180 s | OK — docs (46 documentos, 6 tareas), config, 107 tests y build. |
 | `pnpm run test:e2e` | 240 s | OK — 3 tests (render, loop de input/HUD y shell de experimentos). |
 
 La salida completa está en `artifacts/TASK-0004/attempt-1/test-output.txt`.

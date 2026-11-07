@@ -29,7 +29,7 @@ Exit code: 0
 
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
 $ node scripts/validate-docs.mjs
-OK: 45 documentos, 6 tareas, 1 experimentos.
+OK: 46 documentos, 6 tareas, 1 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 3 agentes, 9 skills.
 $ vitest run
@@ -39,8 +39,8 @@ $ vitest run
 
  Test Files  15 passed (15)
       Tests  107 passed (107)
-   Start at  16:54:01
-   Duration  414ms (import 38%, tests 24%, transform 24%, worker 14%)
+   Start at  16:54:58
+   Duration  436ms (import 36%, tests 29%, transform 22%, worker 12%)
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
