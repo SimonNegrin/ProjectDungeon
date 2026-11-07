@@ -1,0 +1,26 @@
+{
+  "innerWidth": 1920,
+  "innerHeight": 1080,
+  "scrollWidth": 1920,
+  "scrollHeight": 1080,
+  "frame": {
+    "left": 104.875,
+    "top": 79.109375,
+    "right": 1815.09375,
+    "bottom": 1041.109375,
+    "width": 1710.21875,
+    "height": 962
+  },
+  "frameAspect": 1.7777741683991684,
+  "hud": {
+    "top": 16,
+    "bottom": 71.109375,
+    "width": 1710.21875
+  },
+  "footer": {
+    "top": 1049,
+    "bottom": 1064
+  },
+  "overflowX": false,
+  "overflowY": false
+}
