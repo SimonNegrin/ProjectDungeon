@@ -8,9 +8,9 @@ report_status: completed
 status: stable
 result: implemented
 branch: task/TASK-0011
-commit: 2f448b60b023af2feaf7525f19f88334994b743c
+commit: b94dd8117efb2d63b56c87d52094ebdb422d670f
 artifacts: artifacts/TASK-0011/attempt-1/
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T23:26:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-07T23:29:35Z }
 verified:
 ---
 
@@ -36,10 +36,32 @@ del mapa, los muros, la cámara, el HUD ni el encuadre. `pnpm run test`,
 La semilla de referencia `279837264` produce 9 salas, 10 corredores, 18 huecos,
 1 pasillo ancho `0→1` de 2 tiles y carril real 8, spawns `(6,8)`/`(23,28)` con
 distancia BFS 59, cámara `(16,80)` y límites `(640,640)`. La ejecución final de
-`F2` generó la semilla `1712155153` (9 salas, 1 pasillo ancho, spawns
-`(6,6)`/`(18,27)`, distancia 53, cámara `(16,16)`), que también cumple los
+`F2` generó la semilla `3304860892` (9 salas, 1 pasillo ancho, spawns
+`(6,6)`/`(28,4)`, distancia 48, cámara `(16,16)`), que también cumple los
 rangos. `F2` es aleatorio por diseño: el test comprueba los rangos en cada
 ejecución y no relaja el requisito.
+
+# Corrección tras verificación del lead
+
+La primera captura `wide-corridor.png` se tomaba con la cámara inicial
+`(16,80)` y el recorte centrado en mundo `(2*32, 8.5*32)`. En ese tramo el
+corredor `0→1` solo tiene 1 tile de ancho: `(1,8)=floor`, `(2,8)=wall`,
+`(3,8)=floor`. La imagen mostraba el tramo estrecho, no el pasillo de 2 tiles.
+
+El test se ha corregido sin tocar producción ni debilitar aserciones:
+
+- antes de la captura se camina con `walkTo(page, 3, 12)` (comandos reales
+  aceptados) hasta que la cámara queda en `(0,208)`;
+- se comprueba en el snapshot que `(1,16)` y `(2,16)` son suelo y `(0,16)` y
+  `(3,16)` son muro, repetido en `y = 13, 16, 20`;
+- se comprueba que el rectángulo de mundo del recorte contiene las columnas
+  `x=1` y `x=2` completas y las filas `y=16` y `y=17`;
+- el recorte se centra en `(2*32, 16.5*32)`, dentro del tramo ancho real.
+
+La nueva captura muestra dos columnas de suelo entre los muros laterales. El
+análisis de píxeles del PNG final da, en una fila horizontal central, muro a la
+izquierda, **dos tiles de suelo consecutivos** en el centro y muro a la derecha.
+Commit de la corrección: `b94dd8117efb2d63b56c87d52094ebdb422d670f`.
 
 # Cambios
 
@@ -51,11 +73,11 @@ ejecución y no relaja el requisito.
 - No hay cambios en `src/`, `package.json`, `pnpm-lock.yaml`, HUD, encuadre,
   economía de turno ni `docs/`.
 
-Commit de implementación y evidencia:
-`2f448b60b023af2feaf7525f19f88334994b743c`.
+Commit de implementación y evidencia (incluye la corrección de la captura):
+`b94dd8117efb2d63b56c87d52094ebdb422d670f`.
 
-Diff resumido: 1 spec nuevo de 961 líneas y artefactos de evidencia; ninguna
-modificación de producción.
+Diff resumido: 1 spec nuevo y artefactos de evidencia, con la corrección del
+recorte `wide-corridor`; ninguna modificación de producción.
 
 # Comandos y resultados
 
@@ -68,14 +90,20 @@ y lo cerró solo; no quedaron servidores en background.
 | `pnpm exec tsc --noEmit` | 130 s | OK | incluido en `verify-output.txt` |
 | `pnpm run test` | 120 s | 22 archivos, **238 tests OK** | `test-output.txt` |
 | `pnpm run verify` | 180 s | OK: docs:check (70 documentos, 11 tareas, 2 experimentos), config:check (3 agentes, 9 skills), 238 tests y build (43 módulos) | `verify-output.txt` |
-| `pnpm exec playwright test tests/e2e/generated-map-qa.spec.ts` | 240 s | **4 tests OK**, 5,9 s | `focused-e2e-output.txt` |
-| `pnpm run test:e2e` | 300 s | **16 tests OK**, 12,4 s | `e2e-output.txt` |
+| `pnpm exec playwright test tests/e2e/generated-map-qa.spec.ts` | 240 s | **4 tests OK**, 5,2 s | `focused-e2e-output.txt` |
+| `pnpm run test:e2e` | 300 s | **16 tests OK**, 10,5 s | `e2e-output.txt` |
 | `pnpm run build` | 120 s | OK dentro de `verify`, 43 módulos | `verify-output.txt` |
 
 La spec focalizada se ejecutó antes de la suite completa. Tras el E2E se
 restauraron con `git checkout --` las capturas históricas de TASK-0007
 (experimentos) y TASK-0010 que reescriben specs existentes; el cambio final no
 incluye esas modificaciones.
+
+Para la corrección de `wide-corridor.png` se repitieron `tsc --noEmit`, la spec
+focalizada y la suite E2E completa. No se repitió `pnpm run verify` porque el
+único cambio fue el spec y el informe; no se tocó producción. El
+`verify-output.txt` conserva la ejecución anterior, que sigue siendo válida para
+el código de producción.
 
 # Criterios de aceptación
 
@@ -87,7 +115,7 @@ incluye esas modificaciones.
 | Jugador en sala con salida; enemigo fuera del viewport inicial; cámara sigue y se limita | Cumple | Test 1: BFS 59 ≥ 12, sala del jugador con hueco y acceso estrecho, enemigo no intersecta viewport, cámara `(16,80)` con clamp 640; movimiento real actualiza cámara. Bordes completos en `frame-qa.spec.ts` |
 | `F1` muestra semilla, salas, huecos, spawns y anchura de pasillos; se puede ocultar | Cumple | Test 3: overlay visible con `Semilla: 279837264`, `Salas:`, `Huecos:`, `Spawns: …`, `Pasillos anchos: … 2 tiles`; al cerrar, oculto y snapshot idéntico |
 | Muros por borde en muestra y capturas, sin `wallSide2`, sin caras verticales fuera de sitio y sin huecos | Cumple | Test 2: 36 muros totalmente visibles (26 `wallTop`, 10 `wallSide1`), `wallTileFor` coincide con la regla y cada bloque 96×96 coincide píxel a píxel con el sprite esperado; capturas `wall-corner.png`, `map-debug-on/off.png` |
-| Pasillos anchos de 2 tiles sin puertas; cada sala conserva acceso estrecho con hueco | Cumple | Test 1: 1 pasillo `0→1` `width: 2`, `doorEligible: false`, path 26, tramo real independiente 8 (≥4), ningún hueco en la huella; cada sala con 1-3 huecos y ≥1 corredor `width: 1` |
+| Pasillos anchos de 2 tiles sin puertas; cada sala conserva acceso estrecho con hueco | Cumple | Test 1: 1 pasillo `0→1` `width: 2`, `doorEligible: false`, path 26, tramo real independiente 8 (≥4), ningún hueco en la huella; cada sala con 1-3 huecos y ≥1 corredor `width: 1`. Captura corregida con cámara `(0,208)`, centro `(2*32,16.5*32)` y `(1,16)`/`(2,16)` suelo entre muros `(0,16)`/`(3,16)` |
 | HUD, marco 16:9, ataque y feedback siguen funcionando | Cumple | Test 3 comprueba HUD 20/20, 6/6, Sí, Jugador, Turno 1, 10/10 y marco/canvas 16:9 con canvas interno 2048×1152; ataque/flash/daño y cuatro bordes siguen en `game-input-hud.spec.ts` y `frame-qa.spec.ts` de la suite completa |
 | Generación 32×32 <100 ms y E2E sin tirones | Cumple | `performance.txt`: generación mediana 3,90 ms, máximo 5,30 ms; frames p95 17,30 ms, máximo 17,70 ms |
 | Capturas en `artifacts/TASK-0011/attempt-1/screenshots/` | Cumple | `map-debug-on.png`, `map-debug-off.png`, `alternative-seed.png`, `wall-corner.png`, `wide-corridor.png` |
@@ -122,12 +150,12 @@ es la lectura literal del brief y resulta más estricta.
 
 | Métrica | Valor |
 |---|---:|
-| Semilla | `1712155153` |
+| Semilla | `3304860892` |
 | Salas | 9 |
 | Pasillos anchos | 1 |
 | Spawn jugador | `(6,6)` |
-| Spawn enemigo | `(18,27)` |
-| Distancia | 53 |
+| Spawn enemigo | `(28,4)` |
+| Distancia | 48 |
 | Cámara | `(16,16)` |
 | Grid | 32×32, 1024 tiles |
 
@@ -145,13 +173,13 @@ de 45 frames; la primera ventana fue válida y no hizo falta repetir.
 
 | Métrica | Valor | Umbral |
 |---|---:|---:|
-| Generación mínimo | 2,50 ms | — |
-| Generación mediana | 3,90 ms | <100 ms |
-| Generación p95 | 5,30 ms | — |
-| Generación máximo | 5,30 ms | <100 ms |
+| Generación mínimo | 3,40 ms | — |
+| Generación mediana | 4,70 ms | <100 ms |
+| Generación p95 | 8,70 ms | — |
+| Generación máximo | 8,70 ms | <100 ms |
 | Frames p50 | 16,70 ms | — |
 | Frames p95 | 17,30 ms | <50 ms |
-| Frames máximo | 17,70 ms | <100 ms |
+| Frames máximo | 17,40 ms | <100 ms |
 
 Valores completos en `performance.txt`. No se ocultó ningún pico: la ventana
 registrada es la única necesaria y se guardan todos los valores.
@@ -164,7 +192,11 @@ registrada es la única necesaria y se guardan todos los valores.
 - `screenshots/alternative-seed.png`: mapa tras `F2`, sin overlay, con HUD y
   encuadre 16:9.
 - `screenshots/wall-corner.png`: detalle de la esquina noroeste de la sala 0.
-- `screenshots/wide-corridor.png`: detalle del pasillo ancho de 2 tiles.
+- `screenshots/wide-corridor.png`: detalle del **tramo realmente ancho** de
+  `0→1`, con el jugador ya en `(3,12)` y cámara `(0,208)`. El recorte está
+  centrado en `(2*32, 16.5*32)` y cubre las dos columnas de suelo `(1,16)` y
+  `(2,16)`, con muro en `(0,16)` y `(3,16)`. La imagen muestra dos tiles de suelo
+  consecutivos entre los muros laterales; no es el tramo estrecho de `y≈8`.
 
 Qué debe mirar el usuario en el playtest: legibilidad de los muros (cara
 vertical solo donde hay suelo al sur, sin `wallSide2`), continuidad del pasillo
