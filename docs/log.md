@@ -2,6 +2,9 @@
 
 ## 2026-11-07
 
+* **Requirement**: Se aprueba `REQ-001` para el primer prototipo local: sala 32×24, un jugador, un enemigo, teclado, cámara y turnos con la economía provisional.
+* **Decision**: Se adopta el pack 32rogues como arte placeholder y se registra su licencia y crédito en ADR-006.
+* **Planning**: Se crean `TASK-0001` (motor), `TASK-0002` (host y cámara) y `TASK-0003` (teclado, HUD y E2E), secuenciales.
 * **Initialization**: Se crea el bundle OKF v0.2 con visión, alcance, glosario, arquitectura, calidad y arnés.
 * **Creation**: Se documentan los agentes `requirements-writer`, `task-lead` y `task-runner`.
 * **Creation**: Se añaden las skills de requisitos, tareas, experimentos, arquitectura y QA visual.

@@ -10,6 +10,12 @@ permissions:
     resource: "src/**"
     effect: allow
   - action: edit
+    resource: "public/**"
+    effect: allow
+  - action: edit
+    resource: "index.html"
+    effect: allow
+  - action: edit
     resource: "experiments/**"
     effect: allow
   - action: edit

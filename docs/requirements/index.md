@@ -1,12 +1,10 @@
 # Requisitos
 
-Todavía no hay hojas de requisitos aceptadas. La primera sesión de requisitos
-partirá de [la visión](../vision.md), [el alcance](../scope.md) y
-[la economía de turno provisional](../design/turn-economy.md).
+* [REQ-001 — Primer prototipo jugable local](REQ-001-primer-prototipo-local.md) - Una sala, un jugador, un enemigo, teclado, cámara y turnos con la economía provisional.
 
-Cuando exista una hoja, se creará aquí con el identificador `REQ-NNN` y se
-enlazará desde este índice. Las tareas deben apuntar a la hoja y a los
-identificadores de requisito concretos.
+Las tareas deben apuntar a la hoja y a los identificadores de requisito
+concretos. Cuando se cree una hoja nueva, se añadirá aquí con el identificador
+`REQ-NNN`.
 
 * [Plantilla de requisitos](../templates/requirement.md)
 * [Flujo de requisitos y experimentos](../harness/workflow.md)
