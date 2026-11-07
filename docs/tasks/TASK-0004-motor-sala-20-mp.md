@@ -4,22 +4,22 @@ id: TASK-0004
 title: "Motor: sala 20×20, MP 6/4 y posiciones iniciales"
 description: Ajusta el estado inicial del motor a la sala 20×20, 6 MP de jugador, 4 de enemigo y posiciones (4,4)/(15,15).
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-002
 requirement_ids: [R-008, R-009, R-011, T-004]
 depends_on: [TASK-0003]
 unlocks: [TASK-0005]
 created_at: 2026-11-07T17:10:00Z
-completed_at:
+completed_at: 2026-11-07T18:55:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0004/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:10:00Z }
-verified:
+verified: { by: task-lead, at: 2026-11-07T18:55:00Z }
 ---
 
 # Objetivo
@@ -39,19 +39,19 @@ cambiar las reglas de movimiento, combate, turnos ni IA.
 
 # Criterios de aceptación
 
-- [ ] `ROOM_WIDTH` y `ROOM_HEIGHT` valen 20 y la rejilla generada mide 20×20
+- [x] `ROOM_WIDTH` y `ROOM_HEIGHT` valen 20 y la rejilla generada mide 20×20
       con muros en el borde y suelo transitable dentro.
-- [ ] `INITIAL_PLAYER_POSITION` es (4,4) y `INITIAL_ENEMY_POSITION` es (15,15).
-- [ ] El jugador empieza con 6/6 MP y el enemigo con 4/4 MP.
-- [ ] Al empezar un turno se restauran 6 MP al jugador y 4 al enemigo.
-- [ ] El coste de movimiento sigue siendo 1 MP por casilla, también en diagonal,
+- [x] `INITIAL_PLAYER_POSITION` es (4,4) y `INITIAL_ENEMY_POSITION` es (15,15).
+- [x] El jugador empieza con 6/6 MP y el enemigo con 4/4 MP.
+- [x] Al empezar un turno se restauran 6 MP al jugador y 4 al enemigo.
+- [x] El coste de movimiento sigue siendo 1 MP por casilla, también en diagonal,
       sin corte de esquina.
-- [ ] La IA enemiga usa los 4 MP y sigue siendo determinista.
-- [ ] Vida y daño no cambian: jugador 20, enemigo 10, ataque 5, daño enemigo 3.
-- [ ] El estado sigue siendo serializable y `window.__game` no cambia de forma.
-- [ ] Los tests unitarios y de integración se actualizan a las nuevas
+- [x] La IA enemiga usa los 4 MP y sigue siendo determinista.
+- [x] Vida y daño no cambian: jugador 20, enemigo 10, ataque 5, daño enemigo 3.
+- [x] El estado sigue siendo serializable y `window.__game` no cambia de forma.
+- [x] Los tests unitarios y de integración se actualizan a las nuevas
       dimensiones y valores; no se borran, saltan ni debilitan tests.
-- [ ] `pnpm run verify` pasa.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 
@@ -73,9 +73,44 @@ cambiar las reglas de movimiento, combate, turnos ni IA.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0004/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0004/attempt-1/test-output.txt`
-- [ ] Commit SHA en la rama `task/TASK-0004`
+- [x] Informe en `artifacts/TASK-0004/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0004/attempt-1/test-output.txt`
+- [x] Commit SHA en la rama `task/TASK-0004`
+
+# Verificación
+
+- `task-lead` revisó el diff completo de `task/TASK-0004`: solo cambian dos
+  archivos de producción (`src/game/types.ts` y `src/game/engine.ts`) en
+  constantes de sala, MP y posiciones. `src/host/`, `docs/`, `index.html`,
+  configuración, dependencias y lockfile no cambian. Los tests del host solo se
+  actualizan donde dependían de las dimensiones, posiciones o MP iniciales.
+- `pnpm run verify` re-ejecutado de forma independiente: docs (46 documentos, 6
+  tareas), config, 107 tests y build OK.
+- `pnpm run test:e2e` re-ejecutado: 3 tests OK (render, loop de input/HUD y shell
+  de experimentos). Los puertos 4173 y 5173 quedaron libres.
+- Criterios comprobados: rejilla 20×20 con 400 tiles (18×18 de suelo), bordes en
+  (0,0)/(19,19), jugador (4,4) con 6/6 MP, enemigo (15,15) con 4/4 MP,
+  restauración 6/4 por turno, coste 1 MP también en diagonal, sin corte de
+  esquina, IA determinista con 4 MP, vida/daño 20/10 y 5/3, y estado
+  serializable con la misma forma de `window.__game`.
+- No se han borrado, saltado ni debilitado tests: 107 tests frente a 106 previos
+  (+1 de límites de la sala 20×20); sin `.skip`, `.todo` ni `.only`. Los
+  umbrales del renderer pasan de desigualdades a recuentos exactos (382 draws,
+  324 suelos, 56 muros) y la cámara conserva la cobertura de centrado/clamp con
+  un mundo sintético mayor, además de los límites reales de la sala.
+- Capturas revisadas: la sala muestra 20×20 con el jugador en (4,4); el HUD
+  muestra 6/6; el overlay de debug muestra (4,4), (15,15), MP 6/6 y límites de
+  cámara (0,40) con viewport 960×600.
+- La re-ejecución del E2E regenera capturas históricas de `TASK-0002` y
+  `TASK-0003`; se restauraron para no alterar sus artefactos. Las capturas de
+  esta tarea quedan en `artifacts/TASK-0004/attempt-1/screenshots/`.
+- Desviaciones menores aceptadas: se añadió `title`/`description` al frontmatter
+  del brief para que `docs:check` lo valide; el MP final de integración es 5
+  porque el escenario intercala `EndTurn` y restaura MP; `game-input-hud.spec.ts`
+  también se actualizó porque hardcodeaba spawn, MP y muro oeste.
+- Commit de implementación: `e8b56d3`. Commit de tests: `c72fcb2`. Último commit
+  de la rama: `f980d30`. Pendiente: `TASK-0005` (encuadre 16:9) y `TASK-0006`
+  (E2E/QA visual y playtest).
 
 # Restricciones
 

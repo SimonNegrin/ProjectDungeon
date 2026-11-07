@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+* **Task**: `TASK-0004` completada y verificada: motor con sala 20×20, jugador (4,4) con 6/6 MP, enemigo (15,15) con 4/4 MP, restauración 6/4 por turno y tests actualizados sin cambiar reglas ni tocar el host en producción. `pnpm run verify` (107 tests) y `pnpm run test:e2e` (3 tests) OK. Commit de implementación `e8b56d3`; evidencia en `artifacts/TASK-0004/attempt-1/`.
 * **Requirement**: El usuario aprueba `REQ-002` v2: sala 20×20, jugador (4,4) / enemigo (15,15), 6 MP de jugador y 4 de enemigo, HUD fuera del marco y render de respaldo 2048×1152 (3×) para 16:9 exacto.
 * **Task**: Se crean `TASK-0004` (motor: sala y MP), `TASK-0005` (host: encuadre 16:9 y viewport 12×12) y `TASK-0006` (E2E y QA visual), secuenciales.
 * **Design**: Se actualiza la economía de turno provisional con sala 20×20, posiciones iniciales, viewport 12×12 y MP 6/4.
