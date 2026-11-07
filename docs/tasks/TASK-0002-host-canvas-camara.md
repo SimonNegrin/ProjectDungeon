@@ -4,22 +4,22 @@ id: TASK-0002
 title: Host Canvas con sala, sprites y cámara
 description: Renderiza la sala y las entidades con Canvas 2D, cámara que sigue al jugador y sprites de 32rogues.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-001
 requirement_ids: [T-002, T-003, R-001, R-002, R-006, R-010]
 depends_on: [TASK-0001]
 unlocks: [TASK-0003]
 created_at: 2026-11-07T15:24:03Z
-completed_at:
+completed_at: 2026-11-07T15:44:34Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0002/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T15:24:03Z }
-verified:
+verified: { by: task-lead, at: 2026-11-07T15:44:34Z }
 ---
 
 # Objetivo
@@ -41,23 +41,23 @@ bordes del mapa. Todavía sin teclado ni HUD completo.
 
 # Criterios de aceptación
 
-- [ ] Existe una página de juego que arranca con `pnpm run dev` y muestra la
+- [x] Existe una página de juego que arranca con `pnpm run dev` y muestra la
       sala de 32×24 con tiles de 32 px.
-- [ ] El suelo y los muros usan los tiles de 32rogues; el borde del mapa está
+- [x] El suelo y los muros usan los tiles de 32rogues; el borde del mapa está
       cerrado por muros y no se puede atravesar.
-- [ ] El jugador se dibuja con el sprite del caballero y el enemigo con el del
+- [x] El jugador se dibuja con el sprite del caballero y el enemigo con el del
       goblin, centrados en su casilla y con escala nítida.
-- [ ] La cámara sigue al jugador y se limita a los bordes del mapa; la sala es
+- [x] La cámara sigue al jugador y se limita a los bordes del mapa; la sala es
       mayor que el viewport para que el desplazamiento sea observable.
-- [ ] El canvas se adapta al tamaño de la ventana sin deformar los tiles.
-- [ ] El render lee el estado del motor y no implementa reglas de movimiento,
+- [x] El canvas se adapta al tamaño de la ventana sin deformar los tiles.
+- [x] El render lee el estado del motor y no implementa reglas de movimiento,
       combate ni turnos.
-- [ ] El estado se expone en `window.__game` al menos con un snapshot
+- [x] El estado se expone en `window.__game` al menos con un snapshot
       serializable para depuración y tests visuales.
-- [ ] Los assets se cargan desde `public/assets/32rogues/` y la página funciona
+- [x] Los assets se cargan desde `public/assets/32rogues/` y la página funciona
       sin red.
-- [ ] `LICENSE.txt` y el crédito a Seth Boyles están presentes en los assets.
-- [ ] `pnpm run verify` y `pnpm run build` pasan; hay una captura de la sala.
+- [x] `LICENSE.txt` y el crédito a Seth Boyles están presentes en los assets.
+- [x] `pnpm run verify` y `pnpm run build` pasan; hay una captura de la sala.
 
 # Plan de test
 
@@ -81,10 +81,31 @@ bordes del mapa. Todavía sin teclado ni HUD completo.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0002/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0002/attempt-1/test-output.txt`
-- [ ] Captura en `artifacts/TASK-0002/attempt-1/screenshots/room.png`
-- [ ] Commit SHA en la rama `task/TASK-0002`
+- [x] Informe en `artifacts/TASK-0002/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0002/attempt-1/test-output.txt`
+- [x] Captura en `artifacts/TASK-0002/attempt-1/screenshots/room.png`
+- [x] Commit SHA en la rama `task/TASK-0002`
+
+# Verificación
+
+- `task-lead` revisó el diff completo de `task/TASK-0002`: solo `src/host/`,
+  `index.html`, `README.md`, tests nuevos y artefactos.
+- `pnpm run verify` re-ejecutado de forma independiente: docs, config, 68 tests
+  y build OK.
+- `pnpm run test:e2e` re-ejecutado: 2 tests OK (juego y shell de experimentos).
+- `pnpm run dev` comprobado en `127.0.0.1:5173`: `/`, `/experiments/` y
+  `/assets/32rogues/tiles.png` responden 200; el servidor se cerró al terminar.
+- Captura revisada en
+  `artifacts/TASK-0002/attempt-1/screenshots/room.png` (1280×720).
+- La captura inicial muestra al caballero; el goblin está fuera del viewport de
+  spawn y su recorte `(64,0,32,32)` se verifica con test unitario. Se verá al
+  mover al jugador en TASK-0003.
+- `src/game/`, `tests/unit/game/`, `experiments/`, `package.json`, lockfile y
+  configuración de Vite/Playwright/TS/Vitest sin cambios.
+- Sin tests existentes borrados, saltados o debilitados.
+- Commit de implementación: `317f0f02b9d0ea4de1fde22224d515e55e855914`.
+- Evidencia: `artifacts/TASK-0002/attempt-1/report.md`,
+  `test-output.txt` y `screenshots/room.png`.
 
 # Restricciones
 
