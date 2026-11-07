@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **6**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **7**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -10,6 +10,11 @@ Total: **6**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0004](TASK-0004-motor-sala-20-mp.md) | Motor: sala 20×20, MP 6/4 y posiciones iniciales | `done` | REQ-002 | TASK-0003 | P1 |
 | [TASK-0005](TASK-0005-host-encuadre-16-9.md) | Host: encuadre 16:9, render interno 3× y mapa 12×12 | `done` | REQ-002 | TASK-0004 | P1 |
 | [TASK-0006](TASK-0006-e2e-qa-visual-encuadre.md) | E2E y QA visual del encuadre 16:9 | `done` | REQ-002 | TASK-0005 | P1 |
+| [TASK-0007](TASK-0007-experimento-generador-mazmorra.md) | Experimento comparativo de generadores de mazmorra | `ready` | REQ-003 | TASK-0006 | P1 |
+
+# ready
+
+* [TASK-0007 — Experimento comparativo de generadores de mazmorra](TASK-0007-experimento-generador-mazmorra.md)
 
 # done
 

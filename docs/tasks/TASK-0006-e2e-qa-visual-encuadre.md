@@ -9,7 +9,7 @@ task_type: test
 requirement: REQ-002
 requirement_ids: [R-006, R-007, R-010, R-011, T-004]
 depends_on: [TASK-0005]
-unlocks: []
+unlocks: [TASK-0007]
 created_at: 2026-11-07T17:10:00Z
 completed_at: 2026-11-07T17:23:07Z
 assignee: task-runner
