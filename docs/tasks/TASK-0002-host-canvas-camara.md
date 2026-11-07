@@ -4,7 +4,7 @@ id: TASK-0002
 title: Host Canvas con sala, sprites y cámara
 description: Renderiza la sala y las entidades con Canvas 2D, cámara que sigue al jugador y sprites de 32rogues.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-001
 requirement_ids: [T-002, T-003, R-001, R-002, R-006, R-010]
