@@ -1,0 +1,17 @@
+# Rendimiento — TASK-0009
+
+- Entorno: Node v22.14.0, darwin arm64
+- Generador: BspMapGenerator, semilla 279837264, opciones 32×32 / 9 / 4 / 11 / 20, wide auto
+- Arranque en frío (1.ª generación): 7.16 ms
+- Calentamiento: 1 generación
+- Repeticiones medidas: 10
+- Mínimo: 2.92 ms
+- Mediana: 3.49 ms
+- Máximo: 6.34 ms
+- Umbral: <100 ms (mediana y máximo)
+
+Runs (ms): 6.34, 5.14, 5.10, 4.31, 3.36, 3.50, 3.48, 3.04, 2.92, 3.24
+
+
+## Suite de rendimiento (test unitario)
+[map-performance] seed=279837264 runs=2.09,2.30,2.15 median=2.15 max=2.30
