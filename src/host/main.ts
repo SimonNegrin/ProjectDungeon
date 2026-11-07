@@ -17,6 +17,7 @@ import {
   mapYToFramePercent,
 } from './layout';
 import { renderScene, type SceneAssets } from './renderer';
+import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
 
 const DAMAGE_FEEDBACK_MS = 1200;
@@ -154,9 +155,12 @@ async function boot(): Promise<void> {
   new ResizeObserver(applyPresentation).observe(stage);
 
   const viewport = MAP_VIEWPORT;
-  const session = new GameSession();
-  const world = gridPixelSize(session.state.grid, TILE_SIZE);
-  const bounds = cameraBounds(world, viewport);
+  const parsedSeed = parseSeedParam(window.location.search);
+  if (parsedSeed.warning) console.warn(parsedSeed.warning);
+
+  const session = new GameSession({ seed: parsedSeed.seed });
+  let world = gridPixelSize(session.state.grid, TILE_SIZE);
+  let bounds = cameraBounds(world, viewport);
   let camera = centerCameraOnTile(session.state.players[0], viewport, world, TILE_SIZE);
   let lastEvents: readonly GameEvent[] = [];
   let assets: SceneAssets | undefined;
@@ -167,6 +171,10 @@ async function boot(): Promise<void> {
 
   const render = (events: readonly GameEvent[] = []): void => {
     const state = session.state;
+    // El mapa puede cambiar de tamaño o de semilla: se recalcula siempre para
+    // que cámara y límites nunca queden obsoletos.
+    world = gridPixelSize(state.grid, TILE_SIZE);
+    bounds = cameraBounds(world, viewport);
     camera = centerCameraOnTile(state.players[0], viewport, world, TILE_SIZE);
     if (assets) {
       renderScene(ctx, state, assets, camera, viewport, TILE_SIZE);
@@ -188,6 +196,14 @@ async function boot(): Promise<void> {
 
     render(result.events);
     return result;
+  };
+
+  /** `F2`: semilla nueva en el host, sin tocar el motor ni cerrar el debug. */
+  const regenerate = (): void => {
+    session.regenerate(nextSeed(session.seed));
+    lastEvents = [];
+    feedbackView.clear();
+    render([]);
   };
 
   try {
@@ -225,6 +241,10 @@ async function boot(): Promise<void> {
     const intent = translateKey(event, session.state);
     if (intent.type === 'toggle-debug') {
       debugView.toggle();
+      return;
+    }
+    if (intent.type === 'new-seed') {
+      regenerate();
       return;
     }
     if (intent.type === 'command') {

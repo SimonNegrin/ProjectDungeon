@@ -1,8 +1,9 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { approachEnemy } from './support';
 
-const SCREENSHOTS = 'artifacts/TASK-0003/attempt-1/screenshots';
+const SCREENSHOTS = 'artifacts/TASK-0010/attempt-1/screenshots';
 
 async function snapshot(page: Page) {
   return page.evaluate(() => window.__game!.snapshot());
@@ -42,49 +43,6 @@ async function expectHud(
   }
 }
 
-/**
- * Acerca al jugador al enemigo con comandos reales (una casilla por `Move` y
- * `EndTurn` cuando no quedan MP). No inyecta estados ni teletransporta.
- */
-async function approachEnemy(page: Page): Promise<void> {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    const done = await page.evaluate(() => {
-      const game = window.__game!;
-      const snap = game.snapshot();
-      const player = snap.players[0];
-      const enemy = snap.enemies[0];
-      if (snap.status !== 'playing') return true;
-
-      const distance = Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y));
-      if (distance <= 1) return true;
-
-      if (player.mp <= 0) {
-        game.dispatch({ type: 'EndTurn' });
-        return false;
-      }
-
-      const dx = Math.sign(enemy.x - player.x);
-      const dy = Math.sign(enemy.y - player.y);
-      for (const [mx, my] of [
-        [dx, dy],
-        [dx, 0],
-        [0, dy],
-      ] as const) {
-        if (mx === 0 && my === 0) continue;
-        const result = game.dispatch({ type: 'Move', unitId: player.id, dx: mx, dy: my });
-        if (!result.events.some((event) => event.type === 'CommandRejected')) return false;
-      }
-
-      game.dispatch({ type: 'EndTurn' });
-      return false;
-    });
-
-    if (done) return;
-  }
-
-  throw new Error('No se alcanzó la adyacencia con el enemigo en 60 intentos.');
-}
-
 test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async ({
   page,
 }, testInfo) => {
@@ -95,10 +53,14 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/');
+  await page.goto('/?seed=279837264');
   await page.waitForFunction(
     () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
   );
+
+  const start = await snapshot(page);
+  expect(start.seed).toBe(279837264);
+  expect(start.players[0]).toMatchObject({ x: 6, y: 8 });
 
   // HUD inicial y ayuda de teclas.
   await expect(page.getByTestId('hud')).toBeVisible();
@@ -260,7 +222,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await page.keyboard.press('r');
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 4, y: 4 });
+  expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
@@ -269,10 +231,15 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const debugText = await page.getByTestId('debug-content').textContent();
-  expect(debugText).toContain('Jugador: (4, 4)');
+  expect(debugText).toContain('Jugador: (6, 8)');
   expect(debugText).toContain('MP 6/6');
   expect(debugText).toContain('Fase: Jugador');
-  expect(debugText).toContain('Semilla: n/a (determinista)');
+  expect(debugText).toContain('Semilla: 279837264');
+  expect(debugText).toContain('Salas:');
+  expect(debugText).toContain('Huecos:');
+  expect(debugText).toContain('Spawns: jugador (6,8) · enemigo (23,28)');
+  expect(debugText).toContain('Pasillos anchos:');
+  expect(debugText).toContain('F2 nueva semilla');
   await screenshot(page, 'debug', testInfo);
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
@@ -309,9 +276,24 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     .click();
   const afterDefeatRestart = await snapshot(page);
   expect(afterDefeatRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 4, y: 4 });
+  expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
+
+  // F2 genera una semilla nueva y regenera el mapa sin cerrar el debug.
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const beforeSeed = (await snapshot(page)).seed;
+  await page.keyboard.press('F2');
+  const afterF2 = await snapshot(page);
+  expect(afterF2.seed).not.toBe(beforeSeed);
+  expect(afterF2.turn).toBe(1);
+  expect(afterF2.status).toBe('playing');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const afterF2Debug = await page.getByTestId('debug-content').textContent();
+  expect(afterF2Debug).toContain(`Semilla: ${afterF2.seed}`);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   expect(consoleErrors).toEqual([]);
 });

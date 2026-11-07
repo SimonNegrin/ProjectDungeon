@@ -1,11 +1,12 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import type { Command, Unit } from '../../src/game/types';
+import type { Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
+import { endTurn, restart, snapshot, walkTo, approachEnemy } from './support';
 
 const CANVAS_ID = '#game-canvas';
-const SCREENSHOTS_DIR = 'artifacts/TASK-0006/attempt-1/screenshots';
+const SCREENSHOTS_DIR = 'artifacts/TASK-0010/attempt-1/screenshots';
 
 /** Valores del contrato aprobado en REQ-002 (no se leen de producción). */
 const TILE_SIZE = 32;
@@ -142,35 +143,6 @@ function watchConsole(page: Page): string[] {
   });
   page.on('pageerror', (error) => errors.push(error.message));
   return errors;
-}
-
-async function snapshot(page: Page): Promise<GameSnapshot> {
-  return page.evaluate(() => window.__game!.snapshot());
-}
-
-async function dispatchCommand(page: Page, command: Command) {
-  return page.evaluate((cmd) => window.__game!.dispatch(cmd), command);
-}
-
-/** Ejecuta un comando y falla si el motor lo rechaza (evita rutas bloqueadas). */
-async function dispatchAccepted(page: Page, command: Command): Promise<void> {
-  const result = await dispatchCommand(page, command);
-  expect(
-    result.events.filter((event) => event.type === 'CommandRejected'),
-    `El comando ${command.type} debe ser aceptado`,
-  ).toEqual([]);
-}
-
-async function move(page: Page, dx: number, dy: number): Promise<void> {
-  await dispatchAccepted(page, { type: 'Move', unitId: 'player-1', dx, dy });
-}
-
-async function endTurn(page: Page): Promise<void> {
-  await dispatchAccepted(page, { type: 'EndTurn' });
-}
-
-async function restart(page: Page): Promise<void> {
-  await dispatchAccepted(page, { type: 'Restart' });
 }
 
 async function measureLayout(page: Page): Promise<LayoutMeasurement> {
@@ -435,11 +407,15 @@ test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
       expect(snap.viewport.width * 3).toBe(MAP_BACKING_SIZE);
       expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(SIDE_BACKING);
 
-      // 12 columnas y 12 filas visibles en el arranque.
+      // El viewport cubre 12×12 tiles. La cámara inicial (16,80) no cae en un
+      // borde de tile, así que el rango intersectado incluye 13 columnas/filas
+      // con un fragmento parcial en cada extremo.
       const range = visibleTileRange(snap);
-      expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
-      expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
-      expect(range).toEqual({ minX: 0, minY: 0, maxX: 11, maxY: 11 });
+      expect(snap.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+      expect(range).toEqual({ minX: 0, minY: 2, maxX: 12, maxY: 14 });
+      expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS + 1);
+      expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS + 1);
+      expect(snap.viewport.width / TILE_SIZE).toBe(TILES_PER_AXIS);
 
       // Pixel art nítido y sin suavizado.
       expect(layout.imageRendering).toBe('pixelated');
@@ -532,27 +508,25 @@ test('el canvas interno 2048×1152 no cambia al redimensionar', async ({ page })
   expect(consoleErrors).toEqual([]);
 });
 
-test('la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes', async ({
+test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page, 1280, 720);
 
-  // Arranque: cámara en (0,0) y jugador en (4,4), centrado salvo clamp.
+  // Arranque: spawn (6,8) del mapa generado y cámara centrada en él.
   const initial = await snapshot(page);
-  expect(initial.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
-  expect(initial.players[0]).toMatchObject({ x: 4, y: 4, mp: 6, hp: 20 });
+  expect(initial.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+  expect(initial.players[0]).toMatchObject({ x: 6, y: 8, mp: 6, hp: 20 });
   expect(initial.camera.x).toBe(expectedCamera(initial).x);
   expect(initial.camera.y).toBe(expectedCamera(initial).y);
   expectPlayerVisible(initial, 'en el arranque');
 
   // Lejos de los bordes: el jugador queda centrado en el viewport (±1 px).
-  await restart(page);
-  for (let step = 0; step < 3; step += 1) {
-    await move(page, 1, 1);
-  }
+  await walkTo(page, 9, 11);
   const centered = await snapshot(page);
-  expect(centered.players[0]).toMatchObject({ x: 7, y: 7 });
+  expect(centered.players[0]).toMatchObject({ x: 9, y: 11 });
+  expect(centered.camera).toEqual({ x: 112, y: 176, maxX: 640, maxY: 640 });
   expect(centered.camera.x).toBeGreaterThan(0);
   expect(centered.camera.y).toBeGreaterThan(0);
   expect(centered.camera.x).toBeLessThan(centered.camera.maxX);
@@ -574,143 +548,84 @@ test('la cámara centra al jugador lejos de los bordes y se detiene en los cuatr
     PX_TOLERANCE,
   );
 
-  // Borde noroeste: la cámara ya está en (0,0) y el jugador sigue visible.
+  // Borde noroeste: cámara (0,0) en la sala 0.
   await restart(page);
-  for (let step = 0; step < 3; step += 1) {
-    await move(page, -1, -1);
-  }
+  await walkTo(page, 3, 5);
   const northWest = await snapshot(page);
-  expect(northWest.players[0]).toMatchObject({ x: 1, y: 1 });
+  expect(northWest.players[0]).toMatchObject({ x: 3, y: 5 });
   expect(northWest.camera).toMatchObject({ x: 0, y: 0 });
   expectPlayerVisible(northWest, 'en el borde noroeste');
 
-  // Borde noreste: (256,0).
+  // Borde noreste: cámara (640,0) en la sala 6.
   await restart(page);
-  for (let step = 0; step < 6; step += 1) {
-    await move(page, 1, 0);
-  }
-  await endTurn(page);
-  for (let step = 0; step < 4; step += 1) {
-    await move(page, 1, 0);
-  }
+  await walkTo(page, 28, 5);
   const northEast = await snapshot(page);
-  expect(northEast.players[0]).toMatchObject({ x: 14, y: 4 });
-  expect(northEast.camera).toMatchObject({ x: 256, y: 0 });
+  expect(northEast.players[0]).toMatchObject({ x: 28, y: 5 });
+  expect(northEast.camera).toMatchObject({ x: 640, y: 0 });
   expectPlayerVisible(northEast, 'en el borde noreste');
 
-  // Borde suroeste: (0,256).
+  // Borde suroeste: cámara (0,640) en la sala 1.
   await restart(page);
-  for (let step = 0; step < 6; step += 1) {
-    await move(page, 0, 1);
-  }
-  await endTurn(page);
-  for (let step = 0; step < 4; step += 1) {
-    await move(page, 0, 1);
-  }
+  await walkTo(page, 3, 27);
   const southWest = await snapshot(page);
-  expect(southWest.players[0]).toMatchObject({ x: 4, y: 14 });
-  expect(southWest.camera).toMatchObject({ x: 0, y: 256 });
+  expect(southWest.players[0]).toMatchObject({ x: 3, y: 27 });
+  expect(southWest.camera).toMatchObject({ x: 0, y: 640 });
   expectPlayerVisible(southWest, 'en el borde suroeste');
 
-  // Borde sureste: (256,256). El enemigo acaba en (14,14), así que se rodea.
+  // Borde este: cámara (640,336) en la sala 7. El mapa generado coloca al
+  // enemigo en la sala 8, así que la esquina sureste exacta exigiría entrar en
+  // su sala y alterar la partida; se comprueba el clamp este con una ruta real
+  // y el clamp sur en la ruta suroeste.
   await restart(page);
-  for (let step = 0; step < 6; step += 1) {
-    await move(page, 1, 1);
-  }
-  await endTurn(page);
-  for (const [dx, dy] of [
-    [1, 0],
-    [1, 0],
-    [1, 1],
-    [1, 1],
-    [1, 1],
-    [1, 1],
-  ] as const) {
-    await move(page, dx, dy);
-  }
+  await walkTo(page, 28, 16);
   const southEast = await snapshot(page);
-  expect(southEast.players[0]).toMatchObject({ x: 16, y: 14 });
-  expect(southEast.camera).toMatchObject({ x: 256, y: 256 });
-  expectPlayerVisible(southEast, 'en el borde sureste');
+  expect(southEast.players[0]).toMatchObject({ x: 28, y: 16 });
+  expect(southEast.camera).toMatchObject({ x: 640, y: 336 });
+  expect(southEast.camera.x).toBe(southEast.camera.maxX);
+  expectPlayerVisible(southEast, 'en el borde este');
 
   await screenshot(page, 'camera-edge', testInfo);
 
   expect(consoleErrors).toEqual([]);
 });
 
-test('el enemigo no se ve al arrancar y aparece en un máximo de dos turnos', async ({ page }) => {
+test('el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport', async ({
+  page,
+}) => {
   const consoleErrors = watchConsole(page);
   await openGame(page, 1280, 720);
 
   const initial = await snapshot(page);
-  expect(initial.enemies[0]).toMatchObject({ x: 15, y: 15 });
+  expect(initial.enemies[0]).toMatchObject({ x: 23, y: 28 });
+  expect(initial.spawns?.distance).toBe(59);
+  expect(initial.spawns?.distance).toBeGreaterThanOrEqual(12);
   expect(enemyVisible(initial), 'El enemigo no debe verse al arrancar').toBe(false);
+  expectPlayerVisible(initial, 'en el arranque');
 
-  // Turno 1: seis movimientos diagonales hacia el enemigo, sin teletransportar.
-  for (let step = 0; step < 6; step += 1) {
-    await move(page, 1, 1);
-  }
+  // Tres pasos reales hacia la salida de la sala 0: la cámara sigue al jugador
+  // y el enemigo sigue fuera porque la distancia de camino es 59 tiles.
+  await walkTo(page, 9, 11);
   const afterMoves = await snapshot(page);
-  expect(afterMoves.players[0]).toMatchObject({ x: 10, y: 10, mp: 0 });
-  expect(enemyVisible(afterMoves), 'El enemigo debe aparecer en el turno 1').toBe(true);
+  expect(afterMoves.players[0]).toMatchObject({ x: 9, y: 11 });
+  expect(afterMoves.camera).toEqual({ x: 112, y: 176, maxX: 640, maxY: 640 });
+  expect(enemyVisible(afterMoves), 'El enemigo debe seguir fuera del viewport').toBe(false);
+  expectPlayerVisible(afterMoves, 'tras moverse');
 
-  // La fase enemiga lo acerca y la intersección con cámara/viewport se mantiene.
+  // La fase enemiga lo acerca un tile, pero sigue lejos del viewport 12×12.
   await endTurn(page);
   const afterEnemyPhase = await snapshot(page);
-  expect(afterEnemyPhase.turn).toBe(2);
+  expect(afterEnemyPhase.turn).toBe(initial.turn + 1);
   expect(afterEnemyPhase.phase).toBe('player');
-  expect(afterEnemyPhase.enemies[0]).not.toMatchObject({ x: 15, y: 15 });
-  expect(enemyVisible(afterEnemyPhase), 'El enemigo debe seguir visible tras su fase').toBe(true);
-
-  // Se ha usado exactamente un turno para verlo (el máximo permitido es 2).
-  expect(afterEnemyPhase.turn - initial.turn).toBeLessThanOrEqual(2);
+  expect(afterEnemyPhase.enemies[0]).not.toMatchObject({ x: 23, y: 28 });
+  const chebyshev = Math.max(
+    Math.abs(afterEnemyPhase.players[0].x - afterEnemyPhase.enemies[0].x),
+    Math.abs(afterEnemyPhase.players[0].y - afterEnemyPhase.enemies[0].y),
+  );
+  expect(chebyshev).toBeGreaterThan(TILES_PER_AXIS);
+  expect(enemyVisible(afterEnemyPhase), 'El enemigo debe seguir fuera del viewport').toBe(false);
 
   expect(consoleErrors).toEqual([]);
 });
-
-/**
- * Acerca al jugador al enemigo con comandos reales (una casilla por `Move` y
- * `EndTurn` cuando no quedan MP). No inyecta estados ni teletransporta.
- * Mismo enfoque determinista que `tests/e2e/game-input-hud.spec.ts`.
- */
-async function approachEnemy(page: Page): Promise<void> {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    const done = await page.evaluate(() => {
-      const game = window.__game!;
-      const snap = game.snapshot();
-      const player = snap.players[0];
-      const enemy = snap.enemies[0];
-      if (snap.status !== 'playing') return true;
-
-      const distance = Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y));
-      if (distance <= 1) return true;
-
-      if (player.mp <= 0) {
-        game.dispatch({ type: 'EndTurn' });
-        return false;
-      }
-
-      const dx = Math.sign(enemy.x - player.x);
-      const dy = Math.sign(enemy.y - player.y);
-      for (const [mx, my] of [
-        [dx, dy],
-        [dx, 0],
-        [0, dy],
-      ] as const) {
-        if (mx === 0 && my === 0) continue;
-        const result = game.dispatch({ type: 'Move', unitId: player.id, dx: mx, dy: my });
-        if (!result.events.some((event) => event.type === 'CommandRejected')) return false;
-      }
-
-      game.dispatch({ type: 'EndTurn' });
-      return false;
-    });
-
-    if (done) return;
-  }
-
-  throw new Error('No se alcanzó la adyacencia con el enemigo en 60 intentos.');
-}
 
 test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño', async ({
   page,

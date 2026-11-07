@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { translateKey, type InputIntent } from '../../../src/host/input';
+import { isManagedKey, translateKey, type InputIntent } from '../../../src/host/input';
 import { makeState, makeUnit } from '../game/helpers';
 
 function adjacentState() {
@@ -66,18 +66,23 @@ describe('mapeo de teclado a comandos', () => {
     });
   });
 
-  it('E, R y F1 producen fin de turno, reinicio y toggle de debug', () => {
+  it('E, R, F1 y F2 producen fin de turno, reinicio, debug y semilla nueva', () => {
     const state = makeState();
 
     expectCommand(translateKey({ key: 'e' }, state), { type: 'EndTurn' });
     expectCommand(translateKey({ key: 'R' }, state), { type: 'Restart' });
     expect(translateKey({ key: 'F1' }, state)).toEqual({ type: 'toggle-debug' });
+    expect(translateKey({ key: 'F2' }, state)).toEqual({ type: 'new-seed' });
   });
 
   it('ignora repeticiones y modificadores', () => {
     const state = makeState();
 
     expect(translateKey({ key: 'd', repeat: true }, state)).toEqual({
+      type: 'ignored',
+      reason: 'repeat',
+    });
+    expect(translateKey({ key: 'F2', repeat: true }, state)).toEqual({
       type: 'ignored',
       reason: 'repeat',
     });
@@ -90,7 +95,7 @@ describe('mapeo de teclado a comandos', () => {
     }
   });
 
-  it('con la partida terminada solo reaccionan R y F1', () => {
+  it('con la partida terminada solo reaccionan R, F1 y F2', () => {
     const state = makeState({ status: 'victory' });
 
     for (const key of ['w', ' ', 'Enter', 'e']) {
@@ -101,6 +106,7 @@ describe('mapeo de teclado a comandos', () => {
     }
     expectCommand(translateKey({ key: 'r' }, state), { type: 'Restart' });
     expect(translateKey({ key: 'F1' }, state)).toEqual({ type: 'toggle-debug' });
+    expect(translateKey({ key: 'F2' }, state)).toEqual({ type: 'new-seed' });
   });
 
   it('en fase enemiga no se mueve ni ataca ni termina turno', () => {
@@ -120,5 +126,11 @@ describe('mapeo de teclado a comandos', () => {
       type: 'ignored',
       reason: 'unmapped',
     });
+  });
+
+  it('bloquea el comportamiento del navegador con F1 y F2', () => {
+    expect(isManagedKey('F1')).toBe(true);
+    expect(isManagedKey('f2')).toBe(true);
+    expect(isManagedKey('q')).toBe(false);
   });
 });

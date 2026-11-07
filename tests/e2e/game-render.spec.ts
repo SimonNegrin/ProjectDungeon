@@ -28,7 +28,7 @@ async function expectCanvasAspect(page: Page, viewportWidth: number, viewportHei
   expect(box.height).toBeLessThanOrEqual(viewportHeight);
 }
 
-test('la página de juego renderiza la sala, expone el snapshot y limita la cámara', async ({
+test('la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara', async ({
   page,
 }, testInfo) => {
   const consoleErrors: string[] = [];
@@ -37,17 +37,28 @@ test('la página de juego renderiza la sala, expone el snapshot y limita la cám
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  await page.goto('/');
+  await page.goto('/?seed=279837264');
   await page.waitForFunction(() => Boolean(window.__game));
 
   const snapshot = await page.evaluate(() => window.__game!.snapshot());
 
-  expect(snapshot.grid.width).toBe(20);
-  expect(snapshot.grid.height).toBe(20);
-  expect(snapshot.grid.tiles).toHaveLength(20 * 20);
+  expect(snapshot.grid.width).toBe(32);
+  expect(snapshot.grid.height).toBe(32);
+  expect(snapshot.grid.tiles).toHaveLength(32 * 32);
+  expect(snapshot.seed).toBe(279837264);
+  expect(snapshot.rooms).toHaveLength(9);
+  expect(snapshot.corridors).toHaveLength(10);
+  expect(snapshot.doors).toHaveLength(18);
+  expect(snapshot.spawns).toEqual({
+    player: { x: 6, y: 8 },
+    enemy: { x: 23, y: 28 },
+    distance: 59,
+  });
   expect(snapshot.tileSize).toBe(32);
   expect(snapshot.players.map((unit) => unit.id)).toEqual(['player-1']);
   expect(snapshot.enemies.map((unit) => unit.id)).toEqual(['enemy-1']);
+  expect(snapshot.players[0]).toMatchObject({ x: 6, y: 8 });
+  expect(snapshot.enemies[0]).toMatchObject({ x: 23, y: 28 });
   expect(snapshot.phase).toBe('player');
   expect(snapshot.status).toBe('playing');
   expect(snapshot.turn).toBe(1);
@@ -56,16 +67,21 @@ test('la página de juego renderiza la sala, expone el snapshot y limita la cám
   expect(snapshot.viewport).toEqual({ width: 384, height: 384 });
   expect(snapshot.viewport.width / snapshot.tileSize).toBe(12);
   expect(snapshot.viewport.height / snapshot.tileSize).toBe(12);
-  expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
+  expect(snapshot.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
   expect(snapshot.camera.x).toBeGreaterThanOrEqual(0);
   expect(snapshot.camera.x).toBeLessThanOrEqual(snapshot.camera.maxX);
   expect(snapshot.camera.y).toBeGreaterThanOrEqual(0);
   expect(snapshot.camera.y).toBeLessThanOrEqual(snapshot.camera.maxY);
   expect(() => JSON.stringify(snapshot)).not.toThrow();
+  expect(JSON.parse(JSON.stringify(snapshot)).spawns).toEqual(snapshot.spawns);
 
-  // El enemigo en (15,15) empieza fuera del viewport de 384 px.
-  expect(snapshot.enemies[0].x * snapshot.tileSize).toBeGreaterThan(snapshot.viewport.width);
-  expect(snapshot.enemies[0].y * snapshot.tileSize).toBeGreaterThan(snapshot.viewport.height);
+  // El enemigo en (23,28) empieza fuera del viewport de 384 px.
+  expect(snapshot.enemies[0].x * snapshot.tileSize).toBeGreaterThan(
+    snapshot.camera.x + snapshot.viewport.width,
+  );
+  expect(snapshot.enemies[0].y * snapshot.tileSize).toBeGreaterThan(
+    snapshot.camera.y + snapshot.viewport.height,
+  );
 
   const canvas = page.locator(CANVAS_ID);
   await expect(canvas).toBeVisible();
@@ -124,7 +140,7 @@ test('la página de juego renderiza la sala, expone el snapshot y limita la cám
   await page.setViewportSize({ width: 1280, height: 720 });
   await settleLayout(page);
 
-  const screenshotPath = 'artifacts/TASK-0005/attempt-1/screenshots/frame.png';
+  const screenshotPath = 'artifacts/TASK-0010/attempt-1/screenshots/frame.png';
   await mkdir(dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath });
   await testInfo.attach('frame', { path: screenshotPath, contentType: 'image/png' });

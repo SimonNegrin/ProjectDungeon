@@ -111,6 +111,51 @@ describe('sesión de juego', () => {
     expect(session.state).toEqual(createInitialState());
   });
 
+  it('arranca con la semilla y los spawns del mapa generado', () => {
+    const session = new GameSession({ seed: 279837264 });
+
+    expect(session.seed).toBe(279837264);
+    expect(session.state.grid).toMatchObject({ width: 32, height: 32 });
+    expect(session.state.map?.seed).toBe(279837264);
+    expect(session.state.players[0]).toMatchObject({ x: 6, y: 8 });
+    expect(session.state.enemies[0]).toMatchObject({ x: 23, y: 28 });
+  });
+
+  it('R conserva la semilla y reconstruye exactamente el mismo mapa', () => {
+    const session = new GameSession({ seed: 279837264 });
+    const mapBefore = JSON.parse(JSON.stringify(session.state.map));
+
+    session.dispatch(commandFromKey('d', session));
+    const result = session.dispatch({ type: 'Restart' });
+
+    expect(result.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(session.seed).toBe(279837264);
+    expect(JSON.parse(JSON.stringify(session.state.map))).toEqual(mapBefore);
+    expect(session.state.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
+  });
+
+  it('regenerate cambia la semilla y el mapa manteniendo el camino de la sesión', () => {
+    const session = new GameSession({ seed: 279837264 });
+    const before = JSON.parse(JSON.stringify(session.state.map));
+
+    session.regenerate(123456789);
+
+    expect(session.seed).toBe(123456789);
+    expect(session.state.map?.seed).toBe(123456789);
+    expect(JSON.parse(JSON.stringify(session.state.map))).not.toEqual(before);
+    expect(session.state.turn).toBe(1);
+    expect(session.state.status).toBe('playing');
+  });
+
+  it('una sesión manual sin mapa sigue reiniciando al estado por defecto', () => {
+    const session = new GameSession(makeState());
+    session.dispatch(commandFromKey('d', session));
+
+    session.dispatch({ type: 'Restart' });
+
+    expect(session.state).toEqual(createInitialState());
+  });
+
   it('un comando rechazado no muta el estado ni lanza', () => {
     const session = new GameSession(makeState());
     const before = session.state;

@@ -30,6 +30,36 @@ function setup() {
   return api;
 }
 
+function generatedSetup() {
+  const session = new GameSession({ seed: 279837264 });
+  let camera: Camera = { x: 16, y: 80 };
+  let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
+
+  const api = createDebugApi(
+    () => ({
+      state: session.state,
+      camera,
+      bounds: { maxX: 640, maxY: 640 },
+      viewport: { width: 384, height: 384 },
+      tileSize: 32,
+      assetsLoaded: true,
+      lastEvents,
+    }),
+    (command) => {
+      const result = session.dispatch(command);
+      lastEvents = result.events;
+      const player = result.state.players[0];
+      camera = {
+        x: Math.max(0, Math.round((player.x + 0.5) * 32 - 192)),
+        y: Math.max(0, Math.round((player.y + 0.5) * 32 - 192)),
+      };
+      return result;
+    },
+  );
+
+  return api;
+}
+
 describe('API de debug window.__game', () => {
   it('expone un snapshot serializable con cámara, viewport y últimos eventos', () => {
     const api = setup();
@@ -38,6 +68,11 @@ describe('API de debug window.__game', () => {
 
     expect(snapshot.players[0]).toMatchObject({ id: 'player-1', x: 4, y: 4 });
     expect(snapshot.enemies[0]).toMatchObject({ id: 'enemy-1', x: 15, y: 15 });
+    expect(snapshot.seed).toBeNull();
+    expect(snapshot.rooms).toEqual([]);
+    expect(snapshot.corridors).toEqual([]);
+    expect(snapshot.doors).toEqual([]);
+    expect(snapshot.spawns).toBeNull();
     expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
     expect(snapshot.viewport).toEqual({ width: 384, height: 384 });
     expect(snapshot.tileSize).toBe(32);
@@ -89,5 +124,70 @@ describe('API de debug window.__game', () => {
     mutable.x = 999;
 
     expect(api.snapshot().players[0].x).toBe(4);
+  });
+});
+
+describe('snapshot del mapa generado', () => {
+  it('expone semilla, salas, corredores, huecos y spawns', () => {
+    const api = generatedSetup();
+
+    const snapshot = api.snapshot();
+
+    expect(snapshot.seed).toBe(279837264);
+    expect(snapshot.grid).toMatchObject({ width: 32, height: 32 });
+    expect(snapshot.grid.tiles).toHaveLength(32 * 32);
+    expect(snapshot.rooms).toHaveLength(9);
+    expect(snapshot.corridors).toHaveLength(10);
+    expect(snapshot.doors).toHaveLength(18);
+    expect(snapshot.spawns).toEqual({
+      player: { x: 6, y: 8 },
+      enemy: { x: 23, y: 28 },
+      distance: 59,
+    });
+    expect(snapshot.rooms[0]).toMatchObject({ id: 0, x: 3, y: 4, width: 7, height: 9, role: 'large' });
+    expect(snapshot.corridors.some((corridor) => corridor.width === 2)).toBe(true);
+    expect(snapshot.doors.every((door) => door.orientation === 'horizontal' || door.orientation === 'vertical')).toBe(
+      true,
+    );
+  });
+
+  it('el snapshot completo sobrevive a un round-trip JSON', () => {
+    const api = generatedSetup();
+    const snapshot = api.snapshot();
+
+    const roundTrip = JSON.parse(JSON.stringify(snapshot));
+
+    expect(roundTrip.seed).toBe(snapshot.seed);
+    expect(roundTrip.rooms).toEqual(snapshot.rooms);
+    expect(roundTrip.corridors).toEqual(snapshot.corridors);
+    expect(roundTrip.doors).toEqual(snapshot.doors);
+    expect(roundTrip.spawns).toEqual(snapshot.spawns);
+    expect(roundTrip.grid.tiles).toEqual(snapshot.grid.tiles);
+  });
+
+  it('no expone el mapa vivo: mutar salas o spawns del snapshot no lo altera', () => {
+    const api = generatedSetup();
+    const snapshot = api.snapshot();
+
+    (snapshot.rooms[0] as { x: number }).x = 999;
+    (snapshot.spawns!.player as { x: number }).x = 999;
+    (snapshot.corridors[0].path[0] as { x: number }).x = 999;
+
+    const fresh = api.snapshot();
+    expect(fresh.rooms[0].x).toBe(3);
+    expect(fresh.spawns?.player.x).toBe(6);
+    expect(fresh.corridors[0].path[0].x).toBe(4);
+  });
+
+  it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {
+    const api = generatedSetup();
+    const before = api.snapshot();
+
+    const result = api.dispatch({ type: 'Restart' });
+
+    expect(result.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(result.snapshot.seed).toBe(before.seed);
+    expect(result.snapshot.rooms).toEqual(before.rooms);
+    expect(result.snapshot.spawns).toEqual(before.spawns);
   });
 });

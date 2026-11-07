@@ -1,4 +1,11 @@
 import type { GameEvent, GameState, Unit } from '../game/types';
+import {
+  pathLength,
+  wideCorridorStretch,
+  type Corridor,
+  type Door,
+  type Room,
+} from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { Viewport } from './geometry';
 
@@ -102,6 +109,46 @@ function formatEventSummary(events: readonly GameEvent[]): string {
   return events.slice(-8).map(eventLabel).join(' · ');
 }
 
+function roomLabel(room: Room): string {
+  return `${room.id} (${room.x},${room.y}) ${room.width}×${room.height} ${room.role}`;
+}
+
+function doorLabel(door: Door): string {
+  return `(${door.x},${door.y}) ${door.orientation} sala ${door.roomId}`;
+}
+
+function wideCorridorLabel(map: NonNullable<GameState['map']>, corridor: Corridor): string {
+  const length = pathLength(corridor.path);
+  const lane = wideCorridorStretch(map, corridor);
+  return `${corridor.fromRoomId}→${corridor.toRoomId} ${corridor.width} tiles · ${length} tiles · carril ${lane}`;
+}
+
+function mapDebugLines(state: GameState): readonly string[] {
+  const map = state.map;
+  if (!map) {
+    return [
+      'Semilla: n/a (determinista)',
+      'Salas: n/a',
+      'Huecos: n/a',
+      'Spawns: n/a',
+      'Pasillos anchos: n/a',
+    ];
+  }
+
+  const wide = map.corridors.filter((corridor) => corridor.width === 2);
+  return [
+    `Semilla: ${map.seed}`,
+    `Salas: ${map.rooms.map(roomLabel).join(' · ')}`,
+    `Huecos: ${map.doors.length === 0 ? 'ninguno' : map.doors.map(doorLabel).join(' · ')}`,
+    `Spawns: jugador (${map.spawns.player.x},${map.spawns.player.y}) · enemigo (${map.spawns.enemy.x},${map.spawns.enemy.y}) · distancia ${map.spawns.distance}`,
+    `Pasillos anchos: ${
+      wide.length === 0
+        ? 'ninguno'
+        : wide.map((corridor) => wideCorridorLabel(map, corridor)).join(' · ')
+    }`,
+  ];
+}
+
 /** Información del overlay de debug, también derivada del estado y la cámara. */
 export function buildDebugModel(
   state: GameState,
@@ -119,8 +166,9 @@ export function buildDebugModel(
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
       `Cámara: (${camera.x}, ${camera.y}) · Límites (${bounds.maxX}, ${bounds.maxY}) · Viewport ${viewport.width}×${viewport.height}`,
-      'Semilla: n/a (determinista)',
+      ...mapDebugLines(state),
       `Últimos eventos: ${formatEventSummary(lastEvents)}`,
+      'F2 nueva semilla',
     ],
   };
 }

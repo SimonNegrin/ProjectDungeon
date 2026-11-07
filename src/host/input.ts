@@ -19,12 +19,14 @@ export type InputIgnoreReason =
   | 'no-target';
 
 /**
- * Intención de input. Los comandos se envían al motor; `toggle-debug` es una
- * acción de presentación que nunca altera el estado de la partida.
+ * Intención de input. Los comandos se envían al motor; `toggle-debug` y
+ * `new-seed` son acciones de presentación/host que nunca alteran el estado de
+ * la partida por sí mismas.
  */
 export type InputIntent =
   | { readonly type: 'command'; readonly command: Command }
   | { readonly type: 'toggle-debug' }
+  | { readonly type: 'new-seed' }
   | { readonly type: 'ignored'; readonly reason: InputIgnoreReason };
 
 const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number }>> = {
@@ -53,6 +55,7 @@ const MANAGED_KEYS = new Set([
   ' ',
   'spacebar',
   'f1',
+  'f2',
 ]);
 
 /** Teclas cuyo comportamiento del navegador conviene bloquear. */
@@ -87,7 +90,9 @@ function findAdjacentEnemy(state: GameState, player: Unit): Unit | undefined {
  *
  * Reglas:
  * - `repeat` y modificadores (ctrl/meta/alt) se ignoran.
- * - Con la partida terminada solo `R` (y `F1`) reaccionan.
+ * - `F1` y `F2` son acciones del host; `F2` también funciona con la partida
+ *   terminada.
+ * - Con la partida terminada solo `R`, `F1` y `F2` reaccionan.
  * - Movimiento, ataque y fin de turno exigen fase de jugador.
  * - Sin enemigo adyacente, atacar es un no-op explícito.
  */
@@ -98,6 +103,7 @@ export function translateKey(input: KeyInput, state: GameState): InputIntent {
   const key = input.key.toLowerCase();
 
   if (key === 'f1') return { type: 'toggle-debug' };
+  if (key === 'f2') return { type: 'new-seed' };
   if (key === 'r') return command({ type: 'Restart' });
 
   if (state.status !== 'playing') return ignored('game-over');

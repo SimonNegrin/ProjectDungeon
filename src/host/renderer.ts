@@ -17,6 +17,7 @@ import {
   MAP_OFFSET_LOGICAL,
   RENDER_SCALE,
 } from './layout';
+import { wallTileFor } from './wall';
 
 /** Subconjunto de assets que necesita el render; permite dobles en tests. */
 export interface SceneAssets {
@@ -48,18 +49,19 @@ function drawRect(
   );
 }
 
-/** Variante determinista de suelo, sin aleatoriedad. */
-function floorRectFor(tileX: number, tileY: number): SpriteRect {
-  const variant = (tileX * 7 + tileY * 13) % 3;
+/**
+ * Variante de suelo determinista por coordenada y semilla. El mismo estado
+ * produce siempre los mismos recortes; no usa `Math.random` ni relojes.
+ */
+export function floorTileFor(tileX: number, tileY: number, seed = 0): SpriteRect {
+  let hash = Math.imul(tileX, 0x1f123bb5);
+  hash = (hash + Math.imul(tileY, 0x27d4eb2f)) | 0;
+  hash = (hash + Math.imul(seed, 0x165667b1)) | 0;
+  hash = Math.imul(hash ^ (hash >>> 15), 0x2545f491);
+  const variant = ((hash ^ (hash >>> 16)) >>> 0) % 3;
   if (variant === 0) return TILE_RECTS.floor1;
   if (variant === 1) return TILE_RECTS.floor2;
   return TILE_RECTS.floor3;
-}
-
-/** Muro superior en la fila 0 y laterales alternos en el resto del borde. */
-function wallRectFor(tileX: number, tileY: number): SpriteRect {
-  if (tileY === 0) return TILE_RECTS.wallTop;
-  return (tileX + tileY) % 2 === 0 ? TILE_RECTS.wallSide1 : TILE_RECTS.wallSide2;
 }
 
 function isUnitVisible(
@@ -127,18 +129,33 @@ export function renderScene(
   ctx.translate(-camera.x, -camera.y);
 
   const range = visibleTileRange(camera, viewport, state.grid, tileSize);
+  const floorSeed = state.map?.seed ?? 0;
 
   for (let y = range.minY; y <= range.maxY; y += 1) {
     for (let x = range.minX; x <= range.maxX; x += 1) {
       if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
-      drawRect(ctx, assets.tiles, floorRectFor(x, y), x * tileSize, y * tileSize, tileSize);
+      drawRect(
+        ctx,
+        assets.tiles,
+        floorTileFor(x, y, floorSeed),
+        x * tileSize,
+        y * tileSize,
+        tileSize,
+      );
     }
   }
 
   for (let y = range.minY; y <= range.maxY; y += 1) {
     for (let x = range.minX; x <= range.maxX; x += 1) {
       if (state.grid.tiles[y * state.grid.width + x] !== 'wall') continue;
-      drawRect(ctx, assets.tiles, wallRectFor(x, y), x * tileSize, y * tileSize, tileSize);
+      drawRect(
+        ctx,
+        assets.tiles,
+        TILE_RECTS[wallTileFor(state.grid, x, y)],
+        x * tileSize,
+        y * tileSize,
+        tileSize,
+      );
     }
   }
 

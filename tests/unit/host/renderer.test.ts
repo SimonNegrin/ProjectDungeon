@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { createInitialState } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { gridPixelSize, type Viewport } from '../../../src/host/geometry';
@@ -12,7 +13,7 @@ import {
   MAP_VIEWPORT,
   RENDER_SCALE,
 } from '../../../src/host/layout';
-import { renderScene, type SceneAssets } from '../../../src/host/renderer';
+import { floorTileFor, renderScene, type SceneAssets } from '../../../src/host/renderer';
 import { makeState } from '../game/helpers';
 
 interface DrawCall {
@@ -256,6 +257,72 @@ describe('render de la sala', () => {
     expect(source).not.toMatch(
       /from\s+'\.\.\/game\/(engine|movement|combat|ai|turn|grid)'/,
     );
+  });
+});
+
+describe('render del mapa generado', () => {
+  function generatedState(): GameState {
+    return createInitialState({ seed: 279837264 });
+  }
+
+  it('el muro del borde superior usa wallTop (sx 0)', () => {
+    const fake = draw(generatedState(), { x: 0, y: 0 });
+
+    const topBorder = fake.draws.find(
+      (call) => call.image === assets.tiles && call.dx === 0 && call.dy === 0,
+    );
+
+    expect(topBorder).toMatchObject({ sx: 0, sy: 64, sw: 32, sh: 32 });
+  });
+
+  it('un muro con suelo al sur usa wallSide1 (sx 32)', () => {
+    const fake = draw(generatedState(), { x: 0, y: 0 });
+
+    // (3,3) es muro y (3,4) es el suelo de la sala 0.
+    const wall = fake.draws.find(
+      (call) => call.image === assets.tiles && call.dx === 3 * 32 && call.dy === 3 * 32,
+    );
+
+    expect(wall).toMatchObject({ sx: 32, sy: 64, sw: 32, sh: 32 });
+  });
+
+  it('ningún draw usa wallSide2 (sx 64, sy 64)', () => {
+    const fake = draw(generatedState(), { x: 0, y: 0 });
+    const walls = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 64);
+
+    expect(walls.length).toBeGreaterThan(0);
+    expect(walls.every((call) => call.sx === 0 || call.sx === 32)).toBe(true);
+    expect(walls.some((call) => call.sx === 64)).toBe(false);
+  });
+
+  it('dos renders del mismo estado producen exactamente la misma secuencia de draws', () => {
+    const state = generatedState();
+    const first = draw(state, { x: 0, y: 0 });
+    const second = draw(state, { x: 0, y: 0 });
+
+    expect(second.draws).toEqual(first.draws);
+    expect(second.fillRects).toEqual(first.fillRects);
+  });
+
+  it('la variante de suelo es determinista por coordenada y semilla', () => {
+    const variants = new Set<number>();
+    for (let y = 0; y < 8; y += 1) {
+      for (let x = 0; x < 8; x += 1) {
+        const rect = floorTileFor(x, y, 279837264);
+        expect(floorTileFor(x, y, 279837264)).toEqual(rect);
+        variants.add(rect.sx);
+      }
+    }
+
+    expect(variants).toEqual(new Set([32, 64, 96]));
+  });
+
+  it('no muta el estado generado', () => {
+    const state = deepFreeze(generatedState());
+    const before = JSON.stringify(state);
+
+    expect(() => draw(state, { x: 0, y: 0 })).not.toThrow();
+    expect(JSON.stringify(state)).toBe(before);
   });
 });
 

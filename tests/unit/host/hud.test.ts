@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reduce } from '../../../src/game/index';
+import { createInitialState, reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import { makeState, makeUnit } from '../game/helpers';
@@ -127,5 +127,42 @@ describe('modelo del overlay de debug', () => {
     );
 
     expect(model.lines.join('\n')).toContain('player-1: (4,4)→(5,4) MP 5');
+  });
+
+  it('con un mapa generado muestra semilla, salas, huecos, spawns y pasillos anchos', () => {
+    const model = buildDebugModel(
+      createInitialState({ seed: 279837264 }),
+      { x: 16, y: 80 },
+      { maxX: 640, maxY: 640 },
+      { width: 384, height: 384 },
+      [],
+    );
+    const text = model.lines.join('\n');
+
+    expect(text).toContain('Semilla: 279837264');
+    expect(text).toContain('Salas:');
+    expect(text).toContain('0 (3,4) 7×9 large');
+    expect(text).toContain('Huecos:');
+    expect(text).toContain('(10,5) vertical sala 0');
+    expect(text).toContain('Spawns: jugador (6,8) · enemigo (23,28) · distancia 59');
+    expect(text).toContain('Pasillos anchos:');
+    expect(text).toContain('0→1 2 tiles');
+    expect(text).toContain('F2 nueva semilla');
+  });
+
+  it('sin mapa mantiene las líneas n/a del overlay', () => {
+    const text = buildDebugModel(
+      makeState(),
+      { x: 0, y: 0 },
+      { maxX: 256, maxY: 256 },
+      { width: 384, height: 384 },
+      [],
+    ).lines.join('\n');
+
+    expect(text).toContain('Semilla: n/a (determinista)');
+    expect(text).toContain('Salas: n/a');
+    expect(text).toContain('Huecos: n/a');
+    expect(text).toContain('Spawns: n/a');
+    expect(text).toContain('Pasillos anchos: n/a');
   });
 });

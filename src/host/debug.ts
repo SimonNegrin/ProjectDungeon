@@ -7,6 +7,7 @@ import type {
   Tile,
   Unit,
 } from '../game/types';
+import type { Corridor, Door, Room, Spawns } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { Viewport } from './geometry';
 import type { StepResult } from './session';
@@ -17,6 +18,12 @@ export interface GameSnapshot {
     readonly height: number;
     readonly tiles: readonly Tile[];
   };
+  /** Semilla del mapa generado; `null` si el estado es manual y no tiene mapa. */
+  readonly seed: number | null;
+  readonly rooms: readonly Room[];
+  readonly corridors: readonly Corridor[];
+  readonly doors: readonly Door[];
+  readonly spawns: Spawns | null;
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   readonly phase: Phase;
@@ -73,13 +80,37 @@ function cloneEvent(event: GameEvent): GameEvent {
   }
 }
 
+function cloneRoom(room: Room): Room {
+  return { ...room };
+}
+
+function cloneCorridor(corridor: Corridor): Corridor {
+  return { ...corridor, path: corridor.path.map((point) => ({ ...point })) };
+}
+
+function cloneSpawns(spawns: Spawns | undefined): Spawns | null {
+  if (!spawns) return null;
+  return {
+    player: { ...spawns.player },
+    enemy: { ...spawns.enemy },
+    distance: spawns.distance,
+  };
+}
+
 function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
+  const map = source.state.map;
+
   return {
     grid: {
       width: source.state.grid.width,
       height: source.state.grid.height,
       tiles: [...source.state.grid.tiles],
     },
+    seed: map?.seed ?? null,
+    rooms: map ? map.rooms.map(cloneRoom) : [],
+    corridors: map ? map.corridors.map(cloneCorridor) : [],
+    doors: map ? map.doors.map((door) => ({ ...door })) : [],
+    spawns: cloneSpawns(map?.spawns),
     players: source.state.players.map(cloneUnit),
     enemies: source.state.enemies.map(cloneUnit),
     phase: source.state.phase,
