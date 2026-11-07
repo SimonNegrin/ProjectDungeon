@@ -51,4 +51,3 @@ stdout | tests/unit/game/map.test.ts > rendimiento > genera la semilla de refere
       Tests  26 passed (26)
    Start at  22:37:12
    Duration  192ms (tests 64%, import 26%, transform 8%, worker 2%)
-

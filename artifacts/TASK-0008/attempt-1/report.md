@@ -81,7 +81,7 @@ Salidas completas en `test-output.txt` y `verify-output.txt`.
 | 8-12 salas, ≥2 grandes, ≥3 pequeñas, sin solape, ≥1 muro entre salas | Cumple (referencia) | 9 salas: 2 grandes, 3 pequeñas, 4 medianas; validador sin incidencias |
 | Pasillos de 1 tile, ortogonales, conectan todas las salas, tramo recto ≥5 y corredor con ≥2 esquinas | Cumple | 10 corredores; recto máximo 20; esquinas máximas 4; conectividad 100 % |
 | 1-3 bucles; callejones ≤4 | Cumple | 2 bucles; callejón máximo 0 |
-| Jugador en sala con salida; enemigo en la sala más lejana, otra sala, distancia ≥12 y fuera del viewport 12×12 | Cumple | Spawns `(6,8)` y `(23,28)`, distancia BFS 59, viewport origen `(0,0)` |
+| Jugador en sala con salida; enemigo en la sala más lejana, otra sala, distancia ≥12 y fuera del viewport 12×12 | Cumple | Spawns `(6,8)` y `(23,28)`, distancia BFS 59, viewport inicial `[0,11]×[2,13]` |
 | Determ mismo con misma semilla; semillas distintas difieren | Cumple | Tests de determinismo y diferencia estructural |
 | Estado serializable; `window.__game` expone seed/rooms/corridors/doors/spawns | Parcial / diferido | Round-trip JSON del estado y del mapa OK; `window.__game` se difiere a TASK-0010 (host fuera de alcance) |
 | Generación <100 ms en CI | Cumple en esta máquina | Mediana 2,88 ms; máximo 5,36 ms; arranque en frío 20,42 ms |
@@ -100,7 +100,8 @@ Salidas completas en `test-output.txt` y `verify-output.txt`.
 - Avisos: ninguno.
 - Conectividad: 100 %; bloques 2×2 fuera de salas: 0; callejón máximo: 0.
 - Spawns: jugador `(6,8)`; enemigo `(23,28)`; distancia BFS 59; enemigo fuera
-  del viewport inicial `[0,11]×[0,11]`.
+  del viewport inicial `[0,11]×[2,13]` (origen `clamp(6-6,0,20)=0`,
+  `clamp(8-6,0,20)=2`).
 
 Salas:
 
