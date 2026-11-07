@@ -4,7 +4,7 @@ id: TASK-0006
 title: "E2E y QA visual del encuadre 16:9"
 description: Cubre con Playwright el marco 16:9, el mapa 12×12, la cámara, la aparición del enemigo y la legibilidad del HUD en tres tamaños de ventana.
 status: stable
-task_status: ready
+task_status: review
 task_type: test
 requirement: REQ-002
 requirement_ids: [R-006, R-007, R-010, R-011, T-004]
@@ -13,13 +13,13 @@ unlocks: []
 created_at: 2026-11-07T17:10:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0006/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:10:00Z }
-verified:
+verified: { by: task-lead, at: 2026-11-07T17:20:42Z }
 ---
 
 # Objetivo
@@ -40,25 +40,26 @@ feedback intactos; y enemigo visible en un máximo de 2 turnos desde el spawn.
 
 # Criterios de aceptación
 
-- [ ] A 1280×720 el marco mantiene 16:9 con tolerancia ±0,1 % y el área de mapa
+- [x] A 1280×720 el marco mantiene 16:9 con tolerancia ±0,1 % y el área de mapa
       mantiene 1:1 con la misma tolerancia.
-- [ ] A 1920×1080 se repiten las proporciones y el HUD sigue legible, sin texto
+- [x] A 1920×1080 se repiten las proporciones y el HUD sigue legible, sin texto
       ni controles cortados.
-- [ ] En una ventana estrecha (por ejemplo 900×700) el marco se escala sin
+- [x] En una ventana estrecha (por ejemplo 900×700) el marco se escala sin
       deformarse y aparecen bandas negras alrededor; el HUD sigue visible.
-- [ ] Los laterales del marco son negro plano en los píxeles muestreados; el
+- [x] Los laterales del marco son negro plano en los píxeles muestreados; el
       mapa no invade los laterales.
-- [ ] Se ven 12 columnas y 12 filas de tiles dentro del mapa.
-- [ ] La cámara centra al jugador lejos de los bordes y se detiene en los cuatro
+- [x] Se ven 12 columnas y 12 filas de tiles dentro del mapa.
+- [x] La cámara centra al jugador lejos de los bordes y se detiene en los cuatro
       bordes del mundo; el jugador sigue visible.
-- [ ] Al arrancar el enemigo no está en el viewport; tras moverse en diagonal
+- [x] Al arrancar el enemigo no está en el viewport; tras moverse en diagonal
       hacia él un máximo de 2 turnos, aparece.
-- [ ] El HUD muestra vida, MP (6/6), acción, fase, turno y vida del enemigo; el
+- [x] El HUD muestra vida, MP (6/6), acción, fase, turno y vida del enemigo; el
       ataque conserva flash y número de daño.
-- [ ] El arte se ve nítido, sin suavizado ni estiramiento, en las capturas.
-- [ ] No se borran, saltan ni debilitan tests existentes.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan.
+- [x] El arte se ve nítido, sin suavizado ni estiramiento, en las capturas.
+- [x] No se borran, saltan ni debilitan tests existentes.
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan.
 - [ ] El usuario hace un playtest final y aprueba la sensación del encuadre.
+      **Pendiente del usuario; es lo único que impide pasar a `done`.**
 
 # Plan de test
 
@@ -83,11 +84,86 @@ feedback intactos; y enemigo visible en un máximo de 2 turnos desde el spawn.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0006/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0006/attempt-1/test-output.txt`
-- [ ] Capturas: `frame-1280x720.png`, `frame-1920x1080.png`,
+- [x] Informe en `artifacts/TASK-0006/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0006/attempt-1/test-output.txt`
+- [x] Capturas: `frame-1280x720.png`, `frame-1920x1080.png`,
       `frame-narrow.png`, `camera-edge.png` y `attack.png`
-- [ ] Commit SHA en la rama `task/TASK-0006`
+- [x] Commit SHA en la rama `task/TASK-0006`: `431a61c` (spec + evidencia) y
+      `f02d832` (informe).
+
+# Verificación
+
+Verificación independiente del `task-lead` sobre `task/TASK-0006` (intento 1),
+fusionada en `main` por fast-forward hasta `f02d832`.
+
+- **Alcance del diff:** solo `tests/e2e/frame-qa.spec.ts` (nuevo) y
+  `artifacts/TASK-0006/**`. Sin cambios en `src/**`, `index.html`,
+  `package.json`, `pnpm-lock.yaml`, `playwright.config.ts`, `tests/unit/**` ni
+  en los tres specs E2E existentes. No se añadieron dependencias.
+- **Criterios:** se leyeron el spec y el informe y se comprobó cada aserción
+  contra los valores de `REQ-002`: 16:9 con ±0,1 % en `.frame` y canvas, mapa
+  1:1 con la misma tolerancia, canvas interno 2048×1152, viewport 384×384,
+  laterales completos de 448×1152 de respaldo sin píxeles no negros, rango
+  visible 12×12 en el arranque, bandas negras del stage, HUD sin recortes en los
+  tres viewports, cámara centrada y limitada en los cuatro bordes, enemigo fuera
+  al arrancar y visible en 1 turno, y HUD/ataque con `-5` y flash.
+- **Comandos re-ejecutados por el lead** (timeout de la herramienta de shell;
+  macOS no tiene binario `timeout`):
+  - `pnpm run verify` (180 s): docs 50, config, 120 tests, `tsc` y build OK.
+  - `pnpm run test:e2e` (300 s): 10 tests OK (3 existentes + 7 nuevos).
+  - `pnpm exec playwright test tests/e2e/frame-qa.spec.ts --repeat-each=3`
+    (300 s): 21 tests OK.
+  - `pnpm exec playwright test tests/e2e/game-render.spec.ts --repeat-each=3`
+    (300 s): 3 tests OK.
+- **Nota de arnés:** una primera ejecución de los dos `--repeat-each=3` en
+  paralelo colisionó en el puerto 4173 de Playwright y falló por el servidor
+  compartido, no por el spec. Re-ejecutados en secuencia, ambos pasaron. Los
+  puertos 4173/5173 quedaron libres y no se dejaron servidores de esta tarea.
+- **Tests debilitados:** ninguno. Se añaden 7 tests E2E (de 3 a 10); no hay
+  `.skip`, `.todo` ni `.only`; los specs existentes tienen diff vacío.
+- **Capturas:** las cinco imágenes se revisaron visualmente: marco 16:9 sin
+  deformar, mapa cuadrado 12×12, laterales negros, bandas en la ventana
+  estrecha, HUD legible, cámara en borde con jugador visible y ataque con flash
+  y `-5`.
+- **Desviación respecto al brief:** el brief preveía al enemigo en `(11,11)`
+  tras el primer `EndTurn`; la IA ejecuta un solo paso por fase y queda en
+  `(14,14)`. El criterio se cumple igualmente: el enemigo ya es visible tras los
+  movimientos diagonales del turno 1 y el test comprueba la intersección con el
+  viewport, no una posición concreta. Está documentado en el informe y en
+  `artifacts/TASK-0006/attempt-1/logs/probe-routes.txt`.
+- **Desviación menor:** el marco sobresale 0,109 px del stage a 1280×720 y
+  1920×1080 por usar `clientHeight` entero frente al rect fraccionario. No hay
+  deformación ni corte; el spec usa ±1 px para márgenes.
+
+# Pendiente para `done`
+
+Falta **solo** el playtest del usuario: aprobar la sensación del encuadre. La
+tarea queda en `review`; no se marca `completed_at` ni `done`. Instrucciones
+exactas:
+
+1. En la raíz del repo, con `main` en `f02d832` o posterior:
+   ```bash
+   pnpm install
+   pnpm exec vite --port 4173 --host 127.0.0.1
+   ```
+2. Abre `http://127.0.0.1:4173` y prueba:
+   - 1280×720 y 1920×1080: el marco llena el alto disponible y conserva 16:9;
+     el mapa es un cuadrado de 12×12 con laterales negros; el HUD de arriba se
+     lee completo.
+   - 900×700 (o redimensiona a una ventana estrecha): el marco no se deforma y
+     aparecen bandas negras arriba/abajo; el HUD sigue visible.
+   - Muévete con `WASD`/flechas: el jugador se mantiene centrado y la cámara se
+     detiene en los cuatro bordes sin ocultarlo.
+   - Avanza en diagonal hacia el enemigo (`D` + `S` o flechas) y termina turno
+     con `E`: el enemigo debe aparecer en un máximo de 2 turnos.
+   - Acércate y ataca con `Espacio`/`Enter`: debe verse el flash y `-5`, y el
+     HUD debe mostrar enemigo `5/10` y acción `No`.
+   - `R` reinicia y `F1` abre el debug. No debe haber errores en consola.
+3. Cierra el servidor con `Ctrl+C`.
+4. Para aprobar: responde indicando que la sensación del encuadre es correcta
+   (o los ajustes concretos que quieres). El `task-lead` marcará entonces
+   `task_status: done` y `completed_at`; si hay ajustes, se abre una tarea nueva
+   o se reabre el requisito, sin tocar los criterios de esta tarea.
 
 # Restricciones
 
