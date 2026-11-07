@@ -2,6 +2,9 @@
 
 ## 2026-11-07
 
+* **Requirement**: El usuario aprueba `REQ-002` v2: sala 20×20, jugador (4,4) / enemigo (15,15), 6 MP de jugador y 4 de enemigo, HUD fuera del marco y render de respaldo 2048×1152 (3×) para 16:9 exacto.
+* **Task**: Se crean `TASK-0004` (motor: sala y MP), `TASK-0005` (host: encuadre 16:9 y viewport 12×12) y `TASK-0006` (E2E y QA visual), secuenciales.
+* **Design**: Se actualiza la economía de turno provisional con sala 20×20, posiciones iniciales, viewport 12×12 y MP 6/4.
 * **Milestone**: La fase 1 se cierra tras el playtest de `REQ-001`. El usuario aprueba el HUD, el feedback de ataque y el loop de turnos; pide un encuadre 16:9 con mapa cuadrado de 12×12, laterales negros, sala más pequeña y más movimiento por turno.
 * **Requirement**: Se crea `REQ-002` en borrador con el encuadre 16:9, el sub-viewport 12×12, la altura lógica de 384 px y los ajustes pendientes de sala/MP. No genera tareas hasta su aprobación.
 * **Task**: `TASK-0003` completada y verificada: teclado (`WASD`/flechas, `Espacio`/`Enter`, `E`, `R`, `F1`), HUD DOM, overlays de victoria/derrota, feedback de ataque con flash y daño, `window.__game.dispatch()` y E2E determinista del loop completo. `pnpm run verify` y `pnpm run test:e2e` OK; el test del loop se repitió 5 veces. Commit de implementación `366782f`; capturas en `artifacts/TASK-0003/attempt-1/screenshots/`.

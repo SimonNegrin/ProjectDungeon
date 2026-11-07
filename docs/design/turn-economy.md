@@ -17,14 +17,16 @@ playtests.
 
 | Regla | Valor provisional |
 |---|---|
-| Rejilla | Cuadrada. |
+| Rejilla | Cuadrada, 20×20. |
+| Posición inicial del jugador | (4,4). |
+| Posición inicial del enemigo | (15,15). |
 | Direcciones | 8 direcciones, incluida la diagonal. |
 | Coste de movimiento | 1 MP por casilla, también en diagonal. |
-| MP de jugador | 4. |
-| MP de enemigo | 3. |
+| MP de jugador | 6. |
+| MP de enemigo | 4. |
 | Ocupación | Jugadores y enemigos bloquean la casilla. |
 | Corte de esquina | No permitido: para moverse en diagonal, las dos casillas ortogonales adyacentes deben estar libres. |
-| Cámara | Sigue al jugador activo y se limita a los bordes del mapa. |
+| Cámara | Viewport de 12×12 tiles; sigue al jugador activo y se limita a los bordes del mapa. |
 
 # Acción
 
@@ -97,7 +99,7 @@ En la fase remota, el móvil enviará comandos equivalentes.
 Estos valores se podrán comparar en experimentos interactivos:
 
 - coste diagonal 1 frente a 1,5;
-- 3, 4 o 5 MP;
+- 4, 6 u 8 MP;
 - atacar antes o después de mover;
 - una acción frente a puntos de acción;
 - velocidad y claridad de la cámara.
