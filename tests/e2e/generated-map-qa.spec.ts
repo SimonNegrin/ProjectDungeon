@@ -5,6 +5,7 @@ import type { Corridor, Door, Room } from '../../src/game/map';
 import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
+import { walkTo } from './support';
 
 const ARTIFACTS = 'artifacts/TASK-0011/attempt-1';
 const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
@@ -18,6 +19,7 @@ const CANVAS_HEIGHT = 1152;
 const MAP_OFFSET_BACKING = 448;
 const FRAME_ASPECT = 16 / 9;
 const ASPECT_TOLERANCE = FRAME_ASPECT * 0.001;
+const WIDE_CORRIDOR_CROP_SIZE = 220;
 
 const DIRECTIONS = [
   [0, -1],
@@ -742,9 +744,54 @@ test('muros por borde: muestra estructural, píxel y capturas', async ({ page },
   await page.keyboard.press('F1');
   await expect(overlay).toBeHidden();
 
-  // Esquina noroeste de la sala 0 y tramo visible del pasillo ancho 0→1.
+  // Esquina noroeste de la sala 0 en la cámara inicial.
   await saveCanvasCrop(page, 'wall-corner', testInfo, 3.5 * TILE_SIZE, 3.5 * TILE_SIZE);
-  await saveCanvasCrop(page, 'wide-corridor', testInfo, 2.0 * TILE_SIZE, 8.5 * TILE_SIZE);
+
+  // El tramo realmente ancho de 0→1 está en y≈13-20: (1,y) y (2,y) son suelo,
+  // con muro en (0,y) y (3,y). Se mueve al jugador con comandos reales hasta
+  // (3,12) para que la cámara (0,208) muestre ese tramo, no el estrecho y≈8.
+  await walkTo(page, 3, 12);
+  const corridorSnap = await snapshot(page);
+  expect(corridorSnap.players[0]).toMatchObject({ x: 3, y: 12 });
+  expect(corridorSnap.camera).toEqual({ x: 0, y: 208, maxX: 640, maxY: 640 });
+  for (const y of [13, 16, 20]) {
+    expect(isFloor(corridorSnap, 1, y), `(1,${y}) debe ser suelo del carril`).toBe(true);
+    expect(isFloor(corridorSnap, 2, y), `(2,${y}) debe ser suelo del carril`).toBe(true);
+    expect(isFloor(corridorSnap, 0, y), `(0,${y}) debe ser muro`).toBe(false);
+    expect(isFloor(corridorSnap, 3, y), `(3,${y}) debe ser muro`).toBe(false);
+  }
+
+  // Además de existir en el mapa, el recorte debe caer sobre esas dos columnas
+  // de suelo. Se calcula su rectángulo de mundo a partir de la escala CSS real.
+  const cropCenterX = 2 * TILE_SIZE;
+  const cropCenterY = 16.5 * TILE_SIZE;
+  expect(cropCenterX).toBeGreaterThanOrEqual(corridorSnap.camera.x);
+  expect(cropCenterX).toBeLessThanOrEqual(
+    corridorSnap.camera.x + corridorSnap.viewport.width,
+  );
+  expect(cropCenterY).toBeGreaterThanOrEqual(corridorSnap.camera.y);
+  expect(cropCenterY).toBeLessThanOrEqual(
+    corridorSnap.camera.y + corridorSnap.viewport.height,
+  );
+  const canvasBox = await page.locator('#game-canvas').boundingBox();
+  if (!canvasBox) throw new Error('No se pudo medir #game-canvas');
+  const mapCssWidth =
+    canvasBox.width * ((corridorSnap.viewport.width * RENDER_SCALE) / CANVAS_WIDTH);
+  const cssPerWorldPixel = mapCssWidth / corridorSnap.viewport.width;
+  const halfCropWorld = WIDE_CORRIDOR_CROP_SIZE / 2 / cssPerWorldPixel;
+  expect(cropCenterX - halfCropWorld).toBeLessThanOrEqual(1 * TILE_SIZE);
+  expect(cropCenterX + halfCropWorld).toBeGreaterThanOrEqual(3 * TILE_SIZE);
+  expect(cropCenterY - halfCropWorld).toBeLessThanOrEqual(16 * TILE_SIZE);
+  expect(cropCenterY + halfCropWorld).toBeGreaterThanOrEqual(17 * TILE_SIZE);
+
+  await saveCanvasCrop(
+    page,
+    'wide-corridor',
+    testInfo,
+    cropCenterX,
+    cropCenterY,
+    WIDE_CORRIDOR_CROP_SIZE,
+  );
 
   expect(consoleErrors).toEqual([]);
 });
