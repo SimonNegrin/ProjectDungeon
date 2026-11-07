@@ -6,14 +6,11 @@ Total: **3**. Generado desde el frontmatter de `docs/tasks/*.md`.
 |---|---|---|---|---|---|
 | [TASK-0001](TASK-0001-motor-rejilla-turnos.md) | Motor de partida con rejilla, turnos, combate e IA | `done` | REQ-001 | — | P1 |
 | [TASK-0002](TASK-0002-host-canvas-camara.md) | Host Canvas con sala, sprites y cámara | `done` | REQ-001 | TASK-0001 | P1 |
-| [TASK-0003](TASK-0003-input-hud-e2e.md) | Teclado, HUD, overlays y E2E del loop completo | `ready` | REQ-001 | TASK-0002 | P1 |
-
-# ready
-
-* [TASK-0003 — Teclado, HUD, overlays y E2E del loop completo](TASK-0003-input-hud-e2e.md)
+| [TASK-0003](TASK-0003-input-hud-e2e.md) | Teclado, HUD, overlays y E2E del loop completo | `done` | REQ-001 | TASK-0002 | P1 |
 
 # done
 
 * [TASK-0001 — Motor de partida con rejilla, turnos, combate e IA](TASK-0001-motor-rejilla-turnos.md)
 * [TASK-0002 — Host Canvas con sala, sprites y cámara](TASK-0002-host-canvas-camara.md)
+* [TASK-0003 — Teclado, HUD, overlays y E2E del loop completo](TASK-0003-input-hud-e2e.md)
 

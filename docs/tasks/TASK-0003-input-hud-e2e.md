@@ -4,22 +4,22 @@ id: TASK-0003
 title: Teclado, HUD, overlays y E2E del loop completo
 description: Conecta el teclado al motor, añade HUD y overlays, reinicio y prueba E2E de una partida completa.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-001
 requirement_ids: [T-003, T-004, R-004, R-005, R-007, R-008, R-009]
 depends_on: [TASK-0002]
 unlocks: []
 created_at: 2026-11-07T15:24:03Z
-completed_at:
+completed_at: 2026-11-07T15:58:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0003/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T15:24:03Z }
-verified:
+verified: { by: task-lead, at: 2026-11-07T15:58:00Z }
 ---
 
 # Objetivo
@@ -39,24 +39,24 @@ comprobar el loop completo con Playwright.
 
 # Criterios de aceptación
 
-- [ ] `WASD` y flechas envían comandos de movimiento al motor; una pulsación
+- [x] `WASD` y flechas envían comandos de movimiento al motor; una pulsación
       mueve una casilla y respeta muros, ocupación y MP.
-- [ ] `Espacio` y `Enter` atacan al enemigo adyacente; si no hay objetivo, el
+- [x] `Espacio` y `Enter` atacan al enemigo adyacente; si no hay objetivo, el
       comando no rompe el estado.
-- [ ] `E` termina el turno, ejecuta la fase enemiga y devuelve el control al
+- [x] `E` termina el turno, ejecuta la fase enemiga y devuelve el control al
       jugador.
-- [ ] `R` reinicia la partida al estado inicial.
-- [ ] `F1` alterna un overlay de debug con estado útil (coordenadas, MP, acción,
+- [x] `R` reinicia la partida al estado inicial.
+- [x] `F1` alterna un overlay de debug con estado útil (coordenadas, MP, acción,
       fase y semilla si aplica).
-- [ ] El HUD muestra vida y MP del jugador, acción disponible, fase actual, vida
+- [x] El HUD muestra vida y MP del jugador, acción disponible, fase actual, vida
       del enemigo y ayuda de teclas; se actualiza tras cada comando.
-- [ ] Al morir el enemigo aparece el overlay de victoria; al morir el jugador,
+- [x] Al morir el enemigo aparece el overlay de victoria; al morir el jugador,
       el de derrota. Ambos ofrecen reiniciar.
-- [ ] El ataque produce flash y número de daño; no hay animación de movimiento.
-- [ ] `window.__game` permite leer el estado y despachar comandos para tests.
-- [ ] E2E: mover, atacar, terminar turno, observar la fase enemiga, ganar,
+- [x] El ataque produce flash y número de daño; no hay animación de movimiento.
+- [x] `window.__game` permite leer el estado y despachar comandos para tests.
+- [x] E2E: mover, atacar, terminar turno, observar la fase enemiga, ganar,
       reiniciar y comprobar la derrota. Guardar capturas de HUD y overlays.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan.
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan.
 
 # Plan de test
 
@@ -78,11 +78,40 @@ comprobar el loop completo con Playwright.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0003/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0003/attempt-1/test-output.txt`
-- [ ] Capturas en `artifacts/TASK-0003/attempt-1/screenshots/` de HUD,
+- [x] Informe en `artifacts/TASK-0003/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0003/attempt-1/test-output.txt`
+- [x] Capturas en `artifacts/TASK-0003/attempt-1/screenshots/` de HUD,
       victoria y derrota
-- [ ] Commit SHA en la rama `task/TASK-0003`
+- [x] Commit SHA en la rama `task/TASK-0003`
+
+# Verificación
+
+- `task-lead` revisó el diff completo de `task/TASK-0003`: solo `src/host/`,
+  `index.html`, tests nuevos y artefactos. `src/game/`, `experiments/`,
+  `package.json`, lockfile y configuración de Vite/Playwright/TS/Vitest sin
+  cambios.
+- `pnpm run verify` re-ejecutado de forma independiente: docs, config, 106 tests
+  y build OK.
+- `pnpm run test:e2e` re-ejecutado: 3 tests OK (loop nuevo, render de TASK-0002
+  y shell de experimentos). El test del loop se repitió 5 veces con
+  `--repeat-each=5`: 5/5 OK, sin fallos intermitentes del flash.
+- Capturas revisadas: `hud.png`, `attack.png`, `victory.png`, `defeat.png` y
+  `debug.png`. El HUD es legible, el daño `-5` y el flash se ven sobre el
+  objetivo, y los overlays de victoria/derrota muestran el botón de reinicio.
+- `window.__game.dispatch()` usa el mismo camino que el teclado y devuelve
+  snapshot y eventos serializables; el E2E lo usa para acercarse al enemigo con
+  comandos reales y para provocar la derrota.
+- `src/host/renderer.ts` sigue sin importar reglas del motor. No se han borrado,
+  saltado ni debilitado tests existentes.
+- Los puertos 4173 y 5173 quedaron libres; no hay servidores ni procesos en
+  background.
+- Nota: `tests/e2e/game-render.spec.ts` sigue escribiendo
+  `artifacts/TASK-0002/attempt-1/screenshots/room.png`; la re-ejecución del E2E
+  lo regenera con el HUD nuevo. El archivo se restauró para no alterar
+  artefactos de TASK-0002.
+- Commit de implementación: `366782fd29d9fb0f412f35728aebcdc405c062af`.
+  Commit de artefactos: `a7391b6dba1af09a090061da7b7cf68cf8c02e5a`.
+- Pendiente: playtest del usuario para legibilidad, cámara y sensación del loop.
 
 # Restricciones
 
