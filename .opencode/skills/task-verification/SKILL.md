@@ -23,8 +23,10 @@ pasan” sin verlo.
 
 ## Tests
 
-- [ ] `npm run verify` pasa.
-- [ ] E2E/visual pasa si aplica.
+- [ ] `pnpm run verify` pasa con timeout de 120 s.
+- [ ] E2E/visual pasa si aplica con timeout de 180 s.
+- [ ] Los comandos se ejecutaron con timeout explícito.
+- [ ] No quedan procesos en background ni comandos colgados.
 - [ ] Los tests nuevos comprueban comportamiento, no implementación.
 - [ ] No se han borrado, saltado o debilitado tests.
 - [ ] No hay tests frágiles por tiempo real.
@@ -56,5 +58,5 @@ Si falla:
 
 - Fusionar.
 - Actualizar `task_status`, `completed_at`, `attempts`, `verified`.
-- Ejecutar `npm run tasks:board`.
+- Ejecutar `pnpm run tasks:board`.
 - Resumir al usuario qué puede probar y qué debe mirar.

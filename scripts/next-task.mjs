@@ -21,7 +21,7 @@ const ready = tasks
   });
 
 if (ready.length === 0) {
-  console.log('No hay tareas listas. Revisa `npm run tasks:board`.');
+  console.log('No hay tareas listas. Revisa `pnpm run tasks:board`.');
   process.exit(0);
 }
 

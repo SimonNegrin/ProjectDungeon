@@ -17,6 +17,7 @@ fácil de testear, rápido de iterar y que no imponga un motor grande.
 # Decisión
 
 - **TypeScript** para motor, host, herramientas y tests.
+- **pnpm** como gestor de paquetes; ver [ADR-004](ADR-004-pnpm.md).
 - **Vite** para desarrollo y build.
 - **Canvas 2D** para el tablero del host.
 - **DOM/CSS** para HUD, controles y experimentos.

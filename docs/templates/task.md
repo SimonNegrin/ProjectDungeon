@@ -57,6 +57,13 @@ Enlaces al requisito, diseño y archivos relevantes.
 - E2E / visual:
 - Manual:
 
+# Comandos y timeouts
+
+| Comando | Timeout | Qué valida |
+|---|---:|---|
+| `pnpm run verify` | 120 s | Docs, config, unitarios y build |
+| `pnpm run test:e2e` | 180 s | UI/Canvas si aplica |
+
 # Evidencia esperada
 
 - [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`

@@ -71,15 +71,22 @@ preguntas abiertas. Las capturas son evidencia, no la única prueba.
 # Comandos
 
 ```bash
-npm run docs:check   # OKF, enlaces y grafo de tareas
-npm test             # Vitest
-npm run test:e2e     # Playwright
-npm run build        # Typecheck + build
-npm run verify       # Todo lo anterior salvo E2E
+pnpm run docs:check   # OKF, enlaces y grafo de tareas
+pnpm run config:check # Agentes, skills y opencode.jsonc
+pnpm test             # Vitest
+pnpm run test:e2e     # Playwright
+pnpm run build        # Typecheck + build
+pnpm run verify       # Docs + config + unitarios + build
 ```
 
-`npm run verify` es el mínimo antes de cerrar una tarea técnica. `npm run
+`pnpm run verify` es el mínimo antes de cerrar una tarea técnica. `pnpm run
 test:e2e` se ejecuta cuando la tarea toca UI, Canvas o flujo jugable.
+
+# Timeouts
+
+Todo comando en primer plano se ejecuta con un timeout explícito. Los servidores
+en background se controlan y se cierran. La política y la tabla de tiempos están
+en [timeouts](../harness/timeouts.md).
 
 # Baseline visual
 

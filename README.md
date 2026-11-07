@@ -21,28 +21,35 @@ agentes y shell de experimentos. Todavía no hay código de juego.
 - Shell de experimentos interactivo y primer experimento de humo.
 - Sin servidor, sin QR y sin multijugador remoto.
 
+## Requisitos
+
+- Node.js >= 20.
+- pnpm 9.15.0.
+
 ## Arranque rápido
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm exec playwright install chromium
+pnpm run dev
 ```
 
-Abre <http://127.0.0.1:5173/experiments/> para ver el índice de experimentos.
+Abre la URL que muestre Vite (por defecto <http://127.0.0.1:5173/experiments/>)
+para ver el índice de experimentos.
 
 ## Comandos
 
 | Comando | Uso |
 |---|---|
-| `npm run dev` | Servidor de desarrollo. |
-| `npm run build` | Typecheck y build de producción. |
-| `npm test` | Tests unitarios con Vitest. |
-| `npm run test:e2e` | Tests de navegador con Playwright. |
-| `npm run docs:check` | Valida OKF, enlaces y grafo de tareas. |
-| `npm run config:check` | Valida agentes, skills y `opencode.jsonc`. |
-| `npm run tasks:board` | Regenera `docs/tasks/index.md`. |
-| `npm run tasks:next` | Muestra la siguiente tarea lista. |
-| `npm run verify` | Validación completa local. |
+| `pnpm run dev` | Servidor de desarrollo. |
+| `pnpm run build` | Typecheck y build de producción. |
+| `pnpm test` | Tests unitarios con Vitest. |
+| `pnpm run test:e2e` | Tests de navegador con Playwright. |
+| `pnpm run docs:check` | Valida OKF, enlaces y grafo de tareas. |
+| `pnpm run config:check` | Valida agentes, skills y `opencode.jsonc`. |
+| `pnpm run tasks:board` | Regenera `docs/tasks/index.md`. |
+| `pnpm run tasks:next` | Muestra la siguiente tarea lista. |
+| `pnpm run verify` | Validación completa local. |
 
 ## Dónde mirar
 

@@ -6,4 +6,5 @@
 * [OKF](okf.md) - Perfil documental, campos propios y validación.
 * [Experimentos](experiments.md) - Cómo diseñar, construir y cerrar experimentos.
 * [QA visual](visual-qa.md) - Playwright, navegador integrado y debug hooks.
+* [Timeouts](timeouts.md) - Tiempos máximos, background y actuación ante bloqueos.
 * [Escalado](escalation.md) - Cuándo parar, reintentar o pedir una decisión.

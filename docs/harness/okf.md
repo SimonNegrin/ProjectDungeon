@@ -122,7 +122,7 @@ El validador comprueba todo esto.
 # Validación
 
 ```bash
-npm run docs:check
+pnpm run docs:check
 ```
 
 Comprueba:

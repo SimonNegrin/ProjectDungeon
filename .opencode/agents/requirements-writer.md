@@ -31,10 +31,10 @@ permissions:
     resource: "*"
     effect: ask
   - action: shell
-    resource: "npm run docs:*"
+    resource: "pnpm run docs:*"
     effect: allow
   - action: shell
-    resource: "npm run tasks:*"
+    resource: "pnpm run tasks:*"
     effect: allow
   - action: shell
     resource: "git status*"
@@ -99,6 +99,14 @@ Carga las skills `requirements-interview`, `okf-authoring`,
 - Deben indicar requisito, dependencias y tareas que desbloquean.
 - Si una tarea no cumple Definition of Ready, no se crea o se divide.
 - No generes todas las tareas del juego: solo el milestone actual.
+
+# Herramientas
+
+- Usa pnpm, no npm ni npx.
+- Todo comando de shell debe llevar un timeout explícito.
+- No dejes procesos en background; si necesitas uno, que sea un servidor con
+  puerto fijo y cierre posterior.
+- Sigue [docs/harness/timeouts.md](../../docs/harness/timeouts.md).
 
 # Límites
 

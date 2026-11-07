@@ -54,12 +54,22 @@ dependencias.
    - objetivo y contexto mínimo;
    - criterios de aceptación;
    - archivos/módulos relevantes;
-   - comandos de test;
+   - comandos de test y timeouts;
    - restricciones y no objetivos;
    - ruta de artefactos;
    - qué debe devolver el runner.
 
 Carga las skills `task-verification` y `visual-qa` cuando las necesites.
+
+# Timeouts
+
+- Usa pnpm, no npm ni npx.
+- Todo comando de shell debe llevar un timeout explícito. Consulta
+  [docs/harness/timeouts.md](../../docs/harness/timeouts.md).
+- Los servidores en background solo con puerto fijo, comprobación de salud y
+  cierre posterior.
+- Si un comando agota el timeout, para el proceso y escala con evidencia.
+- No dejes procesos huérfanos ni esperas indefinidas.
 
 # Ejecución
 
@@ -70,7 +80,7 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 # Verificación independiente
 
 - Lee el diff completo.
-- Re-ejecuta `npm run verify` y, si aplica, `npm run test:e2e`.
+- Re-ejecuta `pnpm run verify` y, si aplica, `pnpm run test:e2e`.
 - Comprueba cada criterio de aceptación.
 - Revisa capturas y artefactos.
 - Comprueba que no se han borrado, saltado o debilitado tests.
@@ -91,7 +101,7 @@ Si todo pasa:
 1. Fusiona la rama.
 2. Actualiza `docs/tasks/TASK-NNNN-*.md`: `task_status: done`, `completed_at`,
    `attempts`, artefactos y verificación.
-3. Ejecuta `npm run tasks:board`.
+3. Ejecuta `pnpm run tasks:board`.
 4. Añade una entrada a `docs/log.md`.
 5. Devuelve un resumen breve con evidencia y qué debe probar el usuario.
 

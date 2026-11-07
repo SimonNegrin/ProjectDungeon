@@ -21,8 +21,24 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 - Toda la documentación nueva debe ser Markdown con frontmatter OKF.
 - Los experimentos viven en `experiments/EXP-*` y usan el shell compartido.
 - Los artefactos de tarea viven en `artifacts/TASK-*`.
-- Antes de cerrar cualquier cambio, ejecuta `npm run verify` o justifica por qué
+- Antes de cerrar cualquier cambio, ejecuta `pnpm run verify` o justifica por qué
   no aplica.
+
+## Gestor de paquetes
+
+- Usa **pnpm 9.15.0**; no uses npm ni npx.
+- Instala con `pnpm install`.
+- Ejecuta scripts con `pnpm run ...` o `pnpm ...`.
+- Playwright se instala con `pnpm exec playwright install chromium`.
+
+## Timeouts y procesos
+
+- Todo comando en primer plano debe llevar un `timeout` explícito.
+- Los comandos en background solo se usan para servidores o watchers, con puerto
+  fijo, comprobación de salud y cierre posterior.
+- Nunca esperes indefinidamente a un proceso.
+- Si un comando agota el timeout, para el proceso, guarda evidencia y escala.
+- La política completa está en [docs/harness/timeouts.md](docs/harness/timeouts.md).
 
 ## Flujo
 

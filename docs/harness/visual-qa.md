@@ -30,8 +30,11 @@ Para automatización repetible:
 Comando:
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
+
+Se ejecuta con timeout explícito (180 s recomendado). Playwright arranca Vite con
+su propio `webServer.timeout` y lo cierra al terminar.
 
 ## 2. Navegador integrado de OpenCode
 

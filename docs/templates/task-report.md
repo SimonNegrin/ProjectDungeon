@@ -36,9 +36,9 @@ Qué se ha hecho y si cumple los criterios.
 
 # Tests
 
-| Comando | Resultado | Evidencia |
-|---|---|---|
-| `npm run verify` | ... | `test-output.txt` |
+| Comando | Timeout | Resultado | Evidencia |
+|---|---:|---|---|
+| `pnpm run verify` | 120 s | ... | `test-output.txt` |
 
 # Evidencia visual
 

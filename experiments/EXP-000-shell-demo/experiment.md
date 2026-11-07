@@ -73,7 +73,7 @@ una preferencia por el algoritmo “Aleatorio” ni una decisión de diseño.
 
 - [Captura del shell](../../artifacts/EXP-000-shell-demo/shell-smoke.png)
 - [JSON de la decisión](results/decision-2026-11-07T14-47-43Z.json)
-- `npm run test:e2e` pasa.
+- `pnpm run test:e2e` pasa.
 
 # Siguientes pasos
 

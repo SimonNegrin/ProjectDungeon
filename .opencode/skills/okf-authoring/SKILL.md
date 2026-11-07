@@ -35,10 +35,10 @@ Usa los tipos del perfil: `Vision`, `Scope`, `Glossary`, `Design`,
 
 # Validación
 
-Ejecuta:
+Ejecuta con timeout de 60 s:
 
 ```bash
-npm run docs:check
+pnpm run docs:check
 ```
 
 Corrige errores de frontmatter, fechas, enlaces y grafo antes de terminar.
@@ -51,4 +51,4 @@ Corrige errores de frontmatter, fechas, enlaces y grafo antes de terminar.
 - [ ] Enlaces locales resueltos.
 - [ ] Índice actualizado si es un documento nuevo.
 - [ ] Log actualizado si el cambio es relevante.
-- [ ] `npm run docs:check` pasa.
+- [ ] `pnpm run docs:check` pasa.

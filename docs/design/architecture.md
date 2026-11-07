@@ -62,6 +62,7 @@ será autoridad.
 # Tecnología
 
 - TypeScript.
+- pnpm como gestor de paquetes.
 - Vite para desarrollo y build.
 - Canvas 2D para el tablero del host.
 - DOM/CSS para HUD, controles y experimentos.
@@ -69,7 +70,8 @@ será autoridad.
 - Playwright para E2E y capturas.
 - Node para scripts y, más adelante, servidor.
 
-Ver [ADR-002](../decisions/ADR-002-stack.md).
+Ver [ADR-002](../decisions/ADR-002-stack.md) y
+[ADR-004](../decisions/ADR-004-pnpm.md).
 
 # Cámara y mapa
 

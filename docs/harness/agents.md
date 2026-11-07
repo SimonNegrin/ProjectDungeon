@@ -111,6 +111,13 @@ honesto, incluido lo que no ha funcionado.
 - Borrar, saltar o debilitar tests para pasar.
 - Ocultar fallos.
 
+# Timeouts y procesos
+
+Los tres agentes usan pnpm y ejecutan comandos con timeout explícito. No se
+espera indefinidamente a un proceso. Los servidores en background solo se usan
+con puerto fijo, comprobación de salud y cierre posterior. Ver
+[timeouts](timeouts.md).
+
 # Escalado
 
 Ver [escalado](escalation.md). El runner devuelve un bloqueo al lead. El lead

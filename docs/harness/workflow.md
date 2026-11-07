@@ -97,6 +97,14 @@ Ver [experimentos](experiments.md).
 - **G3. Verificación independiente**: el lead re-ejecuta y revisa.
 - **G4. Playtest**: el usuario prueba el hito.
 
+# Timeouts
+
+- Todo comando en primer plano lleva timeout explícito.
+- Los servidores en background solo con puerto fijo, comprobación de salud y
+  cierre posterior.
+- No se espera indefinidamente a ningún proceso.
+- La política completa está en [timeouts](timeouts.md).
+
 # Git
 
 - Un repositorio desde el primer día.
@@ -119,10 +127,11 @@ paralelo hasta que haya una necesidad real y las tareas sean disjuntas.
 # Comandos de apoyo
 
 ```bash
-npm run tasks:next     # Siguiente tarea lista
-npm run tasks:board    # Regenerar el tablero
-npm run docs:check     # Validar OKF y grafo
-npm run verify         # Tests + build
+pnpm run tasks:next     # Siguiente tarea lista
+pnpm run tasks:board    # Regenerar el tablero
+pnpm run docs:check     # Validar OKF y grafo
+pnpm run config:check   # Validar agentes y skills
+pnpm run verify         # Tests + build
 ```
 
 # Inicio de la próxima sesión

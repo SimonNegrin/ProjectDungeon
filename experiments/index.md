@@ -8,7 +8,7 @@ pregunta y deja una decisión registrada.
 ## Arranque
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Abre <http://127.0.0.1:5173/experiments/>.
@@ -19,6 +19,6 @@ Abre <http://127.0.0.1:5173/experiments/>.
 2. Cambia el id y la definición en `src/main.ts`.
 3. Crea `experiment.md` con la plantilla.
 4. Añade la entrada a `manifest.ts`.
-5. Ejecuta `npm run docs:check` y `npm test`.
+5. Ejecuta `pnpm run docs:check` y `pnpm test`.
 
 La guía completa está en [docs/harness/experiments.md](../docs/harness/experiments.md).

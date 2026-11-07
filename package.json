@@ -4,6 +4,10 @@
   "private": true,
   "type": "module",
   "description": "ProyectDungeon development harness and experiment shell",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
@@ -15,7 +19,7 @@
     "config:check": "node scripts/validate-opencode.mjs",
     "tasks:board": "node scripts/task-board.mjs",
     "tasks:next": "node scripts/next-task.mjs",
-    "verify": "npm run docs:check && npm run config:check && npm run test && npm run build"
+    "verify": "pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",

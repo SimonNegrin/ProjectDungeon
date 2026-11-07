@@ -23,6 +23,7 @@ estado y DOM; usa la captura para el usuario y para comparar.
 
 # Playwright
 
+- Ejecutar `pnpm run test:e2e` con timeout explícito de 180 s.
 - Abrir la página con `?test=1&seed=123`.
 - Esperar a que el juego esté listo.
 - Simular teclado.
@@ -30,6 +31,7 @@ estado y DOM; usa la captura para el usuario y para comparar.
 - Guardar capturas en `artifacts/`.
 - Usar `toHaveScreenshot` solo en estados estables.
 - Guardar traza en fallos.
+- No dejar servidores en background: Playwright usa su `webServer`.
 
 # Navegador integrado
 

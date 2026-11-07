@@ -74,6 +74,7 @@ tareas caducan cuando cambian los requisitos.
 - [ ] Tiene plan de test.
 - [ ] Tiene dependencias y unlocks coherentes.
 - [ ] Tiene evidencia esperada.
+- [ ] Tiene comandos y timeouts previstos.
 - [ ] Cabe en una sesión.
 - [ ] No contiene una decisión creativa abierta.
-- [ ] `npm run docs:check` pasa.
+- [ ] `pnpm run docs:check` pasa.
