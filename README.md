@@ -10,8 +10,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 Dungeon crawler 2D por turnos, cooperativo y local-first. El objetivo final es
 que varias personas jueguen desde el móvil mientras la pantalla host muestra la
-partida. Ahora mismo el proyecto tiene un motor determinista y una build local
-jugable de la primera sala, pendiente del playtest del usuario.
+partida. El primer hito jugable está cerrado y probado; las mejoras de encuadre,
+sala y movimiento se recogen en `REQ-002`.
 
 ## Estado actual
 
@@ -23,6 +23,8 @@ jugable de la primera sala, pendiente del playtest del usuario.
   cámara limitada a los bordes del mapa.
 - Teclado, HUD, overlays de victoria/derrota, reinicio, debug y E2E del loop
   completo.
+- Primer hito cerrado tras el playtest. `REQ-002` recoge el siguiente corte:
+  marco 16:9, mapa 12×12, sala más pequeña y más movimiento.
 - Shell de experimentos interactivo y primer experimento de humo.
 - Sin servidor, sin QR y sin multijugador remoto.
 

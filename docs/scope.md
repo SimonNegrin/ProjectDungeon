@@ -8,17 +8,17 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 # Alcance vigente
 
-Estamos en la **fase 1**. La fase 0 dejó documentación, agentes, skills y un
-shell de experimentos fiable. El primer hito jugable ya tiene una build local
-con sala, jugador, enemigo, teclado, cámara y turnos; falta el playtest del
-usuario para cerrar el hito.
+Estamos en la **fase 1 cerrada**. La fase 0 dejó documentación, agentes, skills
+y un shell de experimentos fiable. El primer hito jugable está construido y
+probado por el usuario; las mejoras de encuadre, sala y movimiento se recogen en
+[REQ-002](requirements/REQ-002-encuadre-16-9.md) antes de pasar a la fase 2.
 
 # Fases
 
 | Fase | Objetivo | Estado |
 |---|---|---|
 | 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
-| 1 | Prototipo local de un jugador con teclado | En curso, pendiente de playtest |
+| 1 | Prototipo local de un jugador con teclado | Completado; mejoras en REQ-002 |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -34,6 +34,10 @@ usuario para cerrar el hito.
 - Puntos de movimiento y una acción por turno.
 - Victoria al eliminar a todos los enemigos; derrota si el jugador cae.
 - Arte placeholder y HUD mínimo.
+
+Estado: **cerrado** tras el playtest de `REQ-001`. Las mejoras de encuadre,
+tamaño de sala y movimiento por turno pasan a
+[REQ-002](requirements/REQ-002-encuadre-16-9.md).
 
 Los valores concretos de la economía de turno son provisionales y viven en
 [la economía de turno](design/turn-economy.md).

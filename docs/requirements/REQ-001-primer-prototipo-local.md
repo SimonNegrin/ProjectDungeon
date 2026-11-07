@@ -8,10 +8,13 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-07T15:24:03Z
-updated_at: 2026-11-07T15:24:03Z
+updated_at: 2026-11-07T16:20:00Z
 related_tasks: [TASK-0001, TASK-0002, TASK-0003]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T15:24:03Z }
 verified:
+  - by: human:simon
+    at: 2026-11-07T16:18:00Z
+    note: Playtest del primer hito; HUD y feedback de ataque aprobados.
 ---
 
 # Contexto
@@ -86,8 +89,8 @@ cual.
 
 # Preguntas abiertas
 
-Ninguna bloqueante. El equilibrio y la sensación de cámara se revisarán en el
-playtest posterior a la primera build.
+El playtest cerró esta hoja. Las mejoras de encuadre, tamaño de sala y
+movimiento por turno se recogen en [REQ-002](REQ-002-encuadre-16-9.md).
 
 # Decisiones
 
@@ -97,6 +100,7 @@ playtest posterior a la primera build.
 | 2026-11-07 | Movimiento instantáneo entre casillas. | human:simon | aceptada |
 | 2026-11-07 | Usar el pack 32rogues como arte placeholder. | human:simon | aceptada |
 | 2026-11-07 | No hacer experimento antes de construir; la economía provisional se usa tal cual y el playtest decide después. | requirements-writer | aceptada |
+| 2026-11-07 | Playtest del primer hito: HUD y feedback de ataque aprobados. La cámara, la sala y el movimiento se revisan en REQ-002. | human:simon | aceptada |
 
 La licencia y el uso del pack se registran en
 [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md).
@@ -109,4 +113,4 @@ La licencia y el uso del pack se registran en
 - [x] Se puede generar un grafo de tareas.
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas.
-- [ ] El usuario ha hecho el playtest de la build.
+- [x] El usuario ha hecho el playtest de la build.
