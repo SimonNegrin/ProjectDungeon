@@ -1,0 +1,760 @@
+import { mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
+import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import type { Command, Unit } from '../../src/game/types';
+import type { GameSnapshot } from '../../src/host/debug';
+
+const CANVAS_ID = '#game-canvas';
+const SCREENSHOTS_DIR = 'artifacts/TASK-0006/attempt-1/screenshots';
+
+/** Valores del contrato aprobado en REQ-002 (no se leen de producción). */
+const TILE_SIZE = 32;
+const VIEWPORT_SIZE = 384;
+const TILES_PER_AXIS = 12;
+const CANVAS_WIDTH = 2048;
+const CANVAS_HEIGHT = 1152;
+const MAP_BACKING_SIZE = 1152;
+const SIDE_BACKING = 448;
+
+const FRAME_ASPECT = 16 / 9;
+/** Tolerancia del criterio: ±0,1 % sobre la proporción 16:9. */
+const ASPECT_TOLERANCE = FRAME_ASPECT * 0.001;
+/** Tolerancia de 1:1 del sub-viewport del mapa. */
+const SQUARE_TOLERANCE = 0.001;
+/** Redondeo entero de cámara y de márgenes subpíxel del layout. */
+const PX_TOLERANCE = 1;
+
+const HUD_TEST_IDS = [
+  'hud',
+  'hud-player-hp',
+  'hud-player-mp',
+  'hud-action',
+  'hud-phase',
+  'hud-enemy-hp',
+  'hud-turn',
+  'hud-status',
+  'hud-keys',
+] as const;
+
+interface Box {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  right: number;
+  bottom: number;
+}
+
+interface HudMeasurement {
+  id: string;
+  box: Box | null;
+  scrollWidth: number;
+  clientWidth: number;
+  scrollHeight: number;
+  clientHeight: number;
+}
+
+interface LayoutMeasurement {
+  frame: Box;
+  stage: Box;
+  canvas: Box;
+  footer: Box;
+  hud: HudMeasurement[];
+  document: {
+    scrollWidth: number;
+    clientWidth: number;
+    scrollHeight: number;
+    clientHeight: number;
+  };
+  stageBackground: string;
+  imageRendering: string;
+  imageSmoothingEnabled: boolean;
+  canvasInternal: { width: number; height: number };
+}
+
+interface PixelRegion {
+  samples: number;
+  nonBlack: number;
+}
+
+interface PixelMeasurement {
+  sideLeft: PixelRegion;
+  sideRight: PixelRegion;
+  map: PixelRegion;
+  sampledSides: { x: number; y: number; rgba: number[] }[];
+}
+
+interface GameViewport {
+  name: string;
+  width: number;
+  height: number;
+  screenshot: string;
+  /** Eje en el que el espacio sobrante produce bandas negras. */
+  bands: 'lateral' | 'vertical';
+}
+
+const VIEWPORTS: readonly GameViewport[] = [
+  {
+    name: '1280×720',
+    width: 1280,
+    height: 720,
+    screenshot: 'frame-1280x720',
+    bands: 'lateral',
+  },
+  {
+    name: '1920×1080',
+    width: 1920,
+    height: 1080,
+    screenshot: 'frame-1920x1080',
+    bands: 'lateral',
+  },
+  {
+    name: '900×700 (estrecha)',
+    width: 900,
+    height: 700,
+    screenshot: 'frame-narrow',
+    bands: 'vertical',
+  },
+];
+
+async function settleLayout(page: Page): Promise<void> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+}
+
+async function openGame(page: Page, width: number, height: number): Promise<void> {
+  await page.setViewportSize({ width, height });
+  await page.goto('/');
+  await page.waitForFunction(
+    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
+  );
+  await settleLayout(page);
+}
+
+function watchConsole(page: Page): string[] {
+  const errors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
+  page.on('pageerror', (error) => errors.push(error.message));
+  return errors;
+}
+
+async function snapshot(page: Page): Promise<GameSnapshot> {
+  return page.evaluate(() => window.__game!.snapshot());
+}
+
+async function dispatchCommand(page: Page, command: Command) {
+  return page.evaluate((cmd) => window.__game!.dispatch(cmd), command);
+}
+
+/** Ejecuta un comando y falla si el motor lo rechaza (evita rutas bloqueadas). */
+async function dispatchAccepted(page: Page, command: Command): Promise<void> {
+  const result = await dispatchCommand(page, command);
+  expect(
+    result.events.filter((event) => event.type === 'CommandRejected'),
+    `El comando ${command.type} debe ser aceptado`,
+  ).toEqual([]);
+}
+
+async function move(page: Page, dx: number, dy: number): Promise<void> {
+  await dispatchAccepted(page, { type: 'Move', unitId: 'player-1', dx, dy });
+}
+
+async function endTurn(page: Page): Promise<void> {
+  await dispatchAccepted(page, { type: 'EndTurn' });
+}
+
+async function restart(page: Page): Promise<void> {
+  await dispatchAccepted(page, { type: 'Restart' });
+}
+
+async function measureLayout(page: Page): Promise<LayoutMeasurement> {
+  return page.evaluate((hudIds): LayoutMeasurement => {
+    const toBox = (element: Element): Box => {
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+        right: rect.right,
+        bottom: rect.bottom,
+      };
+    };
+    const requireTestId = (id: string): HTMLElement => {
+      const element = document.querySelector<HTMLElement>(`[data-testid="${id}"]`);
+      if (!element) throw new Error(`Falta [data-testid="${id}"]`);
+      return element;
+    };
+    const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
+    const stage = requireTestId('stage');
+    const footer = document.querySelector('footer');
+    const context = canvas?.getContext('2d');
+    if (!canvas || !footer || !context) throw new Error('Falta canvas, footer o contexto 2D');
+
+    return {
+      frame: toBox(requireTestId('frame')),
+      stage: toBox(stage),
+      canvas: toBox(canvas),
+      footer: toBox(footer),
+      hud: hudIds.map((id) => {
+        const element = requireTestId(id);
+        return {
+          id,
+          box: toBox(element),
+          scrollWidth: element.scrollWidth,
+          clientWidth: element.clientWidth,
+          scrollHeight: element.scrollHeight,
+          clientHeight: element.clientHeight,
+        };
+      }),
+      document: {
+        scrollWidth: document.documentElement.scrollWidth,
+        clientWidth: document.documentElement.clientWidth,
+        scrollHeight: document.documentElement.scrollHeight,
+        clientHeight: document.documentElement.clientHeight,
+      },
+      stageBackground: getComputedStyle(stage).backgroundColor,
+      imageRendering: getComputedStyle(canvas).imageRendering,
+      imageSmoothingEnabled: context.imageSmoothingEnabled,
+      canvasInternal: { width: canvas.width, height: canvas.height },
+    };
+  }, HUD_TEST_IDS);
+}
+
+/**
+ * Recorre los dos laterales completos del canvas de respaldo y una rejilla del
+ * área del mapa. Los laterales deben ser negro puro; el mapa debe tener arte.
+ * No se compara la imagen completa, solo las regiones laterales y muestras.
+ */
+async function measurePixels(page: Page): Promise<PixelMeasurement> {
+  return page.evaluate(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
+    const context = canvas?.getContext('2d');
+    if (!canvas || !context) throw new Error('Falta canvas o contexto 2D');
+
+    const region = (x: number, width: number) => {
+      const data = context.getImageData(x, 0, width, canvas.height).data;
+      let nonBlack = 0;
+      for (let index = 0; index < data.length; index += 4) {
+        if (data[index] !== 0 || data[index + 1] !== 0 || data[index + 2] !== 0) {
+          nonBlack += 1;
+        }
+        if (data[index + 3] !== 255) nonBlack += 1;
+      }
+      return { samples: width * canvas.height, nonBlack };
+    };
+
+    let mapNonBlack = 0;
+    let mapSamples = 0;
+    for (let x = 448; x < 1600; x += 32) {
+      for (let y = 0; y < canvas.height; y += 32) {
+        const data = context.getImageData(x, y, 1, 1).data;
+        mapSamples += 1;
+        if (data[0] !== 0 || data[1] !== 0 || data[2] !== 0) mapNonBlack += 1;
+      }
+    }
+
+    const points = [
+      [0, 0],
+      [8, 8],
+      [224, 100],
+      [440, 576],
+      [447, canvas.height - 1],
+      [1600, 0],
+      [1760, 300],
+      [2040, 576],
+      [canvas.width - 1, canvas.height - 1],
+    ];
+    const sampledSides = points.map(([x, y]) => ({
+      x,
+      y,
+      rgba: Array.from(context.getImageData(x, y, 1, 1).data),
+    }));
+
+    return {
+      sideLeft: region(0, 448),
+      sideRight: region(1600, 448),
+      map: { samples: mapSamples, nonBlack: mapNonBlack },
+      sampledSides,
+    };
+  });
+}
+
+function unitRect(unit: Unit, tileSize: number) {
+  const left = unit.x * tileSize;
+  const top = unit.y * tileSize;
+  return { left, top, right: left + tileSize, bottom: top + tileSize };
+}
+
+function viewportRect(snapshotData: GameSnapshot) {
+  return {
+    left: snapshotData.camera.x,
+    top: snapshotData.camera.y,
+    right: snapshotData.camera.x + snapshotData.viewport.width,
+    bottom: snapshotData.camera.y + snapshotData.viewport.height,
+  };
+}
+
+function intersects(
+  a: { left: number; top: number; right: number; bottom: number },
+  b: { left: number; top: number; right: number; bottom: number },
+): boolean {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+}
+
+function playerVisible(snapshotData: GameSnapshot): boolean {
+  return intersects(
+    unitRect(snapshotData.players[0], snapshotData.tileSize),
+    viewportRect(snapshotData),
+  );
+}
+
+function enemyVisible(snapshotData: GameSnapshot): boolean {
+  return intersects(
+    unitRect(snapshotData.enemies[0], snapshotData.tileSize),
+    viewportRect(snapshotData),
+  );
+}
+
+/** Rango inclusivo de tiles visibles, mismo cálculo que el render del host. */
+function visibleTileRange(snapshotData: GameSnapshot) {
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+  const { camera, viewport, tileSize, grid } = snapshotData;
+  return {
+    minX: clamp(Math.floor(camera.x / tileSize), 0, grid.width - 1),
+    minY: clamp(Math.floor(camera.y / tileSize), 0, grid.height - 1),
+    maxX: clamp(Math.ceil((camera.x + viewport.width) / tileSize) - 1, 0, grid.width - 1),
+    maxY: clamp(Math.ceil((camera.y + viewport.height) / tileSize) - 1, 0, grid.height - 1),
+  };
+}
+
+/** Cámara esperada si el jugador está centrado y después se limita al mundo. */
+function expectedCamera(snapshotData: GameSnapshot) {
+  const player = snapshotData.players[0];
+  const rawX = Math.round(
+    (player.x + 0.5) * snapshotData.tileSize - snapshotData.viewport.width / 2,
+  );
+  const rawY = Math.round(
+    (player.y + 0.5) * snapshotData.tileSize - snapshotData.viewport.height / 2,
+  );
+  return {
+    x: Math.min(Math.max(rawX, 0), snapshotData.camera.maxX),
+    y: Math.min(Math.max(rawY, 0), snapshotData.camera.maxY),
+  };
+}
+
+function expectPlayerVisible(snapshotData: GameSnapshot, context: string): void {
+  expect(playerVisible(snapshotData), `El jugador debe verse ${context}`).toBe(true);
+}
+
+function expectHudInsideViewport(
+  layout: LayoutMeasurement,
+  viewportWidth: number,
+  viewportHeight: number,
+): void {
+  for (const item of layout.hud) {
+    expect(item.box, `El HUD debe exponer ${item.id}`).not.toBeNull();
+    if (!item.box) continue;
+    expect(item.box.x, `${item.id} no debe salir por la izquierda`).toBeGreaterThanOrEqual(0);
+    expect(item.box.y, `${item.id} no debe salir por arriba`).toBeGreaterThanOrEqual(0);
+    expect(item.box.right, `${item.id} no debe salir por la derecha`).toBeLessThanOrEqual(
+      viewportWidth + 0.5,
+    );
+    expect(item.box.bottom, `${item.id} no debe salir por abajo`).toBeLessThanOrEqual(
+      viewportHeight + 0.5,
+    );
+    expect(item.scrollWidth, `${item.id} no debe recortar texto en horizontal`).toBeLessThanOrEqual(
+      item.clientWidth + 1,
+    );
+    expect(item.scrollHeight, `${item.id} no debe recortar texto en vertical`).toBeLessThanOrEqual(
+      item.clientHeight + 1,
+    );
+  }
+}
+
+function expectWithinViewport(box: Box, viewportWidth: number, viewportHeight: number): void {
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.right).toBeLessThanOrEqual(viewportWidth + 0.5);
+  expect(box.bottom).toBeLessThanOrEqual(viewportHeight + 0.5);
+}
+
+async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
+  const path = `${SCREENSHOTS_DIR}/${name}.png`;
+  await mkdir(dirname(path), { recursive: true });
+  await page.screenshot({ path, fullPage: true });
+  await testInfo.attach(name, { path, contentType: 'image/png' });
+}
+
+test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
+  for (const viewport of VIEWPORTS) {
+    test(`mantiene las invariantes a ${viewport.name}`, async ({ page }, testInfo) => {
+      const consoleErrors = watchConsole(page);
+      await openGame(page, viewport.width, viewport.height);
+
+      const snap = await snapshot(page);
+      const layout = await measureLayout(page);
+      const pixels = await measurePixels(page);
+
+      await expect(page.getByTestId('frame')).toBeVisible();
+      await expect(page.locator(CANVAS_ID)).toBeVisible();
+      await expect(page.getByTestId('hud')).toBeVisible();
+
+      // Marco 16:9 y canvas 16:9 con ±0,1 %.
+      expect(layout.frame.width).toBeGreaterThan(0);
+      expect(layout.frame.height).toBeGreaterThan(0);
+      expect(Math.abs(layout.frame.width / layout.frame.height - FRAME_ASPECT)).toBeLessThanOrEqual(
+        ASPECT_TOLERANCE,
+      );
+      expect(
+        Math.abs(layout.canvas.width / layout.canvas.height - FRAME_ASPECT),
+      ).toBeLessThanOrEqual(ASPECT_TOLERANCE);
+
+      // Canvas interno fijo 2048×1152 y área de mapa 1:1 centrada.
+      expect(layout.canvasInternal).toEqual({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+      const mapCssWidth = layout.canvas.width * (MAP_BACKING_SIZE / CANVAS_WIDTH);
+      const mapCssHeight = layout.canvas.height * (MAP_BACKING_SIZE / CANVAS_HEIGHT);
+      expect(Math.abs(mapCssWidth / mapCssHeight - 1)).toBeLessThanOrEqual(SQUARE_TOLERANCE);
+      expect(Math.abs(mapCssHeight - layout.canvas.height)).toBeLessThanOrEqual(0.5);
+      const mapLeftOffset = layout.canvas.width * (SIDE_BACKING / CANVAS_WIDTH);
+      const mapRightOffset = layout.canvas.width - mapLeftOffset - mapCssWidth;
+      expect(Math.abs(mapLeftOffset - mapRightOffset)).toBeLessThanOrEqual(0.5);
+
+      // Constantes del sub-viewport y del respaldo, derivadas del snapshot.
+      expect(snap.tileSize).toBe(TILE_SIZE);
+      expect(snap.viewport).toEqual({ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE });
+      expect(snap.viewport.width / snap.tileSize).toBe(TILES_PER_AXIS);
+      expect(snap.viewport.height / snap.tileSize).toBe(TILES_PER_AXIS);
+      expect(snap.viewport.width * 3).toBe(MAP_BACKING_SIZE);
+      expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(SIDE_BACKING);
+
+      // 12 columnas y 12 filas visibles en el arranque.
+      const range = visibleTileRange(snap);
+      expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
+      expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
+      expect(range).toEqual({ minX: 0, minY: 0, maxX: 11, maxY: 11 });
+
+      // Pixel art nítido y sin suavizado.
+      expect(layout.imageRendering).toBe('pixelated');
+      expect(layout.imageSmoothingEnabled).toBe(false);
+
+      // Laterales de respaldo en negro puro y mapa con arte (sin invasión).
+      expect(pixels.sideLeft.nonBlack).toBe(0);
+      expect(pixels.sideRight.nonBlack).toBe(0);
+      expect(pixels.sideLeft.samples).toBe(SIDE_BACKING * CANVAS_HEIGHT);
+      expect(pixels.sideRight.samples).toBe(SIDE_BACKING * CANVAS_HEIGHT);
+      for (const sample of pixels.sampledSides) {
+        expect(sample.rgba, `Píxel lateral (${sample.x}, ${sample.y})`).toEqual([0, 0, 0, 255]);
+      }
+      expect(pixels.map.nonBlack).toBeGreaterThan(500);
+      expect(pixels.map.nonBlack).toBeGreaterThan(pixels.map.samples / 2);
+
+      // Bandas negras del escenario y marco centrado.
+      expect(layout.stageBackground).toBe('rgb(0, 0, 0)');
+      expect(layout.frame.x).toBeGreaterThanOrEqual(layout.stage.x - 0.5);
+      expect(layout.frame.y).toBeGreaterThanOrEqual(layout.stage.y - PX_TOLERANCE);
+      expect(layout.frame.right).toBeLessThanOrEqual(layout.stage.right + PX_TOLERANCE);
+      expect(layout.frame.bottom).toBeLessThanOrEqual(layout.stage.bottom + PX_TOLERANCE);
+      expect(
+        Math.abs(
+          layout.frame.x - layout.stage.x - (layout.stage.right - layout.frame.right),
+        ),
+      ).toBeLessThanOrEqual(PX_TOLERANCE);
+      expect(
+        Math.abs(
+          layout.frame.y - layout.stage.y - (layout.stage.bottom - layout.frame.bottom),
+        ),
+      ).toBeLessThanOrEqual(PX_TOLERANCE);
+
+      if (viewport.bands === 'lateral') {
+        // Limitado por altura: bandas laterales negras dentro del escenario.
+        expect(layout.stage.width - layout.frame.width).toBeGreaterThan(1);
+        expect(Math.abs(layout.stage.height - layout.frame.height)).toBeLessThanOrEqual(
+          PX_TOLERANCE,
+        );
+      } else {
+        // Limitado por anchura: bandas verticales negras (marco sin deformar).
+        expect(layout.stage.height - layout.frame.height).toBeGreaterThan(1);
+        expect(Math.abs(layout.stage.width - layout.frame.width)).toBeLessThanOrEqual(
+          PX_TOLERANCE,
+        );
+      }
+
+      // HUD íntegro, legible y sin recortes; footer dentro de la ventana.
+      expectHudInsideViewport(layout, viewport.width, viewport.height);
+      expectWithinViewport(layout.footer, viewport.width, viewport.height);
+      expect(layout.document.scrollWidth).toBeLessThanOrEqual(layout.document.clientWidth + 1);
+      expect(layout.document.scrollHeight).toBeLessThanOrEqual(layout.document.clientHeight + 1);
+
+      await screenshot(page, viewport.screenshot, testInfo);
+
+      expect(consoleErrors).toEqual([]);
+    });
+  }
+});
+
+test('el canvas interno 2048×1152 no cambia al redimensionar', async ({ page }) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page, 1280, 720);
+
+  const internalSize = () =>
+    page.evaluate(() => {
+      const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
+      if (!canvas) throw new Error('Falta #game-canvas');
+      return { width: canvas.width, height: canvas.height };
+    });
+
+  const initial = await internalSize();
+  expect(initial).toEqual({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
+
+  for (const [width, height] of [
+    [1920, 1080],
+    [900, 700],
+    [1280, 720],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await settleLayout(page);
+    expect(await internalSize(), `Canvas interno tras ${width}×${height}`).toEqual(initial);
+  }
+
+  const layout = await measureLayout(page);
+  expect(Math.abs(layout.frame.width / layout.frame.height - FRAME_ASPECT)).toBeLessThanOrEqual(
+    ASPECT_TOLERANCE,
+  );
+
+  expect(consoleErrors).toEqual([]);
+});
+
+test('la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes', async ({
+  page,
+}, testInfo) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page, 1280, 720);
+
+  // Arranque: cámara en (0,0) y jugador en (4,4), centrado salvo clamp.
+  const initial = await snapshot(page);
+  expect(initial.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
+  expect(initial.players[0]).toMatchObject({ x: 4, y: 4, mp: 6, hp: 20 });
+  expect(initial.camera.x).toBe(expectedCamera(initial).x);
+  expect(initial.camera.y).toBe(expectedCamera(initial).y);
+  expectPlayerVisible(initial, 'en el arranque');
+
+  // Lejos de los bordes: el jugador queda centrado en el viewport (±1 px).
+  await restart(page);
+  for (let step = 0; step < 3; step += 1) {
+    await move(page, 1, 1);
+  }
+  const centered = await snapshot(page);
+  expect(centered.players[0]).toMatchObject({ x: 7, y: 7 });
+  expect(centered.camera.x).toBeGreaterThan(0);
+  expect(centered.camera.y).toBeGreaterThan(0);
+  expect(centered.camera.x).toBeLessThan(centered.camera.maxX);
+  expect(centered.camera.y).toBeLessThan(centered.camera.maxY);
+  expect(Math.abs(centered.camera.x - expectedCamera(centered).x)).toBeLessThanOrEqual(
+    PX_TOLERANCE,
+  );
+  expect(Math.abs(centered.camera.y - expectedCamera(centered).y)).toBeLessThanOrEqual(
+    PX_TOLERANCE,
+  );
+  const playerCenterX =
+    (centered.players[0].x + 0.5) * centered.tileSize - centered.camera.x;
+  const playerCenterY =
+    (centered.players[0].y + 0.5) * centered.tileSize - centered.camera.y;
+  expect(Math.abs(playerCenterX - centered.viewport.width / 2)).toBeLessThanOrEqual(
+    PX_TOLERANCE,
+  );
+  expect(Math.abs(playerCenterY - centered.viewport.height / 2)).toBeLessThanOrEqual(
+    PX_TOLERANCE,
+  );
+
+  // Borde noroeste: la cámara ya está en (0,0) y el jugador sigue visible.
+  await restart(page);
+  for (let step = 0; step < 3; step += 1) {
+    await move(page, -1, -1);
+  }
+  const northWest = await snapshot(page);
+  expect(northWest.players[0]).toMatchObject({ x: 1, y: 1 });
+  expect(northWest.camera).toMatchObject({ x: 0, y: 0 });
+  expectPlayerVisible(northWest, 'en el borde noroeste');
+
+  // Borde noreste: (256,0).
+  await restart(page);
+  for (let step = 0; step < 6; step += 1) {
+    await move(page, 1, 0);
+  }
+  await endTurn(page);
+  for (let step = 0; step < 4; step += 1) {
+    await move(page, 1, 0);
+  }
+  const northEast = await snapshot(page);
+  expect(northEast.players[0]).toMatchObject({ x: 14, y: 4 });
+  expect(northEast.camera).toMatchObject({ x: 256, y: 0 });
+  expectPlayerVisible(northEast, 'en el borde noreste');
+
+  // Borde suroeste: (0,256).
+  await restart(page);
+  for (let step = 0; step < 6; step += 1) {
+    await move(page, 0, 1);
+  }
+  await endTurn(page);
+  for (let step = 0; step < 4; step += 1) {
+    await move(page, 0, 1);
+  }
+  const southWest = await snapshot(page);
+  expect(southWest.players[0]).toMatchObject({ x: 4, y: 14 });
+  expect(southWest.camera).toMatchObject({ x: 0, y: 256 });
+  expectPlayerVisible(southWest, 'en el borde suroeste');
+
+  // Borde sureste: (256,256). El enemigo acaba en (14,14), así que se rodea.
+  await restart(page);
+  for (let step = 0; step < 6; step += 1) {
+    await move(page, 1, 1);
+  }
+  await endTurn(page);
+  for (const [dx, dy] of [
+    [1, 0],
+    [1, 0],
+    [1, 1],
+    [1, 1],
+    [1, 1],
+    [1, 1],
+  ] as const) {
+    await move(page, dx, dy);
+  }
+  const southEast = await snapshot(page);
+  expect(southEast.players[0]).toMatchObject({ x: 16, y: 14 });
+  expect(southEast.camera).toMatchObject({ x: 256, y: 256 });
+  expectPlayerVisible(southEast, 'en el borde sureste');
+
+  await screenshot(page, 'camera-edge', testInfo);
+
+  expect(consoleErrors).toEqual([]);
+});
+
+test('el enemigo no se ve al arrancar y aparece en un máximo de dos turnos', async ({ page }) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page, 1280, 720);
+
+  const initial = await snapshot(page);
+  expect(initial.enemies[0]).toMatchObject({ x: 15, y: 15 });
+  expect(enemyVisible(initial), 'El enemigo no debe verse al arrancar').toBe(false);
+
+  // Turno 1: seis movimientos diagonales hacia el enemigo, sin teletransportar.
+  for (let step = 0; step < 6; step += 1) {
+    await move(page, 1, 1);
+  }
+  const afterMoves = await snapshot(page);
+  expect(afterMoves.players[0]).toMatchObject({ x: 10, y: 10, mp: 0 });
+  expect(enemyVisible(afterMoves), 'El enemigo debe aparecer en el turno 1').toBe(true);
+
+  // La fase enemiga lo acerca y la intersección con cámara/viewport se mantiene.
+  await endTurn(page);
+  const afterEnemyPhase = await snapshot(page);
+  expect(afterEnemyPhase.turn).toBe(2);
+  expect(afterEnemyPhase.phase).toBe('player');
+  expect(afterEnemyPhase.enemies[0]).not.toMatchObject({ x: 15, y: 15 });
+  expect(enemyVisible(afterEnemyPhase), 'El enemigo debe seguir visible tras su fase').toBe(true);
+
+  // Se ha usado exactamente un turno para verlo (el máximo permitido es 2).
+  expect(afterEnemyPhase.turn - initial.turn).toBeLessThanOrEqual(2);
+
+  expect(consoleErrors).toEqual([]);
+});
+
+/**
+ * Acerca al jugador al enemigo con comandos reales (una casilla por `Move` y
+ * `EndTurn` cuando no quedan MP). No inyecta estados ni teletransporta.
+ * Mismo enfoque determinista que `tests/e2e/game-input-hud.spec.ts`.
+ */
+async function approachEnemy(page: Page): Promise<void> {
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    const done = await page.evaluate(() => {
+      const game = window.__game!;
+      const snap = game.snapshot();
+      const player = snap.players[0];
+      const enemy = snap.enemies[0];
+      if (snap.status !== 'playing') return true;
+
+      const distance = Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y));
+      if (distance <= 1) return true;
+
+      if (player.mp <= 0) {
+        game.dispatch({ type: 'EndTurn' });
+        return false;
+      }
+
+      const dx = Math.sign(enemy.x - player.x);
+      const dy = Math.sign(enemy.y - player.y);
+      for (const [mx, my] of [
+        [dx, dy],
+        [dx, 0],
+        [0, dy],
+      ] as const) {
+        if (mx === 0 && my === 0) continue;
+        const result = game.dispatch({ type: 'Move', unitId: player.id, dx: mx, dy: my });
+        if (!result.events.some((event) => event.type === 'CommandRejected')) return false;
+      }
+
+      game.dispatch({ type: 'EndTurn' });
+      return false;
+    });
+
+    if (done) return;
+  }
+
+  throw new Error('No se alcanzó la adyacencia con el enemigo en 60 intentos.');
+}
+
+test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño', async ({
+  page,
+}, testInfo) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page, 1280, 720);
+
+  await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
+  await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
+  await expect(page.getByTestId('hud-action')).toHaveText('Sí');
+  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
+  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('10/10');
+
+  await approachEnemy(page);
+  const adjacent = await snapshot(page);
+  expect(
+    Math.max(
+      Math.abs(adjacent.players[0].x - adjacent.enemies[0].x),
+      Math.abs(adjacent.players[0].y - adjacent.enemies[0].y),
+    ),
+  ).toBe(1);
+
+  await page.keyboard.press('Space');
+  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
+  await screenshot(page, 'attack', testInfo);
+
+  const afterAttack = await snapshot(page);
+  expect(afterAttack.enemies[0].hp).toBe(5);
+  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.lastEvents).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        type: 'AttackPerformed',
+        attackerId: 'player-1',
+        targetId: 'enemy-1',
+        damage: 5,
+      }),
+    ]),
+  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('5/10');
+  await expect(page.getByTestId('hud-action')).toHaveText('No');
+
+  expect(consoleErrors).toEqual([]);
+});

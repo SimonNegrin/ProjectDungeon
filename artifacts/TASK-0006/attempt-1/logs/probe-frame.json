@@ -1,0 +1,720 @@
+{
+  "width": 1280,
+  "height": 720,
+  "inner": {
+    "width": 1280,
+    "height": 720
+  },
+  "doc": {
+    "scrollWidth": 1280,
+    "clientWidth": 1280,
+    "scrollHeight": 720,
+    "clientHeight": 720
+  },
+  "body": {
+    "x": 0,
+    "y": 0,
+    "width": 1280,
+    "height": 720,
+    "right": 1280,
+    "bottom": 720
+  },
+  "main": {
+    "x": 16,
+    "y": 16,
+    "width": 1248,
+    "height": 688,
+    "right": 1264,
+    "bottom": 704
+  },
+  "gameRoot": {
+    "x": 16,
+    "y": 16,
+    "width": 1248,
+    "height": 665,
+    "right": 1264,
+    "bottom": 681
+  },
+  "stage": {
+    "x": 16,
+    "y": 79.109,
+    "width": 1248,
+    "height": 601.891,
+    "right": 1264,
+    "bottom": 681
+  },
+  "stageBg": "rgb(0, 0, 0)",
+  "frame": {
+    "x": 104.875,
+    "y": 79.109,
+    "width": 1070.219,
+    "height": 602,
+    "right": 1175.094,
+    "bottom": 681.109
+  },
+  "canvas": {
+    "x": 104.875,
+    "y": 79.109,
+    "width": 1070.219,
+    "height": 602,
+    "right": 1175.094,
+    "bottom": 681.109
+  },
+  "canvasInternal": {
+    "width": 2048,
+    "height": 1152
+  },
+  "imageRendering": "pixelated",
+  "imageSmoothingEnabled": false,
+  "footer": {
+    "x": 600.109,
+    "y": 689,
+    "width": 79.766,
+    "height": 15,
+    "right": 679.875,
+    "bottom": 704
+  },
+  "hud": {
+    "hud": {
+      "box": {
+        "x": 104.891,
+        "y": 16,
+        "width": 1070.219,
+        "height": 55.109,
+        "right": 1175.109,
+        "bottom": 71.109
+      },
+      "scrollWidth": 1068,
+      "clientWidth": 1068,
+      "scrollHeight": 53,
+      "clientHeight": 53
+    },
+    "hud-player-hp": {
+      "box": {
+        "x": 145.906,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 184.266,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-player-mp": {
+      "box": {
+        "x": 221.016,
+        "y": 25,
+        "width": 21.297,
+        "height": 15,
+        "right": 242.313,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-action": {
+      "box": {
+        "x": 300.266,
+        "y": 25,
+        "width": 12.203,
+        "height": 15,
+        "right": 312.469,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-phase": {
+      "box": {
+        "x": 361.734,
+        "y": 25,
+        "width": 52.969,
+        "height": 15,
+        "right": 414.703,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-enemy-hp": {
+      "box": {
+        "x": 483.906,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 522.266,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-turn": {
+      "box": {
+        "x": 536.266,
+        "y": 25,
+        "width": 43.797,
+        "height": 15,
+        "right": 580.063,
+        "bottom": 40
+      },
+      "scrollWidth": 44,
+      "clientWidth": 44,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-status": {
+      "box": {
+        "x": 594.063,
+        "y": 25,
+        "width": 51.516,
+        "height": 15,
+        "right": 645.578,
+        "bottom": 40
+      },
+      "scrollWidth": 52,
+      "clientWidth": 52,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-keys": {
+      "box": {
+        "x": 115.891,
+        "y": 46,
+        "width": 1048.219,
+        "height": 16.109,
+        "right": 1164.109,
+        "bottom": 62.109
+      },
+      "scrollWidth": 1048,
+      "clientWidth": 1048,
+      "scrollHeight": 16,
+      "clientHeight": 16
+    }
+  },
+  "snapshot": {
+    "camera": {
+      "x": 0,
+      "y": 0,
+      "maxX": 256,
+      "maxY": 256
+    },
+    "viewport": {
+      "width": 384,
+      "height": 384
+    },
+    "tileSize": 32,
+    "player": {
+      "id": "player-1",
+      "faction": "player",
+      "x": 4,
+      "y": 4,
+      "hp": 20,
+      "maxHp": 20,
+      "mp": 6,
+      "maxMp": 6,
+      "actionAvailable": true
+    },
+    "enemy": {
+      "id": "enemy-1",
+      "faction": "enemy",
+      "x": 15,
+      "y": 15,
+      "hp": 10,
+      "maxHp": 10,
+      "mp": 4,
+      "maxMp": 4,
+      "actionAvailable": true
+    }
+  }
+}
+{
+  "width": 1920,
+  "height": 1080,
+  "inner": {
+    "width": 1920,
+    "height": 1080
+  },
+  "doc": {
+    "scrollWidth": 1920,
+    "clientWidth": 1920,
+    "scrollHeight": 1080,
+    "clientHeight": 1080
+  },
+  "body": {
+    "x": 0,
+    "y": 0,
+    "width": 1920,
+    "height": 1080,
+    "right": 1920,
+    "bottom": 1080
+  },
+  "main": {
+    "x": 16,
+    "y": 16,
+    "width": 1888,
+    "height": 1048,
+    "right": 1904,
+    "bottom": 1064
+  },
+  "gameRoot": {
+    "x": 16,
+    "y": 16,
+    "width": 1888,
+    "height": 1025,
+    "right": 1904,
+    "bottom": 1041
+  },
+  "stage": {
+    "x": 16,
+    "y": 79.109,
+    "width": 1888,
+    "height": 961.891,
+    "right": 1904,
+    "bottom": 1041
+  },
+  "stageBg": "rgb(0, 0, 0)",
+  "frame": {
+    "x": 104.875,
+    "y": 79.109,
+    "width": 1710.219,
+    "height": 962,
+    "right": 1815.094,
+    "bottom": 1041.109
+  },
+  "canvas": {
+    "x": 104.875,
+    "y": 79.109,
+    "width": 1710.219,
+    "height": 962,
+    "right": 1815.094,
+    "bottom": 1041.109
+  },
+  "canvasInternal": {
+    "width": 2048,
+    "height": 1152
+  },
+  "imageRendering": "pixelated",
+  "imageSmoothingEnabled": false,
+  "footer": {
+    "x": 920.109,
+    "y": 1049,
+    "width": 79.766,
+    "height": 15,
+    "right": 999.875,
+    "bottom": 1064
+  },
+  "hud": {
+    "hud": {
+      "box": {
+        "x": 104.891,
+        "y": 16,
+        "width": 1710.219,
+        "height": 55.109,
+        "right": 1815.109,
+        "bottom": 71.109
+      },
+      "scrollWidth": 1708,
+      "clientWidth": 1708,
+      "scrollHeight": 53,
+      "clientHeight": 53
+    },
+    "hud-player-hp": {
+      "box": {
+        "x": 145.906,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 184.266,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-player-mp": {
+      "box": {
+        "x": 221.016,
+        "y": 25,
+        "width": 21.297,
+        "height": 15,
+        "right": 242.313,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-action": {
+      "box": {
+        "x": 300.266,
+        "y": 25,
+        "width": 12.203,
+        "height": 15,
+        "right": 312.469,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-phase": {
+      "box": {
+        "x": 361.734,
+        "y": 25,
+        "width": 52.969,
+        "height": 15,
+        "right": 414.703,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-enemy-hp": {
+      "box": {
+        "x": 483.906,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 522.266,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-turn": {
+      "box": {
+        "x": 536.266,
+        "y": 25,
+        "width": 43.797,
+        "height": 15,
+        "right": 580.063,
+        "bottom": 40
+      },
+      "scrollWidth": 44,
+      "clientWidth": 44,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-status": {
+      "box": {
+        "x": 594.063,
+        "y": 25,
+        "width": 51.516,
+        "height": 15,
+        "right": 645.578,
+        "bottom": 40
+      },
+      "scrollWidth": 52,
+      "clientWidth": 52,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-keys": {
+      "box": {
+        "x": 115.891,
+        "y": 46,
+        "width": 1688.219,
+        "height": 16.109,
+        "right": 1804.109,
+        "bottom": 62.109
+      },
+      "scrollWidth": 1688,
+      "clientWidth": 1688,
+      "scrollHeight": 16,
+      "clientHeight": 16
+    }
+  },
+  "snapshot": {
+    "camera": {
+      "x": 0,
+      "y": 0,
+      "maxX": 256,
+      "maxY": 256
+    },
+    "viewport": {
+      "width": 384,
+      "height": 384
+    },
+    "tileSize": 32,
+    "player": {
+      "id": "player-1",
+      "faction": "player",
+      "x": 4,
+      "y": 4,
+      "hp": 20,
+      "maxHp": 20,
+      "mp": 6,
+      "maxMp": 6,
+      "actionAvailable": true
+    },
+    "enemy": {
+      "id": "enemy-1",
+      "faction": "enemy",
+      "x": 15,
+      "y": 15,
+      "hp": 10,
+      "maxHp": 10,
+      "mp": 4,
+      "maxMp": 4,
+      "actionAvailable": true
+    }
+  }
+}
+{
+  "width": 900,
+  "height": 700,
+  "inner": {
+    "width": 900,
+    "height": 700
+  },
+  "doc": {
+    "scrollWidth": 900,
+    "clientWidth": 900,
+    "scrollHeight": 700,
+    "clientHeight": 700
+  },
+  "body": {
+    "x": 0,
+    "y": 0,
+    "width": 900,
+    "height": 700,
+    "right": 900,
+    "bottom": 700
+  },
+  "main": {
+    "x": 16,
+    "y": 16,
+    "width": 868,
+    "height": 668,
+    "right": 884,
+    "bottom": 684
+  },
+  "gameRoot": {
+    "x": 16,
+    "y": 16,
+    "width": 868,
+    "height": 645,
+    "right": 884,
+    "bottom": 661
+  },
+  "stage": {
+    "x": 16,
+    "y": 79.109,
+    "width": 868,
+    "height": 581.891,
+    "right": 884,
+    "bottom": 661
+  },
+  "stageBg": "rgb(0, 0, 0)",
+  "frame": {
+    "x": 16,
+    "y": 125.984,
+    "width": 868,
+    "height": 488.25,
+    "right": 884,
+    "bottom": 614.234
+  },
+  "canvas": {
+    "x": 16,
+    "y": 125.984,
+    "width": 868,
+    "height": 488.25,
+    "right": 884,
+    "bottom": 614.234
+  },
+  "canvasInternal": {
+    "width": 2048,
+    "height": 1152
+  },
+  "imageRendering": "pixelated",
+  "imageSmoothingEnabled": false,
+  "footer": {
+    "x": 410.109,
+    "y": 669,
+    "width": 79.766,
+    "height": 15,
+    "right": 489.875,
+    "bottom": 684
+  },
+  "hud": {
+    "hud": {
+      "box": {
+        "x": 16,
+        "y": 16,
+        "width": 868,
+        "height": 55.109,
+        "right": 884,
+        "bottom": 71.109
+      },
+      "scrollWidth": 866,
+      "clientWidth": 866,
+      "scrollHeight": 53,
+      "clientHeight": 53
+    },
+    "hud-player-hp": {
+      "box": {
+        "x": 57.016,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 95.375,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-player-mp": {
+      "box": {
+        "x": 132.125,
+        "y": 25,
+        "width": 21.297,
+        "height": 15,
+        "right": 153.422,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-action": {
+      "box": {
+        "x": 211.375,
+        "y": 25,
+        "width": 12.203,
+        "height": 15,
+        "right": 223.578,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-phase": {
+      "box": {
+        "x": 272.844,
+        "y": 25,
+        "width": 52.969,
+        "height": 15,
+        "right": 325.813,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-enemy-hp": {
+      "box": {
+        "x": 395.016,
+        "y": 25,
+        "width": 38.359,
+        "height": 15,
+        "right": 433.375,
+        "bottom": 40
+      },
+      "scrollWidth": 0,
+      "clientWidth": 0,
+      "scrollHeight": 0,
+      "clientHeight": 0
+    },
+    "hud-turn": {
+      "box": {
+        "x": 447.375,
+        "y": 25,
+        "width": 43.797,
+        "height": 15,
+        "right": 491.172,
+        "bottom": 40
+      },
+      "scrollWidth": 44,
+      "clientWidth": 44,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-status": {
+      "box": {
+        "x": 505.172,
+        "y": 25,
+        "width": 51.516,
+        "height": 15,
+        "right": 556.688,
+        "bottom": 40
+      },
+      "scrollWidth": 52,
+      "clientWidth": 52,
+      "scrollHeight": 15,
+      "clientHeight": 15
+    },
+    "hud-keys": {
+      "box": {
+        "x": 27,
+        "y": 46,
+        "width": 846,
+        "height": 16.109,
+        "right": 873,
+        "bottom": 62.109
+      },
+      "scrollWidth": 846,
+      "clientWidth": 846,
+      "scrollHeight": 16,
+      "clientHeight": 16
+    }
+  },
+  "snapshot": {
+    "camera": {
+      "x": 0,
+      "y": 0,
+      "maxX": 256,
+      "maxY": 256
+    },
+    "viewport": {
+      "width": 384,
+      "height": 384
+    },
+    "tileSize": 32,
+    "player": {
+      "id": "player-1",
+      "faction": "player",
+      "x": 4,
+      "y": 4,
+      "hp": 20,
+      "maxHp": 20,
+      "mp": 6,
+      "maxMp": 6,
+      "actionAvailable": true
+    },
+    "enemy": {
+      "id": "enemy-1",
+      "faction": "enemy",
+      "x": 15,
+      "y": 15,
+      "hp": 10,
+      "maxHp": 10,
+      "mp": 4,
+      "maxMp": 4,
+      "actionAvailable": true
+    }
+  }
+}

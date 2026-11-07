@@ -1,0 +1,119 @@
+== pnpm run test (timeout 120s, tool timeout) ==
+started: 2026-11-07T17:17:03Z
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  16 passed (16)
+      Tests  120 passed (120)
+   Start at  17:17:04
+   Duration  751ms (import 37%, transform 30%, tests 23%, worker 10%)
+
+    Isolate  16 workers spawned · ~217ms startup each (spawn + environment, per file)
+             at least ~279ms faster with isolate: false — reuses workers across files instead of one per file
+
+exit_code: 0
+finished: 2026-11-07T17:17:04Z
+
+== pnpm run verify (timeout 180s, tool timeout) ==
+started: 2026-11-07T17:17:07Z
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
+$ node scripts/validate-docs.mjs
+OK: 49 documentos, 6 tareas, 1 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 3 agentes, 9 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  16 passed (16)
+      Tests  120 passed (120)
+   Start at  17:17:07
+   Duration  464ms (import 39%, tests 29%, transform 21%, worker 11%)
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 34 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/experiments/EXP-000-shell-demo/index.html   0.54 kB │ gzip: 0.32 kB
+dist/experiments/index.html                      1.18 kB │ gzip: 0.60 kB
+dist/index.html                                  9.64 kB │ gzip: 2.68 kB
+dist/assets/experiments-C5qb_O5-.css             1.97 kB │ gzip: 0.88 kB
+dist/assets/EXP-000-shell-demo-C55J7gHv.css      4.28 kB │ gzip: 1.50 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js   0.71 kB │ gzip: 0.40 kB
+dist/assets/experiments-DBhEdNHT.js              1.19 kB │ gzip: 0.58 kB
+dist/assets/EXP-000-shell-demo-Dfadx-d2.js      12.98 kB │ gzip: 5.12 kB
+dist/assets/main-CQPEKf94.js                    17.88 kB │ gzip: 6.61 kB
+✓ built in 173ms
+exit_code: 0
+finished: 2026-11-07T17:17:09Z
+
+== pnpm run test:e2e (timeout 300s, tool timeout) ==
+started: 2026-11-07T17:17:13Z
+$ playwright test
+
+Running 10 tests using 4 workers
+
+  ✓   2 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (947ms)
+  ✓   3 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (970ms)
+  ✓   4 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (984ms)
+  ✓   1 [chromium] › tests/e2e/experiment-shell.spec.ts:5:1 › el shell renderiza, ajusta parámetros y exporta una decisión (1.3s)
+  ✓   5 [chromium] › tests/e2e/frame-qa.spec.ts:503:1 › el canvas interno 2048×1152 no cambia al redimensionar (561ms)
+  ✓   7 [chromium] › tests/e2e/frame-qa.spec.ts:641:1 › el enemigo no se ve al arrancar y aparece en un máximo de dos turnos (558ms)
+  ✓   6 [chromium] › tests/e2e/frame-qa.spec.ts:535:1 › la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes (1.4s)
+  ✓   8 [chromium] › tests/e2e/frame-qa.spec.ts:715:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (1.0s)
+  ✓   9 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza la sala, expone el snapshot y limita la cámara (988ms)
+  ✓  10 [chromium] › tests/e2e/game-input-hud.spec.ts:88:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (1.5s)
+
+  10 passed (6.5s)
+exit_code: 0
+finished: 2026-11-07T17:17:20Z
+
+== pnpm exec playwright test tests/e2e/frame-qa.spec.ts --repeat-each=3 (timeout 300s, tool timeout) ==
+started: 2026-11-07T17:17:23Z
+
+Running 21 tests using 4 workers
+
+  ✓   3 [chromium] › tests/e2e/frame-qa.spec.ts:503:1 › el canvas interno 2048×1152 no cambia al redimensionar (759ms)
+  ✓   1 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (820ms)
+  ✓   2 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (909ms)
+  ✓   4 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (915ms)
+  ✓   6 [chromium] › tests/e2e/frame-qa.spec.ts:641:1 › el enemigo no se ve al arrancar y aparece en un máximo de dos turnos (508ms)
+  ✓   7 [chromium] › tests/e2e/frame-qa.spec.ts:715:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (718ms)
+  ✓   5 [chromium] › tests/e2e/frame-qa.spec.ts:535:1 › la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes (1.0s)
+  ✓   8 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (678ms)
+  ✓  10 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (709ms)
+  ✓   9 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (1.0s)
+  ✓  11 [chromium] › tests/e2e/frame-qa.spec.ts:503:1 › el canvas interno 2048×1152 no cambia al redimensionar (1.3s)
+  ✓  13 [chromium] › tests/e2e/frame-qa.spec.ts:641:1 › el enemigo no se ve al arrancar y aparece en un máximo de dos turnos (915ms)
+  ✓  14 [chromium] › tests/e2e/frame-qa.spec.ts:715:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (1.1s)
+  ✓  12 [chromium] › tests/e2e/frame-qa.spec.ts:535:1 › la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes (1.6s)
+  ✓  15 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (721ms)
+  ✓  16 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (790ms)
+  ✓  18 [chromium] › tests/e2e/frame-qa.spec.ts:503:1 › el canvas interno 2048×1152 no cambia al redimensionar (663ms)
+  ✓  17 [chromium] › tests/e2e/frame-qa.spec.ts:398:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (696ms)
+  ✓  20 [chromium] › tests/e2e/frame-qa.spec.ts:641:1 › el enemigo no se ve al arrancar y aparece en un máximo de dos turnos (545ms)
+  ✓  21 [chromium] › tests/e2e/frame-qa.spec.ts:715:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (672ms)
+  ✓  19 [chromium] › tests/e2e/frame-qa.spec.ts:535:1 › la cámara centra al jugador lejos de los bordes y se detiene en los cuatro bordes (910ms)
+
+  21 passed (8.2s)
+exit_code: 0
+finished: 2026-11-07T17:17:32Z
+
+== pnpm exec playwright test tests/e2e/game-render.spec.ts --repeat-each=3 (timeout 300s, tool timeout) ==
+started: 2026-11-07T17:17:35Z
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza la sala, expone el snapshot y limita la cámara (679ms)
+  ✓  3 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza la sala, expone el snapshot y limita la cámara (672ms)
+  ✓  2 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza la sala, expone el snapshot y limita la cámara (687ms)
+
+  3 passed (1.9s)
+exit_code: 0
+finished: 2026-11-07T17:17:38Z
+
