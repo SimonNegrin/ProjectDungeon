@@ -1,0 +1,10 @@
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  8 passed (8)
+      Tests  49 passed (49)
+   Start at  15:33:26
+   Duration  318ms (transform 52%, import 22%, tests 18%, worker 8%)
+
