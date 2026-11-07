@@ -4,7 +4,7 @@ title: "Informe — TASK-0005: host con encuadre 16:9, render 3× y mapa 12×12"
 description: Resultado del intento 1 con cambios, evidencia, comandos y desviaciones.
 task: TASK-0005
 attempt: 1
-status: done
+status: stable
 branch: task/TASK-0005
 commit: 4792109f2e845cee8aa2f9e9991424709f2f5f04
 created_at: 2026-11-07T17:07:00Z
