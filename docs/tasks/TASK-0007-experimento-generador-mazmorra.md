@@ -118,9 +118,10 @@ listo para que el usuario lo pruebe y decida.
 # Verificación
 
 Verificación independiente del `task-lead` sobre `task/TASK-0007` (intento 1).
-La implementación está en `1164fcd` y el informe en `2755cee`; la rama se fusiona
-en `main` al pasar la revisión técnica. La tarea queda en `review` hasta que
-`human:simon` pruebe el experimento y registre su decisión.
+La implementación está en `1164fcd` y el informe en `2755cee`; la rama se
+fusionó en `main` por fast-forward hasta `260ae46` al pasar la revisión técnica.
+La tarea queda en `review` hasta que `human:simon` pruebe el experimento y
+registre su decisión.
 
 - **Alcance del diff:** solo `experiments/EXP-001-generador-mazmorra/**`,
   `experiments/manifest.ts`, `experiments/index.md`,
