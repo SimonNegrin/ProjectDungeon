@@ -4,7 +4,7 @@ id: TASK-0006
 title: "E2E y QA visual del encuadre 16:9"
 description: Cubre con Playwright el marco 16:9, el mapa 12×12, la cámara, la aparición del enemigo y la legibilidad del HUD en tres tamaños de ventana.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-002
 requirement_ids: [R-006, R-007, R-010, R-011, T-004]
