@@ -1,0 +1,54 @@
+===== pnpm run test (suite completa) =====
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  20 passed (20)
+      Tests  179 passed (179)
+   Start at  22:37:05
+   Duration  5.75s (tests 90%, import 6%, transform 2%, worker 1%)
+
+    Isolate  20 workers spawned · ~188ms startup each (spawn + environment, per file)
+             at least ~349ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+===== test de rendimiento (salida detallada) =====
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+stdout | tests/unit/game/map.test.ts > rendimiento > genera la semilla de referencia por debajo de 100 ms
+[map-performance] seed=279837264 runs=2.31,2.08,2.07 median=2.08 max=2.31
+
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > usa la configuración de referencia de EXP-001 por defecto 1ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > expone la interfaz MapGenerator con id bsp 6ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > normaliza valores fuera de rango con avisos y no lanza 0ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > acepta y reserva wideCorridorCount/Width sin generar pasillos anchos 5ms
+ ✓ tests/unit/game/map.test.ts > determinismo > la misma semilla y opciones producen un mapa profundamente igual 9ms
+ ✓ tests/unit/game/map.test.ts > determinismo > semillas distintas producen diferencias estructurales 3ms
+ ✓ tests/unit/game/map.test.ts > determinismo > las opciones forman parte del resultado y cambian el mapa 5ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > mide 32x32, está cerrado por muro y expone los datos del mapa 1ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > tiene entre 8 y 12 salas con los roles mínimos y dimensiones válidas 1ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > no tiene salas solapadas y deja al menos un tile de muro entre ellas 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > cada sala tiene al menos una salida de pasillo 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > los corredores son estrechos, ortogonales y forman un árbol más bucles 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > no tiene puertas ni pasillos anchos en esta tarea 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > incluye un tramo recto largo y un corredor con dos o más esquinas 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > no tiene callejones sin salida de más de 4 tiles 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > todas las celdas de suelo son alcanzables desde el jugador 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > pasa el validador estructural completo 0ms
+ ✓ tests/unit/game/map.test.ts > apariciones > coloca al jugador en una sala con salida y al enemigo en la más lejana 0ms
+ ✓ tests/unit/game/map.test.ts > apariciones > coloca al enemigo fuera del viewport inicial de 12x12 sobre suelo 0ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > el mapa es JSON-safe y sobrevive al round-trip 1ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta salas solapadas fabricadas a mano 1ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta un mapa sin conectividad total 0ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta bloques 2x2 de suelo fuera de salas 0ms
+ ✓ tests/unit/game/map.test.ts > otros tamaños > genera 24x24 con 8-12 salas y conectividad total 14ms
+ ✓ tests/unit/game/map.test.ts > otros tamaños > genera 40x40 con los roles mínimos y conectividad total 16ms
+ ✓ tests/unit/game/map.test.ts > rendimiento > genera la semilla de referencia por debajo de 100 ms 11ms
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  22:37:12
+   Duration  192ms (tests 64%, import 26%, transform 8%, worker 2%)
+

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState, reduce } from '../../../src/game/index';
+import { reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import { makeState, makeUnit } from '../game/helpers';
@@ -18,7 +18,7 @@ function endTurn(state: GameState): GameState {
 
 describe('modelo del HUD', () => {
   it('refleja el estado inicial con vida, MP, acción, fase, enemigo y ayuda', () => {
-    const model = buildHudModel(createInitialState());
+    const model = buildHudModel(makeState());
 
     expect(model).toMatchObject({
       playerHp: '20/20',
@@ -97,7 +97,7 @@ describe('modelo del HUD', () => {
 describe('modelo del overlay de debug', () => {
   it('incluye posiciones, MP, fase, cámara y semilla determinista', () => {
     const model = buildDebugModel(
-      createInitialState(),
+      makeState(),
       { x: 0, y: 0 },
       { maxX: 256, maxY: 256 },
       { width: 384, height: 384 },
@@ -115,7 +115,7 @@ describe('modelo del overlay de debug', () => {
   });
 
   it('resume los últimos eventos', () => {
-    const state = createInitialState();
+    const state = makeState();
     const result = reduce(state, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
 
     const model = buildDebugModel(

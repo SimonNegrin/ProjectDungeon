@@ -1,3 +1,5 @@
+import type { GeneratedMap } from './map';
+
 export type Tile = 'floor' | 'wall';
 export type Faction = 'player' | 'enemy';
 export type Phase = 'player' | 'enemy';
@@ -29,6 +31,8 @@ export interface Unit {
 
 export interface GameState {
   readonly grid: Grid;
+  /** Mapa generado que dio lugar a `grid`. Siempre presente en `createInitialState`. */
+  readonly map?: GeneratedMap;
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   readonly phase: Phase;

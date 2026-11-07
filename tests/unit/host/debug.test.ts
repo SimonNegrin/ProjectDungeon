@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { Camera } from '../../../src/host/camera';
 import { createDebugApi } from '../../../src/host/debug';
 import { GameSession } from '../../../src/host/session';
+import { makeState } from '../game/helpers';
 
 function setup() {
-  const session = new GameSession();
+  const session = new GameSession(makeState());
   let camera: Camera = { x: 0, y: 0 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
 

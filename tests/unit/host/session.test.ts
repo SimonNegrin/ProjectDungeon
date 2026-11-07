@@ -28,7 +28,7 @@ describe('sesión de juego', () => {
   });
 
   it('integra tecla -> comando -> reduce -> eventos -> HUD', () => {
-    const session = new GameSession();
+    const session = new GameSession(makeState());
 
     const result = session.dispatch(commandFromKey('d', session));
 
@@ -112,7 +112,7 @@ describe('sesión de juego', () => {
   });
 
   it('un comando rechazado no muta el estado ni lanza', () => {
-    const session = new GameSession();
+    const session = new GameSession(makeState());
     const before = session.state;
 
     const result = session.dispatch({

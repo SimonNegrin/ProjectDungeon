@@ -1,15 +1,15 @@
-import { createRoomGrid, isAlive } from './grid';
+import { isAlive } from './grid';
 import { commitMove, validateMove } from './movement';
 import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
+import { BspMapGenerator } from './bsp';
+import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import {
   ENEMY_MAX_HP,
   ENEMY_MAX_MP,
   MOVE_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
-  ROOM_HEIGHT,
-  ROOM_WIDTH,
   type Command,
   type GameEvent,
   type GameState,
@@ -19,8 +19,11 @@ import {
   type Unit,
 } from './types';
 
-export const INITIAL_PLAYER_POSITION: Position = { x: 4, y: 4 };
-export const INITIAL_ENEMY_POSITION: Position = { x: 15, y: 15 };
+export interface CreateInitialStateConfig {
+  readonly seed?: number;
+  readonly options?: MapOptions;
+  readonly generator?: MapGenerator;
+}
 
 function createUnit(
   id: string,
@@ -44,17 +47,62 @@ function createUnit(
   };
 }
 
-export function createInitialState(): GameState {
-  const grid = createRoomGrid(ROOM_WIDTH, ROOM_HEIGHT);
+function isMapGenerator(value: unknown): value is MapGenerator {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'generate' in value &&
+    typeof (value as { generate: unknown }).generate === 'function'
+  );
+}
+
+function buildInitialState(
+  generator: MapGenerator,
+  seed: number,
+  options: MapOptions | undefined,
+): GameState {
+  const map: GeneratedMap = generator.generate(seed, options);
 
   return {
-    grid,
-    players: [createUnit('player-1', 'player', INITIAL_PLAYER_POSITION)],
-    enemies: [createUnit('enemy-1', 'enemy', INITIAL_ENEMY_POSITION)],
+    grid: { width: map.width, height: map.height, tiles: map.tiles },
+    map,
+    players: [createUnit('player-1', 'player', map.spawns.player)],
+    enemies: [createUnit('enemy-1', 'enemy', map.spawns.enemy)],
     phase: 'player',
     turn: 1,
     status: 'playing',
   };
+}
+
+/**
+ * Crea el estado inicial generando el mapa.
+ *
+ * Acepta la forma principal `createInitialState({ seed, options, generator })`
+ * y, por compatibilidad con ADR-007, `createInitialState(generator, options)`.
+ */
+export function createInitialState(config?: CreateInitialStateConfig): GameState;
+export function createInitialState(
+  generator: MapGenerator,
+  options?: MapOptions,
+): GameState;
+export function createInitialState(
+  configOrGenerator: CreateInitialStateConfig | MapGenerator = {},
+  maybeOptions?: MapOptions,
+): GameState {
+  if (isMapGenerator(configOrGenerator)) {
+    return buildInitialState(
+      configOrGenerator,
+      DEFAULT_MAP_SEED,
+      maybeOptions,
+    );
+  }
+
+  const config = configOrGenerator;
+  return buildInitialState(
+    config.generator ?? new BspMapGenerator(),
+    config.seed ?? DEFAULT_MAP_SEED,
+    config.options,
+  );
 }
 
 function reject(

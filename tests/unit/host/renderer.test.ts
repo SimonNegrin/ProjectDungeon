@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../../src/game/engine';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { gridPixelSize, type Viewport } from '../../../src/host/geometry';
@@ -14,6 +13,7 @@ import {
   RENDER_SCALE,
 } from '../../../src/host/layout';
 import { renderScene, type SceneAssets } from '../../../src/host/renderer';
+import { makeState } from '../game/helpers';
 
 interface DrawCall {
   readonly image: unknown;
@@ -121,7 +121,7 @@ function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
 
 describe('render de la sala', () => {
   it('dibuja exactamente 12x12 tiles con la cámara en el origen', () => {
-    const state = createInitialState();
+    const state = makeState();
     const fake = draw(state, { x: 0, y: 0 });
 
     // El viewport 384x384 sobre una sala 20x20 cubre 12 columnas y 12 filas:
@@ -152,7 +152,7 @@ describe('render de la sala', () => {
   });
 
   it('usa escala interna 3x, desplaza el mapa 448 px de respaldo y recorta los laterales', () => {
-    const fake = draw(createInitialState(), { x: 0, y: 0 });
+    const fake = draw(makeState(), { x: 0, y: 0 });
 
     expect(fake.fillRects[0]).toEqual({
       x: 0,
@@ -169,7 +169,7 @@ describe('render de la sala', () => {
   });
 
   it('dibuja al caballero con el recorte (0,32,32,32) centrado en su casilla', () => {
-    const state = createInitialState();
+    const state = makeState();
     const player = state.players[0];
     const fake = draw(state, { x: 0, y: 0 });
 
@@ -192,7 +192,7 @@ describe('render de la sala', () => {
   });
 
   it('dibuja al goblin con el recorte (64,0,32,32) con una cámara cercana al enemigo', () => {
-    const state = createInitialState();
+    const state = makeState();
     const enemy = state.enemies[0];
     const camera = centerCameraOnTile(enemy, VIEWPORT, gridPixelSize(state.grid));
     const fake = draw(state, camera);
@@ -218,7 +218,7 @@ describe('render de la sala', () => {
   });
 
   it('pinta el fondo del mapa y aplica la traslación de la cámara', () => {
-    const fake = draw(createInitialState(), { x: 0, y: 40 });
+    const fake = draw(makeState(), { x: 0, y: 40 });
 
     expect(fake.fillRects[1]).toEqual({
       x: 0,
@@ -230,7 +230,7 @@ describe('render de la sala', () => {
   });
 
   it('no dibuja unidades fuera del sub-viewport del mapa', () => {
-    const state = createInitialState();
+    const state = makeState();
     const fake = draw(state, { x: 0, y: 0 });
 
     const monsterDraws = fake.draws.filter((call) => call.image === assets.monsters);
@@ -238,7 +238,7 @@ describe('render de la sala', () => {
   });
 
   it('no muta el estado del motor', () => {
-    const state = createInitialState();
+    const state = makeState();
     const before = JSON.stringify(state);
     const frozen = deepFreeze(state);
 

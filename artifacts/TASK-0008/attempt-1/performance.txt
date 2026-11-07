@@ -1,0 +1,12 @@
+# TASK-0008 · rendimiento real del generador BSP
+seed=279837264
+options={"mapWidth":32,"mapHeight":32,"roomTarget":9,"roomMin":4,"roomMax":11,"loopRatio":20,"wideCorridorCount":0,"wideCorridorWidth":2}
+runtime=node v22.14.0 darwin arm64
+method=performance.now() outside the pure generate(); 1 cold run, 1 warm-up, 10 measured runs
+cold_ms=20.42
+runs_ms=5.36,4.40,3.92,2.84,2.43,3.68,2.91,2.23,2.57,2.34
+min_ms=2.23
+median_ms=2.88
+max_ms=5.36
+threshold_ms=100
+under_threshold=true

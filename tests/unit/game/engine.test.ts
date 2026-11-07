@@ -1,32 +1,31 @@
 import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
+  DEFAULT_MAP_OPTIONS,
+  DEFAULT_MAP_SEED,
   ENEMY_MAX_HP,
   ENEMY_MAX_MP,
-  INITIAL_ENEMY_POSITION,
-  INITIAL_PLAYER_POSITION,
   isOccupied,
   isWallAt,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   reduce,
-  ROOM_HEIGHT,
-  ROOM_WIDTH,
   type GameState,
 } from '../../../src/game/index';
 import { makeState, makeUnit } from './helpers';
 
 describe('engine state', () => {
-  it('crea la sala 20x20 con muros en el borde y suelo transitable', () => {
+  it('crea un mapa generado de 32x32 con muros en el borde y suelo transitable', () => {
     const state = createInitialState();
 
-    expect(state.grid.width).toBe(20);
-    expect(state.grid.height).toBe(20);
-    expect(ROOM_WIDTH).toBe(20);
-    expect(ROOM_HEIGHT).toBe(20);
-    expect(state.grid.tiles).toHaveLength(20 * 20);
-    expect(state.grid.tiles.filter((tile) => tile === 'floor')).toHaveLength(18 * 18);
-    expect(state.grid.tiles.filter((tile) => tile === 'wall')).toHaveLength(20 * 20 - 18 * 18);
+    expect(state.grid.width).toBe(32);
+    expect(state.grid.height).toBe(32);
+    expect(state.grid.tiles).toHaveLength(32 * 32);
+
+    expect(state.map).toBeDefined();
+    expect(state.map?.seed).toBe(DEFAULT_MAP_SEED);
+    expect(state.map?.options).toEqual(DEFAULT_MAP_OPTIONS);
+    expect(state.map?.tiles).toBe(state.grid.tiles);
 
     for (let x = 0; x < state.grid.width; x += 1) {
       expect(isWallAt(state.grid, x, 0)).toBe(true);
@@ -37,35 +36,34 @@ describe('engine state', () => {
       expect(isWallAt(state.grid, state.grid.width - 1, y)).toBe(true);
     }
 
-    expect(isWallAt(state.grid, 1, 1)).toBe(false);
-    expect(isWallAt(state.grid, 18, 18)).toBe(false);
+    expect(state.grid.tiles.filter((tile) => tile === 'floor').length).toBeGreaterThan(0);
   });
 
-  it('coloca un jugador y un enemigo en (4,4) y (15,15) con vida, MP y acción iniciales', () => {
+  it('coloca al jugador y al enemigo en los spawns del mapa con vida, MP y acción iniciales', () => {
     const state = createInitialState();
+    const spawns = state.map?.spawns;
 
-    expect(INITIAL_PLAYER_POSITION).toEqual({ x: 4, y: 4 });
-    expect(INITIAL_ENEMY_POSITION).toEqual({ x: 15, y: 15 });
+    expect(spawns).toBeDefined();
     expect(state.players).toHaveLength(1);
     expect(state.enemies).toHaveLength(1);
     expect(state.players[0]).toMatchObject({
       id: 'player-1',
-      x: 4,
-      y: 4,
+      x: spawns?.player.x,
+      y: spawns?.player.y,
       hp: PLAYER_MAX_HP,
       maxHp: PLAYER_MAX_HP,
-      mp: 6,
-      maxMp: 6,
+      mp: PLAYER_MAX_MP,
+      maxMp: PLAYER_MAX_MP,
       actionAvailable: true,
     });
     expect(state.enemies[0]).toMatchObject({
       id: 'enemy-1',
-      x: 15,
-      y: 15,
+      x: spawns?.enemy.x,
+      y: spawns?.enemy.y,
       hp: ENEMY_MAX_HP,
       maxHp: ENEMY_MAX_HP,
-      mp: 4,
-      maxMp: 4,
+      mp: ENEMY_MAX_MP,
+      maxMp: ENEMY_MAX_MP,
       actionAvailable: true,
     });
     expect(PLAYER_MAX_MP).toBe(6);
@@ -91,9 +89,32 @@ describe('engine state', () => {
     const parsed = JSON.parse(JSON.stringify(state)) as GameState;
 
     expect(parsed).toEqual(state);
+    expect(parsed.map).toEqual(state.map);
+    expect(JSON.parse(JSON.stringify(state.map))).toEqual(state.map);
 
-    const result = reduce(parsed, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
-    expect(result.state.players[0]).toMatchObject({ x: 5, y: 4, mp: 5 });
+    const player = state.players[0];
+    const direction = findOpenDirection(state, player.x, player.y);
+    const result = reduce(parsed, {
+      type: 'Move',
+      unitId: 'player-1',
+      dx: direction.dx,
+      dy: direction.dy,
+    });
+
+    expect(result.state.players[0]).toMatchObject({
+      x: player.x + direction.dx,
+      y: player.y + direction.dy,
+      mp: 5,
+    });
+    expect(result.state.map).toEqual(state.map);
+  });
+
+  it('es determinista: dos estados iniciales son profundamente iguales', () => {
+    const first = createInitialState();
+    const second = createInitialState();
+
+    expect(JSON.stringify(second)).toBe(JSON.stringify(first));
+    expect(second).toEqual(first);
   });
 
   it('reduce es pura y no muta el estado de entrada', () => {
@@ -136,3 +157,31 @@ describe('engine state', () => {
     }
   });
 });
+
+/** Busca una dirección ortogonal transitable desde una casilla del jugador. */
+function findOpenDirection(
+  state: GameState,
+  x: number,
+  y: number,
+): { readonly dx: number; readonly dy: number } {
+  const candidates = [
+    { dx: 1, dy: 0 },
+    { dx: -1, dy: 0 },
+    { dx: 0, dy: 1 },
+    { dx: 0, dy: -1 },
+  ];
+  for (const candidate of candidates) {
+    const target = { x: x + candidate.dx, y: y + candidate.dy };
+    if (
+      target.x >= 0 &&
+      target.y >= 0 &&
+      target.x < state.grid.width &&
+      target.y < state.grid.height &&
+      state.grid.tiles[target.y * state.grid.width + target.x] === 'floor' &&
+      !isOccupied(state, target.x, target.y)
+    ) {
+      return candidate;
+    }
+  }
+  throw new Error('El jugador no tiene ninguna casilla libre adyacente.');
+}
