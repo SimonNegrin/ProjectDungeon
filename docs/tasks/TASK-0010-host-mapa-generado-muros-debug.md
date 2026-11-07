@@ -3,23 +3,26 @@ type: Task
 id: TASK-0010
 title: "Host: mapa generado, semilla, muros y debug"
 description: Integra el mapa BSP en la partida, añade semilla por URL/R/F2, capa de debug y la regla de muros por borde en el render.
-status: draft
-task_status: ready
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-003
 requirement_ids: [R-005, R-006, R-007, R-008, R-009, R-010, R-011, T-003, T-005, T-006, T-008, T-010]
 depends_on: [TASK-0009]
 unlocks: [TASK-0011]
 created_at: 2026-11-07T22:17:27Z
-completed_at:
+completed_at: 2026-11-07T23:16:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0010/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T22:17:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-07T23:16:00Z
+    note: "Verificación independiente: diff completo, `pnpm run verify` (238 tests), `pnpm run test:e2e` (12 tests), tests de muros y semilla, snapshot de la semilla 279837264, capturas con debug activo/desactivado y detalle de esquina/pasillo ancho. Sin cambios en el generador, requisitos ni dependencias; tests adaptados sin debilitar el alcance."
 ---
 
 # Objetivo
