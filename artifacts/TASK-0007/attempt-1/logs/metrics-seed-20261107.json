@@ -1,0 +1,79 @@
+{
+  "experiment": "EXP-001",
+  "seed": 20261107,
+  "parameters": {
+    "roomTarget": 10,
+    "roomMin": 3,
+    "roomMax": 11,
+    "loopRatio": 20,
+    "showDoors": true
+  },
+  "variants": [
+    {
+      "id": "bsp",
+      "rooms": 10,
+      "doors": 22,
+      "corridors": 11,
+      "loops": 2,
+      "warnings": [],
+      "spawns": { "player": { "x": 7, "y": 6 }, "enemy": { "x": 28, "y": 28 }, "distance": 51 },
+      "metrics": {
+        "minArea": 12,
+        "medianArea": 20,
+        "maxArea": 33,
+        "floor": "25.8 %",
+        "corridorTiles": 68,
+        "corners": 18,
+        "deadEnds": 0,
+        "doors": 22,
+        "connectivity": "100 %",
+        "distance": 51,
+        "fingerprint": "bcc019b1"
+      }
+    },
+    {
+      "id": "random",
+      "rooms": 10,
+      "doors": 22,
+      "corridors": 11,
+      "loops": 2,
+      "warnings": [],
+      "spawns": { "player": { "x": 6, "y": 15 }, "enemy": { "x": 4, "y": 28 }, "distance": 57 },
+      "metrics": {
+        "minArea": 12,
+        "medianArea": 23,
+        "maxArea": 64,
+        "floor": "35.9 %",
+        "corridorTiles": 57,
+        "corners": 10,
+        "deadEnds": 0,
+        "doors": 22,
+        "connectivity": "100 %",
+        "distance": 57,
+        "fingerprint": "ae120bf5"
+      }
+    },
+    {
+      "id": "hybrid",
+      "rooms": 10,
+      "doors": 22,
+      "corridors": 11,
+      "loops": 2,
+      "warnings": [],
+      "spawns": { "player": { "x": 24, "y": 11 }, "enemy": { "x": 14, "y": 27 }, "distance": 42 },
+      "metrics": {
+        "minArea": 9,
+        "medianArea": 25,
+        "maxArea": 81,
+        "floor": "59.0 %",
+        "corridorTiles": 292,
+        "corners": 15,
+        "deadEnds": 103,
+        "doors": 22,
+        "connectivity": "100 %",
+        "distance": 42,
+        "fingerprint": "e5589012"
+      }
+    }
+  ]
+}

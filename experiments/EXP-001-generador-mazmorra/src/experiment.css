@@ -1,0 +1,19 @@
+/* Overrides locales de EXP-001; no se toca el CSS compartido del shell. */
+@media (min-width: 1180px) {
+  .experiment-shell .stages {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .experiment-shell .stage {
+    padding: 10px;
+  }
+
+  .experiment-shell .metric {
+    min-width: 74px;
+    padding: 6px 8px;
+  }
+
+  .experiment-shell .stage canvas {
+    border-radius: 8px;
+  }
+}

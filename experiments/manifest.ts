@@ -16,4 +16,12 @@ export const experiments: ExperimentManifestEntry[] = [
     path: '/experiments/EXP-000-shell-demo/',
     status: 'decided',
   },
+  {
+    id: 'EXP-001',
+    title: 'Comparador de generadores de mazmorra',
+    description: 'Compara BSP, salas+pasillos e híbrido con la misma semilla, métricas y decisión.',
+    question: '¿Qué generador produce la mazmorra legible, variada y con los pasillos y huecos de puerta que queremos?',
+    path: '/experiments/EXP-001-generador-mazmorra/',
+    status: 'ready',
+  },
 ];
