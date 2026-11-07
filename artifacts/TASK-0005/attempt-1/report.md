@@ -6,7 +6,7 @@ task: TASK-0005
 attempt: 1
 status: stable
 branch: task/TASK-0005
-commit: 4792109f2e845cee8aa2f9e9991424709f2f5f04
+commit: 96a43a3798fb8fb66e0dc103d07ca381c6fbc6ad
 created_at: 2026-11-07T17:07:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:07:00Z }
 ---
@@ -18,6 +18,28 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:07:00Z }
 laterales negros, cámara 384×384 sobre mundo 640×640 y HUD/feedback fuera del
 sub-rectángulo del mapa. `pnpm run test`, `pnpm run verify` y `pnpm run test:e2e`
 pasan.
+
+# Follow-up de verificación
+
+La verificación independiente del `task-lead` detectó dos hallazgos, corregidos
+en el commit `96a43a3`:
+
+1. **El marco no llenaba la pantalla a 1920×1080.** `main` conservaba
+   `max-width: 1120px`, así que el marco quedaba en 1120×630. Se eliminó ese
+   límite: el escenario sigue midiendo el espacio disponible y
+   `computeFrameLayout` lo ajusta conservando 16:9. Medición con
+   Playwright+Vite en `logs/verify-visual-after.json`:
+   - 1280×720: frame 1070,21875×602 (16:9, limitado por altura).
+   - 800×600: frame 768×432 (16:9).
+   - 1920×1080: frame 1710,21875×962 (16:9, llena el alto disponible).
+   - `logs/verify-visual-overflow-after.json`: a 1920×1080
+     `scrollWidth = 1920`, `scrollHeight = 1080`, sin overflow; HUD arriba,
+     frame de `top 79,11` a `bottom 1041,11` y footer de `1049` a `1064`.
+2. **Fallback estático del HUD desactualizado.** Se cambió el texto inicial de
+   MP de `4/4` a `6/6`; el HUD sigue actualizándose desde el estado.
+
+El frontmatter del informe usa `status: stable` (OKF no admite `done`), corregido
+por el `task-lead` en `1cd3f5a`.
 
 # Cambios por archivo
 
@@ -38,7 +60,9 @@ pasan.
   con los porcentajes del sub-rectángulo del mapa.
 - `index.html`: escenario con contenedor medible `.stage` y marco `.frame`,
   canvas 2048×1152, bandas negras, `image-rendering: pixelated`, HUD fuera del
-  marco y overlays/debug dentro del marco.
+  marco y overlays/debug dentro del marco. En el follow-up se eliminó el
+  `max-width: 1120px` de `main` para que el marco use el espacio disponible y se
+  corrigió el fallback estático del HUD a `MP 6/6`.
 
 ## Tests
 
@@ -101,14 +125,20 @@ pasan.
 | `pnpm run test:e2e` | 240 s | 3 tests Chromium OK |
 | `pnpm run build` | 120 s | Incluido dentro de `verify`; build OK |
 
-Salida completa en `artifacts/TASK-0005/attempt-1/test-output.txt`.
+Salida completa en `artifacts/TASK-0005/attempt-1/test-output.txt`; los tres
+comandos se re-ejecutaron después del follow-up con los mismos timeouts y
+resultados.
 
 # Commits y rama
 
 - Rama: `task/TASK-0005`.
 - Commit de implementación y evidencia: `4792109f2e845cee8aa2f9e9991424709f2f5f04`
   (`feat(TASK-0005): encuadre 16:9 con render 3x y mapa 12x12`).
-- El informe se añade en un commit posterior sobre la misma rama.
+- Commit del follow-up de verificación:
+  `96a43a3798fb8fb66e0dc103d07ca381c6fbc6ad`
+  (`fix(TASK-0005): fill available 16:9 frame and sync HUD fallback`).
+- El informe actualizado se añade en un commit posterior sobre la misma rama.
+- `1cd3f5a` (task-lead) corrigió el `status` OKF del informe a `stable`.
 
 # Artefactos
 
@@ -116,6 +146,13 @@ Salida completa en `artifacts/TASK-0005/attempt-1/test-output.txt`.
 - `artifacts/TASK-0005/attempt-1/test-output.txt`.
 - `artifacts/TASK-0005/attempt-1/screenshots/frame.png` (1280×720, marco
   completo y HUD visible).
+- `artifacts/TASK-0005/attempt-1/logs/verify-visual.json` (medición inicial de
+  la verificación independiente).
+- `artifacts/TASK-0005/attempt-1/logs/verify-visual-after.json` (medición tras
+  el follow-up: 1280×720, 800×600 y 1920×1080).
+- `artifacts/TASK-0005/attempt-1/logs/verify-visual-overflow-after.json`
+  (1920×1080 sin overflow, HUD y footer visibles).
+- `artifacts/TASK-0005/attempt-1/logs/verify-visual.mjs` (script de medición).
 
 # Desviaciones y limitaciones
 
