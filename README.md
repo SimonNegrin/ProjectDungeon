@@ -10,9 +10,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 Dungeon crawler 2D por turnos, cooperativo y local-first. El objetivo final es
 que varias personas jueguen desde el móvil mientras la pantalla host muestra la
-partida. Ahora mismo el proyecto tiene un motor determinista y una página de
-juego que renderiza la primera sala; todavía no hay teclado, HUD ni combate
-jugable en pantalla.
+partida. Ahora mismo el proyecto tiene un motor determinista y una build local
+jugable de la primera sala, pendiente del playtest del usuario.
 
 ## Estado actual
 
@@ -22,6 +21,8 @@ jugable en pantalla.
 - Motor determinista de rejilla, turnos, combate e IA en `src/game/`.
 - Host Canvas 2D en `src/host/` con la sala de 32×24, sprites de 32rogues y
   cámara limitada a los bordes del mapa.
+- Teclado, HUD, overlays de victoria/derrota, reinicio, debug y E2E del loop
+  completo.
 - Shell de experimentos interactivo y primer experimento de humo.
 - Sin servidor, sin QR y sin multijugador remoto.
 

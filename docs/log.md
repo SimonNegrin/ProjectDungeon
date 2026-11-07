@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+* **Milestone**: `REQ-001` tiene una build jugable local con sala, jugador, enemigo, teclado, cámara y turnos. `TASK-0001`, `TASK-0002` y `TASK-0003` están `done`; falta el playtest del usuario para cerrar la fase 1. Ver `pnpm run dev` en `/`.
 * **Task**: `TASK-0003` completada y verificada: teclado (`WASD`/flechas, `Espacio`/`Enter`, `E`, `R`, `F1`), HUD DOM, overlays de victoria/derrota, feedback de ataque con flash y daño, `window.__game.dispatch()` y E2E determinista del loop completo. `pnpm run verify` y `pnpm run test:e2e` OK; el test del loop se repitió 5 veces. Commit de implementación `366782f`; capturas en `artifacts/TASK-0003/attempt-1/screenshots/`.
 * **Task**: `TASK-0002` completada y verificada: host Canvas 2D en `src/host/` con sala 32×24, tiles y sprites de 32rogues, cámara con clamp, `window.__game`, 19 tests nuevos y E2E de render. `pnpm run verify` y `pnpm run test:e2e` OK. Commit de implementación `317f0f0`; captura en `artifacts/TASK-0002/attempt-1/screenshots/room.png`.
 * **Task**: `TASK-0001` completada y verificada: motor determinista en `src/game/` (rejilla 32×24, movimiento, combate, turnos, IA, victoria/derrota), 49 tests, `pnpm run verify` OK. Commit de implementación `8ec0d3f`.

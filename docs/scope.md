@@ -8,16 +8,17 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 # Alcance vigente
 
-Estamos en la **fase 0**. El objetivo inmediato es tener documentación, arnés y
-un shell de experimentos fiable. El primer hito jugable será una sola sala, un
-jugador, un enemigo, teclado, cámara y turnos.
+Estamos en la **fase 1**. La fase 0 dejó documentación, agentes, skills y un
+shell de experimentos fiable. El primer hito jugable ya tiene una build local
+con sala, jugador, enemigo, teclado, cámara y turnos; falta el playtest del
+usuario para cerrar el hito.
 
 # Fases
 
 | Fase | Objetivo | Estado |
 |---|---|---|
-| 0 | Documentación base, agentes, skills y shell de experimentos | En curso |
-| 1 | Prototipo local de un jugador con teclado | Pendiente |
+| 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
+| 1 | Prototipo local de un jugador con teclado | En curso, pendiente de playtest |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
