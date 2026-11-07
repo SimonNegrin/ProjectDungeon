@@ -42,9 +42,9 @@ test('la página de juego renderiza la sala, expone el snapshot y limita la cám
 
   const snapshot = await page.evaluate(() => window.__game!.snapshot());
 
-  expect(snapshot.grid.width).toBe(32);
-  expect(snapshot.grid.height).toBe(24);
-  expect(snapshot.grid.tiles).toHaveLength(32 * 24);
+  expect(snapshot.grid.width).toBe(20);
+  expect(snapshot.grid.height).toBe(20);
+  expect(snapshot.grid.tiles).toHaveLength(20 * 20);
   expect(snapshot.tileSize).toBe(32);
   expect(snapshot.players.map((unit) => unit.id)).toEqual(['player-1']);
   expect(snapshot.enemies.map((unit) => unit.id)).toEqual(['enemy-1']);
@@ -53,7 +53,7 @@ test('la página de juego renderiza la sala, expone el snapshot y limita la cám
   expect(snapshot.turn).toBe(1);
   expect(snapshot.assetsLoaded).toBe(true);
 
-  expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 64, maxY: 168 });
+  expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 0, maxY: 40 });
   expect(snapshot.camera.x).toBeGreaterThanOrEqual(0);
   expect(snapshot.camera.x).toBeLessThanOrEqual(snapshot.camera.maxX);
   expect(snapshot.camera.y).toBeGreaterThanOrEqual(0);

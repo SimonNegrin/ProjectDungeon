@@ -104,7 +104,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expect(page.getByTestId('hud')).toBeVisible();
   await expectHud(page, {
     playerHp: '20/20',
-    playerMp: '4/4',
+    playerMp: '6/6',
     action: 'Sí',
     phase: 'Jugador',
     enemyHp: '10/10',
@@ -123,7 +123,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     y: initial.players[0].y,
     mp: initial.players[0].mp - 1,
   });
-  await expectHud(page, { playerMp: '3/4' });
+  await expectHud(page, { playerMp: '5/6' });
 
   await page.keyboard.press('d');
   const afterD = await snapshot(page);
@@ -132,7 +132,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     y: initial.players[0].y,
     mp: initial.players[0].mp - 2,
   });
-  await expectHud(page, { playerMp: '2/4' });
+  await expectHud(page, { playerMp: '4/6' });
 
   // R reinicia al estado inicial.
   await page.keyboard.press('r');
@@ -142,19 +142,27 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     x: initial.players[0].x,
     y: initial.players[0].y,
     hp: 20,
-    mp: 4,
+    mp: 6,
     actionAvailable: true,
   });
-  await expectHud(page, { playerHp: '20/20', playerMp: '4/4', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 
   // Movimiento inválido contra el muro oeste: no cambia el estado.
-  await page.keyboard.press('a');
+  for (let step = 0; step < 3; step += 1) {
+    await page.keyboard.press('a');
+  }
   const afterLeft = await snapshot(page);
-  expect(afterLeft.players[0]).toMatchObject({ x: initial.players[0].x - 1, mp: 3 });
+  expect(afterLeft.players[0]).toMatchObject({
+    x: initial.players[0].x - 3,
+    mp: initial.players[0].mp - 3,
+  });
   await page.keyboard.press('a');
   const afterWall = await snapshot(page);
-  expect(afterWall.players[0]).toMatchObject({ x: initial.players[0].x - 1, mp: 3 });
-  await expectHud(page, { playerMp: '3/4' });
+  expect(afterWall.players[0]).toMatchObject({
+    x: initial.players[0].x - 3,
+    mp: initial.players[0].mp - 3,
+  });
+  await expectHud(page, { playerMp: '3/6' });
   await page.keyboard.press('r');
 
   // Ataque sin objetivo: no rompe el estado ni el HUD.
@@ -227,12 +235,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   );
   expect(afterEndTurn.players[0]).toMatchObject({
     hp: beforeEndTurn.players[0].hp - 3,
-    mp: 4,
+    mp: 6,
     actionAvailable: true,
   });
   await expectHud(page, {
     playerHp: `${afterEndTurn.players[0].hp}/20`,
-    playerMp: '4/4',
+    playerMp: '6/6',
     action: 'Sí',
     phase: 'Jugador',
   });
@@ -252,17 +260,17 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await page.keyboard.press('r');
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 4, x: 2, y: 2 });
+  expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 4, y: 4 });
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
-  await expectHud(page, { playerHp: '20/20', playerMp: '4/4', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 
   // F1 abre y cierra el overlay de debug sin alterar la partida.
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const debugText = await page.getByTestId('debug-content').textContent();
-  expect(debugText).toContain('Jugador: (2, 2)');
-  expect(debugText).toContain('MP 4/4');
+  expect(debugText).toContain('Jugador: (4, 4)');
+  expect(debugText).toContain('MP 6/6');
   expect(debugText).toContain('Fase: Jugador');
   expect(debugText).toContain('Semilla: n/a (determinista)');
   await screenshot(page, 'debug', testInfo);
@@ -301,9 +309,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     .click();
   const afterDefeatRestart = await snapshot(page);
   expect(afterDefeatRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 4, x: 2, y: 2 });
+  expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 4, y: 4 });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
-  await expectHud(page, { playerHp: '20/20', playerMp: '4/4', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 
   expect(consoleErrors).toEqual([]);
 });

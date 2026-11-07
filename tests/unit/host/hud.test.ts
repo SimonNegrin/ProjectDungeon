@@ -22,7 +22,7 @@ describe('modelo del HUD', () => {
 
     expect(model).toMatchObject({
       playerHp: '20/20',
-      playerMp: '4/4',
+      playerMp: '6/6',
       action: 'Sí',
       phase: 'Jugador',
       enemyHp: '10/10',
@@ -62,7 +62,7 @@ describe('modelo del HUD', () => {
     expect(model.phase).toBe('Jugador');
     expect(model.turn).toBe('Turno 2');
     expect(model.playerHp).toBe('17/20');
-    expect(model.playerMp).toBe('4/4');
+    expect(model.playerMp).toBe('6/6');
     expect(model.action).toBe('Sí');
     expect(model.status).toBe('En juego');
   });
@@ -99,17 +99,17 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       createInitialState(),
       { x: 0, y: 0 },
-      { maxX: 64, maxY: 168 },
+      { maxX: 0, maxY: 40 },
       { width: 960, height: 600 },
       [],
     );
     const text = model.lines.join('\n');
 
-    expect(text).toContain('Jugador: (2, 2)');
-    expect(text).toContain('MP 4/4');
-    expect(text).toContain('Enemigo: (29, 21)');
+    expect(text).toContain('Jugador: (4, 4)');
+    expect(text).toContain('MP 6/6');
+    expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
-    expect(text).toContain('Cámara: (0, 0) · Límites (64, 168) · Viewport 960×600');
+    expect(text).toContain('Cámara: (0, 0) · Límites (0, 40) · Viewport 960×600');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
   });
@@ -121,11 +121,11 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       result.state,
       { x: 0, y: 0 },
-      { maxX: 64, maxY: 168 },
+      { maxX: 0, maxY: 40 },
       { width: 960, height: 600 },
       result.events,
     );
 
-    expect(model.lines.join('\n')).toContain('player-1: (2,2)→(3,2) MP 3');
+    expect(model.lines.join('\n')).toContain('player-1: (4,4)→(5,4) MP 5');
   });
 });

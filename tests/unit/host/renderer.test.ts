@@ -92,14 +92,16 @@ describe('render de la sala', () => {
     const state = createInitialState();
     const fake = draw(state, { x: 0, y: 0 });
 
-    expect(fake.draws.length).toBeGreaterThanOrEqual(500);
+    // El viewport 960x600 sobre una sala 20x20 cubre 20 columnas y 19 filas:
+    // 380 tiles (324 de suelo y 56 de muro) más las dos unidades.
+    expect(fake.draws.length).toBe(382);
     expect(fake.isSmoothingEnabled()).toBe(false);
 
     const floorDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 288);
     const wallDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 64);
 
-    expect(floorDraws.length).toBeGreaterThan(400);
-    expect(wallDraws.length).toBeGreaterThan(0);
+    expect(floorDraws.length).toBe(324);
+    expect(wallDraws.length).toBe(56);
     expect(new Set(floorDraws.map((call) => call.sx))).toEqual(new Set([32, 64, 96]));
     expect(floorDraws[0]).toMatchObject({ sy: 288, sw: 32, sh: 32 });
     expect(wallDraws[0]).toMatchObject({ sx: 0, sy: 64, sw: 32, sh: 32 });
@@ -134,7 +136,7 @@ describe('render de la sala', () => {
     const camera = centerCameraOnTile(enemy, VIEWPORT, gridPixelSize(state.grid));
     const fake = draw(state, camera);
 
-    expect(camera).toEqual({ x: 64, y: 168 });
+    expect(camera).toEqual({ x: 0, y: 40 });
 
     const goblin = fake.draws.find(
       (call) =>
@@ -155,10 +157,10 @@ describe('render de la sala', () => {
   });
 
   it('pinta el fondo del viewport y aplica la traslación de la cámara', () => {
-    const fake = draw(createInitialState(), { x: 64, y: 168 });
+    const fake = draw(createInitialState(), { x: 0, y: 40 });
 
     expect(fake.fillRects[0]).toEqual({ x: 0, y: 0, width: 960, height: 600 });
-    expect(fake.translates).toContainEqual({ x: -64, y: -168 });
+    expect(fake.translates).toContainEqual({ x: -0, y: -40 });
   });
 
   it('no muta el estado del motor', () => {

@@ -36,13 +36,13 @@ describe('sesión de juego', () => {
       {
         type: 'UnitMoved',
         unitId: 'player-1',
-        from: { x: 2, y: 2 },
-        to: { x: 3, y: 2 },
-        mpLeft: 3,
+        from: { x: 4, y: 4 },
+        to: { x: 5, y: 4 },
+        mpLeft: 5,
       },
     ]);
-    expect(session.state.players[0]).toMatchObject({ x: 3, y: 2, mp: 3 });
-    expect(buildHudModel(session.state).playerMp).toBe('3/4');
+    expect(session.state.players[0]).toMatchObject({ x: 5, y: 4, mp: 5 });
+    expect(buildHudModel(session.state).playerMp).toBe('5/6');
   });
 
   it('EndTurn emite la fase enemiga y devuelve el control al jugador', () => {
@@ -55,7 +55,7 @@ describe('sesión de juego', () => {
     expect(types).toContain('PlayerTurnStarted');
     expect(session.state.phase).toBe('player');
     expect(session.state.turn).toBe(2);
-    expect(session.state.players[0]).toMatchObject({ hp: 17, mp: 4, actionAvailable: true });
+    expect(session.state.players[0]).toMatchObject({ hp: 17, mp: 6, actionAvailable: true });
   });
 
   it('un ataque actualiza la vida y emite AttackPerformed', () => {

@@ -12,7 +12,7 @@ function setup() {
     () => ({
       state: session.state,
       camera,
-      bounds: { maxX: 64, maxY: 168 },
+      bounds: { maxX: 0, maxY: 40 },
       viewport: { width: 960, height: 600 },
       tileSize: 32,
       assetsLoaded: true,
@@ -35,9 +35,9 @@ describe('API de debug window.__game', () => {
 
     const snapshot = api.snapshot();
 
-    expect(snapshot.players[0]).toMatchObject({ id: 'player-1', x: 2, y: 2 });
-    expect(snapshot.enemies[0]).toMatchObject({ id: 'enemy-1', x: 29, y: 21 });
-    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 64, maxY: 168 });
+    expect(snapshot.players[0]).toMatchObject({ id: 'player-1', x: 4, y: 4 });
+    expect(snapshot.enemies[0]).toMatchObject({ id: 'enemy-1', x: 15, y: 15 });
+    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 0, maxY: 40 });
     expect(snapshot.viewport).toEqual({ width: 960, height: 600 });
     expect(snapshot.tileSize).toBe(32);
     expect(snapshot.assetsLoaded).toBe(true);
@@ -51,8 +51,8 @@ describe('API de debug window.__game', () => {
     const result = api.dispatch({ type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
 
     expect(result.events).toHaveLength(1);
-    expect(result.events[0]).toMatchObject({ type: 'UnitMoved', mpLeft: 3 });
-    expect(result.snapshot.players[0]).toMatchObject({ x: 3, y: 2, mp: 3 });
+    expect(result.events[0]).toMatchObject({ type: 'UnitMoved', mpLeft: 5 });
+    expect(result.snapshot.players[0]).toMatchObject({ x: 5, y: 4, mp: 5 });
     expect(result.snapshot.camera).toMatchObject({ x: 1, y: 2 });
     expect(result.snapshot.lastEvents).toEqual(result.events);
     expect(() => JSON.stringify(result)).not.toThrow();
@@ -87,6 +87,6 @@ describe('API de debug window.__game', () => {
     const mutable = snapshot.players[0] as { x: number };
     mutable.x = 999;
 
-    expect(api.snapshot().players[0].x).toBe(2);
+    expect(api.snapshot().players[0].x).toBe(4);
   });
 });
