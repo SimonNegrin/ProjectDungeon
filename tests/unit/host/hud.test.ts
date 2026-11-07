@@ -99,8 +99,8 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       createInitialState(),
       { x: 0, y: 0 },
-      { maxX: 0, maxY: 40 },
-      { width: 960, height: 600 },
+      { maxX: 256, maxY: 256 },
+      { width: 384, height: 384 },
       [],
     );
     const text = model.lines.join('\n');
@@ -109,7 +109,7 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('MP 6/6');
     expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
-    expect(text).toContain('Cámara: (0, 0) · Límites (0, 40) · Viewport 960×600');
+    expect(text).toContain('Cámara: (0, 0) · Límites (256, 256) · Viewport 384×384');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
   });
@@ -121,8 +121,8 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       result.state,
       { x: 0, y: 0 },
-      { maxX: 0, maxY: 40 },
-      { width: 960, height: 600 },
+      { maxX: 256, maxY: 256 },
+      { width: 384, height: 384 },
       result.events,
     );
 

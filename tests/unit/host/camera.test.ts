@@ -8,7 +8,7 @@ import {
   type WorldSize,
 } from '../../../src/host/geometry';
 
-const VIEWPORT: Viewport = { width: 960, height: 600 };
+const VIEWPORT: Viewport = { width: 384, height: 384 };
 const ROOM_WORLD: WorldSize = { width: 20 * 32, height: 20 * 32 };
 const ROOM_GRID = { width: 20, height: 20 };
 // Mundo sintético mayor que el viewport en ambos ejes: permite probar el
@@ -27,36 +27,36 @@ describe('geometría de casillas', () => {
 });
 
 describe('límites de la cámara', () => {
-  it('deja 0 px horizontales y 40 px verticales de recorrido con 960x600', () => {
-    expect(cameraBounds(ROOM_WORLD, VIEWPORT)).toEqual({ maxX: 0, maxY: 40 });
+  it('deja 256 px de recorrido en ambos ejes con viewport 384x384 y mundo 640x640', () => {
+    expect(cameraBounds(ROOM_WORLD, VIEWPORT)).toEqual({ maxX: 256, maxY: 256 });
   });
 
   it('no tiene recorrido si el mundo es menor que el viewport', () => {
-    expect(cameraBounds({ width: 640, height: 480 }, VIEWPORT)).toEqual({ maxX: 0, maxY: 0 });
+    expect(cameraBounds({ width: 320, height: 240 }, VIEWPORT)).toEqual({ maxX: 0, maxY: 0 });
   });
 
   it('limita la cámara a los cuatro bordes', () => {
     expect(clampCamera({ x: -400, y: -220 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 0, y: 0 });
-    expect(clampCamera({ x: 496, y: 100 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 320, y: 100 });
-    expect(clampCamera({ x: 48, y: 420 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 48, y: 360 });
-    expect(clampCamera({ x: 496, y: 420 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 320, y: 360 });
+    expect(clampCamera({ x: 999, y: 100 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 896, y: 100 });
+    expect(clampCamera({ x: 48, y: 999 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 48, y: 576 });
+    expect(clampCamera({ x: 999, y: 999 }, LARGE_WORLD, VIEWPORT)).toEqual({ x: 896, y: 576 });
   });
 
-  it('en la sala 20x20 la cámara no se mueve en horizontal y se limita a 40 px en vertical', () => {
-    expect(clampCamera({ x: 496, y: 420 }, ROOM_WORLD, VIEWPORT)).toEqual({ x: 0, y: 40 });
+  it('en la sala 20x20 la cámara se limita a 256 px en ambos ejes', () => {
+    expect(clampCamera({ x: 999, y: 999 }, ROOM_WORLD, VIEWPORT)).toEqual({ x: 256, y: 256 });
   });
 
   it('limita las cuatro esquinas', () => {
     // Arriba-izquierda.
     expect(centerCameraOnTile({ x: 2, y: 2 }, VIEWPORT, LARGE_WORLD)).toEqual({ x: 0, y: 0 });
     // Arriba-derecha.
-    expect(centerCameraOnTile({ x: 38, y: 2 }, VIEWPORT, LARGE_WORLD)).toEqual({ x: 320, y: 0 });
+    expect(centerCameraOnTile({ x: 38, y: 2 }, VIEWPORT, LARGE_WORLD)).toEqual({ x: 896, y: 0 });
     // Abajo-izquierda.
-    expect(centerCameraOnTile({ x: 2, y: 28 }, VIEWPORT, LARGE_WORLD)).toEqual({ x: 0, y: 360 });
+    expect(centerCameraOnTile({ x: 2, y: 28 }, VIEWPORT, LARGE_WORLD)).toEqual({ x: 0, y: 576 });
     // Abajo-derecha.
     expect(centerCameraOnTile({ x: 38, y: 28 }, VIEWPORT, LARGE_WORLD)).toEqual({
-      x: 320,
-      y: 360,
+      x: 896,
+      y: 576,
     });
   });
 });
@@ -65,7 +65,7 @@ describe('seguimiento del jugador', () => {
   it('centra al jugador cuando no hay clamp', () => {
     const camera = centerCameraOnTile({ x: 16, y: 12 }, VIEWPORT, LARGE_WORLD);
 
-    expect(camera).toEqual({ x: 48, y: 100 });
+    expect(camera).toEqual({ x: 336, y: 208 });
     // El centro de la casilla cae en el centro del viewport.
     expect((16 + 0.5) * 32 - camera.x).toBe(VIEWPORT.width / 2);
     expect((12 + 0.5) * 32 - camera.y).toBe(VIEWPORT.height / 2);
@@ -75,8 +75,11 @@ describe('seguimiento del jugador', () => {
     expect(centerCameraOnTile({ x: 4, y: 4 }, VIEWPORT, ROOM_WORLD)).toEqual({ x: 0, y: 0 });
   });
 
-  it('se detiene en el máximo (0,40) al acercarse al borde inferior', () => {
-    expect(centerCameraOnTile({ x: 18, y: 18 }, VIEWPORT, ROOM_WORLD)).toEqual({ x: 0, y: 40 });
+  it('se detiene en el máximo (256,256) al acercarse al borde inferior derecho', () => {
+    expect(centerCameraOnTile({ x: 18, y: 18 }, VIEWPORT, ROOM_WORLD)).toEqual({
+      x: 256,
+      y: 256,
+    });
   });
 
   it('queda fija en (0,0) si el mundo es menor que el viewport', () => {
@@ -85,29 +88,29 @@ describe('seguimiento del jugador', () => {
   });
 
   it('devuelve siempre coordenadas enteras', () => {
-    const oddViewport: Viewport = { width: 961, height: 601 };
+    const oddViewport: Viewport = { width: 385, height: 385 };
     const camera = centerCameraOnTile({ x: 16, y: 12 }, oddViewport, LARGE_WORLD);
 
     expect(Number.isInteger(camera.x)).toBe(true);
     expect(Number.isInteger(camera.y)).toBe(true);
-    expect(camera).toEqual({ x: 48, y: 100 });
+    expect(camera).toEqual({ x: 336, y: 208 });
   });
 });
 
 describe('rango visible de tiles', () => {
-  it('cubre el viewport desde el origen sin salir de la rejilla', () => {
+  it('muestra exactamente 12x12 tiles desde el origen sin salir de la rejilla', () => {
     expect(visibleTileRange({ x: 0, y: 0 }, VIEWPORT, ROOM_GRID)).toEqual({
       minX: 0,
       minY: 0,
-      maxX: 19,
-      maxY: 18,
+      maxX: 11,
+      maxY: 11,
     });
   });
 
-  it('incluye el borde inferior derecho en la posición máxima de cámara', () => {
-    expect(visibleTileRange({ x: 0, y: 40 }, VIEWPORT, ROOM_GRID)).toEqual({
-      minX: 0,
-      minY: 1,
+  it('mantiene 12x12 tiles en la posición máxima de cámara', () => {
+    expect(visibleTileRange({ x: 256, y: 256 }, VIEWPORT, ROOM_GRID)).toEqual({
+      minX: 8,
+      minY: 8,
       maxX: 19,
       maxY: 19,
     });

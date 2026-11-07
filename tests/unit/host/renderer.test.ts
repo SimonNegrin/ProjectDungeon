@@ -4,6 +4,15 @@ import { createInitialState } from '../../../src/game/engine';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { gridPixelSize, type Viewport } from '../../../src/host/geometry';
+import {
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  MAP_BACKING_SIZE,
+  MAP_OFFSET_BACKING,
+  MAP_OFFSET_LOGICAL,
+  MAP_VIEWPORT,
+  RENDER_SCALE,
+} from '../../../src/host/layout';
 import { renderScene, type SceneAssets } from '../../../src/host/renderer';
 
 interface DrawCall {
@@ -29,14 +38,21 @@ interface FakeContext {
   readonly ctx: CanvasRenderingContext2D;
   readonly draws: DrawCall[];
   readonly fillRects: FillRect[];
+  readonly fillStyles: string[];
   readonly translates: Array<{ x: number; y: number }>;
+  readonly scales: Array<{ x: number; y: number }>;
+  readonly clips: FillRect[];
   readonly isSmoothingEnabled: () => boolean;
 }
 
 function createFakeContext(): FakeContext {
   const draws: DrawCall[] = [];
   const fillRects: FillRect[] = [];
+  const fillStyles: string[] = [];
   const translates: Array<{ x: number; y: number }> = [];
+  const scales: Array<{ x: number; y: number }> = [];
+  const clips: FillRect[] = [];
+  let currentPath: FillRect | undefined;
 
   const fake = {
     imageSmoothingEnabled: true,
@@ -46,8 +62,21 @@ function createFakeContext(): FakeContext {
     translate(x: number, y: number) {
       translates.push({ x, y });
     },
+    scale(x: number, y: number) {
+      scales.push({ x, y });
+    },
+    beginPath() {
+      currentPath = undefined;
+    },
+    rect(x: number, y: number, width: number, height: number) {
+      currentPath = { x, y, width, height };
+    },
+    clip() {
+      if (currentPath) clips.push(currentPath);
+    },
     fillRect(x: number, y: number, width: number, height: number) {
       fillRects.push({ x, y, width, height });
+      fillStyles.push(fake.fillStyle);
     },
     drawImage(
       image: unknown,
@@ -68,7 +97,10 @@ function createFakeContext(): FakeContext {
     ctx: fake as unknown as CanvasRenderingContext2D,
     draws,
     fillRects,
+    fillStyles,
     translates,
+    scales,
+    clips,
     isSmoothingEnabled: () => fake.imageSmoothingEnabled,
   };
 }
@@ -79,7 +111,7 @@ const assets: SceneAssets = {
   monsters: { name: 'monsters' } as unknown as CanvasImageSource,
 };
 
-const VIEWPORT: Viewport = { width: 960, height: 600 };
+const VIEWPORT: Viewport = { width: 384, height: 384 };
 
 function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
   const fake = createFakeContext();
@@ -88,23 +120,52 @@ function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
 }
 
 describe('render de la sala', () => {
-  it('dibuja suelo y muros del estado con la cámara en el origen', () => {
+  it('dibuja exactamente 12x12 tiles con la cámara en el origen', () => {
     const state = createInitialState();
     const fake = draw(state, { x: 0, y: 0 });
 
-    // El viewport 960x600 sobre una sala 20x20 cubre 20 columnas y 19 filas:
-    // 380 tiles (324 de suelo y 56 de muro) más las dos unidades.
-    expect(fake.draws.length).toBe(382);
+    // El viewport 384x384 sobre una sala 20x20 cubre 12 columnas y 12 filas:
+    // 144 tiles (121 de suelo y 23 de muro) más el caballero. El goblin queda
+    // fuera del viewport inicial y no se dibuja.
+    expect(fake.draws.length).toBe(145);
     expect(fake.isSmoothingEnabled()).toBe(false);
 
     const floorDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 288);
     const wallDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 64);
 
-    expect(floorDraws.length).toBe(324);
-    expect(wallDraws.length).toBe(56);
+    expect(floorDraws.length).toBe(121);
+    expect(wallDraws.length).toBe(23);
     expect(new Set(floorDraws.map((call) => call.sx))).toEqual(new Set([32, 64, 96]));
     expect(floorDraws[0]).toMatchObject({ sy: 288, sw: 32, sh: 32 });
     expect(wallDraws[0]).toMatchObject({ sx: 0, sy: 64, sw: 32, sh: 32 });
+  });
+
+  it('pinta el marco 2048x1152 en negro y centra el mapa de 1152x1152', () => {
+    expect(CANVAS_WIDTH).toBe(2048);
+    expect(CANVAS_HEIGHT).toBe(1152);
+    expect(MAP_VIEWPORT.width).toBe(384);
+    expect(MAP_VIEWPORT.height).toBe(384);
+    expect(MAP_BACKING_SIZE).toBe(1152);
+    expect(MAP_OFFSET_BACKING).toBe(448);
+    expect(MAP_OFFSET_LOGICAL * RENDER_SCALE).toBe(448);
+    expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(448);
+  });
+
+  it('usa escala interna 3x, desplaza el mapa 448 px de respaldo y recorta los laterales', () => {
+    const fake = draw(createInitialState(), { x: 0, y: 0 });
+
+    expect(fake.fillRects[0]).toEqual({
+      x: 0,
+      y: 0,
+      width: CANVAS_WIDTH,
+      height: CANVAS_HEIGHT,
+    });
+    expect(fake.fillStyles[0]).toBe('#000000');
+    expect(fake.scales).toContainEqual({ x: RENDER_SCALE, y: RENDER_SCALE });
+    expect(fake.translates[0]).toEqual({ x: MAP_OFFSET_LOGICAL, y: 0 });
+    expect(fake.clips).toEqual([
+      { x: 0, y: 0, width: MAP_VIEWPORT.width, height: MAP_VIEWPORT.height },
+    ]);
   });
 
   it('dibuja al caballero con el recorte (0,32,32,32) centrado en su casilla', () => {
@@ -136,7 +197,7 @@ describe('render de la sala', () => {
     const camera = centerCameraOnTile(enemy, VIEWPORT, gridPixelSize(state.grid));
     const fake = draw(state, camera);
 
-    expect(camera).toEqual({ x: 0, y: 40 });
+    expect(camera).toEqual({ x: 256, y: 256 });
 
     const goblin = fake.draws.find(
       (call) =>
@@ -156,11 +217,24 @@ describe('render de la sala', () => {
     });
   });
 
-  it('pinta el fondo del viewport y aplica la traslación de la cámara', () => {
+  it('pinta el fondo del mapa y aplica la traslación de la cámara', () => {
     const fake = draw(createInitialState(), { x: 0, y: 40 });
 
-    expect(fake.fillRects[0]).toEqual({ x: 0, y: 0, width: 960, height: 600 });
+    expect(fake.fillRects[1]).toEqual({
+      x: 0,
+      y: 0,
+      width: MAP_VIEWPORT.width,
+      height: MAP_VIEWPORT.height,
+    });
     expect(fake.translates).toContainEqual({ x: -0, y: -40 });
+  });
+
+  it('no dibuja unidades fuera del sub-viewport del mapa', () => {
+    const state = createInitialState();
+    const fake = draw(state, { x: 0, y: 0 });
+
+    const monsterDraws = fake.draws.filter((call) => call.image === assets.monsters);
+    expect(monsterDraws).toEqual([]);
   });
 
   it('no muta el estado del motor', () => {

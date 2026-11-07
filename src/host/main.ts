@@ -3,14 +3,21 @@ import { loadAssets } from './assets';
 import { cameraBounds, centerCameraOnTile } from './camera';
 import { createDebugApi } from './debug';
 import { collectDamageFeedbacks } from './feedback';
-import { gridPixelSize, TILE_SIZE, type Viewport } from './geometry';
+import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView } from './hud';
 import { isManagedKey, translateKey } from './input';
+import {
+  CANVAS_HEIGHT,
+  CANVAS_WIDTH,
+  MAP_VIEWPORT,
+  computeFrameLayout,
+  mapHeightToFramePercent,
+  mapWidthToFramePercent,
+  mapXToFramePercent,
+  mapYToFramePercent,
+} from './layout';
 import { renderScene, type SceneAssets } from './renderer';
 import { GameSession, type StepResult } from './session';
-
-export const CANVAS_WIDTH = 960;
-export const CANVAS_HEIGHT = 600;
 
 const DAMAGE_FEEDBACK_MS = 1200;
 
@@ -35,14 +42,19 @@ interface DamageFeedbackView {
   clear(): void;
 }
 
-function percent(value: number, total: number): string {
-  return `${(value / total) * 100}%`;
+function cssPercent(value: number): string {
+  return `${value}%`;
 }
 
-function createDamageFeedbackView(stage: HTMLElement, viewport: Viewport): DamageFeedbackView {
-  const feedback = stage.querySelector<HTMLElement>('[data-testid="damage-feedback"]');
-  const highlight = stage.querySelector<HTMLElement>('[data-testid="active-tile"]');
-  const flash = stage.querySelector<HTMLElement>('[data-testid="attack-flash"]');
+/**
+ * El feedback se posiciona en porcentajes del marco completo, pero partiendo
+ * del sub-rectángulo del mapa: el mapa empieza en el 21,875 % del ancho y una
+ * casilla ocupa el 4,6875 % horizontal y el 8,333… % vertical.
+ */
+function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
+  const feedback = frame.querySelector<HTMLElement>('[data-testid="damage-feedback"]');
+  const highlight = frame.querySelector<HTMLElement>('[data-testid="active-tile"]');
+  const flash = frame.querySelector<HTMLElement>('[data-testid="attack-flash"]');
   if (!feedback || !highlight || !flash) {
     throw new Error('Faltan los elementos de feedback de ataque o resaltado de casilla.');
   }
@@ -54,18 +66,20 @@ function createDamageFeedbackView(stage: HTMLElement, viewport: Viewport): Damag
     update(state, camera, events): void {
       const player = state.players[0];
       if (player) {
-        highlight.style.left = percent(player.x * TILE_SIZE - camera.x, viewport.width);
-        highlight.style.top = percent(player.y * TILE_SIZE - camera.y, viewport.height);
-        highlight.style.width = percent(TILE_SIZE, viewport.width);
-        highlight.style.height = percent(TILE_SIZE, viewport.height);
+        highlight.style.left = cssPercent(
+          mapXToFramePercent(player.x * TILE_SIZE - camera.x),
+        );
+        highlight.style.top = cssPercent(mapYToFramePercent(player.y * TILE_SIZE - camera.y));
+        highlight.style.width = cssPercent(mapWidthToFramePercent(TILE_SIZE));
+        highlight.style.height = cssPercent(mapHeightToFramePercent(TILE_SIZE));
       }
 
       const feedbacks = collectDamageFeedbacks(events, state);
       const last = feedbacks.at(-1);
       if (!last) return;
 
-      const left = percent((last.x + 0.5) * TILE_SIZE - camera.x, viewport.width);
-      const top = percent(last.y * TILE_SIZE - camera.y, viewport.height);
+      const left = cssPercent(mapXToFramePercent((last.x + 0.5) * TILE_SIZE - camera.x));
+      const top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
 
       feedback.textContent = `-${last.damage}`;
       feedback.style.left = left;
@@ -75,10 +89,10 @@ function createDamageFeedbackView(stage: HTMLElement, viewport: Viewport): Damag
       void feedback.offsetWidth;
       feedback.classList.add('is-active');
 
-      flash.style.left = percent(last.x * TILE_SIZE - camera.x, viewport.width);
-      flash.style.top = percent(last.y * TILE_SIZE - camera.y, viewport.height);
-      flash.style.width = percent(TILE_SIZE, viewport.width);
-      flash.style.height = percent(TILE_SIZE, viewport.height);
+      flash.style.left = cssPercent(mapXToFramePercent(last.x * TILE_SIZE - camera.x));
+      flash.style.top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
+      flash.style.width = cssPercent(mapWidthToFramePercent(TILE_SIZE));
+      flash.style.height = cssPercent(mapHeightToFramePercent(TILE_SIZE));
       flash.classList.remove('is-active');
       void flash.offsetWidth;
       flash.classList.add('is-active');
@@ -108,10 +122,11 @@ function createDamageFeedbackView(stage: HTMLElement, viewport: Viewport): Damag
 
 async function boot(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
-  const stage = canvas?.parentElement ?? null;
+  const stage = document.querySelector<HTMLElement>('[data-testid="stage"]');
+  const frame = document.querySelector<HTMLElement>('[data-testid="frame"]');
   const gameRoot = document.querySelector<HTMLElement>('[data-testid="game-root"]');
 
-  if (!canvas || !stage || !gameRoot) {
+  if (!canvas || !stage || !frame || !gameRoot) {
     showError('No se encontró la estructura de la partida (#game-canvas y #game-root).');
     return;
   }
@@ -125,7 +140,20 @@ async function boot(): Promise<void> {
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
 
-  const viewport: Viewport = { width: canvas.width, height: canvas.height };
+  /** Ajusta el marco presentado al espacio disponible sin tocar el canvas interno. */
+  const applyPresentation = (): void => {
+    const layout = computeFrameLayout(stage.clientWidth, stage.clientHeight);
+    frame.style.left = `${layout.left}px`;
+    frame.style.top = `${layout.top}px`;
+    frame.style.width = `${layout.width}px`;
+    frame.style.height = `${layout.height}px`;
+    gameRoot.style.setProperty('--frame-width', `${layout.width}px`);
+  };
+
+  applyPresentation();
+  new ResizeObserver(applyPresentation).observe(stage);
+
+  const viewport = MAP_VIEWPORT;
   const session = new GameSession();
   const world = gridPixelSize(session.state.grid, TILE_SIZE);
   const bounds = cameraBounds(world, viewport);
@@ -135,7 +163,7 @@ async function boot(): Promise<void> {
 
   const hudView = createHudView(gameRoot);
   const debugView = createDebugView(gameRoot);
-  const feedbackView = createDamageFeedbackView(stage, viewport);
+  const feedbackView = createDamageFeedbackView(frame);
 
   const render = (events: readonly GameEvent[] = []): void => {
     const state = session.state;

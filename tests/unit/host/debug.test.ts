@@ -12,8 +12,8 @@ function setup() {
     () => ({
       state: session.state,
       camera,
-      bounds: { maxX: 0, maxY: 40 },
-      viewport: { width: 960, height: 600 },
+      bounds: { maxX: 256, maxY: 256 },
+      viewport: { width: 384, height: 384 },
       tileSize: 32,
       assetsLoaded: true,
       lastEvents,
@@ -37,8 +37,8 @@ describe('API de debug window.__game', () => {
 
     expect(snapshot.players[0]).toMatchObject({ id: 'player-1', x: 4, y: 4 });
     expect(snapshot.enemies[0]).toMatchObject({ id: 'enemy-1', x: 15, y: 15 });
-    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 0, maxY: 40 });
-    expect(snapshot.viewport).toEqual({ width: 960, height: 600 });
+    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
+    expect(snapshot.viewport).toEqual({ width: 384, height: 384 });
     expect(snapshot.tileSize).toBe(32);
     expect(snapshot.assetsLoaded).toBe(true);
     expect(snapshot.lastEvents).toEqual([]);
