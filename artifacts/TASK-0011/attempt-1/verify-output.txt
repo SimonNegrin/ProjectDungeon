@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
 $ node scripts/validate-docs.mjs
-OK: 69 documentos, 11 tareas, 2 experimentos.
+OK: 70 documentos, 11 tareas, 2 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 3 agentes, 9 skills.
 $ vitest run
@@ -10,11 +10,11 @@ $ vitest run
 
  Test Files  22 passed (22)
       Tests  238 passed (238)
-   Start at  23:24:42
-   Duration  7.10s (tests 90%, import 5%, transform 4%, worker 1%)
+   Start at  23:25:38
+   Duration  6.63s (tests 90%, import 5%, transform 4%, worker 1%)
 
-    Isolate  22 workers spawned · ~171ms startup each (spawn + environment, per file)
-             at least ~366ms faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  22 workers spawned · ~157ms startup each (spawn + environment, per file)
+             at least ~337ms faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -36,4 +36,4 @@ dist/assets/EXP-000-shell-demo-DTijFOQ0.js               3.08 kB │ gzip:  1.56
 dist/assets/experiment-DRo6valy.js                       9.94 kB │ gzip:  3.79 kB
 dist/assets/EXP-001-generador-mazmorra-Cb4UuZGZ.js      27.97 kB │ gzip: 10.32 kB
 dist/assets/main-DxMySo1g.js                            55.46 kB │ gzip: 19.95 kB
-✓ built in 413ms
+✓ built in 375ms
