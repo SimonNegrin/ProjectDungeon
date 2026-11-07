@@ -4,14 +4,14 @@ id: TASK-0007
 title: "Experimento comparativo de generadores de mazmorra"
 description: Construir EXP-001 con tres variantes (BSP, salas+pasillos, híbrido), misma semilla, métricas, huecos de puerta y render con 32rogues.
 status: stable
-task_status: review
+task_status: done
 task_type: experiment
 requirement: REQ-003
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-011, T-001, T-002, T-004, T-005]
 depends_on: [TASK-0006]
 unlocks: []
 created_at: 2026-11-07T17:43:55Z
-completed_at:
+completed_at: 2026-11-07T22:11:52.376Z
 assignee: task-runner
 attempts: 2
 artifacts: artifacts/TASK-0007/
@@ -26,6 +26,9 @@ verified:
   - by: task-lead
     at: 2026-11-07T20:15:00Z
     note: Intento 2 verificado; R-002 (2 grandes y 3 pequeñas) y métricas Grandes/Pequeñas OK con varias semillas. Pendiente playtest y decisión.
+  - by: human:simon
+    at: 2026-11-07T22:11:52.376Z
+    note: Decide A · BSP en EXP-001 con semilla 279837264 y parámetros 9/4/11/20; aprueba REQ-003 v2. TASK-0007 queda cerrada.
 ---
 
 # Objetivo
@@ -206,8 +209,22 @@ explícitamente 2 salas grandes y 3 pequeñas por variante, añade las métricas
   objetivo de 100 ms de T-007 y no se oculta. El canvas sigue siendo 512×512
   (~10 px CSS por tile en tres columnas). Nada de esto se corrige falseando
   métricas.
-- **Pendiente:** playtest de `human:simon`, valoración del respaldo de B y
-  decisión de variante. La tarea sigue en `review`.
+- **Pendiente en su momento:** playtest de `human:simon`, valoración del respaldo
+  de B y decisión de variante. Se cerró con la decisión de `EXP-001` (ver
+  [Cierre](#cierre)).
+
+# Cierre
+
+`human:simon` probó `EXP-001` y decidió **A · BSP** (`variant-a`) con semilla
+`279837264` y parámetros `roomTarget 9`, `roomMin 4`, `roomMax 11`,
+`loopRatio 20 %`. La decisión está registrada en
+`experiments/EXP-001-generador-mazmorra/experiment.md` y en el JSON
+`experiments/EXP-001-generador-mazmorra/results/decision-2026-11-07T22-11-52Z.json`.
+Con ella se aprueba `REQ-003` v2 y se crean `TASK-0008` a `TASK-0011`.
+
+TASK-0007 queda `done` en `2026-11-07T22:11:52.376Z`. El `task-lead` no modifica
+`REQ-003`; la hoja v2 y sus índices se registran en el commit de documentación
+aprobada.
 
 # Restricciones
 

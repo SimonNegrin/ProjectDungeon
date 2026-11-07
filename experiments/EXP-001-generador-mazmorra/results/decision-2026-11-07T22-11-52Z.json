@@ -1,0 +1,15 @@
+{
+  "experiment": "EXP-001",
+  "question": "¿Qué generador produce la mazmorra legible, variada y con los pasillos y huecos de puerta que queremos?",
+  "seed": 279837264,
+  "parameters": {
+    "roomTarget": 9,
+    "roomMin": 4,
+    "roomMax": 11,
+    "loopRatio": 20,
+    "showDoors": true
+  },
+  "decision": "variant-a",
+  "notes": "Creo que esta opción genera generalmente mapas más interesantes para el juego.\n\nMe gustaría hacer algunas preguntas:\n- ¿Sería posible tener el algoritmo encapsulado de tal manera que sea facilmente reemplazable en el futuro, por ejemplo, tener una interfaz MapGenerator o algo así?\n- ¿Existe la posibilidad de generar pasillos de 2 tiles de ancho? Esos pasillon no tendrían puerta y no es obligatorio que hagan esquina (pueden ser rectos). Creo que pasillos de 2 (o incluso 3) tiles de ancho mejoran la posiblidad de combates tácticos en el futuro, donde los jugadores puedan montar barricadas o simplementa aprovechar el espacio estrecho para defender una posición.",
+  "decidedAt": "2026-11-07T22:11:52.376Z"
+}

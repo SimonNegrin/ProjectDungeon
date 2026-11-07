@@ -22,6 +22,6 @@ export const experiments: ExperimentManifestEntry[] = [
     description: 'Compara BSP, salas+pasillos e híbrido con la misma semilla, métricas y decisión.',
     question: '¿Qué generador produce la mazmorra legible, variada y con los pasillos y huecos de puerta que queremos?',
     path: '/experiments/EXP-001-generador-mazmorra/',
-    status: 'ready',
+    status: 'decided',
   },
 ];

@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **7**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **11**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -10,11 +10,21 @@ Total: **7**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0004](TASK-0004-motor-sala-20-mp.md) | Motor: sala 20×20, MP 6/4 y posiciones iniciales | `done` | REQ-002 | TASK-0003 | P1 |
 | [TASK-0005](TASK-0005-host-encuadre-16-9.md) | Host: encuadre 16:9, render interno 3× y mapa 12×12 | `done` | REQ-002 | TASK-0004 | P1 |
 | [TASK-0006](TASK-0006-e2e-qa-visual-encuadre.md) | E2E y QA visual del encuadre 16:9 | `done` | REQ-002 | TASK-0005 | P1 |
-| [TASK-0007](TASK-0007-experimento-generador-mazmorra.md) | Experimento comparativo de generadores de mazmorra | `review` | REQ-003 | TASK-0006 | P1 |
+| [TASK-0007](TASK-0007-experimento-generador-mazmorra.md) | Experimento comparativo de generadores de mazmorra | `done` | REQ-003 | TASK-0006 | P1 |
+| [TASK-0008](TASK-0008-motor-generador-bsp.md) | Motor: interfaz MapGenerator, BSP, salas y pasillos estrechos | `ready` | REQ-003 | TASK-0006 | P1 |
+| [TASK-0009](TASK-0009-motor-puertas-pasillos-anchos.md) | Motor: huecos de puerta y pasillos anchos de 2 tiles | `backlog` | REQ-003 | TASK-0008 | P1 |
+| [TASK-0010](TASK-0010-host-mapa-generado-muros-debug.md) | Host: mapa generado, semilla, muros y debug | `backlog` | REQ-003 | TASK-0009 | P1 |
+| [TASK-0011](TASK-0011-e2e-qa-mapa-generado.md) | E2E y QA visual del mapa generado | `backlog` | REQ-003 | TASK-0010 | P1 |
 
-# review
+# ready
 
-* [TASK-0007 — Experimento comparativo de generadores de mazmorra](TASK-0007-experimento-generador-mazmorra.md)
+* [TASK-0008 — Motor: interfaz MapGenerator, BSP, salas y pasillos estrechos](TASK-0008-motor-generador-bsp.md)
+
+# backlog
+
+* [TASK-0009 — Motor: huecos de puerta y pasillos anchos de 2 tiles](TASK-0009-motor-puertas-pasillos-anchos.md)
+* [TASK-0010 — Host: mapa generado, semilla, muros y debug](TASK-0010-host-mapa-generado-muros-debug.md)
+* [TASK-0011 — E2E y QA visual del mapa generado](TASK-0011-e2e-qa-mapa-generado.md)
 
 # done
 
@@ -24,4 +34,5 @@ Total: **7**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0004 — Motor: sala 20×20, MP 6/4 y posiciones iniciales](TASK-0004-motor-sala-20-mp.md)
 * [TASK-0005 — Host: encuadre 16:9, render interno 3× y mapa 12×12](TASK-0005-host-encuadre-16-9.md)
 * [TASK-0006 — E2E y QA visual del encuadre 16:9](TASK-0006-e2e-qa-visual-encuadre.md)
+* [TASK-0007 — Experimento comparativo de generadores de mazmorra](TASK-0007-experimento-generador-mazmorra.md)
 

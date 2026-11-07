@@ -3,53 +3,27 @@ type: Experiment
 id: EXP-001
 title: Comparador de generadores de mazmorra
 description: Compara BSP, salas con pasillos e híbrido con la misma semilla para elegir el generador de REQ-003.
-status: draft
-experiment_status: proposed
+status: stable
+experiment_status: decided
 question: ¿Qué generador produce la mazmorra legible, variada y con los pasillos y huecos de puerta que queremos?
 related_requirements: [REQ-003]
+seed: 279837264
 parameters:
-  - id: roomTarget
-    label: Salas objetivo
-    type: range
-    min: 8
-    max: 12
-    step: 1
-    default: 10
-  - id: roomMin
-    label: Sala mínima
-    type: range
-    min: 3
-    max: 6
-    step: 1
-    default: 3
-    unit: tiles
-  - id: roomMax
-    label: Sala máxima
-    type: range
-    min: 8
-    max: 11
-    step: 1
-    default: 11
-    unit: tiles
-  - id: loopRatio
-    label: Bucles extra
-    type: range
-    min: 0
-    max: 40
-    step: 5
-    default: 20
-    unit: "%"
-  - id: showDoors
-    label: Marcar huecos de puerta
-    type: toggle
-    default: true
-decision:
-decided_by:
-decided_at:
+  roomTarget: 9
+  roomMin: 4
+  roomMax: 11
+  loopRatio: 20
+  showDoors: true
+decision: variant-a
+decided_by: human:simon
+decided_at: 2026-11-07T22:11:52.376Z
 created_at: 2026-11-07T17:43:55Z
-updated_at: 2026-11-07T17:43:55Z
+updated_at: 2026-11-07T22:12:59Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T17:43:55Z }
 verified:
+  - by: human:simon
+    at: 2026-11-07T22:11:52.376Z
+    note: Decide A (BSP) con semilla 279837264 y parámetros 9/4/11/20.
 ---
 
 # Propósito
@@ -101,26 +75,70 @@ La decisión no es "cuál es más bonito", sino cuál cumple mejor las propiedad
 
 # Observaciones
 
-Pendiente de construir y probar. Rellenar tras la sesión de playtest con:
-legibilidad, sensación de recorrido, claridad de las puertas y semillas
-problemáticas.
+La decisión se tomó con la semilla `279837264` y los parámetros
+`roomTarget 9`, `roomMin 4`, `roomMax 11`, `loopRatio 20 %` y `showDoors true`.
+
+Referencia de la semilla `20261107` (attempt-2, antes de la decisión):
+
+| Métrica | A · BSP | B · Salas+pasillos | C · Híbrido |
+|---|---:|---:|---:|
+| Salas | 10 | 10 | 10 |
+| Grandes (7×7+) | 3 | 2 | 3 |
+| Pequeñas (3×3–5×5) | 3 | 3 | 3 |
+| Suelo | 47,7 % | 33,5 % | 59,8 % |
+| Pasillos | 102 | 38 | 231 |
+| Esquinas | 14 | 4 | 11 |
+| Callejones | 0 | 0 | 73 |
+| Bucles | 2 | 2 | 2 |
+| Distancia jugador→enemigo | 64 | 42 | 75 |
+| Tiempo de generación | 250,9 ms | 169,5 ms | 79,7 ms |
+
+A se percibió como la más equilibrada y con mapas más interesantes: salas
+grandes y pequeñas reconocibles, pasillos con esquinas y sin callejones. B quedó
+demasiado compacta y usó una colocación de respaldo en la semilla de referencia.
+C resultó demasiado densa y laberíntica. La regla de muros por borde se leyó
+correctamente en las tres variantes.
+
+Limitaciones registradas: A y B superan el objetivo de 100 ms de T-007 en la
+maqueta; B puede necesitar una colocación más orgánica; el canvas del
+experimento es de 512×512 y en tres columnas deja unos 10 px CSS por tile.
 
 # Decisión
 
-- Opción:
-- Motivo:
-- Fecha:
-- Decidido por:
+- Opción: **A · BSP** (`variant-a`).
+- Motivo: genera mapas generalmente más interesantes para el juego, con salas
+  grandes y pequeñas, pasillos con esquinas y estructura legible.
+- Fecha: 2026-11-07T22:11:52.376Z.
+- Decidido por: `human:simon`.
+- Semilla: `279837264`.
+- Parámetros: `roomTarget 9`, `roomMin 4`, `roomMax 11`, `loopRatio 20 %`,
+  `showDoors true`.
+
+Notas del usuario:
+
+> Creo que esta opción genera generalmente mapas más interesantes para el juego.
+>
+> Me gustaría hacer algunas preguntas:
+> - ¿Sería posible tener el algoritmo encapsulado de tal manera que sea
+>   facilmente reemplazable en el futuro, por ejemplo, tener una interfaz
+>   MapGenerator o algo así?
+> - ¿Existe la posibilidad de generar pasillos de 2 tiles de ancho? Esos pasillos
+>   no tendrían puerta y no es obligatorio que hagan esquina (pueden ser rectos).
+>   Creo que pasillos de 2 (o incluso 3) tiles de ancho mejoran la posibilidad de
+>   combates tácticos en el futuro, donde los jugadores puedan montar barricadas
+>   o simplemente aprovechar el espacio estrecho para defender una posición.
 
 # Evidencia
 
-- [ ] Capturas de A/B/C con la misma semilla.
-- [ ] JSON de decisión en `results/`.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` OK.
+- [JSON de decisión](results/decision-2026-11-07T22-11-52Z.json)
+- Capturas A/B/C de `artifacts/TASK-0007/attempt-2/screenshots/`
+- [Informe de TASK-0007](../../artifacts/TASK-0007/attempt-2/report.md)
+- `pnpm run verify` (145 tests) y `pnpm run test:e2e` (11 tests) OK.
 
 # Siguientes pasos
 
-- Actualizar `REQ-003` a v2 con la variante y los parámetros elegidos.
-- Promocionar el generador validado a `src/game/` y añadir tests de producción.
-- Crear las tareas de generación, aparición, muros y E2E.
+- `REQ-003` v2 aprobada: BSP, `MapGenerator`, configuración 9/4/11/20 y 1-2
+  pasillos anchos de 2 tiles sin puertas por mapa.
+- Promocionar BSP a `src/game/` con tests de producción y la interfaz inyectable.
+- Crear las tareas de generación, pasillos anchos, integración y E2E.
 - Archivar el experimento o dejarlo como referencia.

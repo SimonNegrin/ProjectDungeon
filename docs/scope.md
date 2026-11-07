@@ -21,7 +21,7 @@ El siguiente corte es la generación procedural del mapa
 |---|---|---|
 | 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
 | 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 cerrada |
-| 1.5 | Generación procedural del mapa y muros (REQ-003) | Requisitos aprobados; pendiente EXP-001 y tareas |
+| 1.5 | Generación procedural del mapa y muros (REQ-003) | Aprobada v2: BSP, `MapGenerator` y pasillos anchos de 2 tiles; tareas TASK-0008 a TASK-0011 |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
