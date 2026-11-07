@@ -247,8 +247,7 @@ describe('estructura del mapa de referencia', () => {
     const tree = reference.corridors.filter((corridor) => corridor.kind === 'tree');
     const loops = reference.corridors.filter((corridor) => corridor.kind === 'loop');
     expect(tree).toHaveLength(reference.rooms.length - 1);
-    expect(loops.length).toBeGreaterThanOrEqual(1);
-    expect(loops.length).toBeLessThanOrEqual(3);
+    expect(loops).toHaveLength(2);
   });
 
   it('incluye un tramo recto largo y un corredor con dos o más esquinas', () => {
