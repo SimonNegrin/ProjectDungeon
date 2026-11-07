@@ -4,7 +4,7 @@ id: TASK-0005
 title: "Host: encuadre 16:9, render interno 3× y mapa 12×12"
 description: Renderiza un marco 16:9 responsive con canvas interno de 2048×1152, mapa cuadrado 12×12 centrado, laterales negros y cámara limitada al mapa.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-002
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-007, T-001, T-002, T-003, T-005, T-006]
