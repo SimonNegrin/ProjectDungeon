@@ -4,7 +4,7 @@ id: TASK-0003
 title: Teclado, HUD, overlays y E2E del loop completo
 description: Conecta el teclado al motor, añade HUD y overlays, reinicio y prueba E2E de una partida completa.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-001
 requirement_ids: [T-003, T-004, R-004, R-005, R-007, R-008, R-009]
