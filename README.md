@@ -39,6 +39,7 @@ Abre <http://127.0.0.1:5173/experiments/> para ver el índice de experimentos.
 | `npm test` | Tests unitarios con Vitest. |
 | `npm run test:e2e` | Tests de navegador con Playwright. |
 | `npm run docs:check` | Valida OKF, enlaces y grafo de tareas. |
+| `npm run config:check` | Valida agentes, skills y `opencode.jsonc`. |
 | `npm run tasks:board` | Regenera `docs/tasks/index.md`. |
 | `npm run tasks:next` | Muestra la siguiente tarea lista. |
 | `npm run verify` | Validación completa local. |

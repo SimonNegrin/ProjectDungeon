@@ -7,3 +7,4 @@
 * **Creation**: Se añaden las skills de requisitos, tareas, experimentos, arquitectura y QA visual.
 * **Creation**: Se implementa el shell de experimentos y el experimento de humo `EXP-000`.
 * **Decision**: Se adopta un enfoque local-first: primero un jugador con teclado, después hotseat y al final servidor/QR.
+* **Validation**: `npm run verify`, `npm run test:e2e` y `npm audit` pasan. La captura del shell está en `artifacts/EXP-000-shell-demo/shell-smoke.png`.

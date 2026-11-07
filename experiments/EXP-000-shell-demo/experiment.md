@@ -44,7 +44,13 @@ El shell debe permitir:
 
 # Observaciones
 
-Pendiente de la prueba del usuario.
+El shell arranca, renderiza las dos variantes, responde a los controles y genera
+una decisión exportable. La prueba E2E comprueba el estado y la captura visual.
+
+# Evidencia
+
+- [Captura del shell](../../artifacts/EXP-000-shell-demo/shell-smoke.png)
+- `npm run test:e2e` pasa.
 
 # Decisión
 
