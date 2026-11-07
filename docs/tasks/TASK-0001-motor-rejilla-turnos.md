@@ -4,22 +4,22 @@ id: TASK-0001
 title: Motor de partida con rejilla, turnos, combate e IA
 description: Implementa el motor determinista del primer prototipo, sin UI, con tests unitarios.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-001
 requirement_ids: [T-001, R-003, R-004, R-005]
 depends_on: []
 unlocks: [TASK-0002]
 created_at: 2026-11-07T15:24:03Z
-completed_at:
+completed_at: 2026-11-07T15:35:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0001/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T15:24:03Z }
-verified:
+verified: { by: task-lead, at: 2026-11-07T15:35:00Z }
 ---
 
 # Objetivo
@@ -39,30 +39,30 @@ HUD.
 
 # Criterios de aceptación
 
-- [ ] Existe `src/game/` con estado serializable, comandos y una función de
+- [x] Existe `src/game/` con estado serializable, comandos y una función de
       reducción pura que devuelve eventos.
-- [ ] La sala mide 32×24, tiene muros en el borde y suelo transitable; las
+- [x] La sala mide 32×24, tiene muros en el borde y suelo transitable; las
       entidades no pueden ocupar muros ni casillas ocupadas.
-- [ ] El movimiento es en 8 direcciones, cuesta 1 MP por casilla (también en
+- [x] El movimiento es en 8 direcciones, cuesta 1 MP por casilla (también en
       diagonal), el jugador tiene 4 MP y el enemigo 3.
-- [ ] No se permite cortar esquinas: una diagonal requiere libres las dos
+- [x] No se permite cortar esquinas: una diagonal requiere libres las dos
       casillas ortogonales adyacentes.
-- [ ] Cada unidad tiene una acción por turno. El ataque básico solo funciona en
+- [x] Cada unidad tiene una acción por turno. El ataque básico solo funciona en
       adyacencia (incluidas diagonales), hace 5 al enemigo y 3 al jugador.
-- [ ] Vida inicial: 20 del jugador y 10 del enemigo. La muerte ocurre al llegar
+- [x] Vida inicial: 20 del jugador y 10 del enemigo. La muerte ocurre al llegar
       a 0 y emite evento.
-- [ ] `EndTurn` cierra la fase del jugador, ejecuta la fase enemiga completa y
+- [x] `EndTurn` cierra la fase del jugador, ejecuta la fase enemiga completa y
       devuelve el control al jugador restaurando MP y acción.
-- [ ] La IA elige al jugador más cercano; si está en rango, ataca; si no,
+- [x] La IA elige al jugador más cercano; si está en rango, ataca; si no,
       avanza una casilla con un pathfinding simple y determinista; si no puede,
       espera.
-- [ ] La partida termina en victoria si no quedan enemigos vivos y en derrota si
+- [x] La partida termina en victoria si no quedan enemigos vivos y en derrota si
       no quedan jugadores vivos. `Restart` vuelve al estado inicial.
-- [ ] El motor no importa DOM, Canvas, red ni teclado; no usa `Math.random` ni
+- [x] El motor no importa DOM, Canvas, red ni teclado; no usa `Math.random` ni
       `Date.now` para reglas.
-- [ ] Los tests cubren movimiento, diagonal sin corte, ocupación, MP, acción,
+- [x] Los tests cubren movimiento, diagonal sin corte, ocupación, MP, acción,
       combate, cambio de fase, IA, victoria, derrota y determinismo.
-- [ ] `pnpm run verify` pasa y el informe incluye el commit SHA.
+- [x] `pnpm run verify` pasa y el informe incluye el commit SHA.
 
 # Plan de test
 
@@ -87,10 +87,23 @@ HUD.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`
-- [ ] Salida de tests en `artifacts/TASK-0001/attempt-1/test-output.txt`
-- [ ] Commit SHA en la rama `task/TASK-0001`
-- [ ] Sin capturas: esta tarea no tiene UI
+- [x] Informe en `artifacts/TASK-0001/attempt-1/report.md`
+- [x] Salida de tests en `artifacts/TASK-0001/attempt-1/test-output.txt`
+- [x] Commit SHA en la rama `task/TASK-0001`
+- [x] Sin capturas: esta tarea no tiene UI
+
+# Verificación
+
+- `task-lead` revisó el diff completo de `task/TASK-0001` (solo `src/game/`,
+  `tests/unit/game/` y artefactos).
+- `pnpm run verify` re-ejecutado de forma independiente: docs, config, 49 tests
+  y build OK.
+- 8 archivos de test, 49 tests, 0 fallos, 0 tests saltados.
+- Sin cambios en UI, host, experimentos, assets, dependencias ni configuración.
+- Sin tests existentes borrados, saltados o debilitados.
+- Commit de implementación: `8ec0d3feffb8753994730c5e6d528b0ba31eab53`.
+- Evidencia: `artifacts/TASK-0001/attempt-1/report.md` y
+  `artifacts/TASK-0001/attempt-1/test-output.txt`.
 
 # Restricciones
 

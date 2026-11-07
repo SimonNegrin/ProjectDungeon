@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+* **Task**: `TASK-0001` completada y verificada: motor determinista en `src/game/` (rejilla 32×24, movimiento, combate, turnos, IA, victoria/derrota), 49 tests, `pnpm run verify` OK. Commit de implementación `8ec0d3f`.
 * **Requirement**: Se aprueba `REQ-001` para el primer prototipo local: sala 32×24, un jugador, un enemigo, teclado, cámara y turnos con la economía provisional.
 * **Decision**: Se adopta el pack 32rogues como arte placeholder y se registra su licencia y crédito en ADR-006.
 * **Planning**: Se crean `TASK-0001` (motor), `TASK-0002` (host y cámara) y `TASK-0003` (teclado, HUD y E2E), secuenciales.
