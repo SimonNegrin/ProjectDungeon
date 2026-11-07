@@ -4,6 +4,8 @@ import {
   connectivityPercentage,
   createDungeon,
   fingerprint,
+  isLargeRoom,
+  isSmallRoom,
   type DungeonState,
   type VariantId,
 } from './dungeon';
@@ -25,8 +27,14 @@ function assertUsableState(state: DungeonState): void {
   expect(state.corridors.length).toBeGreaterThanOrEqual(state.rooms.length - 1);
   expect(connectivityPercentage(state)).toBeCloseTo(100, 5);
 
+  expect(state.rooms.filter(isLargeRoom).length).toBeGreaterThanOrEqual(2);
+  expect(state.rooms.filter(isSmallRoom).length).toBeGreaterThanOrEqual(3);
+
   const metrics = computeMetrics(state);
   expect(metrics.length).toBeGreaterThan(8);
+  expect(metrics.map((metric) => metric.label)).toEqual(
+    expect.arrayContaining(['Grandes', 'Pequeñas']),
+  );
   for (const metric of metrics) {
     expect(metric.label.length).toBeGreaterThan(0);
     expect(metric.value).not.toBe('');
@@ -41,6 +49,19 @@ describe('integración de las tres variantes sin DOM', () => {
     for (const state of states) {
       expect(state.seed).toBe(20261107);
       expect(state.warnings.some((warning) => warning.includes('semilla'))).toBe(false);
+    }
+  });
+
+  it('A/B/C cumplen 2 grandes y 3 pequeñas en tres semillas por defecto', () => {
+    for (const variant of variants) {
+      for (const seed of [1, 123, 20261107]) {
+        const state = createDungeon(variant, seed, options);
+        expect(state.rooms.length, `${variant} · ${seed}`).toBeGreaterThanOrEqual(8);
+        expect(state.rooms.length, `${variant} · ${seed}`).toBeLessThanOrEqual(12);
+        expect(state.rooms.filter(isLargeRoom).length, `${variant} · ${seed}`).toBeGreaterThanOrEqual(2);
+        expect(state.rooms.filter(isSmallRoom).length, `${variant} · ${seed}`).toBeGreaterThanOrEqual(3);
+        expect(connectivityPercentage(state)).toBeCloseTo(100, 5);
+      }
     }
   });
 
@@ -73,9 +94,14 @@ describe('integración de las tres variantes sin DOM', () => {
       expect(state.rooms.length).toBeGreaterThan(0);
       expect(state.spawns.distance).toBeGreaterThanOrEqual(0);
       expect(state.doors.length).toBeGreaterThan(0);
+      expect(
+        state.warnings.some((warning) => /pequeñ/i.test(warning)),
+        'debe avisar de que no se pueden reservar 3 salas pequeñas',
+      ).toBe(true);
       const adjustment = computeMetrics(state).find((metric) => metric.label === 'Ajuste');
       expect(adjustment).toBeDefined();
       expect(String(adjustment?.value).length).toBeGreaterThan(0);
+      expect(String(adjustment?.value)).toMatch(/pequeñ/i);
     }
   });
 });

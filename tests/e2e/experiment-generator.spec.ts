@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
-const SHOTS = 'artifacts/TASK-0007/attempt-1/screenshots';
+const SHOTS = 'artifacts/TASK-0007/attempt-2/screenshots';
 const VARIANT_IDS = ['bsp', 'random', 'hybrid'] as const;
 
 test.use({ viewport: { width: 1600, height: 1200 } });
@@ -44,6 +44,11 @@ test('EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión'
   await expect(page.getByTestId('metrics-random')).toContainText('Salas');
   await expect(page.getByTestId('metrics-hybrid')).toContainText('Salas');
 
+  for (const id of VARIANT_IDS) {
+    await expect(page.getByTestId(`metrics-${id}`)).toContainText('Grandes');
+    await expect(page.getByTestId(`metrics-${id}`)).toContainText('Pequeñas');
+  }
+
   const initial = await page.evaluate(() => window.__experiment?.snapshot());
   expect(initial?.seed).toBe(20261107);
   expect(initial?.variants).toHaveLength(3);
@@ -59,6 +64,15 @@ test('EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión'
   );
   const initialFingerprints = fingerprintOf(initial);
   expectObjectValues(initialFingerprints, 3);
+
+  for (const variant of initial?.variants ?? []) {
+    const large = variant.metrics.find((metric) => metric.label === 'Grandes');
+    const small = variant.metrics.find((metric) => metric.label === 'Pequeñas');
+    expect(large, `${variant.id} debe mostrar Grandes`).toBeDefined();
+    expect(small, `${variant.id} debe mostrar Pequeñas`).toBeDefined();
+    expect(Number(large?.value), `${variant.id} debe tener 2+ grandes`).toBeGreaterThanOrEqual(2);
+    expect(Number(small?.value), `${variant.id} debe tener 3+ pequeñas`).toBeGreaterThanOrEqual(3);
+  }
 
   const paintedPixels = await page.getByTestId('canvas-bsp').evaluate((element) => {
     const canvas = element as HTMLCanvasElement;

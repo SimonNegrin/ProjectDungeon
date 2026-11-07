@@ -28,6 +28,20 @@ export type Door = {
 
 export type CorridorKind = 'tree' | 'loop';
 
+type RoomRole = 'large' | 'small' | 'medium';
+
+/**
+ * Clasificación de R-002 para métricas y validadores. No se debe cambiar sin
+ * actualizar el requisito.
+ */
+export function isLargeRoom(room: Room): boolean {
+  return room.width >= 7 && room.height >= 7 && room.width <= 11 && room.height <= 11;
+}
+
+export function isSmallRoom(room: Room): boolean {
+  return room.width >= 3 && room.height >= 3 && room.width <= 5 && room.height <= 5;
+}
+
 export type Corridor = {
   from: number;
   to: number;
@@ -267,100 +281,210 @@ type PlacementResult = {
   warnings: string[];
 };
 
-function tryPlaceRandom(
+type RolePlan = {
+  roles: RoomRole[];
+  largeTarget: number;
+  smallTarget: number;
+  warnings: string[];
+};
+
+function roleSides(role: RoomRole, options: ResolvedOptions): { min: number; max: number } | null {
+  if (role === 'large') {
+    const min = Math.max(7, options.roomMin);
+    const max = Math.min(9, options.roomMax);
+    return min <= max ? { min, max } : null;
+  }
+  if (role === 'small') {
+    const min = Math.max(3, options.roomMin);
+    const max = Math.min(5, options.roomMax);
+    return min <= max ? { min, max } : null;
+  }
+  const min = Math.max(6, options.roomMin);
+  const max = Math.min(8, options.roomMax);
+  return min <= max ? { min, max } : null;
+}
+
+function buildRolePlan(options: ResolvedOptions): RolePlan {
+  const warnings: string[] = [];
+  const roles: RoomRole[] = [];
+  const large = roleSides('large', options);
+  const small = roleSides('small', options);
+  const medium = roleSides('medium', options);
+
+  let largeTarget = 0;
+  let smallTarget = 0;
+  if (large) {
+    largeTarget = 2;
+  } else {
+    warnings.push(
+      `No se pueden reservar 2 salas grandes (7×7 a 9×9) con sala máxima ${options.roomMax}; se usa el mejor reparto posible.`,
+    );
+  }
+  if (small) {
+    smallTarget = 3;
+  } else {
+    warnings.push(
+      `Con sala mínima ${options.roomMin} no se pueden reservar las 3 salas pequeñas (3×3 a 5×5); se usan solo grandes y medianas.`,
+    );
+  }
+
+  for (let index = 0; index < largeTarget; index += 1) roles.push('large');
+  for (let index = 0; index < smallTarget; index += 1) roles.push('small');
+  while (roles.length < options.roomTarget && medium) roles.push('medium');
+  while (roles.length < options.roomTarget) {
+    if (large) roles.push('large');
+    else if (small) roles.push('small');
+    else break;
+  }
+  if (roles.length > options.roomTarget) roles.length = options.roomTarget;
+
+  return { roles, largeTarget, smallTarget, warnings };
+}
+
+function roleMinSide(role: RoomRole, options: ResolvedOptions): number {
+  return roleSides(role, options)?.min ?? options.roomMin;
+}
+
+function tryPlaceRole(
   rng: () => number,
-  width: number,
-  height: number,
-  target: number,
-  minSide: number,
-  maxSide: number,
-): Room[] {
-  const rooms: Room[] = [];
-  const attempts = 1600;
+  options: ResolvedOptions,
+  rooms: Room[],
+  role: RoomRole,
+  id: number,
+): Room | null {
+  const sides = roleSides(role, options);
+  if (!sides) return null;
+
+  const attempts = 600;
   const minX = 2;
   const minY = 2;
-  const maxXLimit = width - 2;
-  const maxYLimit = height - 2;
+  const maxXLimit = options.width - 2;
+  const maxYLimit = options.height - 2;
 
-  for (let attempt = 0; attempt < attempts && rooms.length < target; attempt += 1) {
-    const position = rooms.length;
-    let candidateMinW = minSide;
-    let candidateMaxW = maxSide;
-    let candidateMinH = minSide;
-    let candidateMaxH = maxSide;
-
-    const largeMin = Math.max(7, minSide);
-    const smallMax = Math.min(5, maxSide);
-    if (position < 2 && maxSide >= largeMin) {
-      candidateMinW = largeMin;
-      candidateMinH = largeMin;
-      candidateMaxW = Math.min(maxSide, 9);
-      candidateMaxH = Math.min(maxSide, 9);
-    } else if (position < 5 && smallMax >= minSide) {
-      candidateMaxW = smallMax;
-      candidateMaxH = smallMax;
-    }
-
-    // Si la colocación se atasca, reduce el tamaño máximo para que quepan
-    // las salas restantes. El panel no cambia; el ajuste se informa.
-    if (attempt > 900) {
-      const shrink = Math.min(4, Math.floor((attempt - 900) / 175) + 1);
-      candidateMaxW = Math.max(minSide, candidateMaxW - shrink);
-      candidateMaxH = Math.max(minSide, candidateMaxH - shrink);
-    }
-
-    const w = randInt(rng, candidateMinW, candidateMaxW);
-    const h = randInt(rng, candidateMinH, candidateMaxH);
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    // Si el rol no cabe con el tamaño máximo, se reduce hacia el mínimo del
+    // rol sin salir de su rango. El ajuste de empaquetado se informa aparte.
+    const shrink = attempt > 300 ? Math.min(sides.max - sides.min, 1 + Math.floor((attempt - 300) / 100)) : 0;
+    const currentMax = Math.max(sides.min, sides.max - shrink);
+    const w = randInt(rng, sides.min, currentMax);
+    const h = randInt(rng, sides.min, currentMax);
     const maxX = maxXLimit - w;
     const maxY = maxYLimit - h;
     if (maxX < minX || maxY < minY) continue;
 
     const x = randInt(rng, minX, maxX);
     const y = randInt(rng, minY, maxY);
-    const candidate: Room = { id: position, x, y, width: w, height: h };
-
+    const candidate: Room = { id, x, y, width: w, height: h };
     if (rooms.some((room) => rectsOverlap(room, candidate, 1))) continue;
-    rooms.push(candidate);
+    return candidate;
   }
 
-  return rooms;
+  return null;
 }
 
-function placeRandomRooms(rng: () => number, options: ResolvedOptions): PlacementResult {
-  const warnings: string[] = [];
-  const width = options.width;
-  const height = options.height;
-  const limitW = width - 4;
-  const limitH = height - 4;
-  const absoluteMax = Math.min(options.roomMax, limitW, limitH);
+/**
+ * Empaquetado determinista de respaldo. Prueba separaciones de 3, 2 y 1 tiles
+ * (siempre al menos 1) para garantizar el programa de roles si la colocación
+ * aleatoria no lo consigue.
+ */
+function packRoleRooms(roles: RoomRole[], options: ResolvedOptions): Room[] | null {
+  const order: RoomRole[] = [...roles].sort(
+    (a, b) => roleMinSide(b, options) - roleMinSide(a, options),
+  );
+  const margin = 2;
+  const limitX = options.width - margin;
+  const limitY = options.height - margin;
+  const usableWidth = limitX - margin;
+  const usableHeight = limitY - margin;
 
-  let best: Room[] = [];
-  let bestCap = absoluteMax;
-  for (let cap = absoluteMax; cap >= options.roomMin; cap -= 1) {
-    const rooms = tryPlaceRandom(rng, width, height, options.roomTarget, options.roomMin, cap);
-    if (rooms.length > best.length) {
-      best = rooms;
-      bestCap = cap;
+  for (const gap of [3, 2, 1]) {
+    type PackedRow = { items: Array<{ side: number }>; width: number; height: number };
+    const rows: PackedRow[] = [];
+    let row: PackedRow = { items: [], width: 0, height: 0 };
+    let fits = true;
+
+    for (const role of order) {
+      const side = roleMinSide(role, options);
+      if (side > usableWidth) {
+        fits = false;
+        break;
+      }
+      const addedWidth = row.items.length === 0 ? side : side + gap;
+      if (row.width + addedWidth > usableWidth) {
+        rows.push(row);
+        row = { items: [], width: 0, height: 0 };
+      }
+      row.width += row.items.length === 0 ? side : side + gap;
+      row.height = Math.max(row.height, side);
+      row.items.push({ side });
     }
-    if (rooms.length >= options.roomTarget) {
-      best = rooms;
-      bestCap = cap;
-      break;
+    if (row.items.length > 0) rows.push(row);
+    if (!fits) continue;
+
+    const totalHeight =
+      rows.reduce((sum, current) => sum + current.height, 0) + gap * Math.max(0, rows.length - 1);
+    if (totalHeight > usableHeight) continue;
+    const extraSpace = usableHeight - totalHeight;
+
+    // Desplaza cada fila dentro del margen disponible. Así los pasillos entre
+    // filas no quedan todos alineados y aparecen esquinas L/Z reales. El
+    // espacio vertical sobrante se concentra entre las dos primeras filas para
+    // dejar al menos un tramo recto largo.
+    const rowOffsets = [0, 3, 1, 4, 2];
+    const rooms: Room[] = [];
+    let y = margin;
+    rows.forEach((currentRow, rowIndex) => {
+      const maxOffset = Math.max(0, usableWidth - currentRow.width);
+      const offset = rowIndex === 0 ? 0 : Math.min(maxOffset, rowOffsets[rowIndex % rowOffsets.length]);
+      let x = margin + offset;
+      for (const item of currentRow.items) {
+        rooms.push({ id: rooms.length, x, y, width: item.side, height: item.side });
+        x += item.side + gap;
+      }
+      y += currentRow.height + gap + (rowIndex === 0 ? extraSpace : 0);
+    });
+
+    return rooms;
+  }
+
+  return null;
+}
+
+function placeRandomRooms(
+  rng: () => number,
+  options: ResolvedOptions,
+  plan: RolePlan,
+): PlacementResult {
+  const warnings = [...plan.warnings];
+
+  for (let attemptSet = 0; attemptSet < 8; attemptSet += 1) {
+    const rooms: Room[] = [];
+    let placedAll = true;
+    for (const role of plan.roles) {
+      const room = tryPlaceRole(rng, options, rooms, role, rooms.length);
+      if (!room) {
+        placedAll = false;
+        break;
+      }
+      rooms.push(room);
     }
+    if (placedAll) return { rooms, warnings };
   }
 
-  if (best.length < options.roomTarget) {
-    warnings.push(
-      `Objetivo de salas ajustado a ${best.length}: no caben ${options.roomTarget} salas de ${options.roomMin}-${options.roomMax} tiles en ${width}×${height}.`,
-    );
-  }
-  if (bestCap < options.roomMax) {
-    warnings.push(
-      `Tamaño máximo de sala ajustado de ${options.roomMax} a ${bestCap} para colocar ${best.length} salas.`,
-    );
+  const packed = packRoleRooms(plan.roles, options);
+  if (packed) {
+    const rolesText =
+      plan.smallTarget > 0
+        ? `${plan.largeTarget} salas grandes y ${plan.smallTarget} pequeñas`
+        : `${plan.largeTarget} salas grandes y el resto medianas (no caben pequeñas)`;
+    warnings.push(`Colocación de respaldo determinista para garantizar ${rolesText}.`);
+    return { rooms: packed, warnings };
   }
 
-  return { rooms: best, warnings };
+  warnings.push(
+    `No se pudo colocar el programa completo de ${plan.roles.length} salas en ${options.width}×${options.height}.`,
+  );
+  return { rooms: [], warnings };
 }
 
 function buildBspTree(
@@ -421,53 +545,133 @@ function buildBspTree(
   return { root, leaves, warnings };
 }
 
-function placeBspRooms(rng: () => number, options: ResolvedOptions): PlacementResult & { root: BspNode } {
-  const { root, leaves, warnings } = buildBspTree(rng, options);
-  const rooms: Room[] = [];
+/**
+ * Asigna un rol a cada hoja BSP con capacidad suficiente. Procesa primero los
+ * roles que exigen más lado y elige la hoja más justa que quepa, para no
+ * malgastar las hojas grandes en salas pequeñas.
+ */
+function assignRolesToLeaves(
+  leaves: BspNode[],
+  roles: RoomRole[],
+  options: ResolvedOptions,
+): Array<RoomRole | null> | null {
+  if (leaves.length !== roles.length) return null;
 
-  leaves.forEach((leaf, leafIndex) => {
-    const maxW = Math.min(options.roomMax, leaf.w - 2, options.width - 4);
-    const maxH = Math.min(options.roomMax, leaf.h - 2, options.height - 4);
-    if (maxW < options.roomMin || maxH < options.roomMin) return;
+  const capacities = leaves.map((leaf) => Math.min(leaf.w, leaf.h) - 2);
+  const remaining = new Set<number>(leaves.map((_, index) => index));
+  const result = new Array<RoomRole | null>(leaves.length).fill(null);
+  const ordered = roles
+    .map((role, index) => ({ role, index }))
+    .sort(
+      (a, b) =>
+        roleMinSide(b.role, options) - roleMinSide(a.role, options) || a.index - b.index,
+    );
 
-    let minW = options.roomMin;
-    let minH = options.roomMin;
-    let maxRoomW = maxW;
-    let maxRoomH = maxH;
-    const largeMin = Math.max(7, options.roomMin);
+  for (const { role } of ordered) {
+    const needed = roleMinSide(role, options);
+    let chosen = -1;
+    for (const index of remaining) {
+      if (capacities[index] < needed) continue;
+      if (chosen < 0 || capacities[index] < capacities[chosen]) chosen = index;
+    }
+    if (chosen < 0) return null;
+    result[chosen] = role;
+    remaining.delete(chosen);
+  }
 
-    if (leafIndex < 2 && maxW >= largeMin && maxH >= largeMin) {
-      minW = largeMin;
-      minH = largeMin;
-      maxRoomW = Math.min(maxW, 9);
-      maxRoomH = Math.min(maxH, 9);
-    } else if (leafIndex < 5 && Math.min(maxW, maxH, 5) >= options.roomMin) {
-      maxRoomW = Math.min(maxW, 5);
-      maxRoomH = Math.min(maxH, 5);
+  return result;
+}
+
+function placeBspRooms(
+  rng: () => number,
+  options: ResolvedOptions,
+  plan: RolePlan,
+): PlacementResult & { root: BspNode } {
+  const warnings = [...plan.warnings];
+  const attempts = plan.roles.length === options.roomTarget ? 80 : 24;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const built = buildBspTree(rng, options);
+    if (built.leaves.length !== plan.roles.length) continue;
+
+    const assignment = assignRolesToLeaves(built.leaves, plan.roles, options);
+    if (!assignment) continue;
+
+    const rooms: Room[] = [];
+    let placedAll = true;
+    for (let leafIndex = 0; leafIndex < built.leaves.length; leafIndex += 1) {
+      const leaf = built.leaves[leafIndex];
+      const role = assignment[leafIndex];
+      const sides = role ? roleSides(role, options) : null;
+      if (!role || !sides) {
+        placedAll = false;
+        break;
+      }
+
+      const maxW = Math.min(sides.max, leaf.w - 2);
+      const maxH = Math.min(sides.max, leaf.h - 2);
+      if (maxW < sides.min || maxH < sides.min) {
+        placedAll = false;
+        break;
+      }
+
+      const w = randInt(rng, sides.min, maxW);
+      const h = randInt(rng, sides.min, maxH);
+      const minX = leaf.x + 1;
+      const minY = leaf.y + 1;
+      const maxX = leaf.x + leaf.w - 1 - w;
+      const maxY = leaf.y + leaf.h - 1 - h;
+      if (maxX < minX || maxY < minY) {
+        placedAll = false;
+        break;
+      }
+
+      const x = randInt(rng, minX, maxX);
+      const y = randInt(rng, minY, maxY);
+      const room: Room = { id: rooms.length, x, y, width: w, height: h };
+      rooms.push(room);
+      leaf.roomId = room.id;
     }
 
-    const w = randInt(rng, minW, maxRoomW);
-    const h = randInt(rng, minH, maxRoomH);
+    if (placedAll) return { root: built.root, rooms, warnings };
+  }
+
+  // Último recurso: reparto BSP sin garantía de roles. Solo debería ocurrir con
+  // parámetros extremos imposibles; se avisa y no se falsea ningún dato.
+  const built = buildBspTree(rng, options);
+  warnings.push(...built.warnings);
+  warnings.push(
+    'No se pudo reservar el programa de roles en la partición BSP; se usa el reparto BSP sin garantía de roles.',
+  );
+
+  const rooms: Room[] = [];
+  for (const leaf of built.leaves) {
+    const maxW = Math.min(options.roomMax, leaf.w - 2);
+    const maxH = Math.min(options.roomMax, leaf.h - 2);
+    if (maxW < options.roomMin || maxH < options.roomMin) continue;
+
+    const w = randInt(rng, options.roomMin, maxW);
+    const h = randInt(rng, options.roomMin, maxH);
     const minX = leaf.x + 1;
     const minY = leaf.y + 1;
     const maxX = leaf.x + leaf.w - 1 - w;
     const maxY = leaf.y + leaf.h - 1 - h;
-    if (maxX < minX || maxY < minY) return;
+    if (maxX < minX || maxY < minY) continue;
 
     const x = randInt(rng, minX, maxX);
     const y = randInt(rng, minY, maxY);
     const room: Room = { id: rooms.length, x, y, width: w, height: h };
     rooms.push(room);
     leaf.roomId = room.id;
-  });
+  }
 
-  if (rooms.length < leaves.length) {
+  if (rooms.length < built.leaves.length) {
     warnings.push(
       `Algunas hojas BSP no admiten una sala de ${options.roomMin} tiles; se generaron ${rooms.length} salas.`,
     );
   }
 
-  return { root, rooms, warnings };
+  return { root: built.root, rooms, warnings };
 }
 
 function addFallbackRooms(rooms: Room[], options: ResolvedOptions, warnings: string[]): void {
@@ -871,6 +1075,7 @@ function findConnection(
   context: GenerationContext,
   roomA: Room,
   roomB: Room,
+  preferCorners = false,
 ): ConnectionCandidate | null {
   if ((context.usedSlots.get(roomA.id)?.length ?? 0) >= 3) return null;
   if ((context.usedSlots.get(roomB.id)?.length ?? 0) >= 3) return null;
@@ -892,7 +1097,11 @@ function findConnection(
   const consider = (slotA: DoorSlot, slotB: DoorSlot, path: Point[]): void => {
     const validated = validatePath(context, path, slotA, slotB);
     if (!validated) return;
-    const score = pathLength(validated) * 10 + countCorners(validated);
+    const corners = countCorners(validated);
+    let score = pathLength(validated) * 10 + corners;
+    // Para al menos una conexión se prefieren rutas con esquina cuando hay
+    // alternativa válida; así el mapa no queda con todos los pasillos rectos.
+    if (preferCorners && corners === 0) score += 1000;
     if (!bestHolder.value || score < bestHolder.value.score) {
       bestHolder.value = { path: validated, score };
     }
@@ -978,6 +1187,7 @@ function roomDistance(a: Room, b: Room): number {
 function connectPrim(context: GenerationContext): void {
   const connected = new Set<number>([0]);
   while (connected.size < context.rooms.length) {
+    const preferCorners = connected.size === 1;
     let best: { from: number; to: number; candidate: ConnectionCandidate; score: number } | null = null;
 
     for (let to = 0; to < context.rooms.length; to += 1) {
@@ -993,7 +1203,7 @@ function connectPrim(context: GenerationContext): void {
       const nearest = connectedRooms.slice(0, 3);
       const rest = connectedRooms.slice(3);
       for (const from of nearest) {
-        const candidate = findConnection(context, context.rooms[from], context.rooms[to]);
+        const candidate = findConnection(context, context.rooms[from], context.rooms[to], preferCorners);
         if (!candidate) continue;
         const score = pathLength(candidate.path) * 10 + countCorners(candidate.path);
         if (!bestForRoom || score < bestForRoom.score) {
@@ -1002,7 +1212,7 @@ function connectPrim(context: GenerationContext): void {
       }
       if (!bestForRoom) {
         for (const from of rest) {
-          const candidate = findConnection(context, context.rooms[from], context.rooms[to]);
+          const candidate = findConnection(context, context.rooms[from], context.rooms[to], preferCorners);
           if (!candidate) continue;
           const score = pathLength(candidate.path) * 10 + countCorners(candidate.path);
           if (!bestForRoom || score < bestForRoom.score) {
@@ -1558,6 +1768,8 @@ export function computeMetrics(state: DungeonState): DungeonMetric[] {
   const connectivity = connectivityPercentage(state);
   const time = state.generationMs;
   const warnings = state.warnings.length > 0 ? state.warnings.join(' ') : 'Sin ajustes';
+  const largeCount = state.rooms.filter(isLargeRoom).length;
+  const smallCount = state.rooms.filter(isSmallRoom).length;
 
   return [
     { label: 'Salas', value: state.rooms.length },
@@ -1575,6 +1787,8 @@ export function computeMetrics(state: DungeonState): DungeonMetric[] {
     { label: 'Tiempo', value: time === undefined ? '—' : `${time.toFixed(1)} ms` },
     { label: 'Huella', value: fingerprint(state) },
     { label: 'Ajuste', value: warnings },
+    { label: 'Grandes', value: largeCount, hint: '7×7 a 11×11' },
+    { label: 'Pequeñas', value: smallCount, hint: '3×3 a 5×5' },
   ];
 }
 
@@ -1596,118 +1810,168 @@ function connectedRoomIds(context: GenerationContext): Set<number> {
   return ids;
 }
 
+function assembleState(
+  variant: VariantId,
+  seed: number,
+  rooms: Room[],
+  bspRoot: BspNode | null,
+  resolved: ResolvedOptions,
+  rng: () => number,
+  warnings: string[],
+): DungeonState | null {
+  if (rooms.length === 0) return null;
+
+  const context = createGenerationContext(rooms, resolved, warnings);
+  if (variant === 'bsp' && bspRoot) {
+    connectBspTree(context, bspRoot);
+  } else {
+    connectPrim(context);
+  }
+  ensureConnected(context);
+
+  const connected = connectedRoomIds(context);
+  if (connected.size !== rooms.length) return null;
+
+  addLoops(context, resolved.loopRatio);
+  if (variant === 'hybrid') growMaze(context, rng);
+
+  const doors = buildDoors(context);
+  const playerRoom =
+    rooms.find((room) => doors.some((door) => door.roomId === room.id)) ?? rooms[0];
+  if (!playerRoom) return null;
+
+  const state: DungeonState = {
+    variant,
+    seed,
+    width: resolved.width,
+    height: resolved.height,
+    tiles: context.tiles,
+    rooms,
+    doors,
+    corridors: context.connections,
+    spawns: {
+      player: roomCenter(playerRoom),
+      enemy: { x: 1, y: 1 },
+      distance: 0,
+    },
+    warnings,
+    loops: context.connections.filter((connection) => connection.kind === 'loop').length,
+  };
+
+  const connectivity = connectivityPercentage(state);
+  if (connectivity < 99.999) return null;
+
+  state.spawns = placeSpawns(state);
+  if (state.spawns.distance < 12 && rooms.length > 1) {
+    warnings.push(`La distancia jugador→enemigo es ${state.spawns.distance} (<12) en esta semilla.`);
+  }
+
+  return state;
+}
+
+function roleCompletion(state: DungeonState, plan: RolePlan): number {
+  const large = state.rooms.filter(isLargeRoom).length;
+  const small = state.rooms.filter(isSmallRoom).length;
+  return Math.min(large, plan.largeTarget) + Math.min(small, plan.smallTarget);
+}
+
+function isAcceptableState(state: DungeonState, plan: RolePlan, loopRatio: number): boolean {
+  if (roleCompletion(state, plan) < plan.largeTarget + plan.smallTarget) return false;
+  if (state.rooms.length < 8 || state.rooms.length > 12) return false;
+  if (connectivityPercentage(state) < 99.999) return false;
+
+  const loopTarget = Math.min(3, Math.max(0, Math.round((state.rooms.length * loopRatio) / 100)));
+  if (loopTarget > 0 && (state.loops < 1 || state.loops > 3)) return false;
+
+  return true;
+}
+
+function scoreState(state: DungeonState, plan: RolePlan): number {
+  let score = roleCompletion(state, plan) * 100;
+  if (state.rooms.length >= 8 && state.rooms.length <= 12) score += 50;
+  score += connectivityPercentage(state);
+  if (state.loops >= 1 && state.loops <= 3) score += 20;
+  score -= state.warnings.length;
+  return score;
+}
+
 export function createDungeon(
   variant: VariantId,
   seed: number,
   options: DungeonOptions = {},
 ): DungeonState {
   const resolved = resolveOptions(options);
-  const warnings = [...resolved.warnings];
+  const plan = buildRolePlan(resolved);
   const rng = mulberry32((seed ^ hashString(variant)) >>> 0);
+  const maxAttempts = variant === 'bsp' ? 6 : 8;
+  let best: DungeonState | null = null;
+  let bestScore = -Infinity;
 
-  let rooms: Room[] = [];
-  let bspRoot: BspNode | null = null;
-  let useBsp = variant === 'bsp';
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const warnings = [...resolved.warnings];
+    let placement: PlacementResult;
+    let bspRoot: BspNode | null = null;
 
-  if (variant === 'bsp') {
-    const placed = placeBspRooms(rng, resolved);
-    rooms = placed.rooms;
-    bspRoot = placed.root;
-    warnings.push(...placed.warnings);
-  } else {
-    const placed = placeRandomRooms(rng, resolved);
-    rooms = placed.rooms;
-    warnings.push(...placed.warnings);
-  }
-
-  addFallbackRooms(rooms, resolved, warnings);
-
-  let context: GenerationContext | null = null;
-  let loopsAdded = false;
-
-  // Si una sala queda atrapada entre otras y no admite un pasillo válido, se
-  // descarta y se reconstruye el mapa con las salas restantes. Es una
-  // normalización visible, no un fallo silencioso.
-  for (let build = 0; build < 3; build += 1) {
-    const candidate = createGenerationContext(rooms, resolved, warnings);
-    if (useBsp && bspRoot) {
-      connectBspTree(candidate, bspRoot);
+    if (variant === 'bsp') {
+      const placed = placeBspRooms(rng, resolved, plan);
+      placement = placed;
+      bspRoot = placed.root;
     } else {
-      connectPrim(candidate);
+      placement = placeRandomRooms(rng, resolved, plan);
     }
-    ensureConnected(candidate);
+    warnings.push(...placement.warnings);
 
-    const connected = connectedRoomIds(candidate);
-    const unconnected = candidate.rooms.filter((room) => !connected.has(room.id));
-    context = candidate;
-
-    if (unconnected.length === 0) {
-      addLoops(candidate, resolved.loopRatio);
-      loopsAdded = true;
-      break;
+    if (placement.rooms.length > 0 && placement.rooms.length < resolved.roomTarget) {
+      warnings.push(
+        `Objetivo de salas ajustado a ${placement.rooms.length}: no caben ${resolved.roomTarget} salas con roles en ${resolved.width}×${resolved.height}.`,
+      );
     }
 
-    warnings.push(
-      `Se descartaron ${unconnected.length} sala(s) sin pasillo válido: ${unconnected
-        .map((room) => room.id)
-        .join(', ')}.`,
-    );
+    const state = assembleState(variant, seed, placement.rooms, bspRoot, resolved, rng, warnings);
+    if (!state) continue;
 
-    const removed = new Set(unconnected.map((room) => room.id));
-    const remaining = rooms.filter((room) => !removed.has(room.id));
-    if (remaining.length === 0) break;
+    const score = scoreState(state, plan);
+    if (score > bestScore) {
+      best = state;
+      bestScore = score;
+    }
 
-    const remap = new Map<number, number>();
-    rooms = remaining.map((room, index) => {
-      remap.set(room.id, index);
-      return { ...room, id: index };
-    });
-
-    // Las hojas BSP apuntan a ids antiguos; tras una poda usamos Prim.
-    useBsp = false;
-    bspRoot = null;
+    if (isAcceptableState(state, plan, resolved.loopRatio)) return state;
   }
 
-  if (context && !loopsAdded) {
-    addLoops(context, resolved.loopRatio);
-  }
+  if (best) return best;
 
-  if (context && variant === 'hybrid') {
-    growMaze(context, rng);
-  }
+  // Emergencia: nunca devolver una página sin estado, pero tampoco inventar
+  // métricas. Se informa del ajuste.
+  const emergencyWarnings = [
+    ...resolved.warnings,
+    ...plan.warnings,
+    'No se pudo generar un mapa con el programa de salas; se usa una sala de emergencia.',
+  ];
+  const emergencyRooms: Room[] = [];
+  addFallbackRooms(emergencyRooms, resolved, emergencyWarnings);
+  const emergency = assembleState(
+    variant,
+    seed,
+    emergencyRooms,
+    null,
+    resolved,
+    rng,
+    emergencyWarnings,
+  );
+  if (emergency) return emergency;
 
-  const doors = buildDoors(context!);
-  const playerRoom =
-    rooms.find((room) => doors.some((door) => door.roomId === room.id)) ?? rooms[0];
-  const baseState: DungeonState = {
+  return {
     variant,
     seed,
     width: resolved.width,
     height: resolved.height,
-    tiles: context!.tiles,
-    rooms,
-    doors,
-    corridors: context!.connections,
-    spawns: {
-      player: playerRoom ? roomCenter(playerRoom) : { x: 1, y: 1 },
-      enemy: { x: 1, y: 1 },
-      distance: 0,
-    },
-    warnings,
-    loops: context!.connections.filter((connection) => connection.kind === 'loop').length,
+    tiles: new Array<number>(resolved.width * resolved.height).fill(0),
+    rooms: [],
+    doors: [],
+    corridors: [],
+    spawns: { player: { x: 1, y: 1 }, enemy: { x: 1, y: 1 }, distance: 0 },
+    warnings: [...emergencyWarnings, 'No se pudo construir ninguna sala.'],
+    loops: 0,
   };
-
-  const connectivity = connectivityPercentage(baseState);
-  if (connectivity < 99.999) {
-    warnings.push(`Conectividad ${connectivity.toFixed(1)} %: hay suelo inalcanzable desde el jugador.`);
-  }
-
-  const spawns = placeSpawns(baseState);
-  baseState.spawns = spawns;
-
-  if (spawns.distance < 12 && rooms.length > 1) {
-    warnings.push(`La distancia jugador→enemigo es ${spawns.distance} (<12) en esta semilla.`);
-  }
-
-  return baseState;
 }

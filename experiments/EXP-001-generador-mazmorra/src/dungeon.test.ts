@@ -6,6 +6,8 @@ import {
   createDungeon,
   fingerprint,
   isDoorValid,
+  isLargeRoom,
+  isSmallRoom,
   longestStraight,
   wallTileFor,
   type DungeonState,
@@ -96,6 +98,11 @@ describe('mapas por defecto de A/B/C', () => {
         expect(state.rooms.length).toBeGreaterThanOrEqual(8);
         expect(state.rooms.length).toBeLessThanOrEqual(12);
 
+        const largeCount = state.rooms.filter(isLargeRoom).length;
+        const smallCount = state.rooms.filter(isSmallRoom).length;
+        expect(largeCount, `salas grandes en ${variant} · ${seed}`).toBeGreaterThanOrEqual(2);
+        expect(smallCount, `salas pequeñas en ${variant} · ${seed}`).toBeGreaterThanOrEqual(3);
+
         for (const room of state.rooms) {
           expect(room.width).toBeGreaterThanOrEqual(defaults.roomMin);
           expect(room.height).toBeGreaterThanOrEqual(defaults.roomMin);
@@ -170,6 +177,28 @@ describe('mapas por defecto de A/B/C', () => {
       });
     }
   }
+});
+
+describe('métricas de roles de R-002', () => {
+  it('Grandes y Pequeñas coinciden con el recuento real de salas', () => {
+    for (const variant of variants) {
+      for (const seed of seeds) {
+        const state = createDungeon(variant, seed, defaults);
+        const metrics = computeMetrics(state);
+        const largeMetric = metrics.find((metric) => metric.label === 'Grandes');
+        const smallMetric = metrics.find((metric) => metric.label === 'Pequeñas');
+
+        expect(largeMetric).toBeDefined();
+        expect(smallMetric).toBeDefined();
+        expect(largeMetric?.hint).toBe('7×7 a 11×11');
+        expect(smallMetric?.hint).toBe('3×3 a 5×5');
+        expect(Number(largeMetric?.value)).toBe(state.rooms.filter(isLargeRoom).length);
+        expect(Number(smallMetric?.value)).toBe(state.rooms.filter(isSmallRoom).length);
+        expect(Number(largeMetric?.value)).toBeGreaterThanOrEqual(2);
+        expect(Number(smallMetric?.value)).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
 });
 
 describe('pasillos y estructura', () => {
