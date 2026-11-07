@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-07T17:43:55Z
 completed_at:
 assignee: task-runner
-attempts: 1
+attempts: 2
 artifacts: artifacts/TASK-0007/
 priority: P1
 risk: medium
@@ -23,6 +23,9 @@ verified:
   - by: task-lead
     at: 2026-11-07T18:05:55Z
     note: Verificación técnica independiente con verify y E2E; pendiente del playtest y la decisión de human:simon.
+  - by: task-lead
+    at: 2026-11-07T20:15:00Z
+    note: Intento 2 verificado; R-002 (2 grandes y 3 pequeñas) y métricas Grandes/Pequeñas OK con varias semillas. Pendiente playtest y decisión.
 ---
 
 # Objetivo
@@ -114,6 +117,8 @@ listo para que el usuario lo pruebe y decida.
 - [x] Capturas A/B/C con la misma semilla
 - [x] Captura de una semilla alternativa
 - [x] Commit SHA en la rama `task/TASK-0007`
+- [x] Intento 2 (R-002): informe en `artifacts/TASK-0007/attempt-2/report.md`,
+      salida en `test-output.txt` y capturas en `attempt-2/screenshots/`
 
 # Verificación
 
@@ -158,6 +163,51 @@ registre su decisión.
   Node con alguna semilla. Todo está documentado en el informe.
 - **Pendiente:** playtest de `human:simon`, decisión de variante y actualización
   posterior de `REQ-003` a v2. Nada de esto lo decide el `task-lead`.
+
+## Intento 2 — corrección de R-002
+
+El usuario detectó que con la semilla `20261107` el intento 1 no cumplía R-002:
+A no tenía ninguna sala grande y B/C solo una. El intento 2 reserva
+explícitamente 2 salas grandes y 3 pequeñas por variante, añade las métricas
+`Grandes` y `Pequeñas` y amplía los tests. Implementación `fc6e002`, informe
+`1fa468a`.
+
+- **Alcance del diff:** solo
+  `experiments/EXP-001-generador-mazmorra/src/dungeon.ts`,
+  `src/dungeon.test.ts`, `src/variants.test.ts`,
+  `tests/e2e/experiment-generator.spec.ts` y
+  `artifacts/TASK-0007/attempt-2/**`. Sin cambios en `REQ-003`, `main.ts`,
+  `render.ts`, `src/`, `public/`, `_shell/` ni specs E2E existentes.
+- **Comandos re-ejecutados por el lead** (timeout de la herramienta de shell):
+  - `pnpm run verify` (180 s): docs 56, config 3/9, **145 tests**, `tsc` y build
+    OK.
+  - `pnpm run test:e2e` (300 s): **11 tests OK** (10 existentes + el spec de
+    EXP-001 actualizado).
+  - `git status` limpio al terminar; sin servidores vivos en 4173/5173.
+- **R-002 con `20261107` (valores por defecto):** A tiene 3 grandes
+  (`9×7`, `7×7`, `7×7`) y 3 pequeñas (`4×4`, `3×5`, `5×4`); B tiene 2 grandes
+  (`7×7`, `7×7`) y 3 pequeñas (`3×3`); C tiene 3 grandes (`9×9`, `7×8`, `7×8`) y
+  3 pequeñas (`3×3`, `5×4`, `3×3`). Las tres mantienen 10 salas, conectividad
+  100 %, pasillos de 1 tile y 2 bucles.
+- **Métricas:** `computeMetrics` incluye `Grandes` (7×7 a 11×11) y `Pequeñas`
+  (3×3 a 5×5); el E2E comprueba los mínimos en las tres variantes y un test
+  unitario verifica que coinciden con el recuento real. Los tests de roles se
+  ejecutan con las semillas `1`, `123` y `20261107` por variante.
+- **Tests debilitados:** ninguno. Se pasa de 143 a **145 tests** unitarios y se
+  mantienen 11 E2E; no hay `.skip`, `.only` ni `.todo`, y los specs existentes
+  tienen diff vacío.
+- **Capturas revisadas:** A/B/C con `20261107` muestran `Grandes` y `Pequeñas`
+  (3/3, 2/3 y 3/3), además de semilla alternativa y `showDoors` off. Se ven los
+  tiles reales, los huecos ámbar y los marcadores `J`/`E`.
+- **Limitaciones:** B usa el empaquetado determinista de respaldo con
+  `20261107` porque la colocación aleatoria no completó el programa de roles; el
+  aviso visible y el informe lo declaran y el resultado es menos orgánico. Los
+  tiempos de captura son A 250,9 ms, B 169,5 ms y C 79,7 ms; A y B superan el
+  objetivo de 100 ms de T-007 y no se oculta. El canvas sigue siendo 512×512
+  (~10 px CSS por tile en tres columnas). Nada de esto se corrige falseando
+  métricas.
+- **Pendiente:** playtest de `human:simon`, valoración del respaldo de B y
+  decisión de variante. La tarea sigue en `review`.
 
 # Restricciones
 
