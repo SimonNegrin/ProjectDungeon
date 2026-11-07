@@ -1,5 +1,7 @@
 ---
 type: Task Brief
+title: "Brief — TASK-0004: motor con sala 20×20, MP 6/4 y posiciones iniciales"
+description: "Alcance, criterios, restricciones y comandos para ejecutar TASK-0004."
 id: TASK-0004-attempt-1
 task: TASK-0004
 attempt: 1
