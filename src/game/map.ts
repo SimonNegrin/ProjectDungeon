@@ -24,8 +24,10 @@ export interface Corridor {
   readonly fromRoomId: number;
   readonly toRoomId: number;
   readonly kind: CorridorKind;
-  readonly width: 1;
+  /** 1 = pasillo estrecho; 2 = pasillo ancho con carril lateral tallado. */
+  readonly width: 1 | 2;
   readonly doorEligible: boolean;
+  /** Línea central ortogonal; el carril del pasillo ancho no se guarda aquí. */
   readonly path: readonly Position[];
 }
 
@@ -49,9 +51,12 @@ export interface MapOptions {
   readonly roomMin?: number;
   readonly roomMax?: number;
   readonly loopRatio?: number;
-  /** Reservado para TASK-0009; en esta tarea se acepta y se ignora. */
+  /**
+   * Objetivo máximo de pasillos anchos: 0 = automático (1 o 2 según semilla),
+   * 1 o 2 fuerzan ese objetivo.
+   */
   readonly wideCorridorCount?: number;
-  /** Reservado para TASK-0009; en esta tarea se acepta y se ignora. */
+  /** Ancho de pasillo ancho; en este corte solo se admite 2. */
   readonly wideCorridorWidth?: number;
 }
 
@@ -74,7 +79,7 @@ export interface GeneratedMap {
   readonly tiles: readonly Tile[];
   readonly rooms: readonly Room[];
   readonly corridors: readonly Corridor[];
-  /** Vacío en esta tarea. TASK-0009 lo rellena. */
+  /** Huecos de puerta de los accesos estrechos, ordenados y sin duplicados. */
   readonly doors: readonly Door[];
   readonly spawns: Spawns;
   readonly warnings: readonly string[];
@@ -200,32 +205,26 @@ export function resolveMapOptions(options: MapOptions = {}): ResolvedMapOptionsR
     }
   }
 
-  const requestedWideCount = options.wideCorridorCount;
-  let wideCorridorCount = 0;
-  if (requestedWideCount !== undefined) {
-    const rawWide = Number(requestedWideCount);
+  let wideCorridorCount = defaults.wideCorridorCount;
+  if (options.wideCorridorCount !== undefined) {
+    const rawWide = Number(options.wideCorridorCount);
     const clampedCount = Number.isFinite(rawWide)
       ? clamp(Math.trunc(rawWide), 0, 2)
-      : 0;
+      : defaults.wideCorridorCount;
     if (clampedCount !== rawWide) {
       warnings.push(`Pasillos anchos normalizados de ${rawWide} a ${clampedCount}.`);
     }
-    if (clampedCount > 0) {
-      warnings.push(
-        'Los pasillos anchos no se implementan en TASK-0008; wideCorridorCount se normaliza a 0.',
-      );
-    }
+    wideCorridorCount = clampedCount;
   }
 
   let wideCorridorWidth = defaults.wideCorridorWidth;
   if (options.wideCorridorWidth !== undefined) {
     const rawWidth = Number(options.wideCorridorWidth);
-    wideCorridorWidth = Number.isFinite(rawWidth)
-      ? clamp(Math.trunc(rawWidth), 2, 3)
-      : defaults.wideCorridorWidth;
+    // En este corte el único ancho válido es 2; el 3 queda fuera de alcance.
+    wideCorridorWidth = Number.isFinite(rawWidth) ? 2 : defaults.wideCorridorWidth;
     if (wideCorridorWidth !== rawWidth) {
       warnings.push(
-        `Ancho de pasillo ancho normalizado de ${rawWidth} a ${wideCorridorWidth}.`,
+        `Ancho de pasillo ancho normalizado de ${rawWidth} a ${wideCorridorWidth}: solo se admite 2 en este corte.`,
       );
     }
   }
@@ -462,10 +461,47 @@ export function connectivityPercentage(grid: GridLike, from: Position): number {
 // ---------------------------------------------------------------------------
 
 /**
- * Cuenta bloques 2×2 de suelo fuera de salas. Un corredor estrecho nunca debe
- * formar uno; un bloque que toca una sala se considera parte de la sala.
+ * Huella declarada de los pasillos anchos: celdas del path más las celdas de
+ * suelo ortogonalmente adyacentes fuera de salas (el carril tallado). No se
+ * guarda el carril en el modelo: se deriva de los tiles.
  */
-export function countWideFloor(map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms'>): number {
+export function wideCorridorFootprint(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'corridors'>,
+): Uint8Array {
+  const { width, height, tiles, rooms, corridors } = map;
+  const footprint = new Uint8Array(width * height);
+
+  for (const corridor of corridors) {
+    if (corridor.width !== 2) continue;
+    for (const point of dedupePath(corridor.path)) {
+      footprint[tileIndex(width, point.x, point.y)] = 1;
+      for (const [dx, dy] of [
+        [0, -1],
+        [1, 0],
+        [0, 1],
+        [-1, 0],
+      ] as const) {
+        const x = point.x + dx;
+        const y = point.y + dy;
+        if (x < 0 || y < 0 || x >= width || y >= height) continue;
+        if (tiles[tileIndex(width, x, y)] !== 'floor') continue;
+        if (roomAt(rooms, x, y)) continue;
+        footprint[tileIndex(width, x, y)] = 1;
+      }
+    }
+  }
+
+  return footprint;
+}
+
+/**
+ * Cuenta bloques 2×2 de suelo fuera de salas y fuera de la huella de un pasillo
+ * ancho declarado. Un corredor estrecho nunca debe formar uno; un bloque que
+ * toca una sala se considera parte de la sala.
+ */
+export function countWideFloor(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'corridors'>,
+): number {
   const { width, height, tiles, rooms } = map;
   const roomCells = new Uint8Array(width * height);
   for (const room of rooms) {
@@ -475,6 +511,7 @@ export function countWideFloor(map: Pick<GeneratedMap, 'width' | 'height' | 'til
       }
     }
   }
+  const footprint = wideCorridorFootprint(map);
 
   let count = 0;
   for (let y = 0; y < height - 1; y += 1) {
@@ -491,13 +528,77 @@ export function countWideFloor(map: Pick<GeneratedMap, 'width' | 'height' | 'til
         !roomCells[topLeft] &&
         !roomCells[topRight] &&
         !roomCells[bottomLeft] &&
-        !roomCells[bottomRight]
+        !roomCells[bottomRight] &&
+        !(
+          footprint[topLeft] &&
+          footprint[topRight] &&
+          footprint[bottomLeft] &&
+          footprint[bottomRight]
+        )
       ) {
         count += 1;
       }
     }
   }
   return count;
+}
+
+/**
+ * Longitud del tramo recto más largo (en tiles del path) con un carril
+ * transitable consistente en el mismo lado. Es la comprobación geométrica real
+ * de que un `width: 2` tiene dos filas/columnas adyacentes.
+ */
+export function wideCorridorStretch(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'corridors'>,
+  corridor: Corridor,
+): number {
+  const { width, height, tiles, rooms, corridors } = map;
+  const path = dedupePath(corridor.path);
+  if (path.length < 2) return 0;
+
+  const ownPath = new Uint8Array(width * height);
+  for (const point of path) {
+    if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) continue;
+    ownPath[tileIndex(width, point.x, point.y)] = 1;
+  }
+
+  const otherPath = new Uint8Array(width * height);
+  for (const other of corridors) {
+    if (other === corridor) continue;
+    for (const point of dedupePath(other.path)) {
+      if (point.x < 0 || point.y < 0 || point.x >= width || point.y >= height) continue;
+      otherPath[tileIndex(width, point.x, point.y)] = 1;
+    }
+  }
+
+  const laneIsFloor = (x: number, y: number): boolean => {
+    if (x < 0 || y < 0 || x >= width || y >= height) return false;
+    const index = tileIndex(width, x, y);
+    if (ownPath[index] || otherPath[index]) return false;
+    if (tiles[index] !== 'floor') return false;
+    return roomAt(rooms, x, y) === undefined;
+  };
+
+  let longest = 0;
+  for (const run of straightPathRuns(path)) {
+    const horizontal = run.dy === 0;
+    for (const side of [-1, 1] as const) {
+      let current = 0;
+      for (let index = run.from; index <= run.to; index += 1) {
+        const point = path[index];
+        const laneX = horizontal ? point.x : point.x + side;
+        const laneY = horizontal ? point.y + side : point.y;
+        if (laneIsFloor(laneX, laneY)) {
+          current += 1;
+          if (current > longest) longest = current;
+        } else {
+          current = 0;
+        }
+      }
+    }
+  }
+
+  return longest;
 }
 
 /** Longitud del tramo recto más largo de una ruta, en tiles. */
@@ -545,6 +646,43 @@ export function pathLength(path: readonly Position[]): number {
     length += manhattan(points[index - 1], points[index]);
   }
   return length;
+}
+
+export interface StraightPathRun {
+  /** Índice del primer punto del tramo (incluido). */
+  readonly from: number;
+  /** Índice del último punto del tramo (incluido). */
+  readonly to: number;
+  readonly dx: number;
+  readonly dy: number;
+}
+
+/**
+ * Divide una ruta ortogonal en tramos rectos maximales. Los tramos comparten
+ * el punto de esquina: el `to` de uno es el `from` del siguiente.
+ */
+export function straightPathRuns(path: readonly Position[]): StraightPathRun[] {
+  const points = dedupePath(path);
+  if (points.length < 2) return [];
+
+  const runs: StraightPathRun[] = [];
+  let from = 0;
+  let dx = Math.sign(points[1].x - points[0].x);
+  let dy = Math.sign(points[1].y - points[0].y);
+
+  for (let index = 2; index < points.length; index += 1) {
+    const nextDx = Math.sign(points[index].x - points[index - 1].x);
+    const nextDy = Math.sign(points[index].y - points[index - 1].y);
+    if (nextDx !== dx || nextDy !== dy) {
+      runs.push({ from, to: index - 1, dx, dy });
+      from = index - 1;
+      dx = nextDx;
+      dy = nextDy;
+    }
+  }
+
+  runs.push({ from, to: points.length - 1, dx, dy });
+  return runs;
 }
 
 /**
@@ -689,26 +827,75 @@ function roomSlotsAreValid(
   return true;
 }
 
-function corridorEndpoints(
-  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms'>,
+interface CorridorEndpoint {
+  readonly x: number;
+  readonly y: number;
+  readonly outX: number;
+  readonly outY: number;
+  readonly roomId: number;
+  readonly orientation: DoorOrientation;
+}
+
+function corridorEndpointInfos(corridor: Corridor): readonly CorridorEndpoint[] {
+  const path = dedupePath(corridor.path);
+  if (path.length < 2) return [];
+
+  const start = path[0];
+  const second = path[1];
+  const end = path[path.length - 1];
+  const beforeEnd = path[path.length - 2];
+
+  const startOutX = Math.sign(second.x - start.x);
+  const startOutY = Math.sign(second.y - start.y);
+  const endOutX = Math.sign(beforeEnd.x - end.x);
+  const endOutY = Math.sign(beforeEnd.y - end.y);
+
+  return [
+    {
+      x: start.x,
+      y: start.y,
+      outX: startOutX,
+      outY: startOutY,
+      roomId: corridor.fromRoomId,
+      orientation: startOutY !== 0 ? 'horizontal' : 'vertical',
+    },
+    {
+      x: end.x,
+      y: end.y,
+      outX: endOutX,
+      outY: endOutY,
+      roomId: corridor.toRoomId,
+      orientation: endOutY !== 0 ? 'horizontal' : 'vertical',
+    },
+  ];
+}
+
+function corridorIssues(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'corridors'>,
   corridor: Corridor,
 ): readonly string[] {
   const issues: string[] = [];
   const path = dedupePath(corridor.path);
+  const label = `Corredor ${corridor.fromRoomId}->${corridor.toRoomId}`;
+
   if (path.length < 3) {
-    issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} demasiado corto.`);
+    issues.push(`${label} demasiado corto.`);
     return issues;
   }
   if (!isOrthogonalPath(path)) {
-    issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} no es ortogonal.`);
+    issues.push(`${label} no es ortogonal.`);
   }
-  if (corridor.width !== 1) {
-    issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} no mide 1 tile.`);
+  if (corridor.width !== 1 && corridor.width !== 2) {
+    issues.push(`${label} tiene anchura ${String(corridor.width)} fuera de 1-2.`);
   }
-  if (!corridor.doorEligible) {
-    issues.push(
-      `Corredor ${corridor.fromRoomId}->${corridor.toRoomId} debería admitir puerta.`,
-    );
+  if (corridor.kind !== 'tree' && corridor.kind !== 'loop') {
+    issues.push(`${label} tiene un tipo de corredor desconocido.`);
+  }
+  if (corridor.width === 1 && !corridor.doorEligible) {
+    issues.push(`${label} es estrecho y debería admitir puerta.`);
+  }
+  if (corridor.width === 2 && corridor.doorEligible) {
+    issues.push(`${label} es ancho y no debería admitir puerta.`);
   }
 
   const fromRoom = map.rooms.find((room) => room.id === corridor.fromRoomId);
@@ -724,40 +911,148 @@ function corridorEndpoints(
 
   for (const point of path) {
     if (map.tiles[tileIndex(map.width, point.x, point.y)] !== 'floor') {
-      issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} pasa por muro.`);
+      issues.push(`${label} pasa por muro.`);
       break;
     }
   }
 
-  const start = path[0];
-  const second = path[1];
-  const end = path[path.length - 1];
-  const beforeEnd = path[path.length - 2];
-
-  const startOutX = Math.sign(second.x - start.x);
-  const startOutY = Math.sign(second.y - start.y);
-  if (!roomSlotsAreValid(map, fromRoom, start.x, start.y, startOutX, startOutY)) {
-    issues.push(`Acceso de salida inválido en la sala ${fromRoom.id}.`);
+  for (const endpoint of corridorEndpointInfos(corridor)) {
+    const room = endpoint.roomId === fromRoom.id ? fromRoom : toRoom;
+    if (
+      !roomSlotsAreValid(
+        map,
+        room,
+        endpoint.x,
+        endpoint.y,
+        endpoint.outX,
+        endpoint.outY,
+      )
+    ) {
+      issues.push(`Acceso inválido en la sala ${room.id} de ${label}.`);
+    }
   }
 
-  const endOutX = Math.sign(beforeEnd.x - end.x);
-  const endOutY = Math.sign(beforeEnd.y - end.y);
-  if (!roomSlotsAreValid(map, toRoom, end.x, end.y, endOutX, endOutY)) {
-    issues.push(`Acceso de llegada inválido en la sala ${toRoom.id}.`);
+  if (corridor.width === 2) {
+    if (path.length < 4) {
+      issues.push(`${label} ancho con menos de 4 tiles de recorrido.`);
+    }
+    const stretch = wideCorridorStretch(map, corridor);
+    if (stretch < 4) {
+      issues.push(`${label} ancho con carril real de solo ${stretch} tiles (<4).`);
+    }
+  }
+
+  return issues;
+}
+
+function doorIssues(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms'>,
+  door: Door,
+  endpoints: ReadonlyMap<string, readonly CorridorEndpoint[]>,
+  widePath: Uint8Array,
+  seen: Set<string>,
+): readonly string[] {
+  const issues: string[] = [];
+  const { width, height, tiles, rooms } = map;
+  const key = `${door.x},${door.y}`;
+
+  if (seen.has(key)) {
+    issues.push(`Puerta duplicada en (${door.x},${door.y}).`);
+  }
+  seen.add(key);
+
+  if (
+    door.x < 0 ||
+    door.y < 0 ||
+    door.x >= width ||
+    door.y >= height ||
+    tiles[tileIndex(width, door.x, door.y)] !== 'floor'
+  ) {
+    issues.push(`Puerta (${door.x},${door.y}) sobre muro.`);
+  }
+  const room = rooms.find((candidate) => candidate.id === door.roomId);
+  if (!room) {
+    issues.push(`Puerta con sala ${door.roomId} inexistente.`);
+    return issues;
+  }
+  if (widePath[tileIndex(width, door.x, door.y)]) {
+    issues.push(`Puerta (${door.x},${door.y}) dentro de un pasillo ancho.`);
+  }
+
+  const matching = (endpoints.get(key) ?? []).find(
+    (endpoint) => endpoint.roomId === door.roomId,
+  );
+  if (!matching) {
+    issues.push(
+      `Puerta (${door.x},${door.y}) no pertenece a un acceso de corredor estrecho.`,
+    );
+  } else {
+    if (matching.orientation !== door.orientation) {
+      issues.push(
+        `Puerta (${door.x},${door.y}) con orientación ${door.orientation}; se esperaba ${matching.orientation}.`,
+      );
+    }
+    const behindX = door.x - matching.outX;
+    const behindY = door.y - matching.outY;
+    if (!roomContains(room, behindX, behindY)) {
+      issues.push(
+        `Puerta (${door.x},${door.y}) no tiene su sala ${door.roomId} detrás.`,
+      );
+    }
+    for (const [dx, dy] of [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+    ] as const) {
+      const neighbourRoom = roomAt(rooms, door.x + dx, door.y + dy);
+      if (!neighbourRoom) continue;
+      if (neighbourRoom.id !== door.roomId) {
+        issues.push(
+          `Puerta (${door.x},${door.y}) toca la sala ${neighbourRoom.id} además de la ${door.roomId}.`,
+        );
+      }
+      if (door.x + dx !== behindX || door.y + dy !== behindY) {
+        issues.push(
+          `Puerta (${door.x},${door.y}) no está en un acceso de un solo tile.`,
+        );
+      }
+    }
+  }
+
+  const horizontal = door.orientation === 'horizontal';
+  if (horizontal) {
+    // Muro horizontal: la sala queda al norte o al sur y los lados del hueco
+    // son este/oeste.
+    if (door.x - 1 < 0 || door.x + 1 >= width) {
+      issues.push(`Puerta (${door.x},${door.y}) sin muro perpendicular.`);
+    } else if (
+      tiles[tileIndex(width, door.x - 1, door.y)] !== 'wall' ||
+      tiles[tileIndex(width, door.x + 1, door.y)] !== 'wall'
+    ) {
+      issues.push(`Puerta (${door.x},${door.y}) está en esquina o sin muro lateral.`);
+    }
+  } else if (door.y - 1 < 0 || door.y + 1 >= height) {
+    issues.push(`Puerta (${door.x},${door.y}) sin muro perpendicular.`);
+  } else if (
+    tiles[tileIndex(width, door.x, door.y - 1)] !== 'wall' ||
+    tiles[tileIndex(width, door.x, door.y + 1)] !== 'wall'
+  ) {
+    issues.push(`Puerta (${door.x},${door.y}) está en esquina o sin muro lateral.`);
   }
 
   return issues;
 }
 
 /**
- * Validación estructural del mapa de TASK-0008. No exige un número concreto
+ * Validación estructural del mapa de TASK-0009. No exige un número concreto
  * de salas ni roles: eso depende de las opciones y se valida en los tests.
  */
 export function validateGeneratedMap(
   map: Pick<
     GeneratedMap,
     'width' | 'height' | 'tiles' | 'rooms' | 'corridors' | 'doors' | 'spawns'
-  >,
+  > & { readonly warnings?: readonly string[] },
 ): MapValidation {
   const issues: string[] = [];
   const { width, height, tiles, rooms, corridors, doors, spawns } = map;
@@ -799,16 +1094,53 @@ export function validateGeneratedMap(
     }
   }
 
+  const narrowEndpoints = new Map<string, CorridorEndpoint[]>();
+  const widePath = new Uint8Array(width * height);
   for (const corridor of corridors) {
-    issues.push(...corridorEndpoints(map, corridor));
+    issues.push(...corridorIssues(map, corridor));
+    if (corridor.width === 1) {
+      for (const endpoint of corridorEndpointInfos(corridor)) {
+        const key = `${endpoint.x},${endpoint.y}`;
+        const list = narrowEndpoints.get(key);
+        if (list) list.push(endpoint);
+        else narrowEndpoints.set(key, [endpoint]);
+      }
+    } else {
+      for (const point of dedupePath(corridor.path)) {
+        widePath[tileIndex(width, point.x, point.y)] = 1;
+      }
+    }
   }
 
+  const doorKeys = new Set<string>();
   for (const door of doors) {
-    if (map.tiles[tileIndex(width, door.x, door.y)] !== 'floor') {
-      issues.push(`Puerta (${door.x},${door.y}) sobre muro.`);
+    issues.push(...doorIssues(map, door, narrowEndpoints, widePath, doorKeys));
+  }
+
+  for (const room of rooms) {
+    const roomDoors = doors.filter((door) => door.roomId === room.id);
+    if (roomDoors.length < 1 || roomDoors.length > 3) {
+      issues.push(`Sala ${room.id} tiene ${roomDoors.length} huecos; se esperaban 1-3.`);
     }
-    if (!rooms.some((room) => room.id === door.roomId)) {
-      issues.push(`Puerta con sala ${door.roomId} inexistente.`);
+    const hasNarrowAccess = corridors.some(
+      (corridor) =>
+        corridor.width === 1 &&
+        (corridor.fromRoomId === room.id || corridor.toRoomId === room.id),
+    );
+    if (!hasNarrowAccess) {
+      issues.push(`Sala ${room.id} sin ningún acceso estrecho.`);
+    }
+  }
+
+  if (rooms.length >= 3) {
+    const wideCount = corridors.filter((corridor) => corridor.width === 2).length;
+    if (wideCount < 1 || wideCount > 2) {
+      const warned = (map.warnings ?? []).some((warning) =>
+        /pasillos? anchos? ajustados/i.test(warning),
+      );
+      if (!warned) {
+        issues.push(`Pasillos anchos ${wideCount} fuera de 1-2.`);
+      }
     }
   }
 

@@ -21,9 +21,11 @@ import {
   randInt,
   resolveMapOptions,
   roomCenter,
+  straightPathRuns,
   validateGeneratedMap,
   type Corridor,
   type CorridorKind,
+  type Door,
   type GeneratedMap,
   type MapGenerator,
   type MapOptions,
@@ -1308,6 +1310,353 @@ function addLoops(
 }
 
 // ---------------------------------------------------------------------------
+// Pasillos anchos y huecos de puerta
+// ---------------------------------------------------------------------------
+
+interface LanePlan {
+  readonly cells: readonly Position[];
+  readonly length: number;
+}
+
+function ownPathMask(
+  context: GenerationContext,
+  path: readonly Position[],
+): Uint8Array {
+  const mask = new Uint8Array(context.width * context.height);
+  for (const point of path) {
+    mask[indexOf(context.width, point.x, point.y)] = 1;
+  }
+  return mask;
+}
+
+function laneCellBaseIsValid(
+  context: GenerationContext,
+  pathMask: Uint8Array,
+  x: number,
+  y: number,
+): boolean {
+  const { width, height, tiles, roomCells, nearRoom, reserved } = context;
+  if (!isCorridorArea(width, height, x, y)) return false;
+  const index = indexOf(width, x, y);
+  if (roomCells[index] || nearRoom[index] || reserved[index]) return false;
+  if (pathMask[index]) return false;
+  return tiles[index] === 0;
+}
+
+/** Rechaza un carril que crearía un 2×2 con suelo ajeno al corredor. */
+function laneCreatesForeignWideFloor(
+  context: GenerationContext,
+  pathMask: Uint8Array,
+  laneMask: Uint8Array,
+): boolean {
+  const { width, height, tiles, roomCells } = context;
+  for (let y = 0; y < height - 1; y += 1) {
+    for (let x = 0; x < width - 1; x += 1) {
+      const cells: Array<readonly [number, number]> = [
+        [x, y],
+        [x + 1, y],
+        [x, y + 1],
+        [x + 1, y + 1],
+      ];
+      let touchesLane = false;
+      let allFloor = true;
+      let anyForeign = false;
+      let anyRoom = false;
+
+      for (const [cellX, cellY] of cells) {
+        const index = indexOf(width, cellX, cellY);
+        if (laneMask[index]) touchesLane = true;
+        if (roomCells[index]) {
+          anyRoom = true;
+          break;
+        }
+        const own = pathMask[index] === 1 || laneMask[index] === 1;
+        if (!own && tiles[index] === 0) {
+          allFloor = false;
+          break;
+        }
+        if (!own) anyForeign = true;
+      }
+
+      if (touchesLane && !anyRoom && allFloor && anyForeign) return true;
+    }
+  }
+
+  return false;
+}
+
+function planLaneRun(
+  context: GenerationContext,
+  path: readonly Position[],
+  from: number,
+  to: number,
+  horizontal: boolean,
+  side: 1 | -1,
+  pathMask: Uint8Array,
+): LanePlan | null {
+  let best: Position[] = [];
+  let current: Position[] = [];
+
+  for (let index = from; index <= to; index += 1) {
+    const point = path[index];
+    const laneX = horizontal ? point.x : point.x + side;
+    const laneY = horizontal ? point.y + side : point.y;
+    if (laneCellBaseIsValid(context, pathMask, laneX, laneY)) {
+      current.push({ x: laneX, y: laneY });
+      if (current.length > best.length) best = [...current];
+    } else {
+      current = [];
+    }
+  }
+
+  if (best.length < 4) return null;
+
+  const laneMask = new Uint8Array(context.width * context.height);
+  for (const point of best) {
+    laneMask[indexOf(context.width, point.x, point.y)] = 1;
+  }
+  if (laneCreatesForeignWideFloor(context, pathMask, laneMask)) return null;
+
+  return { cells: best, length: best.length };
+}
+
+function planWidening(
+  context: GenerationContext,
+  corridor: Corridor,
+): LanePlan | null {
+  const path = dedupePath(corridor.path);
+  if (path.length < 4) return null;
+  const pathMask = ownPathMask(context, path);
+  let best: LanePlan | null = null;
+
+  for (const run of straightPathRuns(path)) {
+    const from = Math.max(run.from, 1);
+    const to = Math.min(run.to, path.length - 2);
+    if (to - from + 1 < 4) continue;
+
+    for (const side of [-1, 1] as const) {
+      const plan = planLaneRun(
+        context,
+        path,
+        from,
+        to,
+        run.dy === 0,
+        side,
+        pathMask,
+      );
+      if (plan && (!best || plan.length > best.length)) best = plan;
+    }
+  }
+
+  return best;
+}
+
+function carveWidening(
+  context: GenerationContext,
+  corridorIndex: number,
+  plan: LanePlan,
+): void {
+  for (const point of plan.cells) {
+    context.tiles[indexOf(context.width, point.x, point.y)] = 1;
+  }
+  const corridor = context.connections[corridorIndex];
+  context.connections[corridorIndex] = {
+    ...corridor,
+    width: 2,
+    doorEligible: false,
+    path: corridor.path.map((point) => ({ x: point.x, y: point.y })),
+  };
+}
+
+interface WideCandidate {
+  readonly index: number;
+  readonly plan: LanePlan;
+  readonly score: number;
+}
+
+function collectWideCandidates(
+  context: GenerationContext,
+  narrowRemaining: readonly number[],
+  seed: number,
+  attempt: number,
+): WideCandidate[] {
+  const candidates: WideCandidate[] = [];
+
+  for (let index = 0; index < context.connections.length; index += 1) {
+    const corridor = context.connections[index];
+    if (corridor.width !== 1) continue;
+    if (narrowRemaining[corridor.fromRoomId] <= 1) continue;
+    if (narrowRemaining[corridor.toRoomId] <= 1) continue;
+
+    const plan = planWidening(context, corridor);
+    if (!plan) continue;
+
+    const tie =
+      ((Math.imul(seed ^ (index + 1) ^ (attempt * 0x9e3779b1), 0x85ebca6b) >>> 0) %
+        997) /
+      997;
+    candidates.push({
+      index,
+      plan,
+      score: plan.length * 1000 + pathLength(corridor.path) * 10 + tie,
+    });
+  }
+
+  candidates.sort((a, b) => b.score - a.score || a.index - b.index);
+  return candidates;
+}
+
+/**
+ * Añade una conexión estrecha nueva y la ensancha. Solo se usa si ninguna
+ * conexión existente permitía un carril seguro.
+ */
+function tryFallbackWideLoop(
+  context: GenerationContext,
+  narrowRemaining: readonly number[],
+): boolean {
+  if (context.rooms.length < 3) return false;
+  const loops = context.connections.filter(
+    (corridor) => corridor.kind === 'loop',
+  ).length;
+  if (loops >= 3) return false;
+
+  const roomCount = context.rooms.length;
+  const linked = new Array<boolean>(roomCount * roomCount).fill(false);
+  for (const corridor of context.connections) {
+    linked[corridor.fromRoomId * roomCount + corridor.toRoomId] = true;
+    linked[corridor.toRoomId * roomCount + corridor.fromRoomId] = true;
+  }
+
+  for (let from = 0; from < roomCount; from += 1) {
+    if (narrowRemaining[from] <= 1) continue;
+    if (context.usedSlots[from].length >= MAX_ROLE_SLOTS) continue;
+    for (let to = from + 1; to < roomCount; to += 1) {
+      if (narrowRemaining[to] <= 1) continue;
+      if (linked[from * roomCount + to]) continue;
+      if (context.usedSlots[to].length >= MAX_ROLE_SLOTS) continue;
+
+      const candidate = findConnection(
+        context,
+        context.rooms[from],
+        context.rooms[to],
+        false,
+      );
+      if (!candidate) continue;
+
+      const hypothetical: Corridor = {
+        fromRoomId: candidate.slotA.roomId,
+        toRoomId: candidate.slotB.roomId,
+        kind: 'loop',
+        width: 1,
+        doorEligible: true,
+        path: candidate.path,
+      };
+      const plan = planWidening(context, hypothetical);
+      if (!plan) continue;
+
+      commitConnection(context, candidate, 'loop');
+      carveWidening(context, context.connections.length - 1, plan);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function widenCorridors(
+  context: GenerationContext,
+  seed: number,
+  attempt: number,
+  target: number,
+): number {
+  if (target <= 0 || context.rooms.length < 2) return 0;
+
+  const narrowRemaining = context.rooms.map(() => 0);
+  for (const corridor of context.connections) {
+    narrowRemaining[corridor.fromRoomId] += 1;
+    narrowRemaining[corridor.toRoomId] += 1;
+  }
+
+  let widened = 0;
+  while (widened < target) {
+    const candidates = collectWideCandidates(
+      context,
+      narrowRemaining,
+      seed,
+      attempt,
+    );
+    const chosen = candidates.find(
+      (candidate) => {
+        const corridor = context.connections[candidate.index];
+        return (
+          corridor.width === 1 &&
+          narrowRemaining[corridor.fromRoomId] > 1 &&
+          narrowRemaining[corridor.toRoomId] > 1
+        );
+      },
+    );
+    if (!chosen) break;
+
+    const corridor = context.connections[chosen.index];
+    carveWidening(context, chosen.index, chosen.plan);
+    narrowRemaining[corridor.fromRoomId] -= 1;
+    narrowRemaining[corridor.toRoomId] -= 1;
+    widened += 1;
+  }
+
+  if (widened === 0 && tryFallbackWideLoop(context, narrowRemaining)) {
+    widened = 1;
+  }
+
+  if (widened < target) {
+    context.warnings.push(
+      `Pasillos anchos ajustados de ${target} a ${widened}: no había más conexiones con carril seguro.`,
+    );
+  }
+
+  return widened;
+}
+
+function buildDoors(context: GenerationContext): Door[] {
+  const doors: Door[] = [];
+  const seen = new Set<string>();
+
+  for (const corridor of context.connections) {
+    if (corridor.width !== 1) continue;
+    const path = dedupePath(corridor.path);
+    if (path.length < 2) continue;
+
+    const start = path[0];
+    const second = path[1];
+    const end = path[path.length - 1];
+    const beforeEnd = path[path.length - 2];
+
+    const startOutY = Math.sign(second.y - start.y);
+    const endOutY = Math.sign(beforeEnd.y - end.y);
+
+    const entries: Array<{ point: Position; roomId: number; outY: number }> = [
+      { point: start, roomId: corridor.fromRoomId, outY: startOutY },
+      { point: end, roomId: corridor.toRoomId, outY: endOutY },
+    ];
+
+    for (const entry of entries) {
+      const key = `${entry.point.x},${entry.point.y}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      doors.push({
+        x: entry.point.x,
+        y: entry.point.y,
+        orientation: entry.outY !== 0 ? 'horizontal' : 'vertical',
+        roomId: entry.roomId,
+      });
+    }
+  }
+
+  doors.sort((a, b) => a.roomId - b.roomId || a.y - b.y || a.x - b.x);
+  return doors;
+}
+
+// ---------------------------------------------------------------------------
 // Apariciones
 // ---------------------------------------------------------------------------
 
@@ -1494,8 +1843,11 @@ function buildMap(
         role: room.role,
       }),
     ),
-    corridors: context.connections.map((corridor) => ({ ...corridor })),
-    doors: [],
+    corridors: context.connections.map((corridor) => ({
+      ...corridor,
+      path: corridor.path.map((point) => ({ x: point.x, y: point.y })),
+    })),
+    doors: buildDoors(context),
     spawns,
     warnings,
     options,
@@ -1537,6 +1889,13 @@ function assessMap(
     issues.push(`Bucles ${loops} fuera de 1-3.`);
   }
   if (loops > 3) issues.push(`Bucles ${loops} > 3.`);
+
+  if (map.rooms.length >= 3) {
+    const wideCount = map.corridors.filter((corridor) => corridor.width === 2).length;
+    if (wideCount < 1 || wideCount > 2) {
+      issues.push(`Pasillos anchos ${wideCount} fuera de 1-2.`);
+    }
+  }
 
   const maxStraight = map.corridors.reduce(
     (longest, corridor) => Math.max(longest, longestStraight(corridor.path)),
@@ -1617,6 +1976,14 @@ export class BspMapGenerator implements MapGenerator {
     const plan = buildRolePlan(resolvedOptions);
     const rng = mulberry32(normalizedSeed);
 
+    // PRNG separado: no altera la secuencia que coloca salas y corredores.
+    const wideRandom = mulberry32(normalizedSeed ^ 0x9e3779b9);
+    const autoWideTarget = wideRandom() < 0.5 ? 1 : 2;
+    const wideTarget =
+      resolvedOptions.wideCorridorCount === 0
+        ? autoWideTarget
+        : resolvedOptions.wideCorridorCount;
+
     let best:
       | { map: GeneratedMap; issues: readonly string[]; placement: PlacementResult }
       | null = null;
@@ -1657,6 +2024,7 @@ export class BspMapGenerator implements MapGenerator {
       ensureConnected(context);
 
       addLoops(context, resolvedOptions.loopRatio, shape);
+      widenCorridors(context, normalizedSeed, attempt, wideTarget);
 
       const spawnResult = chooseSpawns(context);
       const map = buildMap(context, resolvedOptions, normalizedSeed, warnings, spawnResult.spawns);

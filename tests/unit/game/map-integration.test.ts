@@ -7,6 +7,7 @@ import {
   DEFAULT_MAP_SEED,
   reduce,
   resolveMapOptions,
+  validateGeneratedMap,
   type GeneratedMap,
   type MapGenerator,
   type MapOptions,
@@ -74,6 +75,19 @@ describe('createInitialState con BSP', () => {
     expect(state.grid.height).toBe(24);
     expect(state.map?.options.mapWidth).toBe(24);
     expect(state.map?.rooms.length).toBeGreaterThanOrEqual(8);
+  });
+
+  it('varias semillas producen mapas aceptados por el validador', () => {
+    for (const seed of [DEFAULT_MAP_SEED, 1, 42, 1234, 987654]) {
+      const state = createInitialState({ seed });
+      expect(state.map, `semilla ${seed}`).toBeDefined();
+      const validation = validateGeneratedMap(state.map!);
+      expect(validation.issues, `semilla ${seed}`).toEqual([]);
+      expect(validation.ok).toBe(true);
+      const wide = state.map?.corridors.filter((corridor) => corridor.width === 2) ?? [];
+      expect(wide.length).toBeGreaterThanOrEqual(1);
+      expect(wide.length).toBeLessThanOrEqual(2);
+    }
   });
 
   it('el estado con mapa es serializable y el motor lo conserva', () => {

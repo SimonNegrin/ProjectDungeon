@@ -20,6 +20,9 @@ import {
   roomsWithoutSeparation,
   tileIndex,
   validateGeneratedMap,
+  wideCorridorStretch,
+  type Corridor,
+  type Door,
   type GeneratedMap,
   type MapGenerator,
   type Room,
@@ -119,22 +122,33 @@ describe('opciones del mapa', () => {
     expect(resolved.options.roomMin).toBe(3);
     expect(resolved.options.roomMax).toBe(11);
     expect(resolved.options.loopRatio).toBe(25);
-    expect(resolved.options.wideCorridorCount).toBe(0);
-    expect(resolved.options.wideCorridorWidth).toBe(3);
+    expect(resolved.options.wideCorridorCount).toBe(1);
+    expect(resolved.options.wideCorridorWidth).toBe(2);
     expect(resolved.warnings.length).toBeGreaterThan(0);
-    expect(resolved.warnings.join(' ')).toContain('pasillos anchos');
+    expect(resolved.warnings.join(' ')).toMatch(/pasillos? anchos?/i);
   });
 
-  it('acepta y reserva wideCorridorCount/Width sin generar pasillos anchos', () => {
-    const map = generator.generate(DEFAULT_MAP_SEED, {
+  it('acepta wideCorridorCount 1 y 2 y normaliza el ancho a 2', () => {
+    const forcedOne = generator.generate(DEFAULT_MAP_SEED, {
+      ...DEFAULT_MAP_OPTIONS,
+      wideCorridorCount: 1,
+    });
+    expect(forcedOne.options.wideCorridorCount).toBe(1);
+    expect(forcedOne.corridors.filter((corridor) => corridor.width === 2)).toHaveLength(1);
+
+    const forcedTwo = generator.generate(DEFAULT_MAP_SEED, {
       ...DEFAULT_MAP_OPTIONS,
       wideCorridorCount: 2,
       wideCorridorWidth: 2,
     });
+    expect(forcedTwo.options.wideCorridorCount).toBe(2);
+    const wideTwo = forcedTwo.corridors.filter((corridor) => corridor.width === 2);
+    expect(wideTwo.length).toBeGreaterThanOrEqual(1);
+    expect(wideTwo.length).toBeLessThanOrEqual(2);
 
-    expect(map.options.wideCorridorCount).toBe(0);
-    expect(map.warnings.join(' ')).toContain('pasillos anchos');
-    expect(map.corridors.every((corridor) => corridor.width === 1)).toBe(true);
+    const normalized = resolveMapOptions({ wideCorridorWidth: 3 });
+    expect(normalized.options.wideCorridorWidth).toBe(2);
+    expect(normalized.warnings.join(' ')).toMatch(/ancho de pasillo ancho/i);
   });
 });
 
@@ -145,6 +159,9 @@ describe('determinismo', () => {
 
     expect(JSON.stringify(second)).toBe(JSON.stringify(first));
     expect(second).toEqual(first);
+    expect(second.doors).toEqual(first.doors);
+    expect(second.corridors).toEqual(first.corridors);
+    expect(second.doors.length).toBeGreaterThan(0);
   });
 
   it('semillas distintas producen diferencias estructurales', () => {
@@ -217,11 +234,11 @@ describe('estructura del mapa de referencia', () => {
     }
   });
 
-  it('los corredores son estrechos, ortogonales y forman un árbol más bucles', () => {
+  it('los corredores son estrechos o anchos, ortogonales y forman un árbol más bucles', () => {
     expect(reference.corridors.length).toBeGreaterThan(0);
     for (const corridor of reference.corridors) {
-      expect(corridor.width).toBe(1);
-      expect(corridor.doorEligible).toBe(true);
+      expect(corridor.width === 1 || corridor.width === 2).toBe(true);
+      expect(corridor.doorEligible).toBe(corridor.width === 1);
       expect(corridor.kind === 'tree' || corridor.kind === 'loop').toBe(true);
       expect(isOrthogonalPath(corridor.path)).toBe(true);
       expect(corridor.path.length).toBeGreaterThanOrEqual(3);
@@ -230,13 +247,8 @@ describe('estructura del mapa de referencia', () => {
     const tree = reference.corridors.filter((corridor) => corridor.kind === 'tree');
     const loops = reference.corridors.filter((corridor) => corridor.kind === 'loop');
     expect(tree).toHaveLength(reference.rooms.length - 1);
-    expect(loops).toHaveLength(2);
-  });
-
-  it('no tiene puertas ni pasillos anchos en esta tarea', () => {
-    expect(reference.doors).toEqual([]);
-    expect(reference.corridors.every((corridor) => corridor.width === 1)).toBe(true);
-    expect(countWideFloor(reference)).toBe(0);
+    expect(loops.length).toBeGreaterThanOrEqual(1);
+    expect(loops.length).toBeLessThanOrEqual(3);
   });
 
   it('incluye un tramo recto largo y un corredor con dos o más esquinas', () => {
@@ -266,6 +278,271 @@ describe('estructura del mapa de referencia', () => {
     const validation = validateGeneratedMap(reference);
     expect(validation.issues).toEqual([]);
     expect(validation.ok).toBe(true);
+  });
+});
+
+function endpointOrientation(
+  corridor: Corridor,
+  atStart: boolean,
+): { x: number; y: number; roomId: number; orientation: Door['orientation'] } {
+  const path = corridor.path;
+  const point = atStart ? path[0] : path[path.length - 1];
+  const neighbour = atStart ? path[1] : path[path.length - 2];
+  return {
+    x: point.x,
+    y: point.y,
+    roomId: atStart ? corridor.fromRoomId : corridor.toRoomId,
+    orientation:
+      Math.sign(neighbour.y - point.y) !== 0 ? 'horizontal' : 'vertical',
+  };
+}
+
+describe('huecos de puerta', () => {
+  it('cada sala tiene entre 1 y 3 huecos y ninguna puerta está en pasillo ancho', () => {
+    const counts = new Map<number, number>();
+    for (const door of reference.doors) {
+      counts.set(door.roomId, (counts.get(door.roomId) ?? 0) + 1);
+    }
+    for (const room of reference.rooms) {
+      const count = counts.get(room.id) ?? 0;
+      expect(count, `sala ${room.id}`).toBeGreaterThanOrEqual(1);
+      expect(count, `sala ${room.id}`).toBeLessThanOrEqual(3);
+    }
+
+    const wideCells = new Set<string>();
+    for (const corridor of reference.corridors) {
+      if (corridor.width !== 2) continue;
+      for (const point of corridor.path) wideCells.add(`${point.x},${point.y}`);
+    }
+
+    for (const door of reference.doors) {
+      expect(reference.tiles[tileIndex(reference.width, door.x, door.y)]).toBe('floor');
+      expect(wideCells.has(`${door.x},${door.y}`)).toBe(false);
+      const horizontal = door.orientation === 'horizontal';
+      if (horizontal) {
+        expect(reference.tiles[tileIndex(reference.width, door.x - 1, door.y)]).toBe('wall');
+        expect(reference.tiles[tileIndex(reference.width, door.x + 1, door.y)]).toBe('wall');
+      } else {
+        expect(reference.tiles[tileIndex(reference.width, door.x, door.y - 1)]).toBe('wall');
+        expect(reference.tiles[tileIndex(reference.width, door.x, door.y + 1)]).toBe('wall');
+      }
+    }
+
+    const keys = reference.doors.map((door) => `${door.x},${door.y}`);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+
+  it('cada hueco coincide con un extremo de corredor estrecho y su orientación', () => {
+    const endpoints = new Map<
+      string,
+      Array<{ x: number; y: number; roomId: number; orientation: Door['orientation'] }>
+    >();
+    for (const corridor of reference.corridors) {
+      if (corridor.width !== 1) continue;
+      for (const atStart of [true, false]) {
+        const endpoint = endpointOrientation(corridor, atStart);
+        const key = `${endpoint.x},${endpoint.y}`;
+        const list = endpoints.get(key) ?? [];
+        list.push(endpoint);
+        endpoints.set(key, list);
+      }
+    }
+
+    for (const door of reference.doors) {
+      const matching = (endpoints.get(`${door.x},${door.y}`) ?? []).find(
+        (endpoint) => endpoint.roomId === door.roomId,
+      );
+      expect(matching, `puerta ${door.x},${door.y}`).toBeDefined();
+      expect(door.orientation).toBe(matching?.orientation);
+    }
+  });
+
+  it('detecta una orientación incoherente con el eje del muro', () => {
+    const door = reference.doors[0];
+    const broken: GeneratedMap = {
+      ...reference,
+      doors: [
+        {
+          ...door,
+          orientation: door.orientation === 'horizontal' ? 'vertical' : 'horizontal',
+        },
+        ...reference.doors.slice(1),
+      ],
+    };
+
+    const validation = validateGeneratedMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('orientación');
+  });
+
+  it('detecta un hueco sin muro lateral', () => {
+    const door = reference.doors[0];
+    const tiles = [...reference.tiles];
+    if (door.orientation === 'horizontal') {
+      tiles[tileIndex(reference.width, door.x - 1, door.y)] = 'floor';
+    } else {
+      tiles[tileIndex(reference.width, door.x, door.y - 1)] = 'floor';
+    }
+    const broken: GeneratedMap = { ...reference, tiles };
+
+    const validation = validateGeneratedMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('esquina o sin muro lateral');
+  });
+
+  it('detecta un hueco duplicado', () => {
+    const broken: GeneratedMap = {
+      ...reference,
+      doors: [...reference.doors, reference.doors[0]],
+    };
+
+    const validation = validateGeneratedMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('duplicada');
+  });
+
+  it('detecta una puerta fabricada sobre un pasillo ancho', () => {
+    const wide = reference.corridors.find((corridor) => corridor.width === 2);
+    expect(wide).toBeDefined();
+    const point = wide?.path[Math.floor((wide.path.length - 1) / 2)];
+    expect(point).toBeDefined();
+    const fakeDoor: Door = {
+      x: point?.x ?? 0,
+      y: point?.y ?? 0,
+      orientation: 'horizontal',
+      roomId: wide?.fromRoomId ?? 0,
+    };
+    const broken: GeneratedMap = {
+      ...reference,
+      doors: [...reference.doors, fakeDoor],
+    };
+
+    const validation = validateGeneratedMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('pasillo ancho');
+  });
+});
+
+describe('pasillos anchos', () => {
+  it('hay 1 o 2 pasillos de 2 tiles con al menos 4 tiles de carril real', () => {
+    const wide = reference.corridors.filter((corridor) => corridor.width === 2);
+    expect(wide.length).toBeGreaterThanOrEqual(1);
+    expect(wide.length).toBeLessThanOrEqual(2);
+
+    for (const corridor of wide) {
+      expect(corridor.doorEligible).toBe(false);
+      expect(corridor.path.length).toBeGreaterThanOrEqual(4);
+      expect(wideCorridorStretch(reference, corridor)).toBeGreaterThanOrEqual(4);
+      expect(connectivityPercentage(reference, reference.spawns.player)).toBe(100);
+    }
+    expect(countWideFloor(reference)).toBe(0);
+  });
+
+  it('cada sala conserva al menos un acceso estrecho con hueco', () => {
+    for (const room of reference.rooms) {
+      const narrowAccess = reference.corridors.some(
+        (corridor) =>
+          corridor.width === 1 &&
+          (corridor.fromRoomId === room.id || corridor.toRoomId === room.id),
+      );
+      const narrowDoor = reference.doors.some((door) => door.roomId === room.id);
+      expect(narrowAccess, `sala ${room.id} sin acceso estrecho`).toBe(true);
+      expect(narrowDoor, `sala ${room.id} sin hueco`).toBe(true);
+    }
+  });
+
+  it('varía el número y la posición de pasillos anchos entre semillas, siempre 1-2', () => {
+    const counts = new Set<number>();
+    const positions = new Set<string>();
+    for (let seed = 0; seed < 16; seed += 1) {
+      const map = generator.generate(seed, DEFAULT_MAP_OPTIONS);
+      const wide = map.corridors.filter((corridor) => corridor.width === 2);
+      expect(wide.length, `semilla ${seed}`).toBeGreaterThanOrEqual(1);
+      expect(wide.length, `semilla ${seed}`).toBeLessThanOrEqual(2);
+      expect(validateGeneratedMap(map).ok, `semilla ${seed}`).toBe(true);
+      counts.add(wide.length);
+      for (const corridor of wide) {
+        positions.add(
+          `${corridor.fromRoomId}-${corridor.toRoomId}:${corridor.path[0].x},${corridor.path[0].y}`,
+        );
+      }
+    }
+    expect([...counts].sort()).toEqual([1, 2]);
+    expect(positions.size).toBeGreaterThan(2);
+  });
+
+  it('la misma semilla reproduce huecos y pasillos anchos exactamente', () => {
+    const first = generator.generate(12345, DEFAULT_MAP_OPTIONS);
+    const second = generator.generate(12345, DEFAULT_MAP_OPTIONS);
+    expect(second.doors).toEqual(first.doors);
+    expect(second.corridors).toEqual(first.corridors);
+  });
+
+  it('un width 2 sin carril real se detecta sobre la geometría', () => {
+    const room: Room = { id: 0, x: 2, y: 2, width: 3, height: 3, role: 'small' };
+    const floors: Array<readonly [number, number]> = [];
+    for (let y = 2; y < 5; y += 1) {
+      for (let x = 2; x < 5; x += 1) floors.push([x, y]);
+    }
+    for (let x = 8; x < 16; x += 1) floors.push([x, 10]);
+    const base = buildMapWithTiles(20, 20, floors, [room], {
+      player: { x: 3, y: 3 },
+      enemy: { x: 3, y: 3 },
+      distance: 0,
+    });
+    const path = Array.from({ length: 8 }, (_, index) => ({ x: 8 + index, y: 10 }));
+    const fake: Corridor = {
+      fromRoomId: 0,
+      toRoomId: 0,
+      kind: 'tree',
+      width: 2,
+      doorEligible: false,
+      path,
+    };
+    const withoutLane: GeneratedMap = { ...base, corridors: [fake] };
+    expect(wideCorridorStretch(withoutLane, fake)).toBe(0);
+
+    const withLaneFloors = [...floors];
+    for (let x = 8; x < 16; x += 1) withLaneFloors.push([x, 11]);
+    const withLane = buildMapWithTiles(20, 20, withLaneFloors, [room], {
+      player: { x: 3, y: 3 },
+      enemy: { x: 3, y: 3 },
+      distance: 0,
+    });
+    const declared: GeneratedMap = { ...withLane, corridors: [fake] };
+    expect(wideCorridorStretch(declared, fake)).toBe(8);
+  });
+
+  it('un 2x2 con corredor ancho declarado no cuenta y uno suelto sí', () => {
+    const room: Room = { id: 0, x: 2, y: 2, width: 3, height: 3, role: 'small' };
+    const floors: Array<readonly [number, number]> = [];
+    for (let y = 2; y < 5; y += 1) {
+      for (let x = 2; x < 5; x += 1) floors.push([x, y]);
+    }
+    for (let x = 8; x < 13; x += 1) {
+      floors.push([x, 10], [x, 11]);
+    }
+    const base = buildMapWithTiles(20, 20, floors, [room], {
+      player: { x: 3, y: 3 },
+      enemy: { x: 3, y: 3 },
+      distance: 0,
+    });
+    const path = Array.from({ length: 5 }, (_, index) => ({ x: 8 + index, y: 10 }));
+    const declared: GeneratedMap = {
+      ...base,
+      corridors: [
+        {
+          fromRoomId: 0,
+          toRoomId: 0,
+          kind: 'tree',
+          width: 2,
+          doorEligible: false,
+          path,
+        },
+      ],
+    };
+    expect(countWideFloor(declared)).toBe(0);
+    expect(countWideFloor(base)).toBeGreaterThan(0);
   });
 });
 
@@ -321,8 +598,9 @@ describe('serialización y validadores negativos', () => {
     const parsed = JSON.parse(JSON.stringify(reference)) as GeneratedMap;
 
     expect(parsed).toEqual(reference);
-    expect(parsed.doors).toEqual([]);
-    expect(parsed.corridors.every((corridor) => corridor.width === 1)).toBe(true);
+    expect(parsed.doors).toEqual(reference.doors);
+    expect(parsed.doors.length).toBeGreaterThan(0);
+    expect(parsed.corridors.some((corridor) => corridor.width === 2)).toBe(true);
     expect(Array.isArray(parsed.tiles)).toBe(true);
   });
 
@@ -397,6 +675,16 @@ describe('otros tamaños', () => {
     expect(map.rooms.length).toBeLessThanOrEqual(12);
     expect(validateGeneratedMap(map).ok).toBe(true);
 
+    const wide = map.corridors.filter((corridor) => corridor.width === 2);
+    if (wide.length === 0) {
+      expect(map.warnings.join(' ')).toMatch(/pasillos? anchos?/i);
+    } else {
+      expect(wide.length).toBeLessThanOrEqual(2);
+      for (const corridor of wide) {
+        expect(wideCorridorStretch(map, corridor)).toBeGreaterThanOrEqual(4);
+      }
+    }
+
     if (map.rooms.filter(isLargeRoom).length < 2 || map.rooms.filter(isSmallRoom).length < 3) {
       expect(map.warnings.join(' ')).toContain('No se pudo garantizar');
     }
@@ -416,6 +704,9 @@ describe('otros tamaños', () => {
     expect(map.rooms.filter(isLargeRoom).length).toBeGreaterThanOrEqual(2);
     expect(map.rooms.filter(isSmallRoom).length).toBeGreaterThanOrEqual(3);
     expect(validateGeneratedMap(map).ok).toBe(true);
+    const wide = map.corridors.filter((corridor) => corridor.width === 2);
+    expect(wide.length).toBeGreaterThanOrEqual(1);
+    expect(wide.length).toBeLessThanOrEqual(2);
   });
 });
 
