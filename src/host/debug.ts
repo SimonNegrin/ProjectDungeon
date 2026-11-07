@@ -1,6 +1,15 @@
-import type { GameState, GameStatus, Phase, Tile, Unit } from '../game/types';
+import type {
+  Command,
+  GameEvent,
+  GameState,
+  GameStatus,
+  Phase,
+  Tile,
+  Unit,
+} from '../game/types';
 import type { Camera, CameraBounds } from './camera';
 import type { Viewport } from './geometry';
+import type { StepResult } from './session';
 
 export interface GameSnapshot {
   readonly grid: {
@@ -22,10 +31,17 @@ export interface GameSnapshot {
   readonly viewport: Viewport;
   readonly tileSize: number;
   readonly assetsLoaded: boolean;
+  readonly lastEvents: readonly GameEvent[];
+}
+
+export interface DispatchResult {
+  readonly snapshot: GameSnapshot;
+  readonly events: GameEvent[];
 }
 
 export interface GameDebugApi {
   snapshot(): GameSnapshot;
+  dispatch(command: Command): DispatchResult;
 }
 
 declare global {
@@ -41,40 +57,64 @@ export interface DebugSnapshotSource {
   readonly viewport: Viewport;
   readonly tileSize: number;
   readonly assetsLoaded: boolean;
+  readonly lastEvents: readonly GameEvent[];
 }
 
 function cloneUnit(unit: Unit): Unit {
   return { ...unit };
 }
 
+function cloneEvent(event: GameEvent): GameEvent {
+  switch (event.type) {
+    case 'UnitMoved':
+      return { ...event, from: { ...event.from }, to: { ...event.to } };
+    default:
+      return { ...event };
+  }
+}
+
+function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
+  return {
+    grid: {
+      width: source.state.grid.width,
+      height: source.state.grid.height,
+      tiles: [...source.state.grid.tiles],
+    },
+    players: source.state.players.map(cloneUnit),
+    enemies: source.state.enemies.map(cloneUnit),
+    phase: source.state.phase,
+    turn: source.state.turn,
+    status: source.state.status,
+    camera: {
+      x: source.camera.x,
+      y: source.camera.y,
+      maxX: source.bounds.maxX,
+      maxY: source.bounds.maxY,
+    },
+    viewport: { width: source.viewport.width, height: source.viewport.height },
+    tileSize: source.tileSize,
+    assetsLoaded: source.assetsLoaded,
+    lastEvents: source.lastEvents.map(cloneEvent),
+  };
+}
+
 /**
- * API de depuración de solo lectura. El snapshot es una copia plana y
- * serializable: no expone comandos, mutadores ni referencias al estado vivo.
+ * API de depuración: snapshot serializable y dispatch determinista por el mismo
+ * camino que el teclado. No expone el estado vivo ni mutadores.
  */
-export function createDebugApi(getSource: () => DebugSnapshotSource): GameDebugApi {
+export function createDebugApi(
+  getSource: () => DebugSnapshotSource,
+  dispatchCommand: (command: Command) => StepResult,
+): GameDebugApi {
   return {
     snapshot(): GameSnapshot {
-      const source = getSource();
+      return buildSnapshot(getSource());
+    },
+    dispatch(command: Command): DispatchResult {
+      const result = dispatchCommand(command);
       return {
-        grid: {
-          width: source.state.grid.width,
-          height: source.state.grid.height,
-          tiles: [...source.state.grid.tiles],
-        },
-        players: source.state.players.map(cloneUnit),
-        enemies: source.state.enemies.map(cloneUnit),
-        phase: source.state.phase,
-        turn: source.state.turn,
-        status: source.state.status,
-        camera: {
-          x: source.camera.x,
-          y: source.camera.y,
-          maxX: source.bounds.maxX,
-          maxY: source.bounds.maxY,
-        },
-        viewport: { width: source.viewport.width, height: source.viewport.height },
-        tileSize: source.tileSize,
-        assetsLoaded: source.assetsLoaded,
+        snapshot: buildSnapshot(getSource()),
+        events: result.events.map(cloneEvent),
       };
     },
   };

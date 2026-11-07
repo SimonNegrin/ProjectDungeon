@@ -1,0 +1,40 @@
+import { describe, expect, it } from 'vitest';
+import { reduce } from '../../../src/game/index';
+import { collectDamageFeedbacks } from '../../../src/host/feedback';
+import { makeState, makeUnit } from '../game/helpers';
+
+describe('feedback de ataque', () => {
+  it('convierte AttackPerformed en daño y posición del objetivo', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(collectDamageFeedbacks(result.events, result.state)).toEqual([
+      { targetId: 'enemy-1', damage: 5, x: 6, y: 5 },
+    ]);
+  });
+
+  it('también produce feedback para el ataque enemigo', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+    const result = reduce(state, { type: 'EndTurn' });
+
+    expect(collectDamageFeedbacks(result.events, result.state)).toEqual([
+      { targetId: 'player-1', damage: 3, x: 5, y: 5 },
+    ]);
+  });
+
+  it('no inventa feedback sin ataques', () => {
+    const state = makeState();
+
+    expect(collectDamageFeedbacks([], state)).toEqual([]);
+  });
+});
