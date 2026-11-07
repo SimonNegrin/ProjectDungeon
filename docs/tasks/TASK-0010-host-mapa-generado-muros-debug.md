@@ -4,7 +4,7 @@ id: TASK-0010
 title: "Host: mapa generado, semilla, muros y debug"
 description: Integra el mapa BSP en la partida, añade semilla por URL/R/F2, capa de debug y la regla de muros por borde en el render.
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-003
 requirement_ids: [R-005, R-006, R-007, R-008, R-009, R-010, R-011, T-003, T-005, T-006, T-008, T-010]
