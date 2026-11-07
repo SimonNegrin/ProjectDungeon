@@ -36,6 +36,15 @@ No se ha tocado `src/host/`, `index.html`, `public/`, dependencias, requisitos,
 ADR ni experimento. No se han implementado puertas físicas, barricadas,
 escaleras ni ancho 3. El E2E no se ha ejecutado por indicación del brief.
 
+# Corrección tras verificación del lead (intento 2)
+
+La verificación del lead detectó un test existente debilitado: la aserción de
+`TASK-0008` sobre el mapa de referencia era `expect(loops).toHaveLength(2)` y se
+había relajado a 1-3 sin necesidad. El snapshot confirma que la semilla
+`279837264` sigue teniendo exactamente 2 bucles. Se restauró la aserción exacta
+en `tests/unit/game/map.test.ts` sin tocar el generador. Commit de la
+corrección: `834224b549eef8a51804e5b0a88aab96f774a016`.
+
 # Cambios
 
 Producción:
