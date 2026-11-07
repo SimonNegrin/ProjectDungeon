@@ -117,3 +117,10 @@ Running 3 tests using 3 workers
 exit_code: 0
 finished: 2026-11-07T17:17:38Z
 
+== pnpm run docs:check (timeout 120s, tool timeout; re-run tras añadir este informe) ==
+started: 2026-11-07T17:18:37Z
+$ node scripts/validate-docs.mjs
+OK: 50 documentos, 6 tareas, 1 experimentos.
+exit_code: 0
+finished: 2026-11-07T17:18:37Z
+
