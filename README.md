@@ -10,14 +10,18 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 Dungeon crawler 2D por turnos, cooperativo y local-first. El objetivo final es
 que varias personas jueguen desde el móvil mientras la pantalla host muestra la
-partida. Ahora mismo el proyecto está en la **fase 0**: documentación, arnés de
-agentes y shell de experimentos. Todavía no hay código de juego.
+partida. Ahora mismo el proyecto tiene un motor determinista y una página de
+juego que renderiza la primera sala; todavía no hay teclado, HUD ni combate
+jugable en pantalla.
 
 ## Estado actual
 
 - Documentación base en OKF v0.2.
 - Agentes de OpenCode: `requirements-writer`, `task-lead`, `task-runner`.
 - Skills de OpenCode para requisitos, tareas, experimentos, arquitectura y QA visual.
+- Motor determinista de rejilla, turnos, combate e IA en `src/game/`.
+- Host Canvas 2D en `src/host/` con la sala de 32×24, sprites de 32rogues y
+  cámara limitada a los bordes del mapa.
 - Shell de experimentos interactivo y primer experimento de humo.
 - Sin servidor, sin QR y sin multijugador remoto.
 
@@ -34,8 +38,8 @@ pnpm exec playwright install chromium
 pnpm run dev
 ```
 
-Abre la URL que muestre Vite (por defecto <http://127.0.0.1:5173/experiments/>)
-para ver el índice de experimentos.
+`pnpm run dev` abre el juego en `/`. El índice de experimentos sigue disponible
+en `/experiments/`.
 
 ## Comandos
 
@@ -61,6 +65,12 @@ para ver el índice de experimentos.
 - [Experimentos](docs/harness/experiments.md)
 - [QA visual](docs/harness/visual-qa.md)
 - [Experimentos interactivos](experiments/index.md)
+
+## Arte placeholder
+
+Los sprites y tiles son del pack [32rogues](https://sethbb.itch.io/32rogues) de
+Seth Boyles, versionado en `public/assets/32rogues/` con su `LICENSE.txt`. El
+juego carga los assets desde el bundle y no usa red en runtime.
 
 ## Convenciones
 
