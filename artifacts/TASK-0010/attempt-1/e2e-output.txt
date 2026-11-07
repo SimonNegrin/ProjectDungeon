@@ -1,0 +1,18 @@
+$ playwright test
+
+Running 12 tests using 4 workers
+
+  ✓   3 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (1.4s)
+  ✓   2 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (1.4s)
+  ✓   1 [chromium] › tests/e2e/experiment-shell.spec.ts:5:1 › el shell renderiza, ajusta parámetros y exporta una decisión (1.5s)
+  ✓   6 [chromium] › tests/e2e/frame-qa.spec.ts:479:1 › el canvas interno 2048×1152 no cambia al redimensionar (1.5s)
+  ✓   5 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (1.6s)
+  ✓   8 [chromium] › tests/e2e/frame-qa.spec.ts:592:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport (780ms)
+  ✓   7 [chromium] › tests/e2e/frame-qa.spec.ts:511:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa (2.4s)
+  ✓   9 [chromium] › tests/e2e/frame-qa.spec.ts:630:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (1.3s)
+  ✓  12 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara (1.0s)
+  ✓  11 [chromium] › tests/e2e/game-map.spec.ts:95:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 (1.6s)
+  ✓  10 [chromium] › tests/e2e/game-input-hud.spec.ts:46:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (2.6s)
+  ✓   4 [chromium] › tests/e2e/experiment-generator.spec.ts:29:1 › EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión (8.8s)
+
+  12 passed (11.4s)
