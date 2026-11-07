@@ -2,6 +2,7 @@
 
 ## 2026-11-07
 
+* **Task**: `TASK-0007` verificada técnicamente y en `review`: `EXP-001` compara A/B/C (BSP, salas+pasillos e híbrido) con la misma semilla, renderiza 32×32 con los tiles reales de 32rogues y la regla `wallSide1`/`wallTop`, marca huecos y apariciones, muestra las métricas acordadas y exporta decisión. `pnpm run verify` (143 tests) y `pnpm run test:e2e` (11 tests, 1 nuevo) OK; capturas en `artifacts/TASK-0007/attempt-1/screenshots/`. Sin cambios en `src/`, `index.html` ni `public/`. Implementación `1164fcd` e informe `2755cee`; pendiente el playtest y la decisión de `human:simon`, que actualizará `REQ-003` a v2.
 * **Requirement**: El usuario aprueba `REQ-003` v1: mapa 32×32 por semilla, 8-12 salas variadas, pasillos de 1 tile, 1-3 bucles, huecos de puerta, aparición jugador/enemigo y regla de muros por borde. La generación procedural entra en el alcance (`scope.md`, fase 1.5). El algoritmo se decide con `EXP-001`.
 * **Experiment**: Se crea `EXP-001` como propuesto: compara BSP, salas+pasillos e híbrido con la misma semilla, renderiza 32×32 con 32rogues y exporta la decisión. Pendiente de construir.
 * **Task**: Se crea `TASK-0007` (`ready`) para construir `EXP-001`; depende de `TASK-0006`. No toca producción hasta que el usuario decida la variante.
