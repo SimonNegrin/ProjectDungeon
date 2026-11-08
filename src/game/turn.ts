@@ -2,6 +2,7 @@ import { planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
 import { isAlive } from './grid';
 import { commitMove, validateMove } from './movement';
+import { refreshEnemyAwareness } from './perception';
 import type { GameEvent, GameState, GameStatus, Unit } from './types';
 
 export interface TurnResult {
@@ -57,6 +58,48 @@ export function restoreEnemyTurn(state: GameState): GameState {
   };
 }
 
+function replaceEnemy(state: GameState, enemy: Unit): GameState {
+  return {
+    ...state,
+    enemies: state.enemies.map((candidate) =>
+      candidate.id === enemy.id ? enemy : candidate,
+    ),
+  };
+}
+
+/**
+ * Un enemigo en regreso que acaba de llegar a su puesto queda dormido en la
+ * misma fase. Devuelve `undefined` si no hay transición.
+ */
+function settleReturning(
+  state: GameState,
+  unitId: string,
+): { readonly state: GameState; readonly events: readonly GameEvent[] } | undefined {
+  const enemy = state.enemies.find((candidate) => candidate.id === unitId);
+  if (
+    !enemy ||
+    !isAlive(enemy) ||
+    enemy.awareness !== 'returning' ||
+    enemy.x !== enemy.home.x ||
+    enemy.y !== enemy.home.y
+  ) {
+    return undefined;
+  }
+
+  const sleeping: Unit = {
+    ...enemy,
+    awareness: 'dormant',
+    lastKnown: null,
+    alertTurns: 0,
+    hasShouted: false,
+  };
+
+  return {
+    state: replaceEnemy(state, sleeping),
+    events: [{ type: 'EnemyReturned', unitId }],
+  };
+}
+
 function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
   const plan = planEnemyAction(state, enemy);
 
@@ -96,9 +139,26 @@ export function resolveEndTurn(state: GameState): TurnResult {
     const enemy = next.enemies.find((candidate) => candidate.id === original.id);
     if (!enemy || !isAlive(enemy)) continue;
 
-    const result = applyEnemyPlan(next, enemy);
+    const awareness = refreshEnemyAwareness(next, enemy);
+    let active = enemy;
+    if (awareness.changed) {
+      active = awareness.unit;
+      next = replaceEnemy(next, active);
+      if (awareness.returned) {
+        events.push({ type: 'EnemyReturned', unitId: active.id });
+      }
+    }
+
+    const result = applyEnemyPlan(next, active);
     next = result.state;
     events.push(...result.events);
+
+    const settled = settleReturning(next, active.id);
+    if (settled) {
+      next = settled.state;
+      events.push(...settled.events);
+    }
+
     next = applyTerminal(next, events);
   }
 

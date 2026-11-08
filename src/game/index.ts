@@ -8,6 +8,7 @@ export * from './bsp';
 export * from './movement';
 export * from './path';
 export * from './combat';
+export * from './perception';
 export * from './ai';
 export * from './turn';
 export * from './engine';

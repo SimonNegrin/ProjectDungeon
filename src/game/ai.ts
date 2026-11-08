@@ -45,14 +45,15 @@ function isClearForPath(
 }
 
 /**
- * Campo de distancias BFS desde el jugador objetivo. Bloquea muros y otras
- * unidades, pero deja libres al objetivo y al enemigo que se mueve. Respeta
- * la regla de no cortar esquinas.
+ * Campo de distancias BFS desde una casilla objetivo. Bloquea muros y otras
+ * unidades, pero deja libres la casilla objetivo y al enemigo que se mueve.
+ * Respeta la regla de no cortar esquinas.
  */
 function distanceField(
   state: GameState,
-  target: Unit,
+  target: Position,
   mover: Unit,
+  targetUnitId?: string,
 ): number[][] {
   const { width, height } = state.grid;
   const distances: number[][] = Array.from({ length: height }, () =>
@@ -62,7 +63,7 @@ function distanceField(
   const blocked = new Set<string>();
   for (const unit of [...state.players, ...state.enemies]) {
     if (unit.hp <= 0) continue;
-    if (unit.id === target.id || unit.id === mover.id) continue;
+    if (unit.id === targetUnitId || unit.id === mover.id) continue;
     blocked.add(cellKey(unit.x, unit.y));
   }
 
@@ -101,29 +102,12 @@ function distanceField(
   return distances;
 }
 
-/**
- * Plan deterministico de la IA:
- * 1. elegir al jugador vivo más cercano (Chebyshev, desempate por índice);
- * 2. si está en rango, atacar;
- * 3. si no, avanzar una casilla siguiendo un campo BFS;
- * 4. si no hay paso que acerque, esperar.
- */
-export function planEnemyAction(state: GameState, enemy: Unit): EnemyPlan {
-  if (enemy.hp <= 0 || !enemy.actionAvailable) {
-    return { type: 'wait' };
-  }
-
-  const players = state.players.filter((player) => player.hp > 0);
-  if (players.length === 0) {
-    return { type: 'wait' };
-  }
-
-  const target = chooseNearestPlayer(enemy, players);
-  if (chebyshevDistance(enemy, target) <= 1) {
-    return { type: 'attack', targetId: target.id };
-  }
-
-  const distances = distanceField(state, target, enemy);
+/** Elige el paso determinista que más acerca al campo de distancias. */
+function stepAlongField(
+  state: GameState,
+  enemy: Unit,
+  distances: number[][],
+): EnemyPlan {
   const currentDistance = distances[enemy.y][enemy.x];
   if (currentDistance < 0) {
     return { type: 'wait' };
@@ -145,9 +129,42 @@ export function planEnemyAction(state: GameState, enemy: Unit): EnemyPlan {
     }
   }
 
-  if (!best) {
+  return best ? { type: 'move', dx: best.dx, dy: best.dy } : { type: 'wait' };
+}
+
+/**
+ * Plan deterministico de la IA:
+ * - dormido espera;
+ * - en regreso vuelve a `home` sin atacar;
+ * - en alerta elige al jugador vivo más cercano (Chebyshev, desempate por
+ *   índice), ataca si está en rango y, si no, avanza una casilla por BFS;
+ * - si no hay paso que acerque, espera.
+ *
+ * La IA de alerta con todos los MP y la huida llegan en TASK-0037.
+ */
+export function planEnemyAction(state: GameState, enemy: Unit): EnemyPlan {
+  if (enemy.hp <= 0 || !enemy.actionAvailable) {
+    return { type: 'wait' };
+  }
+  if (enemy.awareness === 'dormant') {
     return { type: 'wait' };
   }
 
-  return { type: 'move', dx: best.dx, dy: best.dy };
+  if (enemy.awareness === 'returning') {
+    const toHome = distanceField(state, enemy.home, enemy);
+    return stepAlongField(state, enemy, toHome);
+  }
+
+  const players = state.players.filter((player) => player.hp > 0);
+  if (players.length === 0) {
+    return { type: 'wait' };
+  }
+
+  const target = chooseNearestPlayer(enemy, players);
+  if (chebyshevDistance(enemy, target) <= 1) {
+    return { type: 'attack', targetId: target.id };
+  }
+
+  const distances = distanceField(state, target, enemy, target.id);
+  return stepAlongField(state, enemy, distances);
 }

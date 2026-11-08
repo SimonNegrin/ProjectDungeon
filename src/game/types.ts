@@ -5,6 +5,8 @@ import type { GeneratedMap } from './map';
 export type Tile = 'floor' | 'wall';
 export type Faction = 'player' | 'enemy';
 export type Phase = 'player' | 'enemy';
+/** Estado de percepción de un enemigo (REQ-009). */
+export type Awareness = 'dormant' | 'alert' | 'returning';
 export type GameStatus = 'playing' | 'victory' | 'defeat';
 export type GameEndStatus = Exclude<GameStatus, 'playing'>;
 
@@ -57,6 +59,18 @@ export interface Unit {
   readonly equipment: UnitEquipment;
   /** Armas llevadas; la equipada es `equipment.weaponId`. */
   readonly weapons: readonly WeaponId[];
+  /** Percepción del enemigo; los jugadores usan `alert` como valor estable. */
+  readonly awareness: Awareness;
+  /** Huida activa del perfil cobarde (REQ-009; comportamiento en TASK-0037). */
+  readonly fleeing: boolean;
+  /** Puesto inicial al que vuelve la alerta al enfriarse. */
+  readonly home: Position;
+  /** Última posición conocida de un jugador; `null` si nunca vio a uno. */
+  readonly lastKnown: Position | null;
+  /** Fases enemigas sin visión desde la última detección. */
+  readonly alertTurns: number;
+  /** Ya dio la alarma en el episodio actual (operativo en TASK-0035). */
+  readonly hasShouted: boolean;
 }
 
 export interface GameState {
@@ -160,6 +174,16 @@ export type GameEvent =
   | { readonly type: 'EnemyWaited'; readonly unitId: string }
   | { readonly type: 'GameEnded'; readonly status: GameEndStatus }
   | { readonly type: 'GameRestarted' }
+  | {
+      /** Un enemigo ha visto a un jugador por primera vez en el episodio. */
+      readonly type: 'EnemySpotted';
+      readonly unitId: string;
+      readonly playerId: string;
+      /** Posición del enemigo que detecta, para anclar el "!". */
+      readonly position: Position;
+    }
+  /** Un enemigo en regreso ha llegado a su puesto y vuelve a estar dormido. */
+  | { readonly type: 'EnemyReturned'; readonly unitId: string }
   | {
       readonly type: 'CommandRejected';
       readonly commandType: CommandType;

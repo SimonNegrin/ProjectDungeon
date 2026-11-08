@@ -136,7 +136,14 @@ describe('createInitialState con un MapGenerator inyectado', () => {
   it('el motor funciona con el mapa del stub: movimiento, ataque, fin de turno y reinicio', () => {
     const stub = new StubGenerator();
     const initialState = createInitialState({ generator: stub });
-    const state = { ...initialState, rng: rngForDice([6, 1, 2, 1]) };
+    // Fixture legacy: el motor antiguo hacía actuar al enemigo desde el turno 1.
+    // La percepción llega en TASK-0034; se conserva esa intención con un enemigo
+    // alerta sin tocar las aserciones de movimiento, ataque y reinicio.
+    const state = {
+      ...initialState,
+      enemies: initialState.enemies.map((enemy) => ({ ...enemy, awareness: 'alert' as const })),
+      rng: rngForDice([6, 1, 2, 1]),
+    };
     const player = state.players[0];
     const enemy = state.enemies[0];
 

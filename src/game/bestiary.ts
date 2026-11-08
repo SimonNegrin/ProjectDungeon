@@ -2,9 +2,8 @@
  * Catálogo de bestiario (REQ-010, tabla A de EXP-003).
  *
  * Datos puros y serializables: cada tipo de enemigo referencia el catálogo de
- * equipo por ID y declara modificadores, PV, visión y perfil. La visión y el
- * perfil son provisionales de REQ-009; este corte no implementa percepción,
- * alarma ni huida.
+ * equipo por ID y declara modificadores, PV, visión y perfil. La visión alimenta
+ * la percepción de TASK-0034; la alarma y la huida llegan en tareas posteriores.
  */
 
 import type { UnitEquipment, UnitModifiers } from './types';
@@ -17,9 +16,9 @@ export type EnemyProfile = 'brave' | 'coward';
 export interface EnemyDefinition {
   readonly id: EnemyType;
   readonly name: string;
-  /** Perfil provisional de REQ-009; sin comportamiento en este corte. */
+  /** Perfil de REQ-009; la huida del cobarde llega en TASK-0037. */
   readonly profile: EnemyProfile;
-  /** Radio de visión provisional en tiles (REQ-009). */
+  /** Radio de visión en tiles (REQ-009). */
   readonly vision: number;
   readonly maxHp: number;
   readonly modifiers: UnitModifiers;

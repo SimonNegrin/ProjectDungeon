@@ -170,6 +170,9 @@ function eventLabel(event: GameEvent): string {
       return 'reinicio';
     case 'CommandRejected':
       return `${event.commandType} rechazado: ${event.reason}`;
+    default:
+      // Eventos de percepción: el feedback propio llega en TASK-0038.
+      return event.type;
   }
 }
 

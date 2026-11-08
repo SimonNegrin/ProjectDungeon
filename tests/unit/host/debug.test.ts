@@ -16,8 +16,8 @@ import {
 import { GameSession } from '../../../src/host/session';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
-function setup() {
-  const session = new GameSession(makeState());
+function setup(initial: GameState = makeState()) {
+  const session = new GameSession(initial);
   let camera: Camera = { x: 0, y: 0 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
   const cursor = cursorAtPlayer(session.state.players[0]);
@@ -131,6 +131,58 @@ describe('API de debug window.__game', () => {
       path: [],
     });
     expect(() => JSON.stringify(snapshot)).not.toThrow();
+  });
+
+  it('expone la percepción y la memoria del enemigo en solo lectura', () => {
+    const api = generatedSetup();
+
+    const snapshot = api.snapshot();
+    const enemy = snapshot.enemies[0];
+
+    expect(enemy).toMatchObject({
+      awareness: 'dormant',
+      fleeing: false,
+      lastKnown: null,
+      alertTurns: 0,
+      hasShouted: false,
+    });
+    expect(enemy.home).toEqual(snapshot.spawns?.enemy);
+    expect(api.snapshot()).toEqual(snapshot);
+  });
+
+  it('muestra la memoria no nula del enemigo y no expone mutadores', () => {
+    const state = makeState({
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 15,
+          y: 15,
+          awareness: 'returning',
+          fleeing: true,
+          home: { x: 2, y: 2 },
+          lastKnown: { x: 8, y: 9 },
+          alertTurns: 2,
+          hasShouted: true,
+        }),
+      ],
+    });
+    const api = setup(state);
+
+    const snapshot = api.snapshot();
+
+    expect(snapshot.enemies[0]).toMatchObject({
+      awareness: 'returning',
+      fleeing: true,
+      home: { x: 2, y: 2 },
+      lastKnown: { x: 8, y: 9 },
+      alertTurns: 2,
+      hasShouted: true,
+    });
+    expect(
+      Object.values(snapshot.enemies[0]).some((value) => typeof value === 'function'),
+    ).toBe(false);
+    expect(api.snapshot()).toEqual(snapshot);
   });
 
   it('expone el estado de presentación y un avance determinista del reloj', () => {

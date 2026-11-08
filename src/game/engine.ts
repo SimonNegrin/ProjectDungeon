@@ -3,6 +3,7 @@ import { commitMove, validateMove } from './movement';
 import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
 import { planCursorTarget, type CursorBlockedReason } from './path';
+import { detectEnemiesAfterStep } from './perception';
 import { BspMapGenerator } from './bsp';
 import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
@@ -44,6 +45,12 @@ function createPlayer(id: string, position: Position): Unit {
     modifiers: { accuracy: 1, damage: 1, defense: 1 },
     equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
     weapons: ['sword'],
+    awareness: 'alert',
+    fleeing: false,
+    home: { x: position.x, y: position.y },
+    lastKnown: null,
+    alertTurns: 0,
+    hasShouted: false,
   };
 }
 
@@ -65,6 +72,12 @@ function createEnemy(id: string, position: Position, type: EnemyType): Unit {
     modifiers: definition.modifiers,
     equipment: definition.equipment,
     weapons: [definition.equipment.weaponId],
+    awareness: 'dormant',
+    fleeing: false,
+    home: { x: position.x, y: position.y },
+    lastKnown: null,
+    alertTurns: 0,
+    hasShouted: false,
   };
 }
 
@@ -138,6 +151,25 @@ function reject(
   };
 }
 
+/**
+ * Aplica un paso ya validado del jugador y evalúa la percepción enemiga
+ * inmediatamente después. El evento `EnemySpotted` va después del `UnitMoved`
+ * del paso que cruza la vista.
+ */
+function commitPlayerStep(
+  state: GameState,
+  unit: Unit,
+  dx: number,
+  dy: number,
+): { readonly state: GameState; readonly events: readonly GameEvent[] } {
+  const moved = commitMove(state, unit, dx, dy);
+  const detected = detectEnemiesAfterStep(moved.state);
+  return {
+    state: detected.state,
+    events: [...moved.events, ...detected.events],
+  };
+}
+
 function reduceMove(
   state: GameState,
   command: Extract<Command, { type: 'Move' }>,
@@ -162,7 +194,8 @@ function reduceMove(
     return reject(state, command, validation.reason);
   }
 
-  return commitMove(state, unit, command.dx, command.dy);
+  const step = commitPlayerStep(state, unit, command.dx, command.dy);
+  return { state: step.state, events: step.events };
 }
 
 function rejectionForBlockedPlan(
@@ -213,7 +246,7 @@ function executePathSteps(
     const validation = validateMove(current, unit, dx, dy);
     if (!validation.ok) return { ok: false, reason: validation.reason };
 
-    const result = commitMove(current, unit, dx, dy);
+    const result = commitPlayerStep(current, unit, dx, dy);
     current = result.state;
     events.push(...result.events);
   }

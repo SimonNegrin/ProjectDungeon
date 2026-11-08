@@ -5,11 +5,13 @@ import {
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   rollDie,
+  type Awareness,
   type EnemyType,
   type Faction,
   type GameState,
   type Grid,
   type Phase,
+  type Position,
   type RngState,
   type Unit,
   type UnitEquipment,
@@ -34,6 +36,13 @@ export interface UnitOptions {
   readonly modifiers?: UnitModifiers;
   readonly equipment?: UnitEquipment;
   readonly weapons?: readonly WeaponId[];
+  /** Por defecto `alert`: conserva la intención de los tests legacy. */
+  readonly awareness?: Awareness;
+  readonly fleeing?: boolean;
+  readonly home?: Position;
+  readonly lastKnown?: Position | null;
+  readonly alertTurns?: number;
+  readonly hasShouted?: boolean;
 }
 
 export function makeUnit(options: UnitOptions): Unit {
@@ -61,6 +70,12 @@ export function makeUnit(options: UnitOptions): Unit {
       options.equipment ??
       { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
     weapons: options.weapons ?? ['sword'],
+    awareness: options.awareness ?? 'alert',
+    fleeing: options.fleeing ?? false,
+    home: options.home ?? { x: options.x, y: options.y },
+    lastKnown: options.lastKnown ?? null,
+    alertTurns: options.alertTurns ?? 0,
+    hasShouted: options.hasShouted ?? false,
   };
 }
 
