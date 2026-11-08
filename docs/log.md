@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0029 — cerrada: HUD de equipo, armas del mapa, pista de G y feedback Fallo/-N con F1 completo; verify 483 y E2E 57 OK; fusión `da31675` — [informe](../artifacts/TASK-0029/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0028 — cerrada: bestiario centinela/bruto/cobarde y ataque enemigo con el resolvedor compartido; TtK dentro de ±0,3; verify 466 y E2E 55 OK — [informe](../artifacts/TASK-0028/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0027 — cerrada: armas de mapa deterministas, G por 1 MP y cambio gratis 1-3; verify 460 y E2E 55 OK; fusión `f69b844` — [informe](../artifacts/TASK-0027/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0026 — cerrada: combate con equipo, modificadores y RNG sembrado; verify 443 y E2E 55 OK; T-009 (docs/ADR-012) sin tarea — [informe](../artifacts/TASK-0026/attempt-2/report.md)
