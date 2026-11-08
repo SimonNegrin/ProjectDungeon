@@ -74,7 +74,7 @@ el conteo real hasta 0 es menor por el overkill.
 
 | Síntoma | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|
-| Enlaces del brief a `../../docs/...` fallan `docs:check`; la ruta correcta desde `artifacts/TASK-NNNN/attempt-N/brief.md` es `../../../` | Corregir la profundidad | El validador resuelve relativo al archivo y el brief es el contrato | Generar/validar los enlaces en la ruta correcta | Bajo | `pending` |
+| Enlaces del brief a `../../docs/...` fallan `docs:check`; la ruta correcta desde `artifacts/TASK-NNNN/attempt-N/brief.md` es `../../../` | Corregir la profundidad | Error local del lead al redactar el brief, no del arnés | Ninguno | Bajo; ya corregido en el brief | `rejected` |
 
 # Métricas de handoff
 

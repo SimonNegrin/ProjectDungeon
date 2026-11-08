@@ -4,14 +4,14 @@ id: TASK-0028
 title: "Motor: bestiario de combate y ataque enemigo"
 description: Dar a centinela, bruto y cobarde las estadísticas y el equipo de la tabla A, y hacer que la IA ataque con el mismo resolvedor que el jugador.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-007, R-008, R-011, R-013, T-003, T-005, T-008, T-010]
 depends_on: [TASK-0026]
 unlocks: [TASK-0029]
 created_at: 2026-11-08T17:31:45Z
-completed_at:
+completed_at: 2026-11-08T18:40:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0028/
@@ -20,6 +20,15 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T17:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T18:40:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0028: implementación 7d52825, informe y
+      evidencias bb86c22. Diff completo revisado; `pnpm run verify` OK (466
+      tests, 140 documentos, config y build) y `pnpm run test:e2e` OK (55/55).
+      Las nueve celdas de TtK quedan dentro de ±0,3 (diferencia máxima 0,05);
+      una sola tabla de bestiario y `resolveAttack` compartido; sin percepción,
+      huida ni cambios fuera de alcance; sin tests borrados o debilitados.
 ---
 
 # Objetivo
@@ -41,22 +50,22 @@ R-007, R-008 y T-005. La percepción, la alarma y la huida pertenecen a
 
 # Criterios de aceptación
 
-- [ ] El catálogo incluye centinela (+0/+0/+0, espada +3/4, escudo 1, armadura
+- [x] El catálogo incluye centinela (+0/+0/+0, espada +3/4, escudo 1, armadura
       1, 9 PV), bruto (+0/+1/+0, hacha +2/6, escudo 0, armadura 2, 12 PV) y
       cobarde (+1/+0/+1, daga +4/3, escudo 1, armadura 0, 8 PV).
-- [ ] Cada tipo guarda arma, escudo, armadura, PV, modificadores, visión y
+- [x] Cada tipo guarda arma, escudo, armadura, PV, modificadores, visión y
       perfil como datos serializables; cambiar un valor del catálogo cambia el
       combate sin tocar fórmulas.
-- [ ] El enemigo actual es un centinela y ataca con el mismo resolvedor y el
+- [x] El enemigo actual es un centinela y ataca con el mismo resolvedor y el
       mismo catálogo que el jugador; no hay daño fijo ni fórmula paralela.
-- [ ] Con la tabla A, el centinela cae en ~2,6 ataques de espada, ~2,1 de hacha
+- [x] Con la tabla A, el centinela cae en ~2,6 ataques de espada, ~2,1 de hacha
       y ~3,0 de daga; el bruto en ~4,0, ~2,9 y ~4,8; el cobarde en ~2,2, ~2,0 y
       ~2,3. Los valores medidos quedan dentro de ±0,3 ataques.
-- [ ] La visión y el perfil son datos, pero no hay percepción, alarma, huida ni
+- [x] La visión y el perfil son datos, pero no hay percepción, alarma, huida ni
       colocación de 3-4 enemigos en esta tarea.
-- [ ] Victoria y derrota no cambian; un enemigo sigue contando como vivo hasta
+- [x] Victoria y derrota no cambian; un enemigo sigue contando como vivo hasta
       morir. No se debilitan tests existentes.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
 
 # Plan de test
 
@@ -69,9 +78,9 @@ R-007, R-008 y T-005. La percepción, la alarma y la huida pertenecen a
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0028/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0028`.
+- [x] Informe en `artifacts/TASK-0028/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0028`.
 
 # Comandos
 
@@ -79,6 +88,7 @@ R-007, R-008 y T-005. La percepción, la alarma y la huida pertenecen a
 |---|---:|
 | `pnpm test -- tests/unit/game/ai.test.ts tests/unit/game/combat.test.ts` | 120 s |
 | `pnpm run verify` | 180 s |
+| `pnpm run test:e2e` | 180 s |
 | `git diff --stat` | 15 s |
 
 # Restricciones
@@ -93,3 +103,16 @@ R-007, R-008 y T-005. La percepción, la alarma y la huida pertenecen a
 - HUD y feedback (`TASK-0029`), E2E y QA visual (`TASK-0030`).
 - Perfiles de comportamiento, visión efectiva o huida (`REQ-009`).
 - Más tipos de enemigo, clases o progresión.
+
+# Verificación
+
+`task-lead` revisó el diff completo y re-ejecutó `pnpm run verify` (466 tests,
+140 documentos, config y build) y `pnpm run test:e2e` (55/55), con salidas en
+`attempt-1/lead-verify.txt` y `attempt-1/lead-e2e.txt`. TtK medido: centinela
+2,645/2,107/2,982; bruto 3,976/2,884/4,847; cobarde 2,236/1,980/2,351
+(espada/hacha/daga), dentro de ±0,3. Una sola tabla `BESTIARY` y un solo
+`resolveAttack`; sin percepción, huida ni cambios fuera de alcance. Los ajustes
+de tests son valores reales (9 PV, daño y HUD), sin borrar, saltar ni debilitar.
+`evaluateStatus` no cambia. El overkill letal que restaura la vida máxima es de
+`src/host/` (fuera de alcance) y queda para `TASK-0029`/`TASK-0030`. Fricción de
+enlaces del brief: error local, `rejected` como cambio de arnés.
