@@ -1,5 +1,6 @@
 import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive } from './grid';
+import { noteDamage, raiseAlarm } from './perception';
 import { rollDie } from './rng';
 import type {
   AttackRolls,
@@ -148,13 +149,25 @@ export function resolveAttack(
       rolls,
     },
   ];
+  let nextState: GameState = { ...state, players, enemies, rng };
+
   if (targetHp === 0) {
     events.push({ type: 'UnitDied', unitId: targetId });
+  } else if (hit && target.faction === 'enemy') {
+    // El daño despierta al enemigo y, si empieza un episodio, da la alarma.
+    const newEpisode = target.awareness !== 'alert';
+    const attackerPosition = { x: attacker.x, y: attacker.y };
+    nextState = noteDamage(nextState, target.id, attackerPosition);
+    if (newEpisode) {
+      const alarm = raiseAlarm(nextState, target.id, attackerPosition);
+      nextState = alarm.state;
+      events.push(...alarm.events);
+    }
   }
 
   return {
     ok: true,
-    state: { ...state, players, enemies, rng },
+    state: nextState,
     events,
     hit,
     damage,

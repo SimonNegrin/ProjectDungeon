@@ -187,6 +187,13 @@ export type GameEvent =
   /** Un enemigo en regreso ha llegado a su puesto y vuelve a estar dormido. */
   | { readonly type: 'EnemyReturned'; readonly unitId: string }
   | {
+      /** El enemigo que detecta da la alarma de una onda en este episodio. */
+      readonly type: 'AlarmRaised';
+      readonly unitId: string;
+      /** Posición del emisor de la onda. */
+      readonly position: Position;
+    }
+  | {
       readonly type: 'CommandRejected';
       readonly commandType: CommandType;
       readonly reason: RejectionReason;

@@ -2,8 +2,9 @@
  * Catálogo de bestiario (REQ-010, tabla A de EXP-003).
  *
  * Datos puros y serializables: cada tipo de enemigo referencia el catálogo de
- * equipo por ID y declara modificadores, PV, visión y perfil. La visión alimenta
- * la percepción de TASK-0034; la alarma y la huida llegan en tareas posteriores.
+ * equipo por ID y declara modificadores, PV, visión, alarma y perfil. La visión
+ * alimenta la percepción; la onda usa el radio de alarma; la huida llega en
+ * TASK-0037.
  */
 
 import type { UnitEquipment, UnitModifiers } from './types';
@@ -20,6 +21,8 @@ export interface EnemyDefinition {
   readonly profile: EnemyProfile;
   /** Radio de visión en tiles (REQ-009). */
   readonly vision: number;
+  /** Radio de la onda de alarma en tiles (REQ-009). */
+  readonly alarm: number;
   readonly maxHp: number;
   readonly modifiers: UnitModifiers;
   readonly equipment: UnitEquipment;
@@ -31,6 +34,7 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     name: 'Centinela',
     profile: 'brave',
     vision: 6,
+    alarm: 8,
     maxHp: 9,
     modifiers: { accuracy: 0, damage: 0, defense: 0 },
     equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
@@ -40,6 +44,7 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     name: 'Bruto',
     profile: 'brave',
     vision: 4,
+    alarm: 8,
     maxHp: 12,
     modifiers: { accuracy: 0, damage: 1, defense: 0 },
     equipment: { weaponId: 'axe', armorId: 'plate', shieldId: null },
@@ -49,6 +54,7 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     name: 'Cobarde',
     profile: 'coward',
     vision: 5,
+    alarm: 8,
     maxHp: 8,
     modifiers: { accuracy: 1, damage: 0, defense: 1 },
     equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },

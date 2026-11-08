@@ -17,6 +17,15 @@ export function visionRadius(unit: Pick<Unit, 'faction' | 'enemyType'>): number 
 }
 
 /**
+ * Radio de la onda de alarma en tiles según el bestiario. Los jugadores y las
+ * unidades sin `enemyType` no emiten alarma.
+ */
+export function alarmRadius(unit: Pick<Unit, 'faction' | 'enemyType'>): number {
+  if (unit.faction !== 'enemy' || unit.enemyType === null) return 0;
+  return BESTIARY[unit.enemyType].alarm;
+}
+
+/**
  * Línea de Bresenham inclusiva entre dos casillas. Es determinista y no muta
  * las posiciones de entrada.
  */
@@ -102,16 +111,76 @@ export function nearestVisiblePlayer(state: GameState, observer: Unit): Unit | u
 }
 
 /**
- * Detección tras un paso aceptado del jugador. Recorre los enemigos en orden de
- * índice; cada uno que ve a un jugador pasa o permanece en alerta, actualiza
- * `lastKnown` y reinicia `alertTurns`. El evento `EnemySpotted` solo se emite al
- * empezar un episodio (dormido o en regreso), no en cada paso visible.
+ * Onda de alarma de una sola pasada desde un emisor vivo. Los receptores vivos
+ * dentro del radio Chebyshev pasan o siguen en alerta, comparten la posición
+ * recibida como `lastKnown` y quedan `hasShouted: true`; el emisor también. No
+ * requiere línea de visión y no se propaga en cadena: solo alerta a los
+ * receptores directos. No muta el estado de entrada.
+ */
+export function raiseAlarm(
+  state: GameState,
+  emitterId: string,
+  lastKnown: Position,
+): {
+  readonly state: GameState;
+  readonly events: readonly GameEvent[];
+} {
+  const emitter = state.enemies.find((candidate) => candidate.id === emitterId);
+  if (!emitter || !isAlive(emitter)) return { state, events: [] };
+
+  const radius = alarmRadius(emitter);
+  const target = { x: lastKnown.x, y: lastKnown.y };
+  let changed = false;
+
+  const enemies = state.enemies.map((enemy) => {
+    if (!isAlive(enemy)) return enemy;
+
+    if (enemy.id !== emitter.id) {
+      const distance = Math.max(
+        Math.abs(enemy.x - emitter.x),
+        Math.abs(enemy.y - emitter.y),
+      );
+      if (distance > radius) return enemy;
+    }
+
+    changed = true;
+    return {
+      ...enemy,
+      awareness: 'alert' as const,
+      lastKnown: { x: target.x, y: target.y },
+      alertTurns: 0,
+      hasShouted: true,
+    };
+  });
+
+  return {
+    state: changed ? { ...state, enemies } : state,
+    events: [
+      {
+        type: 'AlarmRaised',
+        unitId: emitter.id,
+        position: { x: emitter.x, y: emitter.y },
+      },
+    ],
+  };
+}
+
+/**
+ * Detección tras un paso aceptado del jugador. Primero calcula todas las
+ * detecciones de un episodio sobre el estado de entrada y actualiza a los que
+ * ven; después resuelve las ondas de alarma en orden de índice. Cada emisor
+ * emite `EnemySpotted` y `AlarmRaised` una vez por episodio; los receptores no
+ * generan una segunda onda.
  */
 export function detectEnemiesAfterStep(state: GameState): {
   readonly state: GameState;
   readonly events: readonly GameEvent[];
 } {
   const events: GameEvent[] = [];
+  const spotters: {
+    readonly player: Unit;
+    readonly update: Unit;
+  }[] = [];
   let changed = false;
 
   const enemies = state.enemies.map((enemy) => {
@@ -121,29 +190,52 @@ export function detectEnemiesAfterStep(state: GameState): {
 
     const newEpisode = enemy.awareness !== 'alert';
     changed = true;
-    if (newEpisode) {
-      events.push({
-        type: 'EnemySpotted',
-        unitId: enemy.id,
-        playerId: player.id,
-        position: { x: enemy.x, y: enemy.y },
-        step: { x: player.x, y: player.y },
-      });
-    }
-
-    return {
+    const update: Unit = {
       ...enemy,
       awareness: 'alert' as const,
       lastKnown: { x: player.x, y: player.y },
       alertTurns: 0,
-      hasShouted: newEpisode ? false : enemy.hasShouted,
+      hasShouted: newEpisode ? true : enemy.hasShouted,
     };
+    if (newEpisode) spotters.push({ player, update });
+    return update;
   });
 
-  return {
-    state: changed ? { ...state, enemies } : state,
-    events,
-  };
+  let next = changed ? { ...state, enemies } : state;
+
+  for (const { update, player } of spotters) {
+    events.push({
+      type: 'EnemySpotted',
+      unitId: update.id,
+      playerId: player.id,
+      position: { x: update.x, y: update.y },
+      step: { x: player.x, y: player.y },
+    });
+  }
+
+  for (const { update, player } of spotters) {
+    events.push({
+      type: 'AlarmRaised',
+      unitId: update.id,
+      position: { x: update.x, y: update.y },
+    });
+    next = raiseAlarm(next, update.id, {
+      x: player.x,
+      y: player.y,
+    }).state;
+  }
+
+  // Candado de memoria: la onda de otro emisor no sobrescribe a quien también
+  // ha visto al jugador en este paso; su detección propia manda.
+  if (spotters.length > 0) {
+    const own = new Map(spotters.map(({ update }) => [update.id, update]));
+    next = {
+      ...next,
+      enemies: next.enemies.map((enemy) => own.get(enemy.id) ?? enemy),
+    };
+  }
+
+  return { state: next, events };
 }
 
 export interface EnemyAwarenessUpdate {
@@ -225,9 +317,9 @@ export function refreshEnemyAwareness(state: GameState, enemy: Unit): EnemyAware
 /**
  * Transición pura de daño: un enemigo vivo despierta o permanece en alerta,
  * guarda la posición del atacante como `lastKnown` y reinicia `alertTurns`.
- * No resuelve daño, no emite eventos y no lanza la alarma: TASK-0035 decide la
- * onda a partir del estado resultante. Al empezar un episodio nuevo deja
- * `hasShouted` a `false` para que esa alarma pueda dispararse.
+ * No resuelve daño ni emite eventos; `resolveAttack` decide la onda a partir
+ * del estado resultante. Al empezar un episodio nuevo deja `hasShouted` a
+ * `false` para que esa alarma pueda dispararse.
  */
 export function noteDamage(
   state: GameState,
