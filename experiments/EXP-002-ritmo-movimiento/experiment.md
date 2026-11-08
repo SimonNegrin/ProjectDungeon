@@ -4,7 +4,7 @@ id: EXP-002
 title: Ritmo del movimiento animado
 description: Compara duraciones de paso, pausa por tile y tratamiento de la diagonal para elegir el ritmo con el que los personajes recorren el camino.
 status: draft
-experiment_status: proposed
+experiment_status: ready
 question: ¿Qué duración de paso, pausa por tile y tratamiento de la diagonal hacen que recorrer el camino se sienta ágil y legible?
 related_requirements: [REQ-006]
 seed: 279837264

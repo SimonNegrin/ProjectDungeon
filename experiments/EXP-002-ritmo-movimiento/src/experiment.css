@@ -1,0 +1,36 @@
+/* Ajustes locales de EXP-002; el CSS compartido del shell no se modifica. */
+
+.experiment-shell .stages {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.experiment-shell .stage {
+  justify-items: start;
+}
+
+.experiment-shell .stage canvas {
+  width: min(100%, 416px);
+  image-rendering: pixelated;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #080b10;
+}
+
+.ready-notice {
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(159, 211, 168, 0.45);
+  border-radius: 9px;
+  background: rgba(159, 211, 168, 0.12);
+  color: var(--ok);
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.ready-notice[hidden] {
+  display: none;
+}
+
+.experiment-shell .control-value {
+  font-variant-numeric: tabular-nums;
+}
