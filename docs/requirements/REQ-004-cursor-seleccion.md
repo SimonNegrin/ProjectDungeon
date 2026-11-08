@@ -8,13 +8,16 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T01:18:43Z
-updated_at: 2026-11-08T01:18:43Z
+updated_at: 2026-11-08T09:03:30Z
 related_tasks: [TASK-0012, TASK-0013, TASK-0014, TASK-0015]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:18:43Z }
 verified:
   - by: human:simon
     at: 2026-11-08T01:18:43Z
     note: Aprueba REQ-004 v1 con cursor de 4 direcciones, tres estados, camino en dos tonos y Moverse sobre enemigo como acercarse y atacar.
+  - by: human:simon
+    at: 2026-11-08T09:03:30Z
+    note: Playtest aprobado; el cursor, los estados, el camino y las acciones por destino funcionan correctamente. REQ-004 completada.
 ---
 
 # Contexto
@@ -162,6 +165,7 @@ No hay preguntas bloqueantes. Quedan como ajustes revisables en playtest:
 | 2026-11-08 | Avisos breves en el HUD para acciones rechazadas, sin cambiar el estado. | requirements-writer | aceptada |
 | 2026-11-08 | Se ignoran las repeticiones automáticas de teclado; cada pulsación mueve un tile. | requirements-writer | aceptada |
 | 2026-11-08 | En el borde del viewport se permiten tiles parcialmente visibles y el cursor se recorta al viewport. | requirements-writer | aceptada |
+| 2026-11-08 | Playtest aprobado: cursor, estados, camino y acciones por destino funcionan correctamente. `REQ-004` completada. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -172,4 +176,4 @@ No hay preguntas bloqueantes. Quedan como ajustes revisables en playtest:
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas.
 - [x] El usuario ha aprobado `REQ-004` v1.
-- [ ] Playtest del usuario tras la implementación.
+- [x] El usuario ha hecho el playtest y ha aprobado el cursor, el camino y las acciones por destino.
