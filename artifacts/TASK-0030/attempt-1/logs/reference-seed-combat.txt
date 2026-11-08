@@ -1,0 +1,20 @@
+TASK-0030 · secuencia determinista de la semilla de referencia
+Semilla: 279837264
+Comandos: approachEnemy + Attack/EndTurn reales (sin inyectar RNG).
+
+Turno 9 · jugador ataca con espada
+  AttackPerformed hit=true damage=1 targetHp=8
+  rolls ataque=6 escudo=3 daño=1 armadura=5
+Turno 9 · fase enemiga
+  AttackPerformed attacker=enemy-1 hit=true damage=4 targetHp=16
+  rolls ataque=2 escudo=2 daño=2 armadura=1
+Turno 10 · jugador ataca con espada
+  AttackPerformed hit=true damage=9 targetHp=0
+  rolls ataque=3 escudo=1 daño=6 armadura=1
+  UnitDied + GameEnded(victory)
+
+Conclusión: el primer ataque impacta y el segundo mata. No hay una tirada
+fallida alcanzable antes de la victoria (ni una huida/derrota con vida
+suficiente para llegar a otra alineación del RNG). Por eso el contraste de
+`Fallo` se cubre con la semilla suplementaria 13, solo para el feedback; el
+resto de criterios usan 279837264.
