@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0032 — cerrada: helper `ensureMp` compartido y acotado en E2E, sin duplicar bucles; verify 491 y E2E 63 OK; fusión `7d60b7b` — [informe](../artifacts/TASK-0032/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0031 — cerrada: feedback de daño anclado al lado opuesto al atacante, legible en pasillo de una casilla; verify 491 y E2E 63 OK; fusión `f4dcd10` — [informe](../artifacts/TASK-0031/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0030 — cerrada: E2E y QA visual de combate con equipo, recogida por 1 MP, cambio 1-3, determinismo y victoria/derrota; verify 483 y E2E 62 OK; capturas 1280×720 — [informe](../artifacts/TASK-0030/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0029 — cerrada: HUD de equipo, armas del mapa, pista de G y feedback Fallo/-N con F1 completo; verify 483 y E2E 57 OK; fusión `da31675` — [informe](../artifacts/TASK-0029/attempt-1/report.md)
