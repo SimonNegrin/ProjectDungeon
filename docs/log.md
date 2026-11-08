@@ -2,6 +2,9 @@
 
 ## 2026-11-08
 
+* **Requirement**: Se crea y aprueba `REQ-005` v1: el sub-viewport del mapa pasa de 12×12 a 13×13 tiles (416×416 px lógicos) para que el jugador ocupe el tile central y los bordes muestren tiles completos. Se mantienen los tiles de 32 px, el marco 16:9, la cámara, el HUD, el cursor, el feedback y la distancia mínima de aparición de 12 tiles; el marco crece a 416 px de alto y se presenta un 8 % más pequeño. Sustituye el tamaño de viewport de `REQ-002` (R-003, R-005 y R-007) y las referencias equivalentes de `REQ-003`/`REQ-004`.
+* **Planning**: Se crea `TASK-0016` (`ready`) para el host, el render, la aparición BSP y la actualización de tests unitarios/E2E. Depende de `TASK-0015`; no hay decisión creativa abierta.
+
 * **Milestone**: `REQ-004` completada tras la aprobación del playtest por `human:simon`: cursor sobre el jugador, movimiento en 4 direcciones sin coste ni cámara, estados y patrones, camino en dos tonos, `Moverse` en verde/ámbar/rojo, acercarse + atacar y avisos del HUD funcionan correctamente. Las tareas `TASK-0012` a `TASK-0015` quedan cerradas y la fase 1.6 completada; el siguiente hito es la fase 2 (hotseat).
 
 * **Harness**: Triaje de la fricción diferida de `TASK-0014`/`TASK-0015`. Se corrige el comando de repetición a `pnpm run test:e2e --repeat-each=3` en `TASK-0015` y en [timeouts](harness/timeouts.md): la forma con `--` pasa el separador literal a Playwright y no repite. Se documenta en [QA visual](harness/visual-qa.md) que los artefactos de tareas cerradas son evidencia histórica inmutable, que hay que revertir las capturas reescritas por la suite y que la parametrización de la carpeta de capturas (`E2E_ARTIFACTS_DIR`/`testInfo.outputPath`) queda como mejora pendiente, sin bloqueo. Disposiciones: corrección del comando `accepted` y aplicada; nota de capturas `accepted`; parametrización `deferred` con dueño `requirements-writer`.

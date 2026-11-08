@@ -3,7 +3,7 @@ type: README
 title: ProyectDungeon
 description: Repositorio de desarrollo, documentación y experimentos de ProyectDungeon.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:12:11Z }
 ---
 
 # ProyectDungeon
@@ -24,7 +24,7 @@ sala y movimiento se recogen en `REQ-002`.
 - Teclado, HUD, overlays de victoria/derrota, reinicio, debug y E2E del loop
   completo.
 - Primer hito cerrado tras el playtest. `REQ-002` recoge el siguiente corte:
-  marco 16:9, mapa 12×12, sala más pequeña y más movimiento.
+  marco 16:9, mapa 13×13, sala más pequeña y más movimiento.
 - Shell de experimentos interactivo y primer experimento de humo.
 - Sin servidor, sin QR y sin multijugador remoto.
 

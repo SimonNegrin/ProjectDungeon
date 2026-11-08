@@ -4,7 +4,7 @@ title: Economía de turno provisional
 description: Valores iniciales de movimiento, acción, combate, orden y cámara para el primer prototipo.
 status: draft
 decision_status: provisional
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:12:11Z }
 ---
 
 # Propósito
@@ -26,10 +26,10 @@ playtests.
 | MP de enemigo | 4. |
 | Ocupación | Jugadores y enemigos bloquean la casilla. |
 | Corte de esquina | No permitido: para moverse en diagonal, las dos casillas ortogonales adyacentes deben estar libres. |
-| Cámara | Viewport de 12×12 tiles; sigue al jugador activo y se limita a los bordes del mapa. |
+| Cámara | Viewport de 13×13 tiles; sigue al jugador activo y se limita a los bordes del mapa. |
 | Cursor | Cuadrado de un tile; flechas/`WASD` en 4 direcciones; no gasta MP, no consume acción y no mueve la cámara. |
 | Inicio de turno | El cursor aparece sobre el tile del jugador activo. |
-| Alcance del cursor | Limitado al viewport de 12×12; no lo bloquean muros ni unidades. |
+| Alcance del cursor | Limitado al viewport de 13×13; no lo bloquean muros ni unidades. |
 | Camino | Se resalta con puntos blancos: tramo alcanzable con el MP actual en tono fuerte y resto atenuado. |
 
 # Acción
