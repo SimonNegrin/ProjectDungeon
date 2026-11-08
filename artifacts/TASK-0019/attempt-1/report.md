@@ -70,17 +70,35 @@ La repetición se acotó al spec nuevo; no se borró, saltó ni debilitó ningú
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Ejecutar `pnpm run test:e2e` reescribe capturas y JSON de tareas cerradas (`TASK-0007`, `0010`, `0016`, `0017`). | `git status --short` tras la suite mostró PNG/JSON modificados en esas rutas. | `git checkout -- artifacts/TASK-0007 artifacts/TASK-0010 artifacts/TASK-0016 artifacts/TASK-0017` antes de commitear. | Recurre desde TASK-0018; todo runner que ejecute E2E ensucia el árbol. | Parametrizar la carpeta de capturas (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) y documentarlo en `docs/harness/visual-qa.md`. | Bajo; solo cambia rutas de evidencia. | `pending` |
+| Ejecutar `pnpm run test:e2e` reescribe capturas y JSON de tareas cerradas (`TASK-0007`, `0010`, `0016`, `0017`). | `git status --short` tras la suite mostró PNG/JSON modificados en esas rutas. | `git checkout -- artifacts/TASK-0007 artifacts/TASK-0010 artifacts/TASK-0016 artifacts/TASK-0017` antes de commitear. | Recurre desde TASK-0018; todo runner que ejecute E2E ensucia el árbol. | Parametrizar la carpeta de capturas (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) y documentarlo en `docs/harness/visual-qa.md`. | Bajo; solo cambia rutas de evidencia. | `deferred` (dueño `requirements-writer`) |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 4085 |
-| `report_bytes` | 4235 |
+| `brief_bytes` | 4088 |
+| `report_bytes` | 5207 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | none |
+
+# Verificación del lead
+
+- Diff completo revisado: solo `tests/e2e/motion-qa.spec.ts` (8 tests) y
+  `artifacts/TASK-0019/`; `src/`, `docs/requirements/`, `experiments/`,
+  `package.json` y lockfile intactos; sin hooks nuevos ni tests existentes
+  tocados.
+- Re-ejecutado por el lead: `pnpm run test:e2e` 40/40, `pnpm run test:e2e
+  motion-qa --repeat-each=3` 24/24 y `pnpm run verify` (104 documentos, 360
+  tests, build 53 módulos). Salidas en `logs/lead-e2e.txt`,
+  `logs/lead-e2e-repeat.txt` y `logs/lead-verify.txt`.
+- Criterios revisados uno a uno y capturas revisadas, incluida
+  `attack-after-walk.png` con flash, `-5`, 0/10 y overlay, más
+  `attack-damage-detail.png`.
+- Sin tests borrados, saltados o debilitados; sin `waitForTimeout`; reloj
+  congelado en el mismo `keydown` y trazas idénticas.
+- Fricción triada: la parametrización de capturas E2E queda `deferred` con
+  dueño `requirements-writer`; no bloquea la tarea.
 
 # Checklist
 

@@ -22,11 +22,7 @@ Total: **19**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0016](TASK-0016-viewport-13x13.md) | Host, render y tests: viewport 13×13 centrado con tiles completos | `done` | REQ-005 | TASK-0015 | P1 |
 | [TASK-0017](TASK-0017-ritmo-movimiento.md) | EXP-002: ritmo del movimiento animado | `done` | REQ-006 | TASK-0016 | P1 |
 | [TASK-0018](TASK-0018-movimiento-animado-host.md) | Host: animación de movimiento, cámara e input bloqueado | `done` | REQ-006 | TASK-0017 | P1 |
-| [TASK-0019](TASK-0019-e2e-movimiento-animado.md) | E2E y QA visual del movimiento animado | `ready` | REQ-006 | TASK-0018 | P1 |
-
-# ready
-
-* [TASK-0019 — E2E y QA visual del movimiento animado](TASK-0019-e2e-movimiento-animado.md)
+| [TASK-0019](TASK-0019-e2e-movimiento-animado.md) | E2E y QA visual del movimiento animado | `done` | REQ-006 | TASK-0018 | P1 |
 
 # done
 
@@ -48,4 +44,5 @@ Total: **19**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0016 — Host, render y tests: viewport 13×13 centrado con tiles completos](TASK-0016-viewport-13x13.md)
 * [TASK-0017 — EXP-002: ritmo del movimiento animado](TASK-0017-ritmo-movimiento.md)
 * [TASK-0018 — Host: animación de movimiento, cámara e input bloqueado](TASK-0018-movimiento-animado-host.md)
+* [TASK-0019 — E2E y QA visual del movimiento animado](TASK-0019-e2e-movimiento-animado.md)
 

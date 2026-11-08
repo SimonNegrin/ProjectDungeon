@@ -5,7 +5,7 @@ description: Cobertura E2E determinista y QA visual del movimiento animado de RE
 task: TASK-0019
 attempt: 1
 status: stable
-brief_bytes: 4085
+brief_bytes: 4088
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:20:00Z }
 ---

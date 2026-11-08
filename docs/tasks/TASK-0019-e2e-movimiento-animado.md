@@ -4,22 +4,42 @@ id: TASK-0019
 title: "E2E y QA visual del movimiento animado"
 description: Cubrir con Playwright el recorrido animado, la cámara, el input bloqueado, el cursor, el MP, el ataque, la fase enemiga, el fin de partida y reduced motion, y revisar capturas.
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-006
 requirement_ids: [R-001, R-002, R-003, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-013, T-007, T-008]
 depends_on: [TASK-0018]
 unlocks: []
 created_at: 2026-11-08T10:26:00Z
-completed_at:
+completed_at: 2026-11-08T11:28:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0019/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T10:26:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T11:28:00Z
+    note: >-
+      Verificación independiente en task/TASK-0019 (commits 576562c, e2fa61d,
+      ec4ebc4, f08319c; fusión 61997b7): diff limitado a
+      tests/e2e/motion-qa.spec.ts (8 tests, 900 líneas) y artifacts/TASK-0019;
+      src/, docs/requirements/, experiments/, package.json y pnpm-lock.yaml
+      intactos; sin hooks nuevos. Re-ejecutados por el lead pnpm run test:e2e
+      (40/40), pnpm run test:e2e motion-qa --repeat-each=3 (24/24) y pnpm run
+      verify (104 documentos, 19 tareas, 3 experimentos; 360 tests en 29
+      archivos; build de 53 módulos), con salidas en
+      artifacts/TASK-0019/attempt-1/logs/lead-*.txt. Revisados los criterios y
+      las capturas: paso intermedio en x=224 entre 208/240 con cursor oculto y
+      2 puntos, llegada (8,8) con MP 4/6, fase enemiga con HUD Enemigo y goblin
+      en tránsito, ataque real con flash, -5, 0/10 y overlay Victoria (más
+      recorte de daño y aproximación previa), y reduced motion con el mismo
+      estado final. Reloj congelado en el mismo keydown y dos trazas idénticas;
+      sin waitForTimeout ni tests borrados, saltados o debilitados. Fricción de
+      capturas E2E que reescriben artefactos históricos: deferred, dueño
+      requirements-writer.
 ---
 
 # Objetivo
