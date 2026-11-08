@@ -99,15 +99,15 @@ porque las 20 anteriores no se reescriben.
 # Revert
 
 Línea base: etiqueta `harness-pre-recorte` sobre `main` en `574f6a6`, antes de la
-rama `harness/recorte`.
+rama `harness/recorte`. La rama se fusionó en `deb44a7`.
 
 La rama se organiza en commits por capa para poder revertir una sin las otras:
 
-1. `docs(harness): consolidar documentos y enlaces` — Fase A.
-2. `docs(harness): plegar skills y plantillas` — Fase A.
-3. `rules(handoff): topes y formato de log` — Fase B.
-4. `chore(validate): topes en docs:check` — Fase B.
-5. `docs(agents): ajustar charters` — Fase B.
+1. `ab2d528` — `docs(harness): consolidar documentos y enlaces` — Fase A.
+2. `c5dd5d6` — `docs(harness): plegar skills y plantillas` — Fase A.
+3. `5553ad1` — `rules(handoff): topes y formato de log` — Fase B.
+4. `daf48f7` — `chore(validate): topes en docs:check` — Fase B.
+5. `f992d84` — `docs(agents): ajustar charters` — Fase B.
 
 Procedimientos, del más amplio al más quirúrgico:
 
@@ -117,7 +117,7 @@ git checkout main
 git branch -D harness/recorte
 
 # Tras fusionar: revertir todo el recorte
-git revert -m 1 <merge-sha>
+git revert -m 1 deb44a7
 
 # Revertir solo las reglas nuevas, conservando la consolidación
 git revert <sha-rules> <sha-validate> <sha-agents>
