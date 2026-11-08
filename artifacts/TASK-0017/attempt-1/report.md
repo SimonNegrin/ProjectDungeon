@@ -61,13 +61,16 @@ en producción.
 - El panel no preselecciona opción, pero permite exportar con `decision: ""`
   como el shell. ¿Bloquear hasta elegir?
 - Las capturas A/B/C son estáticas: el ritmo se juzga con **Recorrer**.
+- La suite E2E reescribe capturas de artefactos históricos (TASK-0007, TASK-0010,
+  TASK-0016 y el humo de EXP-000); el lead revirtió esos cambios tras verificar.
+  Es la fricción ya elevada en TASK-0016, no un fallo de esta tarea.
 
 # Fricción reutilizable
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `timeout` no existe en macOS y la política exige timeout explícito | `zsh: command not found: timeout` | `perl -e 'alarm shift; exec @ARGV' <s> <cmd>` | Afecta a todo comando del arnés en macOS | Nota en `docs/harness/timeouts.md` con el wrapper | Bajo | `pending` |
-| `edit` deniega `experiments/EXP-002.../experiment.md` aunque el brief pide actualizarlo | `Permission denied: edit`; se usó `perl -0pi` | `perl -0pi -e 's/.../.../'` | Cualquier runner que ponga `experiment_status: ready` choca | Permitir `edit` en `experiments/EXP-*/*.md` | Bajo | `pending` |
+| `timeout` no existe en macOS y la política exige timeout explícito | `zsh: command not found: timeout` | `perl -e 'alarm shift; exec @ARGV' <s> <cmd>` | Afecta a todo comando del arnés en macOS | Nota en `docs/harness/timeouts.md`: el timeout explícito es el parámetro del tool, no el binario GNU | Bajo | `deferred` (elevado a requirements-writer) |
+| `edit` deniega `experiments/EXP-002.../experiment.md` aunque el brief pide actualizarlo | `Permission denied: edit`; se usó `perl -0pi` | `perl -0pi -e 's/.../.../'` | Contradicción brief/permisos; el runner no debe saltarse el deny y el brief no debe pedir `experiment.md` | Aclarar en `task-brief`/`task-runner` que `experiment.md` es de requirements-writer y que un deny se devuelve como bloqueo, no se rodea | Medio | `deferred` (elevado a requirements-writer) |
 
 # Métricas de handoff
 

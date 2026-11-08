@@ -4,7 +4,7 @@ id: TASK-0017
 title: "EXP-002: ritmo del movimiento animado"
 description: Construir el experimento interactivo que compara duración de paso, pausa por tile y tratamiento de la diagonal para decidir el ritmo de REQ-006.
 status: stable
-task_status: in_progress
+task_status: review
 task_type: experiment
 requirement: REQ-006
 requirement_ids: [R-002, R-003, R-004, R-005, R-007, R-008, T-004, T-007]
@@ -13,13 +13,16 @@ unlocks: []
 created_at: 2026-11-08T09:51:14Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0017/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:51:14Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T10:15:02Z
+    note: "Verificación independiente: rama task/TASK-0017; diff de 19 archivos (experimento, manifest, E2E y artefactos) más los docs de requisito/tarea, sin cambios en src/, index.html, public/, package.json ni pnpm-lock.yaml. `pnpm run verify` OK (95 documentos, 17 tareas, 3 experimentos; 332 tests en 28 archivos; tsc y build de 52 módulos) y `pnpm run test:e2e` OK (32/32, incluidos los 3 nuevos de EXP-002). Reproducción normal con rAF comprobada (idle→playing→ready, MP 6→3) y capturas revisadas (A/B/C con 390/575/780 ms y MP 3/6; largo a mitad con paso 1/6, MP 5/6 y cámara 110,82; listo con 6/6, MP 0/6 y clamp 224,96). Criterios revisados: índice/manifest y ?test=1, viewport 13×13 sobre mundo 20×20, corto 3 pasos y largo 6 con 2 diagonales y clamp, presets/sliders/custom, diagonal ×√2 frente a duración constante, cámara entera, input ignorado, Listo/Espacio, cursor oculto y MP progresivo, JSON con valores exactos, API determinista. Sin tests borrados, saltados o debilitados ni dependencias nuevas. Desviaciones aceptadas: no se usó mountExperiment (se reutilizan styles/export y la estructura; el shell no cubre playback/HUD) y experiment.md pasó a ready. Fricción: `timeout` en macOS y bypass del deny de experiment.md con `perl`, ambas `deferred` y elevadas a requirements-writer; el brief pedía una acción fuera de permisos y el runner debió bloquear en vez de rodear el deny. Las capturas históricas reescritas por E2E se revirtieron. Commits dbaafb9 (implementación/evidencia) y d6567bb (informe). Pendiente de playtest y decisión de human:simon; no se marca done ni se decide el ritmo."
 ---
 
 # Objetivo
