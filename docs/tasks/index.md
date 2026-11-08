@@ -35,11 +35,7 @@ Total: **32**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0030](TASK-0030-e2e-qa-combate-equipo.md) | E2E y QA visual del combate con equipo | `done` | REQ-010 | TASK-0029 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
-| [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `ready` | HARNESS | TASK-0020 | P2 |
-
-# ready
-
-* [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
+| [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 
 # done
 
@@ -74,4 +70,5 @@ Total: **32**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0030 — E2E y QA visual del combate con equipo](TASK-0030-e2e-qa-combate-equipo.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
+* [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
 

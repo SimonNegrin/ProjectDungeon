@@ -4,22 +4,31 @@ id: TASK-0032
 title: "E2E: espera de MP compartida antes de recoger o actuar"
 description: Extraer a support.ts el bucle acotado que termina el turno hasta recuperar MP y usarlo en los specs que hoy lo duplican, sin cambiar producción ni aserciones.
 status: stable
-task_status: ready
+task_status: done
 task_type: refactor
 requirement: HARNESS
 requirement_ids: []
 depends_on: [TASK-0020]
 unlocks: []
 created_at: 2026-11-08T19:50:00Z
-completed_at:
+completed_at: 2026-11-08T19:56:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0032/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T19:50:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T19:56:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0032: implementación d157f36 e informe
+      ac7dda3. Diff completo revisado; test:e2e OK (63/63) y verify OK (491
+      unitarios, 151 documentos, config y build). Sin cambios en src/,
+      index.html, public/, Playwright ni dependencias; sin tests borrados,
+      saltados ni debilitados (61 declaraciones iguales a main). ensureMp
+      acotado a 8 turnos y usado en los mismos puntos de los dos specs.
 ---
 
 # Objetivo
@@ -41,21 +50,21 @@ producción, comandos ni aserciones.
 
 # Criterios de aceptación
 
-- [ ] `ensureMp(page, minimum)` se exporta desde `tests/e2e/support.ts`, usa
+- [x] `ensureMp(page, minimum)` se exporta desde `tests/e2e/support.ts`, usa
       `snapshot`, `EndTurn` real y `settle`, tiene guard acotado (8 turnos como
       máximo) y devuelve el snapshot alcanzado.
-- [ ] Falla con un mensaje claro si la partida deja de estar en `playing` o si no
+- [x] Falla con un mensaje claro si la partida deja de estar en `playing` o si no
       se alcanza el MP mínimo; no teletransporta, no inyecta estado y no muta
       posiciones.
-- [ ] `combat-equipment-qa.spec.ts` y `equipment-hud-qa.spec.ts` usan el helper y
+- [x] `combat-equipment-qa.spec.ts` y `equipment-hud-qa.spec.ts` usan el helper y
       eliminan sus bucles locales; las llamadas quedan en los mismos puntos.
-- [ ] No cambia el comportamiento de `walkTo`, `approachEnemy`,
+- [x] No cambia el comportamiento de `walkTo`, `approachEnemy`,
       `retreatEnemyOutOfReach` ni de ninguna aserción existente.
-- [ ] `pnpm run test:e2e` pasa completo y `pnpm run verify` pasa; no se borran,
+- [x] `pnpm run test:e2e` pasa completo y `pnpm run verify` pasa; no se borran,
       saltan ni debilitan tests.
-- [ ] Sin cambios en `src/`, `index.html`, `public/`, `package.json`,
+- [x] Sin cambios en `src/`, `index.html`, `public/`, `package.json`,
       dependencias ni artefactos históricos.
-- [ ] Evidencia en `artifacts/TASK-0032/attempt-1/` con informe, salidas de E2E y
+- [x] Evidencia en `artifacts/TASK-0032/attempt-1/` con informe, salidas de E2E y
       `verify`, y commit SHA en `task/TASK-0032`.
 
 # Plan de test
@@ -68,9 +77,9 @@ producción, comandos ni aserciones.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0032/attempt-1/report.md`.
-- [ ] Salidas de `test:e2e` y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0032`.
+- [x] Informe en `artifacts/TASK-0032/attempt-1/report.md`.
+- [x] Salidas de `test:e2e` y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0032`.
 
 # Comandos
 
