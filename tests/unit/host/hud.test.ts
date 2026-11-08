@@ -3,7 +3,7 @@ import { createInitialState, reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import type { CursorStatus } from '../../../src/host/cursor';
-import { makeState, makeUnit } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
 const PLAYER_CURSOR: CursorStatus = {
   x: 4,
@@ -56,6 +56,7 @@ describe('modelo del HUD', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 2, 1]),
     });
 
     const model = buildHudModel(attack(state));
@@ -69,6 +70,7 @@ describe('modelo del HUD', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
 
     const model = buildHudModel(endTurn(state));
@@ -85,6 +87,7 @@ describe('modelo del HUD', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 })],
+      rng: rngForDice([6, 1, 2, 1]),
     });
 
     const model = buildHudModel(attack(state));
@@ -98,6 +101,7 @@ describe('modelo del HUD', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
 
     const model = buildHudModel(endTurn(state));

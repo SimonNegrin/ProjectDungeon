@@ -140,8 +140,10 @@ describe('configuración y construcción de la timeline', () => {
       type: 'AttackPerformed',
       attackerId: 'player-1',
       targetId: 'enemy-1',
+      hit: true,
       damage: 5,
       targetHp: 0,
+      rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
     };
     const died: GameEvent = { type: 'UnitDied', unitId: 'enemy-1' };
     const ended: GameEvent = { type: 'GameEnded', status: 'victory' };
@@ -269,8 +271,10 @@ describe('estado derivado para HUD y render', () => {
     type: 'AttackPerformed',
     attackerId: 'player-1',
     targetId: 'enemy-1',
+    hit: true,
     damage: 5,
     targetHp: 0,
+    rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
   };
   const events: GameEvent[] = [
     ...THREE_STRAIGHT,

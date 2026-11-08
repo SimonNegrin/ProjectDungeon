@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { planEnemyAction, reduce } from '../../../src/game/index';
-import { makeGridWithWalls, makeState, makeUnit } from './helpers';
+import { makeGridWithWalls, makeState, makeUnit, rngForDice } from './helpers';
 
 describe('enemy AI', () => {
   it('elige al jugador más cercano y avanza una casilla hacia él', () => {
@@ -43,6 +43,7 @@ describe('enemy AI', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 6 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
 
     expect(planEnemyAction(state, state.enemies[0])).toEqual({

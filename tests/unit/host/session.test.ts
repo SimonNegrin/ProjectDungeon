@@ -4,12 +4,14 @@ import type { Position } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
-import { makeState, makeUnit } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
+import type { RngState } from '../../../src/game/index';
 
-function adjacentState() {
+function adjacentState(rng?: RngState) {
   return makeState({
     players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
     enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    rng,
   });
 }
 
@@ -47,7 +49,7 @@ describe('sesión de juego', () => {
   });
 
   it('EndTurn emite la fase enemiga y devuelve el control al jugador', () => {
-    const session = new GameSession(adjacentState());
+    const session = new GameSession(adjacentState(rngForDice([6, 1, 3, 3])));
 
     const result = session.dispatch(commandFromKey('e', session, { x: 5, y: 5 }));
     const types = result.events.map((event) => event.type);
@@ -60,7 +62,7 @@ describe('sesión de juego', () => {
   });
 
   it('un ataque con F actualiza la vida y emite AttackPerformed', () => {
-    const session = new GameSession(adjacentState());
+    const session = new GameSession(adjacentState(rngForDice([6, 1, 2, 1])));
 
     const result = session.dispatch(commandFromKey('f', session, { x: 6, y: 5 }));
 
@@ -69,8 +71,10 @@ describe('sesión de juego', () => {
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
+        hit: true,
         damage: 5,
         targetHp: 5,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },
     ]);
     expect(session.state.enemies[0]).toMatchObject({ hp: 5 });
@@ -83,6 +87,7 @@ describe('sesión de juego', () => {
       makeState({
         players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
         enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 })],
+        rng: rngForDice([6, 1, 2, 1]),
       }),
     );
 
@@ -93,8 +98,10 @@ describe('sesión de juego', () => {
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
+        hit: true,
         damage: 5,
         targetHp: 0,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },
       { type: 'UnitDied', unitId: 'enemy-1' },
       { type: 'GameEnded', status: 'victory' },

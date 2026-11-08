@@ -12,7 +12,7 @@ import {
   type MapGenerator,
   type MapOptions,
 } from '../../../src/game/index';
-import { makeState, makeUnit } from './helpers';
+import { makeState, makeUnit, rngForDice } from './helpers';
 
 function stubMap(seed: number, options: MapOptions = {}): GeneratedMap {
   const grid = createRoomGrid(20, 20);
@@ -135,7 +135,8 @@ describe('createInitialState con un MapGenerator inyectado', () => {
 
   it('el motor funciona con el mapa del stub: movimiento, ataque, fin de turno y reinicio', () => {
     const stub = new StubGenerator();
-    const state = createInitialState({ generator: stub });
+    const initialState = createInitialState({ generator: stub });
+    const state = { ...initialState, rng: rngForDice([6, 1, 2, 1]) };
     const player = state.players[0];
     const enemy = state.enemies[0];
 
@@ -158,7 +159,10 @@ describe('createInitialState con un MapGenerator inyectado', () => {
     expect(attack.state.enemies[0]).toMatchObject({ hp: 5 });
     expect(attack.state.players[0].actionAvailable).toBe(false);
 
-    const endTurn = reduce(attack.state, { type: 'EndTurn' });
+    const endTurn = reduce(
+      { ...attack.state, rng: rngForDice([6, 1, 3, 3]) },
+      { type: 'EndTurn' },
+    );
     expect(endTurn.events.map((event) => event.type)).toContain('EnemyPhaseStarted');
     expect(endTurn.state.turn).toBe(2);
     expect(endTurn.state.players[0]).toMatchObject({ hp: 17, mp: 6 });

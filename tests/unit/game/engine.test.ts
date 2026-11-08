@@ -7,6 +7,7 @@ import {
   ENEMY_MAX_MP,
   isOccupied,
   isWallAt,
+  normalizeSeed,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   reduce,
@@ -107,6 +108,34 @@ describe('engine state', () => {
       mp: 5,
     });
     expect(result.state.map).toEqual(state.map);
+  });
+
+  it('deriva el RNG de la semilla de la partida y lo serializa', () => {
+    const state = createInitialState({ seed: 4294967297 });
+    const parsed = JSON.parse(JSON.stringify(state)) as GameState;
+
+    expect(state.rng).toEqual({ seed: normalizeSeed(4294967297), state: 0 });
+    expect(state.rng.seed).toBe(state.map?.seed);
+    expect(parsed.rng).toEqual(state.rng);
+  });
+
+  it('el jugador y el enemigo actual empiezan con el equipo y los modificadores acordados', () => {
+    const state = createInitialState();
+
+    expect(state.players[0]).toMatchObject({
+      hp: 20,
+      maxHp: 20,
+      modifiers: { accuracy: 1, damage: 1, defense: 1 },
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+      weapons: ['sword'],
+    });
+    expect(state.enemies[0]).toMatchObject({
+      hp: 10,
+      maxHp: 10,
+      modifiers: { accuracy: 0, damage: 0, defense: 0 },
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+      weapons: ['sword'],
+    });
   });
 
   it('es determinista: dos estados iniciales son profundamente iguales', () => {

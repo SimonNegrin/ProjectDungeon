@@ -1,3 +1,4 @@
+import type { ArmorId, ShieldId, WeaponId } from './equipment';
 import type { GeneratedMap } from './map';
 
 export type Tile = 'floor' | 'wall';
@@ -17,6 +18,28 @@ export interface Position {
   readonly y: number;
 }
 
+/** Modificadores propios de cada personaje; futuras habilidades suman aquí. */
+export interface UnitModifiers {
+  readonly accuracy: number;
+  readonly damage: number;
+  readonly defense: number;
+}
+
+/** Equipo equipado, serializable y estable por ID de catálogo. */
+export interface UnitEquipment {
+  readonly weaponId: WeaponId;
+  /** `null` = sin armadura. */
+  readonly armorId: ArmorId | null;
+  /** `null` = sin escudo. */
+  readonly shieldId: ShieldId | null;
+}
+
+/** RNG de combate serializable: misma semilla y contador, misma secuencia. */
+export interface RngState {
+  readonly seed: number;
+  readonly state: number;
+}
+
 export interface Unit {
   readonly id: string;
   readonly faction: Faction;
@@ -27,6 +50,10 @@ export interface Unit {
   readonly mp: number;
   readonly maxMp: number;
   readonly actionAvailable: boolean;
+  readonly modifiers: UnitModifiers;
+  readonly equipment: UnitEquipment;
+  /** Armas llevadas; la equipada es `equipment.weaponId`. */
+  readonly weapons: readonly WeaponId[];
 }
 
 export interface GameState {
@@ -38,6 +65,7 @@ export interface GameState {
   readonly phase: Phase;
   readonly turn: number;
   readonly status: GameStatus;
+  readonly rng: RngState;
 }
 
 export type CommandType = 'Move' | 'MoveTo' | 'Attack' | 'EndTurn' | 'Restart';
@@ -80,6 +108,14 @@ export type RejectionReason =
   /** `MoveTo`: destino no accionable (por ejemplo, el propio tile del jugador). */
   | 'invalid-target';
 
+/** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
+export interface AttackRolls {
+  readonly attack: number;
+  readonly shield: number;
+  readonly damage: number | null;
+  readonly armor: number | null;
+}
+
 export type GameEvent =
   | {
       readonly type: 'UnitMoved';
@@ -92,8 +128,10 @@ export type GameEvent =
       readonly type: 'AttackPerformed';
       readonly attackerId: string;
       readonly targetId: string;
+      readonly hit: boolean;
       readonly damage: number;
       readonly targetHp: number;
+      readonly rolls: AttackRolls;
     }
   | { readonly type: 'UnitDied'; readonly unitId: string }
   | { readonly type: 'TurnEnded'; readonly turn: number }
@@ -119,6 +157,4 @@ export const PLAYER_MAX_HP = 20;
 export const ENEMY_MAX_HP = 10;
 export const PLAYER_MAX_MP = 6;
 export const ENEMY_MAX_MP = 4;
-export const PLAYER_ATTACK_DAMAGE = 5;
-export const ENEMY_ATTACK_DAMAGE = 3;
 export const MOVE_COST = 1;

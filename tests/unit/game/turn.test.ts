@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { reduce } from '../../../src/game/index';
-import { makeState, makeUnit } from './helpers';
+import { makeState, makeUnit, rngForDice } from './helpers';
 
 describe('turn phase', () => {
   it('EndTurn ejecuta la fase enemiga y restaura MP y acción del jugador', () => {
@@ -89,9 +89,11 @@ describe('turn phase', () => {
 
     const result = reduce(state, { type: 'EndTurn' });
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
+    const totalDamage = attacks.reduce((sum, event) => sum + event.damage, 0);
 
-    expect(result.state.players[0].hp).toBe(14);
     expect(attacks).toHaveLength(2);
+    expect(result.state.players[0].hp).toBe(20 - totalDamage);
+    expect(totalDamage).toBeGreaterThan(0);
   });
 
   it('detiene la fase enemiga en cuanto muere el último jugador', () => {
@@ -101,6 +103,7 @@ describe('turn phase', () => {
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 5, y: 6 }),
       ],
+      rng: rngForDice([6, 1, 3, 3]),
     });
 
     const result = reduce(state, { type: 'EndTurn' });

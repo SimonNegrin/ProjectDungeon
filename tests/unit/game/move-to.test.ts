@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { planCursorTarget, reduce } from '../../../src/game/index';
-import { makeGridWithWalls, makeState, makeUnit } from './helpers';
+import { makeGridWithWalls, makeState, makeUnit, rngForDice } from './helpers';
+
+const PLAYER_HIT_5 = [6, 1, 2, 1] as const;
 
 function playerAt(x: number, y: number, patch: { mp?: number; actionAvailable?: boolean } = {}) {
   return makeUnit({ id: 'player-1', faction: 'player', x, y, ...patch });
@@ -198,6 +200,7 @@ describe('MoveTo', () => {
       const state = makeState({
         players: [playerAt(2, 2, { mp: 3 })],
         enemies: [enemyAt(6, 6)],
+        rng: rngForDice(PLAYER_HIT_5),
       });
 
       const result = reduce(state, {
@@ -224,8 +227,10 @@ describe('MoveTo', () => {
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
+        hit: true,
         damage: 5,
         targetHp: 5,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       });
     });
 
@@ -233,6 +238,7 @@ describe('MoveTo', () => {
       const state = makeState({
         players: [playerAt(2, 2, { mp: 3 })],
         enemies: [enemyAt(6, 6, { hp: 5 })],
+        rng: rngForDice(PLAYER_HIT_5),
       });
 
       const result = reduce(state, {
@@ -309,6 +315,7 @@ describe('MoveTo', () => {
       const state = makeState({
         players: [playerAt(5, 5)],
         enemies: [enemyAt(6, 5)],
+        rng: rngForDice(PLAYER_HIT_5),
       });
 
       const result = reduce(state, {
@@ -329,8 +336,10 @@ describe('MoveTo', () => {
           type: 'AttackPerformed',
           attackerId: 'player-1',
           targetId: 'enemy-1',
+          hit: true,
           damage: 5,
           targetHp: 5,
+          rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
         },
       ]);
     });

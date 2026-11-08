@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createRng,
   reduce,
   type Command,
   type GameEvent,
   type GameState,
 } from '../../../src/game/index';
-import { makeState, makeUnit } from './helpers';
+import { makeState, makeUnit, rngForDice } from './helpers';
 
 interface RunResult {
   readonly states: readonly GameState[];
@@ -28,6 +29,9 @@ function run(state: GameState, commands: readonly Command[]): RunResult {
   return { states, events, final: current };
 }
 
+/** Semilla elegida para que la secuencia de ataques de ejemplo termine en victoria. */
+const VICTORY_SEED = 0;
+
 const loopCommands: readonly Command[] = [
   { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 },
   { type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' },
@@ -41,6 +45,7 @@ describe('game loop integration', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
+      rng: createRng(VICTORY_SEED),
     });
 
     const result = run(state, loopCommands);
@@ -50,7 +55,13 @@ describe('game loop integration', () => {
     expect(result.final.phase).toBe('player');
     // Turno 1: mueve (6 MP → 5), ataca y termina. Turno 2: se restauran
     // 6 MP, mueve (6 → 5) y remata.
-    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: 17, mp: 5 });
+    const enemyDamage = result.events
+      .filter(
+        (event) => event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
+      )
+      .reduce((sum, event) => sum + (event.type === 'AttackPerformed' ? event.damage : 0), 0);
+    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, mp: 5 });
+    expect(result.final.players[0].hp).toBe(20 - enemyDamage);
     expect(result.final.enemies[0]).toMatchObject({ hp: 0 });
 
     expect(result.events.map((event) => event.type)).toEqual([
@@ -72,6 +83,7 @@ describe('game loop integration', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
 
     const result = run(state, [{ type: 'EndTurn' }]);
@@ -93,6 +105,7 @@ describe('game loop integration', () => {
       makeState({
         players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
         enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
+        rng: createRng(1017),
       });
 
     const first = run(makeScenario(), loopCommands);

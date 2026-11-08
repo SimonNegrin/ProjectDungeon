@@ -4,6 +4,7 @@ import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
 import { planCursorTarget, type CursorBlockedReason } from './path';
 import { BspMapGenerator } from './bsp';
+import { createRng } from './rng';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import {
   ENEMY_MAX_HP,
@@ -45,6 +46,11 @@ function createUnit(
     mp: maxMp,
     maxMp,
     actionAvailable: true,
+    modifiers: isPlayer
+      ? { accuracy: 1, damage: 1, defense: 1 }
+      : { accuracy: 0, damage: 0, defense: 0 },
+    equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+    weapons: ['sword'],
   };
 }
 
@@ -72,6 +78,7 @@ function buildInitialState(
     phase: 'player',
     turn: 1,
     status: 'playing',
+    rng: createRng(map.seed),
   };
 }
 

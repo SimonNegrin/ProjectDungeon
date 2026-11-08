@@ -22,7 +22,7 @@ describe('game engine boundaries', () => {
       expect(source, `${name} usa window`).not.toMatch(/\bwindow\b/);
       expect(source, `${name} importa node:`).not.toMatch(/from\s+['"]node:/);
       expect(source, `${name} importa host/ui/server/controller`).not.toMatch(
-        /from\s+['"][^'"]*(host|ui|server|controller)[^'"]*['"]/,
+        /from\s+['"](?:[^'"]*\/)?(?:host|ui|server|controller)(?:\/|['"])/,
       );
     }
   });

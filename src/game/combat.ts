@@ -1,11 +1,12 @@
+import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive } from './grid';
-import {
-  ENEMY_ATTACK_DAMAGE,
-  PLAYER_ATTACK_DAMAGE,
-  type GameEvent,
-  type GameState,
-  type RejectionReason,
-  type Unit,
+import { rollDie } from './rng';
+import type {
+  AttackRolls,
+  GameEvent,
+  GameState,
+  RejectionReason,
+  Unit,
 } from './types';
 
 export function isAdjacent(a: Pick<Unit, 'x' | 'y'>, b: Pick<Unit, 'x' | 'y'>): boolean {
@@ -14,12 +15,28 @@ export function isAdjacent(a: Pick<Unit, 'x' | 'y'>, b: Pick<Unit, 'x' | 'y'>): 
   return Math.max(dx, dy) === 1;
 }
 
-export function attackDamage(attacker: Unit): number {
-  return attacker.faction === 'player' ? PLAYER_ATTACK_DAMAGE : ENEMY_ATTACK_DAMAGE;
-}
-
 export function findUnit(state: GameState, id: string): Unit | undefined {
   return state.players.find((unit) => unit.id === id) ?? state.enemies.find((unit) => unit.id === id);
+}
+
+/** Impacto: el ataque debe superar la defensa; el empate falla. */
+export function resolveHit(
+  attackBonus: number,
+  defenseBonus: number,
+  attackDie: number,
+  shieldDie: number,
+): boolean {
+  return attackBonus + attackDie > defenseBonus + shieldDie;
+}
+
+/** Daño: la armadura resta a la tirada de daño; nunca baja de 1. */
+export function resolveDamage(
+  damageBonus: number,
+  armor: number,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return Math.max(1, damageBonus + damageDie - (armor + armorDie));
 }
 
 export type AttackResult =
@@ -27,12 +44,18 @@ export type AttackResult =
       readonly ok: true;
       readonly state: GameState;
       readonly events: readonly GameEvent[];
+      readonly hit: boolean;
+      readonly damage: number;
+      readonly rolls: AttackRolls;
     }
   | { readonly ok: false; readonly reason: RejectionReason };
 
 /**
  * Ataque básico genérico para jugadores y enemigos. No comprueba la fase:
  * esa decisión pertenece al motor. No muta el estado de entrada.
+ *
+ * Orden de tiradas: ataque, escudo; si impacta, daño y armadura. Un fallo
+ * consume dos tiradas y un impacto cuatro.
  */
 export function resolveAttack(
   state: GameState,
@@ -64,7 +87,41 @@ export function resolveAttack(
     return { ok: false, reason: 'target-not-adjacent' };
   }
 
-  const damage = attackDamage(attacker);
+  const weapon = weaponFor(attacker.equipment.weaponId);
+  const armor = armorValue(target.equipment.armorId);
+  const shield = shieldValue(target.equipment.shieldId);
+
+  const attackRoll = rollDie(state.rng);
+  const shieldRoll = rollDie(attackRoll.rng);
+  const hit = resolveHit(
+    attacker.modifiers.accuracy + weapon.accuracy,
+    target.modifiers.defense + shield,
+    attackRoll.die,
+    shieldRoll.die,
+  );
+
+  let rng = shieldRoll.rng;
+  let damage = 0;
+  let rolls: AttackRolls = {
+    attack: attackRoll.die,
+    shield: shieldRoll.die,
+    damage: null,
+    armor: null,
+  };
+
+  if (hit) {
+    const damageRoll = rollDie(rng);
+    const armorRoll = rollDie(damageRoll.rng);
+    rng = armorRoll.rng;
+    damage = resolveDamage(
+      attacker.modifiers.damage + weapon.damage,
+      armor,
+      damageRoll.die,
+      armorRoll.die,
+    );
+    rolls = { ...rolls, damage: damageRoll.die, armor: armorRoll.die };
+  }
+
   const targetHp = Math.max(0, target.hp - damage);
   const nextAttacker: Unit = { ...attacker, actionAvailable: false };
   const nextTarget: Unit = { ...target, hp: targetHp };
@@ -85,8 +142,10 @@ export function resolveAttack(
       type: 'AttackPerformed',
       attackerId,
       targetId,
+      hit,
       damage,
       targetHp,
+      rolls,
     },
   ];
   if (targetHp === 0) {
@@ -95,7 +154,10 @@ export function resolveAttack(
 
   return {
     ok: true,
-    state: { ...state, players, enemies },
+    state: { ...state, players, enemies, rng },
     events,
+    hit,
+    damage,
+    rolls,
   };
 }

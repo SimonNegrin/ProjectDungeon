@@ -1,13 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { reduce } from '../../../src/game/index';
 import { collectDamageFeedbacks } from '../../../src/host/feedback';
-import { makeState, makeUnit } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
 describe('feedback de ataque', () => {
   it('convierte AttackPerformed en daño y posición del objetivo', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 2, 1]),
     });
     const result = reduce(state, {
       type: 'Attack',
@@ -24,6 +25,7 @@ describe('feedback de ataque', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
     const result = reduce(state, { type: 'EndTurn' });
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Command } from '../../../src/game/index';
 import { GameSession } from '../../../src/host/session';
-import { makeState, makeUnit } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
 describe('GameSession con MoveTo', () => {
   it('acepta el comando serializable, devuelve estado y eventos serializables y no muta la entrada', () => {
@@ -42,6 +42,7 @@ describe('GameSession con MoveTo', () => {
         enemies: [
           makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 6, hp: 5 }),
         ],
+        rng: rngForDice([6, 1, 2, 1]),
       }),
     );
 
