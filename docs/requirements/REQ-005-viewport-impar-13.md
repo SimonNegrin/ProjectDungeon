@@ -8,13 +8,16 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T09:12:11Z
-updated_at: 2026-11-08T09:12:11Z
+updated_at: 2026-11-08T09:30:52Z
 related_tasks: [TASK-0016]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:12:11Z }
 verified:
   - by: human:simon
     at: 2026-11-08T09:12:11Z
     note: Aprueba cambiar el viewport a 13×13 tiles para que el jugador quede centrado y los bordes muestren tiles completos.
+  - by: human:simon
+    at: 2026-11-08T09:30:52Z
+    note: Playtest aprobado; el viewport 13×13 centra al jugador y los bordes muestran tiles completos. REQ-005 completada.
 ---
 
 # Contexto
@@ -115,6 +118,7 @@ rutinarias del encuadre actual.
 | 2026-11-08 | Mantener tiles de 32 px lógicos: el marco crece a 416 px de alto y se presenta un 8 % más pequeño. | requirements-writer | aceptada |
 | 2026-11-08 | Mantener la distancia mínima de camino de 12 tiles y exigir que el enemigo quede fuera del viewport de 13×13. | requirements-writer | aceptada |
 | 2026-11-08 | Ajustar el render de respaldo para conservar offsets enteros y pixel art nítido, aunque la proporción interna difiera de 16:9 en menos del 0,05 %. | requirements-writer | aceptada |
+| 2026-11-08 | Playtest aprobado: el viewport 13×13 está bien; jugador centrado y bordes con tiles completos. `REQ-005` completada. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -124,3 +128,4 @@ rutinarias del encuadre actual.
 - [x] Se puede generar un grafo de tareas.
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas.
+- [x] El usuario ha hecho el playtest y ha aprobado el viewport de 13×13.

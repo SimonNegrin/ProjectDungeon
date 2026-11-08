@@ -5,7 +5,7 @@
 * [REQ-003 — Generación procedural del mapa y colocación de muros](REQ-003-generacion-mapa.md) - Completada tras playtest: A · BSP, `MapGenerator`, configuración 9/4/11/20, 1-2 pasillos anchos de 2 tiles y muros por borde. Tareas TASK-0008 a TASK-0011.
 * [REQ-003 — Anexo EXP-001](REQ-003-anexo-exp-001.md) - Informativo, no normativo: comparativa A/B/C, motivo del usuario y preguntas que incorpora la v2.
 * [REQ-004 — Cursor de selección, camino y acciones por destino](REQ-004-cursor-seleccion.md) - Completada tras playtest: cursor de 4 direcciones, tres estados, camino resaltado y Moverse sobre enemigo como acercarse y atacar. Tareas TASK-0012 a TASK-0015.
-* [REQ-005 — Viewport impar 13×13 con jugador centrado y tiles completos](REQ-005-viewport-impar-13.md) - Aprobada: sub-viewport cuadrado de 13×13 tiles para eliminar los medios tiles de los bordes y dejar al jugador en el tile central. Tarea TASK-0016.
+* [REQ-005 — Viewport impar 13×13 con jugador centrado y tiles completos](REQ-005-viewport-impar-13.md) - Completada tras playtest: sub-viewport cuadrado de 13×13 tiles, jugador en el tile central y bordes con tiles completos. Tarea TASK-0016.
 
 Las tareas deben apuntar a la hoja y a los identificadores de requisito
 concretos. Cuando se cree una hoja nueva, se añadirá aquí con el identificador

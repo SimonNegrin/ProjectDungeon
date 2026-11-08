@@ -3,7 +3,7 @@ type: Scope
 title: Alcance y fases
 description: Alcance vigente, hitos y límites del proyecto.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:30:52Z }
 ---
 
 # Alcance vigente
@@ -13,8 +13,9 @@ y un shell de experimentos fiable. El primer hito jugable está construido y
 probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
 `REQ-003` cerró la generación procedural con BSP, la interfaz `MapGenerator` y
 pasillos anchos de 2 tiles. `REQ-004` cerró el cursor de selección, el camino
-resaltado y las acciones por destino tras el playtest. El siguiente corte es la
-fase 2: multijugador local hotseat.
+resaltado y las acciones por destino tras el playtest. `REQ-005` ajustó el
+sub-viewport a 13×13 tiles para centrar al jugador y mostrar tiles completos en
+los bordes. El siguiente corte es la fase 2: multijugador local hotseat.
 
 # Fases
 
@@ -23,7 +24,7 @@ fase 2: multijugador local hotseat.
 | 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
 | 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 y REQ-003 cerradas |
 | 1.5 | Generación procedural del mapa y muros (REQ-003) | Completado tras playtest; BSP, `MapGenerator` y pasillos anchos de 2 tiles |
-| 1.6 | Cursor de selección, camino y acciones por destino (REQ-004) | Completado tras playtest; TASK-0012 a TASK-0015 cerradas |
+| 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
