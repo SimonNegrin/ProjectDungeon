@@ -1,0 +1,10 @@
+TASK-0022 damero y decoración · densidades medidas desde window.__game.snapshot()
+seed=279837264
+floor_tiles=430
+eligible_room=339 eligible_corridor=71
+decorated_room=51 density_room=15.04% (rango 12.00-18.00%)
+decorated_corridor=5 density_corridor=7.04% (rango 6.00-8.00%)
+decorated_total=56 unique_tiles=56
+doors=18 spawns=2 decals_on_doors_or_spawns=0
+room_types=blood-23a,blood-23b,blood-23c,blood-23d,bones-11f,bones-22a,bones-9e,bones-9f,dirt-10e,dirt-10f,dirt-10g,dirt-7f,dirt-7g,grass-8e,grass-8f,grass-8g,mushroom-21a,mushroom-21b
+corridor_types=blood-23d,bones-22b,dirt-10f,dirt-7e,mushroom-21a
