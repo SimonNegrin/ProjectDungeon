@@ -100,7 +100,8 @@ shell.
   esperas explícitas.
 - Pendiente documental: `docs/design/architecture.md` no se pudo editar por el
   permiso de `task-lead`; queda elevado a `requirements-writer` con el contenido
-  de `ADR-008` y la sección de presentación del movimiento.
+  de `ADR-008` y la sección de presentación del movimiento en
+  `architecture-update.md`.
 
 # Checklist
 

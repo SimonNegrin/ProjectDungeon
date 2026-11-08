@@ -37,7 +37,9 @@ verified:
       saltados o debilitados; las esperas E2E usan settle/advance y conservan la
       intención. Pendiente de playtest de human:simon para aprobar la sensación.
       La actualización de docs/design/architecture.md queda elevada a
-      requirements-writer: el permiso de task-lead no incluye docs/design.
+      requirements-writer con el texto propuesto en
+      artifacts/TASK-0018/attempt-1/architecture-update.md: el permiso de
+      task-lead no incluye docs/design. Fusión en main d1b6cc2.
 ---
 
 # Objetivo
