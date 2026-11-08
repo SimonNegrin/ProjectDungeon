@@ -24,7 +24,7 @@ verified:
     at: 2026-11-08T11:20:00Z
     note: >-
       Verificación independiente en task/TASK-0018 (commits e7cc7a9 y 6fa996a):
-      diff de 10 archivos de producción/tests más artefactos; src/game/, docs/ de
+      diff de 6 archivos de host y 10 de tests más artefactos; src/game/, docs/ de
       requisitos, experiments/, package.json y pnpm-lock.yaml intactos. pnpm run
       verify OK (101 documentos, 19 tareas, 3 experimentos; 360 tests en 29
       archivos; build de 53 módulos) y pnpm run test:e2e OK (32/32) reproducible;
