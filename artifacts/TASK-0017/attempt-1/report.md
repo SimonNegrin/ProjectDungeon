@@ -77,7 +77,7 @@ en producción.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3778 |
-| `report_bytes` | 3754 |
+| `report_bytes` | 4248 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | — |
