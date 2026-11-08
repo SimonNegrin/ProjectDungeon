@@ -5,6 +5,7 @@ import { artifactPath } from './artifacts';
 import {
   approachEnemy,
   dispatchCommand,
+  ensureMp,
   moveCursorTo,
   snapshot,
   walkTo,
@@ -66,10 +67,7 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   await walkTo(page, weapon.x, weapon.y);
   // La recogida cuesta 1 MP: si la caminata terminó sin MP, se espera al
   // siguiente turno sin moverse del tile del arma.
-  while ((await snapshot(page)).players[0].mp < 1) {
-    await dispatchCommand(page, { type: 'EndTurn' });
-    await page.evaluate(() => window.__game!.advance(1_000_000));
-  }
+  await ensureMp(page, 1);
   await expect(page.getByTestId('weapon-hint')).toBeVisible();
   await expect(page.getByTestId('weapon-hint')).toContainText('G recoger');
   await screenshot(page, 'weapon-map-hint', testInfo);

@@ -7,6 +7,7 @@ import { artifactPath } from './artifacts';
 import {
   approachEnemy,
   dispatchCommand,
+  ensureMp,
   moveCursorTo,
   settle,
   snapshot,
@@ -155,18 +156,6 @@ async function expectHudOutsideMap(page: Page): Promise<void> {
   expect(hud!.y + hud!.height).toBeLessThanOrEqual(frame!.y + 1);
 }
 
-async function waitForMp(page: Page, minimum: number): Promise<void> {
-  for (let guard = 0; guard < 8; guard += 1) {
-    const snap = await snapshot(page);
-    expect(snap.status).toBe('playing');
-    if (snap.players[0].mp >= minimum) return;
-    const result = await dispatchCommand(page, { type: 'EndTurn' });
-    expect(result.events.filter((event) => event.type === 'CommandRejected')).toEqual([]);
-    await settle(page);
-  }
-  throw new Error(`No se alcanzó ${minimum} MP junto al arma.`);
-}
-
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
@@ -231,8 +220,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   await screenshot(page, 'weapon-in-map', testInfo);
 
   await walkTo(page, axe!.x, axe!.y);
-  await waitForMp(page, 1);
-  const beforePickup = await snapshot(page);
+  const beforePickup = await ensureMp(page, 1);
   expect(beforePickup.players[0]).toMatchObject({ x: axe!.x, y: axe!.y });
   await expect(page.getByTestId('weapon-hint')).toBeVisible();
   await expect(page.getByTestId('weapon-hint')).toContainText('G recoger Hacha');
@@ -269,8 +257,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   await expect(page.getByTestId('hud-message')).toBeHidden();
 
   await walkTo(page, dagger!.x, dagger!.y);
-  await waitForMp(page, 1);
-  const beforeDagger = await snapshot(page);
+  const beforeDagger = await ensureMp(page, 1);
   await expect(page.getByTestId('weapon-hint')).toContainText('G recoger Daga');
   await page.keyboard.press('g');
   await settle(page);

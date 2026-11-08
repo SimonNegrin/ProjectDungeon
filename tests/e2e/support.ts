@@ -76,6 +76,32 @@ export async function restart(page: Page): Promise<void> {
   await dispatchAccepted(page, { type: 'Restart' });
 }
 
+/** Turnos que `ensureMp` puede terminar como máximo antes de fallar. */
+const MAX_MP_TURNS = 8;
+
+/**
+ * Espera a tener al menos `minimum` MP sin mover al jugador. Si falta MP,
+ * termina el turno con `EndTurn` real y adelanta la presentación con `settle`.
+ * El bucle está acotado: falla si la partida deja de estar en `playing` o si el
+ * MP no se alcanza en `MAX_MP_TURNS` turnos. Devuelve el snapshot alcanzado.
+ */
+export async function ensureMp(page: Page, minimum: number): Promise<GameSnapshot> {
+  for (let turns = 0; turns <= MAX_MP_TURNS; turns += 1) {
+    const snap = await snapshot(page);
+    expect(
+      snap.status,
+      `La partida dejó de estar en playing (${snap.status}) esperando ${minimum} MP`,
+    ).toBe('playing');
+    if (snap.players[0].mp >= minimum) return snap;
+    if (turns === MAX_MP_TURNS) break;
+    await endTurn(page);
+  }
+
+  throw new Error(
+    `No se alcanzaron ${minimum} MP tras ${MAX_MP_TURNS} turnos sin moverse.`,
+  );
+}
+
 /**
  * Lleva al jugador hasta `(tx, ty)` con comandos reales aceptados. La ruta se
  * calcula con BFS sobre `snapshot.grid.tiles` y se recalcula en cada paso porque
