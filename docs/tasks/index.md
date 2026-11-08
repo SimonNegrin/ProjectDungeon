@@ -32,10 +32,10 @@ Total: **30**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0027](TASK-0027-equipo-armas-mapa-recogida.md) | Motor y host: equipo, armas del mapa y recogida | `done` | REQ-010 | TASK-0026 | P1 |
 | [TASK-0028](TASK-0028-bestiario-combate-ataque-enemigo.md) | Motor: bestiario de combate y ataque enemigo | `done` | REQ-010 | TASK-0026 | P1 |
 | [TASK-0029](TASK-0029-host-hud-equipo-feedback.md) | Host: HUD de equipo, armas en el mapa y feedback de combate | `done` | REQ-010 | TASK-0027, TASK-0028 | P1 |
-| [TASK-0030](TASK-0030-e2e-qa-combate-equipo.md) | E2E y QA visual del combate con equipo | `backlog` | REQ-010 | TASK-0029 | P1 |
+| [TASK-0030](TASK-0030-e2e-qa-combate-equipo.md) | E2E y QA visual del combate con equipo | `ready` | REQ-010 | TASK-0029 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 
-# backlog
+# ready
 
 * [TASK-0030 — E2E y QA visual del combate con equipo](TASK-0030-e2e-qa-combate-equipo.md)
 
