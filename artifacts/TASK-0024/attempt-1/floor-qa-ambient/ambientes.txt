@@ -1,0 +1,16 @@
+TASK-0024 ambientes, focos y mezcla
+seed=279837264
+rooms=9 palettes=0:mixed 1:humid 2:death 3:ruin 4:vegetation 5:mixed 6:humid 7:death 8:ruin
+room1:humid decals=20 mix=5 ratio=0.250
+room2:death decals=13 mix=3 ratio=0.231
+room3:ruin decals=7 mix=2 ratio=0.286
+room4:vegetation decals=7 mix=2 ratio=0.286
+room6:humid decals=17 mix=4 ratio=0.235
+room7:death decals=15 mix=4 ratio=0.267
+room8:ruin decals=7 mix=2 ratio=0.286
+clusters room0:decals=22:peak5x5=13@(5,6) room1:decals=20:peak5x5=13@(5,26) room2:decals=13:peak5x5=13@(14,4) room3:decals=7:peak5x5=7@(14,12) room4:decals=7:peak5x5=7@(18,19) room5:decals=13:peak5x5=9@(16,26) room6:decals=17:peak5x5=10@(25,10) room7:decals=15:peak5x5=10@(25,19) room8:decals=7:peak5x5=7@(25,26)
+captures=sala-neutra(room0,neutral) pasillo muerte(room2,death) humedad(room6,humid)
+neutral second p1=(4,5) 22.00,35.00,43.00
+corridor p1=(1,2) 22.00,35.00,43.00
+death second p1=(18,3) 42.00,32.00,38.00
+humid second p1=(24,5) 20.00,37.00,40.00
