@@ -13,7 +13,12 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Host** | Pestaña o pantalla compartida que muestra la partida. No es la autoridad del estado. |
 | **Controlador** | Interfaz del jugador. En la fase remota será el móvil; ahora es el teclado. |
 | **Sala de juego** | Sesión de juego identificada por un código. En remoto la emite el servidor. En las hojas de requisitos, «sala» sin calificar suele referirse a una sala de la mazmorra. |
-| **Sala de la mazmorra** | Habitación rectangular generada por BSP; unidad `Room` del mapa. |
+| **Sala de la mazmorra** | Habitación generada por el mapa; unidad `Room`. Puede ser rectangular (BSP) o un polígono rectilíneo con muescas y hornacinas (generador denso). |
+| **Generador denso** | Segundo `MapGenerator` de mapas pequeños con salas poligonales pegadas, pasillos de 0-3 tiles y puertas decorativas. BSP sigue siendo el defecto hasta el playtest. |
+| **Pared compartida** | Dos salas separadas por 1-2 tiles de muro que se conectan con una puerta directa en esa pared, sin pasillo. |
+| **Sala protegida** | Sala de spawn con menos accesos, al menos 6 huecos libres para los jugadores y sin enemigos ni línea de visión enemiga al empezar. |
+| **Caverna** | Variante excepcional del generador denso: una sala irregular grande (≥55 % del suelo de sala) más 1-2 salas anexas. |
+| **Puerta decorativa** | Puerta transitable dibujada en un hueco de acceso, con estilo estable por zona; no bloquea, no tiene llave ni estado. |
 | **Fase de jugadores** | Periodo en el que cada jugador usa su turno, en orden fijo. |
 | **Fase enemiga** | Periodo posterior en el que actúan todos los enemigos. |
 | **MP** | Puntos de movimiento disponibles en un turno. |

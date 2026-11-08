@@ -73,6 +73,12 @@ mapa debe guardar la información necesaria para añadirlos después.
 | R-012 | El modelo guarda las salas con identificador, límites, rol y accesos, y los pasillos con anchura, tipo y si admiten puerta. No genera ni renderiza escaleras. Al menos una sala hoja queda identificable para una futura escalera. | El estado serializado incluye `rooms` y `corridors`; no hay tiles ni entidades de escalera. |
 | R-013 | El pasillo ancho es un espacio táctico: 2 tiles de ancho, entre 1 y 2 por mapa según la semilla, con al menos 4 tiles de longitud. No lleva puertas y no se implementan barricadas en este corte. | Una comprobación geométrica confirma dos columnas transitables adyacentes durante al menos 4 tiles; aparecen 1-2 pasillos anchos; no hay barricadas ni puertas en ellos. |
 
+> **Revisión 2026-11-08:** `R-007` queda sustituido por
+> [`REQ-012`](REQ-012-spawn-sala-protegida.md). Los jugadores aparecen juntos en
+> la sala más protegida y los enemigos se reparten por sala; desaparecen la sala
+> más lejana y la distancia mínima de 12 tiles. El resto de `REQ-003` sigue
+> vigente para BSP.
+
 # Requisitos técnicos
 
 | ID | Requisito | Aceptación |

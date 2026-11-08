@@ -2,6 +2,10 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Planning — TASK-0040 — ready: experimento comparativo A/B/C de salas irregulares con tileset real, métricas, spawn, enemigos y export de decisión; sin tocar producción — [TASK-0040](tasks/TASK-0040-exp-004-salas-irregulares.md)
+* 2026-11-08 — Experiment — EXP-004 — propuesto: crecimiento sobre roca, BSP con máscaras y plantillas empaquetadas para decidir el algoritmo de REQ-011; pendiente de construir en TASK-0040 — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
+* 2026-11-08 — Requirement — REQ-011/REQ-012 — aprobadas: generador denso de salas poligonales con pasillos cortos y puertas decorativas; spawn de grupo en sala protegida y reparto de enemigos para todos los generadores; sustituyen REQ-003 R-007 y parte de REQ-009 — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)
+
 * 2026-11-08 — Validation — REQ-009 — milestone verificado: `verify` 559 tests y build OK; E2E `--repeat-each=3` 210/210 con semilla 279837264; capturas de percepción, alarma y huida revisadas — [evidencia](../artifacts/TASK-0039/final/final-e2e.txt)
 * 2026-11-08 — Docs — REQ-009 — alcance e índice de requisitos reflejan el milestone implementado y pendiente de playtest — [scope](scope.md)
 * 2026-11-08 — Task — TASK-0039 — cerrada: E2E de detección por paso, alarma 8/9 sin cadena, enfriamiento, daño como despertador, huida/acorralamiento, feedback y snapshot con semilla 279837264; hook `setup` solo con `?test=1`; verify 559, E2E 70/70 y repeat-each 210/210; mutaciones locales detectadas; fusión `b87d4a1` — [informe](../artifacts/TASK-0039/attempt-1/report.md)

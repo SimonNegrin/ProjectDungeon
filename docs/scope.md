@@ -29,8 +29,14 @@ está `stable` y cerrado con `TASK-0026` a `TASK-0030`: define el combate con
 equipo (acierto, defensa y daño variable) con la tabla A decidida en `EXP-003`.
 `REQ-009` también está `stable` e implementado con `TASK-0034` a `TASK-0039`
 cerradas: fija el bestiario (Centinela/Bruto/Cobarde), la percepción por pasos,
-la alarma de una onda y la huida determinista del cobarde. Después, la fase 2:
-multijugador local hotseat.
+la alarma de una onda y la huida determinista del cobarde.
+
+El siguiente corte está en requisitos. `REQ-011` añade un segundo `MapGenerator`
+de mazmorra densa con salas poligonales y pasillos cortos; `REQ-012` cambia la
+aparición para todos los generadores: grupo en la sala más protegida y reparto
+de enemigos por sala. El algoritmo y los parámetros de forma se deciden en
+`EXP-004`, que construye `TASK-0040`, antes de crear las tareas de producción.
+Después, la fase 2: multijugador local hotseat.
 
 # Fases
 
@@ -45,6 +51,7 @@ multijugador local hotseat.
 | 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 8, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
+| 1.12 | Generador de mazmorra densa y aparición en sala protegida (REQ-011/REQ-012) | En requisitos; EXP-004 y TASK-0040 pendientes de construir |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -96,6 +103,15 @@ Los valores concretos de la economía de turno son provisionales y viven en
   las unidades no), detección en cada paso y alarma de una onda de radio 8 sin
   cadena. El perfil cobarde huye de forma determinista al recibir un golpe de al
   menos el 40 % de su vida máxima; la alerta y la huida usan los 4 MP.
+- Habrá un segundo generador de mazmorra densa, seleccionable, con mapas
+  pequeños (~22×18), 4-6 salas poligonales pared con pared, pasillos de 0-3
+  tiles, pasillos anchos ocasionales y una caverna excepcional. BSP sigue siendo
+  el defecto hasta el playtest.
+- Las puertas de los accesos son decorativas y acordes a la zona; no bloquean ni
+  tienen reglas.
+- En todos los generadores, el grupo aparece junto en la sala más protegida, con
+  al menos 6 huecos y sin enemigos ni línea de visión inicial. BSP conserva 4
+  enemigos; el generador denso reparte 1 por sala con máximo 1 vacía.
 
 # Fuera de alcance ahora
 

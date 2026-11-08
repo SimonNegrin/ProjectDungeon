@@ -74,6 +74,13 @@ los valores de combate ni la economía de turno.
 | R-011 | El enemigo que ve al jugador muestra un "!" sobre su cabeza y el host muestra un aviso breve de alarma. Los radios de visión y alarma solo se dibujan en el overlay de debug `F1`. | El "!" aparece en el paso de detección y desaparece al enfriarse la alerta; el aviso no bloquea el juego; sin `F1` no se dibujan radios. |
 | R-012 | La presentación no revela el estado interno de todos los enemigos: en juego normal solo se ve el "!" del que detecta y el aviso de alarma. | El estado de alerta, la última posición conocida y los radios quedan en `F1`; no hay líneas de visión permanentes. |
 
+> **Revisión 2026-11-08:** `R-010` y `T-007` quedan parcialmente sustituidos por
+> [`REQ-012`](REQ-012-spawn-sala-protegida.md). BSP conserva 4 enemigos, salas
+> distintas, pareja de alarma y aislado, pero ninguno puede estar en la sala de
+> spawn ni tener línea de visión a sus huecos. El generador denso usa 3-5
+> enemigos, 1 por sala con máximo 1 vacía, y no garantiza pareja ni aislado. El
+> resto de la percepción, alarma, memoria y huida sigue vigente.
+
 ## Bestiario mínimo
 
 | Tipo | Perfil | Visión | Alarma | Papel | Unidades |
