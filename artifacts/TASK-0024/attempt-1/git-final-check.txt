@@ -1,0 +1,19 @@
+$ git status --porcelain=v1
+ M docs/log.md
+ M docs/requirements/index.md
+?? artifacts/TASK-0024/attempt-1/git-final-check.txt
+?? docs/requirements/REQ-009-percepcion-alarma-huida.md
+
+$ git diff --name-only -- src index.html public
+(vacío: sin cambios en producción)
+
+$ git diff --name-only -- docs
+docs/log.md
+docs/requirements/index.md
+(cambios externos de REQ-009, no de este intento)
+
+$ git log --oneline -4
+fe72ded test(TASK-0024): verify final del intento 1
+b21dbed test(TASK-0024): evidencia del intento 1
+5707944 test(TASK-0024): QA E2E de paletas y ambientes de REQ-008
+c246aee docs(TASK-0023): precisar la verificación
