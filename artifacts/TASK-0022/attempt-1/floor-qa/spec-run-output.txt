@@ -1,0 +1,17 @@
+
+Running 6 tests using 4 workers
+
+TASK-0022 grises a=41.47 b=26.50 delta=14.98
+  ✓  4 [chromium] › tests/e2e/floor-qa.spec.ts:826:1 › escala de grises: el damero se conserva por luminancia (1.3s)
+TASK-0022 damero room_delta=14.65 pair=15.35 corridor_pair=13.89 walls_mismatch=0
+  ✓  2 [chromium] › tests/e2e/floor-qa.spec.ts:698:1 › damero en sala y pasillo: tonos alternos y muros sin tinte (1.4s)
+TASK-0022 densidades room=51/339 (15.04%) corridor=5/71 (7.04%)
+  ✓  3 [chromium] › tests/e2e/floor-qa.spec.ts:600:1 › snapshot: densidades, exclusiones, lista blanca y un decal por tile (1.5s)
+TASK-0022 camino decal=(7,6) steps=2 green=4/4 bright=true
+  ✓  1 [chromium] › tests/e2e/floor-qa.spec.ts:869:1 › camino y cursor se dibujan por encima de un tile decorado (1.5s)
+TASK-0022 MoveTo target=(7,9) approach=(7,8) player_after=(7,9)
+  ✓  5 [chromium] › tests/e2e/floor-qa.spec.ts:1027:1 › MoveTo a un tile decorado termina y conserva la decoración (897ms)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=15.35
+  ✓  6 [chromium] › tests/e2e/floor-qa.spec.ts:1116:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.5s)
+
+  6 passed (4.7s)

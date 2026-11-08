@@ -1,0 +1,12 @@
+TASK-0022 determinismo de presentación
+reference_seed=279837264
+screenshot_method=page.screenshot({ fullPage: true }) + Buffer.compare (bytes)
+canvas_method=canvas.toDataURL('image/png') (cadena idéntica)
+reference_shot_bytes=42536 sha256=c441dcfb6dcb89327e167bc6f84d5035d11ff03a5948441c197cd168256ad913
+repeated_shot_bytes=42536 sha256=c441dcfb6dcb89327e167bc6f84d5035d11ff03a5948441c197cd168256ad913
+screenshots_identical=true
+canvas_identical=true
+alternate_seed=279837265 alternate_decorated=55 reference_decorated=56
+alternate_decoration_differs=true
+alternate_pair (13,3)p0 vs (14,3)p1 delta=15.354
+damero_threshold_min_luminance=6

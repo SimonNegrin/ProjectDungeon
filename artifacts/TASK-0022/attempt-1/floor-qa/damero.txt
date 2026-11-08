@@ -1,0 +1,12 @@
+TASK-0022 damero · luminancia media por tile desde los píxeles del canvas
+seed=279837264
+threshold_min_luminance=6
+room camera=(0,64) samples=16
+room parity0_mean=25.415 parity1_mean=40.070 delta=14.654
+room adjacent_pair (3,4) p1 vs (4,4) p0 delta=15.354
+room tile_means (4,4)p0=25.98 (6,4)p0=27.59 (8,4)p0=22.86 (3,5)p0=22.86 (5,5)p0=22.86 (7,5)p0=27.59 (9,5)p0=27.59 (4,6)p0=25.98 (3,4)p1=41.34 (5,4)p1=39.88 (7,4)p1=39.88 (9,4)p1=39.88 (4,5)p1=41.34 (6,5)p1=39.88 (8,5)p1=37.05 (3,6)p1=41.34
+corridor camera=(0,192)
+corridor adjacent_pair (1,6) p1 vs (1,7) p0 delta=13.895
+corridor tile_means (1,6)p1=39.88 (1,7)p0=25.98
+walls sampled=8 mismatched_pixels=0 wallTop_parity_delta=0.000 wallSide1_parity_delta=0.000
+wall_samples (0,2)wallTopp0=132.72 (6,2)wallTopp0=132.72 (5,2)wallTopp1=132.72 (7,2)wallTopp1=132.72 (3,3)wallSide1p0=99.50 (5,3)wallSide1p0=99.50 (6,3)wallSide1p1=99.50 (8,3)wallSide1p1=99.50

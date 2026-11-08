@@ -1,0 +1,12 @@
+TASK-0022 camino y cursor sobre decoración
+seed=279837264
+decorated_tile=(7,6) type=blood-23a
+cursor=(x=7,y=6) state=reachable kind=floor
+path_steps=2
+path_points=(6,7) (7,6)
+dom_path_points=2
+z_index overlay=1 path=1 cursor=2 canvas=auto canvas_position=static canvas_before_overlay=true
+cursor_rect x=663.13 y=264.33 w=46.30 h=46.30 expected x=663.15 y=264.34 w=46.32 h=46.31
+border_pixels [[74,222,128,255],[74,222,128,255],[74,222,128,255],[74,222,128,255]]
+path_dot_pixels [[233,235,239,255],[233,235,239,255],[233,235,239,255],[233,235,239,255]]
+green_border_hits=4/4 bright_dot=true
