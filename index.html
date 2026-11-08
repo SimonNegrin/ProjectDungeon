@@ -104,13 +104,100 @@
         image-rendering: pixelated;
         background: #000;
       }
-      .active-tile {
+      .map-overlay {
+        position: absolute;
+        top: 0;
+        left: 21.875%;
+        width: 56.25%;
+        height: 100%;
+        z-index: 1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+      .cursor {
         position: absolute;
         z-index: 2;
-        border: 2px solid rgba(232, 184, 109, 0.55);
-        border-radius: 4px;
-        box-shadow: inset 0 0 0 1px rgba(232, 184, 109, 0.2);
+        box-sizing: border-box;
+        border-radius: 3px;
         pointer-events: none;
+      }
+      .cursor[data-cursor-state="player"] {
+        border: 2px solid rgba(255, 255, 255, 0.92);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+      }
+      .cursor[data-cursor-state="reachable"] {
+        border: 2px solid #4ade80;
+        background: rgba(74, 222, 128, 0.15);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+      }
+      .cursor[data-cursor-state="too-far"] {
+        border: 2px dashed #fbbf24;
+        background: rgba(251, 191, 36, 0.14);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+      }
+      .cursor[data-cursor-state="invalid"] {
+        border: 4px double #f87171;
+        background: rgba(248, 113, 113, 0.14);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+      }
+      .cursor[data-cursor-state="enemy"] {
+        border: 4px double #f87171;
+        background: rgba(248, 113, 113, 0.12);
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
+      }
+      .cursor-mark {
+        position: absolute;
+        inset: 20%;
+        display: none;
+        pointer-events: none;
+      }
+      .cursor[data-cursor-state="enemy"] .cursor-mark {
+        display: block;
+      }
+      .cursor-mark::before,
+      .cursor-mark::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 2px;
+        height: 100%;
+        background: rgba(255, 220, 220, 0.92);
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      .cursor-mark::after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+      .cursor-path {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .cursor-path-point {
+        position: absolute;
+        width: 1.5%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+      .cursor-path-point.is-strong {
+        opacity: 0.9;
+      }
+      .cursor-path-point.is-faded {
+        opacity: 0.32;
+      }
+      .hud-message {
+        flex-basis: 100%;
+        margin: 2px 0 0;
+        color: #ffd166;
+        font-size: 0.76rem;
+        font-weight: 700;
+        line-height: 1.3;
       }
       .attack-flash {
         position: absolute;
@@ -247,8 +334,9 @@
             <span class="hud-stat" data-testid="hud-status">En juego</span>
           </div>
           <p class="hud-keys" data-testid="hud-keys">
-            WASD/Flechas mover · Espacio/Enter atacar · E terminar turno · R reiniciar · F1 debug
+            Flechas/WASD cursor · Espacio/Enter moverse · F atacar · E terminar turno · R reiniciar · F1 debug
           </p>
+          <p class="hud-message" data-testid="hud-message" role="status" aria-live="polite" hidden></p>
         </section>
 
         <div class="stage" data-testid="stage">
@@ -260,7 +348,12 @@
               role="img"
               aria-label="Sala de mazmorra con un caballero y un goblin"
             ></canvas>
-            <div class="active-tile" data-testid="active-tile" aria-hidden="true"></div>
+            <div class="map-overlay" aria-hidden="true">
+              <div class="cursor-path" data-testid="cursor-path"></div>
+              <div class="cursor" data-testid="cursor" data-cursor-state="player">
+                <span class="cursor-mark"></span>
+              </div>
+            </div>
             <div class="attack-flash" data-testid="attack-flash" aria-hidden="true"></div>
             <div
               class="damage-feedback"

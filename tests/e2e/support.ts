@@ -6,6 +6,40 @@ export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
 }
 
+/**
+ * Lleva el cursor al tile `(x, y)` con flechas reales. El cursor cruza muros y
+ * unidades; si el destino no está en el viewport o una pulsación no cambia el
+ * cursor, falla en vez de esperar indefinidamente.
+ */
+export async function moveCursorTo(page: Page, x: number, y: number): Promise<void> {
+  for (let guard = 0; guard < 64; guard += 1) {
+    const cursor = (await snapshot(page)).cursor;
+    if (cursor.x === x && cursor.y === y) return;
+    if (!cursor.visible) {
+      throw new Error(`El cursor está oculto y no puede ir a (${x},${y})`);
+    }
+
+    const key =
+      cursor.x < x
+        ? 'ArrowRight'
+        : cursor.x > x
+          ? 'ArrowLeft'
+          : cursor.y < y
+            ? 'ArrowDown'
+            : 'ArrowUp';
+    await page.keyboard.press(key);
+
+    const next = (await snapshot(page)).cursor;
+    if (next.x === cursor.x && next.y === cursor.y) {
+      throw new Error(
+        `El cursor no puede pasar de (${cursor.x},${cursor.y}) hacia (${x},${y})`,
+      );
+    }
+  }
+
+  throw new Error(`No se alcanzó el cursor en (${x},${y}).`);
+}
+
 export async function dispatchCommand(page: Page, command: Command) {
   return page.evaluate((cmd) => window.__game!.dispatch(cmd), command);
 }

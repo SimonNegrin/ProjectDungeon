@@ -127,8 +127,10 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
     'utf8',
   );
 
-  // Movimiento válido con teclado: la cámara sigue al jugador.
+  // Movimiento válido con teclado: ArrowRight mueve el cursor y Space ejecuta
+  // Moverse; la cámara sigue al jugador.
   await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Space');
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
   expect(moved.camera).toEqual({ x: 48, y: 80, maxX: 640, maxY: 640 });

@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { approachEnemy } from './support';
+import { approachEnemy, moveCursorTo } from './support';
 
 const SCREENSHOTS = 'artifacts/TASK-0010/attempt-1/screenshots';
 
@@ -72,31 +72,65 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     enemyHp: '10/10',
   });
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-keys')).toContainText('WASD');
-  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter atacar');
+  await expect(page.getByTestId('hud-keys')).toContainText('cursor');
+  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse');
+  await expect(page.getByTestId('hud-keys')).toContainText('F atacar');
   await screenshot(page, 'hud', testInfo);
 
-  // Movimiento con teclado real: una pulsación, una casilla.
+  // El cursor aparece sobre el jugador en blanco neutro.
   const initial = await snapshot(page);
+  expect(initial.cursor).toMatchObject({
+    x: initial.players[0].x,
+    y: initial.players[0].y,
+    visible: true,
+    kind: 'player',
+    state: 'player',
+    path: [],
+  });
+  await expect(page.getByTestId('cursor')).toBeVisible();
+  await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'player');
+
+  // Flechas/WASD mueven el cursor: no gastan MP, no mueven al jugador ni la cámara.
   await page.keyboard.press('ArrowRight');
   const afterRight = await snapshot(page);
-  expect(afterRight.players[0]).toMatchObject({
+  expect(afterRight.cursor).toMatchObject({
     x: initial.players[0].x + 1,
     y: initial.players[0].y,
-    mp: initial.players[0].mp - 1,
+    state: 'reachable',
   });
-  await expectHud(page, { playerMp: '5/6' });
+  expect(afterRight.players[0]).toEqual(initial.players[0]);
+  expect(afterRight.camera).toEqual(initial.camera);
+  await expectHud(page, { playerMp: '6/6' });
 
   await page.keyboard.press('d');
   const afterD = await snapshot(page);
-  expect(afterD.players[0]).toMatchObject({
+  expect(afterD.cursor).toMatchObject({
+    x: initial.players[0].x + 2,
+    y: initial.players[0].y,
+  });
+  expect(afterD.players[0]).toEqual(initial.players[0]);
+  await expectHud(page, { playerMp: '6/6' });
+
+  // Espacio ejecuta Moverse: recorre el camino hasta el cursor y gasta MP.
+  await page.keyboard.press('Space');
+  const afterMoveTo = await snapshot(page);
+  expect(afterMoveTo.players[0]).toMatchObject({
     x: initial.players[0].x + 2,
     y: initial.players[0].y,
     mp: initial.players[0].mp - 2,
+    actionAvailable: true,
   });
-  await expectHud(page, { playerMp: '4/6' });
+  expect(afterMoveTo.cursor).toMatchObject({
+    x: initial.players[0].x + 2,
+    y: initial.players[0].y,
+  });
+  expect(afterMoveTo.camera).not.toEqual(initial.camera);
+  expect(
+    afterMoveTo.lastEvents.filter((event) => event.type === 'UnitMoved'),
+  ).toHaveLength(2);
+  await expectHud(page, { playerMp: '4/6', action: 'Sí' });
 
-  // R reinicia al estado inicial.
+  // R reinicia al estado inicial y recoloca el cursor sobre el jugador.
   await page.keyboard.press('r');
   const afterRestart = await snapshot(page);
   expect(afterRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
@@ -107,35 +141,58 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     mp: 6,
     actionAvailable: true,
   });
+  expect(afterRestart.cursor).toMatchObject({
+    x: initial.players[0].x,
+    y: initial.players[0].y,
+    state: 'player',
+  });
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 
-  // Movimiento inválido contra el muro oeste: no cambia el estado.
+  // Movimiento por destino de 3 pasos hacia el oeste.
   for (let step = 0; step < 3; step += 1) {
     await page.keyboard.press('a');
   }
+  await page.keyboard.press('Space');
   const afterLeft = await snapshot(page);
   expect(afterLeft.players[0]).toMatchObject({
     x: initial.players[0].x - 3,
     mp: initial.players[0].mp - 3,
   });
+  expect(afterLeft.cursor).toMatchObject({ x: initial.players[0].x - 3 });
+
+  // El cursor puede cruzar el muro, pero Moverse lo rechaza y avisa sin mover.
   await page.keyboard.press('a');
+  const cursorOnWall = await snapshot(page);
+  expect(cursorOnWall.cursor).toMatchObject({
+    x: initial.players[0].x - 4,
+    state: 'invalid',
+    path: [],
+  });
+  await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
+  await page.keyboard.press('Space');
   const afterWall = await snapshot(page);
   expect(afterWall.players[0]).toMatchObject({
     x: initial.players[0].x - 3,
     mp: initial.players[0].mp - 3,
   });
+  expect(afterWall.lastEvents).toEqual([
+    { type: 'CommandRejected', commandType: 'MoveTo', reason: 'wall' },
+  ]);
+  await expect(page.getByTestId('hud-message')).toHaveText('Destino no válido');
+  await expect(page.getByTestId('hud-message')).toBeVisible();
   await expectHud(page, { playerMp: '3/6' });
   await page.keyboard.press('r');
 
-  // Ataque sin objetivo: no rompe el estado ni el HUD.
+  // F sin enemigo bajo el cursor avisa y no rompe el estado ni el HUD.
   const beforeMiss = await snapshot(page);
-  await page.keyboard.press('Space');
+  await page.keyboard.press('f');
   const afterMiss = await snapshot(page);
   expect(afterMiss.players).toEqual(beforeMiss.players);
   expect(afterMiss.enemies).toEqual(beforeMiss.enemies);
   expect(afterMiss.phase).toBe(beforeMiss.phase);
   expect(afterMiss.turn).toBe(beforeMiss.turn);
   expect(afterMiss.status).toBe(beforeMiss.status);
+  await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
   await expectHud(page, { enemyHp: '10/10', action: 'Sí' });
 
   const rejected = await page.evaluate(() =>
@@ -160,11 +217,28 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     ),
   ).toBe(1);
 
-  // Ataque del jugador con teclado: daño, acción usada y feedback.
-  await page.keyboard.press('Space');
+  // El cursor selecciona al enemigo y muestra la marca de objetivo.
+  await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
+  const selectedEnemy = await snapshot(page);
+  expect(selectedEnemy.cursor).toMatchObject({
+    x: adjacent.enemies[0].x,
+    y: adjacent.enemies[0].y,
+    kind: 'enemy',
+    state: 'enemy',
+    path: [],
+  });
+  await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'enemy');
+  await expect(page.locator('[data-testid="cursor"] .cursor-mark')).toBeVisible();
+
+  // Ataque directo con F: daño, acción usada, feedback y cursor estable.
+  await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
   expect(afterAttack.enemies[0].hp).toBe(5);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.cursor).toMatchObject({
+    x: adjacent.enemies[0].x,
+    y: adjacent.enemies[0].y,
+  });
   expect(afterAttack.lastEvents).toEqual(
     expect.arrayContaining([
       expect.objectContaining({
@@ -200,6 +274,11 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     mp: 6,
     actionAvailable: true,
   });
+  expect(afterEndTurn.cursor).toMatchObject({
+    x: afterEndTurn.players[0].x,
+    y: afterEndTurn.players[0].y,
+    state: 'player',
+  });
   await expectHud(page, {
     playerHp: `${afterEndTurn.players[0].hp}/20`,
     playerMp: '6/6',
@@ -207,11 +286,28 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     phase: 'Jugador',
   });
 
-  // Segundo ataque: victoria y overlay con reinicio.
+  // Moverse sobre el enemigo adyacente ataca sin moverse: victoria.
+  await moveCursorTo(page, afterEndTurn.enemies[0].x, afterEndTurn.enemies[0].y);
+  const beforeVictory = await snapshot(page);
+  expect(beforeVictory.players[0]).toMatchObject({
+    x: afterEndTurn.players[0].x,
+    y: afterEndTurn.players[0].y,
+  });
   await page.keyboard.press('Space');
   const victory = await snapshot(page);
   expect(victory.status).toBe('victory');
   expect(victory.enemies[0].hp).toBe(0);
+  expect(victory.players[0]).toMatchObject({
+    x: afterEndTurn.players[0].x,
+    y: afterEndTurn.players[0].y,
+  });
+  expect(victory.cursor).toMatchObject({
+    x: afterEndTurn.enemies[0].x,
+    y: afterEndTurn.enemies[0].y,
+    visible: false,
+  });
+  await expect(page.getByTestId('cursor')).toBeHidden();
+  await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
   await expect(
     page.getByTestId('overlay-victory').getByRole('button', { name: 'Reiniciar' }),
@@ -223,6 +319,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
+  expect(afterVictoryRestart.cursor).toMatchObject({ x: 6, y: 8, visible: true, state: 'player' });
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
@@ -234,6 +331,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(debugText).toContain('Jugador: (6, 8)');
   expect(debugText).toContain('MP 6/6');
   expect(debugText).toContain('Fase: Jugador');
+  expect(debugText).toContain('Cursor: (6, 8) jugador');
   expect(debugText).toContain('Semilla: 279837264');
   expect(debugText).toContain('Salas:');
   expect(debugText).toContain('Huecos:');
@@ -265,6 +363,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   const defeat = await snapshot(page);
   expect(defeat.status).toBe('defeat');
   expect(defeat.players[0].hp).toBe(0);
+  expect(defeat.cursor.visible).toBe(false);
+  await expect(page.getByTestId('cursor')).toBeHidden();
+  await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('overlay-defeat')).toBeVisible();
   await expectHud(page, { playerHp: '0/20' });
   await screenshot(page, 'defeat', testInfo);
@@ -277,6 +378,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   const afterDefeatRestart = await snapshot(page);
   expect(afterDefeatRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
+  expect(afterDefeatRestart.cursor).toMatchObject({ x: 6, y: 8, visible: true, state: 'player' });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 
@@ -289,6 +391,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterF2.seed).not.toBe(beforeSeed);
   expect(afterF2.turn).toBe(1);
   expect(afterF2.status).toBe('playing');
+  expect(afterF2.cursor).toMatchObject({
+    x: afterF2.spawns!.player.x,
+    y: afterF2.spawns!.player.y,
+    visible: true,
+    state: 'player',
+  });
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const afterF2Debug = await page.getByTestId('debug-content').textContent();
   expect(afterF2Debug).toContain(`Semilla: ${afterF2.seed}`);

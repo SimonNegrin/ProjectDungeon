@@ -4,13 +4,26 @@ import type {
   GameState,
   GameStatus,
   Phase,
+  Position,
   Tile,
   Unit,
 } from '../game/types';
+import type { CursorTargetKind } from '../game/path';
 import type { Corridor, Door, Room, Spawns } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
+import type { CursorState, CursorStatus } from './cursor';
 import type { Viewport } from './geometry';
 import type { StepResult } from './session';
+
+export interface CursorSnapshot {
+  readonly x: number;
+  readonly y: number;
+  readonly visible: boolean;
+  readonly kind: CursorTargetKind;
+  readonly state: CursorState;
+  readonly path: readonly Position[];
+  readonly attackTile?: Position;
+}
 
 export interface GameSnapshot {
   readonly grid: {
@@ -39,6 +52,7 @@ export interface GameSnapshot {
   readonly tileSize: number;
   readonly assetsLoaded: boolean;
   readonly lastEvents: readonly GameEvent[];
+  readonly cursor: CursorSnapshot;
 }
 
 export interface DispatchResult {
@@ -65,6 +79,7 @@ export interface DebugSnapshotSource {
   readonly tileSize: number;
   readonly assetsLoaded: boolean;
   readonly lastEvents: readonly GameEvent[];
+  readonly cursor: CursorStatus;
 }
 
 function cloneUnit(unit: Unit): Unit {
@@ -97,6 +112,18 @@ function cloneSpawns(spawns: Spawns | undefined): Spawns | null {
   };
 }
 
+function cloneCursor(cursor: CursorStatus): CursorSnapshot {
+  return {
+    x: cursor.x,
+    y: cursor.y,
+    visible: cursor.visible,
+    kind: cursor.kind,
+    state: cursor.state,
+    path: cursor.path.map((point) => ({ ...point })),
+    ...(cursor.attackTile ? { attackTile: { ...cursor.attackTile } } : {}),
+  };
+}
+
 function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
   const map = source.state.map;
 
@@ -126,6 +153,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     tileSize: source.tileSize,
     assetsLoaded: source.assetsLoaded,
     lastEvents: source.lastEvents.map(cloneEvent),
+    cursor: cloneCursor(source.cursor),
   };
 }
 
