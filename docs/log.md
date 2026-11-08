@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Validation — REQ-009 — milestone verificado: `verify` 559 tests y build OK; E2E `--repeat-each=3` 210/210 con semilla 279837264; capturas de percepción, alarma y huida revisadas — [evidencia](../artifacts/TASK-0039/final/final-e2e.txt)
+* 2026-11-08 — Docs — REQ-009 — alcance e índice de requisitos reflejan el milestone implementado y pendiente de playtest — [scope](scope.md)
 * 2026-11-08 — Task — TASK-0039 — cerrada: E2E de detección por paso, alarma 8/9 sin cadena, enfriamiento, daño como despertador, huida/acorralamiento, feedback y snapshot con semilla 279837264; hook `setup` solo con `?test=1`; verify 559, E2E 70/70 y repeat-each 210/210; mutaciones locales detectadas; fusión `b87d4a1` — [informe](../artifacts/TASK-0039/attempt-1/report.md)
 * 2026-11-08 — Planning — TASK-0039 — dependencias TASK-0037 y TASK-0038 cerradas; pasa de backlog a ready — [TASK-0039](tasks/TASK-0039-e2e-qa-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0038 — cerrada: "!" por `EnemySpotted` con poda al enfriarse, aviso de `AlarmRaised`, radios 6/4/5 y 8 solo en `F1`, snapshot profundo de los 4 enemigos; verify 559 y E2E 64 OK; fusión `c6f8765` — [informe](../artifacts/TASK-0038/attempt-2/report.md)

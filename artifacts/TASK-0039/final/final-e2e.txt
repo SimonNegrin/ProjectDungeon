@@ -1,0 +1,13 @@
+Comando: E2E_ARTIFACTS_DIR=artifacts/TASK-0039/final pnpm run test:e2e --repeat-each=3
+Fecha: 2026-11-08
+Semilla de referencia: 279837264
+Viewport: 1280x720 (Chromium desktop)
+Resultado: 210 passed (1.3m)
+
+Capturas de percepción, alarma y huida conservadas en:
+- perception-alarm-qa/screenshots/
+- perception-host-qa/screenshots/
+- flee-behavior-qa/screenshots/
+
+El resto de capturas de la suite se descartaron por ser duplicados de la
+evidencia ya guardada en artifacts/TASK-0039/attempt-1/.
