@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test';
+import { BESTIARY } from '../../src/game/bestiary';
 import type { Command, GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
@@ -188,7 +189,9 @@ export async function walkTo(page: Page, tx: number, ty: number): Promise<void> 
             snap.grid,
             { x: player.x, y: player.y },
             { x: targetX, y: targetY },
-            { x: snap.enemies[0].x, y: snap.enemies[0].y },
+            snap.enemies[0] && snap.enemies[0].hp > 0
+              ? { x: snap.enemies[0].x, y: snap.enemies[0].y }
+              : { x: -1, y: -1 },
           );
           if (path && path.length > 1) {
             const next = path[1];
@@ -222,22 +225,34 @@ export async function approachEnemy(
   page: Page,
   preferredSide?: ApproachSide,
 ): Promise<void> {
-  await page.evaluate((side) => {
+  const visionByType: Record<string, number> = Object.fromEntries(
+    Object.entries(BESTIARY).map(([type, definition]) => [type, definition.vision]),
+  );
+
+  await page.evaluate(({ side, visionByType: vision }) => {
     const game = window.__game!;
     const width = game.snapshot().grid.width;
 
+    /**
+     * Dijkstra sobre la rejilla con un coste extra en las casillas dentro de la
+     * visión de otros enemigos. La IA alertada usa 4 MP: rodear una sala evita
+     * que el jugador termine la fase a tiro y llegue muerto al objetivo.
+     */
     const bfsNextStep = (
       grid: GameSnapshot['grid'],
       start: { x: number; y: number },
       enemy: { x: number; y: number },
       blocked: ReadonlySet<number>,
+      dangerPenalty: (x: number, y: number) => number,
     ): { dx: number; dy: number } | null => {
+      const size = width * grid.height;
       const cellKey = (x: number, y: number): number => y * width + x;
-      const previous = new Int32Array(width * grid.height).fill(-1);
-      const seen = new Uint8Array(width * grid.height);
+      const previous = new Int32Array(size).fill(-1);
+      const cost = new Float64Array(size).fill(Number.POSITIVE_INFINITY);
+      const settled = new Uint8Array(size);
       const startIndex = cellKey(start.x, start.y);
-      seen[startIndex] = 1;
-      const queue: number[] = [startIndex];
+      cost[startIndex] = 0;
+      const frontier: number[] = [startIndex];
       const directions = [
         [0, -1],
         [1, 0],
@@ -248,7 +263,6 @@ export async function approachEnemy(
       // Prefiere una casilla ortogonalmente adyacente para que los tests de
       // orientación no dependan de un contacto en diagonal. Si se pide un lado,
       // se intenta primero esa casilla y se cae a cualquier ortogonal.
-      let fallback: number | null = null;
       const preferred =
         side === undefined
           ? null
@@ -280,18 +294,34 @@ export async function approachEnemy(
         return { dx: firstX - start.x, dy: firstY - start.y };
       };
 
-      for (let head = 0; head < queue.length; head += 1) {
-        const current = queue[head];
+      let fallbackIndex: number | null = null;
+      let fallbackCost = Number.POSITIVE_INFINITY;
+
+      while (frontier.length > 0) {
+        let best = 0;
+        for (let index = 1; index < frontier.length; index += 1) {
+          if (cost[frontier[index]] < cost[frontier[best]]) best = index;
+        }
+        const current = frontier.splice(best, 1)[0];
+        if (settled[current]) continue;
+        settled[current] = 1;
+
+        if (preferredIndex !== null && current === preferredIndex) {
+          return firstStep(current);
+        }
+
         const x = current % width;
         const y = (current - x) / width;
         const distance = Math.max(Math.abs(x - enemy.x), Math.abs(y - enemy.y));
         const orthogonal = x === enemy.x || y === enemy.y;
-
-        if (current === preferredIndex) return firstStep(current);
-
-        if (distance === 1 && orthogonal) {
-          if (preferredIndex === null) return firstStep(current);
-          if (fallback === null) fallback = current;
+        if (
+          preferredIndex === null &&
+          distance === 1 &&
+          orthogonal &&
+          cost[current] < fallbackCost
+        ) {
+          fallbackCost = cost[current];
+          fallbackIndex = current;
         }
 
         for (const [dx, dy] of directions) {
@@ -301,16 +331,21 @@ export async function approachEnemy(
           if (grid.tiles[cellKey(nx, ny)] !== 'floor') continue;
           if (nx === enemy.x && ny === enemy.y) continue;
           const nextIndex = cellKey(nx, ny);
-          if (blocked.has(nextIndex)) continue;
-          if (seen[nextIndex]) continue;
-          seen[nextIndex] = 1;
-          previous[nextIndex] = current;
-          queue.push(nextIndex);
+          if (blocked.has(nextIndex) || settled[nextIndex]) continue;
+          const nextCost = cost[current] + 1 + dangerPenalty(nx, ny);
+          if (nextCost < cost[nextIndex]) {
+            cost[nextIndex] = nextCost;
+            previous[nextIndex] = current;
+            frontier.push(nextIndex);
+          }
         }
       }
 
-      return fallback === null ? null : firstStep(fallback);
+      return fallbackIndex === null ? null : firstStep(fallbackIndex);
     };
+
+    let lastKey = '';
+    let stuck = 0;
 
     for (let guard = 0; guard < 600; guard += 1) {
       const snap = game.snapshot();
@@ -320,6 +355,12 @@ export async function approachEnemy(
       }
       const player = snap.players[0];
       const enemy = snap.enemies[0];
+      const key = `${player.x},${player.y},${player.mp}`;
+      if (key === lastKey) stuck += 1;
+      else {
+        stuck = 0;
+        lastKey = key;
+      }
       const distance = Math.max(
         Math.abs(player.x - enemy.x),
         Math.abs(player.y - enemy.y),
@@ -340,13 +381,152 @@ export async function approachEnemy(
         return;
       }
 
+      // Si rodear la visión deja al helper oscilando, fuerza un avance hacia una
+      // casilla libre adyacente al objetivo (nunca ataca al objetivo).
+      if (stuck >= 6) {
+        const goal = [
+          { x: enemy.x, y: enemy.y - 1 },
+          { x: enemy.x + 1, y: enemy.y },
+          { x: enemy.x, y: enemy.y + 1 },
+          { x: enemy.x - 1, y: enemy.y },
+        ].find(
+          (tile) =>
+            tile.x >= 0 &&
+            tile.y >= 0 &&
+            tile.x < width &&
+            tile.y < snap.grid.height &&
+            snap.grid.tiles[tile.y * width + tile.x] === 'floor' &&
+            !snap.enemies.some(
+              (candidate) =>
+                candidate.hp > 0 && candidate.x === tile.x && candidate.y === tile.y,
+            ),
+        );
+        if (goal) {
+          const result = game.dispatch({
+            type: 'MoveTo',
+            unitId: player.id,
+            target: goal,
+          });
+          stuck = 0;
+          if (!result.events.some((event) => event.type === 'CommandRejected')) {
+            continue;
+          }
+        }
+      }
+
+      // La IA alertada persigue con sus 4 MP: si otro enemigo se acerca, se
+      // elimina con `MoveTo` (que ataca al llegar) antes de que acumule golpes.
+      // El objetivo del helper se excluye para que el test lo ataque después.
+      if (player.actionAvailable) {
+        const chaser = snap.enemies
+          .filter((candidate) => candidate.hp > 0 && candidate.id !== enemy.id)
+          .map((candidate) => ({
+            candidate,
+            distance: Math.max(
+              Math.abs(player.x - candidate.x),
+              Math.abs(player.y - candidate.y),
+            ),
+          }))
+          .filter((entry) => entry.distance <= 8)
+          .sort(
+            (a, b) =>
+              a.distance - b.distance ||
+              a.candidate.id.localeCompare(b.candidate.id),
+          )[0]?.candidate;
+        if (chaser) {
+          const result = game.dispatch({
+            type: 'MoveTo',
+            unitId: player.id,
+            target: { x: chaser.x, y: chaser.y },
+          });
+          if (!result.events.some((event) => event.type === 'CommandRejected')) continue;
+        }
+      }
+
+      // Tras atacar, el MP restante se emplea en alejarse: un enemigo alertado
+      // recorre 4 tiles y no conviene terminar la fase a su alcance.
+      if (!player.actionAvailable && player.mp > 0) {
+        const living = snap.enemies.filter((candidate) => candidate.hp > 0);
+        const distanceToAll = (x: number, y: number): number =>
+          living.reduce(
+            (minimum, candidate) =>
+              Math.min(
+                minimum,
+                Math.max(Math.abs(x - candidate.x), Math.abs(y - candidate.y)),
+              ),
+            Number.POSITIVE_INFINITY,
+          );
+        const currentScore = distanceToAll(player.x, player.y);
+        let away:
+          | { readonly dx: number; readonly dy: number; readonly score: number }
+          | undefined;
+        for (const [dx, dy] of [
+          [0, -1],
+          [1, 0],
+          [0, 1],
+          [-1, 0],
+          [1, -1],
+          [1, 1],
+          [-1, 1],
+          [-1, -1],
+        ] as const) {
+          const nx = player.x + dx;
+          const ny = player.y + dy;
+          if (nx < 0 || ny < 0 || nx >= width || ny >= snap.grid.height) continue;
+          if (snap.grid.tiles[ny * width + nx] !== 'floor') continue;
+          if (living.some((candidate) => candidate.x === nx && candidate.y === ny)) continue;
+          if (dx !== 0 && dy !== 0) {
+            const sideAX = player.x + dx;
+            const sideAY = player.y;
+            const sideBX = player.x;
+            const sideBY = player.y + dy;
+            const free = (x: number, y: number): boolean =>
+              x >= 0 &&
+              y >= 0 &&
+              x < width &&
+              y < snap.grid.height &&
+              snap.grid.tiles[y * width + x] === 'floor' &&
+              !living.some((candidate) => candidate.x === x && candidate.y === y);
+            if (!free(sideAX, sideAY) || !free(sideBX, sideBY)) continue;
+          }
+          const score = distanceToAll(nx, ny);
+          if (score > currentScore && (away === undefined || score > away.score)) {
+            away = { dx, dy, score };
+          }
+        }
+        if (away) {
+          const result = game.dispatch({
+            type: 'Move',
+            unitId: player.id,
+            dx: away.dx,
+            dy: away.dy,
+          });
+          if (!result.events.some((event) => event.type === 'CommandRejected')) continue;
+        }
+      }
+
       if (player.mp > 0) {
         const blocked = new Set(
           snap.enemies
             .filter((candidate) => candidate.hp > 0 && candidate.id !== enemy.id)
             .map((candidate) => candidate.y * width + candidate.x),
         );
-        const step = bfsNextStep(snap.grid, player, enemy, blocked);
+        const dangerPenalty = (x: number, y: number): number => {
+          let penalty = 0;
+          for (const other of snap.enemies) {
+            if (other.hp <= 0 || other.id === enemy.id || other.enemyType === null) {
+              continue;
+            }
+            const radius = vision[other.enemyType] ?? 0;
+            if (
+              Math.max(Math.abs(x - other.x), Math.abs(y - other.y)) <= radius
+            ) {
+              penalty += 40;
+            }
+          }
+          return penalty;
+        };
+        const step = bfsNextStep(snap.grid, player, enemy, blocked, dangerPenalty);
         if (step && (step.dx !== 0 || step.dy !== 0)) {
           const result = game.dispatch({
             type: 'Move',
@@ -362,19 +542,26 @@ export async function approachEnemy(
     }
 
     throw new Error('No se alcanzó la adyacencia con el enemigo.');
-  }, preferredSide);
+  }, { side: preferredSide, visionByType });
 }
 
 /**
- * Derrota a todos los enemigos vivos con comandos reales (`Attack`, `MoveTo` y
- * `EndTurn`). Sirve para completar la victoria cuando la partida arranca con
- * varios enemigos, sin inyectar estado ni teletransportar al jugador.
+ * Derrota a todos los enemigos vivos con comandos reales. `preserveId` permite
+ * dejar vivo a un enemigo concreto para que el test lo remate por su cuenta.
  */
 export async function defeatAllEnemies(
   page: Page,
   maxCommands = 400,
+  preserveId?: string | readonly string[],
 ): Promise<{ readonly snapshot: GameSnapshot; readonly events: readonly GameEvent[] }> {
-  const result = await page.evaluate((limit) => {
+  const preserveIds =
+    preserveId === undefined
+      ? []
+      : typeof preserveId === 'string'
+        ? [preserveId]
+        : [...preserveId];
+  const result = await page.evaluate(({ limit, preserveIds: preservedList }) => {
+    const preserved = new Set(preservedList);
     const game = window.__game!;
     const width = game.snapshot().grid.width;
     const events: GameEvent[] = [];
@@ -384,64 +571,90 @@ export async function defeatAllEnemies(
       b: { x: number; y: number },
     ): number => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 
-    const nearestDistance = (): number => {
+    /**
+     * Retirada con búsqueda en anchura: elige la casilla alcanzable con el MP
+     * que maximiza la distancia al enemigo vivo más cercano y la recorre. La IA
+     * alertada gasta 4 MP, así que retirarse un solo tile ya no basta.
+     */
+    const retreat = (): void => {
       const snap = game.snapshot();
       const player = snap.players[0];
       const living = snap.enemies.filter((enemy) => enemy.hp > 0);
-      if (living.length === 0) return Number.POSITIVE_INFINITY;
-      return living.reduce(
-        (best, enemy) => Math.min(best, chebyshev(player, enemy)),
-        Number.POSITIVE_INFINITY,
-      );
-    };
+      if (living.length === 0 || player.mp <= 0) return;
 
-    /** Un paso ortogonal que maximiza la distancia al enemigo vivo más cercano. */
-    const stepAway = (): boolean => {
-      const snap = game.snapshot();
-      const player = snap.players[0];
-      const living = snap.enemies.filter((enemy) => enemy.hp > 0);
-      const occupied = new Set(
-        living.map((enemy) => `${enemy.x},${enemy.y}`),
-      );
+      const occupied = new Set(living.map((enemy) => `${enemy.x},${enemy.y}`));
+      const free = (x: number, y: number): boolean =>
+        x >= 0 &&
+        y >= 0 &&
+        x < width &&
+        y < snap.grid.height &&
+        snap.grid.tiles[y * width + x] === 'floor' &&
+        !occupied.has(`${x},${y}`);
+      const cells: Array<{ x: number; y: number; steps: Array<[number, number]> }> = [
+        { x: player.x, y: player.y, steps: [] },
+      ];
+      const visited = new Set<string>([`${player.x},${player.y}`]);
       const directions = [
         [0, -1],
         [1, 0],
         [0, 1],
         [-1, 0],
+        [1, -1],
+        [1, 1],
+        [-1, 1],
+        [-1, -1],
       ] as const;
-      let best: { dx: number; dy: number; score: number } | null = null;
 
-      for (const [dx, dy] of directions) {
-        const nx = player.x + dx;
-        const ny = player.y + dy;
-        if (nx < 0 || ny < 0 || nx >= width || ny >= snap.grid.height) continue;
-        if (snap.grid.tiles[ny * width + nx] !== 'floor') continue;
-        if (occupied.has(`${nx},${ny}`)) continue;
-        const score = living.reduce(
-          (minimum, enemy) =>
-            Math.min(minimum, Math.max(Math.abs(nx - enemy.x), Math.abs(ny - enemy.y))),
-          Number.POSITIVE_INFINITY,
-        );
-        if (best === null || score > best.score) best = { dx, dy, score };
+      for (let head = 0; head < cells.length; head += 1) {
+        const current = cells[head];
+        if (current.steps.length >= player.mp) continue;
+        for (const [dx, dy] of directions) {
+          const nx = current.x + dx;
+          const ny = current.y + dy;
+          if (!free(nx, ny)) continue;
+          if (dx !== 0 && dy !== 0) {
+            if (!free(current.x + dx, current.y) || !free(current.x, current.y + dy)) {
+              continue;
+            }
+          }
+          const key = `${nx},${ny}`;
+          if (visited.has(key)) continue;
+          visited.add(key);
+          cells.push({ x: nx, y: ny, steps: [...current.steps, [dx, dy]] });
+        }
       }
 
-      if (!best) return false;
-      const result = game.dispatch({
-        type: 'Move',
-        unitId: player.id,
-        dx: best.dx,
-        dy: best.dy,
-      });
-      events.push(...result.events);
-      return !result.events.some((event) => event.type === 'CommandRejected');
-    };
+      const score = (cell: { x: number; y: number }): number =>
+        living.reduce(
+          (minimum, enemy) =>
+            Math.min(
+              minimum,
+              Math.max(
+                Math.abs(cell.x - enemy.x),
+                Math.abs(cell.y - enemy.y),
+              ),
+            ),
+          Number.POSITIVE_INFINITY,
+        );
+      let best = cells[0];
+      let bestScore = score(cells[0]);
+      for (const cell of cells) {
+        const candidate = score(cell);
+        if (candidate > bestScore) {
+          best = cell;
+          bestScore = candidate;
+        }
+      }
 
-    const retreat = (): void => {
-      for (let step = 0; step < 8; step += 1) {
-        const snap = game.snapshot();
-        if (snap.players[0].mp <= 0) return;
-        if (nearestDistance() > 1) return;
-        if (!stepAway()) return;
+      for (const [dx, dy] of best.steps) {
+        const result = game.dispatch({
+          type: 'Move',
+          unitId: player.id,
+          dx,
+          dy,
+        });
+        events.push(...result.events);
+        if (result.events.some((event) => event.type === 'CommandRejected')) return;
       }
     };
 
@@ -450,11 +663,11 @@ export async function defeatAllEnemies(
       if (snap.status !== 'playing') return { status: snap.status, events };
 
       const player = snap.players[0];
-      const living = snap.enemies.filter((enemy) => enemy.hp > 0);
+      const living = snap.enemies.filter(
+        (enemy) => enemy.hp > 0 && !preserved.has(enemy.id),
+      );
       if (living.length === 0) {
-        const end = game.dispatch({ type: 'EndTurn' });
-        events.push(...end.events);
-        continue;
+        return { status: snap.status, events };
       }
 
       let target = living[0];
@@ -495,7 +708,7 @@ export async function defeatAllEnemies(
     }
 
     throw new Error('No se derrotaron todos los enemigos con comandos reales.');
-  }, maxCommands);
+  }, { limit: maxCommands, preserveIds });
 
   await settle(page);
   return { snapshot: await snapshot(page), events: result.events };
@@ -621,7 +834,9 @@ export async function retreatEnemyOutOfReach(
     if (snap.cursor.kind !== 'enemy') {
       throw new Error('El cursor dejó de apuntar al enemigo durante la retirada.');
     }
-    if (snap.cursor.path.length > snap.players[0].mp) return snap;
+    if (snap.players[0].mp > 0 && snap.cursor.path.length > snap.players[0].mp) {
+      return snap;
+    }
 
     if (snap.players[0].mp === 0) {
       await endTurn(page);

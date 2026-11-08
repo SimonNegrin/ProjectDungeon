@@ -89,6 +89,7 @@ function settleReturning(
   const sleeping: Unit = {
     ...enemy,
     awareness: 'dormant',
+    fleeing: false,
     lastKnown: null,
     alertTurns: 0,
     hasShouted: false,
@@ -112,11 +113,37 @@ function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
   }
 
   if (plan.type === 'move') {
-    const validation = validateMove(state, enemy, plan.dx, plan.dy);
-    if (!validation.ok) {
-      return { state, events: [{ type: 'EnemyWaited', unitId: enemy.id }] };
+    const events: GameEvent[] = [];
+    let next = state;
+
+    for (const step of plan.steps) {
+      const current = next.enemies.find((candidate) => candidate.id === enemy.id);
+      if (!current || !isAlive(current)) break;
+
+      const validation = validateMove(next, current, step.dx, step.dy);
+      if (!validation.ok) break;
+
+      const moved = commitMove(next, current, step.dx, step.dy);
+      next = moved.state;
+      events.push(...moved.events);
     }
-    return commitMove(state, enemy, plan.dx, plan.dy);
+
+    if (plan.attackTargetId) {
+      const attacker = next.enemies.find((candidate) => candidate.id === enemy.id);
+      if (attacker && isAlive(attacker) && attacker.actionAvailable) {
+        const attack = resolveAttack(next, enemy.id, plan.attackTargetId);
+        if (attack.ok) {
+          next = attack.state;
+          events.push(...attack.events);
+        }
+      }
+    }
+
+    if (events.length === 0) {
+      events.push({ type: 'EnemyWaited', unitId: enemy.id });
+    }
+
+    return { state: next, events };
   }
 
   return { state, events: [{ type: 'EnemyWaited', unitId: enemy.id }] };

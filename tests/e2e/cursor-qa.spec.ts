@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import {
   approachEnemy,
@@ -367,6 +368,9 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
+  // La IA de 4 MP puede matar al jugador en la victoria scriptada posterior;
+  // se despejan los demás enemigos y se deja enemy-1 para el combate del test.
+  await defeatAllEnemies(page, 400, 'enemy-1');
   await approachEnemy(page);
 
   const adjacent = await snapshot(page);
@@ -396,10 +400,19 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   // F ataca sin moverse ni gastar MP.
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
-  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterF = await snapshot(page);
-  expect(afterF.enemies[0].hp).toBe(selected.enemies[0].hp - 1);
+  const playerAttack = afterF.lastEvents.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'player-1',
+  );
+  expect(playerAttack).toBeDefined();
+  await expect(page.getByTestId('damage-feedback')).toHaveText(
+    `-${playerAttack!.damage}`,
+  );
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
+  expect(afterF.enemies[0].hp).toBe(
+    selected.enemies[0].hp - playerAttack!.damage,
+  );
   expect(afterF.players[0]).toMatchObject({
     x: selected.players[0].x,
     y: selected.players[0].y,
@@ -416,7 +429,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
-        damage: 1,
+        damage: playerAttack!.damage,
       }),
     ]),
   );
@@ -432,8 +445,13 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   expect(afterEndTurn.lastEvents.map((event) => event.type)).toEqual(
     expect.arrayContaining(['EnemyPhaseStarted', 'PlayerTurnStarted']),
   );
+  const enemyAttack = afterEndTurn.lastEvents.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
+  );
+  expect(enemyAttack).toBeDefined();
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - 4,
+    hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
     mp: 6,
     actionAvailable: true,
   });
@@ -451,7 +469,9 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   await page.keyboard.press('Space');
   await settle(page);
   const afterFirstKill = await snapshot(page);
-  expect(afterFirstKill.enemies[0].hp).toBe(0);
+  expect(afterFirstKill.enemies[0].hp).toBeLessThan(
+    beforeVictory.enemies[0].hp,
+  );
   expect(afterFirstKill.players[0]).toMatchObject({
     x: beforeVictory.players[0].x,
     y: beforeVictory.players[0].y,

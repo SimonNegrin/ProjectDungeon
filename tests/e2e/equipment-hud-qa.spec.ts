@@ -19,7 +19,7 @@ async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise
 
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/?seed=7');
+  await page.goto('/?seed=1');
   await page.waitForFunction(() => Boolean(window.__game));
 }
 

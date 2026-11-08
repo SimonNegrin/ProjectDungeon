@@ -209,16 +209,22 @@ describe('game loop integration', () => {
       'EnemyPhaseStarted',
       'UnitMoved',
       'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
       'PlayerTurnStarted',
     ]);
     expect(result.final.enemies[0]).toMatchObject({
-      x: 9,
+      x: 6,
       y: 5,
       awareness: 'alert',
       lastKnown: { x: 4, y: 5 },
     });
     expect(result.final.enemies[1]).toMatchObject({
-      x: 15,
+      x: 12,
       y: 5,
       awareness: 'alert',
       lastKnown: { x: 4, y: 5 },
@@ -266,15 +272,60 @@ describe('game loop integration', () => {
       'EnemyPhaseStarted',
       'AttackPerformed',
       'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
       'PlayerTurnStarted',
     ]);
     expect(result.final.enemies[1]).toMatchObject({
-      x: 11,
+      x: 8,
       y: 5,
       awareness: 'alert',
       lastKnown: { x: 5, y: 5 },
       hasShouted: true,
     });
+  });
+
+  it('el cobarde huye tras un golpe fuerte y se aleja del jugador en la fase enemiga', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          enemyType: 'coward',
+          x: 6,
+          y: 5,
+          hp: 8,
+          maxHp: 8,
+          awareness: 'dormant',
+          equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
+        }),
+      ],
+      rng: rngForDice([6, 1, 1, 1]),
+    });
+
+    const result = run(state, [
+      { type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' },
+      { type: 'EndTurn' },
+    ]);
+
+    expect(result.events).toContainEqual({ type: 'EnemyFled', unitId: 'enemy-1' });
+    const fledIndex = result.events.findIndex((event) => event.type === 'EnemyFled');
+    const enemyPhaseIndex = result.events.findIndex(
+      (event) => event.type === 'EnemyPhaseStarted',
+    );
+    expect(fledIndex).toBeGreaterThanOrEqual(0);
+    expect(fledIndex).toBeLessThan(enemyPhaseIndex);
+
+    const enemy = result.final.enemies[0];
+    expect(enemy).toMatchObject({ hp: 3, fleeing: true, awareness: 'alert' });
+    expect(
+      Math.max(
+        Math.abs(enemy.x - result.final.players[0].x),
+        Math.abs(enemy.y - result.final.players[0].y),
+      ),
+    ).toBeGreaterThan(1);
   });
 
   it('produce el mismo estado y los mismos eventos con la misma secuencia', () => {

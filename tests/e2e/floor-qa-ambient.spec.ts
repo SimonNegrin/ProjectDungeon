@@ -7,7 +7,7 @@ import { DECAL_RECTS } from '../../src/host/assets';
 import type { GameSnapshot } from '../../src/host/debug';
 import { DECAL_WHITELIST } from '../../src/host/floor';
 import { artifactPath } from './artifacts';
-import { settle, snapshot, walkTo } from './support';
+import { defeatAllEnemies, settle, snapshot, walkTo } from './support';
 
 const REFERENCE_SEED = 279837264;
 const ALTERNATE_SEED = 279837265;
@@ -493,6 +493,9 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page);
+  // La IA alertada persigue con 4 MP; se despejan los enemigos que interceptan
+  // la caminata y se deja vivo a enemy-1, lejos de los tiles de ambiente.
+  await defeatAllEnemies(page, 400, 'enemy-1');
   let snap = await snapshot(page);
   const paletteById = new Map(
     snap.floorPalettes.map((entry) => [entry.roomId, entry]),

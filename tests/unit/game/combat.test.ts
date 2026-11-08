@@ -300,6 +300,100 @@ describe('combat', () => {
   });
 });
 
+describe('huida del cobarde por daño', () => {
+  /** Golpe de 5 con la espada: 6 de ataque, 1 de escudo, 1 de daño y 1 de armadura. */
+  const STRONG_HIT = [6, 1, 1, 1] as const;
+  const cowardEquipment = {
+    weaponId: 'dagger',
+    armorId: null,
+    shieldId: 'shield',
+  } as const;
+
+  function coward(overrides: Partial<Parameters<typeof makeUnit>[0]> = {}) {
+    return makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'coward',
+      x: 6,
+      y: 5,
+      hp: 8,
+      maxHp: 8,
+      awareness: 'alert',
+      equipment: cowardEquipment,
+      ...overrides,
+    });
+  }
+
+  function hitResult(enemy: ReturnType<typeof makeUnit>) {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [enemy],
+      rng: rngForDice(STRONG_HIT),
+    });
+    return reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+  }
+
+  it('un golpe del 40 % de la vida máxima que sobrevive inicia la huida', () => {
+    const result = hitResult(coward());
+
+    expect(result.state.enemies[0]).toMatchObject({ hp: 3, fleeing: true });
+    expect(result.events).toContainEqual({
+      type: 'EnemyFled',
+      unitId: 'enemy-1',
+    });
+  });
+
+  it('un golpe por debajo del umbral no hace huir al cobarde', () => {
+    const result = hitResult(
+      coward({
+        equipment: { weaponId: 'dagger', armorId: 'plate', shieldId: 'shield' },
+      }),
+    );
+
+    expect(result.state.enemies[0]).toMatchObject({ hp: 5, fleeing: false });
+    expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
+  });
+
+  it('el valiente no huye aunque cruce el umbral', () => {
+    const result = hitResult(
+      makeUnit({
+        id: 'enemy-1',
+        faction: 'enemy',
+        enemyType: 'sentinel',
+        x: 6,
+        y: 5,
+        hp: 9,
+        maxHp: 9,
+        awareness: 'alert',
+      }),
+    );
+
+    expect(result.state.enemies[0]).toMatchObject({ hp: 5, fleeing: false });
+    expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
+  });
+
+  it('un golpe letal no inicia la huida', () => {
+    const result = hitResult(coward({ hp: 4 }));
+
+    expect(result.state.enemies[0].hp).toBe(0);
+    expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
+  });
+
+  it('un nuevo golpe fuerte renueva la huida y vuelve a emitir EnemyFled', () => {
+    const result = hitResult(coward({ fleeing: true }));
+
+    expect(result.state.enemies[0]).toMatchObject({ hp: 3, fleeing: true });
+    expect(result.events).toContainEqual({
+      type: 'EnemyFled',
+      unitId: 'enemy-1',
+    });
+  });
+});
+
 describe('fórmulas de impacto y daño', () => {
   function countHits(difference: number): number {
     let hits = 0;

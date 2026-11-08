@@ -186,6 +186,8 @@ export type GameEvent =
     }
   /** Un enemigo en regreso ha llegado a su puesto y vuelve a estar dormido. */
   | { readonly type: 'EnemyReturned'; readonly unitId: string }
+  /** El perfil cobarde inicia o renueva la huida tras un golpe fuerte. */
+  | { readonly type: 'EnemyFled'; readonly unitId: string }
   | {
       /** El enemigo que detecta da la alarma de una onda en este episodio. */
       readonly type: 'AlarmRaised';

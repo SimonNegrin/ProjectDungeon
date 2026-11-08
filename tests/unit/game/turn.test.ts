@@ -13,19 +13,28 @@ describe('turn phase', () => {
 
     expect(result.state.phase).toBe('player');
     expect(result.state.turn).toBe(2);
-    expect(result.state.players[0]).toMatchObject({ mp: 6, actionAvailable: true, hp: 20 });
-    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 3 });
+    expect(result.state.players[0]).toMatchObject({ mp: 6, actionAvailable: true, hp: 18 });
+    expect(result.state.enemies[0]).toMatchObject({
+      x: 6,
+      y: 5,
+      mp: 0,
+      actionAvailable: false,
+    });
     expect(result.events.map((event) => event.type)).toEqual([
       'TurnEnded',
       'EnemyPhaseStarted',
       'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'UnitMoved',
+      'AttackPerformed',
       'PlayerTurnStarted',
     ]);
   });
 
   it('restaura MP y acción del enemigo al empezar su fase', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 18, y: 5 })],
       enemies: [
         makeUnit({
           id: 'enemy-1',
@@ -40,7 +49,7 @@ describe('turn phase', () => {
 
     const result = reduce(state, { type: 'EndTurn' });
 
-    expect(result.state.enemies[0]).toMatchObject({ x: 9, y: 5, mp: 3 });
+    expect(result.state.enemies[0]).toMatchObject({ x: 14, y: 5, mp: 0 });
     expect(result.state.enemies[0].actionAvailable).toBe(true);
   });
 
@@ -57,25 +66,43 @@ describe('turn phase', () => {
     const moves = result.events.filter((event) => event.type === 'UnitMoved');
 
     expect(result.state.enemies).toMatchObject([
-      { id: 'enemy-1', x: 9, y: 5 },
-      { id: 'enemy-2', x: 5, y: 9 },
+      { id: 'enemy-1', x: 6, y: 5 },
+      { id: 'enemy-2', x: 5, y: 6 },
     ]);
-    expect(moves).toEqual([
-      {
-        type: 'UnitMoved',
-        unitId: 'enemy-1',
-        from: { x: 10, y: 5 },
-        to: { x: 9, y: 5 },
-        mpLeft: 3,
-      },
-      {
-        type: 'UnitMoved',
-        unitId: 'enemy-2',
-        from: { x: 5, y: 10 },
-        to: { x: 5, y: 9 },
-        mpLeft: 3,
-      },
+    expect(moves.map((move) => move.unitId)).toEqual([
+      'enemy-1',
+      'enemy-1',
+      'enemy-1',
+      'enemy-1',
+      'enemy-2',
+      'enemy-2',
+      'enemy-2',
+      'enemy-2',
     ]);
+    expect(moves[0]).toMatchObject({
+      unitId: 'enemy-1',
+      from: { x: 10, y: 5 },
+      to: { x: 9, y: 5 },
+      mpLeft: 3,
+    });
+    expect(moves[3]).toMatchObject({
+      unitId: 'enemy-1',
+      from: { x: 7, y: 5 },
+      to: { x: 6, y: 5 },
+      mpLeft: 0,
+    });
+    expect(moves[4]).toMatchObject({
+      unitId: 'enemy-2',
+      from: { x: 5, y: 10 },
+      to: { x: 5, y: 9 },
+      mpLeft: 3,
+    });
+    expect(moves[7]).toMatchObject({
+      unitId: 'enemy-2',
+      from: { x: 5, y: 7 },
+      to: { x: 5, y: 6 },
+      mpLeft: 0,
+    });
   });
 
   it('varios enemigos adyacentes atacan en la misma fase', () => {

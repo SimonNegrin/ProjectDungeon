@@ -1,3 +1,4 @@
+import { BESTIARY } from './bestiary';
 import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive } from './grid';
 import { noteDamage, raiseAlarm } from './perception';
@@ -162,6 +163,21 @@ export function resolveAttack(
       const alarm = raiseAlarm(nextState, target.id, attackerPosition);
       nextState = alarm.state;
       events.push(...alarm.events);
+    }
+
+    // Huida determinista del cobarde: un golpe de al menos el 40 % de su vida
+    // máxima, sobreviviendo, inicia o renueva la huida sin tirada adicional.
+    const strongHit = damage * 5 >= target.maxHp * 2;
+    const profile =
+      target.enemyType === null ? undefined : BESTIARY[target.enemyType].profile;
+    if (strongHit && profile === 'coward') {
+      nextState = {
+        ...nextState,
+        enemies: nextState.enemies.map((unit) =>
+          unit.id === target.id ? { ...unit, fleeing: true } : unit,
+        ),
+      };
+      events.push({ type: 'EnemyFled', unitId: target.id });
     }
   }
 

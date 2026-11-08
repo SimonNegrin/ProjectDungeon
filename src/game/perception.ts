@@ -285,6 +285,7 @@ export function refreshEnemyAwareness(state: GameState, enemy: Unit): EnemyAware
       unit: {
         ...enemy,
         awareness: alertTurns >= ALERT_COOLDOWN_PHASES ? 'returning' : 'alert',
+        fleeing: alertTurns >= ALERT_COOLDOWN_PHASES ? false : enemy.fleeing,
         alertTurns,
       },
       changed: true,
@@ -301,6 +302,7 @@ export function refreshEnemyAwareness(state: GameState, enemy: Unit): EnemyAware
       unit: {
         ...enemy,
         awareness: 'dormant',
+        fleeing: false,
         lastKnown: null,
         alertTurns: 0,
         hasShouted: false,

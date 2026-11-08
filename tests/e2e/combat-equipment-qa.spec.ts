@@ -21,13 +21,17 @@ const REFERENCE_SEED = 279837264;
  * el primer ataque impacta para 1 y el segundo mata. Esta semilla suplementaria
  * produce un fallo y un impacto con los primeros comandos, sin tocar el motor.
  */
-const FEEDBACK_SEED = 13;
+/**
+ * Semillas elegidas con la IA de 4 MP: la ruta segura llega viva y la primera
+ * tirada produce el fallo/impacto que el test necesita.
+ */
+const FEEDBACK_SEED = 1;
 /**
  * Partida con el jugador a la derecha del enemigo en una sala abierta. Es el
  * caso "normal" que contrasta con el pasillo de una casilla de la semilla de
  * referencia; la dirección y el impacto se comprueban en el propio test.
  */
-const NORMAL_FEEDBACK_SEED = 40;
+const NORMAL_FEEDBACK_SEED = 9;
 
 const WEAPON_LABELS = {
   sword: 'Espada +3/+4',

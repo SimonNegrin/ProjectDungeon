@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import type { GameEvent } from '../../src/game/types';
 import { MOTION_CONFIG } from '../../src/host/motion';
 import {
   approachEnemy,
@@ -574,6 +575,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
+  // Se conservan enemy-1 (objetivo del test) y enemy-2 (para que la muerte del
+  // primero no cierre la partida); el resto se despeja con la IA de 4 MP.
+  await defeatAllEnemies(page, 400, ['enemy-1', 'enemy-2']);
   await approachEnemy(page);
   await ensureAdjacentWithMp(page, 2);
 
@@ -581,7 +585,14 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(8);
+  const firstAttack = afterAttack.lastEvents.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'player-1',
+  );
+  expect(firstAttack).toBeDefined();
+  expect(afterAttack.enemies[0].hp).toBe(
+    adjacent.enemies[0].hp - firstAttack!.damage,
+  );
   expect(afterAttack.players[0].actionAvailable).toBe(false);
 
   await page.keyboard.press('e');
@@ -604,7 +615,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     Math.abs(retreated.players[0].y - retreated.enemies[0].y),
   );
   expect(distance).toBe(2);
-  expect(retreated.enemies[0].hp).toBe(8);
+  expect(retreated.enemies[0].hp).toBe(afterAttack.enemies[0].hp);
 
   await moveCursorTo(page, retreated.enemies[0].x, retreated.enemies[0].y);
   const planned = await snapshot(page);
@@ -621,17 +632,21 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     totalSteps: steps,
     unitId: 'player-1',
   });
-  // El enemigo muere, pero quedan más enemigos: la partida sigue en juego y el
-  // overlay de victoria no aparece todavía.
+  // El golpe puede no rematar con las nuevas tiradas, pero quedan más enemigos:
+  // la partida sigue en juego y el overlay de victoria no aparece todavía.
   expect(frozen.status).toBe('playing');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${retreated.enemies[0].hp}/9`,
+  );
 
   const mid = await advance(page, PAUSE + HALF_STEP);
   expect(mid.animation).toMatchObject({ animating: true, step: 0 });
   expectCameraFollows(mid, 'acercarse al enemigo');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${retreated.enemies[0].hp}/9`,
+  );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'attack-approach', testInfo);
@@ -639,7 +654,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   // Pausa de destino: la animación sigue activa y aún no hay daño ni overlay.
   const finalPause = await advance(page, HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: steps });
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${retreated.enemies[0].hp}/9`,
+  );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
 
@@ -665,7 +682,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   expect(finished).toMatchObject({
     animating: false,
     status: 'playing',
-    enemyHp: 0,
+    enemyHp: Math.max(0, retreated.enemies[0].hp - attackDamage!.damage),
     flashActive: true,
     damage: expectedDamage,
   });
@@ -717,7 +734,7 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   await openGame(page);
   // Despierta a los enemigos cercanos con comandos reales: un centinela
   // dormido no se mueve y la fase enemiga no tendría animación que probar.
-  await approachEnemy(page, 'north');
+  await approachEnemy(page);
   expect(await moveAwayFromEnemy(page)).toBe(true);
   const afterRetreat = await snapshot(page);
   await moveCursorTo(
