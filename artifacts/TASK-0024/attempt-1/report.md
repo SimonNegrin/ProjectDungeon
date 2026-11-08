@@ -12,8 +12,7 @@ verified:
 
 # Estado
 
-`success`. 11 tests `floor-qa` y 51 E2E pasan; `verify` pasa con aviso previo
-de TASK-0022.
+`success`. 11 tests `floor-qa`, 51 E2E y `verify` pasan; aviso TASK-0022.
 
 # Cambios
 
@@ -30,8 +29,8 @@ de TASK-0022.
 | `pnpm run verify` | vitest 397/397; tsc+build OK | `verify-output.txt` |
 
 Cubre los [criterios](../../../docs/tasks/TASK-0024-e2e-qa-suelo-ambientes.md#criterios-de-aceptación):
-paleta por sala, neutros, cinco ambientes con mezcla/focos, lista blanca y filas
-9/10/11, determinismo. Densidades, grises, camino y `MoveTo` conservan tests.
+paletas, neutros, cinco ambientes con mezcla/focos, lista blanca, filas 9/10/11 y
+determinismo; densidades, grises, camino y `MoveTo` conservan sus tests.
 
 # Evidencia visual
 
@@ -58,13 +57,13 @@ paleta por sala, neutros, cinco ambientes con mezcla/focos, lista blanca y filas
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `test:e2e floor-qa` omite un spec sin ese texto en el nombre | Renombrado a `floor-qa-ambient.spec.ts` | Usar el prefijo | Evidencia incompleta | Nota en `visual-qa.md` | Bajo | `pending` |
+| `test:e2e floor-qa` omite un spec sin ese texto en el nombre | Renombrado a `floor-qa-ambient.spec.ts` | Usar el prefijo | Evidencia incompleta | Nota en `visual-qa.md` | Bajo | `deferred` — requirements-writer |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2556 |
-| `report_bytes` | 2554 |
+| `report_bytes` | 2557 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
