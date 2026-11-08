@@ -1,0 +1,10 @@
+ src/game/bestiary.ts                |  10 +-
+ src/game/combat.ts                  |  15 ++-
+ src/game/perception.ts              | 138 +++++++++++++++++++++-----
+ src/game/types.ts                   |   7 ++
+ tests/unit/game/bestiary.test.ts    |   3 +
+ tests/unit/game/combat.test.ts      | 127 ++++++++++++++++++++++++
+ tests/unit/game/engine.test.ts      |   1 +
+ tests/unit/game/integration.test.ts | 104 ++++++++++++++++++++
+ tests/unit/game/perception.test.ts  | 187 +++++++++++++++++++++++++++++++++++-
+ 9 files changed, 564 insertions(+), 28 deletions(-)
