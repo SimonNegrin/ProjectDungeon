@@ -9,7 +9,7 @@ import type {
   Unit,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
-import type { Corridor, Door, Room, Spawns } from '../game/map';
+import type { Corridor, Door, MapWeapon, Room, Spawns } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
 import {
@@ -61,6 +61,8 @@ export interface GameSnapshot {
   readonly corridors: readonly Corridor[];
   readonly doors: readonly Door[];
   readonly spawns: Spawns | null;
+  /** Armas aún presentes en el mapa, clonadas y en solo lectura. */
+  readonly weapons: readonly MapWeapon[];
   /** Resumen de solo lectura de la decoración plana; coincide con el render. */
   readonly decoration: readonly DecorationSummary[];
   /** Paleta y ambiente deterministas de cada sala; el render usa los mismos. */
@@ -178,6 +180,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     corridors: map ? map.corridors.map(cloneCorridor) : [],
     doors: map ? map.doors.map((door) => ({ ...door })) : [],
     spawns: cloneSpawns(map?.spawns),
+    weapons: map?.weapons?.map((weapon) => ({ ...weapon })) ?? [],
     decoration: [...summarizeDecoration(planDecoration(map))],
     floorPalettes: [...roomPalettesFor(map)],
     players: source.state.players.map(cloneUnit),

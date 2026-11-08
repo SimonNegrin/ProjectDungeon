@@ -1,4 +1,11 @@
-import type { GameEvent, GameState, Unit } from '../game/types';
+import {
+  ARMORS,
+  SHIELDS,
+  armorValue,
+  shieldValue,
+  weaponFor,
+} from '../game/equipment';
+import type { GameEvent, GameState, Position, Unit } from '../game/types';
 import {
   pathLength,
   wideCorridorStretch,
@@ -20,6 +27,16 @@ export interface HudModel {
   readonly action: string;
   readonly phase: string;
   readonly enemyHp: string;
+  /** Arma equipada con sus valores del catálogo. */
+  readonly weapon: string;
+  readonly shield: string;
+  readonly armor: string;
+  /** Modificadores propios del jugador, en el orden acierto/daño/defensa. */
+  readonly modifiers: string;
+  /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
+  readonly cursorEnemyHp: string;
+  /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
+  readonly weaponHint: string | null;
   readonly turn: string;
   readonly status: string;
   readonly keys: string;
@@ -56,10 +73,54 @@ function boolLabel(value: boolean | undefined): string {
   return value ? 'Sí' : 'No';
 }
 
-/** Modelo del HUD derivado solo del estado del motor. */
-export function buildHudModel(state: GameState): HudModel {
+function signed(value: number): string {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function weaponLabel(unit: Unit | undefined): string {
+  if (!unit) return '—';
+  const weapon = weaponFor(unit.equipment.weaponId);
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+}
+
+function shieldLabel(unit: Unit | undefined): string {
+  if (!unit || unit.equipment.shieldId === null) return 'Sin escudo';
+  const shield = SHIELDS[unit.equipment.shieldId];
+  return `${shield.name} ${signed(shieldValue(unit.equipment.shieldId))}`;
+}
+
+function armorLabel(unit: Unit | undefined): string {
+  if (!unit || unit.equipment.armorId === null) return 'Sin armadura';
+  const armor = ARMORS[unit.equipment.armorId];
+  return `${armor.name} ${signed(armorValue(unit.equipment.armorId))}`;
+}
+
+function modifiersLabel(unit: Unit | undefined): string {
+  if (!unit) return '—';
+  const { accuracy, damage, defense } = unit.modifiers;
+  return `${signed(accuracy)} acierto · ${signed(damage)} daño · ${signed(defense)} defensa`;
+}
+
+function enemyAt(state: GameState, position: Position | undefined): Unit | undefined {
+  if (!position) return undefined;
+  return state.enemies.find(
+    (enemy) => enemy.hp > 0 && enemy.x === position.x && enemy.y === position.y,
+  );
+}
+
+function weaponAtPlayer(state: GameState, player: Unit | undefined) {
+  if (!player) return undefined;
+  return state.map?.weapons?.find(
+    (weapon) => weapon.x === player.x && weapon.y === player.y,
+  );
+}
+
+/** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
+export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = state.players[0];
   const enemy = state.enemies[0];
+  const mapWeapon = weaponAtPlayer(state, player);
+  const cursorEnemy = enemyAt(state, cursor);
 
   return {
     playerHp: formatHp(player),
@@ -67,6 +128,14 @@ export function buildHudModel(state: GameState): HudModel {
     action: boolLabel(player?.actionAvailable),
     phase: phaseLabel(state),
     enemyHp: formatHp(enemy),
+    weapon: weaponLabel(player),
+    shield: shieldLabel(player),
+    armor: armorLabel(player),
+    modifiers: modifiersLabel(player),
+    cursorEnemyHp: formatHp(cursorEnemy),
+    weaponHint: mapWeapon
+      ? `G recoger ${weaponFor(mapWeapon.weaponId).name}`
+      : null,
     turn: `Turno ${state.turn}`,
     status: statusLabel(state),
     keys: KEYS_HELP,
@@ -167,6 +236,42 @@ function mapDebugLines(state: GameState): readonly string[] {
   ];
 }
 
+function equipmentDebugLine(unit: Unit | undefined): string {
+  return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Modificadores ${modifiersLabel(unit)}`;
+}
+
+function vitalityLine(state: GameState): string {
+  const units = [...state.players, ...state.enemies];
+  if (units.length === 0) return 'Vida: —';
+  return `Vida: ${units
+    .map((unit) => `${unit.id} ${formatHp(unit)}`)
+    .join(' · ')}`;
+}
+
+function lastAttackLine(events: readonly GameEvent[]): string {
+  const attack = [...events]
+    .reverse()
+    .find((event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed',
+    );
+  if (!attack) return 'Último ataque: ninguno';
+  const outcome = attack.hit
+    ? `impacto ${attack.damage} (PV ${attack.targetHp})`
+    : 'fallo';
+  const rolls = attack.rolls;
+  const parts = [`ataque ${rolls.attack}`, `escudo ${rolls.shield}`];
+  if (rolls.damage !== null) parts.push(`daño ${rolls.damage}`);
+  if (rolls.armor !== null) parts.push(`armadura ${rolls.armor}`);
+  return `Último ataque: ${attack.attackerId}→${attack.targetId} ${outcome} · tiradas ${parts.join(' ')}`;
+}
+
+function cursorEnemyDebugLine(state: GameState, cursor: Position): string {
+  const enemy = enemyAt(state, cursor);
+  return enemy
+    ? `Enemigo bajo cursor: ${enemy.id} ${formatHp(enemy)}`
+    : 'Enemigo bajo cursor: ninguno';
+}
+
 /** Información del overlay de debug, también derivada del estado y la cámara. */
 export function buildDebugModel(
   state: GameState,
@@ -183,8 +288,12 @@ export function buildDebugModel(
     lines: [
       `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player?.actionAvailable)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
+      equipmentDebugLine(player),
+      vitalityLine(state),
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
       cursorLabel(cursor),
+      cursorEnemyDebugLine(state, cursor),
+      lastAttackLine(lastEvents),
       `Cámara: (${camera.x}, ${camera.y}) · Límites (${bounds.maxX}, ${bounds.maxY}) · Viewport ${viewport.width}×${viewport.height}`,
       ...mapDebugLines(state),
       `Últimos eventos: ${formatEventSummary(lastEvents)}`,
@@ -202,11 +311,60 @@ function requireElement<T extends HTMLElement>(root: ParentNode, testId: string)
 }
 
 export interface HudView {
-  update(state: GameState): void;
+  update(state: GameState, cursor?: Position): void;
+}
+
+/**
+ * Crea las estadísticas de equipo dentro de un grupo del HUD sin tocar
+ * `index.html`. Si el nodo ya existe lo reutiliza, de modo que el HUD sigue
+ * siendo idempotente si se reconstruye la vista.
+ */
+function ensureHudStat(
+  root: ParentNode,
+  container: HTMLElement,
+  testId: string,
+  label: string,
+): HTMLElement {
+  const existing = root.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
+  if (existing) return existing;
+
+  const element = document.createElement('span');
+  element.className = 'hud-stat';
+  element.append(`${label} `);
+  const value = document.createElement('strong');
+  value.dataset.testid = testId;
+  value.textContent = '—';
+  element.append(value);
+  container.append(element);
+  return value;
+}
+
+function ensureEquipmentGroup(root: ParentNode, hud: HTMLElement): HTMLElement {
+  const existing = root.querySelector<HTMLElement>('[data-testid="hud-equipment"]');
+  if (existing) return existing;
+
+  const group = document.createElement('div');
+  group.className = 'hud-group';
+  group.dataset.testid = 'hud-equipment';
+  hud.append(group);
+  return group;
+}
+
+function ensureWeaponHint(root: ParentNode, keys: HTMLElement): HTMLElement {
+  const existing = root.querySelector<HTMLElement>('[data-testid="weapon-hint"]');
+  if (existing) return existing;
+
+  const hint = document.createElement('p');
+  hint.className = 'hud-keys';
+  hint.dataset.testid = 'weapon-hint';
+  hint.hidden = true;
+  keys.after(hint);
+  return hint;
 }
 
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
+  const hud = requireElement(root, 'hud');
   const playerHp = requireElement(root, 'hud-player-hp');
   const playerMp = requireElement(root, 'hud-player-mp');
   const action = requireElement(root, 'hud-action');
@@ -218,9 +376,22 @@ export function createHudView(root: ParentNode): HudView {
   const victory = requireElement(root, 'overlay-victory');
   const defeat = requireElement(root, 'overlay-defeat');
 
+  const equipmentGroup = ensureEquipmentGroup(root, hud);
+  const weapon = ensureHudStat(root, equipmentGroup, 'hud-weapon', 'Arma');
+  const shield = ensureHudStat(root, equipmentGroup, 'hud-shield', 'Escudo');
+  const armor = ensureHudStat(root, equipmentGroup, 'hud-armor', 'Armadura');
+  const modifiers = ensureHudStat(root, equipmentGroup, 'hud-modifiers', 'Mods');
+  const cursorEnemyHp = ensureHudStat(
+    root,
+    equipmentGroup,
+    'hud-cursor-enemy-hp',
+    'Enemigo cursor',
+  );
+  const weaponHint = ensureWeaponHint(root, keys);
+
   return {
-    update(state: GameState): void {
-      const model = buildHudModel(state);
+    update(state: GameState, cursor?: Position): void {
+      const model = buildHudModel(state, cursor);
       playerHp.textContent = model.playerHp;
       playerMp.textContent = model.playerMp;
       action.textContent = model.action;
@@ -229,6 +400,13 @@ export function createHudView(root: ParentNode): HudView {
       turn.textContent = model.turn;
       status.textContent = model.status;
       keys.textContent = model.keys;
+      weapon.textContent = model.weapon;
+      shield.textContent = model.shield;
+      armor.textContent = model.armor;
+      modifiers.textContent = model.modifiers;
+      cursorEnemyHp.textContent = model.cursorEnemyHp;
+      weaponHint.textContent = model.weaponHint ?? '';
+      weaponHint.hidden = model.weaponHint === null;
       victory.hidden = !model.overlays.victory;
       defeat.hidden = !model.overlays.defeat;
     },

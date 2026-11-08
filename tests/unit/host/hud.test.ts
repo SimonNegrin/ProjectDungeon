@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { WEAPONS } from '../../../src/game/equipment';
 import { createInitialState, reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
@@ -50,6 +51,68 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
     expect(model.overlays).toEqual({ victory: false, defeat: false });
+    expect(model.weapon).toBe('Espada +3/+4');
+    expect(model.shield).toBe('Escudo +1');
+    expect(model.armor).toBe('Armadura +1');
+    expect(model.modifiers).toBe('+1 acierto · +1 daño · +1 defensa');
+    expect(model.cursorEnemyHp).toBe('—/—');
+    expect(model.weaponHint).toBeNull();
+  });
+
+  it('refleja un cambio de arma y un equipo sin escudo ni armadura', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: 'axe', armorId: null, shieldId: null },
+          modifiers: { accuracy: 2, damage: 0, defense: 1 },
+          weapons: ['sword', 'axe'],
+        }),
+      ],
+    });
+
+    const model = buildHudModel(state);
+
+    expect(model.weapon).toBe('Hacha +2/+6');
+    expect(model.shield).toBe('Sin escudo');
+    expect(model.armor).toBe('Sin armadura');
+    expect(model.modifiers).toBe('+2 acierto · +0 daño · +1 defensa');
+  });
+
+  it('muestra la vida del enemigo vivo bajo el cursor y nada si no hay enemigo', () => {
+    const state = makeState({
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    expect(buildHudModel(state, { x: 6, y: 5 }).cursorEnemyHp).toBe('10/10');
+    expect(buildHudModel(state, { x: 5, y: 5 }).cursorEnemyHp).toBe('—/—');
+    expect(buildHudModel(state).cursorEnemyHp).toBe('—/—');
+  });
+
+  it('muestra la pista de G solo cuando el jugador ocupa un arma del mapa', () => {
+    const state = createInitialState({ seed: 279837264 });
+    const map = state.map;
+    if (!map || !map.weapons || map.weapons.length === 0) {
+      throw new Error('La semilla de referencia debe colocar armas');
+    }
+    const weapon = map.weapons[0];
+    const onWeapon: GameState = {
+      ...state,
+      players: [{ ...state.players[0], x: weapon.x, y: weapon.y }],
+    };
+
+    const model = buildHudModel(onWeapon, { x: weapon.x, y: weapon.y });
+    expect(model.weaponHint).toBe(`G recoger ${WEAPONS[weapon.weaponId].name}`);
+
+    const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' }).state;
+    expect(picked.map?.weapons?.some((entry) => entry.id === weapon.id)).toBe(false);
+    expect(buildHudModel(picked, { x: weapon.x, y: weapon.y }).weaponHint).toBeNull();
+    expect(buildHudModel(picked).weapon).toBe(
+      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${WEAPONS[weapon.weaponId].damage}`,
+    );
   });
 
   it('actualiza la vida del enemigo y la acción tras un ataque', () => {
@@ -188,5 +251,61 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Huecos: n/a');
     expect(text).toContain('Spawns: n/a');
     expect(text).toContain('Pasillos anchos: n/a');
+  });
+
+  it('añade equipo, modificadores, vida de todos, último ataque y enemigo bajo cursor', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 2, 1]),
+    });
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    const text = buildDebugModel(
+      result.state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      result.events,
+      { ...PLAYER_CURSOR, x: 6, y: 5, state: 'enemy', kind: 'enemy' },
+    ).lines.join('\n');
+
+    expect(text).toContain('Equipo: Espada +3/+4 · Escudo +1 · Armadura +1');
+    expect(text).toContain('Modificadores +1 acierto · +1 daño · +1 defensa');
+    expect(text).toContain('Vida: player-1 20/20 · enemy-1 5/10');
+    expect(text).toContain('Enemigo bajo cursor: enemy-1 5/10');
+    expect(text).toContain('Último ataque: player-1→enemy-1 impacto 5 (PV 5)');
+    expect(text).toContain('tiradas ataque 6 escudo 1 daño 2 armadura 1');
+  });
+
+  it('un fallo en F1 muestra Fallo y no inventa tiradas de daño', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([1, 6]),
+    });
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    const text = buildDebugModel(
+      result.state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      result.events,
+      PLAYER_CURSOR,
+    ).lines.join('\n');
+
+    expect(text).toContain('Último ataque: player-1→enemy-1 fallo');
+    expect(text).toContain('tiradas ataque 1 escudo 6');
+    expect(text).not.toContain('tiradas ataque 1 escudo 6 daño');
+    expect(text).toContain('Enemigo bajo cursor: ninguno');
   });
 });

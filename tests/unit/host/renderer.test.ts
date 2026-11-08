@@ -13,7 +13,11 @@ import {
   MAP_VIEWPORT,
   RENDER_SCALE,
 } from '../../../src/host/layout';
-import { renderScene, type SceneAssets } from '../../../src/host/renderer';
+import {
+  renderScene,
+  WEAPON_SHAPE_COLORS,
+  type SceneAssets,
+} from '../../../src/host/renderer';
 import {
   FLOOR_BASE,
   FLOOR_PALETTES,
@@ -541,6 +545,138 @@ describe('render del mapa generado', () => {
     const before = JSON.stringify(state);
 
     expect(() => draw(state, { x: 0, y: 0 })).not.toThrow();
+    expect(JSON.stringify(state)).toBe(before);
+  });
+});
+
+describe('render de armas del mapa', () => {
+  function stateWithWeapon(
+    weaponId: 'axe' | 'dagger',
+  ): { state: GameState; x: number; y: number } {
+    const base = createInitialState({ seed: 279837264 });
+    const player = base.players[0];
+    const x = player.x + 1;
+    const y = player.y;
+    if (!base.map) throw new Error('La semilla de referencia debe generar mapa');
+
+    return {
+      state: {
+        ...base,
+        map: {
+          ...base.map,
+          weapons: [{ id: `weapon-${weaponId}`, weaponId, x, y }],
+        },
+      },
+      x,
+      y,
+    };
+  }
+
+  it('dibuja el hacha con formas planas en su tile, sin assets nuevos', () => {
+    const { state, x, y } = stateWithWeapon('axe');
+    const fake = draw(state, { x: 0, y: 64 });
+
+    const axeFills = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' &&
+        op.style === WEAPON_SHAPE_COLORS.handle &&
+        op.x >= x * 32 &&
+        op.x < (x + 1) * 32 &&
+        op.y >= y * 32 &&
+        op.y < (y + 1) * 32,
+    );
+
+    expect(axeFills.length).toBeGreaterThan(0);
+    expect(
+      fake.ops.some(
+        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.axeBlade,
+      ),
+    ).toBe(true);
+    // Las armas son formas planas: no añaden `drawImage`.
+    expect(
+      fake.draws.some(
+        (call) =>
+          call.image !== assets.tiles &&
+          call.image !== assets.rogues &&
+          call.image !== assets.monsters,
+      ),
+    ).toBe(false);
+  });
+
+  it('el hacha y la daga usan formas distintas en el mismo tile', () => {
+    const axe = stateWithWeapon('axe');
+    const dagger = stateWithWeapon('dagger');
+    const axeFake = draw(axe.state, { x: 0, y: 64 });
+    const daggerFake = draw(dagger.state, { x: 0, y: 64 });
+
+    const axeShape = axeFake.ops.filter(
+      (op) =>
+        op.kind === 'fill' &&
+        (op.style === WEAPON_SHAPE_COLORS.handle ||
+          op.style === WEAPON_SHAPE_COLORS.axeBlade),
+    );
+    const daggerShape = daggerFake.ops.filter(
+      (op) =>
+        op.kind === 'fill' &&
+        (op.style === WEAPON_SHAPE_COLORS.handle ||
+          op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
+          op.style === WEAPON_SHAPE_COLORS.guard),
+    );
+
+    expect(axeShape).not.toEqual(daggerShape);
+    expect(
+      daggerFake.ops.some(
+        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.guard,
+      ),
+    ).toBe(true);
+    expect(
+      axeFake.ops.some(
+        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.daggerBlade,
+      ),
+    ).toBe(false);
+  });
+
+  it('dibuja las armas entre decals y unidades', () => {
+    const { state } = stateWithWeapon('axe');
+    const fake = draw(state, { x: 0, y: 64 });
+
+    const weaponIndex = fake.ops.findIndex(
+      (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.handle,
+    );
+    const decalIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.tiles && op.sy !== 64,
+    );
+    const unitIndex = fake.ops.findIndex(
+      (op) =>
+        op.kind === 'draw' &&
+        (op.image === assets.rogues || op.image === assets.monsters),
+    );
+
+    expect(weaponIndex).toBeGreaterThan(decalIndex);
+    expect(unitIndex).toBeGreaterThan(weaponIndex);
+  });
+
+  it('sin armas en el mapa no pinta formas de arma', () => {
+    const fake = draw(makeState(), { x: 0, y: 0 });
+
+    expect(
+      fake.ops.some(
+        (op) =>
+          op.kind === 'fill' &&
+          (op.style === WEAPON_SHAPE_COLORS.handle ||
+            op.style === WEAPON_SHAPE_COLORS.axeBlade ||
+            op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
+            op.style === WEAPON_SHAPE_COLORS.guard),
+      ),
+    ).toBe(false);
+  });
+
+  it('no muta el estado al dibujar armas', () => {
+    const { state } = stateWithWeapon('dagger');
+    const before = JSON.stringify(state);
+    const frozen = deepFreeze(state);
+
+    expect(() => draw(frozen, { x: 0, y: 64 })).not.toThrow();
     expect(JSON.stringify(state)).toBe(before);
   });
 });

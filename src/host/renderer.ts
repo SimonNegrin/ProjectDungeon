@@ -35,6 +35,42 @@ export interface RenderOptions {
 
 const SPRITE_SIZE = 32;
 
+/**
+ * Formas planas provisionales de las armas del mapa (sin assets). Son solo
+ * presentación: el arma, su posición y su ID vienen del estado del motor.
+ */
+export const WEAPON_SHAPE_COLORS = {
+  handle: '#8a5a2b',
+  axeBlade: '#b9c2cc',
+  daggerBlade: '#d7dde5',
+  guard: '#c9a227',
+} as const;
+
+function drawWeaponShape(
+  ctx: CanvasRenderingContext2D,
+  weaponId: string,
+  x: number,
+  y: number,
+  tileSize: number,
+): void {
+  if (weaponId === 'axe') {
+    ctx.fillStyle = WEAPON_SHAPE_COLORS.handle;
+    ctx.fillRect(x + tileSize * 0.44, y + tileSize * 0.24, tileSize * 0.12, tileSize * 0.56);
+    ctx.fillStyle = WEAPON_SHAPE_COLORS.axeBlade;
+    ctx.fillRect(x + tileSize * 0.18, y + tileSize * 0.2, tileSize * 0.4, tileSize * 0.2);
+    ctx.fillRect(x + tileSize * 0.54, y + tileSize * 0.26, tileSize * 0.16, tileSize * 0.16);
+    return;
+  }
+
+  // Daga (y cualquier arma melee sin forma propia todavía): hoja corta y guarda.
+  ctx.fillStyle = WEAPON_SHAPE_COLORS.handle;
+  ctx.fillRect(x + tileSize * 0.45, y + tileSize * 0.5, tileSize * 0.1, tileSize * 0.32);
+  ctx.fillStyle = WEAPON_SHAPE_COLORS.daggerBlade;
+  ctx.fillRect(x + tileSize * 0.45, y + tileSize * 0.12, tileSize * 0.1, tileSize * 0.4);
+  ctx.fillStyle = WEAPON_SHAPE_COLORS.guard;
+  ctx.fillRect(x + tileSize * 0.34, y + tileSize * 0.5, tileSize * 0.32, tileSize * 0.06);
+}
+
 function drawRect(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
@@ -176,6 +212,13 @@ export function renderScene(
         tileSize,
       );
     }
+  }
+
+  // Armas del mapa: formas planas provisionales entre decals/muros y unidades.
+  for (const weapon of state.map?.weapons ?? []) {
+    if (weapon.x < range.minX || weapon.x > range.maxX) continue;
+    if (weapon.y < range.minY || weapon.y > range.maxY) continue;
+    drawWeaponShape(ctx, weapon.weaponId, weapon.x * tileSize, weapon.y * tileSize, tileSize);
   }
 
   const positions = options.positions;

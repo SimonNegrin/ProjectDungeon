@@ -4,6 +4,8 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
+import { reduce } from '../../../src/game/index';
+import type { GameState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
 import {
   planDecoration,
@@ -345,6 +347,62 @@ describe('snapshot del mapa generado', () => {
     expect(fresh.decoration[0].family).not.toBe('mutada');
     expect(fresh.floorPalettes[0].ambient).not.toBe('mutado');
     expect(fresh.floorPalettes[0].second).not.toBe('#ffffff');
+  });
+
+  it('expone las armas del mapa clonadas y no deja mutar el estado vivo', () => {
+    const api = generatedSetup();
+
+    const snapshot = api.snapshot();
+    expect(snapshot.weapons).toHaveLength(2);
+    expect(snapshot.weapons.map((weapon) => weapon.weaponId).sort()).toEqual([
+      'axe',
+      'dagger',
+    ]);
+    expect(snapshot.weapons[0]).toMatchObject({
+      id: expect.any(String),
+      x: expect.any(Number),
+      y: expect.any(Number),
+    });
+
+    (snapshot.weapons[0] as { x: number }).x = 999;
+    const fresh = api.snapshot();
+    expect(fresh.weapons[0].x).not.toBe(999);
+    expect(JSON.parse(JSON.stringify(fresh)).weapons).toEqual(fresh.weapons);
+  });
+
+  it('las armas del snapshot desaparecen al recogerlas', () => {
+    const session = new GameSession({ seed: 279837264 });
+    const weapon = session.state.map?.weapons?.[0];
+    if (!weapon) throw new Error('La semilla de referencia debe colocar armas');
+
+    let state: GameState = {
+      ...session.state,
+      players: [{ ...session.state.players[0], x: weapon.x, y: weapon.y }],
+    };
+    const api = createDebugApi(
+      () => ({
+        state,
+        camera: { x: 0, y: 0 },
+        bounds: { maxX: 608, maxY: 608 },
+        viewport: { width: 416, height: 416 },
+        tileSize: 32,
+        assetsLoaded: true,
+        lastEvents: [],
+        cursor: deriveCursorStatus(state, weapon),
+      }),
+      (command) => {
+        const result = reduce(state, command);
+        state = result.state;
+        return { state, events: [...result.events] };
+      },
+    );
+
+    expect(api.snapshot().weapons).toHaveLength(2);
+    const pickup = api.dispatch({ type: 'PickUp', unitId: 'player-1' });
+
+    expect(pickup.snapshot.weapons).toHaveLength(1);
+    expect(pickup.snapshot.weapons.some((entry) => entry.id === weapon.id)).toBe(false);
+    expect(pickup.snapshot.players[0].equipment.weaponId).toBe(weapon.weaponId);
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {

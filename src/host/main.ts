@@ -12,7 +12,7 @@ import {
 } from './cursor';
 import { createCursorView } from './cursor-view';
 import { createDebugApi, type AnimationSnapshot } from './debug';
-import { collectDamageFeedbacks } from './feedback';
+import { collectAttackFeedbacks } from './feedback';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
@@ -89,14 +89,16 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
 
   return {
     update(state, camera, events): void {
-      const feedbacks = collectDamageFeedbacks(events, state);
+      const feedbacks = collectAttackFeedbacks(events, state);
       const last = feedbacks.at(-1);
       if (!last) return;
 
       const left = cssPercent(mapXToFramePercent((last.x + 0.5) * TILE_SIZE - camera.x));
       const top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
 
-      feedback.textContent = `-${last.damage}`;
+      feedback.textContent = last.text;
+      feedback.dataset.result = last.hit ? 'hit' : 'miss';
+      feedback.style.color = last.hit ? '' : '#9aa7b8';
       feedback.style.left = left;
       feedback.style.top = top;
 
@@ -104,24 +106,28 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
       void feedback.offsetWidth;
       feedback.classList.add('is-active');
 
-      flash.style.left = cssPercent(mapXToFramePercent(last.x * TILE_SIZE - camera.x));
-      flash.style.top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
-      flash.style.width = cssPercent(mapWidthToFramePercent(TILE_SIZE));
-      flash.style.height = cssPercent(mapHeightToFramePercent(TILE_SIZE));
-      flash.classList.remove('is-active');
-      void flash.offsetWidth;
-      flash.classList.add('is-active');
+      // El destello acompaña al impacto; un fallo se comunica solo con texto.
+      if (last.hit) {
+        flash.style.left = cssPercent(mapXToFramePercent(last.x * TILE_SIZE - camera.x));
+        flash.style.top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
+        flash.style.width = cssPercent(mapWidthToFramePercent(TILE_SIZE));
+        flash.style.height = cssPercent(mapHeightToFramePercent(TILE_SIZE));
+        flash.classList.remove('is-active');
+        void flash.offsetWidth;
+        flash.classList.add('is-active');
+
+        if (flashTimer !== undefined) window.clearTimeout(flashTimer);
+        flashTimer = window.setTimeout(() => {
+          flash.classList.remove('is-active');
+        }, 400);
+      }
 
       if (timer !== undefined) window.clearTimeout(timer);
       timer = window.setTimeout(() => {
         feedback.textContent = '';
         feedback.classList.remove('is-active');
+        delete feedback.dataset.result;
       }, DAMAGE_FEEDBACK_MS);
-
-      if (flashTimer !== undefined) window.clearTimeout(flashTimer);
-      flashTimer = window.setTimeout(() => {
-        flash.classList.remove('is-active');
-      }, 400);
     },
     clear(): void {
       if (timer !== undefined) window.clearTimeout(timer);
@@ -129,7 +135,9 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
       timer = undefined;
       flashTimer = undefined;
       feedback.textContent = '';
+      feedback.style.color = '';
       feedback.classList.remove('is-active');
+      delete feedback.dataset.result;
       flash.classList.remove('is-active');
     },
   };
@@ -278,8 +286,8 @@ async function boot(): Promise<void> {
       if (assets) {
         renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, { positions });
       }
-      hudView.update(display);
       const displayCursor = presentationCursor(animation);
+      hudView.update(display, displayCursor);
       cursorView.update(displayCursor, camera);
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
       return;
@@ -297,7 +305,7 @@ async function boot(): Promise<void> {
     if (assets) {
       renderScene(ctx, state, assets, camera, viewport, TILE_SIZE);
     }
-    hudView.update(state);
+    hudView.update(state, cursorStatus);
     cursorView.update(cursorStatus, camera);
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
   };
