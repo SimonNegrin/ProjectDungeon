@@ -4,22 +4,25 @@ id: TASK-0013
 title: "Motor: Moverse por destino y acercarse + atacar"
 description: Añade el comando de movimiento por destino que consume el plan de camino, gasta MP, se detiene a mitad y combina acercarse y atacar sobre un enemigo.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-008, R-009, R-010, R-011, T-003, T-004, T-009, T-012]
 depends_on: [TASK-0012]
 unlocks: [TASK-0014]
 created_at: 2026-11-08T01:27:27Z
-completed_at:
+completed_at: 2026-11-08T01:43:30Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0013/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:27:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T01:43:30Z
+    note: "Verificación independiente: diff completo de `src/game/types.ts`, `src/game/engine.ts`, tests nuevos y artefactos; `pnpm run verify` OK (81 documentos, 3 agentes/9 skills, 271 tests en 25 archivos, build 44 módulos). Revisados los 13 criterios: comando serializable, verde/ámbar/rojo, cinco casos de enemigo, ataque tras movimiento, muerte con `UnitDied`+`GameEnded`, atomicidad y orden de eventos. Sin tests existentes modificados, borrados, saltados ni debilitados; sin cambios fuera de alcance. Commit de implementación `4585e30`, evidencia `bf2bf48`, fusión `015c9d8`. Fricción: sin propuestas; motivos nuevos `no-path`/`invalid-target` triados como cambio local permitido."
 ---
 
 # Objetivo
