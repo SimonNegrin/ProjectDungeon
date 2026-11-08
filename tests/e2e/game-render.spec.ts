@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+import { artifactPath } from './artifacts';
 
 const CANVAS_ID = '#game-canvas';
 
@@ -140,7 +141,7 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   await page.setViewportSize({ width: 1280, height: 720 });
   await settleLayout(page);
 
-  const screenshotPath = 'artifacts/TASK-0016/attempt-1/screenshots/frame.png';
+  const screenshotPath = artifactPath(testInfo, 'screenshots', 'frame.png');
   await mkdir(dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath });
   await testInfo.attach('frame', { path: screenshotPath, contentType: 'image/png' });

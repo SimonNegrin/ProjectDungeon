@@ -2,15 +2,14 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { approachEnemy, moveCursorTo, settle } from './support';
-
-const SCREENSHOTS = 'artifacts/TASK-0010/attempt-1/screenshots';
+import { artifactPath } from './artifacts';
 
 async function snapshot(page: Page) {
   return page.evaluate(() => window.__game!.snapshot());
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });

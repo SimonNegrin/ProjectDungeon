@@ -4,9 +4,9 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { endTurn, restart, snapshot, walkTo, approachEnemy, moveCursorTo } from './support';
+import { artifactPath } from './artifacts';
 
 const CANVAS_ID = '#game-canvas';
-const SCREENSHOTS_DIR = 'artifacts/TASK-0016/attempt-1/screenshots';
 
 /** Valores del contrato aprobado en REQ-005 (no se leen de producción). */
 const TILE_SIZE = 32;
@@ -359,7 +359,7 @@ function expectWithinViewport(box: Box, viewportWidth: number, viewportHeight: n
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
-  const path = `${SCREENSHOTS_DIR}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path, fullPage: true });
   await testInfo.attach(name, { path, contentType: 'image/png' });

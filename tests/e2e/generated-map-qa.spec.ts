@@ -6,9 +6,8 @@ import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
 import { settle, walkTo } from './support';
+import { artifactPath } from './artifacts';
 
-const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
-const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
 const REFERENCE_SEED = 279837264;
 const REFERENCE_URL = `/?seed=${REFERENCE_SEED}`;
 
@@ -97,7 +96,7 @@ async function saveScreenshot(
   name: string,
   testInfo: TestInfo,
 ): Promise<void> {
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -133,7 +132,7 @@ async function saveCanvasCrop(
     Math.min(Math.max(cssY - size / 2, box.y), box.y + box.height - size),
   );
 
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   expect(box.width).toBeGreaterThanOrEqual(size);
   expect(box.height).toBeGreaterThanOrEqual(size);
@@ -994,8 +993,8 @@ test('generación 32×32 por debajo de 100 ms y ventana de frames sin tirones', 
     'frame_threshold p95_ms=50 max_ms=100',
     '',
   ];
-  await mkdir(ARTIFACTS, { recursive: true });
-  const performancePath = `${ARTIFACTS}/performance.txt`;
+  const performancePath = artifactPath(testInfo, 'performance.txt');
+  await mkdir(dirname(performancePath), { recursive: true });
   await writeFile(performancePath, lines.join('\n'), 'utf8');
   await testInfo.attach('performance', {
     path: performancePath,

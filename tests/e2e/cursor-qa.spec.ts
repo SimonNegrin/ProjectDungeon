@@ -13,8 +13,8 @@ import {
   snapshot,
   visibleRange,
 } from './support';
+import { artifactPath } from './artifacts';
 
-const SCREENSHOTS = 'artifacts/TASK-0016/attempt-1/screenshots';
 const SEED = 279837264;
 const SEED_URL = `/?seed=${SEED}`;
 
@@ -36,7 +36,7 @@ async function openGame(page: Page): Promise<void> {
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });

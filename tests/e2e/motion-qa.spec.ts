@@ -11,10 +11,8 @@ import {
   snapshot,
   visibleRange,
 } from './support';
+import { artifactPath } from './artifacts';
 
-const ARTIFACTS = 'artifacts/TASK-0019/attempt-1';
-const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
-const LOGS = `${ARTIFACTS}/logs`;
 const SEED = 279837264;
 const SEED_URL = `/?seed=${SEED}`;
 const PAUSE = MOTION_CONFIG.pauseMs;
@@ -68,12 +66,7 @@ async function screenshot(
   testInfo: TestInfo,
   clip?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number },
 ): Promise<void> {
-  // Las repeticiones escriben en `test-results` para no competir por el mismo
-  // PNG versionado entre workers.
-  const path =
-    testInfo.repeatEachIndex === 0
-      ? `${SCREENSHOTS}/${name}.png`
-      : testInfo.outputPath(`${name}.png`);
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path, ...(clip ? { clip } : {}) });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -880,9 +873,10 @@ test('dos ejecuciones producen el mismo resultado con reloj determinista', async
   expect(first.samples.map((sample) => sample.dots)).toEqual([2, 2, 1, 1, 0]);
 
   if (testInfo.repeatEachIndex === 0) {
-    await mkdir(LOGS, { recursive: true });
+    const logPath = artifactPath(testInfo, 'logs', 'motion-trace.log');
+    await mkdir(dirname(logPath), { recursive: true });
     await writeFile(
-      `${LOGS}/motion-trace.log`,
+      logPath,
       `${JSON.stringify(
         { seed: SEED, config: MOTION_CONFIG, first, second },
         null,
@@ -891,7 +885,7 @@ test('dos ejecuciones producen el mismo resultado con reloj determinista', async
       'utf8',
     );
     await testInfo.attach('motion-trace', {
-      path: `${LOGS}/motion-trace.log`,
+      path: logPath,
       contentType: 'application/json',
     });
   }
