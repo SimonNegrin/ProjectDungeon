@@ -1,0 +1,13 @@
+ src/game/ai.ts                          |  77 ++++---
+ src/game/bestiary.ts                    |   9 +-
+ src/game/engine.ts                      |  37 +++-
+ src/game/index.ts                       |   1 +
+ src/game/perception.ts                  | 222 +++++++++++++++++++
+ src/game/turn.ts                        |  62 +++++-
+ src/game/types.ts                       |  24 ++
+ src/host/hud.ts                         |   3 +
+ tests/unit/game/helpers.ts              |  15 ++
+ tests/unit/game/map-integration.test.ts |   9 +-
+ tests/unit/game/perception.test.ts      | 380 ++++++++++++++++++++++++++++++++
+ tests/unit/host/debug.test.ts           |  56 ++++-
+ 12 files changed, 854 insertions(+), 41 deletions(-)

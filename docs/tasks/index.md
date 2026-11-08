@@ -33,7 +33,7 @@ Total: **39**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0028](TASK-0028-bestiario-combate-ataque-enemigo.md) | Motor: bestiario de combate y ataque enemigo | `done` | REQ-010 | TASK-0026 | P1 |
 | [TASK-0029](TASK-0029-host-hud-equipo-feedback.md) | Host: HUD de equipo, armas en el mapa y feedback de combate | `done` | REQ-010 | TASK-0027, TASK-0028 | P1 |
 | [TASK-0030](TASK-0030-e2e-qa-combate-equipo.md) | E2E y QA visual del combate con equipo | `done` | REQ-010 | TASK-0029 | P1 |
-| [TASK-0034](TASK-0034-motor-percepcion-linea-vision-memoria.md) | Motor: percepción, línea de visión, detección por paso y memoria | `ready` | REQ-009 | — | P1 |
+| [TASK-0034](TASK-0034-motor-percepcion-linea-vision-memoria.md) | Motor: percepción, línea de visión, detección por paso y memoria | `done` | REQ-009 | — | P1 |
 | [TASK-0035](TASK-0035-motor-alarma-onda-enfriamiento.md) | Motor: alarma de una onda, enfriamiento y daño como despertador | `backlog` | REQ-009 | TASK-0034 | P1 |
 | [TASK-0036](TASK-0036-motor-colocacion-cuatro-enemigos.md) | Motor: colocación determinista de cuatro enemigos | `backlog` | REQ-009 | TASK-0034 | P1 |
 | [TASK-0037](TASK-0037-motor-ia-alerta-mp-huida-cobarde.md) | Motor: IA de alerta con MP y huida del cobarde | `backlog` | REQ-009 | TASK-0035, TASK-0036 | P1 |
@@ -43,10 +43,6 @@ Total: **39**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
-
-# ready
-
-* [TASK-0034 — Motor: percepción, línea de visión, detección por paso y memoria](TASK-0034-motor-percepcion-linea-vision-memoria.md)
 
 # backlog
 
@@ -87,6 +83,7 @@ Total: **39**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0028 — Motor: bestiario de combate y ataque enemigo](TASK-0028-bestiario-combate-ataque-enemigo.md)
 * [TASK-0029 — Host: HUD de equipo, armas en el mapa y feedback de combate](TASK-0029-host-hud-equipo-feedback.md)
 * [TASK-0030 — E2E y QA visual del combate con equipo](TASK-0030-e2e-qa-combate-equipo.md)
+* [TASK-0034 — Motor: percepción, línea de visión, detección por paso y memoria](TASK-0034-motor-percepcion-linea-vision-memoria.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0034 — cerrada: percepción 360° con Bresenham, radios 6/4/5, detección por paso y memoria/regreso; verify 517 y 91 tests de tarea OK; desviación aceptada de 3 líneas en `src/host/hud.ts`; fusión `8fc6879` — [informe](../artifacts/TASK-0034/attempt-2/report.md)
 * 2026-11-08 — Requirement — REQ-009 — v3 stable: bestiario Centinela/Bruto/Cobarde, visión 6/4/5, alarma 8, 4 enemigos, MP completo, huida determinista al 40 % y memoria de 3 fases; preguntas cerradas — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
 * 2026-11-08 — Planning — REQ-009 — tareas TASK-0034 a TASK-0039 creadas; TASK-0034 ready (percepción), resto backlog; grafo sin ciclos — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0033 — cerrada: snapshot profundo de unidades y RNG de solo lectura; verify 496 y E2E 63 OK; mutación detectada; fusión `60b1dc8` — [informe](../artifacts/TASK-0033/attempt-1/report.md)

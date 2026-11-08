@@ -1,0 +1,5 @@
+ src/game/perception.ts              | 34 +++++++++++++++
+ src/game/types.ts                   |  2 +
+ tests/unit/game/integration.test.ts | 46 +++++++++++++++++++++
+ tests/unit/game/perception.test.ts  | 82 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 164 insertions(+)

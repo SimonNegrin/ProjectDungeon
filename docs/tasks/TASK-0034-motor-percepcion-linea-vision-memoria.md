@@ -4,22 +4,35 @@ id: TASK-0034
 title: "Motor: percepción, línea de visión, detección por paso y memoria"
 description: Añadir un módulo puro de percepción con visión 360° y línea de visión, estados dormido/alerta/regreso, detección tras cada paso y memoria de la última posición, expuesto en el snapshot.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-007, T-001, T-002, T-003, T-008, T-009, T-010, T-011]
 depends_on: []
 unlocks: [TASK-0035, TASK-0036]
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T20:55:00Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0034/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T20:55:00Z
+    note: >-
+      Intentos 1 y 2 verificados en task/TASK-0034: implementación 0838e8c y
+      8fc6879. Diff completo revisado; verify re-ejecutado por el lead (517
+      tests, docs/config y build OK) y 91 tests de la tarea OK. Criterios
+      R-001 a R-005 y R-007 cubiertos: visión 360° con Bresenham, radios 6/4/5,
+      detección por paso con `step`, estados/memoria serializables, regreso real
+      sin ataque y transición pura `noteDamage`. Sin tests borrados, saltados ni
+      debilitados y sin cambios en dependencias. Desviación aceptada: `default`
+      de 3 líneas en `src/host/hud.ts` para la exhaustividad de `GameEvent`; no
+      altera eventos existentes y el feedback es de TASK-0038. T-009
+      (`docs/design/turn-economy.md` y glosario) queda para requirements-writer.
 ---
 
 # Objetivo
@@ -41,23 +54,23 @@ pertenecen a las tareas siguientes.
 
 # Criterios de aceptación
 
-- [ ] La visión es de 360° y usa Bresenham: los muros bloquean y las unidades
+- [x] La visión es de 360° y usa Bresenham: los muros bloquean y las unidades
       no; cada tipo usa su radio del bestiario (6/4/5).
-- [ ] La detección se evalúa tras cada paso aceptado de `Move` y `MoveTo`, no
+- [x] La detección se evalúa tras cada paso aceptado de `Move` y `MoveTo`, no
       solo al cerrar el turno; no consume MP ni acción y emite un evento con el
       paso y el `unitId`.
-- [ ] `Unit` incorpora `awareness` (`dormant` / `alert` / `returning`),
+- [x] `Unit` incorpora `awareness` (`dormant` / `alert` / `returning`),
       `fleeing`, `home`, `lastKnown`, `alertTurns` y `hasShouted`; es
       serializable y `window.__game.snapshot()` lo expone en solo lectura.
-- [ ] Un enemigo dormido no se mueve ni ataca. Al ver a un jugador pasa a
+- [x] Un enemigo dormido no se mueve ni ataca. Al ver a un jugador pasa a
       alerta, guarda `lastKnown` y reinicia `alertTurns`.
-- [ ] Sin visión, investiga hasta 2 fases enemigas y en la tercera vuelve a
+- [x] Sin visión, investiga hasta 2 fases enemigas y en la tercera vuelve a
       `home`; si no llega, sigue volviendo sin atacar; al llegar queda dormido.
-- [ ] Una nueva visión reinicia la memoria y el contador; recibir daño también
+- [x] Una nueva visión reinicia la memoria y el contador; recibir daño también
       lo reinicia y devuelve a alerta (la reacción de alarma es de `TASK-0035`).
-- [ ] Misma semilla, estado y entradas producen los mismos eventos y posiciones;
+- [x] Misma semilla, estado y entradas producen los mismos eventos y posiciones;
       no se usa `Math.random`.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` no conoce
+- [x] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` no conoce
       DOM, Canvas, red ni relojes.
 
 # Plan de test
@@ -73,9 +86,9 @@ pertenecen a las tareas siguientes.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0034/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0034`.
+- [x] Informe en `artifacts/TASK-0034/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0034`.
 
 # Comandos
 
