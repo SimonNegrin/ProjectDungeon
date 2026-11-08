@@ -4,22 +4,35 @@ id: TASK-0039
 title: "E2E y QA visual de percepción, alarma y huida"
 description: Cubrir con Playwright la detección por paso, la alarma sin cadena, el enfriamiento, el daño como despertador, la huida determinista y el feedback; revisar capturas.
 status: stable
-task_status: ready
+task_status: done
 task_type: qa
 requirement: REQ-009
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, T-010]
 depends_on: [TASK-0037, TASK-0038]
 unlocks: []
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T23:10:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0039/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T23:10:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0039 (commits 0668f5a, 650202f,
+      f1e1284, 1c37e48, dfbbc6d y b87d4a1), fusionado en main. Diff completo
+      revisado: solo host de test (setup gateado con ?test=1) y specs E2E
+      nuevos; sin cambios en src/game, reglas, combate, IA ni dependencias.
+      Lead re-ejecutó `pnpm run verify` (559 tests, docs/config y build OK),
+      `pnpm run test:e2e` (70/70) y `--repeat-each=3` (210/210). Mutaciones
+      locales revertidas (strongHit=false y alarma +1) hicieron fallar los
+      nuevos specs, demostrando que cubren las reglas. Capturas 1280×720
+      revisadas: sin F1 no hay radios, el aviso queda en el HUD, "!" legible,
+      huida rompe LOS y acorralado ataca. R-010 verificado con canSee/BESTIARY.
 ---
 
 # Objetivo
