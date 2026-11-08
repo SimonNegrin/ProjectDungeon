@@ -1,6 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 import type { Command } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
+import { visibleTileRange, type TileRange } from '../../src/host/geometry';
 
 export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
@@ -256,4 +257,139 @@ export async function approachEnemy(page: Page): Promise<void> {
 
     throw new Error('No se alcanzó la adyacencia con el enemigo.');
   });
+}
+
+/** Rango de tiles visibles para la cámara actual, calculado por el host. */
+export function visibleRange(snap: GameSnapshot): TileRange {
+  return visibleTileRange(snap.camera, snap.viewport, snap.grid, snap.tileSize);
+}
+
+/**
+ * Gasta un `Move` real en la dirección libre que más aleja al jugador del
+ * enemigo. Devuelve `false` si no hay ninguna retirada válida. No teletransporta
+ * ni inyecta estado.
+ */
+export async function moveAwayFromEnemy(page: Page): Promise<boolean> {
+  return page.evaluate(() => {
+    const game = window.__game!;
+    const snap = game.snapshot();
+    const player = snap.players[0];
+    const enemy = snap.enemies[0];
+    const width = snap.grid.width;
+    const directions = [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+      [1, -1],
+      [1, 1],
+      [-1, 1],
+      [-1, -1],
+    ] as const;
+
+    const tile = (x: number, y: number): string | undefined =>
+      x < 0 || y < 0 || x >= snap.grid.width || y >= snap.grid.height
+        ? undefined
+        : snap.grid.tiles[y * width + x];
+
+    const free = (x: number, y: number): boolean =>
+      tile(x, y) === 'floor' &&
+      !(x === enemy.x && y === enemy.y) &&
+      !(x === player.x && y === player.y);
+
+    const canStep = (dx: number, dy: number): boolean => {
+      const nx = player.x + dx;
+      const ny = player.y + dy;
+      if (!free(nx, ny)) return false;
+      if (dx !== 0 && dy !== 0) {
+        if (!free(player.x + dx, player.y) || !free(player.x, player.y + dy)) return false;
+      }
+      return true;
+    };
+
+    const distance = (x: number, y: number): number =>
+      Math.max(Math.abs(x - enemy.x), Math.abs(y - enemy.y));
+
+    const candidates = directions
+      .filter(([dx, dy]) => canStep(dx, dy))
+      .sort(
+        ([adx, ady], [bdx, bdy]) =>
+          distance(player.x + bdx, player.y + bdy) -
+          distance(player.x + adx, player.y + ady),
+      );
+
+    for (const [dx, dy] of candidates) {
+      const result = game.dispatch({
+        type: 'Move',
+        unitId: player.id,
+        dx,
+        dy,
+      });
+      if (!result.events.some((event) => event.type === 'CommandRejected')) {
+        return true;
+      }
+    }
+
+    return false;
+  });
+}
+
+/**
+ * Deja al jugador adyacente al enemigo con al menos `minimumMp` MP y acción.
+ * Si ya está adyacente pero le falta MP o acción, termina el turno (el enemigo
+ * ataca) y espera al siguiente turno del jugador. Usa solo `EndTurn` real.
+ */
+export async function ensureAdjacentWithMp(
+  page: Page,
+  minimumMp: number,
+): Promise<GameSnapshot> {
+  for (let guard = 0; guard < 3; guard += 1) {
+    const snap = await snapshot(page);
+    const player = snap.players[0];
+    const enemy = snap.enemies[0];
+    const distance = Math.max(
+      Math.abs(player.x - enemy.x),
+      Math.abs(player.y - enemy.y),
+    );
+    if (distance !== 1) {
+      throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
+    }
+    if (player.mp >= minimumMp && player.actionAvailable) return snap;
+    await endTurn(page);
+  }
+
+  throw new Error(`No se alcanzaron ${minimumMp} MP y acción junto al enemigo.`);
+}
+
+/**
+ * Retrocede con `Move` reales hasta que el plan sobre el enemigo cueste más que
+ * el MP restante, manteniendo al enemigo dentro del viewport. Solo mueve al
+ * jugador cuando el plan todavía cabe en el MP; si no queda MP, termina turno.
+ */
+export async function retreatEnemyOutOfReach(
+  page: Page,
+  maxSteps = 10,
+): Promise<GameSnapshot> {
+  for (let step = 0; step < maxSteps; step += 1) {
+    let snap = await snapshot(page);
+    const enemy = snap.enemies[0];
+    await moveCursorTo(page, enemy.x, enemy.y);
+    snap = await snapshot(page);
+    if (snap.cursor.kind !== 'enemy') {
+      throw new Error('El cursor dejó de apuntar al enemigo durante la retirada.');
+    }
+    if (snap.cursor.path.length > snap.players[0].mp) return snap;
+
+    if (snap.players[0].mp === 0) {
+      await endTurn(page);
+      continue;
+    }
+
+    const moved = await moveAwayFromEnemy(page);
+    if (!moved) {
+      throw new Error('No hay ninguna retirada válida para alejarse del enemigo.');
+    }
+  }
+
+  throw new Error('No se consiguió que el enemigo quedara fuera de alcance.');
 }
