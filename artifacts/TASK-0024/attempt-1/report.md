@@ -19,13 +19,13 @@ de TASK-0022.
 
 - `tests/e2e/floor-qa-ambient.spec.ts` (nuevo, 5 tests). Sin cambios en `src/`,
   `index.html`, `public/` ni tests existentes.
-- Commit SHA: `2347955` (tests).
+- Commit SHA: `ae0553b` (tests).
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `E2E_ARTIFACTS_DIR=artifacts/TASK-0024/attempt-1 pnpm run test:e2e floor-qa` | 11/11 en 7,7 s | `e2e-output.txt` |
+| `E2E_ARTIFACTS_DIR=artifacts/TASK-0024/attempt-1 pnpm run test:e2e floor-qa` | 11/11 en 5,5 s | `e2e-output.txt` |
 | `pnpm run test:e2e` | 51/51 en 23,0 s | `full-e2e-output.txt` |
 | `pnpm run verify` | vitest 397/397; tsc+build OK | `verify-output.txt` |
 
