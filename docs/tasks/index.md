@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **16**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **17**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -20,6 +20,11 @@ Total: **16**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0014](TASK-0014-host-cursor-camino.md) | Host: cursor, input, camino y feedback | `done` | REQ-004 | TASK-0013 | P1 |
 | [TASK-0015](TASK-0015-e2e-qa-cursor.md) | E2E y QA visual del cursor y el camino | `done` | REQ-004 | TASK-0014 | P1 |
 | [TASK-0016](TASK-0016-viewport-13x13.md) | Host, render y tests: viewport 13×13 centrado con tiles completos | `done` | REQ-005 | TASK-0015 | P1 |
+| [TASK-0017](TASK-0017-ritmo-movimiento.md) | EXP-002: ritmo del movimiento animado | `review` | REQ-006 | TASK-0016 | P1 |
+
+# review
+
+* [TASK-0017 — EXP-002: ritmo del movimiento animado](TASK-0017-ritmo-movimiento.md)
 
 # done
 

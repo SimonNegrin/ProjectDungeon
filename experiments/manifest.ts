@@ -24,4 +24,12 @@ export const experiments: ExperimentManifestEntry[] = [
     path: '/experiments/EXP-001-generador-mazmorra/',
     status: 'decided',
   },
+  {
+    id: 'EXP-002',
+    title: 'Ritmo del movimiento animado',
+    description: 'Compara duración de paso, pausa por tile y tratamiento de la diagonal con el recorrido real.',
+    question: '¿Qué duración de paso, pausa por tile y tratamiento de la diagonal hacen que recorrer el camino se sienta ágil y legible?',
+    path: '/experiments/EXP-002-ritmo-movimiento/',
+    status: 'ready',
+  },
 ];
