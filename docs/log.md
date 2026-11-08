@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0030 — cerrada: E2E y QA visual de combate con equipo, recogida por 1 MP, cambio 1-3, determinismo y victoria/derrota; verify 483 y E2E 62 OK; capturas 1280×720 — [informe](../artifacts/TASK-0030/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0029 — cerrada: HUD de equipo, armas del mapa, pista de G y feedback Fallo/-N con F1 completo; verify 483 y E2E 57 OK; fusión `da31675` — [informe](../artifacts/TASK-0029/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0028 — cerrada: bestiario centinela/bruto/cobarde y ataque enemigo con el resolvedor compartido; TtK dentro de ±0,3; verify 466 y E2E 55 OK — [informe](../artifacts/TASK-0028/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0027 — cerrada: armas de mapa deterministas, G por 1 MP y cambio gratis 1-3; verify 460 y E2E 55 OK; fusión `f69b844` — [informe](../artifacts/TASK-0027/attempt-1/report.md)
