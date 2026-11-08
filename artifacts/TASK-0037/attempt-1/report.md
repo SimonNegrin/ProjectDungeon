@@ -65,13 +65,18 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| E2E de combate fijan daño/HP y “un tile por fase” | fallos iniciales 12/63 en `e2e-baseline` vs `e2e-output` | derivar de eventos y helpers con pathfinding | cualquier cambio de IA o RNG rompe muchos specs | documentar en `docs/harness` que los specs deriven de eventos | bajo | `pending` |
+| E2E de combate fijan daño/HP y “un tile por fase” | Cambios en 7 specs y `support.ts`; baseline previo 63/63 (`e2e-baseline.txt`) | derivar de eventos y helpers con pathfinding | cualquier cambio de IA o RNG rompe muchos specs | documentar en `docs/harness` que los specs deriven de eventos | bajo | `deferred` |
+
+Disposición del lead: `deferred` a `requirements-writer` por ser fricción
+documental/de arnés (`docs/harness/**` fuera del alcance del lead). La evidencia
+“12/63 fallos iniciales” no está en `e2e-baseline.txt` (63/63 OK); se descarta
+ese dato y se conserva la propuesta. No bloquea TASK-0037.
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2723 |
-| `report_bytes` | 3249 |
+| `report_bytes` | 3573 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

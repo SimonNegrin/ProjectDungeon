@@ -4,22 +4,33 @@ id: TASK-0037
 title: "Motor: IA de alerta con MP y huida del cobarde"
 description: Hacer que planEnemyAction distinga dormido, alerta, regreso y huida; usar los 4 MP para converger o escapar y atacar al llegar si conserva la acción.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-005, R-007, R-009, T-005, T-006, T-008, T-009, T-010, T-011]
 depends_on: [TASK-0035, TASK-0036]
 unlocks: [TASK-0038, TASK-0039]
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T22:15:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0037/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T22:15:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0037 (commits 9933e60 y d25d67e).
+      Diff completo revisado; lead re-ejecutó 85 tests dirigidos,
+      `pnpm run verify` (549 tests, docs/config y build OK) y
+      `pnpm run test:e2e` (63/63). Criterios R-005/R-007/R-009 y
+      T-005/T-006/T-008 a T-011 cubiertos; sin test borrado ni debilitado y sin
+      cambios de percepción, alarma, colocación, combate o dependencias.
+      Riesgo TASK-0035 (`EnemySpotted` tras onda) no bloquea: feedback en
+      TASK-0038. Fricción E2E/documental `deferred` a requirements-writer.
 ---
 
 # Objetivo
