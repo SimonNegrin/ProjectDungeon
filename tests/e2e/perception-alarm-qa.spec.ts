@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { hasLineOfSight } from '../../src/game/perception';
+import { BESTIARY } from '../../src/game/bestiary';
+import { canSee, hasLineOfSight } from '../../src/game/perception';
 import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import {
@@ -330,6 +331,16 @@ test('TASK-0039: semilla de referencia, R-010 y determinismo', async ({
   expect(initial.enemies.every((enemy) => enemy.awareness === 'dormant')).toBe(
     true,
   );
+  // R-010: ningún enemigo ve al jugador al inicio. `canSee` usa el radio de
+  // BESTIARY y la línea de visión del mapa; los cuatro deben dar false.
+  for (const enemy of initial.enemies) {
+    expect(enemy.enemyType).not.toBeNull();
+    expect(BESTIARY[enemy.enemyType!].vision).toBeGreaterThan(0);
+    expect(
+      canSee(initial.grid, enemy, initial.players[0]),
+      `${enemy.id} no debe ver al jugador al inicio`,
+    ).toBe(false);
+  }
   const rooms = initial.enemies.map((enemy) => roomAt(initial, enemy.x, enemy.y));
   expect(rooms.every((room) => room !== undefined)).toBe(true);
   expect(new Set(rooms.map((room) => room!.id)).size).toBe(4);
