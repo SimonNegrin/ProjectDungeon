@@ -67,7 +67,12 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `artifacts.ts` afirma que dos workers nunca comparten archivos, pero con `fullyParallel` los tests de un mismo spec comparten su carpeta | Comentario de `artifactPath`; 6 tests del spec escriben en `floor-qa/` | Nombres únicos por test | Cualquier spec paralelo con capturas genéricas puede pisarse | Añadir segmento por título o matizar el comentario | Bajo | `pending` |
+| `artifacts.ts` afirma que dos workers nunca comparten archivos, pero con `fullyParallel` los tests de un mismo spec comparten su carpeta | Comentario de `artifactPath`; 6 tests del spec escriben en `floor-qa/` | Nombres únicos por test, salvo `damero-sala.png` (dos tests lo reescriben con el mismo contenido; sin aserción sobre el archivo) | Cualquier spec paralelo con capturas genéricas puede pisarse | Añadir segmento por título o matizar el comentario | Bajo | `deferred — requirements-writer` |
+
+Triaje del lead: la propuesta es un cambio de arnés (comentario/helper de
+`tests/e2e/artifacts.ts`), no bloquea TASK-0022; se eleva a `requirements-writer`
+con la evidencia anterior. La reutilización de `damero-sala.png` no afectó a la
+corrida porque ambos buffers son idénticos y ninguna aserción lee el archivo.
 
 # Métricas de handoff
 
