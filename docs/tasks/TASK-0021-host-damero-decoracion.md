@@ -4,22 +4,34 @@ id: TASK-0021
 title: "Host: damero global y decoración plana determinista"
 description: Pintar el suelo transitable con un damero de dos tonos y decals planos no bloqueantes, de forma determinista y sin tocar el motor.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-007
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-009]
 depends_on: []
 unlocks: [TASK-0022]
 created_at: 2026-11-08T11:55:58Z
-completed_at:
+completed_at: 2026-11-08T13:40:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0021/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:55:58Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T13:40:00Z
+    note: >-
+      Verificación independiente en task/TASK-0021 (commits ae6164c, b37af32,
+      2d36f5f, 10b17d3; fusión 6c8117f): diff limitado a src/host/assets.ts,
+      debug.ts, floor.ts, renderer.ts, tests/unit/host y artifacts/TASK-0021;
+      src/game/, index.html, public/assets/, package.json y pnpm-lock.yaml
+      intactos; sin tests borrados ni debilitados. `pnpm run verify` OK (109
+      documentos, 22 tareas; 381/381 tests en 30 archivos; build 54 módulos) y
+      `pnpm run test:e2e` OK (40/40). Densidad de referencia 15,04 % en salas y
+      7,04 % en pasillos; sin decals en 18 puertas ni spawns. Capturas 1280×720
+      en artifacts/TASK-0021/attempt-1/screenshots/.
 ---
 
 # Objetivo

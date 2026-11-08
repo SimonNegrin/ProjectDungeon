@@ -59,13 +59,13 @@ Sin decals en 18 puertas ni en spawns; máximo uno por tile.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `artifacts/*/logs/*.log` no se versiona por `.gitignore` `*.log` | `git check-ignore` sobre `logs/screenshots.log` | Guardar como `screenshots.txt` | El workflow pide `logs/` como evidencia y el ignore lo excluye en cada tarea | Permitir `artifacts/**/logs/*.log` o documentar `.txt` | Bajo | `deferred` — requirements-writer |
+| `artifacts/*/logs/*.log` no se versiona por `.gitignore` `*.log` | `git check-ignore` sobre `logs/screenshots.log` | Guardar `.txt` | El workflow pide `logs/` y el ignore lo excluye | Permitir `artifacts/**/logs/*.log` o documentar `.txt` | Bajo | `deferred` — requirements-writer |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2515 |
-| `report_bytes` | 2553 |
+| `report_bytes` | 2533 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
