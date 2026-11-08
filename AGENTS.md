@@ -3,13 +3,29 @@ type: Agent Instructions
 title: Instrucciones de entrada para agentes
 description: Punto de entrada para cualquier agente que trabaje en ProyectDungeon.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:30:00Z }
 ---
 
 # ProyectDungeon
 
 Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 [docs/harness/workflow.md](docs/harness/workflow.md).
+
+## Selección de agente
+
+- `requirements-writer` es el agente primario por defecto para sesiones nuevas
+  (`default_agent` en `opencode.jsonc`). La selección se guarda por sesión:
+  cambiar la configuración no reemplaza el agente de una sesión ya abierta.
+- `requirements-writer` es primario y no se lanza como subagente. Si la sesión
+  actual no lo es y la petición crea o cambia comportamiento de juego, producto
+  o alcance:
+  1. No edites `src/`, `tests/`, `index.html` ni `public/`.
+  2. Comprueba si hay un requisito aceptado y una tarea que cubran el cambio.
+  3. Si no los hay, detente y pide al usuario cambiar a `requirements-writer` o
+     ejecutar `/requirement` antes de continuar.
+- Si ya existe una tarea `ready`, el siguiente paso es `task-lead`; no se
+  implementa directamente.
+- Una sesión por requisito o milestone.
 
 ## Reglas del proyecto
 

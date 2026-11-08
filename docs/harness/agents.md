@@ -3,7 +3,7 @@ type: Agent Charter
 title: Agentes
 description: Charters, permisos, entradas y salidas de requirements-writer, task-lead y task-runner.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:30:00Z }
 ---
 
 # Principio
@@ -21,6 +21,24 @@ procedimientos. El usuario es la autoridad creativa.
 
 `requirements-writer` puede lanzar `task-lead`; `task-lead` puede lanzar
 `task-runner`. Para ello, `opencode.jsonc` configura `subagent_depth: 2`.
+
+# Selección de agente y sesión
+
+- OpenCode guarda el agente primario por sesión. `default_agent` de
+  `opencode.jsonc` solo se aplica a sesiones nuevas; no reemplaza el agente de
+  una sesión ya abierta.
+- `requirements-writer` es primario: no se puede lanzar como subagente desde una
+  sesión `build` o `plan`.
+- Para cambiar una sesión existente a `requirements-writer`, ejecuta
+  `/requirement` (definido en `.opencode/commands/requirement.md`).
+- Si la sesión no es `requirements-writer` y la petición crea o cambia
+  comportamiento de juego, producto o alcance, el agente debe parar antes de
+  editar `src/`, `tests/`, `index.html` o `public/`, comprobar si existen
+  requisito y tarea aceptados, y pedir el cambio de agente o `/requirement`
+  cuando falten.
+- Si la tarea ya está `ready`, se lanza `task-lead`; no se implementa
+  directamente.
+- Una sesión por requisito o milestone.
 
 # requirements-writer
 

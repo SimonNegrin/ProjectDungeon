@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+* **Harness**: Se refuerza el arranque de requisitos tras detectar que una sesión abierta con `build` no cambia de agente por configuración. `default_agent` solo aplica a sesiones nuevas y `requirements-writer` es primario, así que no se lanza como subagente. Se añade el comando `/requirement` (`agent: requirements-writer`) y una regla de parada en [AGENTS.md](../AGENTS.md) y [agentes](harness/agents.md): si la sesión actual no es `requirements-writer` y la petición crea o cambia comportamiento de juego, producto o alcance, el agente no toca `src/`, `tests/`, `index.html` ni `public/`; comprueba requisito y tarea aceptados y pide cambiar de agente o usar `/requirement` cuando falten.
+
 * **Requirement**: Se crea y aprueba `REQ-005` v1: el sub-viewport del mapa pasa de 12×12 a 13×13 tiles (416×416 px lógicos) para que el jugador ocupe el tile central y los bordes muestren tiles completos. Se mantienen los tiles de 32 px, el marco 16:9, la cámara, el HUD, el cursor, el feedback y la distancia mínima de aparición de 12 tiles; el marco crece a 416 px de alto y se presenta un 8 % más pequeño. Sustituye el tamaño de viewport de `REQ-002` (R-003, R-005 y R-007) y las referencias equivalentes de `REQ-003`/`REQ-004`.
 * **Planning**: Se crea `TASK-0016` (`ready`) para el host, el render, la aparición BSP y la actualización de tests unitarios/E2E. Depende de `TASK-0015`; no hay decisión creativa abierta.
 
