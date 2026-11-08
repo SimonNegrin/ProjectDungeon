@@ -9,7 +9,9 @@ import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions
 import {
   ENEMY_MAX_HP,
   ENEMY_MAX_MP,
+  MAX_WEAPONS,
   MOVE_COST,
+  PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   type Command,
@@ -338,6 +340,111 @@ function reduceAttack(
   return { state: next, events };
 }
 
+function reducePickUp(
+  state: GameState,
+  command: Extract<Command, { type: 'PickUp' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+
+  const unit = state.players.find((player) => player.id === command.unitId);
+  if (!unit) {
+    return reject(state, command, 'unknown-unit');
+  }
+  if (!isAlive(unit)) {
+    return reject(state, command, 'dead-unit');
+  }
+
+  const map = state.map;
+  if (!map) {
+    return reject(state, command, 'no-weapon');
+  }
+
+  const weapon = map.weapons?.find(
+    (candidate) => candidate.x === unit.x && candidate.y === unit.y,
+  );
+  if (!weapon) {
+    return reject(state, command, 'no-weapon');
+  }
+  if (unit.mp < PICKUP_COST) {
+    return reject(state, command, 'no-mp');
+  }
+
+  const alreadyOwned = unit.weapons.includes(weapon.weaponId);
+  if (!alreadyOwned && unit.weapons.length >= MAX_WEAPONS) {
+    return reject(state, command, 'inventory-full');
+  }
+
+  const nextUnit: Unit = {
+    ...unit,
+    mp: unit.mp - PICKUP_COST,
+    weapons: alreadyOwned ? unit.weapons : [...unit.weapons, weapon.weaponId],
+    equipment: { ...unit.equipment, weaponId: weapon.weaponId },
+  };
+
+  return {
+    state: {
+      ...state,
+      players: state.players.map((candidate) =>
+        candidate.id === unit.id ? nextUnit : candidate,
+      ),
+      map: {
+        ...map,
+        weapons: (map.weapons ?? []).filter((candidate) => candidate.id !== weapon.id),
+      },
+    },
+    events: [],
+  };
+}
+
+function reduceSelectWeapon(
+  state: GameState,
+  command: Extract<Command, { type: 'SelectWeapon' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+
+  const unit = state.players.find((player) => player.id === command.unitId);
+  if (!unit) {
+    return reject(state, command, 'unknown-unit');
+  }
+  if (!isAlive(unit)) {
+    return reject(state, command, 'dead-unit');
+  }
+  if (
+    !Number.isInteger(command.slot) ||
+    command.slot < 1 ||
+    command.slot > MAX_WEAPONS
+  ) {
+    return reject(state, command, 'invalid-slot');
+  }
+
+  const weaponId = unit.weapons[command.slot - 1];
+  if (!weaponId) {
+    return reject(state, command, 'invalid-slot');
+  }
+  if (unit.equipment.weaponId === weaponId) {
+    return { state, events: [] };
+  }
+
+  const nextUnit: Unit = {
+    ...unit,
+    equipment: { ...unit.equipment, weaponId },
+  };
+
+  return {
+    state: {
+      ...state,
+      players: state.players.map((candidate) =>
+        candidate.id === unit.id ? nextUnit : candidate,
+      ),
+    },
+    events: [],
+  };
+}
+
 /**
  * Reducción pura: recibe el estado y un comando y devuelve un estado nuevo
  * (o el mismo si se rechaza) más los eventos ocurridos. No muta la entrada.
@@ -358,6 +465,10 @@ export function reduce(state: GameState, command: Command): ReduceResult {
       return reduceMoveTo(state, command);
     case 'Attack':
       return reduceAttack(state, command);
+    case 'PickUp':
+      return reducePickUp(state, command);
+    case 'SelectWeapon':
+      return reduceSelectWeapon(state, command);
     case 'EndTurn':
       if (state.phase !== 'player') {
         return reject(state, command, 'wrong-phase');

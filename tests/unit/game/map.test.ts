@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   BspMapGenerator,
   DEFAULT_MAP_OPTIONS,
@@ -9,6 +9,7 @@ import {
   countPathCorners,
   countWideFloor,
   floorDistances,
+  isFloorTile,
   isLargeRoom,
   isOrthogonalPath,
   isSmallRoom,
@@ -589,6 +590,82 @@ describe('apariciones', () => {
 
     expect(reference.tiles[tileIndex(reference.width, player.x, player.y)]).toBe('floor');
     expect(reference.tiles[tileIndex(reference.width, enemy.x, enemy.y)]).toBe('floor');
+  });
+});
+
+describe('armas del mapa', () => {
+  const weapons = reference.weapons ?? [];
+
+  it('coloca el hacha y la daga como entidades con ID, posición y arma', () => {
+    expect(weapons.map((weapon) => weapon.weaponId).sort()).toEqual(['axe', 'dagger']);
+    expect(new Set(weapons.map((weapon) => weapon.id)).size).toBe(2);
+
+    for (const weapon of weapons) {
+      expect(Number.isInteger(weapon.x)).toBe(true);
+      expect(Number.isInteger(weapon.y)).toBe(true);
+      expect(weapon.x).toBeGreaterThanOrEqual(0);
+      expect(weapon.y).toBeGreaterThanOrEqual(0);
+      expect(weapon.x).toBeLessThan(reference.width);
+      expect(weapon.y).toBeLessThan(reference.height);
+    }
+  });
+
+  it('usa dos salas distintas y ninguna es la sala inicial', () => {
+    const playerRoom = roomAt(
+      reference.rooms,
+      reference.spawns.player.x,
+      reference.spawns.player.y,
+    );
+    expect(playerRoom).toBeDefined();
+
+    const roomIds = weapons.map((weapon) => {
+      const room = roomAt(reference.rooms, weapon.x, weapon.y);
+      expect(room, `arma ${weapon.id} fuera de sala`).toBeDefined();
+      expect(room?.id).not.toBe(playerRoom?.id);
+      return room?.id;
+    });
+
+    expect(new Set(roomIds).size).toBe(2);
+  });
+
+  it('es alcanzable y no ocupa muro, puerta ni aparición', () => {
+    const distances = floorDistances(reference, reference.spawns.player);
+    const doorKeys = new Set(reference.doors.map((door) => `${door.x},${door.y}`));
+    const spawnKeys = new Set([
+      `${reference.spawns.player.x},${reference.spawns.player.y}`,
+      `${reference.spawns.enemy.x},${reference.spawns.enemy.y}`,
+    ]);
+
+    for (const weapon of weapons) {
+      expect(isFloorTile(reference, weapon.x, weapon.y), weapon.id).toBe(true);
+      expect(
+        distances[tileIndex(reference.width, weapon.x, weapon.y)],
+        weapon.id,
+      ).toBeGreaterThan(0);
+      expect(doorKeys.has(`${weapon.x},${weapon.y}`), weapon.id).toBe(false);
+      expect(spawnKeys.has(`${weapon.x},${weapon.y}`), weapon.id).toBe(false);
+    }
+  });
+
+  it('es determinista y otra semilla cambia la colocación', () => {
+    const again = generator.generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS);
+    expect(again.weapons).toEqual(weapons);
+
+    const other = generator.generate(1234, DEFAULT_MAP_OPTIONS);
+    expect(other.weapons).toHaveLength(2);
+    expect(other.weapons).not.toEqual(weapons);
+  });
+
+  it('no usa Math.random ni altera los spawns de la semilla de referencia', () => {
+    const random = vi.spyOn(Math, 'random');
+    try {
+      const map = generator.generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS);
+      expect(map.spawns.player).toEqual({ x: 6, y: 8 });
+      expect(map.spawns.enemy).toEqual({ x: 23, y: 28 });
+      expect(random).not.toHaveBeenCalled();
+    } finally {
+      random.mockRestore();
+    }
   });
 });
 

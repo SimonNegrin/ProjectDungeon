@@ -110,6 +110,53 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
   });
 
+  it('G recoge y 1-3 seleccionan un hueco de arma', () => {
+    const state = makeState();
+
+    for (const key of ['g', 'G']) {
+      expectCommand(translate(key, state), { type: 'PickUp', unitId: 'player-1' });
+    }
+    for (const [key, slot] of [
+      ['1', 1],
+      ['2', 2],
+      ['3', 3],
+    ] as const) {
+      expectCommand(translate(key, state), {
+        type: 'SelectWeapon',
+        unitId: 'player-1',
+        slot,
+      });
+    }
+  });
+
+  it('G y 1-3 exigen fase de jugador y un jugador activo', () => {
+    const state = makeState();
+    const enemyPhase = { ...state, phase: 'enemy' as const };
+    const noPlayer = {
+      ...state,
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 })],
+    };
+
+    for (const key of ['g', '1', '2', '3']) {
+      expect(translate(key, enemyPhase)).toEqual({
+        type: 'ignored',
+        reason: 'wrong-phase',
+      });
+      expect(translate(key, noPlayer)).toEqual({
+        type: 'ignored',
+        reason: 'no-active-player',
+      });
+    }
+
+    const victory = makeState({ status: 'victory' });
+    for (const key of ['g', '1', '2', '3']) {
+      expect(translate(key, victory)).toEqual({
+        type: 'ignored',
+        reason: 'game-over',
+      });
+    }
+  });
+
   it('ignora repeticiones y modificadores', () => {
     const state = makeState();
 
@@ -185,11 +232,17 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(JSON.stringify(cursor)).toBe(beforeCursor);
   });
 
-  it('bloquea el comportamiento del navegador con F1, F2 y F', () => {
+  it('bloquea el comportamiento del navegador con F1, F2, F, G y 1-3', () => {
     expect(isManagedKey('F1')).toBe(true);
     expect(isManagedKey('f2')).toBe(true);
     expect(isManagedKey('f')).toBe(true);
+    expect(isManagedKey('g')).toBe(true);
+    expect(isManagedKey('G')).toBe(true);
+    expect(isManagedKey('1')).toBe(true);
+    expect(isManagedKey('2')).toBe(true);
+    expect(isManagedKey('3')).toBe(true);
     expect(isManagedKey('q')).toBe(false);
+    expect(isManagedKey('4')).toBe(false);
   });
 });
 
@@ -197,8 +250,8 @@ describe('gate de input durante la animación', () => {
   const state = adjacentState();
   const options = { animating: true };
 
-  it('descarta flechas/WASD, Espacio/Enter, F, E y F2 sin encolar', () => {
-    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'e', 'F2']) {
+  it('descarta flechas/WASD, Espacio/Enter, F, G, 1-3, E y F2 sin encolar', () => {
+    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'g', '1', '2', '3', 'e', 'F2']) {
       expect(translateKey({ key }, state, { x: 6, y: 6 }, options)).toEqual({
         type: 'ignored',
         reason: 'animating',

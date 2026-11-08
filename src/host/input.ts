@@ -49,6 +49,13 @@ const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number 
   arrowright: { dx: 1, dy: 0 },
 };
 
+/** Teclas 1-3 que seleccionan un hueco de arma. */
+const WEAPON_SLOTS: Readonly<Record<string, number>> = {
+  '1': 1,
+  '2': 2,
+  '3': 3,
+};
+
 const MANAGED_KEYS = new Set([
   'w',
   'a',
@@ -59,6 +66,10 @@ const MANAGED_KEYS = new Set([
   'arrowdown',
   'arrowleft',
   'arrowright',
+  'g',
+  '1',
+  '2',
+  '3',
   'e',
   'r',
   'enter',
@@ -105,6 +116,8 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
  * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
+ * - `G` envía `PickUp` para el arma del tile del jugador.
+ * - `1`-`3` envían `SelectWeapon` al hueco correspondiente.
  * - Movimiento, acciones y fin de turno exigen fase de jugador.
  */
 export function translateKey(
@@ -137,6 +150,21 @@ export function translateKey(
     if (state.phase !== 'player') return ignored('wrong-phase');
     if (!findActivePlayer(state)) return ignored('no-active-player');
     return command({ type: 'EndTurn' });
+  }
+
+  if (key === 'g') {
+    if (state.phase !== 'player') return ignored('wrong-phase');
+    const player = findActivePlayer(state);
+    if (!player) return ignored('no-active-player');
+    return command({ type: 'PickUp', unitId: player.id });
+  }
+
+  const slot = WEAPON_SLOTS[key];
+  if (slot !== undefined) {
+    if (state.phase !== 'player') return ignored('wrong-phase');
+    const player = findActivePlayer(state);
+    if (!player) return ignored('no-active-player');
+    return command({ type: 'SelectWeapon', unitId: player.id, slot });
   }
 
   if (key === 'enter' || key === ' ' || key === 'spacebar') {

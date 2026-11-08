@@ -18,6 +18,7 @@ import {
   mulberry32,
   normalizeSeed,
   pathLength,
+  placeMapWeapons,
   randInt,
   resolveMapOptions,
   roomCenter,
@@ -1836,7 +1837,7 @@ function buildMap(
     tiles[index] = context.tiles[index] ? 'floor' : 'wall';
   }
 
-  return {
+  const map: GeneratedMap = {
     seed,
     width: context.width,
     height: context.height,
@@ -1860,6 +1861,9 @@ function buildMap(
     warnings,
     options,
   };
+
+  // Colocación derivada del mapa ya generado y de su semilla; PRNG propio.
+  return { ...map, weapons: placeMapWeapons(map) };
 }
 
 function assessMap(

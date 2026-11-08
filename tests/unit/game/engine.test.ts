@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createInitialState,
+  createRng,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
   ENEMY_MAX_HP,
@@ -8,12 +9,16 @@ import {
   isOccupied,
   isWallAt,
   normalizeSeed,
+  PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   reduce,
   type GameState,
+  type Position,
+  type RngState,
+  type WeaponId,
 } from '../../../src/game/index';
-import { makeState, makeUnit } from './helpers';
+import { makeState, makeUnit, rngForDice } from './helpers';
 
 describe('engine state', () => {
   it('crea un mapa generado de 32x32 con muros en el borde y suelo transitable', () => {
@@ -184,6 +189,269 @@ describe('engine state', () => {
         { type: 'CommandRejected', commandType: 'Move', reason: 'game-over' },
       ]);
     }
+  });
+});
+
+interface WeaponStateOptions {
+  readonly weapon?: WeaponId;
+  readonly weapons?: readonly WeaponId[];
+  readonly equipped?: WeaponId;
+  readonly mp?: number;
+  readonly actionAvailable?: boolean;
+  readonly player?: Position;
+  readonly enemy?: Position;
+  readonly rng?: RngState;
+}
+
+/**
+ * Estado de referencia con el jugador sobre un arma del mapa en el tile
+ * indicado. Mantiene el mapa y los spawns reales de la semilla de referencia.
+ */
+function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
+  const base = createInitialState();
+  const playerPosition = options.player ?? { x: 5, y: 5 };
+  const enemyPosition = options.enemy ?? base.enemies[0];
+  const map = base.map;
+  if (!map) throw new Error('La semilla de referencia debe producir un mapa.');
+
+  return {
+    ...base,
+    players: [
+      {
+        ...base.players[0],
+        x: playerPosition.x,
+        y: playerPosition.y,
+        mp: options.mp ?? base.players[0].mp,
+        actionAvailable: options.actionAvailable ?? true,
+        weapons: options.weapons ?? ['sword'],
+        equipment: {
+          ...base.players[0].equipment,
+          weaponId: options.equipped ?? 'sword',
+        },
+      },
+    ],
+    enemies: [
+      {
+        ...base.enemies[0],
+        x: enemyPosition.x,
+        y: enemyPosition.y,
+      },
+    ],
+    map: {
+      ...map,
+      weapons: options.weapon
+        ? [
+            {
+              id: 'weapon-test',
+              weaponId: options.weapon,
+              x: playerPosition.x,
+              y: playerPosition.y,
+            },
+          ]
+        : [],
+    },
+    rng: options.rng ?? base.rng,
+  };
+}
+
+describe('recogida y cambio de armas', () => {
+  it('G recoge, gasta 1 MP, conserva la acción, auto-equipa y elimina el arma', () => {
+    const state = stateWithWeapon({ weapon: 'axe' });
+    const before = JSON.stringify(state);
+
+    const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(JSON.stringify(state)).toBe(before);
+    expect(result.events).toEqual([]);
+    expect(result.state).not.toBe(state);
+    expect(result.state.players[0]).toMatchObject({
+      mp: PLAYER_MAX_MP - PICKUP_COST,
+      actionAvailable: true,
+      weapons: ['sword', 'axe'],
+      equipment: { weaponId: 'axe' },
+    });
+    expect(result.state.map?.weapons).toEqual([]);
+    expect(result.state.rng).toEqual(state.rng);
+    expect(JSON.parse(JSON.stringify(result.state))).toEqual(result.state);
+  });
+
+  it('con 0 MP rechaza la recogida sin tocar el mapa ni el inventario', () => {
+    const state = stateWithWeapon({ weapon: 'axe', mp: 0 });
+
+    const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-mp' },
+    ]);
+    expect(state.players[0].weapons).toEqual(['sword']);
+    expect(state.map?.weapons).toHaveLength(1);
+  });
+
+  it('sin arma en el tile del jugador rechaza no-weapon', () => {
+    const state = stateWithWeapon();
+
+    const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-weapon' },
+    ]);
+  });
+
+  it('recoger dos veces no duplica el arma', () => {
+    const first = reduce(stateWithWeapon({ weapon: 'axe' }), {
+      type: 'PickUp',
+      unitId: 'player-1',
+    });
+    const second = reduce(first.state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(first.state.players[0].weapons).toEqual(['sword', 'axe']);
+    expect(second.events).toEqual([
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-weapon' },
+    ]);
+    expect(second.state.players[0].weapons).toEqual(['sword', 'axe']);
+    expect(second.state.map?.weapons).toEqual([]);
+  });
+
+  it('no admite una cuarta arma distinta', () => {
+    const state = stateWithWeapon({
+      weapon: 'dagger',
+      weapons: ['sword', 'axe', 'axe'],
+    });
+
+    const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'inventory-full' },
+    ]);
+    expect(result.state.map?.weapons).toHaveLength(1);
+  });
+
+  it('1-3 cambia de arma sin gastar MP ni acción', () => {
+    const state = stateWithWeapon({
+      weapons: ['sword', 'axe', 'dagger'],
+      equipped: 'sword',
+      mp: 4,
+      actionAvailable: false,
+    });
+
+    const toAxe = reduce(state, { type: 'SelectWeapon', unitId: 'player-1', slot: 2 });
+    expect(toAxe.events).toEqual([]);
+    expect(toAxe.state.players[0]).toMatchObject({
+      equipment: { weaponId: 'axe' },
+      mp: 4,
+      actionAvailable: false,
+      weapons: ['sword', 'axe', 'dagger'],
+    });
+
+    const toDagger = reduce(toAxe.state, {
+      type: 'SelectWeapon',
+      unitId: 'player-1',
+      slot: 3,
+    });
+    expect(toDagger.state.players[0]).toMatchObject({
+      equipment: { weaponId: 'dagger' },
+      mp: 4,
+      actionAvailable: false,
+    });
+
+    const toSword = reduce(toDagger.state, {
+      type: 'SelectWeapon',
+      unitId: 'player-1',
+      slot: 1,
+    });
+    expect(toSword.state.players[0].equipment.weaponId).toBe('sword');
+  });
+
+  it('rechaza huecos vacíos o fuera de rango', () => {
+    const state = stateWithWeapon({ weapons: ['sword'] });
+
+    for (const slot of [0, 2, 3, 4]) {
+      const result = reduce(state, { type: 'SelectWeapon', unitId: 'player-1', slot });
+      expect(result.state).toBe(state);
+      expect(result.events, `hueco ${slot}`).toEqual([
+        { type: 'CommandRejected', commandType: 'SelectWeapon', reason: 'invalid-slot' },
+      ]);
+    }
+  });
+
+  it('el enemigo no recoge objetos ni cambia de arma', () => {
+    const state = stateWithWeapon({ weapon: 'axe' });
+
+    const pickup = reduce(state, { type: 'PickUp', unitId: 'enemy-1' });
+    expect(pickup.events).toEqual([
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'unknown-unit' },
+    ]);
+
+    const select = reduce(state, {
+      type: 'SelectWeapon',
+      unitId: 'enemy-1',
+      slot: 1,
+    });
+    expect(select.events).toEqual([
+      { type: 'CommandRejected', commandType: 'SelectWeapon', reason: 'unknown-unit' },
+    ]);
+  });
+
+  it('ataca con el arma recién equipada y aplica su daño', () => {
+    const state = stateWithWeapon({
+      weapon: 'axe',
+      enemy: { x: 6, y: 5 },
+      rng: rngForDice([1, 1, 4, 1]),
+    });
+
+    const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+    const attack = reduce(pickup.state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(attack.events).toEqual([
+      expect.objectContaining({
+        type: 'AttackPerformed',
+        attackerId: 'player-1',
+        targetId: 'enemy-1',
+        hit: true,
+        damage: 9,
+        rolls: { attack: 1, shield: 1, damage: 4, armor: 1 },
+      }),
+    ]);
+    expect(attack.state.enemies[0]).toMatchObject({ hp: 1 });
+    expect(attack.state.players[0]).toMatchObject({
+      equipment: { weaponId: 'axe' },
+      actionAvailable: false,
+    });
+  });
+
+  it('dos ejecuciones con la misma semilla y comandos dan el mismo estado', () => {
+    const run = (): GameState => {
+      const state = stateWithWeapon({
+        weapon: 'dagger',
+        enemy: { x: 6, y: 5 },
+        rng: createRng(DEFAULT_MAP_SEED),
+      });
+      const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+      const toSword = reduce(pickup.state, {
+        type: 'SelectWeapon',
+        unitId: 'player-1',
+        slot: 1,
+      });
+      const toDagger = reduce(toSword.state, {
+        type: 'SelectWeapon',
+        unitId: 'player-1',
+        slot: 2,
+      });
+      return reduce(toDagger.state, {
+        type: 'Attack',
+        unitId: 'player-1',
+        targetId: 'enemy-1',
+      }).state;
+    };
+
+    expect(JSON.stringify(run())).toBe(JSON.stringify(run()));
   });
 });
 

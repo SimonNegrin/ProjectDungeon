@@ -5,6 +5,7 @@
  * PRNG se comparten con el generador BSP y con los tests.
  */
 
+import type { WeaponId } from './equipment';
 import type { Position, Tile } from './types';
 
 export type RoomRole = 'large' | 'small' | 'medium';
@@ -71,6 +72,23 @@ export interface ResolvedMapOptions {
   readonly wideCorridorWidth: number;
 }
 
+/** Arma colocada en el mapa: entidad con ID estable, posición y arma. */
+export interface MapWeapon {
+  readonly id: string;
+  readonly weaponId: WeaponId;
+  readonly x: number;
+  readonly y: number;
+}
+
+/** Armas fijas de este corte, en el orden en que se colocan. */
+export const MAP_WEAPON_SPECS: readonly {
+  readonly id: string;
+  readonly weaponId: WeaponId;
+}[] = [
+  { id: 'weapon-axe', weaponId: 'axe' },
+  { id: 'weapon-dagger', weaponId: 'dagger' },
+];
+
 export interface GeneratedMap {
   readonly seed: number;
   readonly width: number;
@@ -82,6 +100,11 @@ export interface GeneratedMap {
   /** Huecos de puerta de los accesos estrechos, ordenados y sin duplicados. */
   readonly doors: readonly Door[];
   readonly spawns: Spawns;
+  /**
+   * Armas recogibles colocadas por semilla. Opcional para mapas construidos a
+   * mano en tests; el generador BSP siempre las incluye.
+   */
+  readonly weapons?: readonly MapWeapon[];
   readonly warnings: readonly string[];
   readonly options: ResolvedMapOptions;
 }
@@ -454,6 +477,79 @@ export function connectivityPercentage(grid: GridLike, from: Position): number {
   const total = totalFloor(grid);
   if (total === 0) return 0;
   return (reachableFloor(grid, from) / total) * 100;
+}
+
+// ---------------------------------------------------------------------------
+// Armas del mapa (REQ-010 R-005/T-007)
+// ---------------------------------------------------------------------------
+
+/** PRNG propio de la colocación; no comparte estado con el generador ni el combate. */
+const WEAPON_PLACEMENT_SALT = 0x51ed270b;
+
+function eligibleWeaponCells(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'doors' | 'spawns'>,
+  room: Room,
+  distances: Int32Array,
+): Position[] {
+  const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
+  const spawnKeys = new Set([
+    `${map.spawns.player.x},${map.spawns.player.y}`,
+    `${map.spawns.enemy.x},${map.spawns.enemy.y}`,
+  ]);
+  const cells: Position[] = [];
+
+  for (let y = room.y; y < room.y + room.height; y += 1) {
+    for (let x = room.x; x < room.x + room.width; x += 1) {
+      if (!isFloorTile(map, x, y)) continue;
+      if (distances[tileIndex(map.width, x, y)] < 0) continue;
+      const key = `${x},${y}`;
+      if (doorKeys.has(key) || spawnKeys.has(key)) continue;
+      cells.push({ x, y });
+    }
+  }
+
+  return cells;
+}
+
+/**
+ * Coloca el hacha y la daga de forma determinista a partir de la semilla y del
+ * mapa: dos salas distintas, fuera de la sala inicial, alcanzables desde la
+ * aparición del jugador y sin caer en muro, puerta ni aparición.
+ *
+ * Usa un `mulberry32` derivado de la semilla con una sal propia. No consume ni
+ * reordena la secuencia del generador BSP ni la del RNG de combate.
+ */
+export function placeMapWeapons(
+  map: Pick<
+    GeneratedMap,
+    'seed' | 'width' | 'height' | 'tiles' | 'rooms' | 'doors' | 'spawns'
+  >,
+): readonly MapWeapon[] {
+  const distances = floorDistances(map, map.spawns.player);
+  const initialRoom = roomAt(map.rooms, map.spawns.player.x, map.spawns.player.y);
+  const rng = mulberry32(normalizeSeed(map.seed) ^ WEAPON_PLACEMENT_SALT);
+  const usedRoomIds = new Set<number>();
+  const placed: MapWeapon[] = [];
+
+  for (const spec of MAP_WEAPON_SPECS) {
+    const candidates: Array<{ readonly room: Room; readonly cells: readonly Position[] }> = [];
+
+    for (const room of map.rooms) {
+      if (room.id === initialRoom?.id) continue;
+      if (usedRoomIds.has(room.id)) continue;
+      const cells = eligibleWeaponCells(map, room, distances);
+      if (cells.length > 0) candidates.push({ room, cells });
+    }
+
+    if (candidates.length === 0) break;
+
+    const candidate = candidates[Math.floor(rng() * candidates.length)];
+    const cell = candidate.cells[Math.floor(rng() * candidate.cells.length)];
+    usedRoomIds.add(candidate.room.id);
+    placed.push({ id: spec.id, weaponId: spec.weaponId, x: cell.x, y: cell.y });
+  }
+
+  return placed;
 }
 
 // ---------------------------------------------------------------------------

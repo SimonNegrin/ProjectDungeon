@@ -68,7 +68,14 @@ export interface GameState {
   readonly rng: RngState;
 }
 
-export type CommandType = 'Move' | 'MoveTo' | 'Attack' | 'EndTurn' | 'Restart';
+export type CommandType =
+  | 'Move'
+  | 'MoveTo'
+  | 'Attack'
+  | 'PickUp'
+  | 'SelectWeapon'
+  | 'EndTurn'
+  | 'Restart';
 
 export type Command =
   | {
@@ -84,6 +91,10 @@ export type Command =
       readonly target: Position;
     }
   | { readonly type: 'Attack'; readonly unitId: string; readonly targetId: string }
+  /** Recoge el arma del mapa que ocupa la unidad (1 MP, sin gastar acción). */
+  | { readonly type: 'PickUp'; readonly unitId: string }
+  /** Cambia al hueco de arma `slot` (1-3), gratis y sin gastar acción. */
+  | { readonly type: 'SelectWeapon'; readonly unitId: string; readonly slot: number }
   | { readonly type: 'EndTurn' }
   | { readonly type: 'Restart' };
 
@@ -106,7 +117,13 @@ export type RejectionReason =
   /** `MoveTo`: no existe camino hasta el destino o el tile de ataque. */
   | 'no-path'
   /** `MoveTo`: destino no accionable (por ejemplo, el propio tile del jugador). */
-  | 'invalid-target';
+  | 'invalid-target'
+  /** `PickUp`: no hay un arma del mapa en el tile de la unidad. */
+  | 'no-weapon'
+  /** `PickUp`: el inventario ya tiene los tres huecos ocupados. */
+  | 'inventory-full'
+  /** `SelectWeapon`: el hueco no existe o no tiene arma. */
+  | 'invalid-slot';
 
 /** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
 export interface AttackRolls {
@@ -158,3 +175,7 @@ export const ENEMY_MAX_HP = 10;
 export const PLAYER_MAX_MP = 6;
 export const ENEMY_MAX_MP = 4;
 export const MOVE_COST = 1;
+/** Huecos de arma que puede llevar una unidad. */
+export const MAX_WEAPONS = 3;
+/** Coste en MP de recoger un arma del mapa. */
+export const PICKUP_COST = 1;
