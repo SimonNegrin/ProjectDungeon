@@ -3,15 +3,15 @@ type: Task
 id: TASK-0020
 title: "Arnés: artefactos E2E sin reescribir evidencia histórica"
 description: Parametrizar la ruta base de capturas, JSON y logs de la suite E2E para que una corrida normal no modifique artifacts/ versionados y una captura explícita escriba solo en la carpeta indicada.
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: refactor
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
 unlocks: []
 created_at: 2026-11-08T12:10:00Z
-completed_at:
+completed_at: 2026-11-08T12:20:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0020/
@@ -20,6 +20,26 @@ risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T12:10:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T12:20:00Z
+    note: >-
+      Verificación independiente en task/TASK-0020 (commits 45c2532, ff52427,
+      8a06476, 53914b1, 4d58421; fusión pendiente): diff limitado a
+      tests/e2e/artifacts.ts, los 11 specs (solo la ruta base), la documentación
+      preparada por requirements-writer y artifacts/TASK-0020; src/, index.html,
+      public/, package.json, pnpm-lock.yaml y dependencias intactos; sin tests
+      borrados, saltados ni debilitados (40 E2E y 360 unitarios). Re-ejecutados
+      por el lead: pnpm run test:e2e (40/40, 16.3 s),
+      E2E_ARTIFACTS_DIR=artifacts/TASK-0020/attempt-1 pnpm run test:e2e motion-qa
+      (8/8, 4.7 s), pnpm run test:e2e --repeat-each=3 (120/120, 45.6 s) y
+      pnpm run verify (107 documentos, 20 tareas, 3 experimentos; 360 tests en
+      29 archivos; build de 53 módulos), con salidas en
+      artifacts/TASK-0020/attempt-1/logs/lead-*.txt. Comprobado con git status y
+      git diff --stat que el histórico de artifacts/ no cambia en las corridas
+      normal, explícita y repetida; las capturas explícitas quedan en
+      artifacts/TASK-0020/attempt-1/motion-qa/ y arrival.png y motion-trace.log
+      son byte-idénticos a TASK-0019. Fricción del grep estático: rechazada, el
+      comando actual no tiene coincidencias.
 ---
 
 # Objetivo
