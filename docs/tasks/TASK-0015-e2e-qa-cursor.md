@@ -4,22 +4,25 @@ id: TASK-0015
 title: "E2E y QA visual del cursor y el camino"
 description: Cubre con Playwright y capturas el cursor, los estados, el camino, el movimiento parcial, el ataque directo y la acción combinada sobre enemigos.
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-004
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-017, R-018, T-006, T-007, T-008, T-009, T-011]
 depends_on: [TASK-0014]
 unlocks: []
 created_at: 2026-11-08T01:27:27Z
-completed_at:
+completed_at: 2026-11-08T02:16:28Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0015/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:27:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T02:16:28Z
+    note: "Verificación independiente: diff completo (solo `tests/e2e/cursor-qa.spec.ts` y helpers aditivos en `support.ts`, sin `src/**`); `pnpm run test:e2e` 29/29 y `pnpm run test:e2e --repeat-each=3` 87/87 (3×29), `pnpm run verify` con 305 unitarios y build OK. Revisados los 21 criterios y las capturas (jugador, caminos verde/ámbar, enemigo, parcial, ataque, debug, aviso HUD). Sin tests borrados o debilitados ni cambios de producción. El comando literal con `--` no aplica `--repeat-each`; se validó la repetición real con `pnpm run test:e2e --repeat-each=3` y se elevó la corrección documental a `requirements-writer`. Commit de implementación `686c646`, informe `2b6fa14`, evidencia del lead `47167a2`, fusión `63ef8ae`."
 ---
 
 # Objetivo

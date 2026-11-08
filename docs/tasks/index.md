@@ -18,11 +18,7 @@ Total: **15**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0012](TASK-0012-motor-camino-destino.md) | Motor: planificación de camino y clasificación de destino | `done` | REQ-004 | TASK-0011 | P1 |
 | [TASK-0013](TASK-0013-motor-moverse-atacar.md) | Motor: Moverse por destino y acercarse + atacar | `done` | REQ-004 | TASK-0012 | P1 |
 | [TASK-0014](TASK-0014-host-cursor-camino.md) | Host: cursor, input, camino y feedback | `done` | REQ-004 | TASK-0013 | P1 |
-| [TASK-0015](TASK-0015-e2e-qa-cursor.md) | E2E y QA visual del cursor y el camino | `backlog` | REQ-004 | TASK-0014 | P1 |
-
-# backlog
-
-* [TASK-0015 — E2E y QA visual del cursor y el camino](TASK-0015-e2e-qa-cursor.md)
+| [TASK-0015](TASK-0015-e2e-qa-cursor.md) | E2E y QA visual del cursor y el camino | `done` | REQ-004 | TASK-0014 | P1 |
 
 # done
 
@@ -40,4 +36,5 @@ Total: **15**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0012 — Motor: planificación de camino y clasificación de destino](TASK-0012-motor-camino-destino.md)
 * [TASK-0013 — Motor: Moverse por destino y acercarse + atacar](TASK-0013-motor-moverse-atacar.md)
 * [TASK-0014 — Host: cursor, input, camino y feedback](TASK-0014-host-cursor-camino.md)
+* [TASK-0015 — E2E y QA visual del cursor y el camino](TASK-0015-e2e-qa-cursor.md)
 
