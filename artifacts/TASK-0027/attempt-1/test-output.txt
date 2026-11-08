@@ -1,0 +1,25 @@
+===== pnpm exec vitest run tests/unit/game/map.test.ts tests/unit/game/engine.test.ts tests/unit/host/input.test.ts =====
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  3 passed (3)
+      Tests  88 passed (88)
+   Start at  18:21:27
+   Duration  425ms (tests 69%, import 18%, transform 11%, worker 2%)
+
+
+===== pnpm test =====
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  31 passed (31)
+      Tests  460 passed (460)
+   Start at  18:20:34
+   Duration  6.72s (tests 86%, import 7%, transform 5%, worker 1%)
+
+    Isolate  31 workers spawned · ~146ms startup each (spawn + environment, per file)
+             at least ~499ms faster with isolate: false — reuses workers across files instead of one per file
+
