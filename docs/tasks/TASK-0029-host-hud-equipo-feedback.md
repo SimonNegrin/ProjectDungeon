@@ -4,7 +4,7 @@ id: TASK-0029
 title: "Host: HUD de equipo, armas en el mapa y feedback de combate"
 description: Mostrar arma, escudo, armadura y modificadores, dibujar las armas del mapa, la pista de G y el feedback de impacto, fallo y daño.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-003, R-004, R-010, T-006, T-010]
