@@ -1,11 +1,11 @@
 import {
   createRoomGrid,
   createRng,
-  ENEMY_MAX_HP,
   ENEMY_MAX_MP,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   rollDie,
+  type EnemyType,
   type Faction,
   type GameState,
   type Grid,
@@ -17,9 +17,13 @@ import {
   type WeaponId,
 } from '../../../src/game/index';
 
+/** Vida de los enemigos sintéticos de test; el bestiario fija la de los reales. */
+const FIXTURE_ENEMY_MAX_HP = 10;
+
 export interface UnitOptions {
   readonly id: string;
   readonly faction: Faction;
+  readonly enemyType?: EnemyType | null;
   readonly x: number;
   readonly y: number;
   readonly hp?: number;
@@ -34,12 +38,13 @@ export interface UnitOptions {
 
 export function makeUnit(options: UnitOptions): Unit {
   const isPlayer = options.faction === 'player';
-  const maxHp = options.maxHp ?? (isPlayer ? PLAYER_MAX_HP : ENEMY_MAX_HP);
+  const maxHp = options.maxHp ?? (isPlayer ? PLAYER_MAX_HP : FIXTURE_ENEMY_MAX_HP);
   const maxMp = options.maxMp ?? (isPlayer ? PLAYER_MAX_MP : ENEMY_MAX_MP);
 
   return {
     id: options.id,
     faction: options.faction,
+    enemyType: options.enemyType ?? null,
     x: options.x,
     y: options.y,
     hp: options.hp ?? maxHp,

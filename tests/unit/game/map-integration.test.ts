@@ -156,7 +156,7 @@ describe('createInitialState con un MapGenerator inyectado', () => {
       unitId: player.id,
       targetId: enemy.id,
     });
-    expect(attack.state.enemies[0]).toMatchObject({ hp: 5 });
+    expect(attack.state.enemies[0]).toMatchObject({ hp: 4 });
     expect(attack.state.players[0].actionAvailable).toBe(false);
 
     const endTurn = reduce(

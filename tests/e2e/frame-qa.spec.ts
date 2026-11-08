@@ -640,7 +640,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await expect(page.getByTestId('hud-action')).toHaveText('Sí');
   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('10/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
 
   await approachEnemy(page);
   const adjacent = await snapshot(page);
@@ -659,7 +659,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await screenshot(page, 'attack', testInfo);
 
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(9);
+  expect(afterAttack.enemies[0].hp).toBe(8);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.lastEvents).toEqual(
     expect.arrayContaining([
@@ -671,7 +671,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
       }),
     ]),
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('8/9');
   await expect(page.getByTestId('hud-action')).toHaveText('No');
 
   expect(consoleErrors).toEqual([]);

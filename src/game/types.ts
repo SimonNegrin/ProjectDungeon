@@ -1,3 +1,4 @@
+import type { EnemyType } from './bestiary';
 import type { ArmorId, ShieldId, WeaponId } from './equipment';
 import type { GeneratedMap } from './map';
 
@@ -43,6 +44,8 @@ export interface RngState {
 export interface Unit {
   readonly id: string;
   readonly faction: Faction;
+  /** Tipo de enemigo del bestiario; `null` para jugadores. */
+  readonly enemyType: EnemyType | null;
   readonly x: number;
   readonly y: number;
   readonly hp: number;
@@ -171,7 +174,6 @@ export interface ReduceResult {
 export const ROOM_WIDTH = 20;
 export const ROOM_HEIGHT = 20;
 export const PLAYER_MAX_HP = 20;
-export const ENEMY_MAX_HP = 10;
 export const PLAYER_MAX_MP = 6;
 export const ENEMY_MAX_MP = 4;
 export const MOVE_COST = 1;

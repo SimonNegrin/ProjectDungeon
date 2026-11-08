@@ -5,9 +5,9 @@ import { resolveAttack } from './combat';
 import { planCursorTarget, type CursorBlockedReason } from './path';
 import { BspMapGenerator } from './bsp';
 import { createRng } from './rng';
+import { BESTIARY, type EnemyType } from './bestiary';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import {
-  ENEMY_MAX_HP,
   ENEMY_MAX_MP,
   MAX_WEAPONS,
   MOVE_COST,
@@ -29,30 +29,42 @@ export interface CreateInitialStateConfig {
   readonly generator?: MapGenerator;
 }
 
-function createUnit(
-  id: string,
-  faction: Unit['faction'],
-  position: Position,
-): Unit {
-  const isPlayer = faction === 'player';
-  const maxHp = isPlayer ? PLAYER_MAX_HP : ENEMY_MAX_HP;
-  const maxMp = isPlayer ? PLAYER_MAX_MP : ENEMY_MAX_MP;
+function createPlayer(id: string, position: Position): Unit {
+  return {
+    id,
+    faction: 'player',
+    enemyType: null,
+    x: position.x,
+    y: position.y,
+    hp: PLAYER_MAX_HP,
+    maxHp: PLAYER_MAX_HP,
+    mp: PLAYER_MAX_MP,
+    maxMp: PLAYER_MAX_MP,
+    actionAvailable: true,
+    modifiers: { accuracy: 1, damage: 1, defense: 1 },
+    equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+    weapons: ['sword'],
+  };
+}
+
+/** Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario. */
+function createEnemy(id: string, position: Position, type: EnemyType): Unit {
+  const definition = BESTIARY[type];
 
   return {
     id,
-    faction,
+    faction: 'enemy',
+    enemyType: type,
     x: position.x,
     y: position.y,
-    hp: maxHp,
-    maxHp,
-    mp: maxMp,
-    maxMp,
+    hp: definition.maxHp,
+    maxHp: definition.maxHp,
+    mp: ENEMY_MAX_MP,
+    maxMp: ENEMY_MAX_MP,
     actionAvailable: true,
-    modifiers: isPlayer
-      ? { accuracy: 1, damage: 1, defense: 1 }
-      : { accuracy: 0, damage: 0, defense: 0 },
-    equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-    weapons: ['sword'],
+    modifiers: definition.modifiers,
+    equipment: definition.equipment,
+    weapons: [definition.equipment.weaponId],
   };
 }
 
@@ -75,8 +87,8 @@ function buildInitialState(
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
-    players: [createUnit('player-1', 'player', map.spawns.player)],
-    enemies: [createUnit('enemy-1', 'enemy', map.spawns.enemy)],
+    players: [createPlayer('player-1', map.spawns.player)],
+    enemies: [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
     phase: 'player',
     turn: 1,
     status: 'playing',

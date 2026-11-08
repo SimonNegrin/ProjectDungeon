@@ -7,7 +7,7 @@
  */
 
 export type WeaponId = 'sword' | 'axe' | 'dagger';
-export type ArmorId = 'armor';
+export type ArmorId = 'armor' | 'plate';
 export type ShieldId = 'shield';
 
 export interface WeaponDefinition {
@@ -41,6 +41,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDefinition>> = {
 
 export const ARMORS: Readonly<Record<ArmorId, ArmorDefinition>> = {
   armor: { id: 'armor', name: 'Armadura', armor: 1 },
+  plate: { id: 'plate', name: 'Coraza', armor: 2 },
 };
 
 export const SHIELDS: Readonly<Record<ShieldId, ShieldDefinition>> = {

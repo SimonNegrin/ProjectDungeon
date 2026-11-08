@@ -820,7 +820,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   await expect(page.getByTestId('hud-action')).toHaveText('Sí');
   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('10/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
 
   // F1: overlay visible con semilla, salas, huecos, spawns y pasillos anchos.
   const overlay = page.getByTestId('debug-overlay');
@@ -884,7 +884,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   expect(afterF2.enemies[0]).toMatchObject({
     x: afterF2.spawns!.enemy.x,
     y: afterF2.spawns!.enemy.y,
-    hp: 10,
+    hp: 9,
   });
   expect(afterF2.camera.maxX).toBe(608);
   expect(afterF2.camera.maxY).toBe(608);

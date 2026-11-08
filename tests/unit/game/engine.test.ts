@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BESTIARY,
   createInitialState,
   createRng,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
-  ENEMY_MAX_HP,
   ENEMY_MAX_MP,
   isOccupied,
   isWallAt,
@@ -66,8 +66,8 @@ describe('engine state', () => {
       id: 'enemy-1',
       x: spawns?.enemy.x,
       y: spawns?.enemy.y,
-      hp: ENEMY_MAX_HP,
-      maxHp: ENEMY_MAX_HP,
+      hp: BESTIARY.sentinel.maxHp,
+      maxHp: BESTIARY.sentinel.maxHp,
       mp: ENEMY_MAX_MP,
       maxMp: ENEMY_MAX_MP,
       actionAvailable: true,
@@ -135,8 +135,9 @@ describe('engine state', () => {
       weapons: ['sword'],
     });
     expect(state.enemies[0]).toMatchObject({
-      hp: 10,
-      maxHp: 10,
+      enemyType: 'sentinel',
+      hp: 9,
+      maxHp: 9,
       modifiers: { accuracy: 0, damage: 0, defense: 0 },
       equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
       weapons: ['sword'],
@@ -399,7 +400,7 @@ describe('recogida y cambio de armas', () => {
     const state = stateWithWeapon({
       weapon: 'axe',
       enemy: { x: 6, y: 5 },
-      rng: rngForDice([1, 1, 4, 1]),
+      rng: rngForDice([1, 1, 3, 1]),
     });
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
@@ -415,8 +416,8 @@ describe('recogida y cambio de armas', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 9,
-        rolls: { attack: 1, shield: 1, damage: 4, armor: 1 },
+        damage: 8,
+        rolls: { attack: 1, shield: 1, damage: 3, armor: 1 },
       }),
     ]);
     expect(attack.state.enemies[0]).toMatchObject({ hp: 1 });

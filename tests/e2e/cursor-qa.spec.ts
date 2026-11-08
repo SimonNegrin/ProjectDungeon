@@ -558,7 +558,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
-  expect(afterAttack.enemies[0].hp).toBe(9);
+  expect(afterAttack.enemies[0].hp).toBe(8);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
   const retreated = await snapshot(page);

@@ -580,7 +580,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(9);
+  expect(afterAttack.enemies[0].hp).toBe(8);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
 
   await page.keyboard.press('e');
@@ -603,7 +603,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     Math.abs(retreated.players[0].y - retreated.enemies[0].y),
   );
   expect(distance).toBe(2);
-  expect(retreated.enemies[0].hp).toBe(9);
+  expect(retreated.enemies[0].hp).toBe(8);
 
   await moveCursorTo(page, retreated.enemies[0].x, retreated.enemies[0].y);
   const planned = await snapshot(page);
@@ -624,12 +624,14 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   expect(frozen.status).toBe('victory');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/10');
+  // El golpe final de 9 es overkill sobre los 8 PV restantes: al deshacerlo, la
+  // presentación restaura la vida máxima (9/9) y no los 8/9 previos.
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
 
   const mid = await advance(page, PAUSE + HALF_STEP);
   expect(mid.animation).toMatchObject({ animating: true, step: 0 });
   expectCameraFollows(mid, 'acercarse al enemigo');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'attack-approach', testInfo);
@@ -637,7 +639,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   // Pausa de destino: la animación sigue activa y aún no hay daño ni overlay.
   const finalPause = await advance(page, HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: steps });
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
 
@@ -689,7 +691,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await expect(page.getByTestId('damage-feedback')).toHaveText('-9');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('0/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('0/9');
   await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
   await expect(page.getByTestId('cursor')).toBeHidden();
   expect(

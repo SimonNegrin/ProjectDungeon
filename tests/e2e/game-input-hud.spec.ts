@@ -68,7 +68,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     playerMp: '6/6',
     action: 'Sí',
     phase: 'Jugador',
-    enemyHp: '10/10',
+    enemyHp: '9/9',
   });
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
@@ -195,7 +195,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterMiss.turn).toBe(beforeMiss.turn);
   expect(afterMiss.status).toBe(beforeMiss.status);
   await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
-  await expectHud(page, { enemyHp: '10/10', action: 'Sí' });
+  await expectHud(page, { enemyHp: '9/9', action: 'Sí' });
 
   const rejected = await page.evaluate(() =>
     window.__game!.dispatch({
@@ -207,7 +207,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(rejected.events).toEqual([
     { type: 'CommandRejected', commandType: 'Attack', reason: 'target-not-adjacent' },
   ]);
-  expect(rejected.snapshot.enemies[0].hp).toBe(10);
+  expect(rejected.snapshot.enemies[0].hp).toBe(9);
 
   // Preparación determinista del combate con comandos reales.
   await approachEnemy(page);
@@ -238,7 +238,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(9);
+  expect(afterAttack.enemies[0].hp).toBe(8);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.cursor).toMatchObject({
     x: adjacent.enemies[0].x,
@@ -254,7 +254,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
       }),
     ]),
   );
-  await expectHud(page, { enemyHp: '9/10', action: 'No' });
+  await expectHud(page, { enemyHp: '8/9', action: 'No' });
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.

@@ -409,6 +409,7 @@ describe('equipo y modificadores', () => {
     });
     expect(ARMORS).toEqual({
       armor: { id: 'armor', name: 'Armadura', armor: 1 },
+      plate: { id: 'plate', name: 'Coraza', armor: 2 },
     });
     expect(SHIELDS).toEqual({
       shield: { id: 'shield', name: 'Escudo', defense: 1 },

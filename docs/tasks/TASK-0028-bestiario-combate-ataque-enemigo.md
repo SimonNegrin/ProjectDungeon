@@ -4,7 +4,7 @@ id: TASK-0028
 title: "Motor: bestiario de combate y ataque enemigo"
 description: Dar a centinela, bruto y cobarde las estadísticas y el equipo de la tabla A, y hacer que la IA ataque con el mismo resolvedor que el jugador.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-007, R-008, R-011, R-013, T-003, T-005, T-008, T-010]
@@ -13,7 +13,7 @@ unlocks: [TASK-0029]
 created_at: 2026-11-08T17:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0028/
 priority: P1
 risk: medium

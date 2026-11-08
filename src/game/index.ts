@@ -1,5 +1,6 @@
 export * from './types';
 export * from './equipment';
+export * from './bestiary';
 export * from './rng';
 export * from './grid';
 export * from './map';
