@@ -24,12 +24,13 @@ damero global de dos tonos y una decoración plana determinista que no bloquea,
 aprobada en playtest. `REQ-008` completó la fase 1.9: damero de colores planos
 con paleta por sala y decoración ambiental, sin cambiar reglas.
 
-En preparación hay dos cortes de juego. `REQ-010` está `stable`: define el
-combate con equipo (acierto, defensa y daño variable) con la tabla A decidida en
-`EXP-003` y las tareas `TASK-0026` a `TASK-0030`, con `TASK-0026` en `ready`.
-`REQ-009` sigue en borrador: la tabla A ya fija el umbral y la probabilidad de
-huida, pero la percepción, la alarma y el resto del bestiario están pendientes.
-Después, la fase 2: multijugador local hotseat.
+En preparación hay dos cortes de juego. `REQ-010` está `stable` y cerrado con
+`TASK-0026` a `TASK-0030`: define el combate con equipo (acierto, defensa y daño
+variable) con la tabla A decidida en `EXP-003`. `REQ-009` también está `stable`:
+fija el bestiario (Centinela/Bruto/Cobarde), la percepción por pasos, la alarma
+de una onda y la huida determinista del cobarde; las tareas `TASK-0034` a
+`TASK-0039` ya están creadas, con `TASK-0034` en `ready`. Después, la fase 2:
+multijugador local hotseat.
 
 # Fases
 
@@ -42,8 +43,8 @@ Después, la fase 2: multijugador local hotseat.
 | 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
 | 1.8 | Legibilidad del suelo: damero y decoración no bloqueante (REQ-007) | Completada tras playtest; damero global y decals no bloqueantes; TASK-0021 y TASK-0022 cerradas |
 | 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
-| 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Stable; tabla A de EXP-003; implementación pendiente: TASK-0026 `ready` y TASK-0027 a TASK-0030 en `backlog` |
-| 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Borrador; umbral y probabilidad de huida fijados por la tabla A; percepción y alarma pendientes |
+| 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
+| 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Stable; bestiario 6/4/5, alarma 8, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 creadas, TASK-0034 `ready` |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -91,8 +92,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   1d6 menos armadura + 1d6, con mínimo 1. El escudo evita impactos y la armadura
   reduce daño; cada personaje aporta modificadores de acierto, daño y defensa.
   La tabla A de `EXP-003` fija modificadores, armas, PV, escudo y armadura.
-- Los enemigos tienen visión de 360° con línea de visión, detección en cada paso
-  y alarma de una onda; el perfil cobarde huye al recibir un golpe fuerte.
+- Los enemigos tienen visión de 360° con línea de visión (los muros bloquean y
+  las unidades no), detección en cada paso y alarma de una onda de radio 8 sin
+  cadena. El perfil cobarde huye de forma determinista al recibir un golpe de al
+  menos el 40 % de su vida máxima; la alerta y la huida usan los 4 MP.
 
 # Fuera de alcance ahora
 

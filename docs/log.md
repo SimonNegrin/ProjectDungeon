@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Requirement — REQ-009 — v3 stable: bestiario Centinela/Bruto/Cobarde, visión 6/4/5, alarma 8, 4 enemigos, MP completo, huida determinista al 40 % y memoria de 3 fases; preguntas cerradas — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
+* 2026-11-08 — Planning — REQ-009 — tareas TASK-0034 a TASK-0039 creadas; TASK-0034 ready (percepción), resto backlog; grafo sin ciclos — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0033 — cerrada: snapshot profundo de unidades y RNG de solo lectura; verify 496 y E2E 63 OK; mutación detectada; fusión `60b1dc8` — [informe](../artifacts/TASK-0033/attempt-1/report.md)
 * 2026-11-08 — Harness — Fricción post-REQ-010 — T-009 documentado con ADR-012; comandos `vitest` filtrados; timeout de shell en macOS; ruta `<spec>/screenshots/` con `E2E_ARTIFACTS_DIR`; tareas TASK-0031 a TASK-0033 — [ADR-012](decisions/ADR-012-combate-equipo-rng.md)
 * 2026-11-08 — Task — TASK-0032 — cerrada: helper `ensureMp` compartido y acotado en E2E, sin duplicar bucles; verify 491 y E2E 63 OK; fusión `7d60b7b` — [informe](../artifacts/TASK-0032/attempt-1/report.md)
