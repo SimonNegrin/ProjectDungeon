@@ -1,0 +1,17 @@
+ src/game/ai.ts                        | 285 ++++++++++++++++++++++++--
+ src/game/combat.ts                    |  16 ++
+ src/game/perception.ts                |   2 +
+ src/game/turn.ts                      |  35 +++-
+ src/game/types.ts                     |   2 +
+ tests/e2e/combat-equipment-qa.spec.ts |   8 +-
+ tests/e2e/cursor-qa.spec.ts           |  32 ++-
+ tests/e2e/equipment-hud-qa.spec.ts    |   2 +-
+ tests/e2e/floor-qa-ambient.spec.ts    |   5 +-
+ tests/e2e/game-input-hud.spec.ts      |  40 ++--
+ tests/e2e/motion-qa.spec.ts           |  35 +++-
+ tests/e2e/support.ts                  | 369 +++++++++++++++++++++++++++-------
+ tests/unit/game/ai.test.ts            | 232 ++++++++++++++++++++-
+ tests/unit/game/combat.test.ts        |  94 +++++++++
+ tests/unit/game/integration.test.ts   |  57 +++++-
+ tests/unit/game/turn.test.ts          |  69 +++++--
+ 16 files changed, 1117 insertions(+), 166 deletions(-)
