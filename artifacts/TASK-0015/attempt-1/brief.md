@@ -1,7 +1,7 @@
 ---
 type: Task Brief
 title: "TASK-0015: brief del intento 1"
-description: E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enemigo y ciclo de vida.
+description: "E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enemigo y ciclo de vida."
 task: TASK-0015
 attempt: 1
 status: stable
