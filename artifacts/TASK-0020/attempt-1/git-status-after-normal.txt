@@ -1,0 +1,28 @@
+$ git status --porcelain artifacts
+?? artifacts/TASK-0020/
+
+$ git diff --stat artifacts
+
+$ git status --porcelain artifacts | grep -v "artifacts/TASK-0020/"
+
+$ find test-results -maxdepth 2 -type d | head
+test-results
+test-results/motion-qa-reduced-motion-m-e028e-n-el-mismo-estado-y-eventos-chromium
+test-results/motion-qa-reduced-motion-m-e028e-n-el-mismo-estado-y-eventos-chromium/screenshots
+test-results/motion-qa-reduced-motion-m-e028e-n-el-mismo-estado-y-eventos-chromium/attachments
+test-results/generated-map-qa-F1-R-F2-HUD-y-encuadre-16-9-chromium
+test-results/generated-map-qa-F1-R-F2-HUD-y-encuadre-16-9-chromium/screenshots
+test-results/generated-map-qa-F1-R-F2-HUD-y-encuadre-16-9-chromium/attachments
+test-results/game-map-mapa-generado-por-b370d-napshot-cámara-debug-R-y-F2-chromium
+test-results/game-map-mapa-generado-por-b370d-napshot-cámara-debug-R-y-F2-chromium/screenshots
+test-results/game-map-mapa-generado-por-b370d-napshot-cámara-debug-R-y-F2-chromium/attachments
+test-results/frame-qa-encuadre-16-9-map-790f2--las-invariantes-a-1280×720-chromium
+test-results/frame-qa-encuadre-16-9-map-790f2--las-invariantes-a-1280×720-chromium/screenshots
+test-results/frame-qa-encuadre-16-9-map-790f2--las-invariantes-a-1280×720-chromium/attachments
+test-results/motion-qa-paso-intermedio--9e866-ulto-puntos-y-MP-progresivo-chromium
+test-results/motion-qa-paso-intermedio--9e866-ulto-puntos-y-MP-progresivo-chromium/screenshots
+test-results/motion-qa-paso-intermedio--9e866-ulto-puntos-y-MP-progresivo-chromium/attachments
+test-results/game-cursor-humo-del-curso-c0858--de-objetivo-y-ataque-con-F-chromium
+test-results/game-cursor-humo-del-curso-c0858--de-objetivo-y-ataque-con-F-chromium/screenshots
+test-results/game-cursor-humo-del-curso-c0858--de-objetivo-y-ataque-con-F-chromium/attachments
+test-results/frame-qa-encuadre-16-9-map-dc7cb-las-invariantes-a-1920×1080-chromium
