@@ -4,7 +4,7 @@ id: TASK-0037
 title: "Motor: IA de alerta con MP y huida del cobarde"
 description: Hacer que planEnemyAction distinga dormido, alerta, regreso y huida; usar los 4 MP para converger o escapar y atacar al llegar si conserva la acción.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-005, R-007, R-009, T-005, T-006, T-008, T-009, T-010, T-011]

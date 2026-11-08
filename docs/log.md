@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Planning — TASK-0037 — dependencias TASK-0035 y TASK-0036 cerradas; pasa de backlog a ready — [TASK-0037](tasks/TASK-0037-motor-ia-alerta-mp-huida-cobarde.md)
 * 2026-11-08 — Task — TASK-0036 — cerrada: 4 enemigos deterministas (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, sin visión inicial, pareja a ≤8 y aislado a >8, `home` y snapshot; verify 536 y E2E 63 OK; fusión `1f6340b` — [informe](../artifacts/TASK-0036/attempt-1/report.md)
 
 * 2026-11-08 — Task — TASK-0035 — cerrada: onda de alarma radio 8 sin LOS ni cadena, `AlarmRaised` determinista, daño como despertador, enfriamiento 2+1 verificado; verify 528 y 66 tests dirigidos OK; fusión `e7e73e1` — [informe](../artifacts/TASK-0035/attempt-1/report.md)
