@@ -818,7 +818,7 @@ test('lista blanca y familias 9 tierra, 10 ladrillo azul y 11 huesos', async ({
     `decorated=${snap.decoration.length} whitelist=${DECAL_WHITELIST.length}`,
     `families_seen=${[...familiesSeen].sort().join(',')}`,
     `row_mapping dirt=9 blueBrick=10 bones=11 verified=${Object.keys(rowByFamily).join(',')}`,
-    `visual=artifacts/TASK-0024/attempt-1/floor-ambient-qa/screenshots/familias-9-10-11.png`,
+    `visual=artifacts/TASK-0024/attempt-1/floor-qa-ambient/screenshots/familias-9-10-11.png`,
     '',
   ];
   await writeArtifact(testInfo, 'familias.txt', lines.join('\n'));
