@@ -86,7 +86,7 @@ test:e2e` se ejecuta cuando la tarea toca UI, Canvas o flujo jugable.
 
 Todo comando en primer plano se ejecuta con un timeout explícito. Los servidores
 en background se controlan y se cierran. La política y la tabla de tiempos están
-en [timeouts](../harness/timeouts.md).
+en [workflow](../harness/workflow.md#timeouts-y-procesos).
 
 # Baseline visual
 

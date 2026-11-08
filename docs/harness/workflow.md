@@ -1,9 +1,9 @@
 ---
 type: Workflow
 title: Flujo de trabajo
-description: Loop de requisitos, experimentos, tareas y verificación.
-status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+description: Requisitos, experimentos, tareas, agentes, handoffs, gates y timeouts.
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:46:23Z }
 ---
 
 # Objetivo
@@ -11,6 +11,46 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 Que el usuario invierta su tiempo en creatividad y jugabilidad, mientras los
 agentes se ocupan de la documentación, la implementación, los tests y la
 verificación. El usuario ve builds y experimentos, no deberes técnicos.
+
+# Agentes
+
+Los roles y permisos viven en `.opencode/agents/`; este documento no los
+duplica.
+
+| Agente | Modo | Entrada | Salida |
+|---|---|---|---|
+| `requirements-writer` | Primario | Conversación con el usuario | Requisitos, experimentos, tareas |
+| `task-lead` | Subagente | Tarea lista | Brief, verificación, tarea cerrada |
+| `task-runner` | Subagente | Brief del lead | Implementación, tests, artefactos, informe |
+
+`requirements-writer` lanza `task-lead`; `task-lead` lanza `task-runner`
+(`subagent_depth: 2`). El usuario es la autoridad creativa: ningún agente decide
+cómo se ve, se escucha, se juega o se siente.
+
+Reglas de sesión:
+
+- `default_agent` solo se aplica a sesiones nuevas; OpenCode guarda el agente por
+  sesión. Para cambiar una sesión abierta, ejecuta `/requirement`.
+- Si la sesión no es `requirements-writer` y la petición cambia comportamiento de
+  juego, producto o alcance, el agente para antes de editar `src/`, `tests/`,
+  `index.html` o `public/`, comprueba si hay requisito y tarea aceptados, y pide
+  el cambio de agente o `/requirement` cuando falten.
+- Si ya hay una tarea `ready`, el siguiente paso es `task-lead`; no se implementa
+  directamente.
+- Una sesión por requisito o milestone; una por tarea o intento.
+
+# Skills
+
+Solo hay tres procedimientos y se cargan cuando la tarea los necesita:
+
+| Skill | Cuándo |
+|---|---|
+| `requirements-interview` | Definir o cambiar una feature o experiencia. |
+| `task-verification` | Verificar el trabajo del runner antes de cerrar. |
+| `visual-qa` | Verificar UI, Canvas, cámara, HUD o experimentos. |
+
+La arquitectura, el render y las convenciones de diseño viven en
+[design](../design/index.md), no en skills. No se cargan todas a la vez.
 
 # Loop del usuario
 
@@ -36,79 +76,49 @@ requirements-writer
   -> demo / playtest
 ```
 
-# Fase 0: bootstrap
-
-- Documentación OKF.
-- Agentes y skills.
-- Shell de experimentos.
-- Validador y tablero de tareas.
-- Sin código de juego.
-
 # Fase de requisitos
 
-`requirements-writer`:
-
-- Mantiene una conversación, no un formulario.
-- Separa requisitos creativos y técnicos.
-- Propone opciones y señala contradicciones.
-- No decide creatividad por el usuario.
-- Puede proponer un experimento.
-- Escribe la hoja solo cuando el usuario la aprueba.
-- Genera tareas solo de requisitos aceptados.
+`requirements-writer` mantiene una conversación, no un formulario; separa lo
+creativo de lo técnico, propone opciones, señala contradicciones y no decide
+creatividad. Escribe la hoja solo cuando el usuario la aprueba y genera tareas
+solo de requisitos aceptados.
 
 # Fase de experimentos
 
 Un experimento se usa cuando una decisión no se puede tomar bien en abstracto.
-Ver [experimentos](experiments.md).
-
-- Una pregunta por experimento.
-- Shell compartido.
-- Controles, variantes A/B, métricas y exportación.
-- El usuario prueba y decide.
-- La decisión se registra y actualiza el requisito.
-- El experimento es desechable; solo se promociona lo validado.
+Una pregunta por experimento, shell compartido y decisión registrada. Ver
+[experimentos](experiments.md).
 
 # Fase de tareas
 
 1. `requirements-writer` crea la tarea desde la plantilla.
-2. `task-lead` comprueba que está lista.
-3. `task-lead` reúne contexto y lanza `task-runner`.
+2. `task-lead` comprueba Definition of Ready.
+3. `task-lead` reúne contexto, escribe el brief y lanza `task-runner`.
 4. `task-runner` implementa, testea y deja artefactos.
 5. `task-lead` verifica de forma independiente.
-6. Si falla, relanza al runner con una hipótesis nueva.
+6. Si falla, relanza con una hipótesis nueva.
 7. Si no se resuelve, escala.
 8. Al cerrar, actualiza la tarea, el tablero y el log.
 
 # Handoffs y sesiones
 
-- El brief sigue [task-brief](../templates/task-brief.md) y el informe
-  [task-report](../templates/task-report.md). Si falta un campo obligatorio, el
-  handoff no es válido.
-- Presupuesto blando: brief e informe ~2 KB; 3–4 KB en tareas grandes. Nunca se
-  trunca. Al 100 % se avisa; al 150 % se justifica.
+El brief y el informe son **deltas del intento**, no copias de la tarea. El
+esquema completo está en el anexo de la
+[plantilla de tarea](../templates/task.md).
+
+| Handoff | Objetivo | Tope duro |
+|---|---:|---:|
+| `brief.md` | 1,5 KB | 4 KB |
+| `report.md` | 2 KB | 4 KB |
+
+- `docs:check` falla si un brief o informe de `TASK-0021` en adelante supera
+  4 KB. Avisa a partir de 2,5 KB.
 - Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado. Nada se
   borra y el detalle no se lee por defecto.
-- Una sesión por tarea o intento. El estado vive en la tarea y los artefactos, no
-  en el historial del chat.
-- Antes de compactar o cambiar de sesión, escribe el handoff (brief o informe)
-  con el estado actual.
-- No se duplican criterios ni requisitos: la tarea es la fuente y el brief
-  enlaza.
-
-# Fricción y propuestas
-
-- `task-runner` reporta en el informe la fricción reutilizable del arnés, con
-  evidencia y disposición `pending`. No edita `docs/`.
-- `task-lead` tria al verificar o cerrar: local, corrección documental, cambio de
-  arnés o decisión creativa. Aplica lo que está en su alcance y eleva el resto a
-  `requirements-writer`.
-- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
-  con log; consulta al usuario si cambia reglas, permisos, gates, coste o
-  comportamiento de los agentes.
-- El usuario decide las reglas; las erratas no se le escalan.
-- Las propuestas no urgentes se revisan en lote al cerrar un hito o en el
-  playtest. Solo se interrumpe antes si bloquean una tarea.
-- Ninguna propuesta queda abierta sin disposición ni dueño.
+- No se copian criterios, requisitos ni la tarea: se enlazan con ancla.
+- El estado vive en la tarea y los artefactos, no en el historial del chat.
+- Antes de compactar o cambiar de sesión, escribe el handoff con el estado actual.
+- Una sesión por intento.
 
 # Estados de tarea
 
@@ -128,45 +138,80 @@ Ver [experimentos](experiments.md).
 - **G3. Verificación independiente**: el lead re-ejecuta y revisa.
 - **G4. Playtest**: el usuario prueba el hito.
 
-# Timeouts
+# Reintentos y escalado
 
-- Todo comando en primer plano lleva timeout explícito.
-- Los servidores en background solo con puerto fijo, comprobación de salud y
-  cierre posterior.
-- No se espera indefinidamente a ningún proceso.
-- La política completa está en [timeouts](timeouts.md).
+Un intento inicial y hasta dos relanzamientos. Cada relanzamiento exige una
+hipótesis nueva y evidencia; no se repite el mismo fallo. Tras el segundo fallo
+se escala.
+
+| Situación | Quién decide | Acción |
+|---|---|---|
+| Duda técnica rutinaria | `task-lead` | Decidir y registrar. |
+| Duda técnica irreversible o cara | `requirements-writer` + usuario | Consultar antes. |
+| Duda creativa | Usuario | Preguntar o experimentar. |
+| Requisito ambiguo o tarea grande | `requirements-writer` | Aclarar, versionar o dividir. |
+| Test roto sin causa clara | `task-lead` | Investigar; si no, escalar. |
+| Fricción de arnés | `requirements-writer` | Triar; el usuario decide si cambia reglas. |
+
+Un bloqueo se devuelve con: tarea, intento, qué se intentó, qué falló, evidencia,
+hipótesis descartadas, opciones, decisión necesaria y riesgo de cada opción.
+
+# Timeouts y procesos
+
+El shell de OpenCode corta a los 120 s por defecto, pero un hijo en background
+puede sobrevivir. Por eso:
+
+- **todo comando en primer plano lleva `timeout` explícito**;
+- un background solo se usa para servidores o watchers, con puerto fijo,
+  comprobación de salud y cierre posterior;
+- no se espera indefinidamente a ningún proceso.
+
+| Comando | Timeout |
+|---|---:|
+| `git status`, `git diff`, `git log`, inspección | 15 s |
+| `pnpm run docs:check`, `pnpm run config:check` | 60 s |
+| `pnpm test`, `pnpm run build` | 120 s |
+| `pnpm run test:e2e` | 180 s |
+| `pnpm install` | 300 s |
+| Playwright install | 600 s |
+
+Si un comando agota el timeout: parar el proceso, guardar evidencia, reportar
+comando y timeout, y no repetirlo sin una hipótesis nueva.
+
+Playwright arranca y cierra Vite con su `webServer`; es la forma preferida de
+levantar el servidor para E2E. Para flags, `pnpm run test:e2e --repeat-each=3`;
+el `--` literal no funciona.
 
 # Git
 
 - Un repositorio desde el primer día.
-- Una rama por tarea: `task/TASK-XXXX`.
-- `task-runner` trabaja en esa rama.
-- `task-lead` fusiona solo tras verificar.
-- Commits pequeños con el ID de tarea.
-- El informe incluye el commit SHA.
+- Una rama por tarea: `task/TASK-XXXX`. `task-runner` trabaja en ella y
+  `task-lead` fusiona solo tras verificar.
+- Commits pequeños con el ID de tarea; el informe incluye el commit SHA.
+- Se trabaja secuencialmente: sin worktrees ni tareas en paralelo hasta que haya
+  necesidad real y las tareas sean disjuntas.
 
-Al principio se trabaja **secuencialmente**. No se usan worktrees ni tareas en
-paralelo hasta que haya una necesidad real y las tareas sean disjuntas.
+# Fricción y propuestas
 
-# Reintentos
+El runner observa, el lead tria, `requirements-writer` escribe y el usuario
+decide las reglas.
 
-- Un intento inicial y hasta dos relanzamientos.
-- Cada relanzamiento debe incluir una hipótesis nueva.
-- No se repite el mismo fallo sin información nueva.
-- Tras el segundo fallo, se escala con evidencia.
+- `task-runner` reporta fricción reutilizable con evidencia y disposición
+  `pending`; no edita `docs/` ni la usa para desbloquear.
+- `task-lead` clasifica (local, documental, arnés o creativa), aplica lo que está
+  en su alcance y eleva el resto con evidencia.
+- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
+  con log; consulta al usuario si cambia reglas, permisos, gates, coste o
+  comportamiento de los agentes.
+- Las propuestas no urgentes se revisan en lote al cerrar un hito o en el
+  playtest. Ninguna queda abierta sin disposición ni dueño.
 
 # Comandos de apoyo
 
 ```bash
 pnpm run tasks:next     # Siguiente tarea lista
 pnpm run tasks:board    # Regenerar el tablero
-pnpm run docs:check     # Validar OKF y grafo
+pnpm run docs:check     # Validar OKF, enlaces y topes
 pnpm run config:check   # Validar agentes y skills
 pnpm run verify         # Tests + build
 ```
-
-# Inicio de la próxima sesión
-
-Abrir OpenCode en este repositorio. El agente por defecto es
-`requirements-writer`. La primera conversación debe convertir la visión y el
-alcance en el primer requisito aprobado, usando experimentos si hace falta.

@@ -27,7 +27,7 @@ un test o un servidor podían quedarse esperando indefinidamente.
 - No se reintenta el mismo comando sin una hipótesis nueva.
 
 La política operativa y la tabla de tiempos están en
-[timeouts](../harness/timeouts.md).
+[workflow](../harness/workflow.md#timeouts-y-procesos).
 
 # Consecuencias
 

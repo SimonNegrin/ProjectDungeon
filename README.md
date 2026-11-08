@@ -52,7 +52,7 @@ en `/experiments/`.
 | `pnpm run build` | Typecheck y build de producción. |
 | `pnpm test` | Tests unitarios con Vitest. |
 | `pnpm run test:e2e` | Tests de navegador con Playwright. |
-| `pnpm run docs:check` | Valida OKF, enlaces y grafo de tareas. |
+| `pnpm run docs:check` | Valida OKF, enlaces, grafo y topes de handoff. |
 | `pnpm run config:check` | Valida agentes, skills y `opencode.jsonc`. |
 | `pnpm run tasks:board` | Regenera `docs/tasks/index.md`. |
 | `pnpm run tasks:next` | Muestra la siguiente tarea lista. |
@@ -64,7 +64,7 @@ en `/experiments/`.
 - [Visión](docs/vision.md)
 - [Alcance y fases](docs/scope.md)
 - [Flujo de trabajo](docs/harness/workflow.md)
-- [Agentes](docs/harness/agents.md)
+- [Agentes y permisos](docs/harness/workflow.md#agentes)
 - [Experimentos](docs/harness/experiments.md)
 - [QA visual](docs/harness/visual-qa.md)
 - [Experimentos interactivos](experiments/index.md)

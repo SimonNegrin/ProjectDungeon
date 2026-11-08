@@ -78,6 +78,20 @@ eventos de ataque, turno y fin de partida).
 Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 [REQ-006](../requirements/REQ-006-movimiento-animado.md).
 
+# Render del host
+
+- **Canvas 2D** con resolución lógica fija y escalado por `devicePixelRatio`.
+- **Cámara**: sigue a la unidad activa, redondea a píxel entero y se limita al
+  mapa. El HUD no se transforma con la cámara.
+- **Capa**: HUD en DOM, no dibujado en Canvas; el Canvas no es accesible por sí
+  solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
+  para los eventos importantes. No se depende solo del color.
+- **Orden de dibujo**: limpiar, tilemap, entidades, efectos y overlay de debug.
+- **Debug y test**: `?debug=1`, `?test=1&seed=...`, `window.__game` y paso manual
+  determinista. Nada de animaciones no deterministas en modo test.
+- **Rendimiento**: evitar objetos por frame, precargar assets, un solo canvas
+  para el tablero y medir antes de optimizar. El modo test no usa reloj real.
+
 # Flujo remoto futuro
 
 ```text

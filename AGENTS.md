@@ -55,12 +55,14 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
   fijo, comprobación de salud y cierre posterior.
 - Nunca esperes indefinidamente a un proceso.
 - Si un comando agota el timeout, para el proceso, guarda evidencia y escala.
-- La política completa está en [docs/harness/timeouts.md](docs/harness/timeouts.md).
+- La política completa está en
+  [docs/harness/workflow.md](docs/harness/workflow.md#timeouts-y-procesos).
 
 ## Handoffs
 
-- Brief e informe siguen sus plantillas y un presupuesto blando de ~2 KB (3–4 KB
-  en tareas grandes).
+- El brief y el informe son deltas del intento: objetivo 1,5 KB y 2 KB; tope duro
+  4 KB. El esquema vive en los anexos de
+  [la plantilla de tarea](docs/templates/task.md).
 - El esquema es obligatorio: si falta un campo, el handoff no es válido.
 - Nada se borra: el desbordamiento va a `brief-detalle.md`/`report-detalle.md` y
   se enlaza.
@@ -68,6 +70,8 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
   handoff.
 - No dupliques criterios ni requisitos: enlaza; el estado vive en la tarea y los
   artefactos.
+- El log es un índice de una línea por evento:
+  `* YYYY-MM-DD — Tipo — ID — resultado — enlace`.
 
 ## Flujo
 
