@@ -40,7 +40,7 @@ export interface GameState {
   readonly status: GameStatus;
 }
 
-export type CommandType = 'Move' | 'Attack' | 'EndTurn' | 'Restart';
+export type CommandType = 'Move' | 'MoveTo' | 'Attack' | 'EndTurn' | 'Restart';
 
 export type Command =
   | {
@@ -48,6 +48,12 @@ export type Command =
       readonly unitId: string;
       readonly dx: number;
       readonly dy: number;
+    }
+  | {
+      readonly type: 'MoveTo';
+      readonly unitId: string;
+      /** Tile seleccionado por el host; el motor recalcula el camino. */
+      readonly target: Position;
     }
   | { readonly type: 'Attack'; readonly unitId: string; readonly targetId: string }
   | { readonly type: 'EndTurn' }
@@ -68,7 +74,11 @@ export type RejectionReason =
   | 'target-not-found'
   | 'target-dead'
   | 'target-not-adjacent'
-  | 'same-faction';
+  | 'same-faction'
+  /** `MoveTo`: no existe camino hasta el destino o el tile de ataque. */
+  | 'no-path'
+  /** `MoveTo`: destino no accionable (por ejemplo, el propio tile del jugador). */
+  | 'invalid-target';
 
 export type GameEvent =
   | {
