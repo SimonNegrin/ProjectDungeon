@@ -24,9 +24,10 @@ verified:
     at: 2026-11-08T14:50:13Z
     note: >-
       Verificación independiente en task/TASK-0023 (commits daa86a2, 3982fd6,
-      978d0d6; fusión 36c864e): diff limitado a src/host/, tests/unit/host/,
-      tests/e2e/floor-qa.spec.ts y artifacts/TASK-0023; src/game/, index.html,
-      public/, docs/, package.json y pnpm-lock.yaml intactos. `pnpm run verify`
+      978d0d6; fusión 36c864e; cierre 2866260): diff de implementación limitado a
+      src/host/, tests/unit/host/, tests/e2e/floor-qa.spec.ts y
+      artifacts/TASK-0023; src/game/, index.html, public/, package.json y
+      pnpm-lock.yaml intactos y el runner no editó docs/. `pnpm run verify`
       OK (118 documentos, 24 tareas; 397/397 tests en 30 archivos; build 54
       módulos) y `pnpm run test:e2e` OK (46/46). Densidad de referencia 121/339 =
       35,69 % en salas y 11/71 = 15,49 % en pasillos; 132 decals en 132 tiles
