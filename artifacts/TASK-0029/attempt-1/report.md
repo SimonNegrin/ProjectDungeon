@@ -26,12 +26,21 @@ verified:
   cambio de arma, y `tests/e2e/equipment-hud-qa.spec.ts`.
 - Commit de código y tests: **0f6e42a** en `task/TASK-0029`.
 
+## Corrección tras verificación del lead
+
+- `F1` añade `Equipo enemigo <id>: ...` con arma, escudo, armadura y
+  modificadores por enemigo vivo (excluye muertos).
+- `Últimos eventos` muestra `fallo (HP N)` cuando `AttackPerformed.hit` es
+  falso; los impactos conservan `-N`.
+- Tests: línea del centinela (`BESTIARY.sentinel`) y evento de fallo sin `-0`.
+- Commit de la corrección: **e4e4b6d** en `task/TASK-0029`.
+
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm test` | 33 archivos, 482 tests OK | `pnpm-test.txt` |
-| `pnpm run verify` | docs/config/test/build OK; 482 tests | `pnpm-verify.txt` |
+| `pnpm test` | 33 archivos, 483 tests OK | `pnpm-test.txt` |
+| `pnpm run verify` | docs/config/test/build OK; 483 tests | `pnpm-verify.txt` |
 | `pnpm run test:e2e` | 57 tests OK | `pnpm-e2e.txt` |
 | smoke de equipo | 2 tests OK | `e2e-equipment.txt` |
 
@@ -39,6 +48,8 @@ verified:
 
 - `screenshots/`: `weapon-in-map`, `weapon-map-hint`, `weapon-picked`,
   `attack-hit` (`-2`), `attack-miss` (`Fallo`) y `debug-f1`.
+- `debug-f1` regenerada: incluye `Equipo enemigo enemy-1: ...` y
+  `Últimos eventos: player-1→enemy-1 fallo (HP 9)`.
 - Revisar que el HUD no tapa el mapa y que el fallo se lee como texto.
 
 # Desviaciones
@@ -63,6 +74,6 @@ verified:
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2558 |
-| `report_bytes` | 2478 |
+| `report_bytes` | 3020 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
