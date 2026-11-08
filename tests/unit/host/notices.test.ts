@@ -7,17 +7,14 @@ import {
 import type { RejectionReason } from '../../../src/game/types';
 
 describe('avisos de rechazo del HUD', () => {
-  it('mantiene los cuatro textos aprobados en REQ-004 R-016', () => {
-    expect(NOTICE_MESSAGES).toMatchObject({
+  it('mantiene los cuatro textos aprobados en REQ-004 R-016 y el aviso de alarma', () => {
+    expect(NOTICE_MESSAGES).toEqual({
       'invalid-target': 'Destino no válido',
       'enemy-out-of-range': 'Enemigo fuera de alcance',
       'no-action': 'Sin acción',
       'no-mp': 'Sin MP',
+      'alarm-raised': '¡Alarma! Te han visto',
     });
-  });
-
-  it('incluye el aviso breve de alarma de REQ-009 R-011', () => {
-    expect(NOTICE_MESSAGES['alarm-raised']).toBe('¡Alarma! Te han visto');
   });
 
   it.each<[RejectionReason, NoticeCode | undefined]>([

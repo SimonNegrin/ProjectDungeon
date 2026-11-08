@@ -28,6 +28,33 @@ export function trackSpottedUnits(
 }
 
 /**
+ * Poda determinista del rastro de "!": un ID solo sobrevive mientras su
+ * enemigo siga vivo y en `alert`. Al pasar a `returning`/`dormant` o morir se
+ * elimina, de modo que una alerta posterior por onda sin `EnemySpotted` no
+ * reutiliza el marcador de un episodio anterior.
+ */
+export function reconcileSpottedUnits(
+  state: GameState,
+  spotted: ReadonlySet<string>,
+): ReadonlySet<string> {
+  if (spotted.size === 0) return spotted;
+
+  const alive = new Set<string>();
+  let changed = false;
+
+  for (const unitId of spotted) {
+    const enemy = state.enemies.find((candidate) => candidate.id === unitId);
+    if (enemy && enemy.hp > 0 && enemy.awareness === 'alert') {
+      alive.add(unitId);
+    } else {
+      changed = true;
+    }
+  }
+
+  return changed ? alive : spotted;
+}
+
+/**
  * Marcadores visibles con el estado actual: el detector sigue vivo y en alerta.
  * Al pasar a `returning`/`dormant` o morir el marcador desaparece aunque el ID
  * siga recordado; una nueva detección lo vuelve a mostrar.

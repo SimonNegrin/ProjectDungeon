@@ -42,7 +42,7 @@ import { createPerceptionOverlayView } from './perception-overlay';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
-import { trackSpottedUnits } from './spot';
+import { trackSpottedUnits, reconcileSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
 
 const DAMAGE_FEEDBACK_MS = 1200;
@@ -281,6 +281,9 @@ async function boot(): Promise<void> {
 
   const render = (): void => {
     const state = session.state;
+    // El "!" solo sobrevive mientras el detector siga vivo y en alerta. La poda
+    // usa el estado final: no adelanta el marcador del paso que lo activa.
+    spottedUnits = reconcileSpottedUnits(state, spottedUnits);
     // El mapa puede cambiar de tamaño o de semilla: se recalcula siempre para
     // que cámara y límites nunca queden obsoletos.
     world = gridPixelSize(state.grid, TILE_SIZE);

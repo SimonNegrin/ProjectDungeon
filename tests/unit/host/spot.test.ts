@@ -2,10 +2,15 @@ import { describe, expect, it } from 'vitest';
 import {
   detectEnemiesAfterStep,
   reduce,
+  type GameEvent,
   type GameState,
 } from '../../../src/game/index';
 import { buildMotionTimeline } from '../../../src/host/motion';
-import { activeSpotMarkers, trackSpottedUnits } from '../../../src/host/spot';
+import {
+  activeSpotMarkers,
+  reconcileSpottedUnits,
+  trackSpottedUnits,
+} from '../../../src/host/spot';
 import { makeGridWithWalls, makeState, makeUnit } from '../game/helpers';
 
 function sentinel(id: string, x: number, y: number, awareness: 'dormant' | 'alert' | 'returning' = 'dormant') {
@@ -91,6 +96,49 @@ describe('feedback "!" de detección', () => {
     // Una nueva detección del mismo enemigo vuelve a mostrar el marcador.
     expect(activeSpotMarkers(alert, new Set(['enemy-1']))).toHaveLength(1);
     expect(activeSpotMarkers(alert, new Set<string>())).toEqual([]);
+  });
+
+  it('poda el detector al salir de alert y no reutiliza su "!" si luego lo alerta la onda', () => {
+    const detection: GameEvent = {
+      type: 'EnemySpotted',
+      unitId: 'enemy-1',
+      playerId: 'player-1',
+      position: { x: 11, y: 5 },
+      step: { x: 10, y: 5 },
+    };
+    const spotted = trackSpottedUnits(new Set<string>(), [detection]);
+    const base: GameState = makeState({
+      players: [playerAt(5, 5)],
+      enemies: [sentinel('enemy-1', 11, 5, 'alert')],
+    });
+    expect(activeSpotMarkers(base, spotted)).toHaveLength(1);
+
+    const returning: GameState = {
+      ...base,
+      enemies: [{ ...base.enemies[0], awareness: 'returning' }],
+    };
+    const afterReturning = reconcileSpottedUnits(returning, spotted);
+    expect([...afterReturning]).toEqual([]);
+
+    const dormant: GameState = {
+      ...base,
+      enemies: [{ ...base.enemies[0], awareness: 'dormant' }],
+    };
+    expect([...reconcileSpottedUnits(dormant, spotted)]).toEqual([]);
+
+    // La onda vuelve a ponerlo en alerta sin emitir EnemySpotted: no hay "!".
+    const waveAlerted: GameState = {
+      ...base,
+      enemies: [{ ...base.enemies[0], awareness: 'alert', hasShouted: true }],
+    };
+    expect(activeSpotMarkers(waveAlerted, afterReturning)).toEqual([]);
+
+    // Una detección nueva sí vuelve a marcar al mismo detector.
+    const reSpotted = trackSpottedUnits(afterReturning, [detection]);
+    expect([...reSpotted]).toEqual(['enemy-1']);
+    expect(activeSpotMarkers(waveAlerted, reSpotted)).toEqual([
+      { unitId: 'enemy-1', x: 11, y: 5 },
+    ]);
   });
 
   it('no muestra "!" a receptores de la onda que no emitieron EnemySpotted', () => {
