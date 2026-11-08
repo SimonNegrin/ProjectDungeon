@@ -8,7 +8,7 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-07T15:24:03Z
-updated_at: 2026-11-07T16:20:00Z
+updated_at: 2026-11-08T20:10:00Z
 related_tasks: [TASK-0001, TASK-0002, TASK-0003]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-07T15:24:03Z }
 verified:
@@ -53,6 +53,10 @@ cual.
 | R-008 | HUD mínimo: vida y MP del jugador, acción disponible, fase actual, vida del enemigo y ayuda de teclas. Overlay de victoria o derrota con opción de reiniciar. | El HUD refleja el estado sin ambigüedad y el overlay aparece al terminar la partida. |
 | R-009 | Feedback visual: casilla resaltada, flash de daño y número de daño. Sin animaciones de movimiento ni audio en este corte. | El impacto se percibe en el momento del ataque y no se confunde con el movimiento. |
 | R-010 | El arte placeholder usa el pack 32rogues incluido en el repositorio, con su licencia y crédito. | Los PNG necesarios están versionados; `LICENSE.txt` y el crédito a Seth Boyles están presentes. |
+
+R-004 y R-008 describen el combate provisional del primer hito. Desde
+[REQ-010](REQ-010-combate-equipo-acierto-defensa.md) el combate usa equipo,
+modificadores y RNG sembrado; esta hoja se conserva como registro histórico.
 
 # Requisitos técnicos
 
@@ -101,6 +105,7 @@ movimiento por turno se recogen en [REQ-002](REQ-002-encuadre-16-9.md).
 | 2026-11-07 | Usar el pack 32rogues como arte placeholder. | human:simon | aceptada |
 | 2026-11-07 | No hacer experimento antes de construir; la economía provisional se usa tal cual y el playtest decide después. | requirements-writer | aceptada |
 | 2026-11-07 | Playtest del primer hito: HUD y feedback de ataque aprobados. La cámara, la sala y el movimiento se revisan en REQ-002. | human:simon | aceptada |
+| 2026-11-08 | R-004 y R-008 quedan como históricos: el combate con equipo, modificadores y RNG vive en REQ-010. | requirements-writer | aceptada |
 
 La licencia y el uso del pack se registran en
 [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md).
