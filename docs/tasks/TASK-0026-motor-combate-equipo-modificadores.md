@@ -9,7 +9,7 @@ task_type: feature
 requirement: REQ-010
 requirement_ids: [R-001, R-002, R-003, R-004, R-011, R-013, T-001, T-002, T-003, T-008, T-010]
 depends_on: []
-unlocks: [TASK-0027, TASK-0028]
+unlocks: [TASK-0027, TASK-0028, TASK-0033]
 created_at: 2026-11-08T17:31:45Z
 completed_at: 2026-11-08T18:05:00Z
 assignee: task-runner

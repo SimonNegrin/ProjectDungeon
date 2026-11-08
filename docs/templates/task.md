@@ -63,7 +63,7 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 
 - [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`
 - [ ] Salida de tests
-- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR` si se versionan)
+- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR`, en `<spec>/screenshots/`)
 - [ ] Commit SHA
 
 # Restricciones

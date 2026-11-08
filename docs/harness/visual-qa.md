@@ -61,7 +61,10 @@ audio, tono y si el experimento resuelve la duda.
   ```
 
   La suite escribe solo en esa carpeta, con subdirectorio por spec y por
-  repetición en `--repeat-each`.
+  repetición en `--repeat-each`. La ruta resultante es
+  `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`; briefs e informes deben
+  describir la captura con esa ruta, no con `screenshots/` en la raíz del
+  intento.
 - Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
   reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
   la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.

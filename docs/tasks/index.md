@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **32**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **33**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -36,6 +36,11 @@ Total: **32**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
+| [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `ready` | REQ-010 | TASK-0026, TASK-0027 | P2 |
+
+# ready
+
+* [TASK-0033 — Host: snapshot profundo y RNG de solo lectura](TASK-0033-host-snapshot-profundo-rng.md)
 
 # done
 
