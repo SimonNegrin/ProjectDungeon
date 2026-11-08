@@ -26,12 +26,8 @@ Total: **24**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0021](TASK-0021-host-damero-decoracion.md) | Host: damero global y decoración plana determinista | `done` | REQ-007 | — | P1 |
 | [TASK-0022](TASK-0022-e2e-qa-damero-decoracion.md) | E2E y QA visual del damero y la decoración | `done` | REQ-007 | TASK-0021 | P1 |
 | [TASK-0023](TASK-0023-host-suelo-programatico-ambientes.md) | Host: suelo programático por sala y decoración ambiental | `done` | REQ-008 | — | P1 |
-| [TASK-0024](TASK-0024-e2e-qa-suelo-ambientes.md) | E2E y QA visual del suelo por sala y la decoración ambiental | `ready` | REQ-008 | TASK-0023 | P1 |
+| [TASK-0024](TASK-0024-e2e-qa-suelo-ambientes.md) | E2E y QA visual del suelo por sala y la decoración ambiental | `done` | REQ-008 | TASK-0023 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
-
-# ready
-
-* [TASK-0024 — E2E y QA visual del suelo por sala y la decoración ambiental](TASK-0024-e2e-qa-suelo-ambientes.md)
 
 # done
 
@@ -57,5 +53,6 @@ Total: **24**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0021 — Host: damero global y decoración plana determinista](TASK-0021-host-damero-decoracion.md)
 * [TASK-0022 — E2E y QA visual del damero y la decoración](TASK-0022-e2e-qa-damero-decoracion.md)
 * [TASK-0023 — Host: suelo programático por sala y decoración ambiental](TASK-0023-host-suelo-programatico-ambientes.md)
+* [TASK-0024 — E2E y QA visual del suelo por sala y la decoración ambiental](TASK-0024-e2e-qa-suelo-ambientes.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 
