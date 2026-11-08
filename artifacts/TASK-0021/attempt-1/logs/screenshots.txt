@@ -1,0 +1,6 @@
+seed=279837264 viewport=1280x720
+sala: camera=(0,64) player=(6,8)
+pasillo: target=(4,3) camera=(0,0) player=(4,3)
+umbral: target=(10,5) camera=(128,0) player=(10,5)
+decoración: 56 decals (salas 51, pasillos 5)
+luminancia media por área/paridad: {"room-parity0":{"count":48,"luminance":12.555743684894432},"room-parity1":{"count":49,"luminance":21.338064305647293},"corridor-parity0":{"count":13,"luminance":21.600585336535566},"corridor-parity1":{"count":13,"luminance":35.8702045673134}}
