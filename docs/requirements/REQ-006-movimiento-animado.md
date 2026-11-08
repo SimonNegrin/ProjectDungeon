@@ -3,18 +3,21 @@ type: Requirement Sheet
 id: REQ-006
 title: Movimiento animado paso a paso y cámara que sigue
 description: Animar el recorrido de los personajes tile a tile con pausa, cámara que sigue al personaje e input bloqueado hasta terminar, sin cambiar las reglas del motor.
-status: draft
-version: 1
+status: stable
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T09:51:14Z
-updated_at: 2026-11-08T09:51:14Z
-related_tasks: [TASK-0017]
+updated_at: 2026-11-08T10:26:00Z
+related_tasks: [TASK-0017, TASK-0018, TASK-0019, TASK-0020]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:51:14Z }
 verified:
   - by: human:simon
     at: 2026-11-08T09:51:14Z
-    note: Aprueba animar a jugador y enemigos, la cámara continua a píxel entero, el bloqueo de input, el cursor oculto, el MP progresivo y que el ritmo se decida con EXP-002. La hoja queda en borrador hasta esa decisión.
+    note: Aprueba animar a jugador y enemigos, la cámara continua a píxel entero, el bloqueo de input, el cursor oculto, el MP progresivo y que el ritmo se decida con EXP-002.
+  - by: human:simon
+    at: 2026-11-08T10:23:31.653Z
+    note: Decide el ritmo en EXP-002 con 125 ms por paso, 70 ms de pausa por tile y diagonal a duración constante. Aprueba REQ-006 v2.
 ---
 
 # Contexto
@@ -39,9 +42,18 @@ determinista; los eventos ya contienen todo lo necesario para reconstruir el
 recorrido en el host. La animación es la forma de presentar ese resultado, no una
 segunda simulación.
 
-El ritmo (duración de paso, pausa y tratamiento de la diagonal) es una decisión
-de sensación y lo decide el usuario con [EXP-002](../../experiments/EXP-002-ritmo-movimiento/experiment.md).
-Hasta esa decisión, esta hoja queda en borrador.
+El ritmo (duración de paso, pausa y tratamiento de la diagonal) se decidió en
+[EXP-002](../../experiments/EXP-002-ritmo-movimiento/experiment.md) con la
+siguiente elección personalizada:
+
+| Parámetro | Valor decidido |
+|---|---|
+| Duración de un paso recto | 125 ms |
+| Pausa por tile | 70 ms, también al inicio y en el destino |
+| Diagonal | Duración constante: mismo tiempo que un paso recto, así que avanza más píxeles por segundo |
+| Camino largo de 6 pasos con 2 diagonales | 6 × 125 + 7 × 70 = 1240 ms |
+
+`REQ-006` v2 queda aprobada con esos valores.
 
 # Objetivos de experiencia
 
@@ -60,9 +72,9 @@ Hasta esa decisión, esta hoja queda en borrador.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | Todo movimiento de una unidad viva se presenta como un recorrido tile a tile por el camino ejecutado: `MoveTo`, `Move` y el tramo de acercamiento de Moverse sobre un enemigo. Se aplica al jugador y a los enemigos. No hay teletransportes ni pasos instantáneos. | En un `MoveTo` de 3 pasos se observan las posiciones de los 3 tiles; ningún frame muestra la unidad en el destino antes del último paso; no hay saltos de más de un tile. |
-| R-002 | Entre dos tiles consecutivos hay una transición animada continua: el sprite pasa por posiciones intermedias entre los centros, sin saltar. En diagonal la trayectoria es una línea recta. La diagonal tarda lo mismo que un paso recto o ~1,41× según decida EXP-002 (velocidad constante o duración constante). | Un muestreo a mitad de transición muestra el sprite entre dos centros contiguos; en diagonal la trayectoria es recta; la duración de la diagonal coincide con la opción elegida. |
-| R-003 | En cada tile hay una pausa breve antes de continuar, incluido el tile de destino antes de devolver el control. La pausa es la misma en todos los pasos y no se omite en el primero ni en el último. | Con el reloj de presentación, cada tile incluido el destino permanece al menos `pauseMs` antes del siguiente paso o del fin; ningún paso se salta la pausa. |
-| R-004 | El ritmo de la animación (duración de paso, pausa por tile y regla de diagonal) es el que decida EXP-002 y vive en una única configuración de presentación. | Los valores vigentes coinciden con la decisión registrada de EXP-002; cambiarlos no requiere tocar reglas de juego ni tests de motor. |
+| R-002 | Entre dos tiles consecutivos hay una transición animada continua: el sprite pasa por posiciones intermedias entre los centros, sin saltar. En diagonal la trayectoria es una línea recta y dura lo mismo que un paso recto (duración constante de 125 ms). | Un muestreo a mitad de transición muestra el sprite entre dos centros contiguos; en diagonal la trayectoria es recta y su duración es 125 ms, igual que la de un paso ortogonal. |
+| R-003 | En cada tile hay una pausa de 70 ms antes de continuar, incluido el tile inicial, los intermedios y el de destino antes de devolver el control. La pausa es la misma en todos los pasos y no se omite en el primero ni en el último. | Con el reloj de presentación, cada tile (inicio, intermedios y destino) permanece 70 ms antes del siguiente paso o del fin; ningún paso se salta la pausa. |
+| R-004 | El ritmo de la animación es fijo: 125 ms por paso recto, 70 ms de pausa por tile y diagonal a duración constante. Vive en una única configuración de presentación. | Los valores vigentes son 125/70 y `constant-duration`, coinciden con la decisión registrada de EXP-002 y cambiarlos no requiere tocar reglas de juego ni tests de motor. |
 | R-005 | La cámara sigue al personaje animado de forma continua, redondeando a píxel entero y limitándose a los bordes del mapa. No añade saltos ni se mueve al mover el cursor. | En frames intermedios el personaje está a ≤1 px del centro del viewport salvo clamp; los offsets de cámara son enteros; con el cursor en movimiento la cámara no cambia. |
 | R-006 | Mientras hay una animación de movimiento activa se ignoran las teclas de juego: flechas/`WASD`, `Espacio`/`Enter`, `F` y `E`. No se encolan: se descartan. `F1` sigue alternando el debug y `R` sigue reiniciando y cancela la animación. | Pulsar cualquiera de esas teclas durante el recorrido no cambia cursor, estado, MP, acción ni turno; al terminar, la siguiente pulsación funciona; `F1` y `R` responden durante la animación. |
 | R-007 | Durante la animación no se dibuja el cuadrado del cursor; los puntos del camino siguen visibles y se apagan a medida que el personaje los recorre. Al terminar, el cursor reaparece en su tile y se limita al viewport. Esto ajusta `REQ-004` R-004 solo para el intervalo de animación. | No se ve el cuadrado del cursor mientras camina; los puntos recorridos desaparecen; al final el cursor está en su tile y dentro del viewport. |
@@ -114,8 +126,9 @@ Hasta esa decisión, esta hoja queda en borrador.
 - [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md): sprites de
   32rogues de un solo frame.
 - [ADR-007](../decisions/ADR-007-map-generator.md): mapa por `MapGenerator`.
-- [EXP-002](../../experiments/EXP-002-ritmo-movimiento/experiment.md): decide el
-  ritmo. Bloquea las tareas de implementación, no la de construir el experimento.
+- [EXP-002](../../experiments/EXP-002-ritmo-movimiento/experiment.md): decidido
+  por `human:simon`: 125 ms por paso, 70 ms de pausa por tile y diagonal a
+  duración constante.
 - `ADR-008`: presentación animada sobre motor atómico (se crea en la tarea de
   implementación).
 
@@ -133,11 +146,10 @@ Hasta esa decisión, esta hoja queda en borrador.
 
 # Preguntas abiertas
 
-- **Ritmo:** duración de paso, pausa por tile y regla de diagonal. Lo decide
-  `human:simon` en EXP-002. Es la única decisión creativa abierta y bloquea las
-  tareas de implementación, no la construcción del experimento.
-- Ajuste fino revisable en playtest: pausa antes del ataque tras acercarse
-  (provisional ~150 ms) y sensación de la pausa en el destino.
+Ninguna decisión creativa abierta. Queda como ajuste revisable en playtest:
+
+- Pausa antes del ataque tras acercarse (provisional ~150 ms) y sensación de la
+  pausa en el destino con el ritmo ya elegido.
 
 # Decisiones
 
@@ -146,7 +158,8 @@ Hasta esa decisión, esta hoja queda en borrador.
 | 2026-11-08 | Animar el movimiento del jugador y de los enemigos; cualquier `UnitMoved`, incluido el acercamiento de Moverse sobre un enemigo. | human:simon | aceptada |
 | 2026-11-08 | Cámara continua a píxel entero, centrada en el personaje y limitada al mapa; sin subpíxel ni saltos por tile. | human:simon | aceptada |
 | 2026-11-08 | El ritmo se decide con EXP-002 antes de implementar la animación. | human:simon | aceptada |
-| 2026-11-08 | La diagonal es una línea recta; EXP-002 decide si tarda lo mismo o ~1,41×. | human:simon | aceptada |
+| 2026-11-08 | La diagonal es una línea recta. | human:simon | aceptada |
+| 2026-11-08 | EXP-002 decide el ritmo: 125 ms por paso, 70 ms de pausa por tile (inicio, intermedios y destino) y diagonal a duración constante. | human:simon | aceptada |
 | 2026-11-08 | Bloquear solo teclas de juego durante la animación; `F1` y `R` siguen activos y `R` cancela. Las pulsaciones se descartan, no se encolan. | human:simon | aceptada |
 | 2026-11-08 | Ocultar el cuadrado del cursor durante el recorrido; mantener los puntos del camino y apagar los recorridos; al final, cursor en su tile y limitado al viewport. | human:simon | aceptada |
 | 2026-11-08 | El MP del HUD baja paso a paso. | human:simon | aceptada |
@@ -156,13 +169,11 @@ Hasta esa decisión, esta hoja queda en borrador.
 
 # Aceptación de la hoja
 
-- [x] El usuario ha aprobado el alcance y las decisiones creativas salvo el
-      ritmo, delegado a EXP-002.
+- [x] El usuario ha aprobado el alcance y las decisiones creativas.
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
-- [x] Se puede generar el grafo de tareas; la implementación espera al
-      experimento y el resto ya está definido.
+- [x] Se puede generar el grafo de tareas.
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas: R-007 ajusta `REQ-004` R-004 para el
       intervalo de animación.
-- [ ] El ritmo está decidido y sus valores incorporados a la hoja (v2).
+- [x] El ritmo está decidido y sus valores incorporados a la hoja (v2).

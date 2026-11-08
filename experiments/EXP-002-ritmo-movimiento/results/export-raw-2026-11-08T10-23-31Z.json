@@ -1,0 +1,23 @@
+{
+  "experiment": "EXP-002",
+  "question": "¿Qué duración de paso, pausa por tile y tratamiento de la diagonal hacen que recorrer el camino se sienta ágil y legible?",
+  "seed": 508771428,
+  "decision": "",
+  "notes": "",
+  "decidedAt": "2026-11-08T10:23:31.653Z",
+  "preset": "personalizado",
+  "scenario": "long",
+  "stepMs": 125,
+  "pauseMs": 70,
+  "diagonal": "constant-duration",
+  "parameters": {
+    "preset": "personalizado",
+    "scenario": "long",
+    "stepMs": 125,
+    "pauseMs": 70,
+    "diagonal": "constant-duration",
+    "seed": 508771428,
+    "notes": "",
+    "decidedAt": "2026-11-08T10:23:31.653Z"
+  }
+}

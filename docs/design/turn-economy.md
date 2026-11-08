@@ -60,6 +60,28 @@ está en [REQ-004](../requirements/REQ-004-cursor-seleccion.md).
 - El cursor no se recentra al moverse ni al atacar; vuelve al jugador al empezar
   su turno, al reiniciar o al cambiar de semilla.
 
+# Presentación del movimiento
+
+El detalle normativo está en [REQ-006](../requirements/REQ-006-movimiento-animado.md).
+La animación es presentación: el motor sigue resolviendo el movimiento de forma
+atómica y el host reconstruye el recorrido desde los eventos `UnitMoved`.
+
+| Regla | Valor |
+|---|---|
+| Duración de un paso recto | 125 ms. |
+| Pausa por tile | 70 ms, también al inicio y en el destino. |
+| Diagonal | Duración constante: mismo tiempo que un paso recto. |
+| Cámara | Sigue al personaje de forma continua, redondeada a píxel entero y limitada al mapa. |
+| Input durante el recorrido | Se ignoran las teclas de juego y se descartan; `F1` y `R` siguen activos. |
+| Cursor | Oculto mientras se camina; los puntos del camino se apagan al recorrerlos. |
+| MP | Baja paso a paso en el HUD. |
+| Ataque tras acercarse | Se presenta después del último paso y su pausa. |
+| Movimiento reducido | Con `prefers-reduced-motion` se presenta de forma instantánea. |
+
+Valores decididos en [EXP-002](../../experiments/EXP-002-ritmo-movimiento/experiment.md):
+125 ms de paso, 70 ms de pausa y diagonal a duración constante. Son revisables en
+playtest, pero no se cambian sin una nueva decisión.
+
 # Combate
 
 | Regla | Valor provisional |
