@@ -4,7 +4,7 @@ id: TASK-0024
 title: "E2E y QA visual del suelo por sala y la decoración ambiental"
 description: Verificar en navegador las paletas por sala, la densidad 35/16, los ambientes y la no bloqueabilidad con capturas y snapshot.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-008
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, T-006, T-007]

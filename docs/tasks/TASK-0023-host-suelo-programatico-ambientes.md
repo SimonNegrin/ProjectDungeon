@@ -4,22 +4,38 @@ id: TASK-0023
 title: "Host: suelo programático por sala y decoración ambiental"
 description: Pintar el damero con dos colores planos y una paleta curada por sala, y agrupar 33 decals por ambientes con densidad 35/16, sin tocar el motor.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-008
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010]
 depends_on: []
 unlocks: [TASK-0024]
 created_at: 2026-11-08T14:29:18Z
-completed_at:
+completed_at: 2026-11-08T14:50:13Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0023/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T14:29:18Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T14:50:13Z
+    note: >-
+      Verificación independiente en task/TASK-0023 (commits daa86a2, 3982fd6,
+      978d0d6; fusión 36c864e): diff limitado a src/host/, tests/unit/host/,
+      tests/e2e/floor-qa.spec.ts y artifacts/TASK-0023; src/game/, index.html,
+      public/, docs/, package.json y pnpm-lock.yaml intactos. `pnpm run verify`
+      OK (118 documentos, 24 tareas; 397/397 tests en 30 archivos; build 54
+      módulos) y `pnpm run test:e2e` OK (46/46). Densidad de referencia 121/339 =
+      35,69 % en salas y 11/71 = 15,49 % en pasillos; 132 decals en 132 tiles
+      únicos, 0 en 18 puertas y 2 apariciones. Mezcla por sala 23,1-28,6 %;
+      paletas con ΔL 13,23-17,48; muros 0/73728 píxeles distintos del sprite.
+      Capturas 1280×720 de sala y pasillo revisadas; grises y camino/cursor
+      sobre decal verificados. Tests existentes actualizados sin borrar, saltar
+      ni debilitar; fricción de `timeout` en macOS elevada a
+      requirements-writer (`deferred`).
 ---
 
 # Objetivo

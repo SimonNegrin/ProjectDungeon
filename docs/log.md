@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0023 — done: suelo programático por sala y decoración ambiental; 397/397 unitarios y 46/46 E2E; densidades 35,69 %/15,49 %; fusión `36c864e` — [informe](../artifacts/TASK-0023/attempt-1/report.md)
+* 2026-11-08 — Planning — TASK-0024 — ready: dependencia TASK-0023 cerrada; E2E y QA visual del suelo por sala y la decoración ambiental — [TASK-0024](tasks/TASK-0024-e2e-qa-suelo-ambientes.md)
 * 2026-11-08 — Planning — TASK-0024 — backlog: E2E y QA visual del suelo por sala y la decoración ambiental; depende de TASK-0023 — [TASK-0024](tasks/TASK-0024-e2e-qa-suelo-ambientes.md)
 * 2026-11-08 — Planning — TASK-0023 — ready: host, paletas por sala y decoración ambiental; sin cambios en src/game — [TASK-0023](tasks/TASK-0023-host-suelo-programatico-ambientes.md)
 * 2026-11-08 — Decision — ADR-011 — suelo programático por sala y decoración ambiental; ADR-010 queda histórico en la capa de suelo — [ADR-011](decisions/ADR-011-suelo-programatico-ambientes.md)
