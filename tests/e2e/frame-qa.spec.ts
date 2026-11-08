@@ -6,16 +6,16 @@ import type { GameSnapshot } from '../../src/host/debug';
 import { endTurn, restart, snapshot, walkTo, approachEnemy, moveCursorTo } from './support';
 
 const CANVAS_ID = '#game-canvas';
-const SCREENSHOTS_DIR = 'artifacts/TASK-0010/attempt-1/screenshots';
+const SCREENSHOTS_DIR = 'artifacts/TASK-0016/attempt-1/screenshots';
 
-/** Valores del contrato aprobado en REQ-002 (no se leen de producción). */
+/** Valores del contrato aprobado en REQ-005 (no se leen de producción). */
 const TILE_SIZE = 32;
-const VIEWPORT_SIZE = 384;
-const TILES_PER_AXIS = 12;
-const CANVAS_WIDTH = 2048;
-const CANVAS_HEIGHT = 1152;
-const MAP_BACKING_SIZE = 1152;
-const SIDE_BACKING = 448;
+const VIEWPORT_SIZE = 416;
+const TILES_PER_AXIS = 13;
+const CANVAS_WIDTH = 2218;
+const CANVAS_HEIGHT = 1248;
+const MAP_BACKING_SIZE = 1248;
+const SIDE_BACKING = 485;
 
 const FRAME_ASPECT = 16 / 9;
 /** Tolerancia del criterio: ±0,1 % sobre la proporción 16:9. */
@@ -224,7 +224,7 @@ async function measurePixels(page: Page): Promise<PixelMeasurement> {
 
     let mapNonBlack = 0;
     let mapSamples = 0;
-    for (let x = 448; x < 1600; x += 32) {
+    for (let x = 485; x < 1733; x += 32) {
       for (let y = 0; y < canvas.height; y += 32) {
         const data = context.getImageData(x, y, 1, 1).data;
         mapSamples += 1;
@@ -236,11 +236,11 @@ async function measurePixels(page: Page): Promise<PixelMeasurement> {
       [0, 0],
       [8, 8],
       [224, 100],
-      [440, 576],
-      [447, canvas.height - 1],
-      [1600, 0],
-      [1760, 300],
-      [2040, 576],
+      [477, 576],
+      [484, canvas.height - 1],
+      [1733, 0],
+      [1900, 300],
+      [2210, 576],
       [canvas.width - 1, canvas.height - 1],
     ];
     const sampledSides = points.map(([x, y]) => ({
@@ -250,8 +250,8 @@ async function measurePixels(page: Page): Promise<PixelMeasurement> {
     }));
 
     return {
-      sideLeft: region(0, 448),
-      sideRight: region(1600, 448),
+      sideLeft: region(0, 485),
+      sideRight: region(1733, 485),
       map: { samples: mapSamples, nonBlack: mapNonBlack },
       sampledSides,
     };
@@ -365,7 +365,7 @@ async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise
   await testInfo.attach(name, { path, contentType: 'image/png' });
 }
 
-test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
+test.describe('encuadre 16:9, mapa 13×13 y HUD', () => {
   for (const viewport of VIEWPORTS) {
     test(`mantiene las invariantes a ${viewport.name}`, async ({ page }, testInfo) => {
       const consoleErrors = watchConsole(page);
@@ -389,7 +389,7 @@ test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
         Math.abs(layout.canvas.width / layout.canvas.height - FRAME_ASPECT),
       ).toBeLessThanOrEqual(ASPECT_TOLERANCE);
 
-      // Canvas interno fijo 2048×1152 y área de mapa 1:1 centrada.
+      // Canvas interno fijo 2218×1248 y área de mapa 1:1 centrada.
       expect(layout.canvasInternal).toEqual({ width: CANVAS_WIDTH, height: CANVAS_HEIGHT });
       const mapCssWidth = layout.canvas.width * (MAP_BACKING_SIZE / CANVAS_WIDTH);
       const mapCssHeight = layout.canvas.height * (MAP_BACKING_SIZE / CANVAS_HEIGHT);
@@ -407,14 +407,15 @@ test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
       expect(snap.viewport.width * 3).toBe(MAP_BACKING_SIZE);
       expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(SIDE_BACKING);
 
-      // El viewport cubre 12×12 tiles. La cámara inicial (16,80) no cae en un
-      // borde de tile, así que el rango intersectado incluye 13 columnas/filas
-      // con un fragmento parcial en cada extremo.
+      // El viewport cubre exactamente 13×13 tiles. La cámara inicial (0,64)
+      // cae alineada a la rejilla, sin fragmentos parciales en los bordes.
       const range = visibleTileRange(snap);
-      expect(snap.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+      expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
       expect(range).toEqual({ minX: 0, minY: 2, maxX: 12, maxY: 14 });
-      expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS + 1);
-      expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS + 1);
+      expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
+      expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
+      expect(snap.camera.x % TILE_SIZE).toBe(0);
+      expect(snap.camera.y % TILE_SIZE).toBe(0);
       expect(snap.viewport.width / TILE_SIZE).toBe(TILES_PER_AXIS);
 
       // Pixel art nítido y sin suavizado.
@@ -476,7 +477,7 @@ test.describe('encuadre 16:9, mapa 12×12 y HUD', () => {
   }
 });
 
-test('el canvas interno 2048×1152 no cambia al redimensionar', async ({ page }) => {
+test('el canvas interno 2218×1248 no cambia al redimensionar', async ({ page }) => {
   const consoleErrors = watchConsole(page);
   await openGame(page, 1280, 720);
 
@@ -516,7 +517,7 @@ test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', 
 
   // Arranque: spawn (6,8) del mapa generado y cámara centrada en él.
   const initial = await snapshot(page);
-  expect(initial.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+  expect(initial.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
   expect(initial.players[0]).toMatchObject({ x: 6, y: 8, mp: 6, hp: 20 });
   expect(initial.camera.x).toBe(expectedCamera(initial).x);
   expect(initial.camera.y).toBe(expectedCamera(initial).y);
@@ -526,7 +527,7 @@ test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', 
   await walkTo(page, 9, 11);
   const centered = await snapshot(page);
   expect(centered.players[0]).toMatchObject({ x: 9, y: 11 });
-  expect(centered.camera).toEqual({ x: 112, y: 176, maxX: 640, maxY: 640 });
+  expect(centered.camera).toEqual({ x: 96, y: 160, maxX: 608, maxY: 608 });
   expect(centered.camera.x).toBeGreaterThan(0);
   expect(centered.camera.y).toBeGreaterThan(0);
   expect(centered.camera.x).toBeLessThan(centered.camera.maxX);
@@ -547,6 +548,7 @@ test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', 
   expect(Math.abs(playerCenterY - centered.viewport.height / 2)).toBeLessThanOrEqual(
     PX_TOLERANCE,
   );
+  await screenshot(page, 'camera-centered', testInfo);
 
   // Borde noroeste: cámara (0,0) en la sala 0.
   await restart(page);
@@ -556,23 +558,23 @@ test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', 
   expect(northWest.camera).toMatchObject({ x: 0, y: 0 });
   expectPlayerVisible(northWest, 'en el borde noroeste');
 
-  // Borde noreste: cámara (640,0) en la sala 6.
+  // Borde noreste: cámara (608,0) en la sala 6.
   await restart(page);
   await walkTo(page, 28, 5);
   const northEast = await snapshot(page);
   expect(northEast.players[0]).toMatchObject({ x: 28, y: 5 });
-  expect(northEast.camera).toMatchObject({ x: 640, y: 0 });
+  expect(northEast.camera).toMatchObject({ x: 608, y: 0 });
   expectPlayerVisible(northEast, 'en el borde noreste');
 
-  // Borde suroeste: cámara (0,640) en la sala 1.
+  // Borde suroeste: cámara (0,608) en la sala 1.
   await restart(page);
   await walkTo(page, 3, 27);
   const southWest = await snapshot(page);
   expect(southWest.players[0]).toMatchObject({ x: 3, y: 27 });
-  expect(southWest.camera).toMatchObject({ x: 0, y: 640 });
+  expect(southWest.camera).toMatchObject({ x: 0, y: 608 });
   expectPlayerVisible(southWest, 'en el borde suroeste');
 
-  // Borde este: cámara (640,336) en la sala 7. El mapa generado coloca al
+  // Borde este: cámara (608,320) en la sala 7. El mapa generado coloca al
   // enemigo en la sala 8, así que la esquina sureste exacta exigiría entrar en
   // su sala y alterar la partida; se comprueba el clamp este con una ruta real
   // y el clamp sur en la ruta suroeste.
@@ -580,7 +582,7 @@ test('la cámara centra al jugador y se detiene en los cuatro bordes del mapa', 
   await walkTo(page, 28, 16);
   const southEast = await snapshot(page);
   expect(southEast.players[0]).toMatchObject({ x: 28, y: 16 });
-  expect(southEast.camera).toMatchObject({ x: 640, y: 336 });
+  expect(southEast.camera).toMatchObject({ x: 608, y: 320 });
   expect(southEast.camera.x).toBe(southEast.camera.maxX);
   expectPlayerVisible(southEast, 'en el borde este');
 
@@ -607,11 +609,11 @@ test('el enemigo empieza fuera del viewport y sigue fuera mientras la distancia 
   await walkTo(page, 9, 11);
   const afterMoves = await snapshot(page);
   expect(afterMoves.players[0]).toMatchObject({ x: 9, y: 11 });
-  expect(afterMoves.camera).toEqual({ x: 112, y: 176, maxX: 640, maxY: 640 });
+  expect(afterMoves.camera).toEqual({ x: 96, y: 160, maxX: 608, maxY: 608 });
   expect(enemyVisible(afterMoves), 'El enemigo debe seguir fuera del viewport').toBe(false);
   expectPlayerVisible(afterMoves, 'tras moverse');
 
-  // La fase enemiga lo acerca un tile, pero sigue lejos del viewport 12×12.
+  // La fase enemiga lo acerca un tile, pero sigue lejos del viewport 13×13.
   await endTurn(page);
   const afterEnemyPhase = await snapshot(page);
   expect(afterEnemyPhase.turn).toBe(initial.turn + 1);

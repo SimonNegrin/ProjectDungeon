@@ -575,16 +575,16 @@ describe('apariciones', () => {
     expect(enemyRoom ? roomMaxDistance(reference, enemyRoom, distances) : -1).toBe(farthestOther);
   });
 
-  it('coloca al enemigo fuera del viewport inicial de 12x12 sobre suelo', () => {
+  it('coloca al enemigo fuera del viewport inicial de 13x13 sobre suelo', () => {
     const { player, enemy } = reference.spawns;
-    const originX = clamp(player.x - 6, 0, reference.width - 12);
-    const originY = clamp(player.y - 6, 0, reference.height - 12);
+    const originX = clamp(player.x - 6, 0, reference.width - 13);
+    const originY = clamp(player.y - 6, 0, reference.height - 13);
 
     const outside =
       enemy.x < originX ||
-      enemy.x > originX + 11 ||
+      enemy.x > originX + 12 ||
       enemy.y < originY ||
-      enemy.y > originY + 11;
+      enemy.y > originY + 12;
     expect(outside).toBe(true);
 
     expect(reference.tiles[tileIndex(reference.width, player.x, player.y)]).toBe('floor');

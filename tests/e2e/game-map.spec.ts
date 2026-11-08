@@ -4,14 +4,14 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
 import { walkTo } from './support';
 
-const ARTIFACTS = 'artifacts/TASK-0010/attempt-1';
+const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
 const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
 
 const TILE_SIZE = 32;
 const RENDER_SCALE = 3;
-const CANVAS_WIDTH = 2048;
-const CANVAS_HEIGHT = 1152;
-const MAP_OFFSET_BACKING = 448;
+const CANVAS_WIDTH = 2218;
+const CANVAS_HEIGHT = 1248;
+const MAP_OFFSET_BACKING = 485;
 
 async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
@@ -116,7 +116,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   });
   expect(initial.players[0]).toMatchObject({ x: 6, y: 8 });
   expect(initial.enemies[0]).toMatchObject({ x: 23, y: 28 });
-  expect(initial.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+  expect(initial.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
   expect(initial.camera.x).toBe(expectedCamera(initial).x);
   expect(initial.camera.y).toBe(expectedCamera(initial).y);
 
@@ -133,7 +133,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   await page.keyboard.press('Space');
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
-  expect(moved.camera).toEqual({ x: 48, y: 80, maxX: 640, maxY: 640 });
+  expect(moved.camera).toEqual({ x: 32, y: 64, maxX: 608, maxY: 608 });
   expect(moved.camera.x).toBe(expectedCamera(moved).x);
   expect(moved.camera.y).toBe(expectedCamera(moved).y);
 
@@ -176,8 +176,8 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   expect(afterF2.status).toBe('playing');
   expect(afterF2.grid.tiles).not.toEqual(afterRestart.grid.tiles);
   expect(afterF2.rooms).not.toEqual(afterRestart.rooms);
-  expect(afterF2.camera.maxX).toBe(640);
-  expect(afterF2.camera.maxY).toBe(640);
+  expect(afterF2.camera.maxX).toBe(608);
+  expect(afterF2.camera.maxY).toBe(608);
   expect(afterF2.camera.x).toBe(expectedCamera(afterF2).x);
   expect(afterF2.camera.y).toBe(expectedCamera(afterF2).y);
 
@@ -187,7 +187,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   await openGame(page);
   await walkTo(page, 3, 12);
   const corner = await snapshot(page);
-  expect(corner.camera).toEqual({ x: 0, y: 208, maxX: 640, maxY: 640 });
+  expect(corner.camera).toEqual({ x: 0, y: 192, maxX: 608, maxY: 608 });
   expect(corner.players[0]).toMatchObject({ x: 3, y: 12 });
   // Esquina suroeste de la sala 0: tile (3,12) ≈ mundo (112,400).
   await saveCanvasCrop(page, 'wall-corner', testInfo, 3.5 * TILE_SIZE, 11.5 * TILE_SIZE);

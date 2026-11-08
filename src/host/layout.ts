@@ -1,28 +1,42 @@
 import { TILE_SIZE, type Viewport } from './geometry';
 
 /**
- * Marco lógico 16:9. La altura sale de 12 tiles de 32 px y la anchura se
- * deriva de la proporción: 384 × 16/9 = 682,666… px lógicos.
+ * Marco lógico 16:9. La altura sale de 13 tiles de 32 px y la anchura se
+ * deriva de la proporción: 416 × 16/9 = 739,555… px lógicos.
  */
-export const MAP_TILES_PER_AXIS = 12;
+export const MAP_TILES_PER_AXIS = 13;
 export const FRAME_LOGICAL_HEIGHT = MAP_TILES_PER_AXIS * TILE_SIZE;
 export const FRAME_ASPECT_RATIO = 16 / 9;
 export const FRAME_LOGICAL_WIDTH = FRAME_LOGICAL_HEIGHT * FRAME_ASPECT_RATIO;
 
 /** Resolución interna de dibujo (3×). No es la escala de presentación. */
 export const RENDER_SCALE = 3;
-export const CANVAS_WIDTH = Math.round(FRAME_LOGICAL_WIDTH * RENDER_SCALE);
+/**
+ * El ancho interno se redondea a un número par para que el offset horizontal
+ * del mapa caiga en píxeles enteros de respaldo. Con 2219 el offset sería
+ * 485,5; 2218 deja 485 y una desviación interna de 16:9 inferior al 0,05 % que
+ * absorbe la presentación CSS del marco.
+ */
+export const CANVAS_WIDTH = Math.round((FRAME_LOGICAL_WIDTH * RENDER_SCALE) / 2) * 2;
 export const CANVAS_HEIGHT = FRAME_LOGICAL_HEIGHT * RENDER_SCALE;
 
-/** Sub-viewport cuadrado del mapa: 12×12 tiles de 32 px lógicos. */
+/** Sub-viewport cuadrado del mapa: 13×13 tiles de 32 px lógicos. */
 export const MAP_VIEWPORT: Viewport = {
   width: MAP_TILES_PER_AXIS * TILE_SIZE,
   height: MAP_TILES_PER_AXIS * TILE_SIZE,
 };
 
 export const MAP_BACKING_SIZE = MAP_VIEWPORT.width * RENDER_SCALE;
+/** Offset de dibujo entero en píxeles de respaldo (485 con el canvas actual). */
 export const MAP_OFFSET_BACKING = (CANVAS_WIDTH - MAP_BACKING_SIZE) / 2;
 export const MAP_OFFSET_LOGICAL = MAP_OFFSET_BACKING / RENDER_SCALE;
+
+/**
+ * Desfase exacto del área del mapa dentro del marco lógico. Se usa para
+ * posicionar overlay y feedback respecto al marco; difiere del offset de
+ * dibujo en menos de 0,2 px lógicos por el redondeo entero del canvas.
+ */
+const MAP_FRAME_OFFSET_LOGICAL = (FRAME_LOGICAL_WIDTH - MAP_VIEWPORT.width) / 2;
 
 export interface FrameLayout {
   /** Posición del marco dentro del espacio disponible. */
@@ -76,7 +90,7 @@ export function computeFrameLayout(
  * usando estos porcentajes (el mapa empieza en el 21,875 % del ancho).
  */
 export function mapXToFramePercent(mapX: number): number {
-  return ((MAP_OFFSET_LOGICAL + mapX) / FRAME_LOGICAL_WIDTH) * 100;
+  return ((MAP_FRAME_OFFSET_LOGICAL + mapX) / FRAME_LOGICAL_WIDTH) * 100;
 }
 
 export function mapYToFramePercent(mapY: number): number {

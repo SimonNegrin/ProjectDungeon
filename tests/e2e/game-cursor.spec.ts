@@ -3,10 +3,10 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { approachEnemy, moveCursorTo, restart, snapshot, walkTo } from './support';
 
-const SCREENSHOTS = 'artifacts/TASK-0014/attempt-1/screenshots';
+const SCREENSHOTS = 'artifacts/TASK-0016/attempt-1/screenshots';
 const SEED = '/?seed=279837264';
 const TILE_SIZE = 32;
-const VIEWPORT_SIZE = 384;
+const VIEWPORT_SIZE = 416;
 
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -46,13 +46,13 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await expect(page.getByTestId('cursor')).toBeVisible();
   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'player');
 
-  // El cursor ocupa exactamente un tile del sub-viewport 12×12.
+  // El cursor ocupa exactamente un tile del sub-viewport 13×13.
   const frameBox = await page.getByTestId('frame').boundingBox();
   const cursorBox = await page.getByTestId('cursor').boundingBox();
   expect(frameBox).not.toBeNull();
   expect(cursorBox).not.toBeNull();
   if (frameBox && cursorBox) {
-    const tile = frameBox.height / 12;
+    const tile = frameBox.height / 13;
     const mapLeft = frameBox.x + (frameBox.width - frameBox.height) / 2;
     const expectedLeft =
       mapLeft + ((start.cursor.x * TILE_SIZE - start.camera.x) / VIEWPORT_SIZE) * frameBox.height;
@@ -150,7 +150,7 @@ test('el cursor se recoloca al viewport cuando la cámara se desplaza', async ({
   await walkTo(page, 3, 27);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 3, y: 27 });
-  expect(moved.camera).toEqual({ x: 0, y: 640, maxX: 640, maxY: 640 });
+  expect(moved.camera).toEqual({ x: 0, y: 608, maxX: 608, maxY: 608 });
 
   const minX = Math.floor(moved.camera.x / TILE_SIZE);
   const minY = Math.floor(moved.camera.y / TILE_SIZE);

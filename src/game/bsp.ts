@@ -44,7 +44,7 @@ const DIRECTIONS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 const MAX_ROLE_SLOTS = 3;
-const VIEWPORT_TILES = 12;
+const VIEWPORT_TILES = 13;
 const MAX_GENERATION_ATTEMPTS = 8;
 const MAX_BSP_ROLE_ATTEMPTS = 120;
 
@@ -1739,8 +1739,16 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
     }
   }
 
-  const originX = clamp(player.x - VIEWPORT_TILES / 2, 0, context.width - VIEWPORT_TILES);
-  const originY = clamp(player.y - VIEWPORT_TILES / 2, 0, context.height - VIEWPORT_TILES);
+  const originX = clamp(
+    player.x - Math.floor(VIEWPORT_TILES / 2),
+    0,
+    context.width - VIEWPORT_TILES,
+  );
+  const originY = clamp(
+    player.y - Math.floor(VIEWPORT_TILES / 2),
+    0,
+    context.height - VIEWPORT_TILES,
+  );
 
   const isOutsideViewport = (x: number, y: number): boolean =>
     x < originX ||
@@ -1799,7 +1807,7 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
 
   if (picked.distance < 12) issues.push(`Distancia jugador→enemigo ${picked.distance} < 12.`);
   if (!isOutsideViewport(picked.point.x, picked.point.y)) {
-    issues.push('El enemigo cae dentro del viewport inicial de 12×12.');
+    issues.push('El enemigo cae dentro del viewport inicial de 13×13.');
   }
 
   return {

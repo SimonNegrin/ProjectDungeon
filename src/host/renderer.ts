@@ -113,7 +113,7 @@ export function renderScene(
 
   ctx.save();
   // Resolución interna 3× y desplazamiento del mapa al centro del marco. El
-  // offset lógico 149,333… cae en 448 px enteros de respaldo.
+  // offset lógico 161,666… cae en 485 px enteros de respaldo.
   ctx.scale(RENDER_SCALE, RENDER_SCALE);
   ctx.translate(MAP_OFFSET_LOGICAL, 0);
 
