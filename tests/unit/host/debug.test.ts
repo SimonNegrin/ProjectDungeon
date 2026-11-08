@@ -5,6 +5,7 @@ import {
   deriveCursorStatus,
 } from '../../../src/host/cursor';
 import { createDebugApi } from '../../../src/host/debug';
+import { planDecoration, summarizeDecoration } from '../../../src/host/floor';
 import { GameSession } from '../../../src/host/session';
 import { makeState } from '../game/helpers';
 
@@ -81,6 +82,7 @@ describe('API de debug window.__game', () => {
     expect(snapshot.corridors).toEqual([]);
     expect(snapshot.doors).toEqual([]);
     expect(snapshot.spawns).toBeNull();
+    expect(snapshot.decoration).toEqual([]);
     expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 224, maxY: 224 });
     expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
     expect(snapshot.tileSize).toBe(32);
@@ -271,6 +273,38 @@ describe('snapshot del mapa generado', () => {
     expect(fresh.spawns?.player.x).toBe(6);
     expect(fresh.corridors[0].path[0].x).toBe(4);
     expect(fresh.cursor.path[0]).toEqual({ x: 7, y: 8 });
+  });
+
+  it('expone un resumen determinista de decoración que coincide con el render', () => {
+    const api = generatedSetup();
+    const map = new GameSession({ seed: 279837264 }).state.map;
+    if (!map) throw new Error('La semilla de referencia debe generar mapa');
+
+    const first = api.snapshot();
+    const second = api.snapshot();
+
+    expect(first.decoration).toEqual(second.decoration);
+    expect(first.decoration).toEqual(
+      summarizeDecoration(planDecoration(map)),
+    );
+    expect(first.decoration.length).toBeGreaterThan(0);
+    for (const entry of first.decoration) {
+      expect(Object.keys(entry).sort()).toEqual(['area', 'type', 'x', 'y']);
+      expect(entry.area === 'room' || entry.area === 'corridor').toBe(true);
+      expect(typeof entry.type).toBe('string');
+    }
+  });
+
+  it('mutar el resumen de decoración no altera el estado ni el siguiente snapshot', () => {
+    const api = generatedSetup();
+    const snapshot = api.snapshot();
+    const mutable = snapshot.decoration[0] as { x: number; type: string };
+    mutable.x = 999;
+    mutable.type = 'mutado';
+
+    const fresh = api.snapshot();
+    expect(fresh.decoration[0].x).not.toBe(999);
+    expect(fresh.decoration[0].type).not.toBe('mutado');
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {

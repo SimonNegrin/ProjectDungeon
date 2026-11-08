@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
-import { gridPixelSize, type Viewport } from '../../../src/host/geometry';
+import { gridPixelSize, visibleTileRange, type Viewport } from '../../../src/host/geometry';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -14,6 +14,12 @@ import {
   RENDER_SCALE,
 } from '../../../src/host/layout';
 import { floorTileFor, renderScene, type SceneAssets } from '../../../src/host/renderer';
+import {
+  FLOOR_TINT,
+  floorParity,
+  floorTintStyle,
+  planDecoration,
+} from '../../../src/host/floor';
 import { makeState } from '../game/helpers';
 
 interface DrawCall {
@@ -35,11 +41,30 @@ interface FillRect {
   readonly height: number;
 }
 
+type RenderOp =
+  | {
+      readonly kind: 'draw';
+      readonly image: unknown;
+      readonly sx: number;
+      readonly sy: number;
+      readonly dx: number;
+      readonly dy: number;
+    }
+  | {
+      readonly kind: 'fill';
+      readonly x: number;
+      readonly y: number;
+      readonly width: number;
+      readonly height: number;
+      readonly style: string;
+    };
+
 interface FakeContext {
   readonly ctx: CanvasRenderingContext2D;
   readonly draws: DrawCall[];
   readonly fillRects: FillRect[];
   readonly fillStyles: string[];
+  readonly ops: RenderOp[];
   readonly translates: Array<{ x: number; y: number }>;
   readonly scales: Array<{ x: number; y: number }>;
   readonly clips: FillRect[];
@@ -50,6 +75,7 @@ function createFakeContext(): FakeContext {
   const draws: DrawCall[] = [];
   const fillRects: FillRect[] = [];
   const fillStyles: string[] = [];
+  const ops: RenderOp[] = [];
   const translates: Array<{ x: number; y: number }> = [];
   const scales: Array<{ x: number; y: number }> = [];
   const clips: FillRect[] = [];
@@ -78,6 +104,7 @@ function createFakeContext(): FakeContext {
     fillRect(x: number, y: number, width: number, height: number) {
       fillRects.push({ x, y, width, height });
       fillStyles.push(fake.fillStyle);
+      ops.push({ kind: 'fill', x, y, width, height, style: fake.fillStyle });
     },
     drawImage(
       image: unknown,
@@ -91,6 +118,7 @@ function createFakeContext(): FakeContext {
       dh: number,
     ) {
       draws.push({ image, sx, sy, sw, sh, dx, dy, dw, dh });
+      ops.push({ kind: 'draw', image, sx, sy, dx, dy });
     },
   };
 
@@ -99,6 +127,7 @@ function createFakeContext(): FakeContext {
     draws,
     fillRects,
     fillStyles,
+    ops,
     translates,
     scales,
     clips,
@@ -326,6 +355,128 @@ describe('render del mapa generado', () => {
     expect(walls.every((call) => call.sx === 0 || call.sx === 32)).toBe(true);
     expect(walls.some((call) => call.sx === 64)).toBe(false);
   });
+
+  it('aplica el tinte solo al suelo de paridad alterna y nunca a muros', () => {
+    const state = generatedState();
+    const fake = draw(state, { x: 0, y: 0 });
+    const tint = floorTintStyle();
+    const tintFills = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' && op.style === tint,
+    );
+    const range = visibleTileRange({ x: 0, y: 0 }, VIEWPORT, state.grid);
+
+    let expected = 0;
+    for (let y = range.minY; y <= range.maxY; y += 1) {
+      for (let x = range.minX; x <= range.maxX; x += 1) {
+        if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
+        if (floorParity(x, y) === 1) expected += 1;
+      }
+    }
+
+    expect(tintFills.length).toBe(expected);
+    for (const fill of tintFills) {
+      const x = fill.x / 32;
+      const y = fill.y / 32;
+      expect(fill.width).toBe(32);
+      expect(fill.height).toBe(32);
+      expect(state.grid.tiles[y * state.grid.width + x]).toBe('floor');
+      expect(floorParity(x, y)).toBe(1);
+    }
+  });
+
+  it('dibuja solo decals planos de la planificación, sobre tiles de suelo', () => {
+    const state = generatedState();
+    const fake = draw(state, { x: 0, y: 0 });
+    const isFloorRect = (sx: number, sy: number): boolean =>
+      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
+    const isWallRect = (sy: number): boolean => sy === 64;
+    const decalDraws = fake.draws.filter(
+      (call) =>
+        call.image === assets.tiles &&
+        !isFloorRect(call.sx, call.sy) &&
+        !isWallRect(call.sy),
+    );
+
+    const range = visibleTileRange({ x: 0, y: 0 }, VIEWPORT, state.grid);
+    const visiblePlan = planDecoration(state.map).filter(
+      (entry) =>
+        entry.x >= range.minX &&
+        entry.x <= range.maxX &&
+        entry.y >= range.minY &&
+        entry.y <= range.maxY,
+    );
+
+    expect(decalDraws.length).toBe(visiblePlan.length);
+    const expected = new Set(
+      visiblePlan.map(
+        (entry) => `${entry.x * 32},${entry.y * 32},${entry.decal.rect.sx},${entry.decal.rect.sy}`,
+      ),
+    );
+    for (const call of decalDraws) {
+      expect(expected.has(`${call.dx},${call.dy},${call.sx},${call.sy}`)).toBe(true);
+      expect(state.grid.tiles[call.dy / 32 * state.grid.width + call.dx / 32]).toBe(
+        'floor',
+      );
+      expect(call.sw).toBe(32);
+      expect(call.sh).toBe(32);
+    }
+  });
+
+  it('respeta el orden base → tinte → decals → unidades', () => {
+    const fake = draw(generatedState(), { x: 0, y: 0 });
+    const tint = floorTintStyle();
+    const isFloorRect = (sx: number, sy: number): boolean =>
+      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
+
+    const baseIndex = fake.ops.findIndex(
+      (op) =>
+        op.kind === 'draw' &&
+        op.image === assets.tiles &&
+        isFloorRect(op.sx, op.sy),
+    );
+    const tintIndex = fake.ops.findIndex(
+      (op) => op.kind === 'fill' && op.style === tint,
+    );
+    const decalIndex = fake.ops.findIndex(
+      (op) =>
+        op.kind === 'draw' &&
+        op.image === assets.tiles &&
+        !isFloorRect(op.sx, op.sy) &&
+        op.sy !== 64,
+    );
+    const unitIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.rogues,
+    );
+
+    expect(baseIndex).toBeGreaterThanOrEqual(0);
+    expect(tintIndex).toBeGreaterThan(baseIndex);
+    expect(decalIndex).toBeGreaterThan(tintIndex);
+    expect(unitIndex).toBeGreaterThan(decalIndex);
+  });
+
+  it('sin mapa pinta damero pero no dibuja decoración', () => {
+    const fake = draw(makeState(), { x: 0, y: 0 });
+
+    const tint = floorTintStyle();
+    const tintFills = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' && op.style === tint,
+    );
+    const isFloorRect = (sx: number, sy: number): boolean =>
+      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
+    const decalDraws = fake.draws.filter(
+      (call) =>
+        call.image === assets.tiles &&
+        !isFloorRect(call.sx, call.sy) &&
+        call.sy !== 64,
+    );
+
+    expect(tintFills.length).toBeGreaterThan(0);
+    expect(decalDraws).toEqual([]);
+    expect(FLOOR_TINT.alpha).toBeGreaterThan(0);
+  });
+
 
   it('dos renders del mismo estado producen exactamente la misma secuencia de draws', () => {
     const state = generatedState();
