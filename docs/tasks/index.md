@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **24**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **25**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -27,7 +27,12 @@ Total: **24**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0022](TASK-0022-e2e-qa-damero-decoracion.md) | E2E y QA visual del damero y la decoración | `done` | REQ-007 | TASK-0021 | P1 |
 | [TASK-0023](TASK-0023-host-suelo-programatico-ambientes.md) | Host: suelo programático por sala y decoración ambiental | `done` | REQ-008 | — | P1 |
 | [TASK-0024](TASK-0024-e2e-qa-suelo-ambientes.md) | E2E y QA visual del suelo por sala y la decoración ambiental | `done` | REQ-008 | TASK-0023 | P1 |
+| [TASK-0025](TASK-0025-mesa-combate-exp-003.md) | EXP-003: mesa de combate configurable | `review` | REQ-010 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
+
+# review
+
+* [TASK-0025 — EXP-003: mesa de combate configurable](TASK-0025-mesa-combate-exp-003.md)
 
 # done
 
