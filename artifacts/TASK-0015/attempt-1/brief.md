@@ -5,7 +5,7 @@ description: "E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enem
 task: TASK-0015
 attempt: 1
 status: stable
-brief_bytes: 4497
+brief_bytes: 4502
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T02:03:00Z }
 ---

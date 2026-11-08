@@ -74,15 +74,20 @@ verified:
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `pnpm run test:e2e -- --repeat-each=3` ejecuta 29 tests, no 87: el segundo `--` llega a Playwright y anula la repetición. | `repeat-output-literal.txt` (`Running 29 tests`) frente a `repeat-output.txt` (`Running 87 tests`). | Ejecutar `pnpm run test:e2e --repeat-each=3` para la evidencia real. | El brief y la tarea ordenan la forma literal; un agente puede creer que repitió 3× sin haberlo hecho. | En briefs/documentación, usar `pnpm run test:e2e --repeat-each=3` (sin `--`) o añadir el flag al script. | Bajo; solo cambia el comando documentado. | `pending` |
-| Un brief del lead con `description` sin comillas y dos puntos rompe `docs:check` y bloquea `verify` antes de ejecutar tests. | `brief-yaml-error.txt` y `brief-yaml-fix.diff`; commit `79864c0`. | Citar el valor de `description` en el brief. | Cualquier brief con dos puntos en `description` falla en el validador; el generador debería citar todos los escalares. | Que el generador de briefs emita `description` entre comillas (o cite valores con `:`), y añadir esa comprobación al esquema. | Bajo; no altera contenido ni criterios. | `pending` |
+| `pnpm run test:e2e -- --repeat-each=3` ejecuta 29 tests, no 87: el segundo `--` llega a Playwright y anula la repetición. | `repeat-output-literal.txt` (`Running 29 tests`) frente a `repeat-output.txt` (`Running 87 tests`). | Ejecutar `pnpm run test:e2e --repeat-each=3` para la evidencia real. | El brief y la tarea ordenan la forma literal; un agente puede creer que repitió 3× sin haberlo hecho. | En briefs/documentación, usar `pnpm run test:e2e --repeat-each=3` (sin `--`) o añadir el flag al script. | Bajo; solo cambia el comando documentado. | `deferred` (owner: requirements-writer) |
+| Un brief del lead con `description` sin comillas y dos puntos rompe `docs:check` y bloquea `verify` antes de ejecutar tests. | `brief-yaml-error.txt` y `brief-yaml-fix.diff`; commit `79864c0`. | Citar el valor de `description` en el brief. | Cualquier brief con dos puntos en `description` falla en el validador; el generador debería citar todos los escalares. | Que el generador de briefs emita `description` entre comillas (o cite valores con `:`), y añadir esa comprobación al esquema. | Bajo; no altera contenido ni criterios. | `accepted` (corregido en `79864c0`) |
+
+Triaje del lead: la primera propuesta es documental/de arnés y se eleva a
+`requirements-writer`; no bloquea ni altera criterios. La segunda ya está
+resuelta en este intento (brief con `description` citado) y no requiere cambio
+de plantilla para cerrar TASK-0015.
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4502 |
-| `report_bytes` | 5035 |
+| `report_bytes` | 5357 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | — |
