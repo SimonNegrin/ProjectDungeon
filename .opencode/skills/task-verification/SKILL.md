@@ -52,7 +52,8 @@ Si falla:
 1. Devuelve al runner con una hipótesis nueva.
 2. Adjunta evidencia.
 3. Máximo dos relanzamientos.
-4. Después, escala según `docs/harness/escalation.md`.
+4. Después, escala según
+   [docs/harness/workflow.md](../../docs/harness/workflow.md#reintentos-y-escalado).
 
 # Cierre
 

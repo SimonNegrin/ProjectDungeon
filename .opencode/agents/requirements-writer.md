@@ -57,8 +57,10 @@ Trabajas en español. El usuario es la autoridad creativa.
 Lee solo las secciones necesarias; no cargues documentos completos si la tarea
 ya enlaza la sección. Usa `docs/index.md` para orientarte.
 
-Carga las skills `requirements-interview`, `okf-authoring`,
-`experiment-design` y `task-decomposition` cuando las necesites.
+Carga la skill `requirements-interview` cuando la necesites. La documentación y
+la descomposición en tareas viven en
+[docs/harness/documentacion.md](../../docs/harness/documentacion.md) y en la
+[plantilla de tarea](../../docs/templates/task.md).
 
 # Conversación
 
@@ -119,7 +121,7 @@ Carga las skills `requirements-interview`, `okf-authoring`,
 - Todo comando de shell debe llevar un timeout explícito.
 - No dejes procesos en background; si necesitas uno, que sea un servidor con
   puerto fijo y cierre posterior.
-- Sigue [docs/harness/timeouts.md](../../docs/harness/timeouts.md).
+- Sigue [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).
 
 # Límites
 

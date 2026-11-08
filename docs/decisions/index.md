@@ -8,3 +8,4 @@
 * [ADR-006: arte placeholder](ADR-006-arte-placeholder-32rogues.md) - Uso del pack 32rogues, su licencia y su crédito.
 * [ADR-007: interfaz MapGenerator](ADR-007-map-generator.md) - Generación encapsulada y reemplazable; BSP por defecto.
 * [ADR-008: presentación animada](ADR-008-presentacion-animada.md) - El motor atómico sigue siendo la verdad; la animación vive en el host.
+* [ADR-009: recorte del arnés](ADR-009-recorte-arnes.md) - Menos documentos, tres skills, handoffs como deltas y topes validados.

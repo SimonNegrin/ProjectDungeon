@@ -72,19 +72,21 @@ artefactos.
 4. Escribe tests derivados de los criterios, no de la implementación.
 5. Ejecuta `pnpm run verify` y, si aplica, `pnpm run test:e2e`.
 6. Captura salida, capturas y logs en la ruta de artefactos.
-7. Escribe `report.md` según `docs/templates/task-report.md`, ~2 KB; salidas
-   completas en archivos aparte.
+7. Escribe `report.md` con el anexo B de
+   [docs/templates/task.md](../../docs/templates/task.md), objetivo 2 KB y tope
+   4 KB; salidas completas en archivos aparte.
 
 No pegues salidas de tests ni diffs completos en el informe.
 
-Carga las skills `game-architecture`, `canvas-rendering`, `visual-qa` y
-`experiment-design` cuando apliquen.
+Carga la skill `visual-qa` cuando aplique. La arquitectura está en
+[docs/design/architecture.md](../../docs/design/architecture.md) y los
+experimentos en [docs/harness/experiments.md](../../docs/harness/experiments.md).
 
 # Timeouts
 
 - Usa pnpm, no npm ni npx.
 - Todo comando de shell debe llevar un timeout explícito. Consulta
-  [docs/harness/timeouts.md](../../docs/harness/timeouts.md).
+  [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).
 - No dejes servidores en background después de terminar.
 - Si un comando agota el timeout, para el proceso y devuélvelo como bloqueo.
 
