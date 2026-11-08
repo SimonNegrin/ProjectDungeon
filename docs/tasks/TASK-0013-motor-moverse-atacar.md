@@ -4,7 +4,7 @@ id: TASK-0013
 title: "Motor: Moverse por destino y acercarse + atacar"
 description: Añade el comando de movimiento por destino que consume el plan de camino, gasta MP, se detiene a mitad y combina acercarse y atacar sobre un enemigo.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-008, R-009, R-010, R-011, T-003, T-004, T-009, T-012]
