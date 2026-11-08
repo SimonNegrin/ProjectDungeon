@@ -4,11 +4,11 @@ id: REQ-009
 title: Percepción, alarma y huida enemiga
 description: Campo de visión con línea de visión, activación por pasos, alarma de una onda y huida del perfil cobarde, con un bestiario mínimo de 3-4 enemigos.
 status: draft
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T14:57:04Z
-updated_at: 2026-11-08T16:37:43Z
+updated_at: 2026-11-08T17:31:45Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T14:57:04Z }
 verified:
@@ -33,9 +33,10 @@ Por eso el corte incluye un bestiario mínimo de 3-4 enemigos y dos perfiles
 (valiente y cobarde).
 
 La hoja queda en **borrador**. La percepción y la alarma están decididas; el
-umbral exacto de huida depende de la hoja de combate (daño variable, ataque y
-defensa, armas y armadura), que se aborda antes de cerrar esta hoja. Este corte
-no cambia los valores de combate ni la economía de turno.
+umbral de huida (40 % de la vida máxima) y la probabilidad por arma ya están
+fijados por la tabla A de [REQ-010](REQ-010-combate-equipo-acierto-defensa.md).
+Las demás preguntas abiertas de esta hoja siguen pendientes. Este corte no cambia
+los valores de combate ni la economía de turno.
 
 # Objetivos de experiencia
 
@@ -61,7 +62,7 @@ no cambia los valores de combate ni la economía de turno.
 | R-006 | Al ver por primera vez en un episodio, el enemigo da la alarma: una onda de radio 8 desde su posición que no requiere línea de visión y no se propaga en cadena. Los enemigos dentro de la onda que no lo habían visto pasan a alerta y acuden a la última posición conocida. | Un enemigo a 8 tiles tras un muro se alerta; uno a 9 no; un alertado no genera una segunda onda; el aviso no atraviesa el mapa entero. |
 | R-007 | La alerta se enfría tras 3 fases enemigas sin ver al jugador y sin recibir daño. Al enfriarse, el enemigo vuelve a su puesto y se duerme. | Tres fases sin contacto devuelven al estado dormido; una nueva visión reinicia el contador; recibir daño también lo reinicia. |
 | R-008 | Recibir daño despierta y alerta a un enemigo dormido aunque no haya visto al jugador; si sobrevive, puede dar la alarma. | Atacar a un centinela desde fuera de su visión lo alerta y activa a los enemigos dentro de su radio. |
-| R-009 | Solo el perfil cobarde huye. Huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece del mapa ni se rinde. | Con 8 PV, el umbral es 4 de daño; la probabilidad depende del arma y del daño. El valiente nunca huye; el cobarde acorralado ataca; sigue vivo y cuenta para la victoria. |
+| R-009 | Solo el perfil cobarde huye. Huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece del mapa ni se rinde. | Con 8 PV, el umbral es 4 de daño; con la tabla A de [REQ-010](REQ-010-combate-equipo-acierto-defensa.md), la probabilidad de huida es 72 % con espada, 92 % con hacha y 58 % con daga contra armadura 0. El valiente nunca huye; el cobarde acorralado ataca; sigue vivo y cuenta para la victoria. |
 | R-010 | El bestiario mínimo de este corte es de 3-4 enemigos y 2 perfiles: valiente y cobarde. Al menos uno es cobarde y al menos dos son valientes. Aparecen en salas distintas, ninguno dentro de la visión inicial del jugador, y al menos una pareja queda dentro del radio de alarma para poder probarla. | La semilla de referencia coloca 3-4 enemigos en salas distintas; ninguno ve al jugador al inicio; hay al menos una pareja a ≤8 tiles y un enemigo a >8 de los demás. |
 | R-011 | El enemigo que ve al jugador muestra un "!" sobre su cabeza y el host muestra un aviso breve de alarma. Los radios de visión y alarma solo se dibujan en el overlay de debug `F1`. | El "!" aparece en el paso de detección y desaparece al enfriarse la alerta; el aviso no bloquea el juego; sin `F1` no se dibujan radios. |
 | R-012 | La presentación no revela el estado interno de todos los enemigos: en juego normal solo se ve el "!" del que detecta y el aviso de alarma. | El estado de alerta, la última posición conocida y los radios quedan en `F1`; no hay líneas de visión permanentes. |
@@ -161,8 +162,9 @@ alarma es 8 para todos; si el playtest pide matices, se puede cambiar a
   propone que sí.
 - **Línea de visión:** ¿las unidades bloquean la visión? Se propone que no, solo
   los muros.
-- **Umbral de huida:** confirmado al 40 % de la vida máxima; la probabilidad por
-  arma se valida en `EXP-003`.
+- **Umbral de huida:** confirmado al 40 % de la vida máxima; la tabla A de
+  `EXP-003` fija la probabilidad por arma (espada 72 %, hacha 92 %, daga 58 %
+  contra armadura 0).
 
 # Decisiones
 
@@ -177,6 +179,7 @@ alarma es 8 para todos; si el playtest pide matices, se puede cambiar a
 | 2026-11-08 | Huida: romper la línea de visión y alejarse; acorralado, lucha; no desaparece. | human:simon | aceptada |
 | 2026-11-08 | El umbral de huida se fija con la hoja de combate. | human:simon | aceptada |
 | 2026-11-08 | Umbral de huida: un golpe de al menos el 40 % de la vida máxima, sobreviviendo. | human:simon | aceptada |
+| 2026-11-08 | Probabilidad de huida del cobarde con la tabla A: espada 72 %, hacha 92 %, daga 58 % contra armadura 0 (8 PV, umbral 4). | human:simon | aceptada |
 | 2026-11-08 | Dejar `REQ-009` en borrador y abordar primero el combate. | human:simon | aceptada |
 
 # Aceptación de la hoja
@@ -191,6 +194,6 @@ alarma es 8 para todos; si el playtest pide matices, se puede cambiar a
       combate.
 - [ ] El bestiario, los radios y el movimiento en alerta y huida están
       aprobados.
-- [ ] El umbral de huida está fijado.
+- [x] El umbral y la probabilidad de huida están fijados con la tabla A.
 - [ ] Los requisitos son verificables en su totalidad.
 - [ ] No hay contradicciones abiertas.

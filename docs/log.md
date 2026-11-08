@@ -2,6 +2,12 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0025 — cerrada, decisión A (semilla 1017, 1.000 duelos); docs:check OK; TASK-0026 ready — [informe](../artifacts/TASK-0025/attempt-1/report.md)
+* 2026-11-08 — Task — TASK-0025 — review: decisión A registrada en EXP-003 y REQ-010; handoff a task-lead para el cierre — [handoff](tasks/TASK-0025-mesa-combate-exp-003.md#handoff-para-task-lead)
+* 2026-11-08 — Planning — TASK-0026 — ready: motor de combate con equipo, modificadores y RNG; TASK-0027 a TASK-0030 en backlog — [TASK-0026](tasks/TASK-0026-motor-combate-equipo-modificadores.md)
+* 2026-11-08 — Requirement — REQ-009 — v2: probabilidad de huida del cobarde con la tabla A (espada 72 %, hacha 92 %, daga 58 %); resto de preguntas abiertas — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
+* 2026-11-08 — Requirement — REQ-010 — v4 stable: tabla A aceptada (modificadores, armas, PV, escudo y armadura); preguntas de valores y EXP-003 cerradas; tareas TASK-0026 a TASK-0030 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
+* 2026-11-08 — Experiment — EXP-003 — decided: A (semilla 1017, 1.000 duelos); tabla de REQ-010 aceptada; facilidad en 1v1 esperada; cooperativo fuera del corte — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-08 — Playtest — TASK-0025 — A elegida; se siente fácil en duelos singulares; idea de escalado cooperativo anotada fuera de REQ-010; pendiente registro por requirements-writer — [playtest](../artifacts/TASK-0025/attempt-1/playtest.md)
 * 2026-11-08 — Task — TASK-0025 — review: EXP-003 construido y verificado; roster, presets A/B/C/D, ataque, duelo y export; 426 unitarios y 55 E2E; pendiente playtest y decisión de human:simon — [informe](../artifacts/TASK-0025/attempt-1/report.md)
 * 2026-11-08 — Experiment — EXP-003 — propuesto: mesa de combate configurable para elegir armas, personajes, enemigos y la tabla de REQ-010 — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)

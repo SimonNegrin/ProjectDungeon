@@ -38,6 +38,6 @@ export const experiments: ExperimentManifestEntry[] = [
     description: 'Roster editable, presets A/B/C/D, cálculo de ataque, duelo por semilla y export de la tabla elegida.',
     question: '¿Qué valores de acierto, daño, escudo, armadura, PV y modificadores producen combates de 2-3 impactos, con roles de arma claros y sin que un enemigo aislado sea letal?',
     path: '/experiments/EXP-003-mesa-combate/',
-    status: 'ready',
+    status: 'decided',
   },
 ];

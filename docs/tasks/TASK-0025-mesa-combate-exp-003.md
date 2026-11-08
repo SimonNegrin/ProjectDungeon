@@ -4,14 +4,14 @@ id: TASK-0025
 title: "EXP-003: mesa de combate configurable"
 description: Construir la mesa de combate con roster editable, presets, duelo simulado por semilla, métricas y exportación de la tabla elegida.
 status: stable
-task_status: review
+task_status: done
 task_type: experiment
 requirement: REQ-010
 requirement_ids: [R-001, R-002, R-003, R-004, R-007, R-008, R-013, T-001, T-008]
 depends_on: []
 unlocks: []
 created_at: 2026-11-08T16:37:43Z
-completed_at:
+completed_at: 2026-11-08T17:42:51Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0025/
@@ -28,6 +28,12 @@ verified:
       presets, roster, ataque, duelo, export y ?test=1&seed=1017. Playtest de
       human:simon recibido: opción A. Pendiente el registro formal en EXP-003 y
       REQ-010 por requirements-writer; no se marca done.
+  - by: task-lead
+    at: 2026-11-08T17:42:51Z
+    note: >-
+      Cierre: decisión A en EXP-003 y REQ-010 v4 `stable` (e220be6); docs:check
+      y tasks:board OK; sin cambios en src/ ni tests/ desde 3b6f41c, no se
+      repiten verify ni test:e2e (426/55).
 ---
 
 # Objetivo
@@ -110,5 +116,20 @@ y REQ-010.
 
 - Comentario: `artifacts/TASK-0025/attempt-1/playtest.md`.
 - JSON: `experiments/EXP-003-mesa-combate/results/decision-2026-11-08T17-18-00Z.json`.
-- Sigue en `review` hasta que `requirements-writer` registre la decisión en
-  EXP-003 y actualice REQ-010.
+
+# Handoff para task-lead
+
+- Estado: `review`; no reimplementar. Decisión A registrada en
+  [EXP-003](../../experiments/EXP-003-mesa-combate/experiment.md) y
+  [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) v4
+  `stable`; `REQ-009` solo cambia la huida.
+- Cerrar: comprobar el diff documental, ejecutar `pnpm run docs:check` y
+  `pnpm run tasks:board`, y marcar `done` con `completed_at`.
+- Desbloquea `TASK-0026` (`ready`); `TASK-0027` a `TASK-0030` en `backlog`.
+
+# Cierre
+
+**A · Propuesta** (semilla `1017`, 1.000 duelos) en
+[EXP-003](../../experiments/EXP-003-mesa-combate/experiment.md) y `REQ-010` v4
+`stable`. TASK-0025 `done` en `2026-11-08T17:42:51Z`; `docs:check` y
+`tasks:board` OK. Desbloquea `TASK-0026`.

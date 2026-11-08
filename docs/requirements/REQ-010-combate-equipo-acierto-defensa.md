@@ -3,15 +3,21 @@ type: Requirement Sheet
 id: REQ-010
 title: "Combate con equipo: acierto, escudo y armadura"
 description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida.
-status: draft
-version: 3
+status: stable
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T16:18:04Z
-updated_at: 2026-11-08T16:37:43Z
-related_tasks: [TASK-0025]
+updated_at: 2026-11-08T17:31:45Z
+related_tasks: [TASK-0025, TASK-0026, TASK-0027, TASK-0028, TASK-0029, TASK-0030]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
+  - by: human:simon
+    at: 2026-11-08T17:18:00.867Z
+    note: >-
+      Acepta la tabla A de EXP-003 (semilla 1017, 1.000 duelos): modificadores
+      del jugador y de los enemigos, armas, PV, escudo y armadura. La facilidad
+      en duelos 1 contra 1 se asume para este corte.
 ---
 
 # Contexto
@@ -33,11 +39,13 @@ Este corte introduce un combate roguelike con equipo y dos capas de azar:
 - **Equipo:** arma, armadura y escudo. El jugador empieza con una espada, una
   armadura y un escudo; puede recoger un hacha y una daga.
 
-La hoja queda en **borrador**: el modelo está decidido, pero los valores de los
-modificadores y de la tabla se eligen en `EXP-003` antes de implementar. No
-incluye críticos, ataques a distancia, inventario completo, intercambio de
-objetos ni loot de enemigos. La huida del perfil cobarde depende de esta hoja y
-se cierra con ella.
+La hoja queda en **stable**: el modelo y los valores de la tabla A están
+decididos en `EXP-003` (semilla 1017, 1.000 duelos). La facilidad observada en
+duelos 1 contra 1 es esperada para este corte; el peligro se busca con varios
+enemigos y la alarma. No incluye críticos, ataques a distancia, inventario
+completo, intercambio de objetos ni loot de enemigos. La huida del perfil
+cobarde depende de esta hoja; la tabla A fija su probabilidad y `REQ-009`
+conserva el resto de su alcance.
 
 # Objetivos de experiencia
 
@@ -61,14 +69,14 @@ se cierra con ella.
 | R-005 | El jugador empieza con la espada. En el mapa hay un hacha y una daga, fijas por semilla, en salas distintas, alcanzables y fuera de la sala inicial. | La semilla de referencia coloca las dos armas en salas distintas; ninguna está en la sala de aparición, en una puerta o en un muro; se pueden recoger. |
 | R-006 | La recogida es con `G` si el jugador está sobre el arma; cuesta 1 MP, no la acción. El arma se equipa sola. El cambio entre las armas llevadas es gratis con `1`-`3`; hay tres huecos. | `G` recoge, gasta 1 MP y equipa; con 0 MP se rechaza; `1`-`3` cambia sin gastar acción ni MP; no se puede llevar una cuarta. |
 | R-007 | Los enemigos usan la misma fórmula y las mismas categorías de equipo. Cada tipo tiene arma, escudo, armadura, vida, modificadores, visión y perfil. | El centinela, el bruto y el cobarde usan la tabla de bestiario; el bruto es el tanque y el cobarde huye según `REQ-009`. |
-| R-008 | Un enemigo básico (centinela) muere en 2-3 impactos con la espada; el hacha es más rápida pero menos fiable y la daga es fiable pero sufre contra armadura. El bruto es el tanque. | Con la tabla propuesta, el centinela cae en ~2,6 ataques de espada, ~2,1 de hacha y ~3,0 de daga; el bruto en ~4,0, ~2,9 y ~4,8. |
+| R-008 | Un enemigo básico (centinela) muere en 2-3 impactos con la espada; el hacha es más rápida pero menos fiable y la daga es fiable pero sufre contra armadura. El bruto es el tanque. | Con la tabla A, el centinela cae en ~2,6 ataques de espada, ~2,1 de hacha y ~3,0 de daga; el bruto en ~4,0, ~2,9 y ~4,8. |
 | R-009 | El cobarde huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece ni se rinde. | Con 8 PV, el umbral es 4 de daño; la probabilidad depende del arma y del daño (espada 72 %, hacha 92 %, daga 58 % contra armadura 0). Acorralado, ataca. |
 | R-010 | El feedback distingue impacto y fallo, y muestra el daño resultante. El HUD muestra el arma equipada, el escudo y la armadura; la vida del enemigo bajo el cursor y el resto en `F1`. | Un ataque produce "Fallo" o "−N" sobre el objetivo; el HUD refleja el equipo; en juego normal no se muestran los dados. |
 | R-011 | El azar es reproducible: misma semilla y mismas acciones producen las mismas tiradas. | Dos partidas con la misma semilla y los mismos comandos dan los mismos impactos y daños; no se usa `Math.random`. |
 | R-012 | La condición de victoria y derrota no cambia: no quedan enemigos vivos o no quedan jugadores vivos. | El combate nuevo no altera `evaluateStatus`; un enemigo huido sigue contando como vivo. |
 | R-013 | Cada personaje tiene modificadores propios de acierto, daño y defensa. El jugador empieza con +1/+1/+1; los enemigos tienen los de la tabla. El modelo admite futuras habilidades como puntería o magia sin cambiar las fórmulas. | Cambiar un modificador cambia el combate sin tocar la fórmula; los modificadores son datos serializables; la tabla es la única fuente de valores. |
 
-## Armas propuestas
+## Armas aceptadas
 
 | Arma | Acierto | Daño | Perfil |
 |---|---:|---:|---|
@@ -92,7 +100,7 @@ La probabilidad depende de `mod. acierto + acierto del arma − (mod. defensa + 
 | +4 | 91,7 % |
 | +5 | 97,2 % |
 
-## Modificadores y equipo propuestos
+## Modificadores y equipo aceptados
 
 | Unidad | Acierto | Daño | Defensa | Arma | Acierto/Daño | Escudo | Armadura | PV |
 |---|---:|---:|---:|---|---:|---:|---:|---:|
@@ -117,7 +125,7 @@ ataca con +5, hace +3, defiende +2 y no lleva armadura.
 La armadura no anula el golpe: un impacto hace siempre al menos 1. El hacha es
 la mejor contra armadura; la daga es la peor. El escudo no entra en esta tabla.
 
-## Tiempo para matar propuesto
+## Tiempo para matar de la tabla A
 
 Cada celda es `impacto · daño medio por impacto · ataques esperados`:
 
@@ -175,9 +183,16 @@ cuando la alarma junta a varios.
   salas.
 - [ADR-008](../decisions/ADR-008-presentacion-animada.md): capas de presentación
   sobre un motor atómico.
-- **EXP-003 (a crear):** mesa de combate para elegir modificadores, armas, PV y
-  equipo antes de implementar.
+- **EXP-003:** decidido con la tabla A (semilla 1017, 1.000 duelos); queda como
+  banco de pruebas en
+  [EXP-003](../../experiments/EXP-003-mesa-combate/experiment.md).
 - **ADR-012 (a crear):** combate con equipo, modificadores y RNG sembrado.
+- Implementación: [TASK-0026](../tasks/TASK-0026-motor-combate-equipo-modificadores.md)
+  (motor), [TASK-0027](../tasks/TASK-0027-equipo-armas-mapa-recogida.md)
+  (equipo y recogida), [TASK-0028](../tasks/TASK-0028-bestiario-combate-ataque-enemigo.md)
+  (bestiario), [TASK-0029](../tasks/TASK-0029-host-hud-equipo-feedback.md)
+  (HUD y feedback) y [TASK-0030](../tasks/TASK-0030-e2e-qa-combate-equipo.md)
+  (E2E y QA visual).
 - Puntos de integración previstos: `src/game/combat.ts`, `types.ts`,
   `engine.ts`, `turn.ts`, `ai.ts` y `map.ts`; `src/host/hud.ts`,
   `renderer.ts`, `feedback.ts`, `input.ts` y `debug.ts`.
@@ -201,16 +216,10 @@ cuando la alarma junta a varios.
 
 # Preguntas abiertas
 
-- **Valores de los modificadores:** se propone jugador +1/+1/+1, centinela
-  +0/+0/+0, bruto +0/+1/+0 y cobarde +1/+0/+1. ¿Se aprueban o los elige
-  `EXP-003`?
-- **Tabla de números:** armas, PV, equipo y modificadores se ajustan en
-  `EXP-003` antes de implementar. ¿Se confirma ese orden?
-- **Alcance de `EXP-003`:** mesa configurable con roster de personajes y
-  enemigos, armas y equipo editables, duelo simulado por semilla y exportación
-  de la tabla elegida. ¿Se aprueba?
-- **HUD de enemigos:** vida bajo el cursor y el resto en `F1`. Ya decidido; se
-  mantiene salvo que el playtest pida otra cosa.
+No quedan preguntas abiertas de valores. La tabla A de `EXP-003` (semilla 1017,
+1.000 duelos) fija modificadores, armas, PV, escudo y armadura, y el orden de
+ajustar los números antes de implementar se cumplió. El HUD de enemigos se
+mantiene: vida bajo el cursor y el resto en `F1`.
 
 # Decisiones
 
@@ -220,7 +229,7 @@ cuando la alarma junta a varios.
 | 2026-11-08 | Daño = max(1, (mod. daño + daño del arma + 1d6) − (armadura + 1d6)). | human:simon | aceptada |
 | 2026-11-08 | El escudo evita impactos; la armadura reduce daño. | human:simon | aceptada |
 | 2026-11-08 | Cada personaje tiene modificadores de acierto, daño y defensa; el modelo admite futuras habilidades. | human:simon | aceptada |
-| 2026-11-08 | El jugador empieza con +1/+1/+1; los enemigos tienen los modificadores de la tabla. | deepseek/v4.1-flash | propuesta |
+| 2026-11-08 | El jugador empieza con +1/+1/+1; los enemigos tienen los modificadores de la tabla. | human:simon | aceptada (EXP-003 A) |
 | 2026-11-08 | Tres armas melee con acierto y daño; sin críticos. | human:simon | aceptada |
 | 2026-11-08 | Empates con `>`: el empate falla. | human:simon | aceptada |
 | 2026-11-08 | `G` recoge, cuesta 1 MP y equipa; `1`-`3` cambia gratis. | human:simon | aceptada |
@@ -229,7 +238,8 @@ cuando la alarma junta a varios.
 | 2026-11-08 | Umbral de huida del cobarde: golpe ≥40 % de la vida máxima y sobrevivir. | human:simon | aceptada |
 | 2026-11-08 | HUD: vida del enemigo bajo el cursor y el resto en `F1`. | human:simon | aceptada |
 | 2026-11-08 | Los números se eligen en `EXP-003`, con roster y equipo configurables. | human:simon | aceptada |
-| 2026-11-08 | Valores concretos de modificadores, armas, PV y equipo. | deepseek/v4.1-flash | propuesta |
+| 2026-11-08 | Valores concretos de modificadores, armas, PV y equipo: tabla A de `EXP-003` (semilla 1017, 1.000 duelos). | human:simon | aceptada |
+| 2026-11-08 | La tabla A se acepta para el combate singular de este corte; la facilidad en duelos 1 contra 1 es esperada. | human:simon | aceptada |
 | 2026-11-08 | La fórmula anterior de daño fijo y defensa única queda sustituida. | deepseek/v4.1-flash | aceptada |
 
 # Aceptación de la hoja
@@ -238,7 +248,7 @@ cuando la alarma junta a varios.
 - [x] El usuario ha aprobado la fórmula de daño con armadura enfrentada y
       mínimo 1.
 - [x] El usuario ha aprobado el modelo de modificadores por habilidad.
-- [ ] Los valores +1/+1/+1 del jugador y los modificadores de los enemigos están
+- [x] Los valores +1/+1/+1 del jugador y los modificadores de los enemigos están
       aprobados tras `EXP-003`.
 - [x] El usuario ha aprobado los empates con `>`, el escudo como evasión y la
       armadura como reducción.
@@ -247,6 +257,6 @@ cuando la alarma junta a varios.
 - [x] El usuario ha aprobado armadura y escudo fijos, el umbral de huida del
       40 % y el HUD bajo el cursor con `F1`.
 - [x] El usuario ha aprobado ajustar los números con `EXP-003`.
-- [ ] Los valores de la tabla están aprobados tras `EXP-003`.
-- [ ] `EXP-003` está construido y el usuario ha decidido.
-- [ ] Los requisitos son verificables en su totalidad.
+- [x] Los valores de la tabla están aprobados tras `EXP-003`.
+- [x] `EXP-003` está construido y el usuario ha decidido.
+- [x] Los requisitos son verificables en su totalidad.

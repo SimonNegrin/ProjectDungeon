@@ -3,8 +3,8 @@ type: Experiment
 id: EXP-003
 title: "Mesa de combate: números, equipo y tiempo para matar"
 description: Simulador configurable de combates con armas, personajes y enemigos para elegir la tabla de REQ-010.
-status: draft
-experiment_status: ready
+status: stable
+experiment_status: decided
 question: ¿Qué valores de acierto, daño, escudo, armadura, PV y modificadores producen combates de 2-3 impactos, con roles de arma claros y sin que un enemigo aislado sea letal?
 related_requirements: [REQ-010, REQ-009]
 seed: 1017
@@ -63,13 +63,19 @@ parameters:
     min: 100
     max: 5000
     default: 1000
-decision:
-decided_by:
-decided_at:
+decision: A
+decided_by: human:simon
+decided_at: 2026-11-08T17:18:00.867Z
 created_at: 2026-11-08T16:37:43Z
-updated_at: 2026-11-08T17:21:00Z
+updated_at: 2026-11-08T17:31:45Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
+  - by: human:simon
+    at: 2026-11-08T17:18:00.867Z
+    note: >-
+      Elige la tabla A (jugador +1/+1/+1; centinela +0/+0/+0; bruto +0/+1/+0;
+      cobarde +1/+0/+1; armas, escudo, armadura y PV de REQ-010) con semilla
+      1017 y 1.000 duelos.
 ---
 
 # Propósito
@@ -159,23 +165,34 @@ completo y lectura en
 
 # Decisión
 
-- Opción:
-- Roster y valores:
-- Motivo:
-- Fecha:
-- Decidido por:
-- Semilla y número de duelos:
+- Opción: **A · Propuesta** (tabla de `REQ-010`).
+- Roster y valores: jugador +1/+1/+1, espada +3/4, escudo 1, armadura 1 y 20 PV;
+  centinela +0/+0/+0, espada +3/4, escudo 1, armadura 1 y 9 PV; bruto +0/+1/+0,
+  hacha +2/6, escudo 0, armadura 2 y 12 PV; cobarde +1/+0/+1, daga +4/3, escudo
+  1, armadura 0 y 8 PV.
+- Referencia medida: jugador contra centinela con la semilla 1017 y 1.000 duelos:
+  30/36 de impacto, 2,63 ataques esperados para matar, 991/9 victorias y 5,65
+  turnos medios.
+- Motivo: se acepta la tabla de referencia. El duelo 1 contra 1 se siente algo
+  fácil, pero la lectura lo atribuye a la ventaja de PV y a que es un combate
+  singular; el peligro se espera con varios enemigos y la alarma. El escalado
+  cooperativo queda fuera de este corte.
+- Fecha: 2026-11-08T17:18:00.867Z.
+- Decidido por: `human:simon`.
+- Semilla y número de duelos: `1017`, 1.000.
 
 # Evidencia
 
-- [x] JSON de decisión en `results/`.
-- [x] Capturas de A/B/C/D y de la tabla personalizada.
-- [x] Notas del usuario.
+- [JSON de decisión](results/decision-2026-11-08T17-18-00Z.json).
+- [Playtest y comentario de human:simon](../../artifacts/TASK-0025/attempt-1/playtest.md).
+- Capturas de A/B/C/D y de la tabla personalizada en
+  `artifacts/TASK-0025/attempt-1/screenshots/`.
 
 # Siguientes pasos
 
-- Actualizar `REQ-010` con los valores elegidos y pasarla a `stable`.
-- Crear las tareas de implementación: motor de combate, equipo y recogida, HUD y
-  feedback, E2E y QA visual.
-- Archivar el experimento o dejarlo como banco de pruebas; no se importa desde
-  producción.
+- `REQ-010` v4 `stable` con la tabla A; `REQ-009` solo actualiza la probabilidad
+  de huida que depende de ella.
+- Tareas creadas: `TASK-0026` (motor), `TASK-0027` (equipo y recogida),
+  `TASK-0028` (bestiario), `TASK-0029` (HUD y feedback) y `TASK-0030` (E2E y QA
+  visual).
+- El experimento queda como banco de pruebas; no se importa desde producción.
