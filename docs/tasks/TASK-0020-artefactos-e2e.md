@@ -24,7 +24,7 @@ verified:
     at: 2026-11-08T12:20:00Z
     note: >-
       Verificación independiente en task/TASK-0020 (commits 45c2532, ff52427,
-      8a06476, 53914b1, 4d58421; fusión pendiente): diff limitado a
+      8a06476, 53914b1, 4d58421, be4144f; fusión ebf4d9f): diff limitado a
       tests/e2e/artifacts.ts, los 11 specs (solo la ruta base), la documentación
       preparada por requirements-writer y artifacts/TASK-0020; src/, index.html,
       public/, package.json, pnpm-lock.yaml y dependencias intactos; sin tests
