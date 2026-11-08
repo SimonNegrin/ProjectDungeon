@@ -99,6 +99,12 @@ export interface GameDebugApi {
   dispatch(command: Command): DispatchResult;
   /** Avanza el reloj de presentación de forma determinista (solo tests). */
   advance(ms: number): GameSnapshot;
+  /**
+   * Carga un estado serializable construido por el test. Solo existe en el
+   * host cuando la URL trae `test=1`; en juego normal la API conserva sus tres
+   * claves históricas.
+   */
+  setup?(state: GameState): GameSnapshot;
 }
 
 declare global {

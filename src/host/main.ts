@@ -198,6 +198,9 @@ async function boot(): Promise<void> {
   const viewport = MAP_VIEWPORT;
   const parsedSeed = parseSeedParam(window.location.search);
   if (parsedSeed.warning) console.warn(parsedSeed.warning);
+  /** El hook de setup solo se publica en la URL de test; juego normal no cambia. */
+  const testSetupEnabled =
+    new URLSearchParams(window.location.search).get('test') === '1';
 
   const prefersReducedMotion =
     typeof window.matchMedia === 'function' &&
@@ -461,6 +464,26 @@ async function boot(): Promise<void> {
     advanceAnimation(ms);
   };
 
+  /**
+   * Hook de test (`?test=1`): sustituye la partida por un estado serializable y
+   * limpia la presentación pendiente. No cambia reglas ni expone mutadores del
+   * estado vivo; el test lo usa una vez al montar un escenario.
+   */
+  const setupState = (state: GameState): void => {
+    cancelAnimation();
+    session.load(state);
+    lastEvents = [];
+    feedbackView.clear();
+    noticeView.clear();
+    debugView.close();
+    spottedUnits = new Set<string>();
+    world = gridPixelSize(state.grid, TILE_SIZE);
+    bounds = cameraBounds(world, viewport);
+    resetCursorToPlayer();
+    cursorStatus = deriveCursorStatus(state, cursor);
+    render();
+  };
+
   /** Camino único para teclado, botón de reinicio y `window.__game.dispatch`. */
   const applyCommand = (command: Command, completeFirst = false): StepResult => {
     if (completeFirst) completeAnimation();
@@ -526,7 +549,7 @@ async function boot(): Promise<void> {
     return;
   }
 
-  window.__game = createDebugApi(
+  const debugApi = createDebugApi(
     () => ({
       state: session.state,
       camera,
@@ -541,6 +564,15 @@ async function boot(): Promise<void> {
     (command) => applyCommand(command, true),
     advanceForTest,
   );
+
+  if (testSetupEnabled) {
+    debugApi.setup = (state: GameState) => {
+      setupState(state);
+      return debugApi.snapshot();
+    };
+  }
+
+  window.__game = debugApi;
 
   for (const button of gameRoot.querySelectorAll<HTMLButtonElement>('[data-action="restart"]')) {
     button.addEventListener('click', () => {

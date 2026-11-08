@@ -23,8 +23,8 @@ function isGameState(value: GameSessionInit): value is GameState {
 export class GameSession {
   private current: GameState;
   private seedValue: number;
-  private readonly options: MapOptions | undefined;
-  private readonly generator: MapGenerator | undefined;
+  private options: MapOptions | undefined;
+  private generator: MapGenerator | undefined;
 
   constructor(initial: GameSessionInit = {}) {
     if (isGameState(initial)) {
@@ -63,6 +63,17 @@ export class GameSession {
     const result = reduce(this.current, command);
     this.current = result.state;
     return { state: result.state, events: result.events };
+  }
+
+  /**
+   * Sustituye el estado vivo por uno serializable construido por un test. Solo
+   * lo expone el host con `test=1`; no es un mutador del estado de juego normal.
+   */
+  load(state: GameState): void {
+    this.current = state;
+    this.seedValue = state.map?.seed ?? DEFAULT_MAP_SEED;
+    this.options = undefined;
+    this.generator = undefined;
   }
 
   /** Reconstruye la partida con una semilla nueva manteniendo opciones y generador. */
