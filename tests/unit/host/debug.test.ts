@@ -97,6 +97,55 @@ describe('API de debug window.__game', () => {
     expect(() => JSON.stringify(snapshot)).not.toThrow();
   });
 
+  it('expone el estado de presentación y un avance determinista del reloj', () => {
+    let advanced = 0;
+    const animation = {
+      animating: true,
+      step: 1,
+      totalSteps: 3,
+      unitId: 'player-1',
+      position: { x: 80, y: 96, tileX: 2, tileY: 3 },
+      camera: { x: 16, y: 32 },
+    } as const;
+    const api = createDebugApi(
+      () => ({
+        state: makeState(),
+        camera: { x: 0, y: 0 },
+        bounds: { maxX: 224, maxY: 224 },
+        viewport: { width: 416, height: 416 },
+        tileSize: 32,
+        assetsLoaded: true,
+        lastEvents: [],
+        cursor: deriveCursorStatus(makeState(), { x: 4, y: 4 }),
+        animation,
+      }),
+      (command) => new GameSession(makeState()).dispatch(command),
+      (ms) => {
+        advanced += ms;
+      },
+    );
+
+    expect(api.snapshot().animation).toEqual(animation);
+
+    const after = api.advance(250);
+    expect(advanced).toBe(250);
+    expect(after.animation).toEqual(animation);
+    expect(() => JSON.stringify(after)).not.toThrow();
+  });
+
+  it('sin animación el snapshot informa de presentación inactiva', () => {
+    const snapshot = setup().snapshot();
+
+    expect(snapshot.animation).toEqual({
+      animating: false,
+      step: 0,
+      totalSteps: 0,
+      unitId: null,
+      position: null,
+      camera: { x: 0, y: 0 },
+    });
+  });
+
   it('dispatch aplica el comando y devuelve snapshot y eventos serializables', () => {
     const api = setup();
 

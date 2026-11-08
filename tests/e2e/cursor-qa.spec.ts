@@ -9,6 +9,7 @@ import {
   moveCursorTo,
   restart,
   retreatEnemyOutOfReach,
+  settle,
   snapshot,
   visibleRange,
 } from './support';
@@ -259,6 +260,7 @@ test('Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acc
   expect(cost).toBeGreaterThan(0);
 
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({
     x: target.x,
@@ -310,6 +312,7 @@ test('Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado', a
   const enemyHp = planned.enemies[0].hp;
 
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({
     x: expected.x,
@@ -341,6 +344,7 @@ test('Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado', a
   const beforeReject = await snapshot(page);
   expect(beforeReject.cursor).toMatchObject({ state: 'invalid', path: [] });
   await page.keyboard.press('Space');
+  await settle(page);
   const afterReject = await snapshot(page);
   expect(afterReject.players).toEqual(beforeReject.players);
   expect(afterReject.turn).toBe(beforeReject.turn);
@@ -390,6 +394,9 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
 
   // F ataca sin moverse ni gastar MP.
   await page.keyboard.press('f');
+  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterF = await snapshot(page);
   expect(afterF.enemies[0].hp).toBe(selected.enemies[0].hp - 5);
   expect(afterF.players[0]).toMatchObject({
@@ -412,14 +419,12 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
       }),
     ]),
   );
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
-  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   await screenshot(page, 'cursor-attack', testInfo);
 
   // E ejecuta la fase enemiga y devuelve el cursor al jugador.
   const beforeEndTurn = await snapshot(page);
   await page.keyboard.press('e');
+  await settle(page);
   const afterEndTurn = await snapshot(page);
   expect(afterEndTurn.phase).toBe('player');
   expect(afterEndTurn.turn).toBe(beforeEndTurn.turn + 1);
@@ -443,6 +448,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   const beforeVictory = await snapshot(page);
   expect(distance(beforeVictory.players[0], beforeVictory.enemies[0])).toBe(1);
   await page.keyboard.press('Space');
+  await settle(page);
   const victory = await snapshot(page);
   expect(victory.status).toBe('victory');
   expect(victory.enemies[0].hp).toBe(0);
@@ -508,6 +514,7 @@ test('enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse atac
   const beforeMoveTo = await snapshot(page);
   const cost = beforeMoveTo.cursor.path.length;
   await page.keyboard.press('Space');
+  await settle(page);
   const afterMoveTo = await snapshot(page);
   expect(afterMoveTo.players[0]).toMatchObject({
     x: attackTile!.x,
@@ -564,6 +571,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
   const steps = planned.cursor.path.length;
 
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({
     x: attackTile.x,
@@ -594,6 +602,7 @@ test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async 
   expect(distance(beforeReject.players[0], beforeReject.enemies[0])).toBe(1);
 
   await page.keyboard.press('Space');
+  await settle(page);
   const afterReject = await snapshot(page);
   expect(afterReject.players).toEqual(beforeReject.players);
   expect(afterReject.enemies).toEqual(beforeReject.enemies);
@@ -638,6 +647,7 @@ test('enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar', asyn
   await screenshot(page, 'cursor-enemy-too-far', testInfo);
 
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({
     x: expected.x,
@@ -658,6 +668,7 @@ test('enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar', asyn
   // Sin MP restantes, un segundo Moverse avisa y no altera nada.
   const beforeSecond = await snapshot(page);
   await page.keyboard.press('Space');
+  await settle(page);
   const afterSecond = await snapshot(page);
   expect(afterSecond.players).toEqual(beforeSecond.players);
   expect(afterSecond.enemies).toEqual(beforeSecond.enemies);
@@ -730,6 +741,7 @@ test('ciclo de vida, snapshot, debug y HUD sin botones nuevos', async ({
   // E completa la fase enemiga y deja el cursor sobre el jugador.
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('e');
+  await settle(page);
   const afterEndTurn = await snapshot(page);
   expect(afterEndTurn.phase).toBe('player');
   expect(afterEndTurn.turn).toBe(2);

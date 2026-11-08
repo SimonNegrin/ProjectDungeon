@@ -45,6 +45,15 @@ export async function dispatchCommand(page: Page, command: Command) {
   return page.evaluate((cmd) => window.__game!.dispatch(cmd), command);
 }
 
+/**
+ * Completa de forma determinista cualquier animación de presentación pendiente.
+ * El motor ya está en el estado final; esto solo adelanta HUD, cámara, cursor y
+ * overlay para que las aserciones existentes sigan siendo sobre el resultado.
+ */
+export async function settle(page: Page): Promise<GameSnapshot> {
+  return page.evaluate(() => window.__game!.advance(1_000_000));
+}
+
 /** Ejecuta un comando y falla si el motor lo rechaza (evita rutas bloqueadas). */
 export async function dispatchAccepted(page: Page, command: Command): Promise<void> {
   const result = await dispatchCommand(page, command);
@@ -52,6 +61,7 @@ export async function dispatchAccepted(page: Page, command: Command): Promise<vo
     result.events.filter((event) => event.type === 'CommandRejected'),
     `El comando ${command.type} debe ser aceptado`,
   ).toEqual([]);
+  await settle(page);
 }
 
 export async function move(page: Page, dx: number, dy: number): Promise<void> {
@@ -137,7 +147,10 @@ export async function walkTo(page: Page, tx: number, ty: number): Promise<void> 
       for (let guard = 0; guard < 2000; guard += 1) {
         const snap = game.snapshot();
         const player = snap.players[0];
-        if (player.x === targetX && player.y === targetY) return;
+        if (player.x === targetX && player.y === targetY) {
+          game.advance(1_000_000);
+          return;
+        }
         if (snap.status !== 'playing') {
           throw new Error(
             `La partida terminó (${snap.status}) antes de llegar a (${targetX},${targetY})`,
@@ -234,10 +247,16 @@ export async function approachEnemy(page: Page): Promise<void> {
 
     for (let guard = 0; guard < 600; guard += 1) {
       const snap = game.snapshot();
-      if (snap.status !== 'playing') return;
+      if (snap.status !== 'playing') {
+        game.advance(1_000_000);
+        return;
+      }
       const player = snap.players[0];
       const enemy = snap.enemies[0];
-      if (Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y)) <= 1) return;
+      if (Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y)) <= 1) {
+        game.advance(1_000_000);
+        return;
+      }
 
       if (player.mp > 0) {
         const step = bfsNextStep(snap.grid, player, enemy);
@@ -326,6 +345,7 @@ export async function moveAwayFromEnemy(page: Page): Promise<boolean> {
         dy,
       });
       if (!result.events.some((event) => event.type === 'CommandRejected')) {
+        game.advance(1_000_000);
         return true;
       }
     }

@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
-import { walkTo } from './support';
+import { settle, walkTo } from './support';
 
 const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
 const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
@@ -131,6 +131,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   // Moverse; la cámara sigue al jugador.
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
   expect(moved.camera).toEqual({ x: 32, y: 64, maxX: 608, maxY: 608 });

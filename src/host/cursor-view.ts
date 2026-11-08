@@ -41,17 +41,19 @@ export function createCursorView(frame: ParentNode): CursorView {
   return {
     update(status: CursorStatus, camera: Camera): void {
       cursor.hidden = !status.visible;
-      path.hidden = !status.visible;
       cursor.dataset.cursorState = status.state;
       cursor.dataset.cursorX = String(status.x);
       cursor.dataset.cursorY = String(status.y);
 
-      if (!status.visible) {
+      // Los puntos pueden seguir visibles con el cuadrado oculto durante la
+      // animación; el plan vacío sí oculta la capa.
+      path.hidden = status.path.length === 0;
+      if (status.path.length === 0) {
         path.replaceChildren();
-        return;
       }
+      if (!status.visible && status.path.length === 0) return;
 
-      positionTile(cursor, status.x, status.y, camera);
+      if (status.visible) positionTile(cursor, status.x, status.y, camera);
 
       const points: HTMLElement[] = status.path.map((point, index) => {
         const dot = document.createElement('span');

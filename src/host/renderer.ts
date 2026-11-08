@@ -26,6 +26,12 @@ export interface SceneAssets {
   readonly monsters: CanvasImageSource;
 }
 
+/** Overrides visuales de presentación; no forman parte del estado del motor. */
+export interface RenderOptions {
+  /** Centro en píxeles enteros de cada unidad, por `unitId`. */
+  readonly positions?: ReadonlyMap<string, PixelPosition>;
+}
+
 const SPRITE_SIZE = 32;
 
 function drawRect(
@@ -64,14 +70,27 @@ export function floorTileFor(tileX: number, tileY: number, seed = 0): SpriteRect
   return TILE_RECTS.floor3;
 }
 
-function isUnitVisible(
+function unitCenter(
   unit: Unit,
+  tileSize: number,
+  positions: ReadonlyMap<string, PixelPosition> | undefined,
+): PixelPosition {
+  const override = positions?.get(unit.id);
+  if (override) return override;
+  return {
+    x: unit.x * tileSize + tileSize / 2,
+    y: unit.y * tileSize + tileSize / 2,
+  };
+}
+
+function isUnitVisible(
+  center: PixelPosition,
   camera: PixelPosition,
   viewport: Viewport,
   tileSize: number,
 ): boolean {
-  const left = unit.x * tileSize;
-  const top = unit.y * tileSize;
+  const left = center.x - tileSize / 2;
+  const top = center.y - tileSize / 2;
   return (
     left + tileSize > camera.x &&
     left < camera.x + viewport.width &&
@@ -84,11 +103,10 @@ function drawUnit(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
   rect: SpriteRect,
-  unit: Unit,
-  tileSize: number,
+  center: PixelPosition,
 ): void {
-  const dx = unit.x * tileSize + (tileSize - SPRITE_SIZE) / 2;
-  const dy = unit.y * tileSize + (tileSize - SPRITE_SIZE) / 2;
+  const dx = Math.round(center.x - SPRITE_SIZE / 2);
+  const dy = Math.round(center.y - SPRITE_SIZE / 2);
   drawRect(ctx, image, rect, dx, dy, SPRITE_SIZE);
 }
 
@@ -96,6 +114,9 @@ function drawUnit(
  * Dibuja la sala y las entidades en un contexto 2D. Es una función de solo
  * lectura: recibe el estado del motor, la cámara y el viewport, y no conoce
  * comandos, reglas de movimiento, combate, turnos, teclado ni tiempo real.
+ *
+ * `options.positions` permite dibujar una unidad en un centro intermedio de
+ * presentación sin mutar el estado; las unidades sin override usan su tile.
  */
 export function renderScene(
   ctx: CanvasRenderingContext2D,
@@ -104,6 +125,7 @@ export function renderScene(
   camera: PixelPosition,
   viewport: Viewport,
   tileSize: number = TILE_SIZE,
+  options: RenderOptions = {},
 ): void {
   ctx.imageSmoothingEnabled = false;
 
@@ -159,16 +181,20 @@ export function renderScene(
     }
   }
 
+  const positions = options.positions;
+
   for (const enemy of state.enemies) {
     if (enemy.hp <= 0) continue;
-    if (!isUnitVisible(enemy, camera, viewport, tileSize)) continue;
-    drawUnit(ctx, assets.monsters, GOBLIN_RECT, enemy, tileSize);
+    const center = unitCenter(enemy, tileSize, positions);
+    if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
+    drawUnit(ctx, assets.monsters, GOBLIN_RECT, center);
   }
 
   for (const player of state.players) {
     if (player.hp <= 0) continue;
-    if (!isUnitVisible(player, camera, viewport, tileSize)) continue;
-    drawUnit(ctx, assets.rogues, KNIGHT_RECT, player, tileSize);
+    const center = unitCenter(player, tileSize, positions);
+    if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
+    drawUnit(ctx, assets.rogues, KNIGHT_RECT, center);
   }
 
   ctx.restore();

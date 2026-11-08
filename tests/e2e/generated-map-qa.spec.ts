@@ -5,7 +5,7 @@ import type { Corridor, Door, Room } from '../../src/game/map';
 import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
-import { walkTo } from './support';
+import { settle, walkTo } from './support';
 
 const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
 const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
@@ -694,6 +694,7 @@ test('carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara', 
   // cursor y Space ejecuta Moverse sobre ese destino.
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
   expect(moved.camera).not.toEqual(snap.camera);

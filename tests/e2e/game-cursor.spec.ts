@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { approachEnemy, moveCursorTo, restart, snapshot, walkTo } from './support';
+import { approachEnemy, moveCursorTo, restart, settle, snapshot, walkTo } from './support';
 
 const SCREENSHOTS = 'artifacts/TASK-0016/attempt-1/screenshots';
 const SEED = '/?seed=279837264';
@@ -105,6 +105,7 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   // Moverse contra un muro se rechaza, avisa y no cambia el jugador.
   const beforeReject = await snapshot(page);
   await page.keyboard.press('Space');
+  await settle(page);
   const afterReject = await snapshot(page);
   expect(afterReject.players).toEqual(beforeReject.players);
   expect(afterReject.cursor).toMatchObject({ x: 3, y: 3, state: 'invalid' });
@@ -119,6 +120,7 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   // Moverse en verde deja el cursor en el destino, que pasa a ser el jugador.
   await moveCursorTo(page, beforeReject.players[0].x + 1, beforeReject.players[0].y);
   await page.keyboard.press('Space');
+  await settle(page);
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({
     x: beforeReject.players[0].x + 1,
@@ -207,6 +209,9 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
   await screenshot(page, 'cursor-enemy', testInfo);
 
   await page.keyboard.press('f');
+  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
   expect(afterAttack.enemies[0].hp).toBe(5);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
@@ -214,9 +219,6 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
     x: enemyTile.cursor.x,
     y: enemyTile.cursor.y,
   });
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
-  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   await screenshot(page, 'cursor-attack', testInfo);
 
   expect(consoleErrors).toEqual([]);

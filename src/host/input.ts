@@ -17,7 +17,13 @@ export type InputIgnoreReason =
   | 'game-over'
   | 'wrong-phase'
   | 'no-active-player'
-  | 'no-target';
+  | 'no-target'
+  | 'animating';
+
+export interface TranslateKeyOptions {
+  /** Con una animación activa solo responden `F1` y `R`; el resto se descarta. */
+  readonly animating?: boolean;
+}
 
 /**
  * Intención de input. Los comandos se envían al motor; el movimiento del cursor
@@ -92,6 +98,7 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  *
  * Reglas:
  * - `repeat` y modificadores (ctrl/meta/alt) se ignoran.
+ * - Con una animación activa solo responden `F1` y `R`; el resto se descarta.
  * - `F1` y `F2` son acciones del host; `F2` también funciona con la partida
  *   terminada.
  * - Con la partida terminada solo `R`, `F1` y `F2` reaccionan.
@@ -100,15 +107,22 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
  * - Movimiento, acciones y fin de turno exigen fase de jugador.
  */
-export function translateKey(input: KeyInput, state: GameState, cursor: Position): InputIntent {
+export function translateKey(
+  input: KeyInput,
+  state: GameState,
+  cursor: Position,
+  options: TranslateKeyOptions = {},
+): InputIntent {
   if (input.repeat) return ignored('repeat');
   if (input.ctrlKey || input.metaKey || input.altKey) return ignored('modifier');
 
   const key = input.key.toLowerCase();
 
   if (key === 'f1') return { type: 'toggle-debug' };
-  if (key === 'f2') return { type: 'new-seed' };
   if (key === 'r') return command({ type: 'Restart' });
+  if (options.animating) return ignored('animating');
+
+  if (key === 'f2') return { type: 'new-seed' };
 
   if (state.status !== 'playing') return ignored('game-over');
 
