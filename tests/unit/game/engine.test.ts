@@ -419,6 +419,7 @@ describe('recogida y cambio de armas', () => {
         damage: 8,
         rolls: { attack: 1, shield: 1, damage: 3, armor: 1 },
       }),
+      { type: 'AlarmRaised', unitId: 'enemy-1', position: { x: 6, y: 5 } },
     ]);
     expect(attack.state.enemies[0]).toMatchObject({ hp: 1 });
     expect(attack.state.players[0]).toMatchObject({

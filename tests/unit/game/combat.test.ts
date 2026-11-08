@@ -537,6 +537,133 @@ describe('equipo y modificadores', () => {
   });
 });
 
+describe('daño como despertador y alarma', () => {
+  function dormantSentinel(
+    x: number,
+    y: number,
+    patch: Partial<Parameters<typeof makeUnit>[0]> = {},
+  ) {
+    return makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x,
+      y,
+      awareness: 'dormant',
+      ...patch,
+    });
+  }
+
+  it('al golpear a un dormido emite AlarmRaised tras AttackPerformed y alerta la onda', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        dormantSentinel(6, 5),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 12,
+          y: 5,
+          awareness: 'dormant',
+        }),
+      ],
+      rng: rngForDice(PLAYER_HIT_5),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.events.map((event) => event.type)).toEqual([
+      'AttackPerformed',
+      'AlarmRaised',
+    ]);
+    expect(result.events[1]).toEqual({
+      type: 'AlarmRaised',
+      unitId: 'enemy-1',
+      position: { x: 6, y: 5 },
+    });
+    expect(result.state.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 5, y: 5 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+    expect(result.state.enemies[1]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 5, y: 5 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+  });
+
+  it('si el golpe mata, no hay alarma', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [dormantSentinel(6, 5, { hp: 5 })],
+      rng: rngForDice(PLAYER_HIT_5),
+    });
+
+    const result = resolveAttack(state, 'player-1', 'enemy-1');
+
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.events.map((event) => event.type)).toEqual([
+      'AttackPerformed',
+      'UnitDied',
+    ]);
+  });
+
+  it('un fallo no despierta al dormido', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [dormantSentinel(6, 5)],
+      rng: rngForDice([1, 6]),
+    });
+
+    const result = resolveAttack(state, 'player-1', 'enemy-1');
+
+    if (!result.ok) throw new Error(result.reason);
+    expect(result.events.map((event) => event.type)).toEqual(['AttackPerformed']);
+    expect(result.state.enemies[0]).toMatchObject({
+      awareness: 'dormant',
+      lastKnown: null,
+      hasShouted: false,
+    });
+  });
+
+  it('un alertado reinicia la memoria sin segunda onda', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        dormantSentinel(6, 5, {
+          awareness: 'alert',
+          lastKnown: { x: 2, y: 2 },
+          alertTurns: 2,
+          hasShouted: true,
+        }),
+      ],
+      rng: rngForDice(PLAYER_HIT_5),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.events.map((event) => event.type)).toEqual(['AttackPerformed']);
+    expect(result.state.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 5, y: 5 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+  });
+});
+
 describe('secuencia del RNG', () => {
   it('es puro, serializable y reproducible con la misma semilla', () => {
     const rng = createRng(1017);

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   ALERT_COOLDOWN_PHASES,
   BESTIARY,
+  alarmRadius,
   bresenhamLine,
   canSee,
   detectEnemiesAfterStep,
@@ -121,6 +122,7 @@ describe('detección tras cada paso', () => {
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
       'EnemySpotted',
+      'AlarmRaised',
     ]);
     expect(result.events[1]).toEqual({
       type: 'EnemySpotted',
@@ -129,11 +131,16 @@ describe('detección tras cada paso', () => {
       position: { x: 11, y: 5 },
       step: { x: 5, y: 5 },
     });
+    expect(result.events[2]).toEqual({
+      type: 'AlarmRaised',
+      unitId: 'enemy-1',
+      position: { x: 11, y: 5 },
+    });
     expect(result.state.enemies[0]).toMatchObject({
       awareness: 'alert',
       lastKnown: { x: 5, y: 5 },
       alertTurns: 0,
-      hasShouted: false,
+      hasShouted: true,
     });
     expect(result.state.players[0]).toMatchObject({ mp: 5, actionAvailable: true });
   });
@@ -153,6 +160,7 @@ describe('detección tras cada paso', () => {
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
       'EnemySpotted',
+      'AlarmRaised',
       'UnitMoved',
       'UnitMoved',
     ]);
@@ -192,6 +200,7 @@ describe('detección tras cada paso', () => {
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
       'EnemySpotted',
+      'AlarmRaised',
       'UnitMoved',
       'UnitMoved',
       'UnitMoved',
@@ -232,13 +241,184 @@ describe('detección tras cada paso', () => {
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
       'EnemySpotted',
+      'AlarmRaised',
     ]);
     expect(result.state.enemies[0]).toMatchObject({
       awareness: 'alert',
       lastKnown: { x: 11, y: 5 },
       alertTurns: 0,
+      hasShouted: true,
+    });
+  });
+});
+
+describe('onda de alarma', () => {
+  it('todos los tipos del bestiario comparten radio de alarma 8', () => {
+    for (const type of ['sentinel', 'brute', 'coward'] as const) {
+      expect(BESTIARY[type].alarm).toBe(8);
+      expect(alarmRadius(enemyOf(type, 5, 5))).toBe(8);
+    }
+    expect(alarmRadius(playerAt(5, 5))).toBe(0);
+  });
+
+  it('alerta a 8 tiles aunque haya un muro y no a 9', () => {
+    const emitter = enemyOf('sentinel', 2, 2);
+    const near = makeUnit({
+      id: 'enemy-2',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 10,
+      y: 2,
+      awareness: 'dormant',
+    });
+    const far = makeUnit({
+      id: 'enemy-3',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 11,
+      y: 2,
+      awareness: 'dormant',
+    });
+    const state = makeState({
+      // El muro bloquea la visión entre emisor y receptor, no la onda.
+      grid: makeGridWithWalls([{ x: 6, y: 2 }]),
+      players: [playerAt(3, 2)],
+      enemies: [emitter, near, far],
+    });
+
+    const result = detectEnemiesAfterStep(state);
+
+    expect(result.events.map((event) => event.type)).toEqual([
+      'EnemySpotted',
+      'AlarmRaised',
+    ]);
+    expect(result.events[1]).toEqual({
+      type: 'AlarmRaised',
+      unitId: 'enemy-1',
+      position: { x: 2, y: 2 },
+    });
+    expect(result.state.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 3, y: 2 },
+      hasShouted: true,
+    });
+    expect(result.state.enemies[1]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 3, y: 2 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+    expect(result.state.enemies[2]).toMatchObject({
+      awareness: 'dormant',
+      lastKnown: null,
       hasShouted: false,
     });
+  });
+
+  it('no se propaga en cadena: un receptor no alerta a otro', () => {
+    const state = makeState({
+      players: [playerAt(3, 2)],
+      enemies: [
+        enemyOf('sentinel', 2, 2),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'brute',
+          x: 9,
+          y: 2,
+          awareness: 'dormant',
+        }),
+        makeUnit({
+          id: 'enemy-3',
+          faction: 'enemy',
+          enemyType: 'brute',
+          x: 17,
+          y: 2,
+          awareness: 'dormant',
+        }),
+      ],
+    });
+
+    const result = detectEnemiesAfterStep(state);
+
+    expect(result.events.map((event) => event.type)).toEqual([
+      'EnemySpotted',
+      'AlarmRaised',
+    ]);
+    expect(result.state.enemies[1]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 3, y: 2 },
+      hasShouted: true,
+    });
+    expect(result.state.enemies[2]).toMatchObject({
+      awareness: 'dormant',
+      lastKnown: null,
+      hasShouted: false,
+    });
+  });
+
+  it('un receptor ya alertado comparte lastKnown y no repite la onda', () => {
+    const state = makeState({
+      players: [playerAt(3, 2)],
+      enemies: [
+        enemyOf('sentinel', 2, 2),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 10,
+          y: 2,
+          awareness: 'alert',
+          lastKnown: { x: 1, y: 1 },
+          alertTurns: 1,
+          hasShouted: true,
+        }),
+      ],
+    });
+
+    const first = detectEnemiesAfterStep(state);
+
+    expect(first.events.map((event) => event.type)).toEqual([
+      'EnemySpotted',
+      'AlarmRaised',
+    ]);
+    expect(first.state.enemies[1]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 3, y: 2 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+
+    const second = detectEnemiesAfterStep(first.state);
+    expect(second.events).toEqual([]);
+  });
+
+  it('con dos emisores emite todos los EnemySpotted y luego las ondas por índice', () => {
+    const makeScenario = (): GameState =>
+      makeState({
+        players: [playerAt(10, 10)],
+        enemies: [
+          enemyOf('sentinel', 9, 10),
+          enemyOf('sentinel', 11, 10, { id: 'enemy-2' }),
+        ],
+      });
+
+    const first = detectEnemiesAfterStep(makeScenario());
+    const second = detectEnemiesAfterStep(makeScenario());
+
+    expect(first.events.map((event) => event.type)).toEqual([
+      'EnemySpotted',
+      'EnemySpotted',
+      'AlarmRaised',
+      'AlarmRaised',
+    ]);
+    expect(first.events.map((event) => ('unitId' in event ? event.unitId : null))).toEqual([
+      'enemy-1',
+      'enemy-2',
+      'enemy-1',
+      'enemy-2',
+    ]);
+    expect(JSON.stringify(first)).toBe(JSON.stringify(second));
   });
 });
 
@@ -457,6 +637,9 @@ describe('serialización y determinismo', () => {
 
     expect(JSON.stringify(state)).toBe(before);
     expect(result.state).not.toBe(state);
-    expect(result.events).toHaveLength(1);
+    expect(result.events.map((event) => event.type)).toEqual([
+      'EnemySpotted',
+      'AlarmRaised',
+    ]);
   });
 });

@@ -173,6 +173,110 @@ describe('game loop integration', () => {
     ).toEqual([{ type: 'EnemyReturned', unitId: 'enemy-1' }]);
   });
 
+  it('la visión da la alarma y el alertado actúa en la fase enemiga', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 3, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 10,
+          y: 5,
+          awareness: 'dormant',
+        }),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 16,
+          y: 5,
+          awareness: 'dormant',
+        }),
+      ],
+    });
+
+    const result = run(state, [
+      { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 },
+      { type: 'EndTurn' },
+    ]);
+
+    expect(result.events.map((event) => event.type)).toEqual([
+      'UnitMoved',
+      'EnemySpotted',
+      'AlarmRaised',
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'UnitMoved',
+      'UnitMoved',
+      'PlayerTurnStarted',
+    ]);
+    expect(result.final.enemies[0]).toMatchObject({
+      x: 9,
+      y: 5,
+      awareness: 'alert',
+      lastKnown: { x: 4, y: 5 },
+    });
+    expect(result.final.enemies[1]).toMatchObject({
+      x: 15,
+      y: 5,
+      awareness: 'alert',
+      lastKnown: { x: 4, y: 5 },
+      hasShouted: true,
+    });
+  });
+
+  it('el daño a un dormido da la alarma y el alertado actúa en la fase enemiga', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 6,
+          y: 5,
+          awareness: 'dormant',
+          maxHp: 9,
+          hp: 9,
+        }),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 12,
+          y: 5,
+          awareness: 'dormant',
+          maxHp: 9,
+          hp: 9,
+        }),
+      ],
+      rng: rngForDice([6, 1, 2, 1, 1, 6]),
+    });
+
+    const result = run(state, [
+      { type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' },
+      { type: 'EndTurn' },
+    ]);
+
+    expect(result.events.map((event) => event.type)).toEqual([
+      'AttackPerformed',
+      'AlarmRaised',
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'AttackPerformed',
+      'UnitMoved',
+      'PlayerTurnStarted',
+    ]);
+    expect(result.final.enemies[1]).toMatchObject({
+      x: 11,
+      y: 5,
+      awareness: 'alert',
+      lastKnown: { x: 5, y: 5 },
+      hasShouted: true,
+    });
+  });
+
   it('produce el mismo estado y los mismos eventos con la misma secuencia', () => {
     const makeScenario = (): GameState =>
       makeState({
