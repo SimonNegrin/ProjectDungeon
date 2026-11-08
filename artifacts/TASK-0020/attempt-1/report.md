@@ -75,6 +75,8 @@ el repeat 0, como antes.
 # Problemas conocidos y preguntas abiertas
 
 - `*.log` está ignorado: `motion-trace.log` se versionó con `git add -f`.
+- `attack-after-walk.png` y `attack-damage-detail.png` varían unos bytes entre
+  corridas por el fundido CSS del daño; rutas, nombres y aserciones no cambian.
 - El estado limpio final de `artifacts/` se comprueba tras commitear este
   informe; antes queda el propio informe sin trackear.
 
@@ -89,7 +91,7 @@ el repeat 0, como antes.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3367 |
-| `report_bytes` | 3892 |
+| `report_bytes` | 5284 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | Refactor acotado sin fallos de test ni de verificación. |
