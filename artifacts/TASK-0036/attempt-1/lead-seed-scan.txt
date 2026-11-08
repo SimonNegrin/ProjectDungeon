@@ -1,0 +1,3 @@
+Comprobación independiente de 2000 semillas con esbuild+bundle del motor:
+checked=2000 failures=0 anchored=2000
+(4 enemigos, tipos 2/1/1, salas distintas, >=7 al jugador, sin canSee, home, pareja <=8 y aislado >8)

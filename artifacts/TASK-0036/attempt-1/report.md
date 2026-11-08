@@ -54,7 +54,10 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief asumía E2E verdes salvo supuestos de 1 enemigo, pero la base tenía 6 fallos por IA dormida | `e2e-baseline.txt` | Comparar con worktree base antes de tocar E2E | Evita atribuir fallos previos al runner | Registrar el baseline E2E en el brief | Bajo | `pending` |
+| El brief asumía E2E verdes salvo supuestos de 1 enemigo, pero la base tenía 6 fallos por IA dormida | `e2e-baseline.txt` | Comparar con worktree base antes de tocar E2E | Evita atribuir fallos previos al runner | Registrar el baseline E2E en el brief | Bajo | `accepted` |
+
+Disposición del lead: `accepted` como mejora local del brief; el baseline E2E se
+registrará en futuros briefs con E2E en alcance. No cambia criterios ni tests.
 
 # Métricas de handoff
 
