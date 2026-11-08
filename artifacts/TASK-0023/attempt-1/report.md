@@ -59,7 +59,7 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `timeout 120 …` falla en macOS con `command not found`. | `zsh:1: command not found: timeout` | Usar el parámetro `timeout` de la tool de shell. | Cualquier agente que siga «timeout explícito» puede escribir el binario GNU. | Aclarar en `workflow.md` que en macOS se usa el timeout de la herramienta. | Bajo | `pending` |
+| `timeout 120 …` falla en macOS con `command not found`. | `zsh:1: command not found: timeout` | Usar el parámetro `timeout` de la tool de shell. | Cualquier agente que siga «timeout explícito» puede escribir el binario GNU. | Aclarar en `workflow.md` que en macOS se usa el timeout de la herramienta. | Bajo | `deferred` — requirements-writer |
 
 # Métricas de handoff
 
