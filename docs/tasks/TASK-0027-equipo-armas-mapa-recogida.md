@@ -4,7 +4,7 @@ id: TASK-0027
 title: "Motor y host: equipo, armas del mapa y recogida"
 description: Colocar el hacha y la daga por semilla, recogerlas con G por 1 MP y cambiar entre tres armas con 1-3 sin coste.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-003, R-004, R-005, R-006, R-011, T-003, T-004, T-007, T-010]
