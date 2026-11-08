@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import { basename } from 'node:path';
 import {
   bundleRootFor,
@@ -27,6 +27,25 @@ const experiments = [];
 const OKF_STATUS = new Set(['draft', 'stable', 'deprecated']);
 const TASK_STATUS = new Set(['backlog', 'ready', 'in_progress', 'blocked', 'review', 'done']);
 const EXPERIMENT_STATUS = new Set(['proposed', 'building', 'ready', 'decided', 'archived']);
+
+// Topes de ADR-009. Solo se aplican de TASK-0021 en adelante; lo anterior es
+// histórico y no se reescribe.
+const CAPS_FROM_TASK = 21;
+const TASK_WORDS_WARN = 600;
+const TASK_WORDS_MAX = 800;
+const HANDOFF_BYTES_WARN = 2560;
+const HANDOFF_BYTES_MAX = 4096;
+const LOG_LINE_MAX = 400;
+
+function taskNumber(value) {
+  const match = /^TASK-(\d+)$/.exec(String(value ?? ''));
+  return match ? Number.parseInt(match[1], 10) : null;
+}
+
+function isCappedTask(value) {
+  const number = taskNumber(value);
+  return number !== null && number >= CAPS_FROM_TASK;
+}
 
 function error(message) {
   errors.push(message);
@@ -117,6 +136,28 @@ for (const concept of concepts) {
     }
     if (!Array.isArray(data.depends_on)) warn(`${rel}: depends_on debería ser una lista`);
     if (!Array.isArray(data.unlocks)) warn(`${rel}: unlocks debería ser una lista`);
+  }
+
+  if (type === 'Task' && isCappedTask(data.id)) {
+    const words = body.trim() ? body.trim().split(/\s+/).length : 0;
+    if (words > TASK_WORDS_MAX) {
+      error(`${rel}: tarea de ${words} palabras; el tope es ${TASK_WORDS_MAX}`);
+    } else if (words > TASK_WORDS_WARN) {
+      warn(`${rel}: tarea de ${words} palabras; objetivo ≤${TASK_WORDS_WARN}`);
+    }
+  }
+
+  if (
+    (type === 'Task Brief' || type === 'Task Report') &&
+    isCappedTask(data.task) &&
+    !basename(file).includes('detalle')
+  ) {
+    const bytes = statSync(file).size;
+    if (bytes > HANDOFF_BYTES_MAX) {
+      error(`${rel}: handoff de ${bytes} B; el tope es ${HANDOFF_BYTES_MAX} B`);
+    } else if (bytes > HANDOFF_BYTES_WARN) {
+      warn(`${rel}: handoff de ${bytes} B; objetivo ≤${HANDOFF_BYTES_WARN} B`);
+    }
   }
 
   if (type === 'Experiment') {
@@ -224,6 +265,16 @@ if (docsIndex.data.okf_version !== '0.2') {
 for (const concept of concepts) {
   if (basename(concept.file) === 'README.md' && concept.rel.startsWith('artifacts/')) {
     continue;
+  }
+}
+
+const logPath = `${repoRoot}/docs/log.md`;
+for (const [index, line] of readFileSync(logPath, 'utf8').split('\n').entries()) {
+  if (!/^\* \d{4}-\d{2}-\d{2} — /.test(line)) continue;
+  if (line.length > LOG_LINE_MAX) {
+    error(
+      `docs/log.md:${index + 1}: entrada de log de ${line.length} caracteres; el tope es ${LOG_LINE_MAX}`,
+    );
   }
 }
 
