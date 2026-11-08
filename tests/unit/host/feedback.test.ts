@@ -3,6 +3,10 @@ import { reduce } from '../../../src/game/index';
 import {
   collectAttackFeedbacks,
   collectDamageFeedbacks,
+  damageFeedbackAnchor,
+  DAMAGE_FEEDBACK_HALF_WIDTH,
+  DAMAGE_FEEDBACK_HEIGHT,
+  type DamageFeedbackAnchor,
 } from '../../../src/host/feedback';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
@@ -68,6 +72,7 @@ describe('feedback de impacto y fallo', () => {
         text: '-5',
         x: 6,
         y: 5,
+        attacker: { x: 5, y: 5 },
       },
     ]);
   });
@@ -96,5 +101,114 @@ describe('feedback de impacto y fallo', () => {
       x: 6,
       y: 5,
     });
+  });
+});
+
+describe('anclaje del feedback de daño', () => {
+  const MAP = { width: 32, height: 32 } as const;
+  const TARGET = { x: 10, y: 10 } as const;
+
+  /** Caja nominal del texto: centro horizontal en `x` y borde inferior en `y`. */
+  function textBox(anchor: DamageFeedbackAnchor) {
+    return {
+      left: anchor.x - DAMAGE_FEEDBACK_HALF_WIDTH,
+      right: anchor.x + DAMAGE_FEEDBACK_HALF_WIDTH,
+      top: anchor.y - DAMAGE_FEEDBACK_HEIGHT,
+      bottom: anchor.y,
+    };
+  }
+
+  function tileBox(tile: { readonly x: number; readonly y: number }) {
+    return { left: tile.x, right: tile.x + 1, top: tile.y, bottom: tile.y + 1 };
+  }
+
+  function intersects(
+    a: { left: number; right: number; top: number; bottom: number },
+    b: { left: number; right: number; top: number; bottom: number },
+  ): boolean {
+    return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  }
+
+  it('si el atacante está arriba, el texto queda debajo del centro del objetivo', () => {
+    const anchor = damageFeedbackAnchor(TARGET, { x: 10, y: 9 }, MAP);
+    const text = textBox(anchor);
+
+    expect(anchor.side).toBe('below');
+    expect(anchor.x).toBe(10.5);
+    expect(text.top).toBeGreaterThanOrEqual(10.5);
+    expect(text.bottom).toBeLessThanOrEqual(11);
+  });
+
+  it('si el atacante está abajo, el texto queda encima del centro del objetivo', () => {
+    const anchor = damageFeedbackAnchor(TARGET, { x: 10, y: 11 }, MAP);
+    const text = textBox(anchor);
+
+    expect(anchor.side).toBe('above');
+    expect(anchor.x).toBe(10.5);
+    expect(text.bottom).toBeLessThanOrEqual(10.5);
+    expect(text.top).toBeGreaterThanOrEqual(10);
+  });
+
+  it('si el atacante está a la izquierda, el texto se desplaza a la derecha', () => {
+    const anchor = damageFeedbackAnchor(TARGET, { x: 9, y: 10 }, MAP);
+
+    expect(anchor.side).toBe('right');
+    expect(anchor.x).toBeGreaterThan(10.5);
+  });
+
+  it('si el atacante está a la derecha, el texto se desplaza a la izquierda', () => {
+    const anchor = damageFeedbackAnchor(TARGET, { x: 11, y: 10 }, MAP);
+
+    expect(anchor.side).toBe('left');
+    expect(anchor.x).toBeLessThan(10.5);
+  });
+
+  it('en las cuatro direcciones el texto no invade la casilla del atacante', () => {
+    for (const attacker of [
+      { x: 10, y: 9 },
+      { x: 10, y: 11 },
+      { x: 9, y: 10 },
+      { x: 11, y: 10 },
+    ]) {
+      const anchor = damageFeedbackAnchor(TARGET, attacker, MAP);
+      expect(intersects(textBox(anchor), tileBox(attacker))).toBe(false);
+    }
+  });
+
+  it('en diagonal gana el eje vertical de forma determinista', () => {
+    const desdeArribaIzquierda = damageFeedbackAnchor(TARGET, { x: 9, y: 9 }, MAP);
+    const desdeAbajoIzquierda = damageFeedbackAnchor(TARGET, { x: 9, y: 11 }, MAP);
+
+    expect(desdeArribaIzquierda.side).toBe('below');
+    expect(desdeAbajoIzquierda.side).toBe('above');
+    expect(intersects(textBox(desdeArribaIzquierda), tileBox({ x: 9, y: 9 }))).toBe(false);
+    expect(intersects(textBox(desdeAbajoIzquierda), tileBox({ x: 9, y: 11 }))).toBe(false);
+  });
+
+  it('en la misma casilla usa `below` como regla fija', () => {
+    const anchor = damageFeedbackAnchor(TARGET, { x: 10, y: 10 }, MAP);
+
+    expect(anchor.side).toBe('below');
+    expect(anchor).toEqual({ x: 10.5, y: 11, side: 'below' });
+  });
+
+  it('en los bordes del mapa mantiene la caja del texto dentro del marco', () => {
+    const cases = [
+      { target: { x: 0, y: 0 }, attacker: { x: 1, y: 0 }, side: 'left' },
+      { target: { x: 31, y: 0 }, attacker: { x: 30, y: 0 }, side: 'right' },
+      { target: { x: 0, y: 0 }, attacker: { x: 0, y: 1 }, side: 'above' },
+      { target: { x: 0, y: 31 }, attacker: { x: 0, y: 30 }, side: 'below' },
+    ] as const;
+
+    for (const item of cases) {
+      const anchor = damageFeedbackAnchor(item.target, item.attacker, MAP);
+      const text = textBox(anchor);
+
+      expect(anchor.side, `borde ${item.side}`).toBe(item.side);
+      expect(text.left).toBeGreaterThanOrEqual(0);
+      expect(text.right).toBeLessThanOrEqual(MAP.width);
+      expect(text.top).toBeGreaterThanOrEqual(0);
+      expect(text.bottom).toBeLessThanOrEqual(MAP.height);
+    }
   });
 });

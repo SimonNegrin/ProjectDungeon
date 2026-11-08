@@ -12,7 +12,7 @@ import {
 } from './cursor';
 import { createCursorView } from './cursor-view';
 import { createDebugApi, type AnimationSnapshot } from './debug';
-import { collectAttackFeedbacks } from './feedback';
+import { collectAttackFeedbacks, damageFeedbackAnchor } from './feedback';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
@@ -75,7 +75,8 @@ function cssPercent(value: number): string {
 /**
  * El feedback se posiciona en porcentajes del marco completo, pero partiendo
  * del sub-rectángulo del mapa: el mapa empieza en el 21,875 % del ancho y una
- * casilla ocupa el 4,6875 % horizontal y el 8,333… % vertical.
+ * casilla ocupa el 4,6875 % horizontal y el 8,333… % vertical. El ancla es el
+ * borde inferior-centro del texto, que crece hacia arriba con `damage-pop`.
  */
 function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
   const feedback = frame.querySelector<HTMLElement>('[data-testid="damage-feedback"]');
@@ -93,8 +94,13 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
       const last = feedbacks.at(-1);
       if (!last) return;
 
-      const left = cssPercent(mapXToFramePercent((last.x + 0.5) * TILE_SIZE - camera.x));
-      const top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
+      const anchor = damageFeedbackAnchor(
+        { x: last.x, y: last.y },
+        last.attacker,
+        { width: state.grid.width, height: state.grid.height },
+      );
+      const left = cssPercent(mapXToFramePercent(anchor.x * TILE_SIZE - camera.x));
+      const top = cssPercent(mapYToFramePercent(anchor.y * TILE_SIZE - camera.y));
 
       feedback.textContent = last.text;
       feedback.dataset.result = last.hit ? 'hit' : 'miss';

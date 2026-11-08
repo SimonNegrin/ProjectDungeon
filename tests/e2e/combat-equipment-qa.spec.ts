@@ -20,6 +20,12 @@ const REFERENCE_SEED = 279837264;
  * produce un fallo y un impacto con los primeros comandos, sin tocar el motor.
  */
 const FEEDBACK_SEED = 13;
+/**
+ * Partida con el jugador a la derecha del enemigo en una sala abierta. Es el
+ * caso "normal" que contrasta con el pasillo de una casilla de la semilla de
+ * referencia; la dirección y el impacto se comprueban en el propio test.
+ */
+const NORMAL_FEEDBACK_SEED = 40;
 
 const WEAPON_LABELS = {
   sword: 'Espada +3/+4',
@@ -40,6 +46,55 @@ async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });
+}
+
+interface ScreenBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function overlaps(a: ScreenBox, b: ScreenBox): boolean {
+  return (
+    a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+/**
+ * Caja en pantalla de un tile del mapa. El mapa ocupa el 56,25 % central del
+ * marco, sus 13×13 tiles cubren toda la altura y la cámara desplaza la ventana
+ * visible. `camera` va en píxeles lógicos de tile.
+ */
+async function mapTileBox(
+  page: Page,
+  snap: GameSnapshot,
+  x: number,
+  y: number,
+): Promise<ScreenBox> {
+  const frame = await page.getByTestId('frame').boundingBox();
+  if (!frame) throw new Error('El marco del mapa debe tener caja');
+  const tile = frame.height / 13;
+  const visibleX = x - snap.camera.x / snap.tileSize;
+  const visibleY = y - snap.camera.y / snap.tileSize;
+  return {
+    x: frame.x + frame.width * 0.21875 + visibleX * tile,
+    y: frame.y + visibleY * tile,
+    width: tile,
+    height: tile,
+  };
+}
+
+/** Caja visible del feedback; falla si la animación lo dejó sin tamaño. */
+async function feedbackBox(page: Page): Promise<ScreenBox> {
+  const box = await page.getByTestId('damage-feedback').boundingBox();
+  if (!box || box.width === 0 || box.height === 0) {
+    throw new Error('El feedback de daño no está visible para la comprobación');
+  }
+  return box;
 }
 
 function watchConsole(page: Page): string[] {
@@ -268,6 +323,9 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   const adjacent = await snapshot(page);
   const enemy = adjacent.enemies[0];
   expect(distance(adjacent.players[0], enemy)).toBe(1);
+  // La semilla de referencia llega desde arriba: es el pasillo de una casilla
+  // que provocaba el solape del `-1` con el jugador.
+  expect(adjacent.players[0]).toMatchObject({ x: enemy.x, y: enemy.y - 1 });
   await moveCursorTo(page, enemy.x, enemy.y);
   const selected = await snapshot(page);
   expect(selected.cursor).toMatchObject({
@@ -291,7 +349,20 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   // `dispatch`. Se deja entrar el pico de la animación (900 ms) y se captura.
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   await page.waitForTimeout(150);
+  const hitBox = await feedbackBox(page);
+  const playerTile = await mapTileBox(
+    page,
+    adjacent,
+    adjacent.players[0].x,
+    adjacent.players[0].y,
+  );
+  const targetTile = await mapTileBox(page, adjacent, enemy.x, enemy.y);
+  expect(overlaps(hitBox, playerTile), 'El daño no debe tapar al jugador').toBe(false);
+  expect(hitBox.y + hitBox.height / 2).toBeGreaterThan(
+    targetTile.y + targetTile.height / 2,
+  );
   await screenshot(page, 'attack-hit', testInfo);
+  await screenshot(page, 'attack-corridor', testInfo);
   await settle(page);
   const attack = attackEvent(attackResult.events);
   expect(attack).toBeDefined();
@@ -417,6 +488,56 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
   await screenshot(page, 'victory', testInfo);
+
+  expect(consoleErrors).toEqual([]);
+});
+
+test('feedback de daño en un ataque normal desde el lado', async ({ page }, testInfo) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page, NORMAL_FEEDBACK_SEED);
+  await approachEnemy(page);
+
+  const adjacent = await snapshot(page);
+  const player = adjacent.players[0];
+  const enemy = adjacent.enemies[0];
+  expect(adjacent.status).toBe('playing');
+  // El jugador ataca desde la derecha en una sala abierta: el texto debe quedar
+  // a la izquierda del objetivo.
+  expect(player).toMatchObject({ x: enemy.x + 1, y: enemy.y });
+
+  await moveCursorTo(page, enemy.x, enemy.y);
+  const beforeAttack = await snapshot(page);
+  const result = await dispatchCommand(page, {
+    type: 'Attack',
+    unitId: 'player-1',
+    targetId: enemy.id,
+  });
+  const attack = attackEvent(result.events);
+  expect(attack).toBeDefined();
+  expect(attack!.hit).toBe(true);
+  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+
+  await page.waitForTimeout(150);
+  const box = await feedbackBox(page);
+  const targetTile = await mapTileBox(page, adjacent, enemy.x, enemy.y);
+  const attackerTile = await mapTileBox(page, adjacent, player.x, player.y);
+  expect(overlaps(box, targetTile), 'El daño debe quedar sobre el objetivo').toBe(true);
+  expect(overlaps(box, attackerTile), 'El daño no debe tapar al atacante').toBe(false);
+  expect(box.x + box.width / 2).toBeLessThan(targetTile.x + targetTile.width / 2);
+  await screenshot(page, 'attack-normal', testInfo);
+  await settle(page);
+
+  await expect(page.getByTestId('damage-feedback')).toHaveText(`-${attack!.damage}`);
+  await expect(page.getByTestId('damage-feedback')).toHaveAttribute('data-result', 'hit');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
+
+  const afterAttack = await snapshot(page);
+  expect(afterAttack.turn).toBe(beforeAttack.turn);
+  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${attack!.targetHp}/${enemy.maxHp}`,
+  );
 
   expect(consoleErrors).toEqual([]);
 });
