@@ -1,0 +1,30 @@
+$ playwright test motion-qa --repeat-each=3
+
+Running 24 tests using 4 workers
+
+  ✓   2 [chromium] › tests/e2e/motion-qa.spec.ts:174:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (1.2s)
+  ✓   3 [chromium] › tests/e2e/motion-qa.spec.ts:449:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (1.6s)
+  ✓   1 [chromium] › tests/e2e/motion-qa.spec.ts:274:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (1.7s)
+  ✓   4 [chromium] › tests/e2e/motion-qa.spec.ts:375:1 › la cámara sigue al personaje y no se mueve con el cursor (2.3s)
+  ✓   6 [chromium] › tests/e2e/motion-qa.spec.ts:711:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (679ms)
+  ✓   7 [chromium] › tests/e2e/motion-qa.spec.ts:780:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (839ms)
+  ✓   8 [chromium] › tests/e2e/motion-qa.spec.ts:825:1 › dos ejecuciones producen el mismo resultado con reloj determinista (1.6s)
+  ✓   5 [chromium] › tests/e2e/motion-qa.spec.ts:578:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (3.7s)
+  ✓  10 [chromium] › tests/e2e/motion-qa.spec.ts:174:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (7.5s)
+  ✓  12 [chromium] › tests/e2e/motion-qa.spec.ts:449:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (6.2s)
+  ✓   9 [chromium] › tests/e2e/motion-qa.spec.ts:274:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (8.3s)
+  ✓  11 [chromium] › tests/e2e/motion-qa.spec.ts:375:1 › la cámara sigue al personaje y no se mueve con el cursor (9.4s)
+  ✓  14 [chromium] › tests/e2e/motion-qa.spec.ts:711:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (2.0s)
+  ✓  15 [chromium] › tests/e2e/motion-qa.spec.ts:780:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (2.9s)
+  ✓  13 [chromium] › tests/e2e/motion-qa.spec.ts:578:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (5.7s)
+  ✓  16 [chromium] › tests/e2e/motion-qa.spec.ts:825:1 › dos ejecuciones producen el mismo resultado con reloj determinista (3.8s)
+  ✓  17 [chromium] › tests/e2e/motion-qa.spec.ts:174:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (7.6s)
+  ✓  18 [chromium] › tests/e2e/motion-qa.spec.ts:274:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (9.3s)
+  ✓  20 [chromium] › tests/e2e/motion-qa.spec.ts:449:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (8.9s)
+  ✓  19 [chromium] › tests/e2e/motion-qa.spec.ts:375:1 › la cámara sigue al personaje y no se mueve con el cursor (9.3s)
+  ✓  22 [chromium] › tests/e2e/motion-qa.spec.ts:711:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (2.0s)
+  ✓  23 [chromium] › tests/e2e/motion-qa.spec.ts:780:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (2.0s)
+  ✓  24 [chromium] › tests/e2e/motion-qa.spec.ts:825:1 › dos ejecuciones producen el mismo resultado con reloj determinista (2.2s)
+  ✓  21 [chromium] › tests/e2e/motion-qa.spec.ts:578:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (6.3s)
+
+  24 passed (38.0s)
