@@ -4,22 +4,36 @@ id: TASK-0035
 title: "Motor: alarma de una onda, enfriamiento y daño como despertador"
 description: Implementar la alarma de radio 8 sin cadena, el enfriamiento a 3 fases con regreso al puesto y el despertar por daño, con eventos deterministas.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-006, R-008, T-004, T-008, T-009, T-010, T-011]
 depends_on: [TASK-0034]
 unlocks: [TASK-0037]
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T21:10:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0035/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T21:10:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0035 (commits 6f35014, d95cc99 y
+      205f1ee; fusionados en main con e7e73e1). Diff completo revisado;
+      `pnpm run verify` re-ejecutado por el lead (528 tests, docs/config y build
+      OK) y 66 tests dirigidos OK. Criterios R-006/R-008 y T-004/T-008/T-010/T-011
+      cubiertos: onda radio 8 Chebyshev sin LOS ni cadena, `AlarmRaised`
+      determinista, receptores con `lastKnown` y `hasShouted`, enfriamiento 2+1
+      verificado, daño que despierta y alarma si sobrevive, sin `Math.random` ni
+      dependencias. Desviaciones aceptadas: `AlarmRaised` se emite aunque no haya
+      receptores y cada detector simultáneo emite su onda; no alteran los
+      criterios. T-009 (`docs/design/turn-economy.md` y glosario) queda para
+      requirements-writer, como en TASK-0034.
 ---
 
 # Objetivo
@@ -39,22 +53,22 @@ cadenas de avisos. La huida y la IA de alerta llegan en `TASK-0037`.
 
 # Criterios de aceptación
 
-- [ ] Al ver por primera vez en un episodio, el enemigo emite una onda de radio
+- [x] Al ver por primera vez en un episodio, el enemigo emite una onda de radio
       8 desde su posición; los receptores vivos dentro del radio pasan o
       permanecen en alerta, comparten `lastKnown` y marcan `hasShouted`.
-- [ ] Un enemigo a 8 tiles tras un muro se alerta; uno a 9 no; ningún receptor
+- [x] Un enemigo a 8 tiles tras un muro se alerta; uno a 9 no; ningún receptor
       genera una segunda onda en el mismo episodio.
-- [ ] La alerta se enfría a las 3 fases enemigas sin visión ni daño: 2
+- [x] La alerta se enfría a las 3 fases enemigas sin visión ni daño: 2
       investigando y 1 volviendo; al enfriarse deja de perseguir y de atacar, y
       vuelve a `home` sin atacar hasta llegar.
-- [ ] Recibir daño despierta y alerta a un enemigo dormido aunque no haya visto
+- [x] Recibir daño despierta y alerta a un enemigo dormido aunque no haya visto
       al jugador; guarda la posición del atacante y, si sobrevive, da la alarma.
-- [ ] Los eventos de percepción y alarma (`EnemySpotted`, `AlarmRaised`,
+- [x] Los eventos de percepción y alarma (`EnemySpotted`, `AlarmRaised`,
       `EnemyReturned` o equivalentes) salen en orden determinista con el
       `unitId` correcto.
-- [ ] Dos ejecuciones idénticas dan el mismo conjunto de alertados; no se usa
+- [x] Dos ejecuciones idénticas dan el mismo conjunto de alertados; no se usa
       `Math.random`.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
 
 # Plan de test
 
@@ -69,9 +83,9 @@ cadenas de avisos. La huida y la IA de alerta llegan en `TASK-0037`.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0035/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0035`.
+- [x] Informe en `artifacts/TASK-0035/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0035`.
 
 # Comandos
 
