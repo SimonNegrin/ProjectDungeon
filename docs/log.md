@@ -3,6 +3,7 @@
 ## 2026-11-08
 
 * 2026-11-08 — Task — TASK-0021 — done: damero global por tinte y decals planos deterministas; 381/381 unitarios y 40/40 E2E; fusión `6c8117f` — [informe](../artifacts/TASK-0021/attempt-1/report.md)
+* 2026-11-08 — Planning — TASK-0022 — ready: E2E y QA visual del damero; dependencia TASK-0021 cerrada — [TASK-0022](tasks/TASK-0022-e2e-qa-damero-decoracion.md)
 * 2026-11-08 — Requirement — REQ-007 — aprobada: damero global 1×1, tinte sutil, decoración plana en salas y pasillos (12-18 %/6-8 %), sin bloqueo ni cambios de muros — [REQ-007](requirements/REQ-007-damero-decoracion-suelo.md)
 * 2026-11-08 — Decision — ADR-010 — damero por tinte y decoración de presentación; el motor sigue siendo la verdad y los decals no bloquean — [ADR-010](decisions/ADR-010-damero-decoracion-presentacion.md)
 * 2026-11-08 — Planning — TASK-0021 — ready: host, damero y decoración plana determinista; sin cambios en src/game — [TASK-0021](tasks/TASK-0021-host-damero-decoracion.md)

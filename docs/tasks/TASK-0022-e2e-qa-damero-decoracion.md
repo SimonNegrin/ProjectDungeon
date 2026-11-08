@@ -4,7 +4,7 @@ id: TASK-0022
 title: "E2E y QA visual del damero y la decoración"
 description: Verificar en navegador que el damero se lee, la decoración no bloquea y la misma semilla reproduce el mismo aspecto.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-007
 requirement_ids: [R-001, R-002, R-004, R-005, R-006, R-007, R-008, T-006, T-007]
