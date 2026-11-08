@@ -3,7 +3,7 @@ type: Architecture
 title: Arquitectura local-first
 description: Separación entre motor, render, input y la futura capa de red.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:04:36Z }
 ---
 
 # Principios
@@ -40,12 +40,43 @@ Teclado
   -> Command
   -> GameEngine.reduce(state, command)
   -> Events
-  -> Renderer + HUD
+  -> MotionTimeline (host)
+  -> Renderer + HUD + Cursor
 ```
 
 El motor no lee teclado, no dibuja y no usa `Date.now()` para reglas. El bucle de
 render puede usar tiempo real, pero la simulación de turnos avanza por comandos
 y eventos.
+
+# Presentación del movimiento
+
+El motor resuelve cada comando de movimiento de forma atómica. El host no vuelve
+a simular: `src/host/motion.ts` construye una timeline de presentación con los
+eventos ordenados de la acción (`UnitMoved` con `from`, `to` y `mpLeft`, más los
+eventos de ataque, turno y fin de partida).
+
+- **Estado**: el estado del motor es la única verdad. La timeline produce
+  overrides de posición y cámara para el render, y un estado derivado para HUD y
+  overlay; no muta ni sustituye el estado del motor.
+- **Ritmo**: una única `MOTION_CONFIG` con 125 ms por paso, 70 ms de pausa por
+  tile (inicio, intermedios y destino) y diagonal a duración constante. `n`
+  pasos generan `n + 1` pausas.
+- **Reloj**: `requestAnimationFrame` con delta acotado; el avance interno usa
+  subtramos para no saltar fases. `prefers-reduced-motion: reduce` aplica el
+  estado final de forma instantánea.
+- **Render**: las posiciones visuales son centros de tile en píxeles enteros; el
+  sprite se dibuja con `imageSmoothingEnabled = false` y el recorte del viewport
+  existente. La cámara sigue a la unidad animada, redondea a entero y se limita
+  al mapa; mover el cursor no la desplaza.
+- **Input**: durante la animación se descartan las intenciones de juego; `F1` y
+  `R` siguen activos y `R` cancela. `window.__game.dispatch` completa la
+  presentación pendiente antes de aplicar un comando de test.
+- **Debug**: `window.__game` expone `animation` (activa, paso, posición visual,
+  cámara) y `advance(ms)` para avanzar el reloj de presentación de forma
+  determinista, sin mutadores del estado vivo.
+
+Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
+[REQ-006](../requirements/REQ-006-movimiento-animado.md).
 
 # Flujo remoto futuro
 
