@@ -4,7 +4,7 @@ id: TASK-0012
 title: "Motor: planificación de camino y clasificación de destino"
 description: Añade una función pura que calcula el camino, el coste, el tile de ataque y el estado de validez del cursor para REQ-004.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-005, R-006, R-007, R-011, T-002, T-009, T-010, T-011]
