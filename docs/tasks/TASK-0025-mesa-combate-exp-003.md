@@ -25,8 +25,9 @@ verified:
     note: >-
       Intento 1 verificado en task/TASK-0025 (implementación 3b6f41c, evidencia
       5253c39): docs:check, verify (426 tests) y test:e2e (55) OK; revisados
-      presets, roster, ataque, duelo, export y ?test=1&seed=1017. Pendiente el
-      playtest y la decisión de human:simon; no se marca done.
+      presets, roster, ataque, duelo, export y ?test=1&seed=1017. Playtest de
+      human:simon recibido: opción A. Pendiente el registro formal en EXP-003 y
+      REQ-010 por requirements-writer; no se marca done.
 ---
 
 # Objetivo
@@ -80,8 +81,8 @@ números de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
 - [x] Informe en `artifacts/TASK-0025/attempt-1/report.md`
 - [x] Salida de tests y `docs:check`
 - [x] Capturas de A/B/C/D y de la tabla personalizada
-- [ ] JSON de decisión en `experiments/EXP-003-mesa-combate/results/`; hay un
-      export de prueba, pero la decisión real queda pendiente del playtest
+- [x] JSON de decisión en
+      `experiments/EXP-003-mesa-combate/results/decision-2026-11-08T17-18-00Z.json`
 - [x] Commit SHA
 
 # Restricciones
@@ -100,15 +101,14 @@ números de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
 - Críticos, ataques a distancia, inventario completo, loot o arte final.
 - Marcar la decisión en nombre del usuario.
 
-# Verificación del intento 1
+# Playtest y cierre
 
-Verificada por `task-lead` en `task/TASK-0025`: implementación `3b6f41c`,
-evidencia `5253c39`. `pnpm run docs:check`, `pnpm run verify` (426 tests) y
-`pnpm run test:e2e` (55 tests) pasan. Revisados la página, los presets A/B/C/D,
-el roster, el cálculo de ataque, el duelo determinista, el export y
-`?test=1&seed=1017`; capturas en `artifacts/TASK-0025/attempt-1/screenshots/` e
-informe en `report.md`.
+`task-lead` verificó `3b6f41c`/`5253c39`: `verify` (426 tests) y `test:e2e` (55)
+pasan. `human:simon` eligió **A · Propuesta** (semilla 1017, 1.000 duelos); la
+siente fácil en duelos singulares. La idea de cooperativo queda fuera de EXP-003
+y REQ-010.
 
-La tarea queda en `review`: falta el playtest de `human:simon` y la decisión de
-la tabla. No se marca `done`, no se actualiza `REQ-010` y los valores de C y D
-siguen siendo hipótesis.
+- Comentario: `artifacts/TASK-0025/attempt-1/playtest.md`.
+- JSON: `experiments/EXP-003-mesa-combate/results/decision-2026-11-08T17-18-00Z.json`.
+- Sigue en `review` hasta que `requirements-writer` registre la decisión en
+  EXP-003 y actualice REQ-010.

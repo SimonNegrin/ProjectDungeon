@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Playtest — TASK-0025 — A elegida; se siente fácil en duelos singulares; idea de escalado cooperativo anotada fuera de REQ-010; pendiente registro por requirements-writer — [playtest](../artifacts/TASK-0025/attempt-1/playtest.md)
 * 2026-11-08 — Task — TASK-0025 — review: EXP-003 construido y verificado; roster, presets A/B/C/D, ataque, duelo y export; 426 unitarios y 55 E2E; pendiente playtest y decisión de human:simon — [informe](../artifacts/TASK-0025/attempt-1/report.md)
 * 2026-11-08 — Experiment — EXP-003 — propuesto: mesa de combate configurable para elegir armas, personajes, enemigos y la tabla de REQ-010 — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-08 — Requirement — REQ-009 — umbral de huida confirmado al 40 % de la vida máxima; probabilidad por arma en EXP-003 — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)

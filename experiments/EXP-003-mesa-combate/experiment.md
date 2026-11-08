@@ -67,7 +67,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T16:37:43Z
-updated_at: 2026-11-08T16:37:43Z
+updated_at: 2026-11-08T17:21:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
 ---
@@ -149,7 +149,13 @@ semilla y el mismo roster dan el mismo resultado.
 
 # Observaciones
 
-Rellenar después del playtest.
+Playtest del 2026-11-08 con la semilla 1017 y 1.000 duelos; opción A. El usuario
+la siente «un poco fácil» en combates singulares: el jugador gana por amplio
+margen aunque pierde PV. La idea de escalar la dificultad en cooperativo (más
+enemigos o un multiplicador por jugador sobre las habilidades enemigas) queda
+fuera de EXP-003 y de REQ-010; se anota para el corte de cooperativo. Comentario
+completo y lectura en
+`artifacts/TASK-0025/attempt-1/playtest.md`.
 
 # Decisión
 
@@ -162,9 +168,9 @@ Rellenar después del playtest.
 
 # Evidencia
 
-- [ ] JSON de decisión en `results/`.
-- [ ] Capturas de A/B/C/D y de la tabla personalizada.
-- [ ] Notas del usuario.
+- [x] JSON de decisión en `results/`.
+- [x] Capturas de A/B/C/D y de la tabla personalizada.
+- [x] Notas del usuario.
 
 # Siguientes pasos
 
