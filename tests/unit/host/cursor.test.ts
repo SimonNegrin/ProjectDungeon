@@ -39,12 +39,12 @@ describe('posición del cursor', () => {
   });
 
   it('el rango visible coincide con los tiles que intersectan la cámara', () => {
-    const range = cursorRange({ x: 32, y: 64 }, { width: 384, height: 384 }, {
+    const range = cursorRange({ x: 32, y: 64 }, { width: 416, height: 416 }, {
       width: 20,
       height: 20,
     });
 
-    expect(range).toEqual({ minX: 1, minY: 2, maxX: 12, maxY: 13 });
+    expect(range).toEqual({ minX: 1, minY: 2, maxX: 13, maxY: 14 });
   });
 
   it('se recoloca al tile visible más cercano tras desplazar la cámara', () => {
@@ -56,7 +56,7 @@ describe('posición del cursor', () => {
 
     const grid = { width: 20, height: 20 };
     expect(
-      clampCursorToViewport({ x: 19, y: 0 }, { x: 320, y: 320 }, { width: 384, height: 384 }, grid),
+      clampCursorToViewport({ x: 19, y: 0 }, { x: 320, y: 320 }, { width: 416, height: 416 }, grid),
     ).toEqual({ x: 19, y: 10 });
   });
 });

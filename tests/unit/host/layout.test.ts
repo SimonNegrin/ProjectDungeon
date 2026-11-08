@@ -6,6 +6,7 @@ import {
   FRAME_LOGICAL_WIDTH,
   MAP_BACKING_SIZE,
   MAP_OFFSET_BACKING,
+  MAP_OFFSET_LOGICAL,
   MAP_VIEWPORT,
   RENDER_SCALE,
   computeFrameLayout,
@@ -16,19 +17,27 @@ import {
 } from '../../../src/host/layout';
 
 describe('constantes del encuadre 16:9', () => {
-  it('deriva un marco lógico de 682,666…×384 y un canvas interno 2048×1152', () => {
-    expect(FRAME_LOGICAL_HEIGHT).toBe(384);
-    expect(FRAME_LOGICAL_WIDTH).toBeCloseTo(682.666666, 5);
+  it('deriva un marco lógico de 739,555…×416 y un canvas interno 2218×1248', () => {
+    expect(FRAME_LOGICAL_HEIGHT).toBe(416);
+    expect(FRAME_LOGICAL_WIDTH).toBeCloseTo(739.555555, 5);
     expect(RENDER_SCALE).toBe(3);
-    expect(CANVAS_WIDTH).toBe(2048);
-    expect(CANVAS_HEIGHT).toBe(1152);
+    expect(CANVAS_WIDTH).toBe(2218);
+    expect(CANVAS_HEIGHT).toBe(1248);
   });
 
-  it('define un mapa cuadrado de 12×12 tiles centrado con laterales de 448 px de respaldo', () => {
-    expect(MAP_VIEWPORT).toEqual({ width: 384, height: 384 });
-    expect(MAP_BACKING_SIZE).toBe(1152);
-    expect(MAP_OFFSET_BACKING).toBe(448);
+  it('define un mapa cuadrado de 13×13 tiles centrado con laterales de 485 px de respaldo', () => {
+    expect(MAP_VIEWPORT).toEqual({ width: 416, height: 416 });
+    expect(MAP_BACKING_SIZE).toBe(1248);
+    expect(MAP_OFFSET_BACKING).toBe(485);
     expect(CANVAS_WIDTH - MAP_BACKING_SIZE - MAP_OFFSET_BACKING).toBe(MAP_OFFSET_BACKING);
+  });
+
+  it('mantiene el offset de dibujo en píxeles enteros de respaldo', () => {
+    expect(Number.isInteger(MAP_OFFSET_BACKING)).toBe(true);
+    expect(MAP_OFFSET_LOGICAL * RENDER_SCALE).toBe(MAP_OFFSET_BACKING);
+    // La desviación interna frente a 16:9 se queda por debajo del 0,05 %.
+    const internalAspect = CANVAS_WIDTH / CANVAS_HEIGHT;
+    expect(Math.abs(internalAspect - 16 / 9) / (16 / 9)).toBeLessThan(0.0005);
   });
 });
 
@@ -107,9 +116,9 @@ describe('porcentajes del feedback respecto al mapa', () => {
     expect(mapXToFramePercent(MAP_VIEWPORT.width)).toBeCloseTo(78.125, 10);
   });
 
-  it('mide una casilla de 32 px como 4,6875 % horizontal y 8,333… % vertical', () => {
-    expect(mapWidthToFramePercent(32)).toBeCloseTo(4.6875, 10);
-    expect(mapHeightToFramePercent(32)).toBeCloseTo(100 / 12, 10);
-    expect(mapYToFramePercent(32)).toBeCloseTo(100 / 12, 10);
+  it('mide una casilla de 32 px como 4,3269… % horizontal y 7,6923… % vertical', () => {
+    expect(mapWidthToFramePercent(32)).toBeCloseTo(4.3269230769, 8);
+    expect(mapHeightToFramePercent(32)).toBeCloseTo(100 / 13, 10);
+    expect(mapYToFramePercent(32)).toBeCloseTo(100 / 13, 10);
   });
 });

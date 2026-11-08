@@ -16,7 +16,7 @@ function requireElement<T extends HTMLElement>(root: ParentNode, testId: string)
 }
 
 /**
- * Convierte una coordenada de mundo al porcentaje del sub-viewport 12×12. El
+ * Convierte una coordenada de mundo al porcentaje del sub-viewport 13×13. El
  * contenedor `.map-overlay` ya recorta los puntos que caen fuera.
  */
 function viewportPercent(world: number, viewportSize: number): number {
@@ -32,7 +32,7 @@ function positionTile(element: HTMLElement, x: number, y: number, camera: Camera
 
 /**
  * Vista DOM del cursor y de los puntos del camino. Vive en `.map-overlay`, que
- * recorta al viewport 12×12 y no intercepta clics.
+ * recorta al viewport 13×13 y no intercepta clics.
  */
 export function createCursorView(frame: ParentNode): CursorView {
   const cursor = requireElement(frame, 'cursor');

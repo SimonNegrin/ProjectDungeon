@@ -18,8 +18,8 @@ function setup() {
     () => ({
       state: session.state,
       camera,
-      bounds: { maxX: 256, maxY: 256 },
-      viewport: { width: 384, height: 384 },
+      bounds: { maxX: 224, maxY: 224 },
+      viewport: { width: 416, height: 416 },
       tileSize: 32,
       assetsLoaded: true,
       lastEvents,
@@ -38,7 +38,7 @@ function setup() {
 
 function generatedSetup() {
   const session = new GameSession({ seed: 279837264 });
-  let camera: Camera = { x: 16, y: 80 };
+  let camera: Camera = { x: 0, y: 64 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
   const cursor = cursorAtPlayer(session.state.players[0]);
 
@@ -46,8 +46,8 @@ function generatedSetup() {
     () => ({
       state: session.state,
       camera,
-      bounds: { maxX: 640, maxY: 640 },
-      viewport: { width: 384, height: 384 },
+      bounds: { maxX: 608, maxY: 608 },
+      viewport: { width: 416, height: 416 },
       tileSize: 32,
       assetsLoaded: true,
       lastEvents,
@@ -58,8 +58,8 @@ function generatedSetup() {
       lastEvents = result.events;
       const player = result.state.players[0];
       camera = {
-        x: Math.max(0, Math.round((player.x + 0.5) * 32 - 192)),
-        y: Math.max(0, Math.round((player.y + 0.5) * 32 - 192)),
+        x: Math.max(0, Math.round((player.x + 0.5) * 32 - 208)),
+        y: Math.max(0, Math.round((player.y + 0.5) * 32 - 208)),
       };
       return result;
     },
@@ -81,8 +81,8 @@ describe('API de debug window.__game', () => {
     expect(snapshot.corridors).toEqual([]);
     expect(snapshot.doors).toEqual([]);
     expect(snapshot.spawns).toBeNull();
-    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 256, maxY: 256 });
-    expect(snapshot.viewport).toEqual({ width: 384, height: 384 });
+    expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 224, maxY: 224 });
+    expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
     expect(snapshot.tileSize).toBe(32);
     expect(snapshot.assetsLoaded).toBe(true);
     expect(snapshot.lastEvents).toEqual([]);

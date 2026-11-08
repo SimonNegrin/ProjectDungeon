@@ -7,16 +7,16 @@ import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
 import { walkTo } from './support';
 
-const ARTIFACTS = 'artifacts/TASK-0011/attempt-1';
+const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
 const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
 const REFERENCE_SEED = 279837264;
 const REFERENCE_URL = `/?seed=${REFERENCE_SEED}`;
 
 const TILE_SIZE = 32;
 const RENDER_SCALE = 3;
-const CANVAS_WIDTH = 2048;
-const CANVAS_HEIGHT = 1152;
-const MAP_OFFSET_BACKING = 448;
+const CANVAS_WIDTH = 2218;
+const CANVAS_HEIGHT = 1248;
+const MAP_OFFSET_BACKING = 485;
 const FRAME_ASPECT = 16 / 9;
 const ASPECT_TOLERANCE = FRAME_ASPECT * 0.001;
 const WIDE_CORRIDOR_CROP_SIZE = 220;
@@ -371,7 +371,7 @@ async function compareWallPixels(
   samples: readonly WallSample[],
 ): Promise<WallPixelResult[]> {
   return page.evaluate(
-    async ({ wallSamples, camera, sprites }) => {
+    async ({ wallSamples, camera, sprites, mapOffsetBacking }) => {
       const gameCanvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
       const gameContext = gameCanvas?.getContext('2d');
       if (!gameCanvas || !gameContext) throw new Error('Falta #game-canvas o su contexto 2D');
@@ -418,7 +418,7 @@ async function compareWallPixels(
       };
 
       return wallSamples.map((sample) => {
-        const backingX = 448 + (sample.x * 32 - camera.x) * 3;
+        const backingX = mapOffsetBacking + (sample.x * 32 - camera.x) * 3;
         const backingY = (sample.y * 32 - camera.y) * 3;
         const gameData = gameContext.getImageData(
           backingX,
@@ -468,7 +468,7 @@ async function compareWallPixels(
         };
       });
     },
-    { wallSamples: samples, camera: snap.camera, sprites: WALL_SPRITES },
+    { wallSamples: samples, camera: snap.camera, sprites: WALL_SPRITES, mapOffsetBacking: MAP_OFFSET_BACKING },
   );
 }
 
@@ -682,11 +682,11 @@ test('carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara', 
   expect(pathDistance).toBe(spawns.distance);
 
   // Cámara: fórmula de centrado con clamp y enemigo fuera del viewport inicial.
-  expect(snap.camera.maxX).toBe(640);
-  expect(snap.camera.maxY).toBe(640);
+  expect(snap.camera.maxX).toBe(608);
+  expect(snap.camera.maxY).toBe(608);
   expect(snap.camera.x).toBe(expectedCamera(snap).x);
   expect(snap.camera.y).toBe(expectedCamera(snap).y);
-  expect(snap.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+  expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
   expect(unitIntersectsViewport(spawns.enemy, snap)).toBe(false);
   expect(unitIntersectsViewport(spawns.player, snap)).toBe(true);
 
@@ -751,11 +751,11 @@ test('muros por borde: muestra estructural, píxel y capturas', async ({ page },
 
   // El tramo realmente ancho de 0→1 está en y≈13-20: (1,y) y (2,y) son suelo,
   // con muro en (0,y) y (3,y). Se mueve al jugador con comandos reales hasta
-  // (3,12) para que la cámara (0,208) muestre ese tramo, no el estrecho y≈8.
+  // (3,12) para que la cámara (0,192) muestre ese tramo, no el estrecho y≈8.
   await walkTo(page, 3, 12);
   const corridorSnap = await snapshot(page);
   expect(corridorSnap.players[0]).toMatchObject({ x: 3, y: 12 });
-  expect(corridorSnap.camera).toEqual({ x: 0, y: 208, maxX: 640, maxY: 640 });
+  expect(corridorSnap.camera).toEqual({ x: 0, y: 192, maxX: 608, maxY: 608 });
   for (const y of [13, 16, 20]) {
     expect(isFloor(corridorSnap, 1, y), `(1,${y}) debe ser suelo del carril`).toBe(true);
     expect(isFloor(corridorSnap, 2, y), `(2,${y}) debe ser suelo del carril`).toBe(true);
@@ -886,8 +886,8 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
     y: afterF2.spawns!.enemy.y,
     hp: 10,
   });
-  expect(afterF2.camera.maxX).toBe(640);
-  expect(afterF2.camera.maxY).toBe(640);
+  expect(afterF2.camera.maxX).toBe(608);
+  expect(afterF2.camera.maxY).toBe(608);
   expect(afterF2.camera.x).toBe(expectedCamera(afterF2).x);
   expect(afterF2.camera.y).toBe(expectedCamera(afterF2).y);
 
@@ -901,7 +901,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   expect(wideCount).toBeGreaterThanOrEqual(1);
   expect(wideCount).toBeLessThanOrEqual(2);
   console.log(
-    `TASK-0011 F2 seed=${afterF2.seed} rooms=${afterF2.rooms.length} wide=${wideCount} player=(${afterF2.spawns!.player.x},${afterF2.spawns!.player.y}) enemy=(${afterF2.spawns!.enemy.x},${afterF2.spawns!.enemy.y}) distance=${afterF2.spawns!.distance} camera=(${afterF2.camera.x},${afterF2.camera.y})`,
+    `TASK-0016 F2 seed=${afterF2.seed} rooms=${afterF2.rooms.length} wide=${wideCount} player=(${afterF2.spawns!.player.x},${afterF2.spawns!.player.y}) enemy=(${afterF2.spawns!.enemy.x},${afterF2.spawns!.enemy.y}) distance=${afterF2.spawns!.distance} camera=(${afterF2.camera.x},${afterF2.camera.y})`,
   );
   const f2DoorKeys = afterF2.doors.map(doorKey);
   expect(new Set(f2DoorKeys).size).toBe(f2DoorKeys.length);
@@ -978,7 +978,7 @@ test('generación 32×32 por debajo de 100 ms y ventana de frames sin tirones', 
 
   const generationStats = stats(generationTimes);
   const lines = [
-    'TASK-0011 performance',
+    'TASK-0016 performance',
     `seed=${REFERENCE_SEED} size=32x32 runs=${generationTimes.length} threshold_generation_ms=100`,
     `generation_source=browser dynamic import /src/game/index.ts createInitialState({ seed })`,
     `generation_ms min=${formatMs(generationStats.min)} median=${formatMs(generationStats.median)} p95=${formatMs(generationStats.p95)} max=${formatMs(generationStats.max)}`,

@@ -13,7 +13,7 @@ import {
   visibleRange,
 } from './support';
 
-const SCREENSHOTS = 'artifacts/TASK-0015/attempt-1/screenshots';
+const SCREENSHOTS = 'artifacts/TASK-0016/attempt-1/screenshots';
 const SEED = 279837264;
 const SEED_URL = `/?seed=${SEED}`;
 
@@ -90,14 +90,14 @@ test('cursor inicial, teclado en cuatro direcciones y borde del viewport', async
   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'player');
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
 
-  // Un tile cuadrado dentro del sub-viewport 12×12, sin otro marco sobre el jugador.
+  // Un tile cuadrado dentro del sub-viewport 13×13, sin otro marco sobre el jugador.
   const frame = await page.getByTestId('frame').boundingBox();
   const cursor = await page.getByTestId('cursor').boundingBox();
   expect(frame).not.toBeNull();
   expect(cursor).not.toBeNull();
   if (frame && cursor) {
-    expect(cursor.width).toBeCloseTo(frame.height / 12, 0);
-    expect(cursor.height).toBeCloseTo(frame.height / 12, 0);
+    expect(cursor.width).toBeCloseTo(frame.height / 13, 0);
+    expect(cursor.height).toBeCloseTo(frame.height / 13, 0);
   }
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'solid',
@@ -134,6 +134,8 @@ test('cursor inicial, teclado en cuatro direcciones y borde del viewport', async
 
   // En el borde derecho del viewport el cursor no avanza ni hace wrap.
   const range = visibleRange(start);
+  expect(range.maxX - range.minX + 1).toBe(13);
+  expect(range.maxY - range.minY + 1).toBe(13);
   let previousX = (await snapshot(page)).cursor.x;
   for (let guard = 0; guard < 64; guard += 1) {
     await page.keyboard.press('ArrowRight');

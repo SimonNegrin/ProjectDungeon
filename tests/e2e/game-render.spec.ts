@@ -64,10 +64,10 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   expect(snapshot.turn).toBe(1);
   expect(snapshot.assetsLoaded).toBe(true);
 
-  expect(snapshot.viewport).toEqual({ width: 384, height: 384 });
-  expect(snapshot.viewport.width / snapshot.tileSize).toBe(12);
-  expect(snapshot.viewport.height / snapshot.tileSize).toBe(12);
-  expect(snapshot.camera).toEqual({ x: 16, y: 80, maxX: 640, maxY: 640 });
+  expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
+  expect(snapshot.viewport.width / snapshot.tileSize).toBe(13);
+  expect(snapshot.viewport.height / snapshot.tileSize).toBe(13);
+  expect(snapshot.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
   expect(snapshot.camera.x).toBeGreaterThanOrEqual(0);
   expect(snapshot.camera.x).toBeLessThanOrEqual(snapshot.camera.maxX);
   expect(snapshot.camera.y).toBeGreaterThanOrEqual(0);
@@ -75,7 +75,7 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   expect(() => JSON.stringify(snapshot)).not.toThrow();
   expect(JSON.parse(JSON.stringify(snapshot)).spawns).toEqual(snapshot.spawns);
 
-  // El enemigo en (23,28) empieza fuera del viewport de 384 px.
+  // El enemigo en (23,28) empieza fuera del viewport de 416 px.
   expect(snapshot.enemies[0].x * snapshot.tileSize).toBeGreaterThan(
     snapshot.camera.x + snapshot.viewport.width,
   );
@@ -95,19 +95,19 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
     };
   });
   expect(internalSize).toEqual({
-    width: 2048,
-    height: 1152,
+    width: 2218,
+    height: 1248,
     imageRendering: 'pixelated',
   });
 
-  // Sub-rectángulo del mapa: cuadrado de 1152×1152 de respaldo centrado en el
-  // marco de 2048×1152; cada lateral mide 448 px.
+  // Sub-rectángulo del mapa: cuadrado de 1248×1248 de respaldo centrado en el
+  // marco de 2218×1248; cada lateral mide 485 px.
   const mapWidth = snapshot.viewport.width * 3;
   const mapHeight = snapshot.viewport.height * 3;
   const mapLeft = (internalSize.width - mapWidth) / 2;
-  expect(mapWidth).toBe(1152);
-  expect(mapHeight).toBe(1152);
-  expect(mapLeft).toBe(448);
+  expect(mapWidth).toBe(1248);
+  expect(mapHeight).toBe(1248);
+  expect(mapLeft).toBe(485);
   expect(mapLeft + mapWidth + mapLeft).toBe(internalSize.width);
   expect(mapHeight).toBe(internalSize.height);
 
@@ -140,7 +140,7 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   await page.setViewportSize({ width: 1280, height: 720 });
   await settleLayout(page);
 
-  const screenshotPath = 'artifacts/TASK-0010/attempt-1/screenshots/frame.png';
+  const screenshotPath = 'artifacts/TASK-0016/attempt-1/screenshots/frame.png';
   await mkdir(dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath });
   await testInfo.attach('frame', { path: screenshotPath, contentType: 'image/png' });

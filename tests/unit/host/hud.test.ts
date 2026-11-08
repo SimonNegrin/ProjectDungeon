@@ -113,8 +113,8 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       makeState(),
       { x: 0, y: 0 },
-      { maxX: 256, maxY: 256 },
-      { width: 384, height: 384 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
       [],
       PLAYER_CURSOR,
     );
@@ -125,7 +125,7 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
     expect(text).toContain('Cursor: (4, 4) jugador · camino 0');
-    expect(text).toContain('Cámara: (0, 0) · Límites (256, 256) · Viewport 384×384');
+    expect(text).toContain('Cámara: (0, 0) · Límites (224, 224) · Viewport 416×416');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
   });
@@ -137,8 +137,8 @@ describe('modelo del overlay de debug', () => {
     const model = buildDebugModel(
       result.state,
       { x: 0, y: 0 },
-      { maxX: 256, maxY: 256 },
-      { width: 384, height: 384 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
       result.events,
       PLAYER_CURSOR,
     );
@@ -149,9 +149,9 @@ describe('modelo del overlay de debug', () => {
   it('con un mapa generado muestra semilla, salas, huecos, spawns y pasillos anchos', () => {
     const model = buildDebugModel(
       createInitialState({ seed: 279837264 }),
-      { x: 16, y: 80 },
-      { maxX: 640, maxY: 640 },
-      { width: 384, height: 384 },
+      { x: 0, y: 64 },
+      { maxX: 608, maxY: 608 },
+      { width: 416, height: 416 },
       [],
       { ...PLAYER_CURSOR, x: 6, y: 8 },
     );
@@ -173,8 +173,8 @@ describe('modelo del overlay de debug', () => {
     const text = buildDebugModel(
       makeState(),
       { x: 0, y: 0 },
-      { maxX: 256, maxY: 256 },
-      { width: 384, height: 384 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
       [],
       PLAYER_CURSOR,
     ).lines.join('\n');

@@ -112,7 +112,7 @@ const assets: SceneAssets = {
   monsters: { name: 'monsters' } as unknown as CanvasImageSource,
 };
 
-const VIEWPORT: Viewport = { width: 384, height: 384 };
+const VIEWPORT: Viewport = { width: 416, height: 416 };
 
 function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
   const fake = createFakeContext();
@@ -121,38 +121,38 @@ function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
 }
 
 describe('render de la sala', () => {
-  it('dibuja exactamente 12x12 tiles con la cámara en el origen', () => {
+  it('dibuja exactamente 13x13 tiles con la cámara en el origen', () => {
     const state = makeState();
     const fake = draw(state, { x: 0, y: 0 });
 
-    // El viewport 384x384 sobre una sala 20x20 cubre 12 columnas y 12 filas:
-    // 144 tiles (121 de suelo y 23 de muro) más el caballero. El goblin queda
+    // El viewport 416x416 sobre una sala 20x20 cubre 13 columnas y 13 filas:
+    // 169 tiles (144 de suelo y 25 de muro) más el caballero. El goblin queda
     // fuera del viewport inicial y no se dibuja.
-    expect(fake.draws.length).toBe(145);
+    expect(fake.draws.length).toBe(170);
     expect(fake.isSmoothingEnabled()).toBe(false);
 
     const floorDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 288);
     const wallDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 64);
 
-    expect(floorDraws.length).toBe(121);
-    expect(wallDraws.length).toBe(23);
+    expect(floorDraws.length).toBe(144);
+    expect(wallDraws.length).toBe(25);
     expect(new Set(floorDraws.map((call) => call.sx))).toEqual(new Set([32, 64, 96]));
     expect(floorDraws[0]).toMatchObject({ sy: 288, sw: 32, sh: 32 });
     expect(wallDraws[0]).toMatchObject({ sx: 0, sy: 64, sw: 32, sh: 32 });
   });
 
-  it('pinta el marco 2048x1152 en negro y centra el mapa de 1152x1152', () => {
-    expect(CANVAS_WIDTH).toBe(2048);
-    expect(CANVAS_HEIGHT).toBe(1152);
-    expect(MAP_VIEWPORT.width).toBe(384);
-    expect(MAP_VIEWPORT.height).toBe(384);
-    expect(MAP_BACKING_SIZE).toBe(1152);
-    expect(MAP_OFFSET_BACKING).toBe(448);
-    expect(MAP_OFFSET_LOGICAL * RENDER_SCALE).toBe(448);
-    expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(448);
+  it('pinta el marco 2218x1248 en negro y centra el mapa de 1248x1248', () => {
+    expect(CANVAS_WIDTH).toBe(2218);
+    expect(CANVAS_HEIGHT).toBe(1248);
+    expect(MAP_VIEWPORT.width).toBe(416);
+    expect(MAP_VIEWPORT.height).toBe(416);
+    expect(MAP_BACKING_SIZE).toBe(1248);
+    expect(MAP_OFFSET_BACKING).toBe(485);
+    expect(MAP_OFFSET_LOGICAL * RENDER_SCALE).toBe(485);
+    expect((CANVAS_WIDTH - MAP_BACKING_SIZE) / 2).toBe(485);
   });
 
-  it('usa escala interna 3x, desplaza el mapa 448 px de respaldo y recorta los laterales', () => {
+  it('usa escala interna 3x, desplaza el mapa 485 px de respaldo y recorta los laterales', () => {
     const fake = draw(makeState(), { x: 0, y: 0 });
 
     expect(fake.fillRects[0]).toEqual({
@@ -198,7 +198,7 @@ describe('render de la sala', () => {
     const camera = centerCameraOnTile(enemy, VIEWPORT, gridPixelSize(state.grid));
     const fake = draw(state, camera);
 
-    expect(camera).toEqual({ x: 256, y: 256 });
+    expect(camera).toEqual({ x: 224, y: 224 });
 
     const goblin = fake.draws.find(
       (call) =>
