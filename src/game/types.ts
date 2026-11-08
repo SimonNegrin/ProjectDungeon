@@ -181,6 +181,8 @@ export type GameEvent =
       readonly playerId: string;
       /** Posición del enemigo que detecta, para anclar el "!". */
       readonly position: Position;
+      /** Posición del jugador tras el paso que provoca la detección. */
+      readonly step: Position;
     }
   /** Un enemigo en regreso ha llegado a su puesto y vuelve a estar dormido. */
   | { readonly type: 'EnemyReturned'; readonly unitId: string }

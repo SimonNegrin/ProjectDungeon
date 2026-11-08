@@ -127,6 +127,7 @@ export function detectEnemiesAfterStep(state: GameState): {
         unitId: enemy.id,
         playerId: player.id,
         position: { x: enemy.x, y: enemy.y },
+        step: { x: player.x, y: player.y },
       });
     }
 
@@ -219,4 +220,37 @@ export function refreshEnemyAwareness(state: GameState, enemy: Unit): EnemyAware
   }
 
   return { unit: enemy, changed: false, returned: false, spotted: false };
+}
+
+/**
+ * Transición pura de daño: un enemigo vivo despierta o permanece en alerta,
+ * guarda la posición del atacante como `lastKnown` y reinicia `alertTurns`.
+ * No resuelve daño, no emite eventos y no lanza la alarma: TASK-0035 decide la
+ * onda a partir del estado resultante. Al empezar un episodio nuevo deja
+ * `hasShouted` a `false` para que esa alarma pueda dispararse.
+ */
+export function noteDamage(
+  state: GameState,
+  enemyId: string,
+  attackerPosition: Position,
+): GameState {
+  const enemy = state.enemies.find((candidate) => candidate.id === enemyId);
+  if (!enemy || !isAlive(enemy)) return state;
+
+  const newEpisode = enemy.awareness !== 'alert';
+
+  return {
+    ...state,
+    enemies: state.enemies.map((candidate) =>
+      candidate.id === enemyId
+        ? {
+            ...candidate,
+            awareness: 'alert' as const,
+            lastKnown: { x: attackerPosition.x, y: attackerPosition.y },
+            alertTurns: 0,
+            hasShouted: newEpisode ? false : candidate.hasShouted,
+          }
+        : candidate,
+    ),
+  };
 }

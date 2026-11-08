@@ -6,6 +6,7 @@ import {
   canSee,
   detectEnemiesAfterStep,
   hasLineOfSight,
+  noteDamage,
   reduce,
   visionRadius,
   visiblePlayers,
@@ -126,6 +127,7 @@ describe('detección tras cada paso', () => {
       unitId: 'enemy-1',
       playerId: 'player-1',
       position: { x: 11, y: 5 },
+      step: { x: 5, y: 5 },
     });
     expect(result.state.enemies[0]).toMatchObject({
       awareness: 'alert',
@@ -159,6 +161,7 @@ describe('detección tras cada paso', () => {
       unitId: 'enemy-1',
       playerId: 'player-1',
       position: { x: 10, y: 5 },
+      step: { x: 4, y: 5 },
     });
     expect(result.state.enemies[0]).toMatchObject({
       awareness: 'alert',
@@ -199,6 +202,7 @@ describe('detección tras cada paso', () => {
       unitId: 'enemy-1',
       playerId: 'player-1',
       position: { x: 10, y: 10 },
+      step: { x: 4, y: 6 },
     });
     expect(result.state.enemies[0]).toMatchObject({
       awareness: 'alert',
@@ -235,6 +239,84 @@ describe('detección tras cada paso', () => {
       alertTurns: 0,
       hasShouted: false,
     });
+  });
+});
+
+describe('daño como despertador', () => {
+  it('un enemigo dormido despierta en alerta y guarda la posición del atacante', () => {
+    const state = makeState({
+      players: [playerAt(4, 4)],
+      enemies: [enemyOf('sentinel', 15, 15, { awareness: 'dormant' })],
+    });
+
+    const next = noteDamage(state, 'enemy-1', { x: 12, y: 14 });
+
+    expect(next).not.toBe(state);
+    expect(next.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 12, y: 14 },
+      alertTurns: 0,
+      hasShouted: false,
+    });
+    expect(state.enemies[0]).toMatchObject({
+      awareness: 'dormant',
+      lastKnown: null,
+    });
+  });
+
+  it('reinicia la memoria de un enemigo alertado sin repetir la alarma', () => {
+    const state = makeState({
+      players: [playerAt(4, 4)],
+      enemies: [
+        enemyOf('sentinel', 15, 15, {
+          awareness: 'alert',
+          lastKnown: { x: 2, y: 2 },
+          alertTurns: 2,
+          hasShouted: true,
+        }),
+      ],
+    });
+
+    const next = noteDamage(state, 'enemy-1', { x: 13, y: 13 });
+
+    expect(next.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 13, y: 13 },
+      alertTurns: 0,
+      hasShouted: true,
+    });
+  });
+
+  it('devuelve a alerta a un enemigo en regreso como episodio nuevo', () => {
+    const state = makeState({
+      players: [playerAt(4, 4)],
+      enemies: [
+        enemyOf('sentinel', 15, 15, {
+          awareness: 'returning',
+          alertTurns: ALERT_COOLDOWN_PHASES,
+          hasShouted: true,
+        }),
+      ],
+    });
+
+    const next = noteDamage(state, 'enemy-1', { x: 16, y: 16 });
+
+    expect(next.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 16, y: 16 },
+      alertTurns: 0,
+      hasShouted: false,
+    });
+  });
+
+  it('no cambia nada si el enemigo está muerto o no existe', () => {
+    const state = makeState({
+      players: [playerAt(4, 4)],
+      enemies: [enemyOf('sentinel', 15, 15, { awareness: 'dormant', hp: 0 })],
+    });
+
+    expect(noteDamage(state, 'enemy-1', { x: 1, y: 1 })).toBe(state);
+    expect(noteDamage(state, 'enemy-x', { x: 1, y: 1 })).toBe(state);
   });
 });
 

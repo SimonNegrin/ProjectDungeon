@@ -127,6 +127,52 @@ describe('game loop integration', () => {
     ]);
   });
 
+  it('un enemigo en regreso vuelve a su puesto sin atacar y se duerme al llegar', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 18, y: 18 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 5,
+          y: 5,
+          awareness: 'returning',
+          home: { x: 2, y: 2 },
+          alertTurns: 3,
+        }),
+      ],
+    });
+
+    const result = run(state, [
+      { type: 'EndTurn' },
+      { type: 'EndTurn' },
+      { type: 'EndTurn' },
+    ]);
+
+    expect(
+      result.events.filter((event) => event.type === 'AttackPerformed'),
+    ).toEqual([]);
+
+    const moves = result.events.filter(
+      (event): event is Extract<GameEvent, { type: 'UnitMoved' }> =>
+        event.type === 'UnitMoved',
+    );
+    const distanceToHome = (position: { x: number; y: number }): number =>
+      Math.max(Math.abs(position.x - 2), Math.abs(position.y - 2));
+
+    expect(moves.map((event) => distanceToHome(event.to))).toEqual([2, 1, 0]);
+    expect(result.final.enemies[0]).toMatchObject({
+      x: 2,
+      y: 2,
+      awareness: 'dormant',
+      lastKnown: null,
+      alertTurns: 0,
+    });
+    expect(
+      result.events.filter((event) => event.type === 'EnemyReturned'),
+    ).toEqual([{ type: 'EnemyReturned', unitId: 'enemy-1' }]);
+  });
+
   it('produce el mismo estado y los mismos eventos con la misma secuencia', () => {
     const makeScenario = (): GameState =>
       makeState({
