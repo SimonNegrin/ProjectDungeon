@@ -3,6 +3,7 @@ export * from './grid';
 export * from './map';
 export * from './bsp';
 export * from './movement';
+export * from './path';
 export * from './combat';
 export * from './ai';
 export * from './turn';

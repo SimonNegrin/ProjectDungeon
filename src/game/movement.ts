@@ -35,8 +35,42 @@ export type MoveValidation =
   | { readonly ok: true; readonly to: Position }
   | { readonly ok: false; readonly reason: RejectionReason };
 
-function isFreeCell(state: GameState, x: number, y: number): boolean {
-  return isInside(state.grid, x, y) && isFloorAt(state.grid, x, y) && !isOccupied(state, x, y);
+/** Motivo por el que una casilla no se puede ocupar. */
+export type CellBlockReason = 'out-of-bounds' | 'wall' | 'occupied' | 'blocked-object';
+
+export interface BlockingOptions {
+  /**
+   * Hook opcional para futuros objetos que impidan ocupar una casilla. Se deja
+   * fuera de `GameState` en este corte; si se pasa, la planificación y
+   * `validateMove` comparten el mismo predicado.
+   */
+  readonly isBlockingObject?: (state: GameState, x: number, y: number) => boolean;
+}
+
+/**
+ * Predicado único de bloqueo compartido por `validateMove` y la planificación
+ * de camino. No muta el estado.
+ */
+export function cellBlockReason(
+  state: GameState,
+  x: number,
+  y: number,
+  options?: BlockingOptions,
+): CellBlockReason | undefined {
+  if (!isInside(state.grid, x, y)) return 'out-of-bounds';
+  if (!isFloorAt(state.grid, x, y)) return 'wall';
+  if (isOccupied(state, x, y)) return 'occupied';
+  if (options?.isBlockingObject?.(state, x, y)) return 'blocked-object';
+  return undefined;
+}
+
+function isFreeCell(
+  state: GameState,
+  x: number,
+  y: number,
+  options?: BlockingOptions,
+): boolean {
+  return cellBlockReason(state, x, y, options) === undefined;
 }
 
 export function isValidDirection(dx: number, dy: number): boolean {
@@ -58,25 +92,24 @@ export function validateMove(
   unit: Unit,
   dx: number,
   dy: number,
+  options?: BlockingOptions,
 ): MoveValidation {
   if (!isValidDirection(dx, dy)) {
     return { ok: false, reason: 'invalid-direction' };
   }
 
   const to = { x: unit.x + dx, y: unit.y + dy };
-
-  if (!isInside(state.grid, to.x, to.y)) {
-    return { ok: false, reason: 'out-of-bounds' };
-  }
-  if (!isFloorAt(state.grid, to.x, to.y)) {
-    return { ok: false, reason: 'wall' };
-  }
-  if (isOccupied(state, to.x, to.y)) {
-    return { ok: false, reason: 'occupied' };
+  const blockage = cellBlockReason(state, to.x, to.y, options);
+  if (blockage) {
+    // Sin hook, `blocked-object` no puede darse; se mantiene el motivo histórico.
+    return { ok: false, reason: blockage === 'blocked-object' ? 'occupied' : blockage };
   }
 
   if (dx !== 0 && dy !== 0) {
-    if (!isFreeCell(state, unit.x + dx, unit.y) || !isFreeCell(state, unit.x, unit.y + dy)) {
+    if (
+      !isFreeCell(state, unit.x + dx, unit.y, options) ||
+      !isFreeCell(state, unit.x, unit.y + dy, options)
+    ) {
       return { ok: false, reason: 'corner-cut' };
     }
   }
