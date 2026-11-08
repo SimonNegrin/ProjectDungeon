@@ -68,6 +68,27 @@ El combate vive en `src/game/` y es puro y determinista:
 Ver [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
 [ADR-012](../decisions/ADR-012-combate-equipo-rng.md).
 
+# Percepción, alarma y huida
+
+La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas,
+red ni relojes:
+
+- `visionRadius` y `canSee` aplican visión 360° con Bresenham; los muros
+  bloquean y las unidades no. El bestiario es la única tabla de radios (6/4/5).
+- La detección se evalúa tras cada paso aceptado de `Move`/`MoveTo` y emite
+  `EnemySpotted` con el paso; no consume MP ni acción.
+- `raiseAlarm` resuelve una onda de radio 8 desde el detector, sin línea de
+  visión y sin cadena; los receptores comparten `lastKnown` y `hasShouted`.
+- El estado de cada enemigo añade `awareness` (`dormant`/`alert`/`returning`),
+  `fleeing`, `home`, `lastKnown`, `alertTurns` y `hasShouted`; todo es
+  serializable y se expone en solo lectura en `window.__game.snapshot()`.
+- `noteDamage` despierta al dormido y guarda la posición del atacante; la huida
+  del cobarde es determinista y se decide en `planEnemyAction`.
+- Los eventos `EnemySpotted`, `AlarmRaised`, `EnemyFled` y `EnemyReturned`
+  permiten al host presentar el feedback sin leer estado interno.
+
+Ver [REQ-009](../requirements/REQ-009-percepcion-alarma-huida.md).
+
 # Presentación del movimiento
 
 El motor resuelve cada comando de movimiento de forma atómica. El host no vuelve

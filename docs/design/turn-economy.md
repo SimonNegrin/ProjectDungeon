@@ -19,7 +19,7 @@ playtests.
 |---|---|
 | Rejilla | Cuadrada; 32×32 tiles en el mapa generado de `REQ-003`, con el tamaño como parámetro interno. |
 | Posición inicial del jugador | Definida por `map.spawns.player`; con la semilla de referencia, (6,8). |
-| Posición inicial del enemigo | Definida por `map.spawns.enemy`; con la semilla de referencia, (23,28). |
+| Posiciones iniciales enemigas | Derivadas del mapa y la semilla: 4 enemigos (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, fuera de la visión inicial; `map.spawns.enemy` es el ancla. |
 | Direcciones | 8 direcciones, incluida la diagonal. |
 | Coste de movimiento | 1 MP por casilla, también en diagonal. |
 | MP de jugador | 6. |
@@ -131,19 +131,35 @@ cuerpo; el alcance a distancia queda como valor futuro.
 3. Todos los enemigos actúan en orden de índice.
 4. Al terminar el último enemigo, vuelve la fase de jugadores.
 
-En el primer prototipo hay un solo jugador y un solo enemigo, pero el estado ya
-representa listas de jugadores y enemigos.
+En este corte hay un jugador y cuatro enemigos; el estado sigue representando
+listas de jugadores y enemigos.
 
 # IA enemiga
 
-Para el primer prototipo:
+Reglas decididas en [REQ-009](../requirements/REQ-009-percepcion-alarma-huida.md);
+la IA es determinista y testeable y no usa `Math.random`.
 
-1. Elegir al jugador más cercano.
-2. Si está en rango de ataque, atacar.
-3. Si no, avanzar hacia él usando el pathfinding más simple que funcione.
-4. Si no puede avanzar ni atacar, esperar.
+| Regla | Valor |
+|---|---|
+| Visión | 360° con línea de Bresenham; los muros bloquean y las unidades no. |
+| Radio de visión por tipo | Centinela 6, Bruto 4, Cobarde 5. |
+| Radio de alarma | 8 para todos; no requiere línea de visión y no se propaga en cadena. |
+| Estado inicial | `dormant`: no se mueve, no ataca y no patrulla. |
+| Detección | Tras cada paso aceptado de `Move`/`MoveTo`; no consume MP ni acción. |
+| Memoria | `lastKnown`; 2 fases enemigas investigando y la tercera volviendo. |
+| Alerta | Ataca si es adyacente; si no, gasta hasta 4 MP por BFS hacia `lastKnown` y ataca si termina adyacente con acción. Sin ruta, espera. |
+| Regreso | Vuelve a `home` sin atacar y se duerme al llegar. |
+| Daño | Despierta y alerta; guarda la posición del atacante y, si sobrevive, da la alarma. |
+| Huida | Solo el perfil cobarde, con un golpe de ≥40 % de sus PV máximos sobreviviendo; rompe la línea de visión y maximiza la distancia. Acorralado, ataca. |
+| Desempate | Orden determinista por índice de unidad y de casilla. |
 
-La IA debe ser determinista y testeable.
+Flujo de una fase enemiga:
+
+1. Si está `dormant`, espera.
+2. Si está `alert`, persigue `lastKnown` y ataca al llegar si conserva la acción.
+3. Si está `returning`, vuelve a `home` sin atacar y se duerme al llegar.
+4. Si es cobarde y `fleeing`, elige la casilla alcanzable que rompe la visión y
+   más se aleja; sin visión, vuelve a `home`.
 
 # Controles provisionales
 

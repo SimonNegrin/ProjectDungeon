@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Docs — REQ-009 T-009 — actualizadas la IA de `turn-economy.md`, el glosario (percepción, dormido, alerta, regreso, alarma, memoria, huida) y la arquitectura; sin cambios de valores — [turn-economy](design/turn-economy.md)
 * 2026-11-08 — Task — TASK-0037 — cerrada: IA de alerta con 4 MP, ataque al llegar, regreso sin ataque y huida determinista del cobarde al 40 % con LOS, `EnemyFled` y sin `Math.random`; verify 549 y E2E 63 OK — [informe](../artifacts/TASK-0037/attempt-1/report.md)
 * 2026-11-08 — Planning — TASK-0037 — dependencias TASK-0035 y TASK-0036 cerradas; pasa de backlog a ready — [TASK-0037](tasks/TASK-0037-motor-ia-alerta-mp-huida-cobarde.md)
 * 2026-11-08 — Task — TASK-0036 — cerrada: 4 enemigos deterministas (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, sin visión inicial, pareja a ≤8 y aislado a >8, `home` y snapshot; verify 536 y E2E 63 OK; fusión `1f6340b` — [informe](../artifacts/TASK-0036/attempt-1/report.md)
