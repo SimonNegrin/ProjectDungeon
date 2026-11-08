@@ -1,0 +1,5 @@
+TASK-0024 sala de ruina o vegetación
+seed=279837264
+room=3 ambient=ruin palette=ruin
+second p1=(13,12) 43.00,36.00,25.00
+decals=7 mixed=2 dominant=pebbles,blueBrick,dirt,bones

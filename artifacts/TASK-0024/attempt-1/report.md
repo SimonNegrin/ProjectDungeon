@@ -12,36 +12,35 @@ verified:
 
 # Estado
 
-`success`. 10 tests `floor-qa` y 50 E2E pasan; `verify` pasa con aviso previo
+`success`. 11 tests `floor-qa` y 51 E2E pasan; `verify` pasa con aviso previo
 de TASK-0022.
 
 # Cambios
 
-- `tests/e2e/floor-qa-ambient.spec.ts` (nuevo, 4 tests). Sin cambios en `src/`,
+- `tests/e2e/floor-qa-ambient.spec.ts` (nuevo, 5 tests). Sin cambios en `src/`,
   `index.html`, `public/` ni tests existentes.
-- Commit SHA: `5707944` (tests).
+- Commit SHA: `2347955` (tests).
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `E2E_ARTIFACTS_DIR=artifacts/TASK-0024/attempt-1 pnpm run test:e2e floor-qa` | 10/10 en 5,6 s | `e2e-output.txt` |
-| `pnpm run test:e2e` | 50/50 en 20,3 s | `full-e2e-output.txt` |
+| `E2E_ARTIFACTS_DIR=artifacts/TASK-0024/attempt-1 pnpm run test:e2e floor-qa` | 11/11 en 7,7 s | `e2e-output.txt` |
+| `pnpm run test:e2e` | 51/51 en 23,0 s | `full-e2e-output.txt` |
 | `pnpm run verify` | vitest 397/397; tsc+build OK | `verify-output.txt` |
 
 Cubre los [criterios](../../../docs/tasks/TASK-0024-e2e-qa-suelo-ambientes.md#criterios-de-aceptación):
-paleta por sala, neutros en píxeles, cuatro ambientes con mezcla y focos, lista
-blanca y filas 9/10/11, determinismo. Densidades, grises, camino y `MoveTo`
-conservan sus tests.
+paleta por sala, neutros, cinco ambientes con mezcla/focos, lista blanca y filas
+9/10/11, determinismo. Densidades, grises, camino y `MoveTo` conservan tests.
 
 # Evidencia visual
 
-- Nuevas: `floor-qa-ambient/screenshots/ambiente-{sala-neutra,sala-muerte,sala-humedad,pasillo,semilla-distinta}.png`
+- Nuevas: `floor-qa-ambient/screenshots/ambiente-{sala-neutra,sala-muerte,sala-humedad,sala-ruina,pasillo,semilla-distinta}.png`
   y `familias-9-10-11.png`.
 - Conservadas: `floor-qa/screenshots/` (damero, gris, camino y semilla).
-- Texto: `paletas-neutralidad.txt`, `ambientes.txt`, `familias.txt`,
-  `determinismo-ambiente.txt`, `snapshot.json`. Mirar tonos, neutros, focos y
-  sprites 9/10/11; juicio de arte humano.
+- Texto: `paletas-neutralidad`, `ambientes`, `familias`, `determinismo-ambiente`,
+  `ruina-vegetacion`, `snapshot.json`. Mirar tonos, neutros, focos y sprites
+  9/10/11; juicio de arte humano.
 
 # Desviaciones
 
@@ -66,6 +65,6 @@ conservan sus tests.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2556 |
-| `report_bytes` | 2558 |
+| `report_bytes` | 2554 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
