@@ -1,0 +1,39 @@
+EXP-003 · comprobación manual del lead en el navegador integrado
+Fecha: 2026-11-08T17:07Z
+URL: http://127.0.0.1:4173/experiments/EXP-003-mesa-combate/?test=1&seed=1017
+
+Estado inicial (A):
+- experiment: EXP-003
+- seed: 1017
+- preset: A
+- roster: 4 combatientes
+- selección: jugador -> centinela
+- impacto: 30/36 (83,3 %)
+- ataques esperados para matar: 2,63
+- duelo (1000): 991 victorias del atacante, 9 del defensor, 5,65 turnos medios
+- decisión exportada: vacía (pendiente de playtest)
+
+Interacción:
+- setPreset('D') y setPreset('C'): el roster y las métricas se recalculan;
+  el impacto sigue en 30/36 porque C/D no cambian acierto ni escudo.
+- addCombatant({name:'Sonda', hp:11, ...}) -> custom-1.
+- updateCombatant(custom-1, {hp:13, armor:2}) -> hp 13, armor 2.
+- removeCombatant(custom-1) -> roster vuelve a 4.
+- getDecision(): incluye experiment, seed, preset, roster, decisión vacía y
+  decidedAt ISO válido.
+- DOM: título «Mesa de combate configurable»; probabilidad 83,3 % (30/36);
+  ataques para matar 2,63.
+
+Determinismo:
+- seed 1018: 995 victorias, 5,59 turnos medios.
+- seed 1017: 991 victorias, 5,65 turnos medios.
+- misma semilla y roster reproducen el resultado.
+
+Consola: 0 errores.
+
+Riesgo observado:
+- Un roster con impacto imposible en ambos sentidos (p. ej. acc -5, arma 0,
+  def 10, escudo 10 en los dos) agota el guard de 40.100 turnos por duelo. Con
+  1000 duelos tarda ~1,2 s y devuelve tablas; con PV 99 puede tardar varios
+  segundos porque la UI recalcula al editar. No bloquea el playtest, pero conviene
+  recortar el guard o detectar el 0 % de impacto si el banco se usa a fondo.

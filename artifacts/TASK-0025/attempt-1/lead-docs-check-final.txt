@@ -1,0 +1,5 @@
+$ node scripts/validate-docs.mjs
+Avisos (2):
+- artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
+- artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
+OK: 126 documentos, 25 tareas, 4 experimentos.

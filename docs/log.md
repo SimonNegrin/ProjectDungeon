@@ -2,7 +2,15 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0025 — review: EXP-003 construido y verificado; roster, presets A/B/C/D, ataque, duelo y export; 426 unitarios y 55 E2E; pendiente playtest y decisión de human:simon — [informe](../artifacts/TASK-0025/attempt-1/report.md)
+* 2026-11-08 — Experiment — EXP-003 — propuesto: mesa de combate configurable para elegir armas, personajes, enemigos y la tabla de REQ-010 — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
+* 2026-11-08 — Requirement — REQ-009 — umbral de huida confirmado al 40 % de la vida máxima; probabilidad por arma en EXP-003 — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
+* 2026-11-08 — Requirement — REQ-010 — v3: modificadores de acierto/daño/defensa, daño con armadura enfrentada y mínimo 1, G cuesta 1 MP, valores en EXP-003 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
+* 2026-11-08 — Requirement — REQ-010 — v2: escudo evita impactos y armadura reduce daño; daño = arma + 1d6 − (armadura + 1d6), mínimo 1; pendiente de confirmar paréntesis y tabla — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
+* 2026-11-08 — Requirement — REQ-010 — borrador: acierto de arma + 1d6 vs armadura + escudo + 1d6, daño fijo, 3 armas melee, armadura/escudo y recogida con G; números pendientes de EXP-003 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
+* 2026-11-08 — Requirement — REQ-009 — actualizada: umbral de huida propuesto (golpe ≥40 % de vida máxima) y enlace a REQ-010 — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0024 — done: E2E y QA visual del suelo por sala y ambientes; 51/51 E2E, 11/11 floor-qa y 397/397 unitarios; paletas, ambientes, familias y determinismo verificados; fusión `d52fefe` — [informe](../artifacts/TASK-0024/attempt-1/report.md)
+* 2026-11-08 — Requirement — REQ-009 — borrador: visión 360° con LoV y detección por paso, alarma de una onda a 3 turnos y huida cobarde; 3-4 enemigos y 2 perfiles; umbral pendiente de combate — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0023 — done: suelo programático por sala y decoración ambiental; 397/397 unitarios y 46/46 E2E; densidades 35,69 %/15,49 %; fusión `36c864e` — [informe](../artifacts/TASK-0023/attempt-1/report.md)
 * 2026-11-08 — Planning — TASK-0024 — ready: dependencia TASK-0023 cerrada; E2E y QA visual del suelo por sala y la decoración ambiental — [TASK-0024](tasks/TASK-0024-e2e-qa-suelo-ambientes.md)
 * 2026-11-08 — Planning — TASK-0024 — backlog: E2E y QA visual del suelo por sala y la decoración ambiental; depende de TASK-0023 — [TASK-0024](tasks/TASK-0024-e2e-qa-suelo-ambientes.md)
