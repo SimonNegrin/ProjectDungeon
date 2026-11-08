@@ -25,6 +25,23 @@ export interface CursorSnapshot {
   readonly attackTile?: Position;
 }
 
+export interface AnimationSnapshot {
+  readonly animating: boolean;
+  readonly step: number;
+  readonly totalSteps: number;
+  readonly unitId: string | null;
+  readonly position: {
+    readonly x: number;
+    readonly y: number;
+    readonly tileX: number;
+    readonly tileY: number;
+  } | null;
+  readonly camera: {
+    readonly x: number;
+    readonly y: number;
+  };
+}
+
 export interface GameSnapshot {
   readonly grid: {
     readonly width: number;
@@ -53,6 +70,7 @@ export interface GameSnapshot {
   readonly assetsLoaded: boolean;
   readonly lastEvents: readonly GameEvent[];
   readonly cursor: CursorSnapshot;
+  readonly animation: AnimationSnapshot;
 }
 
 export interface DispatchResult {
@@ -63,6 +81,8 @@ export interface DispatchResult {
 export interface GameDebugApi {
   snapshot(): GameSnapshot;
   dispatch(command: Command): DispatchResult;
+  /** Avanza el reloj de presentación de forma determinista (solo tests). */
+  advance(ms: number): GameSnapshot;
 }
 
 declare global {
@@ -80,6 +100,7 @@ export interface DebugSnapshotSource {
   readonly assetsLoaded: boolean;
   readonly lastEvents: readonly GameEvent[];
   readonly cursor: CursorStatus;
+  readonly animation?: AnimationSnapshot;
 }
 
 function cloneUnit(unit: Unit): Unit {
@@ -126,6 +147,14 @@ function cloneCursor(cursor: CursorStatus): CursorSnapshot {
 
 function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
   const map = source.state.map;
+  const animation: AnimationSnapshot = source.animation ?? {
+    animating: false,
+    step: 0,
+    totalSteps: 0,
+    unitId: null,
+    position: null,
+    camera: { x: source.camera.x, y: source.camera.y },
+  };
 
   return {
     grid: {
@@ -154,6 +183,11 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     assetsLoaded: source.assetsLoaded,
     lastEvents: source.lastEvents.map(cloneEvent),
     cursor: cloneCursor(source.cursor),
+    animation: {
+      ...animation,
+      position: animation.position ? { ...animation.position } : null,
+      camera: { ...animation.camera },
+    },
   };
 }
 
@@ -164,6 +198,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
 export function createDebugApi(
   getSource: () => DebugSnapshotSource,
   dispatchCommand: (command: Command) => StepResult,
+  advanceTime: (ms: number) => void = () => {},
 ): GameDebugApi {
   return {
     snapshot(): GameSnapshot {
@@ -175,6 +210,10 @@ export function createDebugApi(
         snapshot: buildSnapshot(getSource()),
         events: result.events.map(cloneEvent),
       };
+    },
+    advance(ms: number): GameSnapshot {
+      advanceTime(ms);
+      return buildSnapshot(getSource());
     },
   };
 }

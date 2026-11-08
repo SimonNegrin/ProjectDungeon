@@ -192,3 +192,34 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(isManagedKey('q')).toBe(false);
   });
 });
+
+describe('gate de input durante la animación', () => {
+  const state = adjacentState();
+  const options = { animating: true };
+
+  it('descarta flechas/WASD, Espacio/Enter, F, E y F2 sin encolar', () => {
+    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'e', 'F2']) {
+      expect(translateKey({ key }, state, { x: 6, y: 6 }, options)).toEqual({
+        type: 'ignored',
+        reason: 'animating',
+      });
+    }
+  });
+
+  it('mantiene activos F1 y R durante la animación', () => {
+    expect(translateKey({ key: 'F1' }, state, PLAYER_TILE, options)).toEqual({
+      type: 'toggle-debug',
+    });
+    expectCommand(translateKey({ key: 'R' }, state, PLAYER_TILE, options), {
+      type: 'Restart',
+    });
+  });
+
+  it('sin animación el mapeo en reposo no cambia', () => {
+    expect(translateKey({ key: 'ArrowRight' }, state, PLAYER_TILE, { animating: false })).toEqual({
+      type: 'cursor',
+      dx: 1,
+      dy: 0,
+    });
+  });
+});

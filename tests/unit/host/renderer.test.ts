@@ -192,6 +192,38 @@ describe('render de la sala', () => {
     });
   });
 
+  it('acepta un override entero de posición sin tocar el estado del motor', () => {
+    const state = makeState();
+    const player = state.players[0];
+    const before = JSON.stringify(state);
+    const fake = createFakeContext();
+    const positions = new Map([[player.id, { x: player.x * 32 + 24, y: player.y * 32 + 8 }]]);
+
+    renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, { positions });
+
+    const knight = fake.draws.find(
+      (call) => call.image === assets.rogues && call.sy === 32,
+    );
+    expect(knight).toMatchObject({
+      dx: player.x * 32 + 8,
+      dy: player.y * 32 - 8,
+      dw: 32,
+      dh: 32,
+    });
+    expect(JSON.stringify(state)).toBe(before);
+  });
+
+  it('una unidad con override fuera del viewport no se dibuja', () => {
+    const state = makeState();
+    const enemy = state.enemies[0];
+    const fake = createFakeContext();
+    const positions = new Map([[enemy.id, { x: -64, y: -64 }]]);
+
+    renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, { positions });
+
+    expect(fake.draws.filter((call) => call.image === assets.monsters)).toEqual([]);
+  });
+
   it('dibuja al goblin con el recorte (64,0,32,32) con una cámara cercana al enemigo', () => {
     const state = makeState();
     const enemy = state.enemies[0];

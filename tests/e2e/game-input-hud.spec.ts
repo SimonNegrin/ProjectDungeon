@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { approachEnemy, moveCursorTo } from './support';
+import { approachEnemy, moveCursorTo, settle } from './support';
 
 const SCREENSHOTS = 'artifacts/TASK-0010/attempt-1/screenshots';
 
@@ -113,6 +113,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   // Espacio ejecuta Moverse: recorre el camino hasta el cursor y gasta MP.
   await page.keyboard.press('Space');
+  await settle(page);
   const afterMoveTo = await snapshot(page);
   expect(afterMoveTo.players[0]).toMatchObject({
     x: initial.players[0].x + 2,
@@ -153,6 +154,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     await page.keyboard.press('a');
   }
   await page.keyboard.press('Space');
+  await settle(page);
   const afterLeft = await snapshot(page);
   expect(afterLeft.players[0]).toMatchObject({
     x: initial.players[0].x - 3,
@@ -170,6 +172,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   });
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await page.keyboard.press('Space');
+  await settle(page);
   const afterWall = await snapshot(page);
   expect(afterWall.players[0]).toMatchObject({
     x: initial.players[0].x - 3,
@@ -232,6 +235,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   // Ataque directo con F: daño, acción usada, feedback y cursor estable.
   await page.keyboard.press('f');
+  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
   expect(afterAttack.enemies[0].hp).toBe(5);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
@@ -250,14 +256,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     ]),
   );
   await expectHud(page, { enemyHp: '5/10', action: 'No' });
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
-  await expect(page.getByTestId('damage-feedback')).toBeVisible();
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.
   const beforeEndTurn = await snapshot(page);
   await page.keyboard.press('e');
+  await settle(page);
   const afterEndTurn = await snapshot(page);
   const eventTypes = afterEndTurn.lastEvents.map((event) => event.type);
   expect(eventTypes).toContain('EnemyPhaseStarted');
@@ -294,6 +298,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     y: afterEndTurn.players[0].y,
   });
   await page.keyboard.press('Space');
+  await settle(page);
   const victory = await snapshot(page);
   expect(victory.status).toBe('victory');
   expect(victory.enemies[0].hp).toBe(0);
@@ -359,6 +364,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     }
   }
   expect(defeatReached, 'La derrota debe alcanzarse en 80 turnos enemigos').toBe(true);
+  await settle(page);
 
   const defeat = await snapshot(page);
   expect(defeat.status).toBe('defeat');
