@@ -646,6 +646,62 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
   expect(consoleErrors).toEqual([]);
 });
 
+test('ruina o vegetación: paleta y mezcla distintas del neutro', async ({
+  page,
+}, testInfo) => {
+  const consoleErrors = watchConsole(page);
+  await openGame(page);
+  let snap = await snapshot(page);
+
+  const sample = nearestRoom(
+    snap,
+    (candidate) => candidate.ambient === 'ruin' || candidate.ambient === 'vegetation',
+  );
+  const target = roomFloorTile(sample.room);
+  await walkTo(page, target.x, target.y);
+  await settle(page);
+  await settleLayout(page);
+  snap = await snapshot(page);
+  expect(snap.players[0]).toMatchObject({ x: target.x, y: target.y });
+  await saveScreenshot(page, 'ambiente-sala-ruina', testInfo);
+
+  const measurements = await verifyPalette(
+    page,
+    snap,
+    measurableTiles(snap, (x, y) => roomAt(snap.rooms, x, y)?.id === sample.room.id),
+    sample.palette,
+    `sala ${sample.ambient} ${sample.room.id}`,
+  );
+  expect(PALETTE_SECONDS[sample.palette]).not.toBe(PALETTE_SECONDS.neutral);
+
+  const decals = snap.decoration.filter(
+    (decal) => roomAt(snap.rooms, decal.x, decal.y)?.id === sample.room.id,
+  );
+  const dominant = AMBIENT_FAMILIES[sample.ambient] ?? [];
+  const mixed = decals.filter((decal) => !dominant.includes(decal.family));
+  expect(decals.some((decal) => dominant.includes(decal.family))).toBe(true);
+  if (decals.length >= 4) {
+    const ratio = mixed.length / decals.length;
+    expect(ratio).toBeGreaterThanOrEqual(0.2);
+    expect(ratio).toBeLessThanOrEqual(0.3);
+  }
+
+  const lines = [
+    'TASK-0024 sala de ruina o vegetación',
+    `seed=${REFERENCE_SEED}`,
+    `room=${sample.room.id} ambient=${sample.ambient} palette=${sample.palette}`,
+    `second p1=(${measurements.second.x},${measurements.second.y}) ${measurements.second.mean.map((value) => value.toFixed(2)).join(',')}`,
+    `decals=${decals.length} mixed=${mixed.length} dominant=${dominant.join(',')}`,
+    '',
+  ];
+  await writeArtifact(testInfo, 'ruina-vegetacion.txt', lines.join('\n'));
+  console.log(
+    `TASK-0024 ruina room=${sample.room.id} ambient=${sample.ambient} palette=${sample.palette}`,
+  );
+
+  expect(consoleErrors).toEqual([]);
+});
+
 test('lista blanca y familias 9 tierra, 10 ladrillo azul y 11 huesos', async ({
   page,
 }, testInfo) => {
