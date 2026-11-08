@@ -4,22 +4,25 @@ id: TASK-0014
 title: "Host: cursor, input, camino y feedback"
 description: Integra el cursor de selección en el host, mapea el teclado, dibuja estados y camino, actualiza HUD/debug y sustituye el resaltado de casilla activa.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-012, R-013, R-014, R-015, R-016, R-017, R-018, T-001, T-005, T-006, T-007, T-008, T-009, T-010, T-011, T-012]
 depends_on: [TASK-0013]
 unlocks: [TASK-0015]
 created_at: 2026-11-08T01:27:27Z
-completed_at:
+completed_at: 2026-11-08T02:00:19Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0014/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:27:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T02:00:19Z
+    note: "Verificación independiente: diff completo de host, `index.html` y tests; `pnpm run verify` OK (83 documentos, 3 agentes/9 skills, 305 tests en 27 archivos, build 47 módulos) y `pnpm run test:e2e` OK (19 tests). Revisados los 12 criterios: cursor sobre jugador, movimiento sin MP/acción/cámara, clamp al viewport, estados y patrones, camino fuerte/atenuado, `Espacio`/`Enter`/`F`/`E`, avisos, persistencia/reinicio, ausencia de `active-tile`, snapshot/debug y feedback de ataque intacto. Sin tests borrados, saltados o debilitados; los E2E de `Espacio`-atacar se migraron a `F`/Moverse. Sin cambios en `src/game/`, `docs/`, requisitos ni dependencias. Commit de implementación `2e60eea`, informe `269671d`, evidencia del lead `45cf52b`, fusión `f6dc8fd`. Fricción de capturas E2E que ensucian artefactos históricos: triada como cambio de arnés/documentación, elevada a `requirements-writer`, disposición `deferred`."
 ---
 
 # Objetivo

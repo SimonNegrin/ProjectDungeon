@@ -73,14 +73,14 @@ verified:
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Ejecutar la suite E2E reescribe capturas versionadas de tareas antiguas y ensucia el diff de la tarea actual. | Tras `pnpm run test:e2e`, `git status --short` mostró PNG/JSON modificados en `artifacts/TASK-0007`, `TASK-0010`, `TASK-0011` y `EXP-000`; se revirtieron con `git checkout --`. | Revertir esos artefactos antes del commit; las capturas nuevas viven en `artifacts/TASK-0014/attempt-1/screenshots/`. | Cualquier tarea que lance E2E mutará evidencia histórica de otras tareas. | Parametrizar la carpeta de capturas en los specs (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) con default en `test-results/`; como mínimo, documentar en `docs/harness/visual-qa.md` que las capturas de suite no son evidencia histórica. | Bajo; toca tests y una nota de arnés, sin cambiar criterios. | `pending` |
+| Ejecutar la suite E2E reescribe capturas versionadas de tareas antiguas y ensucia el diff de la tarea actual. | Tras `pnpm run test:e2e`, `git status --short` mostró PNG/JSON modificados en `artifacts/TASK-0007`, `TASK-0010`, `TASK-0011` y `EXP-000`; se revirtieron con `git checkout --`. | Revertir esos artefactos antes del commit; las capturas nuevas viven en `artifacts/TASK-0014/attempt-1/screenshots/`. | Cualquier tarea que lance E2E mutará evidencia histórica de otras tareas. | Parametrizar la carpeta de capturas en los specs (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) con default en `test-results/`; como mínimo, documentar en `docs/harness/visual-qa.md` que las capturas de suite no son evidencia histórica. | Bajo; toca tests y una nota de arnés, sin cambiar criterios. | `deferred` (elevado a `requirements-writer`) |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4123 |
-| `report_bytes` | 4754 |
+| `report_bytes` | 4789 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | — |
