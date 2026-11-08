@@ -4,14 +4,14 @@ id: TASK-0018
 title: "Host: animación de movimiento, cámara e input bloqueado"
 description: Presentar cualquier UnitMoved como un recorrido animado tile a tile, con cámara continua a píxel entero, pausas, input bloqueado, cursor oculto, MP progresivo y feedback secuenciado, sin tocar el motor.
 status: stable
-task_status: review
+task_status: done
 task_type: feature
 requirement: REQ-006
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-009, T-010]
 depends_on: [TASK-0017]
 unlocks: [TASK-0019]
 created_at: 2026-11-08T10:26:00Z
-completed_at:
+completed_at: 2026-11-08T11:07:06Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0018/
@@ -40,6 +40,14 @@ verified:
       requirements-writer con el texto propuesto en
       artifacts/TASK-0018/attempt-1/architecture-update.md: el permiso de
       task-lead no incluye docs/design. Fusión en main d1b6cc2.
+  - by: human:simon
+    at: 2026-11-08T11:07:06Z
+    note: >-
+      Aprobación del playtest: la sensación del movimiento animado es correcta.
+      Validados el recorrido tile a tile con sus pausas, la cámara continua, el
+      input bloqueado durante la animación, el cursor oculto y reaparecido, el MP
+      que baja paso a paso, el ataque después de acercarse, la fase enemiga y el
+      modo reduced motion. Cierra la tarea y desbloquea TASK-0019.
 ---
 
 # Objetivo
