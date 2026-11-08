@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { approachEnemy, moveCursorTo, settle } from './support';
+import { approachEnemy, defeatAllEnemies, moveCursorTo, settle } from './support';
 import { artifactPath } from './artifacts';
 
 async function snapshot(page: Page) {
@@ -298,18 +298,17 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   });
   await page.keyboard.press('Space');
   await settle(page);
-  const victory = await snapshot(page);
-  expect(victory.status).toBe('victory');
-  expect(victory.enemies[0].hp).toBe(0);
-  expect(victory.players[0]).toMatchObject({
+  const afterFirstKill = await snapshot(page);
+  expect(afterFirstKill.enemies[0].hp).toBe(0);
+  expect(afterFirstKill.players[0]).toMatchObject({
     x: afterEndTurn.players[0].x,
     y: afterEndTurn.players[0].y,
   });
-  expect(victory.cursor).toMatchObject({
-    x: afterEndTurn.enemies[0].x,
-    y: afterEndTurn.enemies[0].y,
-    visible: false,
-  });
+
+  if (afterFirstKill.status === 'playing') await defeatAllEnemies(page);
+  const victory = await snapshot(page);
+  expect(victory.status).toBe('victory');
+  expect(victory.enemies.every((enemy) => enemy.hp === 0)).toBe(true);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
@@ -347,7 +346,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
   expect((await snapshot(page)).status).toBe('playing');
 
-  // Derrota determinista: dejar pasar turnos enemigos con dispatch(EndTurn).
+  // Derrota determinista: acercarse para que los enemigos despierten y dejar
+  // pasar turnos enemigos con dispatch(EndTurn).
+  await approachEnemy(page);
   let defeatReached = false;
   for (let turn = 0; turn < 80; turn += 1) {
     const status = await page.evaluate(() => {

@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import type { Command } from '../../src/game/types';
+import type { Command, GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
 
@@ -216,8 +216,13 @@ export async function walkTo(page: Page, tx: number, ty: number): Promise<void> 
  * `EndTurn` cuando no quedan MP). Calcula la ruta con BFS sobre la rejilla y la
  * recalcula tras cada fase enemiga. No inyecta estados ni teletransporta.
  */
-export async function approachEnemy(page: Page): Promise<void> {
-  await page.evaluate(() => {
+export type ApproachSide = 'north' | 'east' | 'south' | 'west';
+
+export async function approachEnemy(
+  page: Page,
+  preferredSide?: ApproachSide,
+): Promise<void> {
+  await page.evaluate((side) => {
     const game = window.__game!;
     const width = game.snapshot().grid.width;
 
@@ -225,6 +230,7 @@ export async function approachEnemy(page: Page): Promise<void> {
       grid: GameSnapshot['grid'],
       start: { x: number; y: number },
       enemy: { x: number; y: number },
+      blocked: ReadonlySet<number>,
     ): { dx: number; dy: number } | null => {
       const cellKey = (x: number, y: number): number => y * width + x;
       const previous = new Int32Array(width * grid.height).fill(-1);
@@ -239,19 +245,53 @@ export async function approachEnemy(page: Page): Promise<void> {
         [-1, 0],
       ] as const;
 
+      // Prefiere una casilla ortogonalmente adyacente para que los tests de
+      // orientación no dependan de un contacto en diagonal. Si se pide un lado,
+      // se intenta primero esa casilla y se cae a cualquier ortogonal.
+      let fallback: number | null = null;
+      const preferred =
+        side === undefined
+          ? null
+          : side === 'north'
+            ? { x: enemy.x, y: enemy.y - 1 }
+            : side === 'east'
+              ? { x: enemy.x + 1, y: enemy.y }
+              : side === 'south'
+                ? { x: enemy.x, y: enemy.y + 1 }
+                : { x: enemy.x - 1, y: enemy.y };
+      const preferredIndex =
+        preferred !== null &&
+        preferred.x >= 0 &&
+        preferred.y >= 0 &&
+        preferred.x < grid.width &&
+        preferred.y < grid.height &&
+        grid.tiles[cellKey(preferred.x, preferred.y)] === 'floor' &&
+        !blocked.has(cellKey(preferred.x, preferred.y))
+          ? cellKey(preferred.x, preferred.y)
+          : null;
+
+      const firstStep = (goal: number): { dx: number; dy: number } => {
+        let first = goal;
+        while (previous[first] !== startIndex && previous[first] !== -1) {
+          first = previous[first];
+        }
+        const firstX = first % width;
+        const firstY = (first - firstX) / width;
+        return { dx: firstX - start.x, dy: firstY - start.y };
+      };
+
       for (let head = 0; head < queue.length; head += 1) {
         const current = queue[head];
         const x = current % width;
         const y = (current - x) / width;
+        const distance = Math.max(Math.abs(x - enemy.x), Math.abs(y - enemy.y));
+        const orthogonal = x === enemy.x || y === enemy.y;
 
-        if (Math.max(Math.abs(x - enemy.x), Math.abs(y - enemy.y)) === 1) {
-          let first = current;
-          while (previous[first] !== startIndex && previous[first] !== -1) {
-            first = previous[first];
-          }
-          const firstX = first % width;
-          const firstY = (first - firstX) / width;
-          return { dx: firstX - start.x, dy: firstY - start.y };
+        if (current === preferredIndex) return firstStep(current);
+
+        if (distance === 1 && orthogonal) {
+          if (preferredIndex === null) return firstStep(current);
+          if (fallback === null) fallback = current;
         }
 
         for (const [dx, dy] of directions) {
@@ -261,6 +301,7 @@ export async function approachEnemy(page: Page): Promise<void> {
           if (grid.tiles[cellKey(nx, ny)] !== 'floor') continue;
           if (nx === enemy.x && ny === enemy.y) continue;
           const nextIndex = cellKey(nx, ny);
+          if (blocked.has(nextIndex)) continue;
           if (seen[nextIndex]) continue;
           seen[nextIndex] = 1;
           previous[nextIndex] = current;
@@ -268,7 +309,7 @@ export async function approachEnemy(page: Page): Promise<void> {
         }
       }
 
-      return null;
+      return fallback === null ? null : firstStep(fallback);
     };
 
     for (let guard = 0; guard < 600; guard += 1) {
@@ -279,13 +320,33 @@ export async function approachEnemy(page: Page): Promise<void> {
       }
       const player = snap.players[0];
       const enemy = snap.enemies[0];
-      if (Math.max(Math.abs(player.x - enemy.x), Math.abs(player.y - enemy.y)) <= 1) {
+      const distance = Math.max(
+        Math.abs(player.x - enemy.x),
+        Math.abs(player.y - enemy.y),
+      );
+      const orthogonal = player.x === enemy.x || player.y === enemy.y;
+      const atPreferredSide =
+        side === undefined
+          ? distance === 1 && orthogonal
+          : side === 'north'
+            ? player.x === enemy.x && player.y === enemy.y - 1
+            : side === 'east'
+              ? player.x === enemy.x + 1 && player.y === enemy.y
+              : side === 'south'
+                ? player.x === enemy.x && player.y === enemy.y + 1
+                : player.x === enemy.x - 1 && player.y === enemy.y;
+      if (atPreferredSide) {
         game.advance(1_000_000);
         return;
       }
 
       if (player.mp > 0) {
-        const step = bfsNextStep(snap.grid, player, enemy);
+        const blocked = new Set(
+          snap.enemies
+            .filter((candidate) => candidate.hp > 0 && candidate.id !== enemy.id)
+            .map((candidate) => candidate.y * width + candidate.x),
+        );
+        const step = bfsNextStep(snap.grid, player, enemy, blocked);
         if (step && (step.dx !== 0 || step.dy !== 0)) {
           const result = game.dispatch({
             type: 'Move',
@@ -301,7 +362,143 @@ export async function approachEnemy(page: Page): Promise<void> {
     }
 
     throw new Error('No se alcanzó la adyacencia con el enemigo.');
-  });
+  }, preferredSide);
+}
+
+/**
+ * Derrota a todos los enemigos vivos con comandos reales (`Attack`, `MoveTo` y
+ * `EndTurn`). Sirve para completar la victoria cuando la partida arranca con
+ * varios enemigos, sin inyectar estado ni teletransportar al jugador.
+ */
+export async function defeatAllEnemies(
+  page: Page,
+  maxCommands = 400,
+): Promise<{ readonly snapshot: GameSnapshot; readonly events: readonly GameEvent[] }> {
+  const result = await page.evaluate((limit) => {
+    const game = window.__game!;
+    const width = game.snapshot().grid.width;
+    const events: GameEvent[] = [];
+
+    const chebyshev = (
+      a: { x: number; y: number },
+      b: { x: number; y: number },
+    ): number => Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+
+    const nearestDistance = (): number => {
+      const snap = game.snapshot();
+      const player = snap.players[0];
+      const living = snap.enemies.filter((enemy) => enemy.hp > 0);
+      if (living.length === 0) return Number.POSITIVE_INFINITY;
+      return living.reduce(
+        (best, enemy) => Math.min(best, chebyshev(player, enemy)),
+        Number.POSITIVE_INFINITY,
+      );
+    };
+
+    /** Un paso ortogonal que maximiza la distancia al enemigo vivo más cercano. */
+    const stepAway = (): boolean => {
+      const snap = game.snapshot();
+      const player = snap.players[0];
+      const living = snap.enemies.filter((enemy) => enemy.hp > 0);
+      const occupied = new Set(
+        living.map((enemy) => `${enemy.x},${enemy.y}`),
+      );
+      const directions = [
+        [0, -1],
+        [1, 0],
+        [0, 1],
+        [-1, 0],
+      ] as const;
+      let best: { dx: number; dy: number; score: number } | null = null;
+
+      for (const [dx, dy] of directions) {
+        const nx = player.x + dx;
+        const ny = player.y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= snap.grid.height) continue;
+        if (snap.grid.tiles[ny * width + nx] !== 'floor') continue;
+        if (occupied.has(`${nx},${ny}`)) continue;
+        const score = living.reduce(
+          (minimum, enemy) =>
+            Math.min(minimum, Math.max(Math.abs(nx - enemy.x), Math.abs(ny - enemy.y))),
+          Number.POSITIVE_INFINITY,
+        );
+        if (best === null || score > best.score) best = { dx, dy, score };
+      }
+
+      if (!best) return false;
+      const result = game.dispatch({
+        type: 'Move',
+        unitId: player.id,
+        dx: best.dx,
+        dy: best.dy,
+      });
+      events.push(...result.events);
+      return !result.events.some((event) => event.type === 'CommandRejected');
+    };
+
+    const retreat = (): void => {
+      for (let step = 0; step < 8; step += 1) {
+        const snap = game.snapshot();
+        if (snap.players[0].mp <= 0) return;
+        if (nearestDistance() > 1) return;
+        if (!stepAway()) return;
+      }
+    };
+
+    for (let guard = 0; guard < limit; guard += 1) {
+      const snap = game.snapshot();
+      if (snap.status !== 'playing') return { status: snap.status, events };
+
+      const player = snap.players[0];
+      const living = snap.enemies.filter((enemy) => enemy.hp > 0);
+      if (living.length === 0) {
+        const end = game.dispatch({ type: 'EndTurn' });
+        events.push(...end.events);
+        continue;
+      }
+
+      let target = living[0];
+      for (const enemy of living) {
+        const distance = chebyshev(player, enemy);
+        const best = chebyshev(player, target);
+        if (distance < best || (distance === best && enemy.id < target.id)) target = enemy;
+      }
+
+      if (player.actionAvailable && chebyshev(player, target) === 1) {
+        const attack = game.dispatch({
+          type: 'Attack',
+          unitId: player.id,
+          targetId: target.id,
+        });
+        events.push(...attack.events);
+        if (!attack.events.some((event) => event.type === 'CommandRejected')) {
+          retreat();
+          const end = game.dispatch({ type: 'EndTurn' });
+          events.push(...end.events);
+          continue;
+        }
+      }
+
+      if (player.actionAvailable && player.mp > 0) {
+        const move = game.dispatch({
+          type: 'MoveTo',
+          unitId: player.id,
+          target: { x: target.x, y: target.y },
+        });
+        events.push(...move.events);
+        if (!move.events.some((event) => event.type === 'CommandRejected')) continue;
+      }
+
+      if (!player.actionAvailable) retreat();
+      const end = game.dispatch({ type: 'EndTurn' });
+      events.push(...end.events);
+    }
+
+    throw new Error('No se derrotaron todos los enemigos con comandos reales.');
+  }, maxCommands);
+
+  await settle(page);
+  return { snapshot: await snapshot(page), events: result.events };
 }
 
 /** Rango de tiles visibles para la cámara actual, calculado por el host. */

@@ -57,7 +57,12 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   });
   expect(snapshot.tileSize).toBe(32);
   expect(snapshot.players.map((unit) => unit.id)).toEqual(['player-1']);
-  expect(snapshot.enemies.map((unit) => unit.id)).toEqual(['enemy-1']);
+  expect(snapshot.enemies.map((unit) => unit.id)).toEqual([
+    'enemy-1',
+    'enemy-2',
+    'enemy-3',
+    'enemy-4',
+  ]);
   expect(snapshot.players[0]).toMatchObject({ x: 6, y: 8 });
   expect(snapshot.enemies[0]).toMatchObject({ x: 23, y: 28 });
   expect(snapshot.phase).toBe('player');

@@ -4,6 +4,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
 import {
   approachEnemy,
+  defeatAllEnemies,
   ensureAdjacentWithMp,
   moveAwayFromEnemy,
   moveCursorTo,
@@ -449,19 +450,18 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   expect(distance(beforeVictory.players[0], beforeVictory.enemies[0])).toBe(1);
   await page.keyboard.press('Space');
   await settle(page);
-  const victory = await snapshot(page);
-  expect(victory.status).toBe('victory');
-  expect(victory.enemies[0].hp).toBe(0);
-  expect(victory.players[0]).toMatchObject({
+  const afterFirstKill = await snapshot(page);
+  expect(afterFirstKill.enemies[0].hp).toBe(0);
+  expect(afterFirstKill.players[0]).toMatchObject({
     x: beforeVictory.players[0].x,
     y: beforeVictory.players[0].y,
     mp: beforeVictory.players[0].mp,
   });
-  expect(victory.cursor).toMatchObject({
-    x: beforeVictory.enemies[0].x,
-    y: beforeVictory.enemies[0].y,
-    visible: false,
-  });
+
+  if (afterFirstKill.status === 'playing') await defeatAllEnemies(page);
+  const victory = await snapshot(page);
+  expect(victory.status).toBe('victory');
+  expect(victory.enemies.every((enemy) => enemy.hp === 0)).toBe(true);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();

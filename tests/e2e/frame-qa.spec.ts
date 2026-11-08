@@ -613,12 +613,16 @@ test('el enemigo empieza fuera del viewport y sigue fuera mientras la distancia 
   expect(enemyVisible(afterMoves), 'El enemigo debe seguir fuera del viewport').toBe(false);
   expectPlayerVisible(afterMoves, 'tras moverse');
 
-  // La fase enemiga lo acerca un tile, pero sigue lejos del viewport 13×13.
+  // El centinela sigue dormido y fuera del viewport 13×13: no hay visión.
   await endTurn(page);
   const afterEnemyPhase = await snapshot(page);
   expect(afterEnemyPhase.turn).toBe(initial.turn + 1);
   expect(afterEnemyPhase.phase).toBe('player');
-  expect(afterEnemyPhase.enemies[0]).not.toMatchObject({ x: 23, y: 28 });
+  expect(afterEnemyPhase.enemies[0]).toMatchObject({
+    x: 23,
+    y: 28,
+    awareness: 'dormant',
+  });
   const chebyshev = Math.max(
     Math.abs(afterEnemyPhase.players[0].x - afterEnemyPhase.enemies[0].x),
     Math.abs(afterEnemyPhase.players[0].y - afterEnemyPhase.enemies[0].y),

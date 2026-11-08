@@ -6,6 +6,7 @@ import type { GameSnapshot } from '../../src/host/debug';
 import { artifactPath } from './artifacts';
 import {
   approachEnemy,
+  defeatAllEnemies,
   dispatchCommand,
   ensureMp,
   moveCursorTo,
@@ -305,7 +306,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page);
-  await approachEnemy(page);
+  await approachEnemy(page, 'north');
 
   const adjacent = await snapshot(page);
   const enemy = adjacent.enemies[0];
@@ -438,6 +439,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   for (let round = 0; round < 6; round += 1) {
     let current = await snapshot(page);
     if (current.status !== 'playing') break;
+    if (current.enemies[0].hp === 0) break;
     if (distance(current.players[0], current.enemies[0]) > 1) {
       await approachEnemy(page);
       current = await snapshot(page);
@@ -462,9 +464,14 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
     victoryEvents = [...victoryEvents, ...end.events];
   }
 
+  if ((await snapshot(page)).status === 'playing') {
+    const cleared = await defeatAllEnemies(page);
+    victoryEvents = [...victoryEvents, ...cleared.events];
+  }
+
   const victory = await snapshot(page);
   expect(victory.status).toBe('victory');
-  expect(victory.enemies[0].hp).toBe(0);
+  expect(victory.enemies.every((enemy) => enemy.hp === 0)).toBe(true);
   expect(
     victoryEvents.some(
       (event) => event.type === 'GameEnded' && event.status === 'victory',
@@ -659,6 +666,10 @@ test('determinismo: dos cargas con la misma semilla y comandos', async ({ page }
       }
     }
 
+    if ((await snapshot(page)).status === 'playing') {
+      await defeatAllEnemies(page);
+    }
+
     const final = await snapshot(page);
     return {
       seed: final.seed,
@@ -688,6 +699,8 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   const initial = await snapshot(page);
   expect(initial.status).toBe('playing');
 
+  // Acercarse para despertar a los enemigos; después se dejan pasar turnos.
+  await approachEnemy(page);
   let defeatReached = false;
   for (let turn = 0; turn < 80; turn += 1) {
     const before = await snapshot(page);
