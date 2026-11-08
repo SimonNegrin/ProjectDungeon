@@ -4,22 +4,35 @@ id: TASK-0038
 title: "Host: feedback de percepción, alarma y debug"
 description: Mostrar "!" sobre el enemigo que detecta, un aviso breve de alarma y los radios de visión/alarma solo en F1, con el nuevo estado en el snapshot de solo lectura.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-011, R-012, T-003, T-008, T-009, T-010, T-011]
 depends_on: [TASK-0037]
 unlocks: [TASK-0039]
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T23:40:00Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0038/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T23:40:00Z
+    note: >-
+      Intentos 1 y 2 verificados en task/TASK-0038 (commits 1c99935, 9c4d88d y
+      c6f8765). Diff completo revisado; lead re-ejecutó 47 tests dirigidos,
+      `pnpm run verify` (559 tests, docs/config y build OK) y `pnpm run test:e2e`
+      (64/64) con la semilla 279837264 y capturas 1280×720. Criterios R-011/R-012
+      cubiertos: "!" por `EnemySpotted`, aviso de `AlarmRaised`, radios solo en
+      F1 y snapshot profundo de los 4 enemigos. El intento 2 poda el rastro del
+      "!" al salir de alerta y restaura la aserción exacta de avisos. Limitación
+      TASK-0035 documentada sin tocar percepción: un alertado por onda que luego
+      ve no reemite `EnemySpotted`. Sin cambios en src/game, reglas, valores ni
+      dependencias; sin tests borrados, saltados ni debilitados.
 ---
 
 # Objetivo
