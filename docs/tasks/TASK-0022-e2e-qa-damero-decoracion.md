@@ -24,12 +24,12 @@ verified:
     at: 2026-11-08T13:44:53Z
     note: >-
       Verificación independiente en task/TASK-0022 (commits a4ea798, c564947,
-      af45545; fusión 505837c): diff limitado a tests/e2e/floor-qa.spec.ts y
+      af45545, e542355; fusión 505837c): diff limitado a tests/e2e/floor-qa.spec.ts y
       artifacts/TASK-0022; src/, index.html, public/, package.json y
       pnpm-lock.yaml intactos; specs existentes sin cambios, borrados ni
       debilitados. `pnpm run test:e2e` OK (46/46; 40 previos + 6 nuevos) y
       `pnpm run verify` OK (112 documentos, 22 tareas; 381/381 tests en 30
-      archivos; build 54 módulos; único aviso: report.md de 3486 B). Densidad de
+      archivos; build 54 módulos; único aviso: report.md de 3937 B). Densidad de
       referencia 51/339 = 15,04 % en salas y 5/71 = 7,04 % en pasillos; 56
       decals en 56 tiles únicos, 0 en 18 puertas y 2 spawns. Damero sala Δ 14,65
       y pasillo Δ 13,89; grises Δ 14,98; muros 0/73728 píxeles con tinte.
@@ -37,7 +37,8 @@ verified:
       visibles; MoveTo (7,8)→(7,9) aceptado sin cambiar decoración ni rejilla;
       misma semilla con buffers idénticos (sha256 c441dcfb…) y semilla
       alternativa 279837265 con 55 decals y damero intacto. Capturas revisadas en
-      artifacts/TASK-0022/attempt-1/floor-qa/screenshots/.
+      artifacts/TASK-0022/attempt-1/floor-qa/screenshots/. Fricción de
+      `artifactPath` con `fullyParallel`: `deferred — requirements-writer`.
 ---
 
 # Objetivo
