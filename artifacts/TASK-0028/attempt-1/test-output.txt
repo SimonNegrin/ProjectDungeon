@@ -1,0 +1,13 @@
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  32 passed (32)
+      Tests  466 passed (466)
+   Start at  18:34:44
+   Duration  6.13s (tests 90%, import 6%, transform 3%, worker 1%)
+
+    Isolate  32 workers spawned · ~126ms startup each (spawn + environment, per file)
+             at least ~451ms faster with isolate: false — reuses workers across files instead of one per file
+
