@@ -319,6 +319,42 @@ describe('modelo del overlay de debug', () => {
     ]);
   });
 
+  it('muestra el estado de percepción por enemigo y las etiquetas de sus eventos', () => {
+    const state = createInitialState({ seed: 279837264 });
+    const events = [
+      {
+        type: 'EnemySpotted' as const,
+        unitId: 'enemy-1',
+        playerId: 'player-1',
+        position: { x: 23, y: 28 },
+        step: { x: 22, y: 27 },
+      },
+      { type: 'AlarmRaised' as const, unitId: 'enemy-1', position: { x: 23, y: 28 } },
+      { type: 'EnemyFled' as const, unitId: 'enemy-4' },
+      { type: 'EnemyReturned' as const, unitId: 'enemy-2' },
+    ];
+
+    const text = buildDebugModel(
+      state,
+      { x: 0, y: 64 },
+      { maxX: 608, maxY: 608 },
+      { width: 416, height: 416 },
+      events,
+      { ...PLAYER_CURSOR, x: 6, y: 8 },
+    ).lines.join('\n');
+
+    for (const id of ['enemy-1', 'enemy-2', 'enemy-3', 'enemy-4']) {
+      expect(text).toContain(`Percepción ${id}`);
+    }
+    expect(text).toContain('visión 6 · alarma 8');
+    expect(text).toContain('visión 4 · alarma 8');
+    expect(text).toContain('visión 5 · alarma 8');
+    expect(text).toContain('enemy-1 ve a player-1 en (22,27)');
+    expect(text).toContain('alarma de enemy-1 en (23,28)');
+    expect(text).toContain('enemy-4 huye');
+    expect(text).toContain('enemy-2 vuelve a su puesto');
+  });
+
   it('un fallo en F1 muestra Fallo y no inventa tiradas de daño', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],

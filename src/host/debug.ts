@@ -125,6 +125,8 @@ function cloneUnit(unit: Unit): Unit {
     modifiers: { ...unit.modifiers },
     equipment: { ...unit.equipment },
     weapons: [...unit.weapons],
+    home: { ...unit.home },
+    lastKnown: unit.lastKnown ? { ...unit.lastKnown } : null,
   };
 }
 

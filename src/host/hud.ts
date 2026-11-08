@@ -6,6 +6,7 @@ import {
   weaponFor,
 } from '../game/equipment';
 import type { GameEvent, GameState, Position, Unit } from '../game/types';
+import { alarmRadius, visionRadius } from '../game/perception';
 import {
   pathLength,
   wideCorridorStretch,
@@ -168,11 +169,16 @@ function eventLabel(event: GameEvent): string {
       return `fin: ${event.status}`;
     case 'GameRestarted':
       return 'reinicio';
+    case 'EnemySpotted':
+      return `${event.unitId} ve a ${event.playerId} en (${event.step.x},${event.step.y})`;
+    case 'AlarmRaised':
+      return `alarma de ${event.unitId} en (${event.position.x},${event.position.y})`;
+    case 'EnemyFled':
+      return `${event.unitId} huye`;
+    case 'EnemyReturned':
+      return `${event.unitId} vuelve a su puesto`;
     case 'CommandRejected':
       return `${event.commandType} rechazado: ${event.reason}`;
-    default:
-      // Eventos de percepción: el feedback propio llega en TASK-0038.
-      return event.type;
   }
 }
 
@@ -254,6 +260,17 @@ function enemyEquipmentLines(state: GameState): readonly string[] {
   );
 }
 
+/** Estado de percepción por enemigo; solo se muestra en el overlay de `F1`. */
+function enemyPerceptionLines(state: GameState): readonly string[] {
+  if (state.enemies.length === 0) return ['Percepción enemiga: ninguno'];
+  return state.enemies.map((enemy) => {
+    const lastKnown = enemy.lastKnown
+      ? `(${enemy.lastKnown.x}, ${enemy.lastKnown.y})`
+      : '—';
+    return `Percepción ${enemy.id} (${enemy.enemyType ?? '—'}) HP ${formatHp(enemy)}: ${enemy.awareness} · huida ${boolLabel(enemy.fleeing)} · alertTurns ${enemy.alertTurns} · alarma ${boolLabel(enemy.hasShouted)} · puesto (${enemy.home.x}, ${enemy.home.y}) · última ${lastKnown} · visión ${visionRadius(enemy)} · alarma ${alarmRadius(enemy)}`;
+  });
+}
+
 function vitalityLine(state: GameState): string {
   const units = [...state.players, ...state.enemies];
   if (units.length === 0) return 'Vida: —';
@@ -304,6 +321,7 @@ export function buildDebugModel(
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       equipmentDebugLine(player),
       ...enemyEquipmentLines(state),
+      ...enemyPerceptionLines(state),
       vitalityLine(state),
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
       cursorLabel(cursor),

@@ -4,7 +4,7 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { reduce } from '../../../src/game/index';
+import { createInitialState, reduce } from '../../../src/game/index';
 import type { WeaponId } from '../../../src/game/equipment';
 import type { GameState, RngState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
@@ -482,6 +482,77 @@ describe('snapshot del mapa generado', () => {
     expect(pickup.snapshot.weapons).toHaveLength(1);
     expect(pickup.snapshot.weapons.some((entry) => entry.id === weapon.id)).toBe(false);
     expect(pickup.snapshot.players[0].equipment.weaponId).toBe(weapon.weaponId);
+  });
+
+  it('expone los 4 enemigos con percepción completa y clona home/lastKnown', () => {
+    const base = createInitialState({ seed: 279837264 });
+    const state: GameState = {
+      ...base,
+      enemies: base.enemies.map((enemy, index) =>
+        index === 0
+          ? {
+              ...enemy,
+              awareness: 'alert',
+              lastKnown: { x: 3, y: 4 },
+              alertTurns: 2,
+              hasShouted: true,
+            }
+          : enemy,
+      ),
+    };
+    const session = new GameSession(state);
+    const cursor = cursorAtPlayer(session.state.players[0]);
+    const api = createDebugApi(
+      () => ({
+        state: session.state,
+        camera: { x: 0, y: 64 },
+        bounds: { maxX: 608, maxY: 608 },
+        viewport: { width: 416, height: 416 },
+        tileSize: 32,
+        assetsLoaded: true,
+        lastEvents: [],
+        cursor: deriveCursorStatus(session.state, cursor),
+      }),
+      (command) => session.dispatch(command),
+    );
+
+    const snapshot = api.snapshot();
+
+    expect(snapshot.enemies).toHaveLength(4);
+    for (const enemy of snapshot.enemies) {
+      expect(enemy).toEqual(
+        expect.objectContaining({
+          awareness: expect.stringMatching(/^(dormant|alert|returning)$/),
+          fleeing: expect.any(Boolean),
+          home: expect.objectContaining({
+            x: expect.any(Number),
+            y: expect.any(Number),
+          }),
+          alertTurns: expect.any(Number),
+          hasShouted: expect.any(Boolean),
+        }),
+      );
+      expect(enemy.lastKnown === null || typeof enemy.lastKnown === 'object').toBe(true);
+    }
+    expect(snapshot.enemies[0]).toMatchObject({
+      awareness: 'alert',
+      lastKnown: { x: 3, y: 4 },
+      alertTurns: 2,
+      hasShouted: true,
+    });
+    expect(api.snapshot()).toEqual(snapshot);
+
+    const liveHome = { ...session.state.enemies[0].home };
+    const liveLastKnown = { ...session.state.enemies[0].lastKnown! };
+    (snapshot.enemies[0].home as { x: number }).x = 999;
+    (snapshot.enemies[0].lastKnown as { x: number }).x = 999;
+
+    expect(session.state.enemies[0].home).toEqual(liveHome);
+    expect(session.state.enemies[0].lastKnown).toEqual(liveLastKnown);
+    const fresh = api.snapshot();
+    expect(fresh.enemies[0].home).toEqual(liveHome);
+    expect(fresh.enemies[0].lastKnown).toEqual(liveLastKnown);
+    expect(Object.keys(api).sort()).toEqual(['advance', 'dispatch', 'snapshot']);
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {

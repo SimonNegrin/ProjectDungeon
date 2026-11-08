@@ -38,9 +38,12 @@ import {
   type MotionTimeline,
 } from './motion';
 import { noticeForRejection } from './notices';
+import { createPerceptionOverlayView } from './perception-overlay';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
+import { trackSpottedUnits } from './spot';
+import { createSpotMarkerView } from './spot-view';
 
 const DAMAGE_FEEDBACK_MS = 1200;
 /** Delta máximo por frame: una pestaña en segundo plano no adelanta pasos. */
@@ -208,6 +211,8 @@ async function boot(): Promise<void> {
   let assets: SceneAssets | undefined;
   let cursor = cursorAtPlayer(session.state.players[0]);
   let cursorStatus = deriveCursorStatus(session.state, cursor);
+  /** Detectores que iniciaron un episodio con `EnemySpotted`. */
+  let spottedUnits: ReadonlySet<string> = new Set<string>();
 
   let animation: ActiveAnimation | null = null;
   let frameHandle: number | undefined;
@@ -220,6 +225,8 @@ async function boot(): Promise<void> {
   const feedbackView = createDamageFeedbackView(frame);
   const cursorView = createCursorView(frame);
   const noticeView = createNoticeView(gameRoot);
+  const spotView = createSpotMarkerView(frame);
+  const perceptionView = createPerceptionOverlayView(frame);
 
   const resetCursorToPlayer = (): void => {
     cursor = cursorAtPlayer(session.state.players[0]);
@@ -296,6 +303,8 @@ async function boot(): Promise<void> {
       hudView.update(display, displayCursor);
       cursorView.update(displayCursor, camera);
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
+      spotView.update(state, camera, viewport, spottedUnits);
+      perceptionView.update(state, camera, viewport, debugView.isOpen());
       return;
     }
 
@@ -314,16 +323,22 @@ async function boot(): Promise<void> {
     hudView.update(state, cursorStatus);
     cursorView.update(cursorStatus, camera);
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
+    spotView.update(state, camera, viewport, spottedUnits);
+    perceptionView.update(state, camera, viewport, debugView.isOpen());
   };
 
   const fireFeedbacks = (active: ActiveAnimation, fromMs: number, toMs: number): void => {
     let index = 0;
     for (const entry of active.timeline.events) {
+      const inWindow =
+        entry.atMs > fromMs + EPSILON && entry.atMs <= toMs + EPSILON;
+      if (inWindow && entry.event.type === 'EnemySpotted') {
+        spottedUnits = trackSpottedUnits(spottedUnits, [entry.event]);
+      }
       if (
         entry.event.type === 'AttackPerformed' &&
         !active.firedAttacks.has(index) &&
-        entry.atMs > fromMs + EPSILON &&
-        entry.atMs <= toMs + EPSILON
+        inWindow
       ) {
         active.firedAttacks.add(index);
         const display = presentationState(
@@ -457,6 +472,8 @@ async function boot(): Promise<void> {
       cancelAnimation();
       feedbackView.clear();
       debugView.close();
+      noticeView.clear();
+      spottedUnits = new Set<string>();
       resetCursorToPlayer();
       render();
       return result;
@@ -465,6 +482,7 @@ async function boot(): Promise<void> {
     let resetCursorAtEnd = false;
     for (const event of result.events) {
       if (event.type === 'PlayerTurnStarted') resetCursorAtEnd = true;
+      if (event.type === 'AlarmRaised') noticeView.show('alarm-raised');
       if (event.type === 'CommandRejected') {
         const notice = noticeForRejection(event.reason);
         if (notice) noticeView.show(notice);
@@ -491,6 +509,7 @@ async function boot(): Promise<void> {
     lastEvents = [];
     feedbackView.clear();
     noticeView.clear();
+    spottedUnits = new Set<string>();
     resetCursorToPlayer();
     cursorStatus = deriveCursorStatus(session.state, cursor);
     render();

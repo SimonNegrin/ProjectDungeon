@@ -5,13 +5,15 @@ export type NoticeCode =
   | 'invalid-target'
   | 'enemy-out-of-range'
   | 'no-action'
-  | 'no-mp';
+  | 'no-mp'
+  | 'alarm-raised';
 
 export const NOTICE_MESSAGES: Readonly<Record<NoticeCode, string>> = {
   'invalid-target': 'Destino no válido',
   'enemy-out-of-range': 'Enemigo fuera de alcance',
   'no-action': 'Sin acción',
   'no-mp': 'Sin MP',
+  'alarm-raised': '¡Alarma! Te han visto',
 };
 
 /** Duración del aviso breve del HUD. */
