@@ -5,7 +5,8 @@ import {
   deriveCursorStatus,
 } from '../../../src/host/cursor';
 import { reduce } from '../../../src/game/index';
-import type { GameState } from '../../../src/game/types';
+import type { WeaponId } from '../../../src/game/equipment';
+import type { GameState, RngState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
 import {
   planDecoration,
@@ -13,7 +14,7 @@ import {
   summarizeDecoration,
 } from '../../../src/host/floor';
 import { GameSession } from '../../../src/host/session';
-import { makeState } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
 function setup() {
   const session = new GameSession(makeState());
@@ -73,6 +74,32 @@ function generatedSetup() {
   );
 
   return api;
+}
+
+function combatSetup(rng?: RngState) {
+  const session = new GameSession(
+    makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng,
+    }),
+  );
+
+  const api = createDebugApi(
+    () => ({
+      state: session.state,
+      camera: { x: 0, y: 0 },
+      bounds: { maxX: 224, maxY: 224 },
+      viewport: { width: 416, height: 416 },
+      tileSize: 32,
+      assetsLoaded: true,
+      lastEvents: [],
+      cursor: deriveCursorStatus(session.state, { x: 6, y: 5 }),
+    }),
+    (command) => session.dispatch(command),
+  );
+
+  return { api, session };
 }
 
 describe('API de debug window.__game', () => {
@@ -415,5 +442,108 @@ describe('snapshot del mapa generado', () => {
     expect(result.snapshot.seed).toBe(before.seed);
     expect(result.snapshot.rooms).toEqual(before.rooms);
     expect(result.snapshot.spawns).toEqual(before.spawns);
+  });
+});
+
+describe('snapshot profundo y RNG de combate', () => {
+  it('expone un RNG clonado que coincide con el estado antes y después de atacar', () => {
+    const { api, session } = combatSetup(rngForDice([6, 1, 2, 1]));
+
+    const before = api.snapshot();
+    expect(before.rng).toEqual(session.state.rng);
+    expect(before.rng.seed).toBe(1017);
+
+    const result = api.dispatch({
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.events[0]).toMatchObject({ type: 'AttackPerformed', hit: true });
+    expect(result.snapshot.rng).toEqual(session.state.rng);
+    expect(result.snapshot.rng).not.toEqual(before.rng);
+    expect(result.snapshot.rng.seed).toBe(before.rng.seed);
+  });
+
+  it('clona modifiers, equipment y weapons de cada unidad', () => {
+    const { api, session } = combatSetup();
+    const snapshot = api.snapshot();
+
+    for (const [units, liveUnits] of [
+      [snapshot.players, session.state.players],
+      [snapshot.enemies, session.state.enemies],
+    ] as const) {
+      expect(units[0].modifiers).toEqual(liveUnits[0].modifiers);
+      expect(units[0].modifiers).not.toBe(liveUnits[0].modifiers);
+      expect(units[0].equipment).toEqual(liveUnits[0].equipment);
+      expect(units[0].equipment).not.toBe(liveUnits[0].equipment);
+      expect(units[0].weapons).toEqual(liveUnits[0].weapons);
+      expect(units[0].weapons).not.toBe(liveUnits[0].weapons);
+    }
+  });
+
+  it('mutar cada campo anidado del snapshot no altera el estado vivo', () => {
+    const { api, session } = combatSetup();
+    const liveRng = { ...session.state.rng };
+    const liveModifiers = { ...session.state.players[0].modifiers };
+    const liveEquipment = { ...session.state.players[0].equipment };
+    const liveWeapons = [...session.state.players[0].weapons];
+
+    const snapshot = api.snapshot();
+    (snapshot.rng as { state: number }).state = 999_999;
+    const player = snapshot.players[0];
+    (player.modifiers as { accuracy: number }).accuracy = 999;
+    (player.equipment as { weaponId: WeaponId }).weaponId = 'axe';
+    (player.weapons as WeaponId[]).push('axe');
+
+    expect(session.state.rng).toEqual(liveRng);
+    expect(session.state.players[0].modifiers).toEqual(liveModifiers);
+    expect(session.state.players[0].equipment).toEqual(liveEquipment);
+    expect(session.state.players[0].weapons).toEqual(liveWeapons);
+
+    const fresh = api.snapshot();
+    expect(fresh.rng).toEqual(liveRng);
+    expect(fresh.players[0].modifiers).toEqual(liveModifiers);
+    expect(fresh.players[0].equipment).toEqual(liveEquipment);
+    expect(fresh.players[0].weapons).toEqual(liveWeapons);
+  });
+
+  it('sobrevive a un round-trip JSON conservando RNG, equipo y modificadores', () => {
+    const { api } = combatSetup(rngForDice([6, 1, 2, 1]));
+    api.dispatch({ type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' });
+
+    const snapshot = api.snapshot();
+    const roundTrip = JSON.parse(JSON.stringify(snapshot));
+
+    expect(roundTrip.rng).toEqual(snapshot.rng);
+    expect(roundTrip.players).toEqual(snapshot.players);
+    expect(roundTrip.enemies).toEqual(snapshot.enemies);
+    expect(roundTrip.players[0].modifiers).toEqual(snapshot.players[0].modifiers);
+    expect(roundTrip.players[0].equipment).toEqual(snapshot.players[0].equipment);
+    expect(roundTrip.players[0].weapons).toEqual(snapshot.players[0].weapons);
+  });
+
+  it('dos partidas con la misma semilla y comandos producen el mismo RNG', () => {
+    const rng = rngForDice([6, 1, 2, 1]);
+    const first = combatSetup(rng);
+    const second = combatSetup(rng);
+
+    expect(first.api.snapshot().rng).toEqual(second.api.snapshot().rng);
+
+    const a = first.api.dispatch({
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+    const b = second.api.dispatch({
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(a.snapshot.rng).toEqual(b.snapshot.rng);
+    expect(a.events).toEqual(b.events);
+    expect(a.snapshot.rng).toEqual(first.session.state.rng);
+    expect(b.snapshot.rng).toEqual(second.session.state.rng);
   });
 });

@@ -5,6 +5,7 @@ import type {
   GameStatus,
   Phase,
   Position,
+  RngState,
   Tile,
   Unit,
 } from '../game/types';
@@ -57,6 +58,8 @@ export interface GameSnapshot {
   };
   /** Semilla del mapa generado; `null` si el estado es manual y no tiene mapa. */
   readonly seed: number | null;
+  /** RNG de combate clonado; coincide con el estado antes y después de cada comando. */
+  readonly rng: RngState;
   readonly rooms: readonly Room[];
   readonly corridors: readonly Corridor[];
   readonly doors: readonly Door[];
@@ -117,7 +120,12 @@ export interface DebugSnapshotSource {
 }
 
 function cloneUnit(unit: Unit): Unit {
-  return { ...unit };
+  return {
+    ...unit,
+    modifiers: { ...unit.modifiers },
+    equipment: { ...unit.equipment },
+    weapons: [...unit.weapons],
+  };
 }
 
 function cloneEvent(event: GameEvent): GameEvent {
@@ -176,6 +184,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
       tiles: [...source.state.grid.tiles],
     },
     seed: map?.seed ?? null,
+    rng: { seed: source.state.rng.seed, state: source.state.rng.state },
     rooms: map ? map.rooms.map(cloneRoom) : [],
     corridors: map ? map.corridors.map(cloneCorridor) : [],
     doors: map ? map.doors.map((door) => ({ ...door })) : [],
