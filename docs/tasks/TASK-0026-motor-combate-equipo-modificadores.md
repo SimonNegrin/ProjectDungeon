@@ -25,8 +25,9 @@ verified:
     note: >-
       Intento 2 verificado en task/TASK-0026: implementación ac5e145, tests
       76c9ab7 e informe 2008d23. `pnpm run verify` OK (443 tests, 136 docs,
-      build) y `pnpm run test:e2e` OK (55/55); sin cambios en src/host, docs,
-      experiments ni dependencias. El snapshot expone la semilla del RNG en
+      build) y `pnpm run test:e2e` OK (55/55); sin cambios en `src/host/`,
+      `index.html`, `public/`, docs de requisito/diseño, `experiments/` ni
+      dependencias. El snapshot expone la semilla del RNG en
       solo lectura (`snapshot().seed`); el contador serializable vive en
       `GameState.rng` y no se añade al snapshot por el límite de `src/host`.
 ---
