@@ -2,10 +2,9 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { MotionExperimentApi } from '../../experiments/EXP-002-ritmo-movimiento/src/motion';
+import { artifactPath } from './artifacts';
 
 const SEED = 279837264;
-const ARTIFACTS = 'artifacts/TASK-0017/attempt-1';
-const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
 
 test.use({ viewport: { width: 1600, height: 1200 } });
 
@@ -85,7 +84,7 @@ async function screenshot(
   name: string,
   testInfo: TestInfo,
 ): Promise<void> {
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.getByTestId('stage-motion').screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -340,7 +339,7 @@ test('escenario largo: diagonal, cámara clampada y decisión exportada', async 
   const downloadPromise = page.waitForEvent('download');
   await page.getByTestId('decision-download').click();
   const download = await downloadPromise;
-  const decisionPath = `${ARTIFACTS}/decision-example.json`;
+  const decisionPath = artifactPath(testInfo, 'decision-example.json');
   await mkdir(dirname(decisionPath), { recursive: true });
   await download.saveAs(decisionPath);
 

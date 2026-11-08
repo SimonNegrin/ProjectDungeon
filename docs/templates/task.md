@@ -72,7 +72,7 @@ Enlaces al requisito, diseño y archivos relevantes.
 
 - [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`
 - [ ] Salida de tests
-- [ ] Capturas si hay UI
+- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR` si la evidencia se versiona)
 - [ ] Commit SHA
 
 # Restricciones

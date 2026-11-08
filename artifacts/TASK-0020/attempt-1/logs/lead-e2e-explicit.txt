@@ -1,0 +1,14 @@
+$ playwright test motion-qa
+
+Running 8 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/motion-qa.spec.ts:167:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (988ms)
+  ✓  2 [chromium] › tests/e2e/motion-qa.spec.ts:267:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (1.3s)
+  ✓  1 [chromium] › tests/e2e/motion-qa.spec.ts:442:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (1.4s)
+  ✓  6 [chromium] › tests/e2e/motion-qa.spec.ts:704:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (629ms)
+  ✓  4 [chromium] › tests/e2e/motion-qa.spec.ts:368:1 › la cámara sigue al personaje y no se mueve con el cursor (2.0s)
+  ✓  7 [chromium] › tests/e2e/motion-qa.spec.ts:773:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (829ms)
+  ✓  8 [chromium] › tests/e2e/motion-qa.spec.ts:818:1 › dos ejecuciones producen el mismo resultado con reloj determinista (533ms)
+  ✓  5 [chromium] › tests/e2e/motion-qa.spec.ts:571:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (2.5s)
+
+  8 passed (4.7s)

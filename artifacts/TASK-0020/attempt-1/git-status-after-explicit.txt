@@ -1,0 +1,6 @@
+$ git status --porcelain artifacts
+?? artifacts/TASK-0020/
+
+$ git diff --stat artifacts
+
+$ git status --porcelain artifacts | grep -v "artifacts/TASK-0020/"

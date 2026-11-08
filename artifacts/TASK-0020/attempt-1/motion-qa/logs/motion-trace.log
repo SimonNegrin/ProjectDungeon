@@ -1,0 +1,412 @@
+{
+  "seed": 279837264,
+  "config": {
+    "stepMs": 125,
+    "pauseMs": 70,
+    "diagonal": "constant-duration"
+  },
+  "first": {
+    "samples": [
+      {
+        "label": "frozen",
+        "animating": true,
+        "step": 0,
+        "totalSteps": 2,
+        "position": {
+          "x": 208,
+          "y": 272,
+          "tileX": 6,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 0,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 2
+        },
+        "hudMp": "6/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 2
+      },
+      {
+        "label": "mitad-1",
+        "animating": true,
+        "step": 0,
+        "totalSteps": 2,
+        "position": {
+          "x": 224,
+          "y": 272,
+          "tileX": 7,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 16,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 2
+        },
+        "hudMp": "6/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 2
+      },
+      {
+        "label": "fin-1",
+        "animating": true,
+        "step": 1,
+        "totalSteps": 2,
+        "position": {
+          "x": 240,
+          "y": 272,
+          "tileX": 7,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 32,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 1
+        },
+        "hudMp": "5/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 1
+      },
+      {
+        "label": "mitad-2",
+        "animating": true,
+        "step": 1,
+        "totalSteps": 2,
+        "position": {
+          "x": 256,
+          "y": 272,
+          "tileX": 8,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 48,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 1
+        },
+        "hudMp": "5/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 1
+      },
+      {
+        "label": "fin-2",
+        "animating": false,
+        "step": 0,
+        "totalSteps": 0,
+        "position": null,
+        "camera": {
+          "x": 64,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": true,
+          "path": 0
+        },
+        "hudMp": "4/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 0
+      }
+    ],
+    "final": {
+      "players": [
+        {
+          "id": "player-1",
+          "faction": "player",
+          "x": 8,
+          "y": 8,
+          "hp": 20,
+          "maxHp": 20,
+          "mp": 4,
+          "maxMp": 6,
+          "actionAvailable": true
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy-1",
+          "faction": "enemy",
+          "x": 23,
+          "y": 28,
+          "hp": 10,
+          "maxHp": 10,
+          "mp": 4,
+          "maxMp": 4,
+          "actionAvailable": true
+        }
+      ],
+      "turn": 1,
+      "phase": "player",
+      "status": "playing",
+      "cursor": {
+        "x": 8,
+        "y": 8,
+        "visible": true,
+        "kind": "player",
+        "state": "player",
+        "path": []
+      },
+      "camera": {
+        "x": 64,
+        "y": 64,
+        "maxX": 608,
+        "maxY": 608
+      },
+      "lastEvents": [
+        {
+          "type": "UnitMoved",
+          "unitId": "player-1",
+          "from": {
+            "x": 6,
+            "y": 8
+          },
+          "to": {
+            "x": 7,
+            "y": 8
+          },
+          "mpLeft": 5
+        },
+        {
+          "type": "UnitMoved",
+          "unitId": "player-1",
+          "from": {
+            "x": 7,
+            "y": 8
+          },
+          "to": {
+            "x": 8,
+            "y": 8
+          },
+          "mpLeft": 4
+        }
+      ]
+    }
+  },
+  "second": {
+    "samples": [
+      {
+        "label": "frozen",
+        "animating": true,
+        "step": 0,
+        "totalSteps": 2,
+        "position": {
+          "x": 208,
+          "y": 272,
+          "tileX": 6,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 0,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 2
+        },
+        "hudMp": "6/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 2
+      },
+      {
+        "label": "mitad-1",
+        "animating": true,
+        "step": 0,
+        "totalSteps": 2,
+        "position": {
+          "x": 224,
+          "y": 272,
+          "tileX": 7,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 16,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 2
+        },
+        "hudMp": "6/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 2
+      },
+      {
+        "label": "fin-1",
+        "animating": true,
+        "step": 1,
+        "totalSteps": 2,
+        "position": {
+          "x": 240,
+          "y": 272,
+          "tileX": 7,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 32,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 1
+        },
+        "hudMp": "5/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 1
+      },
+      {
+        "label": "mitad-2",
+        "animating": true,
+        "step": 1,
+        "totalSteps": 2,
+        "position": {
+          "x": 256,
+          "y": 272,
+          "tileX": 8,
+          "tileY": 8
+        },
+        "camera": {
+          "x": 48,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": false,
+          "path": 1
+        },
+        "hudMp": "5/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 1
+      },
+      {
+        "label": "fin-2",
+        "animating": false,
+        "step": 0,
+        "totalSteps": 0,
+        "position": null,
+        "camera": {
+          "x": 64,
+          "y": 64
+        },
+        "cursor": {
+          "x": 8,
+          "y": 8,
+          "visible": true,
+          "path": 0
+        },
+        "hudMp": "4/6",
+        "hudPhase": "Jugador",
+        "hudTurn": "Turno 1",
+        "dots": 0
+      }
+    ],
+    "final": {
+      "players": [
+        {
+          "id": "player-1",
+          "faction": "player",
+          "x": 8,
+          "y": 8,
+          "hp": 20,
+          "maxHp": 20,
+          "mp": 4,
+          "maxMp": 6,
+          "actionAvailable": true
+        }
+      ],
+      "enemies": [
+        {
+          "id": "enemy-1",
+          "faction": "enemy",
+          "x": 23,
+          "y": 28,
+          "hp": 10,
+          "maxHp": 10,
+          "mp": 4,
+          "maxMp": 4,
+          "actionAvailable": true
+        }
+      ],
+      "turn": 1,
+      "phase": "player",
+      "status": "playing",
+      "cursor": {
+        "x": 8,
+        "y": 8,
+        "visible": true,
+        "kind": "player",
+        "state": "player",
+        "path": []
+      },
+      "camera": {
+        "x": 64,
+        "y": 64,
+        "maxX": 608,
+        "maxY": 608
+      },
+      "lastEvents": [
+        {
+          "type": "UnitMoved",
+          "unitId": "player-1",
+          "from": {
+            "x": 6,
+            "y": 8
+          },
+          "to": {
+            "x": 7,
+            "y": 8
+          },
+          "mpLeft": 5
+        },
+        {
+          "type": "UnitMoved",
+          "unitId": "player-1",
+          "from": {
+            "x": 7,
+            "y": 8
+          },
+          "to": {
+            "x": 8,
+            "y": 8
+          },
+          "mpLeft": 4
+        }
+      ]
+    }
+  }
+}

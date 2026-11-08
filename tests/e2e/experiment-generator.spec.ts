@@ -1,7 +1,8 @@
 import { mkdir } from 'node:fs/promises';
+import { dirname } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
+import { artifactPath } from './artifacts';
 
-const SHOTS = 'artifacts/TASK-0007/attempt-2/screenshots';
 const VARIANT_IDS = ['bsp', 'random', 'hybrid'] as const;
 
 test.use({ viewport: { width: 1600, height: 1200 } });
@@ -87,14 +88,14 @@ test('EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión'
   });
   expect(paintedPixels).toBeGreaterThan(1000);
 
-  await mkdir(SHOTS, { recursive: true });
   const variantShots: Array<[string, string]> = [
     ['bsp', 'variant-a-seed-20261107'],
     ['random', 'variant-b-seed-20261107'],
     ['hybrid', 'variant-c-seed-20261107'],
   ];
   for (const [id, name] of variantShots) {
-    const path = `${SHOTS}/${name}.png`;
+    const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
+    await mkdir(dirname(path), { recursive: true });
     await page.getByTestId(`stage-${id}`).screenshot({ path });
     await testInfo.attach(name, { path, contentType: 'image/png' });
   }
@@ -112,9 +113,11 @@ test('EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión'
   }
   await expect(page.getByTestId('metrics-bsp')).not.toContainText(String(initialFingerprints.bsp));
 
-  await page.screenshot({ path: `${SHOTS}/alternative-seed.png`, fullPage: true });
+  const alternativeSeedPath = artifactPath(testInfo, 'screenshots', 'alternative-seed.png');
+  await mkdir(dirname(alternativeSeedPath), { recursive: true });
+  await page.screenshot({ path: alternativeSeedPath, fullPage: true });
   await testInfo.attach('alternative-seed', {
-    path: `${SHOTS}/alternative-seed.png`,
+    path: alternativeSeedPath,
     contentType: 'image/png',
   });
 
@@ -125,9 +128,11 @@ test('EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión'
   await expect.poll(() => page.getByTestId('canvas-hybrid').getAttribute('data-show-doors')).toBe('false');
   await expect(page.getByTestId('metrics-bsp')).toContainText('Huecos');
 
-  await page.screenshot({ path: `${SHOTS}/doors-off.png`, fullPage: true });
+  const doorsOffPath = artifactPath(testInfo, 'screenshots', 'doors-off.png');
+  await mkdir(dirname(doorsOffPath), { recursive: true });
+  await page.screenshot({ path: doorsOffPath, fullPage: true });
   await testInfo.attach('doors-off', {
-    path: `${SHOTS}/doors-off.png`,
+    path: doorsOffPath,
     contentType: 'image/png',
   });
 

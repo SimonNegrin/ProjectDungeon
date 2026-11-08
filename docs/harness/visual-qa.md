@@ -97,13 +97,26 @@ puede añadir un subagente con un modelo de visión, pero no es el pilar.
 # Capturas y baselines
 
 - Capturas de estados clave, no de todos los frames.
-- Guardar la evidencia de una tarea en `artifacts/TASK-XXXX/attempt-N/screenshots/`.
-- Los artefactos de tareas cerradas son evidencia histórica inmutable. La suite
-  E2E puede reescribir capturas antiguas al ejecutarse: revertir esos cambios
-  (`git checkout -- artifacts/`) antes de commitear y conservar solo las capturas
-  del intento actual. A medio plazo, parametrizar la carpeta de capturas de la
-  suite (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) para que no toque
-  artefactos versionados.
+- La suite escribe capturas, JSON y logs con un helper único,
+  `artifactPath(testInfo, ...parts)` (`tests/e2e/artifacts.ts`). Ningún spec usa
+  rutas fijas a `artifacts/`.
+- Por defecto la base es `testInfo.outputPath(...)`, dentro de `test-results/`,
+  que Playwright limpia por ejecución. Una corrida normal no modifica la
+  evidencia versionada.
+- Para una captura explícita de una tarea, define `E2E_ARTIFACTS_DIR`:
+
+  ```bash
+  E2E_ARTIFACTS_DIR=artifacts/TASK-XXXX/attempt-N pnpm run test:e2e <spec>
+  ```
+
+  La suite escribe solo en esa carpeta. En `--repeat-each` añade un
+  subdirectorio por repetición para que dos workers no compitan por el mismo
+  PNG/JSON.
+- Guardar la evidencia de una tarea en
+  `artifacts/TASK-XXXX/attempt-N/screenshots/` mediante una corrida explícita.
+- Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
+  reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
+  la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.
 - Para regresión estable, usar `toHaveScreenshot` con tolerancia y máscaras.
 - No comparar a pantalla completa escenas animadas.
 - Actualizar baselines solo con aprobación humana.

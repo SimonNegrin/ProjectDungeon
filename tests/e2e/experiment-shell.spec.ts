@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test } from '@playwright/test';
+import { artifactPath } from './artifacts';
 
 test('el shell renderiza, ajusta parámetros y exporta una decisión', async ({ page }, testInfo) => {
   await page.goto('/experiments/EXP-000-shell-demo/?test=1&seed=123');
@@ -43,7 +44,7 @@ test('el shell renderiza, ajusta parámetros y exporta una decisión', async ({ 
   expect(decision?.decision).toBe('random');
   expect(decision?.notes).toBe('Prueba de humo del shell');
 
-  const screenshotPath = 'artifacts/EXP-000-shell-demo/shell-smoke.png';
+  const screenshotPath = artifactPath(testInfo, 'shell-smoke.png');
   await mkdir(dirname(screenshotPath), { recursive: true });
   await page.screenshot({ path: screenshotPath, fullPage: true });
   await testInfo.attach('shell-smoke', { path: screenshotPath, contentType: 'image/png' });

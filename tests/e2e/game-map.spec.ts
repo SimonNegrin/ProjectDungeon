@@ -3,9 +3,7 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
 import { settle, walkTo } from './support';
-
-const ARTIFACTS = 'artifacts/TASK-0016/attempt-1';
-const SCREENSHOTS = `${ARTIFACTS}/screenshots`;
+import { artifactPath } from './artifacts';
 
 const TILE_SIZE = 32;
 const RENDER_SCALE = 3;
@@ -31,7 +29,7 @@ async function saveScreenshot(
   testInfo: TestInfo,
   options: { fullPage?: boolean } = {},
 ): Promise<void> {
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path, ...options });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -67,7 +65,7 @@ async function saveCanvasCrop(
     Math.min(Math.max(cssY - size / 2, box.y), box.y + box.height - size),
   );
 
-  const path = `${SCREENSHOTS}/${name}.png`;
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   // El recorte siempre cae dentro del marco del Canvas.
   expect(box.width).toBeGreaterThanOrEqual(size);
@@ -120,9 +118,10 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   expect(initial.camera.x).toBe(expectedCamera(initial).x);
   expect(initial.camera.y).toBe(expectedCamera(initial).y);
 
-  await mkdir(ARTIFACTS, { recursive: true });
+  const snapshotPath = artifactPath(testInfo, 'snapshot.json');
+  await mkdir(dirname(snapshotPath), { recursive: true });
   await writeFile(
-    `${ARTIFACTS}/snapshot.json`,
+    snapshotPath,
     `${JSON.stringify(initial, null, 2)}\n`,
     'utf8',
   );
