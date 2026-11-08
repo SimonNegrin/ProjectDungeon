@@ -1,0 +1,10 @@
+Salida original de `pnpm run verify` (antes del arreglo del brief):
+
+$ node scripts/validate-docs.mjs
+Error: YAML inválido en artifacts/TASK-0015/attempt-1/brief.md: Nested mappings are not allowed in compact mappings at line 3, column 14:
+
+description: E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enem…
+             ^
+
+Causa: el valor de `description` contenía dos puntos sin comillas. Se citó el
+valor; no cambió ningún requisito, criterio ni contenido semántico.

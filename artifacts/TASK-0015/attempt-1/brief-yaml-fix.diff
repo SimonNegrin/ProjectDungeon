@@ -1,0 +1,19 @@
+commit 79864c083ed87e1a49cdada088007a15f2c29c3a
+Author: Simón Negrín <simon.negrin@gmail.com>
+Date:   Sun Nov 8 02:11:49 2026 +0000
+
+    docs(TASK-0015): citar description del brief para YAML válido
+
+diff --git a/artifacts/TASK-0015/attempt-1/brief.md b/artifacts/TASK-0015/attempt-1/brief.md
+index aafb729..4cdac72 100644
+--- a/artifacts/TASK-0015/attempt-1/brief.md
++++ b/artifacts/TASK-0015/attempt-1/brief.md
+@@ -1,7 +1,7 @@
+ ---
+ type: Task Brief
+ title: "TASK-0015: brief del intento 1"
+-description: E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enemigo y ciclo de vida.
++description: "E2E y QA visual de REQ-004: cursor, estados, camino, Moverse, enemigo y ciclo de vida."
+ task: TASK-0015
+ attempt: 1
+ status: stable
