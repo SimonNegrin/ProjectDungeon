@@ -1,0 +1,2 @@
+$ grep -R -n "artifacts/\(TASK\|EXP\)-" tests/e2e
+exit=1 (1 = sin coincidencias)
