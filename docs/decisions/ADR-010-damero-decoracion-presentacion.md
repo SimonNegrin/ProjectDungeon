@@ -6,8 +6,14 @@ status: stable
 decision_status: accepted
 decided_by: [human:simon, deepseek/v4.1-flash]
 decided_at: 2026-11-08T11:55:58Z
+superseded_by: [ADR-011]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:55:58Z }
 ---
+
+> **Nota (2026-11-08):** [ADR-011](ADR-011-suelo-programatico-ambientes.md)
+> sustituye la capa de suelo por colores planos generados por código y amplía la
+> decoración por ambientes. El principio de presentación no bloqueante, la
+> paridad global y el orden de capas de este ADR siguen vigentes.
 
 # Contexto
 

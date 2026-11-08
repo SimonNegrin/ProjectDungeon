@@ -27,7 +27,9 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **OKF** | Open Knowledge Format: Markdown con frontmatter YAML y enlaces. |
 | **Determinista** | Mismo estado inicial, comandos y semilla producen el mismo resultado. |
 | **Semilla** | Valor que inicializa el generador pseudoaleatorio. |
-| **Damero** | Patrón de suelo de dos tonos que alternan por tile; en el juego la paridad es global `(x + y) % 2`. |
+| **Damero** | Patrón de suelo de dos colores planos generados por código que alternan por tile; la paridad es global `(x + y) % 2` y no se reinicia por sala. |
+| **Paleta de sala** | Par de colores del damero: una base común para la mazmorra y un segundo tono curado por sala. Se asigna por contraste con el ambiente, no por imitación. |
+| **Ambiente decorativo** | Familia dominante de decoración de una sala: humedad, muerte/combate, ruina, vegetación o mixta. Se materializa en focos locales con mezcla. |
 | **Decoración** | Decal plano del tileset dibujado sobre el suelo; no bloquea, no se escribe en la rejilla y no cambia reglas. |
 | **Debug hook** | API de desarrollo que expone estado o permite avanzar el juego en tests. |
 | **Playtest** | Sesión en la que el usuario prueba una build y evalúa sensaciones. |

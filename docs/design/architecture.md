@@ -81,18 +81,24 @@ Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 # Suelo y decoración
 
 El suelo transitable se pinta con un damero global de 1×1: paridad `(x + y) % 2`
-en salas, pasillos y umbrales. La base es el tile de piedra del tileset; la
-paridad alterna recibe un tinte de presentación sutil (~10 % hacia gris-azul)
-elegido por luminancia para que el patrón se lea también en escala de grises. No
-se modifica el PNG.
+en salas, pasillos y umbrales. Los dos colores se generan por código con un
+`fillRect` por tile; no se recortan tiles de suelo del PNG. La base `#0d1519` es
+común a toda la mazmorra y cada sala recibe un segundo tono de una paleta curada:
+neutra, humedad, muerte/combate, ruina o vegetación. La paleta se asigna por
+contraste con el ambiente, no por imitación; pasillos y umbrales usan la neutra.
 
-Encima del damero se dibujan decals planos del tileset (suciedad, huesos,
-sangre/slime, hierba y setas) elegidos de forma determinista por semilla y
-coordenada. La densidad objetivo es 12-18 % en salas y 6-8 % en pasillos; como
+Encima del damero se dibujan 33 decals planos del tileset: piedritas, hierba,
+tierra, ladrillos azules y rojos, huesos, siete plantas pequeñas, setas,
+cadáveres y sangre/slime. El planificador determinista asigna un ambiente
+dominante por sala, con 1-3 focos locales y 20-30 % de mezcla; algunas salas son
+solo dispersas. La densidad objetivo es 35 % en salas y 16 % en pasillos; como
 máximo un decal por tile; nunca en apariciones ni umbrales. La decoración no se
 escribe en `state.grid.tiles`, no bloquea y no añade reglas.
 
-Ver [ADR-010](../decisions/ADR-010-damero-decoracion-presentacion.md) y
+Ver [ADR-011](../decisions/ADR-011-suelo-programatico-ambientes.md) y
+[REQ-008](../requirements/REQ-008-suelo-programatico-decoracion-ambiental.md).
+El corte anterior queda en
+[ADR-010](../decisions/ADR-010-damero-decoracion-presentacion.md) y
 [REQ-007](../requirements/REQ-007-damero-decoracion-suelo.md).
 
 # Render del host
@@ -103,7 +109,7 @@ Ver [ADR-010](../decisions/ADR-010-damero-decoracion-presentacion.md) y
 - **Capa**: HUD en DOM, no dibujado en Canvas; el Canvas no es accesible por sí
   solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
   para los eventos importantes. No se depende solo del color.
-- **Orden de dibujo**: limpiar, base de suelo, tinte del damero, decals,
+- **Orden de dibujo**: limpiar, base de suelo con la paleta de la sala, decals,
   camino/cursor, entidades, efectos y overlay de debug.
 - **Debug y test**: `?debug=1`, `?test=1&seed=...`, `window.__game` y paso manual
   determinista. Nada de animaciones no deterministas en modo test.

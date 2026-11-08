@@ -2,6 +2,10 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Planning — TASK-0024 — backlog: E2E y QA visual del suelo por sala y la decoración ambiental; depende de TASK-0023 — [TASK-0024](tasks/TASK-0024-e2e-qa-suelo-ambientes.md)
+* 2026-11-08 — Planning — TASK-0023 — ready: host, paletas por sala y decoración ambiental; sin cambios en src/game — [TASK-0023](tasks/TASK-0023-host-suelo-programatico-ambientes.md)
+* 2026-11-08 — Decision — ADR-011 — suelo programático por sala y decoración ambiental; ADR-010 queda histórico en la capa de suelo — [ADR-011](decisions/ADR-011-suelo-programatico-ambientes.md)
+* 2026-11-08 — Requirement — REQ-008 — aprobada: damero de dos colores planos con base común y segundo tono por sala, cinco paletas por contraste, 33 decals y densidades 35/16 — [REQ-008](requirements/REQ-008-suelo-programatico-decoracion-ambiental.md)
 * 2026-11-08 — Milestone — REQ-007 — completada tras playtest de `human:simon`; damero legible, decoración no bloqueante y camino/cursor con protagonismo — [REQ-007](requirements/REQ-007-damero-decoracion-suelo.md)
 * 2026-11-08 — Task — TASK-0022 — done: E2E y QA visual del damero y los decals; 46/46 E2E y 381/381 unitarios; densidades 15,04 %/7,04 %; fusión `505837c` — [informe](../artifacts/TASK-0022/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0021 — done: damero global por tinte y decals planos deterministas; 381/381 unitarios y 40/40 E2E; fusión `6c8117f` — [informe](../artifacts/TASK-0021/attempt-1/report.md)

@@ -10,6 +10,7 @@ review_required: true
 created_at: 2026-11-08T11:55:58Z
 updated_at: 2026-11-08T13:49:08Z
 related_tasks: [TASK-0021, TASK-0022]
+superseded_by: [REQ-008]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:55:58Z }
 verified:
   - by: human:simon
@@ -25,6 +26,12 @@ verified:
       umbral, la decoración no bloquea y el camino y el cursor mantienen el
       protagonismo.
 ---
+
+> **Nota histórica:** la capa visual de esta hoja (damero por tinte y densidad
+> 12-18 %/6-8 %) fue sustituida por
+> [REQ-008](REQ-008-suelo-programatico-decoracion-ambiental.md). Las tareas
+> `TASK-0021` y `TASK-0022` se mantienen como evidencia del corte anterior; el
+> principio de decoración no bloqueante sigue vigente.
 
 # Contexto
 

@@ -8,7 +8,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:30:52Z }
 
 # Alcance vigente
 
-Estamos en la **fase 1 cerrada**. La fase 0 dejó documentación, agentes, skills
+La **fase 1** está cerrada en su núcleo; queda el refinamiento visual 1.9. La fase 0 dejó documentación, agentes, skills
 y un shell de experimentos fiable. El primer hito jugable está construido y
 probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
 `REQ-003` cerró la generación procedural con BSP, la interfaz `MapGenerator` y
@@ -20,8 +20,10 @@ con la cámara siguiendo al personaje y el input bloqueado hasta terminar, con e
 ritmo decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
 duración constante). `REQ-007` completó la fase 1.8: el suelo transitable usa un
 damero global de dos tonos y una decoración plana determinista que no bloquea,
-aprobada en playtest. El siguiente corte de contenido es la fase 2: multijugador
-local hotseat.
+aprobada en playtest. `REQ-008` abre la fase 1.9: sustituye el tinte por un
+damero de colores planos con paleta por sala y amplía la decoración con
+ambientes, sin cambiar reglas. El siguiente corte de contenido sigue siendo la
+fase 2: multijugador local hotseat.
 
 # Fases
 
@@ -33,6 +35,7 @@ local hotseat.
 | 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
 | 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
 | 1.8 | Legibilidad del suelo: damero y decoración no bloqueante (REQ-007) | Completada tras playtest; damero global y decals no bloqueantes; TASK-0021 y TASK-0022 cerradas |
+| 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Planificada; TASK-0023 ready y TASK-0024 backlog |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -73,8 +76,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - La mazmorra se genera por semilla con BSP; el primer corte usa un mapa de 32×32.
 - La generación se encapsula tras `MapGenerator` para poder cambiar el algoritmo.
 - Hay pasillos estrechos con puertas y 1-2 pasillos anchos de 2 tiles sin puertas.
-- El suelo transitable usa un damero global de dos tonos; la decoración plana es
-  determinista y no bloquea.
+- El suelo usa un damero de dos colores planos generados por código, con base
+  común y segundo tono por sala; la decoración plana se agrupa por ambientes y no
+  bloquea.
 
 # Fuera de alcance ahora
 
