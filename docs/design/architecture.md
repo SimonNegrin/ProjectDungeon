@@ -78,6 +78,23 @@ eventos de ataque, turno y fin de partida).
 Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 [REQ-006](../requirements/REQ-006-movimiento-animado.md).
 
+# Suelo y decoración
+
+El suelo transitable se pinta con un damero global de 1×1: paridad `(x + y) % 2`
+en salas, pasillos y umbrales. La base es el tile de piedra del tileset; la
+paridad alterna recibe un tinte de presentación sutil (~10 % hacia gris-azul)
+elegido por luminancia para que el patrón se lea también en escala de grises. No
+se modifica el PNG.
+
+Encima del damero se dibujan decals planos del tileset (suciedad, huesos,
+sangre/slime, hierba y setas) elegidos de forma determinista por semilla y
+coordenada. La densidad objetivo es 12-18 % en salas y 6-8 % en pasillos; como
+máximo un decal por tile; nunca en apariciones ni umbrales. La decoración no se
+escribe en `state.grid.tiles`, no bloquea y no añade reglas.
+
+Ver [ADR-010](../decisions/ADR-010-damero-decoracion-presentacion.md) y
+[REQ-007](../requirements/REQ-007-damero-decoracion-suelo.md).
+
 # Render del host
 
 - **Canvas 2D** con resolución lógica fija y escalado por `devicePixelRatio`.
@@ -86,7 +103,8 @@ Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 - **Capa**: HUD en DOM, no dibujado en Canvas; el Canvas no es accesible por sí
   solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
   para los eventos importantes. No se depende solo del color.
-- **Orden de dibujo**: limpiar, tilemap, entidades, efectos y overlay de debug.
+- **Orden de dibujo**: limpiar, base de suelo, tinte del damero, decals,
+  camino/cursor, entidades, efectos y overlay de debug.
 - **Debug y test**: `?debug=1`, `?test=1&seed=...`, `window.__game` y paso manual
   determinista. Nada de animaciones no deterministas en modo test.
 - **Rendimiento**: evitar objetos por frame, precargar assets, un solo canvas

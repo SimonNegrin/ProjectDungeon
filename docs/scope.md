@@ -18,7 +18,9 @@ sub-viewport a 13×13 tiles para centrar al jugador y mostrar tiles completos en
 los bordes. `REQ-006` completó la fase 1.7: el movimiento se presenta tile a tile
 con la cámara siguiendo al personaje y el input bloqueado hasta terminar, con el
 ritmo decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
-duración constante). El siguiente corte de contenido es la fase 2: multijugador
+duración constante). Antes de la fase 2, `REQ-007` pule la legibilidad del suelo
+con un damero global y decoración plana no bloqueante; queda aprobada y
+planificada. El siguiente corte de contenido sigue siendo la fase 2: multijugador
 local hotseat.
 
 # Fases
@@ -30,6 +32,7 @@ local hotseat.
 | 1.5 | Generación procedural del mapa y muros (REQ-003) | Completado tras playtest; BSP, `MapGenerator` y pasillos anchos de 2 tiles |
 | 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
 | 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
+| 1.8 | Legibilidad del suelo: damero y decoración no bloqueante (REQ-007) | Aprobada; TASK-0021 y TASK-0022 planificadas |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -70,6 +73,8 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - La mazmorra se genera por semilla con BSP; el primer corte usa un mapa de 32×32.
 - La generación se encapsula tras `MapGenerator` para poder cambiar el algoritmo.
 - Hay pasillos estrechos con puertas y 1-2 pasillos anchos de 2 tiles sin puertas.
+- El suelo transitable usa un damero global de dos tonos; la decoración plana es
+  determinista y no bloquea.
 
 # Fuera de alcance ahora
 

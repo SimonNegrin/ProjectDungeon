@@ -9,3 +9,4 @@
 * [ADR-007: interfaz MapGenerator](ADR-007-map-generator.md) - Generación encapsulada y reemplazable; BSP por defecto.
 * [ADR-008: presentación animada](ADR-008-presentacion-animada.md) - El motor atómico sigue siendo la verdad; la animación vive en el host.
 * [ADR-009: recorte del arnés](ADR-009-recorte-arnes.md) - Menos documentos, tres skills, handoffs como deltas y topes validados.
+* [ADR-010: damero y decoración de presentación](ADR-010-damero-decoracion-presentacion.md) - El suelo se pinta en el host; el tinte y los decals no cambian el motor ni bloquean.

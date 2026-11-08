@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **20**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **22**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -23,7 +23,17 @@ Total: **20**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0017](TASK-0017-ritmo-movimiento.md) | EXP-002: ritmo del movimiento animado | `done` | REQ-006 | TASK-0016 | P1 |
 | [TASK-0018](TASK-0018-movimiento-animado-host.md) | Host: animación de movimiento, cámara e input bloqueado | `done` | REQ-006 | TASK-0017 | P1 |
 | [TASK-0019](TASK-0019-e2e-movimiento-animado.md) | E2E y QA visual del movimiento animado | `done` | REQ-006 | TASK-0018 | P1 |
+| [TASK-0021](TASK-0021-host-damero-decoracion.md) | Host: damero global y decoración plana determinista | `ready` | REQ-007 | — | P1 |
+| [TASK-0022](TASK-0022-e2e-qa-damero-decoracion.md) | E2E y QA visual del damero y la decoración | `backlog` | REQ-007 | TASK-0021 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
+
+# ready
+
+* [TASK-0021 — Host: damero global y decoración plana determinista](TASK-0021-host-damero-decoracion.md)
+
+# backlog
+
+* [TASK-0022 — E2E y QA visual del damero y la decoración](TASK-0022-e2e-qa-damero-decoracion.md)
 
 # done
 
