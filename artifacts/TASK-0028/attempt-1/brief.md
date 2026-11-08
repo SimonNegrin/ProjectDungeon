@@ -5,7 +5,7 @@ description: Bestiario de combate y ataque enemigo con el resolvedor compartido.
 task: TASK-0028
 attempt: 1
 status: stable
-brief_bytes: 2558
+brief_bytes: 2573
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T18:40:00Z }
 ---

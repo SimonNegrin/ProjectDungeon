@@ -81,6 +81,6 @@ el conteo real hasta 0 es menor por el overkill.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2573 |
-| `report_bytes` | 3374 |
+| `report_bytes` | 3350 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
