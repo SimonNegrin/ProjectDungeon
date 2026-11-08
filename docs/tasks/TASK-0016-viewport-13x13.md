@@ -4,22 +4,25 @@ id: TASK-0016
 title: "Host, render y tests: viewport 13×13 centrado con tiles completos"
 description: Cambia el sub-viewport del mapa de 12×12 a 13×13 tiles, actualiza cámara, render, aparición y todas las expectativas unitarias/E2E, y conserva el pixel art nítido y el encuadre 16:9.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-005
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, T-001, T-002, T-003, T-004, T-005, T-006, T-007]
 depends_on: [TASK-0015]
 unlocks: []
 created_at: 2026-11-08T09:12:11Z
-completed_at:
+completed_at: 2026-11-08T09:24:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0016/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:12:11Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T09:24:00Z
+    note: "Verificación independiente: diff completo de 5 archivos de producción (layout, renderer, cursor-view, bsp, index.html) y 13 de tests; sin docs/, package.json, pnpm-lock ni dependencias. `pnpm run verify` OK (89 documentos, 3 agentes/9 skills, 308 tests en 27 archivos, build 47 módulos) y `pnpm run test:e2e` OK (29/29); build incluido en verify. Revisados los 11 criterios: 13×13/416×416, marco 416 y 16:9, cámara en múltiplos de 32, rango exacto de 13×13 en centro y bordes, clamp intacto, canvas 2218×1248 con offset entero 485 y laterales iguales, cursor/camino limitados, BSP simétrico con enemigo de referencia fuera y distancia 59, HUD/overlays sin recorte en 1280×720, 1920×1080 y 900×700. Capturas revisadas (jugador centrado, borde, debug 416×416, marcos y cursor). Sin tests borrados, saltados ni debilitados: solo expectativas 384/1152/2048/448/12×12 actualizadas y comprobaciones añadidas. Desviación aceptada: canvas interno 2218×1248 (0,03 % de 16:9) para offset entero; overlay exacto difiere del dibujo 0,11 px lógicos, dentro de tolerancia. Fricción de capturas E2E en artefactos históricos: clasificada como arnés, `deferred` y elevada a requirements-writer con evidencia. Commits `71627da` (implementación y artefactos), `57f6ba5` (informe) y fusión `3205cb1`."
 ---
 
 # Objetivo
