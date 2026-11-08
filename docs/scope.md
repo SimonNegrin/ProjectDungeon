@@ -3,12 +3,13 @@ type: Scope
 title: Alcance y fases
 description: Alcance vigente, hitos y límites del proyecto.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:30:52Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:18:04Z }
 ---
 
 # Alcance vigente
 
-La **fase 1** está cerrada en su núcleo; queda el refinamiento visual 1.9. La fase 0 dejó documentación, agentes, skills
+La **fase 1** está cerrada en su núcleo y la fase 1.9 también: `REQ-008` cerró el
+suelo programático y la decoración ambiental con `TASK-0023` y `TASK-0024`. La fase 0 dejó documentación, agentes, skills
 y un shell de experimentos fiable. El primer hito jugable está construido y
 probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
 `REQ-003` cerró la generación procedural con BSP, la interfaz `MapGenerator` y
@@ -20,10 +21,14 @@ con la cámara siguiendo al personaje y el input bloqueado hasta terminar, con e
 ritmo decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
 duración constante). `REQ-007` completó la fase 1.8: el suelo transitable usa un
 damero global de dos tonos y una decoración plana determinista que no bloquea,
-aprobada en playtest. `REQ-008` abre la fase 1.9: sustituye el tinte por un
-damero de colores planos con paleta por sala y amplía la decoración con
-ambientes, sin cambiar reglas. El siguiente corte de contenido sigue siendo la
-fase 2: multijugador local hotseat.
+aprobada en playtest. `REQ-008` completó la fase 1.9: damero de colores planos
+con paleta por sala y decoración ambiental, sin cambiar reglas.
+
+En preparación hay dos cortes de juego, ambos en borrador: `REQ-010` define el
+combate con equipo (acierto, defensa y daño fijo) y `REQ-009` la percepción, la
+alarma y la huida enemiga. El combate se aborda primero porque fija el umbral de
+huida y las estadísticas del bestiario. Después, la fase 2: multijugador local
+hotseat.
 
 # Fases
 
@@ -35,7 +40,9 @@ fase 2: multijugador local hotseat.
 | 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
 | 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
 | 1.8 | Legibilidad del suelo: damero y decoración no bloqueante (REQ-007) | Completada tras playtest; damero global y decals no bloqueantes; TASK-0021 y TASK-0022 cerradas |
-| 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Planificada; TASK-0023 ready y TASK-0024 backlog |
+| 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
+| 1.10 | Combate con equipo: acierto, defensa y daño fijo (REQ-010) | Borrador; EXP-003 en preparación para elegir los números |
+| 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Borrador; depende de REQ-010 para el umbral de huida |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -79,6 +86,11 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - El suelo usa un damero de dos colores planos generados por código, con base
   común y segundo tono por sala; la decoración plana se agrupa por ambientes y no
   bloquea.
+- El combate usa acierto de arma + 1d6 contra escudo + 1d6; el daño es arma +
+  1d6 menos armadura + 1d6, con mínimo 1. El escudo evita impactos y la armadura
+  reduce daño; cada personaje aporta modificadores de acierto, daño y defensa.
+- Los enemigos tienen visión de 360° con línea de visión, detección en cada paso
+  y alarma de una onda; el perfil cobarde huye al recibir un golpe fuerte.
 
 # Fuera de alcance ahora
 

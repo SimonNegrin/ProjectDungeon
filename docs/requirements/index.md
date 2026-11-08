@@ -9,6 +9,8 @@
 * [REQ-006 — Movimiento animado paso a paso y cámara que sigue](REQ-006-movimiento-animado.md) - Completada tras playtest: animación tile a tile de jugador y enemigos, cámara continua a píxel entero e input bloqueado. Ritmo 125 ms por paso, 70 ms de pausa y diagonal a duración constante. Tareas TASK-0017 a TASK-0019.
 * [REQ-007 — Damero de suelo y decoración no bloqueante](REQ-007-damero-decoracion-suelo.md) - Completada tras playtest: damero global 1×1 con tinte sutil, decoración plana en salas (12-18 %) y pasillos (6-8 %), sin bloqueo ni cambios de muros. Tareas TASK-0021 y TASK-0022 cerradas. Histórica: su capa visual queda sustituida por REQ-008.
 * [REQ-008 — Suelo programático por sala y decoración ambiental](REQ-008-suelo-programatico-decoracion-ambiental.md) - Aprobada: damero de dos colores planos con base común y segundo tono por sala, cinco paletas asignadas por contraste, 33 decals y densidades 35/16 con ambientes. Tareas TASK-0023 y TASK-0024.
+* [REQ-009 — Percepción, alarma y huida enemiga](REQ-009-percepcion-alarma-huida.md) - Borrador: visión 360° con línea de visión, detección por paso, alarma de una onda y huida del perfil cobarde. 3-4 enemigos y 2 perfiles; umbral de huida del 40 % confirmado.
+* [REQ-010 — Combate con equipo: acierto, escudo y armadura](REQ-010-combate-equipo-acierto-defensa.md) - Borrador: acierto de arma + 1d6 contra escudo + 1d6, daño de arma + 1d6 menos armadura + 1d6 (mínimo 1), modificadores +1/+1/+1, tres armas melee, armadura y escudo, recogida con G por 1 MP y dos armas por semilla. Valores en EXP-003.
 
 Las tareas deben apuntar a la hoja y a los identificadores de requisito
 concretos. Cuando se cree una hoja nueva, se añadirá aquí con el identificador
