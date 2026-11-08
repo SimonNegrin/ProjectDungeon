@@ -61,7 +61,7 @@ semilla.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `pnpm run verify` avisa de briefs por encima del objetivo de 2560 B aunque el tope duro es 4096 B | `docs:check`: TASK-0027 brief 2968 B y report 3063 B; también TASK-0022 (3937 B) y TASK-0025 (3071 B) | Ninguno: el aviso no bloquea | Se repite entre tareas y confunde objetivo con tope | Alinear el aviso con el tope de 4 KB o recortar el generador de briefs | Bajo; solo afecta al validador de docs | `pending` |
+| `pnpm run verify` avisa de briefs por encima del objetivo de 2560 B aunque el tope duro es 4096 B | `docs:check`: TASK-0027 brief 2968 B y report 3079 B; también TASK-0022 (3937 B) y TASK-0025 (3071 B) | Ninguno: el aviso no bloquea | El aviso distingue objetivo y tope, como documenta el workflow | Ninguno | Bajo; solo afecta al validador de docs | `rejected` |
 
 # Métricas de handoff
 

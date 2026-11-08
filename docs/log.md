@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0027 — cerrada: armas de mapa deterministas, G por 1 MP y cambio gratis 1-3; verify 460 y E2E 55 OK; fusión `f69b844` — [informe](../artifacts/TASK-0027/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0026 — cerrada: combate con equipo, modificadores y RNG sembrado; verify 443 y E2E 55 OK; T-009 (docs/ADR-012) sin tarea — [informe](../artifacts/TASK-0026/attempt-2/report.md)
 * 2026-11-08 — Task — TASK-0025 — cerrada, decisión A (semilla 1017, 1.000 duelos); docs:check OK; TASK-0026 ready — [informe](../artifacts/TASK-0025/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0025 — review: decisión A registrada en EXP-003 y REQ-010; handoff a task-lead para el cierre — [handoff](tasks/TASK-0025-mesa-combate-exp-003.md#handoff-para-task-lead)

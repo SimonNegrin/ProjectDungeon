@@ -29,7 +29,7 @@ Total: **30**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0024](TASK-0024-e2e-qa-suelo-ambientes.md) | E2E y QA visual del suelo por sala y la decoración ambiental | `done` | REQ-008 | TASK-0023 | P1 |
 | [TASK-0025](TASK-0025-mesa-combate-exp-003.md) | EXP-003: mesa de combate configurable | `done` | REQ-010 | — | P1 |
 | [TASK-0026](TASK-0026-motor-combate-equipo-modificadores.md) | Motor: combate con equipo, modificadores y RNG sembrado | `done` | REQ-010 | — | P1 |
-| [TASK-0027](TASK-0027-equipo-armas-mapa-recogida.md) | Motor y host: equipo, armas del mapa y recogida | `ready` | REQ-010 | TASK-0026 | P1 |
+| [TASK-0027](TASK-0027-equipo-armas-mapa-recogida.md) | Motor y host: equipo, armas del mapa y recogida | `done` | REQ-010 | TASK-0026 | P1 |
 | [TASK-0028](TASK-0028-bestiario-combate-ataque-enemigo.md) | Motor: bestiario de combate y ataque enemigo | `ready` | REQ-010 | TASK-0026 | P1 |
 | [TASK-0029](TASK-0029-host-hud-equipo-feedback.md) | Host: HUD de equipo, armas en el mapa y feedback de combate | `backlog` | REQ-010 | TASK-0027, TASK-0028 | P1 |
 | [TASK-0030](TASK-0030-e2e-qa-combate-equipo.md) | E2E y QA visual del combate con equipo | `backlog` | REQ-010 | TASK-0029 | P1 |
@@ -37,7 +37,6 @@ Total: **30**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # ready
 
-* [TASK-0027 — Motor y host: equipo, armas del mapa y recogida](TASK-0027-equipo-armas-mapa-recogida.md)
 * [TASK-0028 — Motor: bestiario de combate y ataque enemigo](TASK-0028-bestiario-combate-ataque-enemigo.md)
 
 # backlog
@@ -72,5 +71,6 @@ Total: **30**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0024 — E2E y QA visual del suelo por sala y la decoración ambiental](TASK-0024-e2e-qa-suelo-ambientes.md)
 * [TASK-0025 — EXP-003: mesa de combate configurable](TASK-0025-mesa-combate-exp-003.md)
 * [TASK-0026 — Motor: combate con equipo, modificadores y RNG sembrado](TASK-0026-motor-combate-equipo-modificadores.md)
+* [TASK-0027 — Motor y host: equipo, armas del mapa y recogida](TASK-0027-equipo-armas-mapa-recogida.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 

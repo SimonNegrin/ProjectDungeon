@@ -1,0 +1,53 @@
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
+$ node scripts/validate-docs.mjs
+Avisos (4):
+- artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
+- artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/brief.md: handoff de 2968 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/report.md: handoff de 3079 B; objetivo ≤2560 B
+OK: 138 documentos, 30 tareas, 4 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 3 agentes, 3 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  31 passed (31)
+      Tests  460 passed (460)
+   Start at  18:23:11
+   Duration  5.66s (tests 90%, import 5%, transform 4%, worker 1%)
+
+    Isolate  31 workers spawned · ~113ms startup each (spawn + environment, per file)
+             at least ~387ms faster with isolate: false — reuses workers across files instead of one per file
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 60 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/experiments/EXP-000-shell-demo/index.html           0.76 kB │ gzip:  0.37 kB
+dist/experiments/EXP-003-mesa-combate/index.html         0.77 kB │ gzip:  0.37 kB
+dist/experiments/EXP-002-ritmo-movimiento/index.html     0.86 kB │ gzip:  0.38 kB
+dist/experiments/EXP-001-generador-mazmorra/index.html   0.95 kB │ gzip:  0.41 kB
+dist/experiments/index.html                              1.18 kB │ gzip:  0.60 kB
+dist/index.html                                         12.53 kB │ gzip:  3.12 kB
+dist/assets/EXP-001-generador-mazmorra-BIqpy-dR.css      0.24 kB │ gzip:  0.17 kB
+dist/assets/EXP-002-ritmo-movimiento-DIFd4f4F.css        0.53 kB │ gzip:  0.33 kB
+dist/assets/experiments-C5qb_O5-.css                     1.97 kB │ gzip:  0.88 kB
+dist/assets/EXP-003-mesa-combate-Dhfgijva.css            3.04 kB │ gzip:  1.09 kB
+dist/assets/export-C55J7gHv.css                          4.28 kB │ gzip:  1.50 kB
+dist/assets/wall-B_kAkA3j.js                             0.15 kB │ gzip:  0.14 kB
+dist/assets/rng-DpVly3Z_.js                              0.33 kB │ gzip:  0.23 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js           0.71 kB │ gzip:  0.40 kB
+dist/assets/export-Cw5DYUzj.js                           0.74 kB │ gzip:  0.47 kB
+dist/assets/assets-VjVoypAj.js                           2.04 kB │ gzip:  0.64 kB
+dist/assets/experiments-DpeX2aF1.js                      2.30 kB │ gzip:  1.01 kB
+dist/assets/EXP-000-shell-demo-CN6iNtsd.js               3.13 kB │ gzip:  1.60 kB
+dist/assets/experiment-BMOKo2gM.js                       9.02 kB │ gzip:  3.38 kB
+dist/assets/EXP-002-ritmo-movimiento-sHFwvDm1.js        16.09 kB │ gzip:  6.35 kB
+dist/assets/EXP-003-mesa-combate-DJVBk1Q0.js            21.94 kB │ gzip:  7.93 kB
+dist/assets/EXP-001-generador-mazmorra-DKZ2A8Wf.js      28.03 kB │ gzip: 10.35 kB
+dist/assets/main-v-2grzMt.js                            78.41 kB │ gzip: 27.88 kB
+✓ built in 368ms
