@@ -4,22 +4,31 @@ id: TASK-0033
 title: "Host: snapshot profundo y RNG de solo lectura"
 description: Exponer el estado del RNG y clonar en profundidad equipo, modificadores e inventario para que las instantáneas sean serializables y no compartan referencias con el estado vivo.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-010
 requirement_ids: [T-002, T-003]
 depends_on: [TASK-0026, TASK-0027]
 unlocks: []
 created_at: 2026-11-08T20:00:00Z
-completed_at:
+completed_at: 2026-11-08T20:02:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0033/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:00:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T20:02:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0033: implementación 9ca8efa e informe
+      aeee1c3. Diff completo revisado; verify OK (496 unitarios, docs/config y
+      build) y test:e2e OK (63/63) re-ejecutados por el lead. Prueba de mutación:
+      con `cloneUnit` vuelto a `{ ...unit }`, el test de mutación anidada falla
+      (1/1); restaurado. Sin cambios en src/game, HUD, index.html, public,
+      package.json ni dependencias; sin tests borrados, saltados ni debilitados.
 ---
 
 # Objetivo
@@ -41,21 +50,21 @@ con datos incompletos. No cambia juego, HUD ni reglas.
 
 # Criterios de aceptación
 
-- [ ] `GameSnapshot` incluye `rng: { seed, state }`, clonado y actualizado tras
+- [x] `GameSnapshot` incluye `rng: { seed, state }`, clonado y actualizado tras
       cada comando; coincide con `state.rng` antes y después de atacar.
-- [ ] Cada unidad del snapshot clona `modifiers`, `equipment` y el array
+- [x] Cada unidad del snapshot clona `modifiers`, `equipment` y el array
       `weapons`; las armas del mapa ya clonadas siguen igual.
-- [ ] Mutar `rng.state`, `equipment.weaponId`, `modifiers.accuracy` o
+- [x] Mutar `rng.state`, `equipment.weaponId`, `modifiers.accuracy` o
       `weapons.push(...)` en una instantánea no cambia el estado; una instantánea
       nueva devuelve los valores originales.
-- [ ] El snapshot es serializable:
+- [x] El snapshot es serializable:
       `JSON.parse(JSON.stringify(snapshot))` conserva RNG, equipo y
       modificadores.
-- [ ] La API sigue siendo de solo lectura por tipos y no expone referencias
+- [x] La API sigue siendo de solo lectura por tipos y no expone referencias
       mutables del estado vivo.
-- [ ] Tests en `tests/unit/host/debug.test.ts` cubren RNG, copia profunda,
+- [x] Tests en `tests/unit/host/debug.test.ts` cubren RNG, copia profunda,
       serialización y determinismo; no se debilitan tests existentes.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan; sin cambios en `src/game/`,
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan; sin cambios en `src/game/`,
       `index.html`, `public/`, HUD ni dependencias.
 
 # Plan de test
@@ -68,9 +77,9 @@ con datos incompletos. No cambia juego, HUD ni reglas.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0033/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0033`.
+- [x] Informe en `artifacts/TASK-0033/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0033`.
 
 # Comandos
 

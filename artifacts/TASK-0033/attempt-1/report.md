@@ -8,6 +8,13 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:05:00Z }
 artifacts: artifacts/TASK-0033/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-08T20:02:00Z
+    note: >-
+      Re-ejecutados verify (496 unitarios, docs/config y build) y test:e2e
+      (63/63) con timeout explícito; diff completo revisado. Prueba de mutación:
+      `cloneUnit` revertido a `{ ...unit }` hace fallar el test de mutación
+      anidada (evidencia en `mutation-check.txt`); implementación restaurada.
 ---
 
 # Estado

@@ -1,0 +1,38 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ❯ tests/unit/host/debug.test.ts (20 tests | 1 failed | 19 skipped) 9ms
+   ❯ snapshot profundo y RNG de combate (5)
+     × mutar cada campo anidado del snapshot no altera el estado vivo 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > mutar cada campo anidado del snapshot no altera el estado vivo
+AssertionError: expected { Object (accuracy, damage, ...) } to deeply equal { accuracy: 1, damage: 1, defense: 1 }
+
+- Expected
++ Received
+
+  {
+-   "accuracy": 1,
++   "accuracy": 999,
+    "damage": 1,
+    "defense": 1,
+  }
+
+ ❯ tests/unit/host/debug.test.ts:500:48
+    498|
+    499|     expect(session.state.rng).toEqual(liveRng);
+    500|     expect(session.state.players[0].modifiers).toEqual(liveModifiers);
+       |                                                ^
+    501|     expect(session.state.players[0].equipment).toEqual(liveEquipment);
+    502|     expect(session.state.players[0].weapons).toEqual(liveWeapons);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 19 skipped (20)
+   Start at  20:01:57
+   Duration  160ms (transform 61%, import 25%, tests 11%, worker 3%)
+
