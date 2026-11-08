@@ -9,7 +9,7 @@ task_type: refactor
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
-unlocks: []
+unlocks: [TASK-0032]
 created_at: 2026-11-08T12:10:00Z
 completed_at: 2026-11-08T12:20:00Z
 assignee: task-runner
