@@ -69,6 +69,10 @@ flags de Vite, usa `pnpm exec vite ...`.
 forma controlada y lo cierra al terminar los tests. Es la forma preferida de
 levantar el servidor para E2E.
 
+Para pasar flags a Playwright no se usa `--`: `pnpm run test:e2e --repeat-each=3`
+funciona, mientras que `pnpm run test:e2e -- --repeat-each=3` pasa el `--` literal
+y no repite.
+
 # Actuación ante timeout
 
 1. Parar el proceso si sigue vivo.

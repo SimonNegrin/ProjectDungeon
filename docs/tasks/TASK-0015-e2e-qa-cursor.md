@@ -122,9 +122,13 @@ casos, y se reinicia u oculta cuando toca.
 | Comando | Timeout | Qué valida |
 |---|---:|---|
 | `pnpm run test:e2e` | 300 s | Cursor, camino, teclado, HUD y flujo jugable |
-| `pnpm run test:e2e -- --repeat-each=3` | 300 s | Estabilidad del spec nuevo |
+| `pnpm run test:e2e --repeat-each=3` | 300 s | Estabilidad del spec nuevo |
 | `pnpm run verify` | 180 s | Docs, config, unitarios y build |
 | `pnpm run build` | 120 s | Build final |
+
+Nota: la forma `pnpm run test:e2e -- --repeat-each=3` pasa el `--` literal a
+Playwright y **no** repite. La repetición real se ejecuta con
+`pnpm run test:e2e --repeat-each=3`.
 
 # Evidencia esperada
 

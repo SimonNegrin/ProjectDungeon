@@ -97,7 +97,13 @@ puede añadir un subagente con un modelo de visión, pero no es el pilar.
 # Capturas y baselines
 
 - Capturas de estados clave, no de todos los frames.
-- Guardar en `artifacts/TASK-XXXX/attempt-N/screenshots/`.
+- Guardar la evidencia de una tarea en `artifacts/TASK-XXXX/attempt-N/screenshots/`.
+- Los artefactos de tareas cerradas son evidencia histórica inmutable. La suite
+  E2E puede reescribir capturas antiguas al ejecutarse: revertir esos cambios
+  (`git checkout -- artifacts/`) antes de commitear y conservar solo las capturas
+  del intento actual. A medio plazo, parametrizar la carpeta de capturas de la
+  suite (`E2E_ARTIFACTS_DIR` o `testInfo.outputPath`) para que no toque
+  artefactos versionados.
 - Para regresión estable, usar `toHaveScreenshot` con tolerancia y máscaras.
 - No comparar a pantalla completa escenas animadas.
 - Actualizar baselines solo con aprobación humana.
