@@ -4,22 +4,41 @@ id: TASK-0036
 title: "Motor: colocación determinista de cuatro enemigos"
 description: Derivar del mapa y la semilla 4 enemigos (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, fuera de la visión inicial, con una pareja dentro del radio de alarma y uno fuera.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-010, T-007, T-010, T-011]
 depends_on: [TASK-0034]
 unlocks: [TASK-0037]
 created_at: 2026-11-08T20:31:53Z
-completed_at:
+completed_at: 2026-11-08T21:30:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0036/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:31:53Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T21:30:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0036 (commits 751f65b, 5aa514b y
+      c1f01e9; fusión fast-forward en main 1f6340b). Diff completo revisado;
+      `pnpm run verify` re-ejecutado por el lead (536 tests, docs/config y build
+      OK), 78 tests dirigidos y `pnpm run test:e2e` 63 OK. Criterios R-010/T-007
+      cubiertos: 4 enemigos 2/1/1 en salas distintas, sin visión inicial
+      (`canSee`), >=7 al jugador y >=2 entre enemigos, pareja <=8 y aislado >8,
+      `home` en el snapshot, determinismo con dos semillas y escaneo de 2000
+      semillas sin fallos; sin `Math.random`. Baseline E2E en e5f2d64 ya tenía 6
+      fallos por la IA dormida de TASK-0034; se ajustaron supuestos de enemigos y
+      se conservaron victoria, derrota y combate. Desviación aceptada: los mapas
+      inyectados sin salas y los mapas inválidos conservan el enemigo único
+      histórico; el BSP válido coloca 4. Sin cambios en combate, bestiario,
+      economía, host ni dependencias. `frame-qa` sustituye una aserción de
+      movimiento por `dormant` (comportamiento de TASK-0034) manteniendo su
+      intención de viewport. Fricción del informe: `accepted` (registrar baseline
+      E2E en futuros briefs). T-009 de REQ-009 sigue para requirements-writer.
 ---
 
 # Objetivo
@@ -39,19 +58,19 @@ R-010 y T-007. La semilla de referencia es `279837264`, la del host y los E2E.
 
 # Criterios de aceptación
 
-- [ ] La partida arranca con exactamente 4 enemigos: 2 centinelas, 1 bruto y 1
+- [x] La partida arranca con exactamente 4 enemigos: 2 centinelas, 1 bruto y 1
       cobarde, con las estadísticas y el equipo de `REQ-010`.
-- [ ] Cada enemigo ocupa una sala distinta; ninguno cae dentro de la visión
+- [x] Cada enemigo ocupa una sala distinta; ninguno cae dentro de la visión
       inicial del jugador.
-- [ ] Se respeta una distancia mínima entre enemigos y respecto al jugador; hay
+- [x] Se respeta una distancia mínima entre enemigos y respecto al jugador; hay
       al menos una pareja a ≤8 tiles y un enemigo a >8 de los demás.
-- [ ] La colocación es determinista por semilla: la semilla `279837264` y otra
+- [x] La colocación es determinista por semilla: la semilla `279837264` y otra
       semilla cumplen las restricciones; no se usa `Math.random`.
-- [ ] `home` de cada enemigo es su posición inicial y el snapshot lo refleja.
-- [ ] Victoria, derrota, economía de turno y combate no cambian; los tests que
+- [x] `home` de cada enemigo es su posición inicial y el snapshot lo refleja.
+- [x] Victoria, derrota, economía de turno y combate no cambian; los tests que
       asumían un solo enemigo se ajustan sin borrar, saltar ni debilitar su
       intención.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
 
 # Plan de test
 
@@ -66,9 +85,9 @@ R-010 y T-007. La semilla de referencia es `279837264`, la del host y los E2E.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0036/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0036`.
+- [x] Informe en `artifacts/TASK-0036/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0036`.
 
 # Comandos
 
