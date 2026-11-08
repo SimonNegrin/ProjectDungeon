@@ -4,7 +4,7 @@ id: TASK-0015
 title: "E2E y QA visual del cursor y el camino"
 description: Cubre con Playwright y capturas el cursor, los estados, el camino, el movimiento parcial, el ataque directo y la acción combinada sobre enemigos.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-004
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-017, R-018, T-006, T-007, T-008, T-009, T-011]
