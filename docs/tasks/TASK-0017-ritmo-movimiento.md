@@ -4,7 +4,7 @@ id: TASK-0017
 title: "EXP-002: ritmo del movimiento animado"
 description: Construir el experimento interactivo que compara duración de paso, pausa por tile y tratamiento de la diagonal para decidir el ritmo de REQ-006.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-006
 requirement_ids: [R-002, R-003, R-004, R-005, R-007, R-008, T-004, T-007]
