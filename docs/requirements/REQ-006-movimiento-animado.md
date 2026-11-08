@@ -8,8 +8,8 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T09:51:14Z
-updated_at: 2026-11-08T10:26:00Z
-related_tasks: [TASK-0017, TASK-0018, TASK-0019, TASK-0020]
+updated_at: 2026-11-08T11:28:25Z
+related_tasks: [TASK-0017, TASK-0018, TASK-0019]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T09:51:14Z }
 verified:
   - by: human:simon
@@ -18,6 +18,9 @@ verified:
   - by: human:simon
     at: 2026-11-08T10:23:31.653Z
     note: Decide el ritmo en EXP-002 con 125 ms por paso, 70 ms de pausa por tile y diagonal a duración constante. Aprueba REQ-006 v2.
+  - by: human:simon
+    at: 2026-11-08T11:28:25Z
+    note: Playtest aprobado; el recorrido animado, las pausas, la cámara, el input bloqueado, el cursor y el ritmo 125/70 se sienten bien. REQ-006 completada.
 ---
 
 # Contexto

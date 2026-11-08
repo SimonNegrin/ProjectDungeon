@@ -15,9 +15,9 @@ probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
 pasillos anchos de 2 tiles. `REQ-004` cerró el cursor de selección, el camino
 resaltado y las acciones por destino tras el playtest. `REQ-005` ajustó el
 sub-viewport a 13×13 tiles para centrar al jugador y mostrar tiles completos en
-los bordes. `REQ-006` abre la fase 1.7: presentar el movimiento tile a tile con
-la cámara siguiendo al personaje y el input bloqueado hasta terminar. El ritmo
-quedó decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
+los bordes. `REQ-006` completó la fase 1.7: el movimiento se presenta tile a tile
+con la cámara siguiendo al personaje y el input bloqueado hasta terminar, con el
+ritmo decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
 duración constante). El siguiente corte de contenido es la fase 2: multijugador
 local hotseat.
 
@@ -29,7 +29,7 @@ local hotseat.
 | 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 y REQ-003 cerradas |
 | 1.5 | Generación procedural del mapa y muros (REQ-003) | Completado tras playtest; BSP, `MapGenerator` y pasillos anchos de 2 tiles |
 | 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
-| 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Aprobada; ritmo 125 ms + 70 ms y diagonal a duración constante; implementación TASK-0018 y TASK-0019 |
+| 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
