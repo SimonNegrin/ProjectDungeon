@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Task — TASK-0033 — cerrada: snapshot profundo de unidades y RNG de solo lectura; verify 496 y E2E 63 OK; mutación detectada; fusión `60b1dc8` — [informe](../artifacts/TASK-0033/attempt-1/report.md)
 * 2026-11-08 — Harness — Fricción post-REQ-010 — T-009 documentado con ADR-012; comandos `vitest` filtrados; timeout de shell en macOS; ruta `<spec>/screenshots/` con `E2E_ARTIFACTS_DIR`; tareas TASK-0031 a TASK-0033 — [ADR-012](decisions/ADR-012-combate-equipo-rng.md)
 * 2026-11-08 — Task — TASK-0032 — cerrada: helper `ensureMp` compartido y acotado en E2E, sin duplicar bucles; verify 491 y E2E 63 OK; fusión `7d60b7b` — [informe](../artifacts/TASK-0032/attempt-1/report.md)
 * 2026-11-08 — Task — TASK-0031 — cerrada: feedback de daño anclado al lado opuesto al atacante, legible en pasillo de una casilla; verify 491 y E2E 63 OK; fusión `f4dcd10` — [informe](../artifacts/TASK-0031/attempt-1/report.md)
