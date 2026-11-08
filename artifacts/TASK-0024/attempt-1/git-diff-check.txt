@@ -1,0 +1,13 @@
+$ git diff --name-only -- src index.html public
+(sin cambios en src/, index.html ni public/)
+
+$ git diff --name-only -- docs
+docs/log.md
+docs/requirements/index.md
+
+$ git status --porcelain=v1 (antes del commit)
+ M docs/log.md
+ M docs/requirements/index.md
+?? artifacts/TASK-0024/
+?? docs/requirements/REQ-009-percepcion-alarma-huida.md
+?? tests/e2e/floor-qa-ambient.spec.ts

@@ -1,0 +1,14 @@
+$ git diff --name-only -- src index.html public
+(vacío: sin cambios de producción)
+
+$ git diff --name-only -- docs
+docs/log.md
+docs/requirements/index.md
+(solo cambios externos de REQ-009, no de este intento)
+
+$ git log --oneline -5
+ae0553b test(TASK-0024): corregir ruta de familias en la evidencia
+bf25db9 test(TASK-0024): comprobación final del árbol
+bf98894 test(TASK-0024): evidencia de ruina y verify final
+2347955 test(TASK-0024): cubrir sala de ruina en QA de ambientes
+be794af test(TASK-0024): comprobación final de árbol y commits
