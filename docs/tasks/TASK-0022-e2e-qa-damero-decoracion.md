@@ -4,22 +4,40 @@ id: TASK-0022
 title: "E2E y QA visual del damero y la decoración"
 description: Verificar en navegador que el damero se lee, la decoración no bloquea y la misma semilla reproduce el mismo aspecto.
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-007
 requirement_ids: [R-001, R-002, R-004, R-005, R-006, R-007, R-008, T-006, T-007]
 depends_on: [TASK-0021]
 unlocks: []
 created_at: 2026-11-08T11:55:58Z
-completed_at:
+completed_at: 2026-11-08T13:44:53Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0022/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:55:58Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T13:44:53Z
+    note: >-
+      Verificación independiente en task/TASK-0022 (commits a4ea798, c564947,
+      af45545; fusión 505837c): diff limitado a tests/e2e/floor-qa.spec.ts y
+      artifacts/TASK-0022; src/, index.html, public/, package.json y
+      pnpm-lock.yaml intactos; specs existentes sin cambios, borrados ni
+      debilitados. `pnpm run test:e2e` OK (46/46; 40 previos + 6 nuevos) y
+      `pnpm run verify` OK (112 documentos, 22 tareas; 381/381 tests en 30
+      archivos; build 54 módulos; único aviso: report.md de 3486 B). Densidad de
+      referencia 51/339 = 15,04 % en salas y 5/71 = 7,04 % en pasillos; 56
+      decals en 56 tiles únicos, 0 en 18 puertas y 2 spawns. Damero sala Δ 14,65
+      y pasillo Δ 13,89; grises Δ 14,98; muros 0/73728 píxeles con tinte.
+      Camino/cursor sobre blood-23a en (7,6) con z-index 1/2 y píxeles verdes
+      visibles; MoveTo (7,8)→(7,9) aceptado sin cambiar decoración ni rejilla;
+      misma semilla con buffers idénticos (sha256 c441dcfb…) y semilla
+      alternativa 279837265 con 55 decals y damero intacto. Capturas revisadas en
+      artifacts/TASK-0022/attempt-1/floor-qa/screenshots/.
 ---
 
 # Objetivo
