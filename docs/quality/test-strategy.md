@@ -73,11 +73,15 @@ preguntas abiertas. Las capturas son evidencia, no la única prueba.
 ```bash
 pnpm run docs:check   # OKF, enlaces y grafo de tareas
 pnpm run config:check # Agentes, skills y opencode.jsonc
-pnpm test             # Vitest
+pnpm test             # Vitest completo
+pnpm exec vitest run <archivo> # Vitest filtrado por archivo
 pnpm run test:e2e     # Playwright
 pnpm run build        # Typecheck + build
 pnpm run verify       # Docs + config + unitarios + build
 ```
+
+`pnpm test -- <archivo>` no filtra: pnpm reenvía el separador y Vitest ejecuta
+todos los archivos. Para un subconjunto, usa `pnpm exec vitest run <archivo>`.
 
 `pnpm run verify` es el mínimo antes de cerrar una tarea técnica. `pnpm run
 test:e2e` se ejecuta cuando la tarea toca UI, Canvas o flujo jugable.

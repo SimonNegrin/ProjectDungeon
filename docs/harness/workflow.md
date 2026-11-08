@@ -166,6 +166,10 @@ puede sobrevivir. Por eso:
   comprobación de salud y cierre posterior;
 - no se espera indefinidamente a ningún proceso.
 
+El timeout explícito es el parámetro de la herramienta de shell: macOS no
+incluye el binario `timeout`. Si se envuelve el comando, `gtimeout` de coreutils
+es la alternativa; nunca se confía en el corte por defecto.
+
 | Comando | Timeout |
 |---|---:|
 | `git status`, `git diff`, `git log`, inspección | 15 s |
@@ -213,5 +217,9 @@ pnpm run tasks:next     # Siguiente tarea lista
 pnpm run tasks:board    # Regenerar el tablero
 pnpm run docs:check     # Validar OKF, enlaces y topes
 pnpm run config:check   # Validar agentes y skills
+pnpm exec vitest run <archivo>  # Un test unitario concreto
 pnpm run verify         # Tests + build
 ```
+
+`pnpm test -- <archivo>` no filtra: pnpm reenvía el separador y Vitest ejecuta
+todos los archivos. Para un subconjunto, usa `pnpm exec vitest run <archivo>`.

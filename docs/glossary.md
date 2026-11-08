@@ -27,6 +27,13 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **OKF** | Open Knowledge Format: Markdown con frontmatter YAML y enlaces. |
 | **Determinista** | Mismo estado inicial, comandos y semilla producen el mismo resultado. |
 | **Semilla** | Valor que inicializa el generador pseudoaleatorio. |
+| **RNG sembrado** | Generador pseudoaleatorio determinista inicializado por la semilla; su estado es serializable y reproducible. |
+| **Acierto** | Modificador del personaje que se suma al acierto del arma para resolver el impacto. |
+| **Defensa** | Modificador del personaje que se suma al escudo para resistir el impacto. |
+| **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
+| **Armadura** | Equipo que resta al daño de un impacto; no evita el impacto. |
+| **Modificador** | Valor por personaje de acierto, daño o defensa; es un dato serializable. |
+| **Equipo** | Arma, escudo y armadura de una unidad, guardados por IDs en el estado. |
 | **Damero** | Patrón de suelo de dos colores planos generados por código que alternan por tile; la paridad es global `(x + y) % 2` y no se reinicia por sala. |
 | **Paleta de sala** | Par de colores del damero: una base común para la mazmorra y un segundo tono curado por sala. Se asigna por contraste con el ambiente, no por imitación. |
 | **Ambiente decorativo** | Familia dominante de decoración de una sala: humedad, muerte/combate, ruina, vegetación o mixta. Se materializa en focos locales con mezcla. |

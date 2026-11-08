@@ -51,6 +51,9 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 ## Timeouts y procesos
 
 - Todo comando en primer plano debe llevar un `timeout` explícito.
+- El timeout explícito es el parámetro de la herramienta de shell; macOS no
+  incluye el binario `timeout`. Si se envuelve el comando, `gtimeout` de
+  coreutils es la alternativa.
 - Los comandos en background solo se usan para servidores o watchers, con puerto
   fijo, comprobación de salud y cierre posterior.
 - Nunca esperes indefinidamente a un proceso.

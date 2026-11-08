@@ -86,7 +86,7 @@ R-007, R-008 y T-005. La percepción, la alarma y la huida pertenecen a
 
 | Comando | Timeout |
 |---|---:|
-| `pnpm test -- tests/unit/game/ai.test.ts tests/unit/game/combat.test.ts` | 120 s |
+| `pnpm exec vitest run tests/unit/game/ai.test.ts tests/unit/game/combat.test.ts` | 120 s |
 | `pnpm run verify` | 180 s |
 | `pnpm run test:e2e` | 180 s |
 | `git diff --stat` | 15 s |

@@ -84,23 +84,45 @@ playtest, pero no se cambian sin una nueva decisión.
 
 # Combate
 
-| Regla | Valor provisional |
+Valores aceptados en [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
+y registrados en [ADR-012](../decisions/ADR-012-combate-equipo-rng.md). Son
+revisables en playtest, pero no se cambian sin una nueva decisión.
+
+| Regla | Valor |
 |---|---|
 | Alcance cuerpo a cuerpo | 1 casilla, incluidas las diagonales. |
-| Alcance a distancia | 4 casillas, con línea de visión. |
+| Alcance a distancia | 4 casillas, con línea de visión; futuro, no implementado. |
 | Línea de visión | Bresenham sobre la rejilla; diagonales permitidas. |
 | Cobertura | No existe en el primer prototipo. |
-| Vida de jugador | 20. |
-| Vida de enemigo | 10. |
-| Daño de ataque básico | 5. |
-| Daño de enemigo | 3. |
-| Muerte | Al llegar a 0 de vida. |
+| Impacto | `mod. acierto + acierto del arma + 1d6 > mod. defensa + escudo + 1d6`; el empate falla. |
+| Daño | `max(1, (mod. daño + daño del arma + 1d6) − (armadura + 1d6))`. |
+| Escudo | Suma a la defensa; no reduce el daño de un impacto. |
+| Armadura | Resta al daño de un impacto; no evita el impacto. |
+| Orden de tiradas | Ataque y escudo; si impacta, daño y armadura. |
+| Azar | RNG sembrado y serializable; misma semilla y comandos, misma secuencia. |
+| Muerte | Al llegar a 0 PV. |
 
-En este corte solo existe ataque cuerpo a cuerpo; el alcance a distancia de 4
-casillas queda como valor futuro y no se implementa.
+## Armas
 
-Los valores de vida y daño son placeholders para probar el loop, no una
-propuesta de balance.
+| Arma | Acierto | Daño | Perfil |
+|---|---:|---:|---|
+| Espada | +3 | 4 | Equilibrada; arma inicial del jugador. |
+| Hacha | +2 | 6 | Mucho daño; rompe armadura, pero falla más. |
+| Daga | +4 | 3 | Muy fiable; supera escudos, pero sufre contra armadura. |
+
+## Equipo y bestiario
+
+| Unidad | Acierto | Daño | Defensa | Arma | Escudo | Armadura | PV |
+|---|---:|---:|---:|---|---:|---:|---:|
+| Jugador | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
+| Centinela | +0 | +0 | +0 | Espada | 1 | 1 | 9 |
+| Bruto | +0 | +1 | +0 | Hacha | 0 | 2 | 12 |
+| Cobarde | +1 | +0 | +1 | Daga | 1 | 0 | 8 |
+
+El jugador empieza con la espada, el escudo y la armadura. El hacha y la daga
+están en el mapa: `G` recoge la del tile por 1 MP sin gastar acción y la equipa;
+`1`-`3` cambia de arma sin coste. En este corte solo existe ataque cuerpo a
+cuerpo; el alcance a distancia queda como valor futuro.
 
 # Orden de turnos
 

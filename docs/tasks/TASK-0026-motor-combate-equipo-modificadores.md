@@ -92,7 +92,7 @@ siendo puro y determinista.
 
 | Comando | Timeout |
 |---|---:|
-| `pnpm test -- tests/unit/game/combat.test.ts` | 120 s |
+| `pnpm exec vitest run tests/unit/game/combat.test.ts` | 120 s |
 | `pnpm run verify` | 180 s |
 | `git diff --stat` | 15 s |
 

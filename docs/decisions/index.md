@@ -11,3 +11,4 @@
 * [ADR-009: recorte del arnés](ADR-009-recorte-arnes.md) - Menos documentos, tres skills, handoffs como deltas y topes validados.
 * [ADR-010: damero y decoración de presentación](ADR-010-damero-decoracion-presentacion.md) - El suelo se pinta en el host; el tinte y los decals no cambian el motor ni bloquean. Sustituido en la capa de suelo por ADR-011.
 * [ADR-011: suelo programático por sala y decoración ambiental](ADR-011-suelo-programatico-ambientes.md) - Dos colores planos por sala, cinco paletas por contraste y 33 decals agrupados por ambientes; el motor sigue sin cambiar.
+* [ADR-012: combate con equipo, modificadores y RNG sembrado](ADR-012-combate-equipo-rng.md) - Impacto y daño con dos tiradas, equipo y modificadores como datos, resolvedor compartido y azar reproducible por semilla.

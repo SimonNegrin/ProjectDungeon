@@ -19,6 +19,8 @@ un test o un servidor podían quedarse esperando indefinidamente.
 # Decisión
 
 - Todo comando en primer plano debe pasar un `timeout` explícito.
+- En macOS no existe el binario `timeout`: el valor explícito es el parámetro de
+  la herramienta de shell o, si se envuelve el comando, `gtimeout` de coreutils.
 - Los comandos en background solo se usan para servidores o watchers.
 - Un servidor en background debe tener puerto explícito, comprobación de salud y
   cierre posterior.

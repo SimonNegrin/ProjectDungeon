@@ -87,7 +87,7 @@ bajo el cursor y el resto en `F1`. La presentación no cambia reglas.
 
 | Comando | Timeout |
 |---|---:|
-| `pnpm test -- tests/unit/host/hud.test.ts tests/unit/host/feedback.test.ts tests/unit/host/debug.test.ts` | 120 s |
+| `pnpm exec vitest run tests/unit/host/hud.test.ts tests/unit/host/feedback.test.ts tests/unit/host/debug.test.ts` | 120 s |
 | `pnpm run verify` | 180 s |
 | `git diff --stat` | 15 s |
 
