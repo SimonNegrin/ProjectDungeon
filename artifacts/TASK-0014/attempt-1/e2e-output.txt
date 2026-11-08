@@ -1,0 +1,26 @@
+$ playwright test
+
+Running 19 tests using 4 workers
+
+  ✓   4 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1280×720 (727ms)
+  ✓   3 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 1920×1080 (733ms)
+  ✓   1 [chromium] › tests/e2e/experiment-shell.spec.ts:5:1 › el shell renderiza, ajusta parámetros y exporta una decisión (913ms)
+  ✓   6 [chromium] › tests/e2e/frame-qa.spec.ts:479:1 › el canvas interno 2048×1152 no cambia al redimensionar (531ms)
+  ✓   5 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 12×12 y HUD › mantiene las invariantes a 900×700 (estrecha) (533ms)
+  ✓   8 [chromium] › tests/e2e/frame-qa.spec.ts:592:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport (792ms)
+  ✓   7 [chromium] › tests/e2e/frame-qa.spec.ts:511:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa (1.3s)
+  ✓   9 [chromium] › tests/e2e/frame-qa.spec.ts:630:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (1.1s)
+  ✓  11 [chromium] › tests/e2e/game-cursor.spec.ts:138:1 › el cursor se recoloca al viewport cuando la cámara se desplaza (545ms)
+  ✓  12 [chromium] › tests/e2e/game-cursor.spec.ts:178:1 › humo del cursor sobre enemigo: marca de objetivo y ataque con F (755ms)
+  ✓  14 [chromium] › tests/e2e/game-map.spec.ts:95:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 (809ms)
+  ✓  15 [chromium] › tests/e2e/game-render.spec.ts:31:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara (442ms)
+  ✓  13 [chromium] › tests/e2e/game-input-hud.spec.ts:46:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (1.6s)
+  ✓  16 [chromium] › tests/e2e/generated-map-qa.spec.ts:526:1 › carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara (505ms)
+  ✓  17 [chromium] › tests/e2e/generated-map-qa.spec.ts:706:1 › muros por borde: muestra estructural, píxel y capturas (558ms)
+TASK-0011 F2 seed=3157967974 rooms=9 wide=1 player=(6,7) enemy=(28,17) distance=64 camera=(16,48)
+  ✓  18 [chromium] › tests/e2e/generated-map-qa.spec.ts:801:1 › F1, R, F2, HUD y encuadre 16:9 (482ms)
+  ✓  10 [chromium] › tests/e2e/game-cursor.spec.ts:26:1 › humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD (3.5s)
+  ✓  19 [chromium] › tests/e2e/generated-map-qa.spec.ts:944:1 › generación 32×32 por debajo de 100 ms y ventana de frames sin tirones (1.2s)
+  ✓   2 [chromium] › tests/e2e/experiment-generator.spec.ts:29:1 › EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión (7.4s)
+
+  19 passed (8.6s)

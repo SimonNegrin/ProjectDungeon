@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import type { Camera } from '../../../src/host/camera';
+import {
+  cursorAtPlayer,
+  deriveCursorStatus,
+} from '../../../src/host/cursor';
 import { createDebugApi } from '../../../src/host/debug';
 import { GameSession } from '../../../src/host/session';
 import { makeState } from '../game/helpers';
@@ -8,6 +12,7 @@ function setup() {
   const session = new GameSession(makeState());
   let camera: Camera = { x: 0, y: 0 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
+  const cursor = cursorAtPlayer(session.state.players[0]);
 
   const api = createDebugApi(
     () => ({
@@ -18,6 +23,7 @@ function setup() {
       tileSize: 32,
       assetsLoaded: true,
       lastEvents,
+      cursor: deriveCursorStatus(session.state, cursor),
     }),
     (command) => {
       const result = session.dispatch(command);
@@ -34,6 +40,7 @@ function generatedSetup() {
   const session = new GameSession({ seed: 279837264 });
   let camera: Camera = { x: 16, y: 80 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
+  const cursor = cursorAtPlayer(session.state.players[0]);
 
   const api = createDebugApi(
     () => ({
@@ -44,6 +51,7 @@ function generatedSetup() {
       tileSize: 32,
       assetsLoaded: true,
       lastEvents,
+      cursor: deriveCursorStatus(session.state, cursor),
     }),
     (command) => {
       const result = session.dispatch(command);
@@ -78,6 +86,14 @@ describe('API de debug window.__game', () => {
     expect(snapshot.tileSize).toBe(32);
     expect(snapshot.assetsLoaded).toBe(true);
     expect(snapshot.lastEvents).toEqual([]);
+    expect(snapshot.cursor).toEqual({
+      x: 4,
+      y: 4,
+      visible: true,
+      kind: 'player',
+      state: 'player',
+      path: [],
+    });
     expect(() => JSON.stringify(snapshot)).not.toThrow();
   });
 
@@ -91,6 +107,30 @@ describe('API de debug window.__game', () => {
     expect(result.snapshot.players[0]).toMatchObject({ x: 5, y: 4, mp: 5 });
     expect(result.snapshot.camera).toMatchObject({ x: 1, y: 2 });
     expect(result.snapshot.lastEvents).toEqual(result.events);
+    expect(result.snapshot.cursor).toMatchObject({
+      x: 4,
+      y: 4,
+      visible: true,
+      kind: 'floor',
+      state: 'reachable',
+    });
+    expect(result.snapshot.cursor.path).toEqual([{ x: 4, y: 4 }]);
+    expect(() => JSON.stringify(result)).not.toThrow();
+  });
+
+  it('dispatch acepta MoveTo y devuelve snapshot y eventos serializables', () => {
+    const api = generatedSetup();
+
+    const result = api.dispatch({
+      type: 'MoveTo',
+      unitId: 'player-1',
+      target: { x: 8, y: 8 },
+    });
+
+    expect(result.events.every((event) => event.type === 'UnitMoved')).toBe(true);
+    expect(result.events).toHaveLength(2);
+    expect(result.snapshot.players[0]).toMatchObject({ x: 8, y: 8, mp: 4 });
+    expect(result.snapshot.cursor).toMatchObject({ x: 6, y: 8 });
     expect(() => JSON.stringify(result)).not.toThrow();
   });
 
@@ -163,20 +203,25 @@ describe('snapshot del mapa generado', () => {
     expect(roundTrip.doors).toEqual(snapshot.doors);
     expect(roundTrip.spawns).toEqual(snapshot.spawns);
     expect(roundTrip.grid.tiles).toEqual(snapshot.grid.tiles);
+    expect(roundTrip.cursor).toEqual(snapshot.cursor);
+    expect(roundTrip.cursor).toMatchObject({ x: 6, y: 8, state: 'player' });
   });
 
   it('no expone el mapa vivo: mutar salas o spawns del snapshot no lo altera', () => {
     const api = generatedSetup();
+    api.dispatch({ type: 'MoveTo', unitId: 'player-1', target: { x: 8, y: 8 } });
     const snapshot = api.snapshot();
 
     (snapshot.rooms[0] as { x: number }).x = 999;
     (snapshot.spawns!.player as { x: number }).x = 999;
     (snapshot.corridors[0].path[0] as { x: number }).x = 999;
+    (snapshot.cursor.path[0] as { x: number }).x = 999;
 
     const fresh = api.snapshot();
     expect(fresh.rooms[0].x).toBe(3);
     expect(fresh.spawns?.player.x).toBe(6);
     expect(fresh.corridors[0].path[0].x).toBe(4);
+    expect(fresh.cursor.path[0]).toEqual({ x: 7, y: 8 });
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {

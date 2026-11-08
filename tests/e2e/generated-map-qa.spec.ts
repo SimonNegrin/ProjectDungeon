@@ -690,8 +690,10 @@ test('carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara', 
   expect(unitIntersectsViewport(spawns.enemy, snap)).toBe(false);
   expect(unitIntersectsViewport(spawns.player, snap)).toBe(true);
 
-  // Un movimiento real aceptado actualiza la cámara.
+  // Un movimiento real aceptado actualiza la cámara. ArrowRight mueve el
+  // cursor y Space ejecuta Moverse sobre ese destino.
   await page.keyboard.press('ArrowRight');
+  await page.keyboard.press('Space');
   const moved = await snapshot(page);
   expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
   expect(moved.camera).not.toEqual(snap.camera);

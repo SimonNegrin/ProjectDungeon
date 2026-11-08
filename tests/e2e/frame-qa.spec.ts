@@ -3,7 +3,7 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
-import { endTurn, restart, snapshot, walkTo, approachEnemy } from './support';
+import { endTurn, restart, snapshot, walkTo, approachEnemy, moveCursorTo } from './support';
 
 const CANVAS_ID = '#game-canvas';
 const SCREENSHOTS_DIR = 'artifacts/TASK-0010/attempt-1/screenshots';
@@ -649,7 +649,8 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
     ),
   ).toBe(1);
 
-  await page.keyboard.press('Space');
+  await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
+  await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();

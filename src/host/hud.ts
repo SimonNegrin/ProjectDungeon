@@ -7,10 +7,12 @@ import {
   type Room,
 } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
+import type { CursorState, CursorStatus } from './cursor';
 import type { Viewport } from './geometry';
+import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 
 export const KEYS_HELP =
-  'WASD/Flechas mover · Espacio/Enter atacar · E terminar turno · R reiniciar · F1 debug';
+  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · E terminar turno · R reiniciar · F1 debug';
 
 export interface HudModel {
   readonly playerHp: string;
@@ -104,6 +106,22 @@ function positions(unit: Unit | undefined): string {
   return unit ? `(${unit.x}, ${unit.y})` : '—';
 }
 
+const CURSOR_STATE_LABELS: Readonly<Record<CursorState, string>> = {
+  player: 'jugador',
+  reachable: 'alcanzable',
+  'too-far': 'fuera de alcance',
+  invalid: 'inválido',
+  enemy: 'enemigo',
+};
+
+function cursorLabel(cursor: CursorStatus): string {
+  const suffix = cursor.visible ? '' : ' (oculto)';
+  const attack = cursor.attackTile
+    ? ` · ataque (${cursor.attackTile.x}, ${cursor.attackTile.y})`
+    : '';
+  return `Cursor: (${cursor.x}, ${cursor.y}) ${CURSOR_STATE_LABELS[cursor.state]}${suffix} · camino ${cursor.path.length}${attack}`;
+}
+
 function formatEventSummary(events: readonly GameEvent[]): string {
   if (events.length === 0) return 'ninguno';
   return events.slice(-8).map(eventLabel).join(' · ');
@@ -156,6 +174,7 @@ export function buildDebugModel(
   bounds: CameraBounds,
   viewport: Viewport,
   lastEvents: readonly GameEvent[],
+  cursor: CursorStatus,
 ): DebugModel {
   const player = state.players[0];
   const enemy = state.enemies[0];
@@ -165,6 +184,7 @@ export function buildDebugModel(
       `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player?.actionAvailable)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
+      cursorLabel(cursor),
       `Cámara: (${camera.x}, ${camera.y}) · Límites (${bounds.maxX}, ${bounds.maxY}) · Viewport ${viewport.width}×${viewport.height}`,
       ...mapDebugLines(state),
       `Últimos eventos: ${formatEventSummary(lastEvents)}`,
@@ -222,6 +242,7 @@ export interface DebugView {
     bounds: CameraBounds,
     viewport: Viewport,
     lastEvents: readonly GameEvent[],
+    cursor: CursorStatus,
   ): void;
   isOpen(): boolean;
   toggle(): void;
@@ -234,10 +255,15 @@ export function createDebugView(root: ParentNode): DebugView {
   const content = requireElement(root, 'debug-content');
 
   return {
-    update(state, camera, bounds, viewport, lastEvents): void {
-      content.textContent = buildDebugModel(state, camera, bounds, viewport, lastEvents).lines.join(
-        '\n',
-      );
+    update(state, camera, bounds, viewport, lastEvents, cursor): void {
+      content.textContent = buildDebugModel(
+        state,
+        camera,
+        bounds,
+        viewport,
+        lastEvents,
+        cursor,
+      ).lines.join('\n');
     },
     isOpen(): boolean {
       return !overlay.hidden;
@@ -247,6 +273,44 @@ export function createDebugView(root: ParentNode): DebugView {
     },
     close(): void {
       overlay.hidden = true;
+    },
+  };
+}
+
+export interface NoticeView {
+  show(code: NoticeCode): void;
+  clear(): void;
+}
+
+/**
+ * Aviso breve del HUD para acciones rechazadas. No crea estado de juego ni
+ * bloquea la siguiente pulsación: solo escribe texto y se apaga con un timer.
+ */
+export function createNoticeView(root: ParentNode): NoticeView {
+  const element = requireElement(root, 'hud-message');
+  let timer: number | undefined;
+
+  const hide = (): void => {
+    element.hidden = true;
+    element.textContent = '';
+    delete element.dataset.notice;
+  };
+
+  return {
+    show(code: NoticeCode): void {
+      element.textContent = NOTICE_MESSAGES[code];
+      element.dataset.notice = code;
+      element.hidden = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        hide();
+        timer = undefined;
+      }, NOTICE_DURATION_MS);
+    },
+    clear(): void {
+      if (timer !== undefined) window.clearTimeout(timer);
+      timer = undefined;
+      hide();
     },
   };
 }

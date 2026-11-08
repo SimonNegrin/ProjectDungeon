@@ -2,7 +2,20 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState, reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
+import type { CursorStatus } from '../../../src/host/cursor';
 import { makeState, makeUnit } from '../game/helpers';
+
+const PLAYER_CURSOR: CursorStatus = {
+  x: 4,
+  y: 4,
+  visible: true,
+  kind: 'player',
+  state: 'player',
+  path: [],
+  cost: 0,
+  withinMp: true,
+  strongSteps: 0,
+};
 
 function attack(state: GameState): GameState {
   return reduce(state, {
@@ -30,8 +43,9 @@ describe('modelo del HUD', () => {
       status: 'En juego',
     });
     expect(model.keys).toBe(KEYS_HELP);
-    expect(model.keys).toContain('WASD');
-    expect(model.keys).toContain('Espacio');
+    expect(model.keys).toContain('cursor');
+    expect(model.keys).toContain('Espacio/Enter moverse');
+    expect(model.keys).toContain('F atacar');
     expect(model.keys).toContain('E terminar turno');
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
@@ -102,6 +116,7 @@ describe('modelo del overlay de debug', () => {
       { maxX: 256, maxY: 256 },
       { width: 384, height: 384 },
       [],
+      PLAYER_CURSOR,
     );
     const text = model.lines.join('\n');
 
@@ -109,6 +124,7 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('MP 6/6');
     expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
+    expect(text).toContain('Cursor: (4, 4) jugador · camino 0');
     expect(text).toContain('Cámara: (0, 0) · Límites (256, 256) · Viewport 384×384');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
@@ -124,6 +140,7 @@ describe('modelo del overlay de debug', () => {
       { maxX: 256, maxY: 256 },
       { width: 384, height: 384 },
       result.events,
+      PLAYER_CURSOR,
     );
 
     expect(model.lines.join('\n')).toContain('player-1: (4,4)→(5,4) MP 5');
@@ -136,9 +153,11 @@ describe('modelo del overlay de debug', () => {
       { maxX: 640, maxY: 640 },
       { width: 384, height: 384 },
       [],
+      { ...PLAYER_CURSOR, x: 6, y: 8 },
     );
     const text = model.lines.join('\n');
 
+    expect(text).toContain('Cursor: (6, 8) jugador · camino 0');
     expect(text).toContain('Semilla: 279837264');
     expect(text).toContain('Salas:');
     expect(text).toContain('0 (3,4) 7×9 large');
@@ -157,6 +176,7 @@ describe('modelo del overlay de debug', () => {
       { maxX: 256, maxY: 256 },
       { width: 384, height: 384 },
       [],
+      PLAYER_CURSOR,
     ).lines.join('\n');
 
     expect(text).toContain('Semilla: n/a (determinista)');

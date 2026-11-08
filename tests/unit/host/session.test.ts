@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../src/game/index';
+import type { Position } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
@@ -12,8 +13,8 @@ function adjacentState() {
   });
 }
 
-function commandFromKey(key: string, session: GameSession) {
-  const intent = translateKey({ key }, session.state);
+function commandFromKey(key: string, session: GameSession, cursor: Position) {
+  const intent = translateKey({ key }, session.state, cursor);
   if (intent.type !== 'command') {
     throw new Error(`La tecla ${key} no produjo un comando: ${intent.type}`);
   }
@@ -27,10 +28,10 @@ describe('sesión de juego', () => {
     expect(session.state).toEqual(createInitialState());
   });
 
-  it('integra tecla -> comando -> reduce -> eventos -> HUD', () => {
+  it('integra tecla -> MoveTo -> reduce -> eventos -> HUD', () => {
     const session = new GameSession(makeState());
 
-    const result = session.dispatch(commandFromKey('d', session));
+    const result = session.dispatch(commandFromKey(' ', session, { x: 5, y: 4 }));
 
     expect(result.events).toEqual([
       {
@@ -48,7 +49,7 @@ describe('sesión de juego', () => {
   it('EndTurn emite la fase enemiga y devuelve el control al jugador', () => {
     const session = new GameSession(adjacentState());
 
-    const result = session.dispatch(commandFromKey('e', session));
+    const result = session.dispatch(commandFromKey('e', session, { x: 5, y: 5 }));
     const types = result.events.map((event) => event.type);
 
     expect(types).toContain('EnemyPhaseStarted');
@@ -58,10 +59,10 @@ describe('sesión de juego', () => {
     expect(session.state.players[0]).toMatchObject({ hp: 17, mp: 6, actionAvailable: true });
   });
 
-  it('un ataque actualiza la vida y emite AttackPerformed', () => {
+  it('un ataque con F actualiza la vida y emite AttackPerformed', () => {
     const session = new GameSession(adjacentState());
 
-    const result = session.dispatch(commandFromKey(' ', session));
+    const result = session.dispatch(commandFromKey('f', session, { x: 6, y: 5 }));
 
     expect(result.events).toEqual([
       {
@@ -85,7 +86,7 @@ describe('sesión de juego', () => {
       }),
     );
 
-    const result = session.dispatch(commandFromKey('Enter', session));
+    const result = session.dispatch(commandFromKey('Enter', session, { x: 6, y: 5 }));
 
     expect(result.events).toEqual([
       {
@@ -103,7 +104,7 @@ describe('sesión de juego', () => {
 
   it('Restart vuelve al estado inicial', () => {
     const session = new GameSession(adjacentState());
-    session.dispatch(commandFromKey('d', session));
+    session.dispatch(commandFromKey(' ', session, { x: 5, y: 4 }));
 
     const result = session.dispatch({ type: 'Restart' });
 
@@ -125,7 +126,7 @@ describe('sesión de juego', () => {
     const session = new GameSession({ seed: 279837264 });
     const mapBefore = JSON.parse(JSON.stringify(session.state.map));
 
-    session.dispatch(commandFromKey('d', session));
+    session.dispatch(commandFromKey(' ', session, { x: 7, y: 8 }));
     const result = session.dispatch({ type: 'Restart' });
 
     expect(result.events).toEqual([{ type: 'GameRestarted' }]);
@@ -149,7 +150,7 @@ describe('sesión de juego', () => {
 
   it('una sesión manual sin mapa sigue reiniciando al estado por defecto', () => {
     const session = new GameSession(makeState());
-    session.dispatch(commandFromKey('d', session));
+    session.dispatch(commandFromKey(' ', session, { x: 5, y: 4 }));
 
     session.dispatch({ type: 'Restart' });
 
