@@ -52,9 +52,10 @@ dependencias.
    motivo.
 3. Comprueba que las dependencias están terminadas.
 4. Crea la rama `task/TASK-NNNN` si no existe.
-5. Prepara el brief según `docs/templates/task-brief.md`; no copies la tarea,
-   los criterios ni el requisito: enlaza. Presupuesto ~2 KB; desbordamiento en
-   `brief-detalle.md`.
+5. Prepara el brief con el anexo A de
+   [docs/templates/task.md](../../docs/templates/task.md); no copies la tarea,
+   los criterios ni el requisito: enlaza. Objetivo 1,5 KB; tope duro 4 KB;
+   desbordamiento en `brief-detalle.md`.
 6. Marca en el brief si el runner debe leer el anexo (`brief-detalle.md`).
 
 Carga las skills `task-verification` y `visual-qa` cuando las necesites.
@@ -63,7 +64,7 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 
 - Usa pnpm, no npm ni npx.
 - Todo comando de shell debe llevar un timeout explícito. Consulta
-  [docs/harness/timeouts.md](../../docs/harness/timeouts.md).
+  [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).
 - Los servidores en background solo con puerto fijo, comprobación de salud y
   cierre posterior.
 - Si un comando agota el timeout, para el proceso y escala con evidencia.
@@ -90,7 +91,8 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 - Máximo dos relanzamientos además del intento inicial.
 - Cada relanzamiento debe incluir una hipótesis nueva y evidencia.
 - No repitas el mismo fallo.
-- Si no se resuelve, sigue `docs/harness/escalation.md`.
+- Si no se resuelve, sigue
+  [docs/harness/workflow.md](../../docs/harness/workflow.md#reintentos-y-escalado).
 
 # Triaje de fricción
 
@@ -115,7 +117,8 @@ Si todo pasa:
 2. Actualiza `docs/tasks/TASK-NNNN-*.md`: `task_status: done`, `completed_at`,
    `attempts`, artefactos y verificación.
 3. Ejecuta `pnpm run tasks:board`.
-4. Añade una entrada a `docs/log.md`.
+4. Añade una entrada de una línea a `docs/log.md`:
+   `* YYYY-MM-DD — Task — TASK-NNNN — resultado — enlace al informe`.
 5. Devuelve un resumen breve con evidencia y qué debe probar el usuario.
 
 # Límites
