@@ -1,0 +1,22 @@
+ artifacts/TASK-0036/attempt-1/brief.md          |  70 ++++++
+ artifacts/TASK-0036/attempt-1/diff-stat.txt     |   9 +
+ artifacts/TASK-0036/attempt-1/e2e-baseline.txt  | 277 ++++++++++++++++++++++++
+ artifacts/TASK-0036/attempt-1/e2e-focused.txt   | 212 ++++++++++++++++++
+ artifacts/TASK-0036/attempt-1/e2e-output.txt    |  81 +++++++
+ artifacts/TASK-0036/attempt-1/report.md         |  66 ++++++
+ artifacts/TASK-0036/attempt-1/test-output.txt   |   9 +
+ artifacts/TASK-0036/attempt-1/unit-output.txt   |  13 ++
+ artifacts/TASK-0036/attempt-1/verify-output.txt |  63 ++++++
+ src/game/enemy-placement.ts                     | 244 +++++++++++++++++++++
+ src/game/engine.ts                              |   8 +-
+ src/game/index.ts                               |   1 +
+ tests/e2e/combat-equipment-qa.spec.ts           |  17 +-
+ tests/e2e/cursor-qa.spec.ts                     |  18 +-
+ tests/e2e/frame-qa.spec.ts                      |   8 +-
+ tests/e2e/game-input-hud.spec.ts                |  23 +-
+ tests/e2e/game-render.spec.ts                   |   7 +-
+ tests/e2e/motion-qa.spec.ts                     |  73 ++++---
+ tests/e2e/support.ts                            | 227 +++++++++++++++++--
+ tests/unit/game/enemy-placement.test.ts         | 189 ++++++++++++++++
+ tests/unit/game/engine.test.ts                  |   2 +-
+ 21 files changed, 1548 insertions(+), 69 deletions(-)

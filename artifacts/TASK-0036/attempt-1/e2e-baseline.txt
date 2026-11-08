@@ -1,0 +1,277 @@
+✓ Lockfile passes supply-chain policies (verified 1d ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+devDependencies:
++ @playwright/test 1.65.0
++ @types/node 22.20.5
++ typescript 5.9.3
++ vite 6.4.5
++ vitest 5.1.0
++ yaml 2.9.1
+
+Done in 98ms using pnpm v12.18.0
+$ playwright test
+
+Running 63 tests using 4 workers
+
+  ✘   3 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:482:1 › feedback de daño en un ataque normal desde el lado (1.5s)
+  ✘   2 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:303:1 › impacto, vida bajo cursor, F1, economía de turno y victoria (1.5s)
+  ✓   4 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:532:1 › fallo con texto y sin destello (semilla suplementaria) (2.3s)
+  ✓   7 [chromium] › tests/e2e/cursor-qa.spec.ts:73:1 › cursor inicial, teclado en cuatro direcciones y borde del viewport (966ms)
+  ✓   6 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:602:1 › determinismo: dos cargas con la misma semilla y comandos (1.6s)
+  ✓   9 [chromium] › tests/e2e/cursor-qa.spec.ts:248:1 › Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acción (500ms)
+  ✓   1 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:170:1 › HUD con espada, armas en el mapa, recogida con G y cambio 1-3 (4.4s)
+  ✓   8 [chromium] › tests/e2e/cursor-qa.spec.ts:159:1 › estados, patrones de borde y caminos verde y ámbar en dos tonos (1.4s)
+  ✓  11 [chromium] › tests/e2e/cursor-qa.spec.ts:364:1 › enemigo adyacente: marca, ataque directo con F, fin de turno y victoria (1.3s)
+  ✓  13 [chromium] › tests/e2e/cursor-qa.spec.ts:548:1 › enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin dañar (893ms)
+  ✘   5 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:685:1 › derrota determinista sin cambiar la economía de turno (4.9s)
+  ✓  12 [chromium] › tests/e2e/cursor-qa.spec.ts:472:1 › enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse ataca (2.9s)
+  ✓  10 [chromium] › tests/e2e/cursor-qa.spec.ts:297:1 › Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado (3.3s)
+  ✓  16 [chromium] › tests/e2e/cursor-qa.spec.ts:685:1 › ciclo de vida, snapshot, debug y HUD sin botones nuevos (923ms)
+  ✓  17 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:35:1 › arma en el mapa, pista de G y HUD de equipo (1.1s)
+  ✓  14 [chromium] › tests/e2e/cursor-qa.spec.ts:593:1 › enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa (2.6s)
+  ✓  19 [chromium] › tests/e2e/experiment-combat.spec.ts:84:1 › el índice lista EXP-003 y los presets A/B/C/D cambian roster y métricas (1.2s)
+  ✓  20 [chromium] › tests/e2e/experiment-combat.spec.ts:160:1 › el roster permite añadir, duplicar, editar y eliminar sin recargar (866ms)
+  ✓  18 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:85:1 › impacto, fallo y F1 con tiradas y vida (1.9s)
+  ✓  21 [chromium] › tests/e2e/experiment-combat.spec.ts:213:1 › calcula un ataque y simula el duelo de forma determinista (428ms)
+  ✓  22 [chromium] › tests/e2e/experiment-combat.spec.ts:279:1 › exporta el JSON descargado y una tabla personalizada (643ms)
+  ✓  24 [chromium] › tests/e2e/experiment-motion.spec.ts:93:1 › el índice lista EXP-002 y los presets A/B/C cambian el ritmo (759ms)
+  ✓  15 [chromium] › tests/e2e/cursor-qa.spec.ts:625:1 › enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar (3.5s)
+  ✓  25 [chromium] › tests/e2e/experiment-motion.spec.ts:175:1 › escenario corto: 3 pasos, MP progresivo, cámara centrada e input ignorado (395ms)
+TASK-0024 paletas salas=9 ambients=death,humid,mixed,ruin,vegetation door=(12,7)
+  ✓  28 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:408:1 › snapshot y canvas: base común, una paleta por sala y puertas/pasillos neutros (410ms)
+  ✓  27 [chromium] › tests/e2e/experiment-shell.spec.ts:6:1 › el shell renderiza, ajusta parámetros y exporta una decisión (498ms)
+  ✓  26 [chromium] › tests/e2e/experiment-motion.spec.ts:244:1 › escenario largo: diagonal, cámara clampada y decisión exportada (713ms)
+TASK-0024 ruina room=3 ambient=ruin palette=ruin
+TASK-0024 familias decals=132 seen=blood,blueBrick,bones,corpse,dirt,grass,mushroom,pebbles,plant,redBrick
+  ✓  31 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:705:1 › lista blanca y familias 9 tierra, 10 ladrillo azul y 11 huesos (491ms)
+  ✓  30 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:649:1 › ruina o vegetación: paleta y mezcla distintas del neutro (711ms)
+TASK-0024 ambientes neutral=room0 death=room2 humid=room6 clusters=6
+  ✓  29 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:491:1 › ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla (1.1s)
+TASK-0022 densidades room=121/339 (35.69%) corridor=11/71 (15.49%)
+  ✓  33 [chromium] › tests/e2e/floor-qa.spec.ts:611:1 › snapshot: densidades, exclusiones, lista blanca y un decal por tile (816ms)
+TASK-0022 damero room_delta=13.23 pair=13.23 corridor_pair=13.23 walls_mismatch=0
+TASK-0024 determinismo ambiente ref=mixed,humid,death,ruin,vegetation,mixed,humid,death,ruin alt=humid,death,ruin,vegetation,mixed,humid,death,ruin,vegetation same_canvas=true
+  ✓  32 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:832:1 › otra semilla cambia decal y ambiente manteniendo base y damero (972ms)
+  ✓  34 [chromium] › tests/e2e/floor-qa.spec.ts:709:1 › damero en sala y pasillo: tonos alternos y muros sin tinte (566ms)
+TASK-0022 grises a=19.59 b=32.81 delta=13.23
+  ✓  35 [chromium] › tests/e2e/floor-qa.spec.ts:837:1 › escala de grises: el damero se conserva por luminancia (483ms)
+TASK-0022 MoveTo target=(6,7) approach=(6,8) player_after=(6,7)
+  ✓  36 [chromium] › tests/e2e/floor-qa.spec.ts:1038:1 › MoveTo a un tile decorado termina y conserva la decoración (534ms)
+TASK-0022 camino decal=(6,10) steps=2 green=4/4 bright=true
+  ✓  37 [chromium] › tests/e2e/floor-qa.spec.ts:880:1 › camino y cursor se dibujan por encima de un tile decorado (646ms)
+  ✓  39 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1280×720 (491ms)
+  ✓  40 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1920×1080 (464ms)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=17.48
+  ✓  38 [chromium] › tests/e2e/floor-qa.spec.ts:1127:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.1s)
+  ✓  41 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 900×700 (estrecha) (417ms)
+  ✓  42 [chromium] › tests/e2e/frame-qa.spec.ts:480:1 › el canvas interno 2218×1248 no cambia al redimensionar (386ms)
+  ✘  44 [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport (564ms)
+  ✓  45 [chromium] › tests/e2e/frame-qa.spec.ts:632:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (1.2s)
+  ✓  43 [chromium] › tests/e2e/frame-qa.spec.ts:512:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa (1.7s)
+  ✓  46 [chromium] › tests/e2e/game-cursor.spec.ts:140:1 › el cursor se recoloca al viewport cuando la cámara se desplaza (819ms)
+  ✓  23 [chromium] › tests/e2e/experiment-generator.spec.ts:30:1 › EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión (6.9s)
+  ✓  48 [chromium] › tests/e2e/game-cursor.spec.ts:180:1 › humo del cursor sobre enemigo: marca de objetivo y ataque con F (1.1s)
+  ✓  50 [chromium] › tests/e2e/game-map.spec.ts:93:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 (976ms)
+  ✓  51 [chromium] › tests/e2e/game-render.spec.ts:32:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara (618ms)
+  ✓  52 [chromium] › tests/e2e/generated-map-qa.spec.ts:525:1 › carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara (628ms)
+  ✓  53 [chromium] › tests/e2e/generated-map-qa.spec.ts:706:1 › muros por borde: muestra estructural, píxel y capturas (812ms)
+TASK-0016 F2 seed=3460740066 rooms=9 wide=1 player=(6,5) enemy=(28,28) distance=59 camera=(0,0)
+  ✓  54 [chromium] › tests/e2e/generated-map-qa.spec.ts:801:1 › F1, R, F2, HUD y encuadre 16:9 (605ms)
+  ✘  49 [chromium] › tests/e2e/game-input-hud.spec.ts:45:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (2.7s)
+  ✓  56 [chromium] › tests/e2e/motion-qa.spec.ts:167:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (548ms)
+  ✓  55 [chromium] › tests/e2e/generated-map-qa.spec.ts:944:1 › generación 32×32 por debajo de 100 ms y ventana de frames sin tirones (1.3s)
+  ✓  47 [chromium] › tests/e2e/game-cursor.spec.ts:26:1 › humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD (4.6s)
+  ✓  59 [chromium] › tests/e2e/motion-qa.spec.ts:442:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (1.4s)
+  ✓  58 [chromium] › tests/e2e/motion-qa.spec.ts:267:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (1.5s)
+  ✘  61 [chromium] › tests/e2e/motion-qa.spec.ts:706:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (333ms)
+  ✓  57 [chromium] › tests/e2e/motion-qa.spec.ts:368:1 › la cámara sigue al personaje y no se mueve con el cursor (2.2s)
+  ✓  62 [chromium] › tests/e2e/motion-qa.spec.ts:775:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (576ms)
+  ✓  63 [chromium] › tests/e2e/motion-qa.spec.ts:820:1 › dos ejecuciones producen el mismo resultado con reloj determinista (691ms)
+  ✓  60 [chromium] › tests/e2e/motion-qa.spec.ts:571:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (2.8s)
+
+
+  1) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:303:1 › impacto, vida bajo cursor, F1, economía de turno y victoria 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "x": 24,
+    +   "x": 25,
+        "y": 27,
+      }
+
+      313 |   // La semilla de referencia llega desde arriba: es el pasillo de una casilla
+      314 |   // que provocaba el solape del `-1` con el jugador.
+    > 315 |   expect(adjacent.players[0]).toMatchObject({ x: enemy.x, y: enemy.y - 1 });
+          |                               ^
+      316 |   await moveCursorTo(page, enemy.x, enemy.y);
+      317 |   const selected = await snapshot(page);
+      318 |   expect(selected.cursor).toMatchObject({
+        at /private/tmp/pd-task0036-base/tests/e2e/combat-equipment-qa.spec.ts:315:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-impact-d74d5-conomía-de-turno-y-victoria-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-impact-d74d5-conomía-de-turno-y-victoria-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:482:1 › feedback de daño en un ataque normal desde el lado 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "x": 22,
+    -   "y": 3,
+    +   "y": 4,
+      }
+
+      491 |   // El jugador ataca desde la derecha en una sala abierta: el texto debe quedar
+      492 |   // a la izquierda del objetivo.
+    > 493 |   expect(player).toMatchObject({ x: enemy.x + 1, y: enemy.y });
+          |                  ^
+      494 |
+      495 |   await moveCursorTo(page, enemy.x, enemy.y);
+      496 |   const beforeAttack = await snapshot(page);
+        at /private/tmp/pd-task0036-base/tests/e2e/combat-equipment-qa.spec.ts:493:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-feedba-70d05-ataque-normal-desde-el-lado-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-feedba-70d05-ataque-normal-desde-el-lado-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:685:1 › derrota determinista sin cambiar la economía de turno 
+
+    Error: La derrota debe alcanzarse en 80 turnos enemigos
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      734 |   }
+      735 |
+    > 736 |   expect(defeatReached, 'La derrota debe alcanzarse en 80 turnos enemigos').toBe(true);
+          |                                                                             ^
+      737 |   const defeat = await snapshot(page);
+      738 |   expect(defeat.status).toBe('defeat');
+      739 |   expect(defeat.players[0].hp).toBe(0);
+        at /private/tmp/pd-task0036-base/tests/e2e/combat-equipment-qa.spec.ts:736:77
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-derrot-fa88c-ambiar-la-economía-de-turno-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-derrot-fa88c-ambiar-la-economía-de-turno-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport 
+
+    Error: expect(received).not.toMatchObject(expected)
+
+    Expected: not {"x": 23, "y": 28}
+    Received:     {"actionAvailable": true, "alertTurns": 0, "awareness": "dormant", "enemyType": "sentinel", "equipment": {"armorId": "armor", "shieldId": "shield", "weaponId": "sword"}, "faction": "enemy", "fleeing": false, "hasShouted": false, "home": {"x": 23, "y": 28}, "hp": 9, "id": "enemy-1", "lastKnown": null, "maxHp": 9, "maxMp": 4, "modifiers": {"accuracy": 0, "damage": 0, "defense": 0}, "mp": 4, "weapons": ["sword"], "x": 23, "y": 28}
+
+      619 |   expect(afterEnemyPhase.turn).toBe(initial.turn + 1);
+      620 |   expect(afterEnemyPhase.phase).toBe('player');
+    > 621 |   expect(afterEnemyPhase.enemies[0]).not.toMatchObject({ x: 23, y: 28 });
+          |                                          ^
+      622 |   const chebyshev = Math.max(
+      623 |     Math.abs(afterEnemyPhase.players[0].x - afterEnemyPhase.enemies[0].x),
+      624 |     Math.abs(afterEnemyPhase.players[0].y - afterEnemyPhase.enemies[0].y),
+        at /private/tmp/pd-task0036-base/tests/e2e/frame-qa.spec.ts:621:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-el-enemigo-empiez-76da9-istancia-supera-el-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-el-enemigo-empiez-76da9-istancia-supera-el-viewport-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/game-input-hud.spec.ts:45:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio 
+
+    Error: La derrota debe alcanzarse en 80 turnos enemigos
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      363 |     }
+      364 |   }
+    > 365 |   expect(defeatReached, 'La derrota debe alcanzarse en 80 turnos enemigos').toBe(true);
+          |                                                                             ^
+      366 |   await settle(page);
+      367 |
+      368 |   const defeat = await snapshot(page);
+        at /private/tmp/pd-task0036-base/tests/e2e/game-input-hud.spec.ts:365:77
+
+    attachment #1: hud (image/png) ─────────────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/attachments/hud-96265c73c874c18c49c8d67d8a6e338941b07473.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: attack (image/png) ──────────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/attachments/attack-e1ac36ed4200bad9d365a16201189003f6a426fc.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: victory (image/png) ─────────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/attachments/victory-87288c72bbc81a30e5f6291cb2f6714252457ea0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: debug (image/png) ───────────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/attachments/debug-247ba75faa5b1bfa8f8c67bf6b5af3aafe3fb662.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/motion-qa.spec.ts:706:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "animating": true,
+    +   "animating": false,
+        "step": 0,
+    -   "totalSteps": 1,
+    -   "unitId": "enemy-1",
+    +   "totalSteps": 0,
+    +   "unitId": null,
+      }
+
+      712 |
+      713 |   const frozen = await snapshot(page);
+    > 714 |   expect(frozen.animation).toMatchObject({
+          |                            ^
+      715 |     animating: true,
+      716 |     step: 0,
+      717 |     totalSteps: 1,
+        at /private/tmp/pd-task0036-base/tests/e2e/motion-qa.spec.ts:714:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-fase-enemiga-cad-f723f-vuelve-el-turno-del-jugador-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-fase-enemiga-cad-f723f-vuelve-el-turno-del-jugador-chromium/error-context.md
+
+  6 failed
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:303:1 › impacto, vida bajo cursor, F1, economía de turno y victoria 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:482:1 › feedback de daño en un ataque normal desde el lado 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:685:1 › derrota determinista sin cambiar la economía de turno 
+    [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport 
+    [chromium] › tests/e2e/game-input-hud.spec.ts:45:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio 
+    [chromium] › tests/e2e/motion-qa.spec.ts:706:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador 
+  57 passed (26.9s)
+[ELIFECYCLE] Command failed with exit code 1.
