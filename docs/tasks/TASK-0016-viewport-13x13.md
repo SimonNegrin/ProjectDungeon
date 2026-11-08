@@ -9,7 +9,7 @@ task_type: feature
 requirement: REQ-005
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, T-001, T-002, T-003, T-004, T-005, T-006, T-007]
 depends_on: [TASK-0015]
-unlocks: []
+unlocks: [TASK-0017]
 created_at: 2026-11-08T09:12:11Z
 completed_at: 2026-11-08T09:24:00Z
 assignee: task-runner
