@@ -4,7 +4,7 @@ id: TASK-0038
 title: "Host: feedback de percepción, alarma y debug"
 description: Mostrar "!" sobre el enemigo que detecta, un aviso breve de alarma y los radios de visión/alarma solo en F1, con el nuevo estado en el snapshot de solo lectura.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-011, R-012, T-003, T-008, T-009, T-010, T-011]
