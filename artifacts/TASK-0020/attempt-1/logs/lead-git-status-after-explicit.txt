@@ -1,0 +1,8 @@
+# git status --porcelain artifacts
+ M artifacts/TASK-0020/attempt-1/motion-qa/screenshots/attack-after-walk.png
+ M artifacts/TASK-0020/attempt-1/motion-qa/screenshots/attack-damage-detail.png
+?? artifacts/TASK-0020/attempt-1/logs/
+# git diff --stat artifacts
+ .../motion-qa/screenshots/attack-after-walk.png     | Bin 52006 -> 51992 bytes
+ .../motion-qa/screenshots/attack-damage-detail.png  | Bin 3577 -> 3581 bytes
+ 2 files changed, 0 insertions(+), 0 deletions(-)

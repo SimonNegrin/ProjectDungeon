@@ -8,6 +8,23 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:46:00Z }
 artifacts: artifacts/TASK-0020/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-08T12:20:00Z
+    note: >-
+      Verificación independiente en task/TASK-0020: diff limitado a
+      tests/e2e/artifacts.ts y los 11 specs (solo ruta base), docs preparados por
+      requirements-writer y artifacts/TASK-0020; src/, index.html, public/,
+      package.json, pnpm-lock.yaml y dependencias intactos; sin tests borrados,
+      saltados ni debilitados (40 E2E y 360 unitarios). Re-ejecutados por el
+      lead: pnpm run test:e2e (40/40, 16.3 s),
+      E2E_ARTIFACTS_DIR=artifacts/TASK-0020/attempt-1 pnpm run test:e2e motion-qa
+      (8/8, 4.7 s), pnpm run test:e2e --repeat-each=3 (120/120, 45.6 s) y
+      pnpm run verify (107 documentos, 20 tareas, 3 experimentos; 360 tests en
+      29 archivos; build de 53 módulos). El histórico de artifacts/ no cambia en
+      ninguna corrida; las capturas explícitas quedan en
+      artifacts/TASK-0020/attempt-1/motion-qa/ y arrival.png y motion-trace.log
+      son byte-idénticos a TASK-0019. Fricción del grep: rechazada (el comando
+      actual no tiene coincidencias; el helper usa artifacts/<TASK>/...).
 ---
 
 # Estado
@@ -65,7 +82,7 @@ el repeat 0, como antes.
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El `grep` estático revisa también `tests/e2e/artifacts.ts`: un comentario con `artifacts/TASK-…` da falso positivo aunque ningún spec tenga rutas fijas. | El `grep` del plan marcó el comentario del helper durante el desarrollo. | Ejemplo redactado como `artifacts/<TASK>/attempt-N`. | Cualquier helper que documente la ruta de ejemplo rompe el criterio «sin coincidencias». | Acotar el comando a `tests/e2e/*.spec.ts` o excluir comentarios en `docs/harness/visual-qa.md`. | Trivial; sin riesgo. | `pending` |
+| El `grep` estático revisa también `tests/e2e/artifacts.ts`: un comentario con `artifacts/TASK-…` da falso positivo aunque ningún spec tenga rutas fijas. | El `grep` del plan marcó el comentario del helper durante el desarrollo. | Ejemplo redactado como `artifacts/<TASK>/attempt-N`. | Cualquier helper que documente la ruta de ejemplo rompe el criterio «sin coincidencias». | Acotar el comando a `tests/e2e/*.spec.ts` o excluir comentarios en `docs/harness/visual-qa.md`. | Trivial; sin riesgo. | `rejected`: el `grep` actual pasa sin coincidencias y el helper usa `artifacts/<TASK>/...`, así que no queda falso positivo que corregir. |
 
 # Métricas de handoff
 
