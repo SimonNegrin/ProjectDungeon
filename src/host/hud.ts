@@ -151,7 +151,9 @@ function eventLabel(event: GameEvent): string {
     case 'UnitMoved':
       return `${event.unitId}: (${event.from.x},${event.from.y})→(${event.to.x},${event.to.y}) MP ${event.mpLeft}`;
     case 'AttackPerformed':
-      return `${event.attackerId}→${event.targetId} -${event.damage} (HP ${event.targetHp})`;
+      return event.hit
+        ? `${event.attackerId}→${event.targetId} -${event.damage} (HP ${event.targetHp})`
+        : `${event.attackerId}→${event.targetId} fallo (HP ${event.targetHp})`;
     case 'UnitDied':
       return `${event.unitId} muere`;
     case 'TurnEnded':
@@ -240,6 +242,15 @@ function equipmentDebugLine(unit: Unit | undefined): string {
   return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Modificadores ${modifiersLabel(unit)}`;
 }
 
+function enemyEquipmentLines(state: GameState): readonly string[] {
+  const alive = state.enemies.filter((enemy) => enemy.hp > 0);
+  if (alive.length === 0) return ['Equipo enemigo: ninguno'];
+  return alive.map(
+    (enemy) =>
+      `Equipo enemigo ${enemy.id}: ${weaponLabel(enemy)} · ${shieldLabel(enemy)} · ${armorLabel(enemy)} · Modificadores ${modifiersLabel(enemy)}`,
+  );
+}
+
 function vitalityLine(state: GameState): string {
   const units = [...state.players, ...state.enemies];
   if (units.length === 0) return 'Vida: —';
@@ -289,6 +300,7 @@ export function buildDebugModel(
       `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player?.actionAvailable)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       equipmentDebugLine(player),
+      ...enemyEquipmentLines(state),
       vitalityLine(state),
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
       cursorLabel(cursor),

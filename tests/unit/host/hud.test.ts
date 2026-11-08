@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { WEAPONS } from '../../../src/game/equipment';
-import { createInitialState, reduce } from '../../../src/game/index';
+import { BESTIARY, createInitialState, reduce } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import type { CursorStatus } from '../../../src/host/cursor';
@@ -280,6 +280,43 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Enemigo bajo cursor: enemy-1 5/10');
     expect(text).toContain('Último ataque: player-1→enemy-1 impacto 5 (PV 5)');
     expect(text).toContain('tiradas ataque 6 escudo 1 daño 2 armadura 1');
+    expect(text).toContain('Últimos eventos: player-1→enemy-1 -5 (HP 5)');
+  });
+
+  it('muestra equipo y modificadores de cada enemigo vivo, con el centinela', () => {
+    const sentinel = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 6,
+      y: 5,
+      equipment: BESTIARY.sentinel.equipment,
+      modifiers: BESTIARY.sentinel.modifiers,
+    });
+    const fallen = makeUnit({
+      id: 'enemy-2',
+      faction: 'enemy',
+      enemyType: 'brute',
+      x: 9,
+      y: 5,
+      hp: 0,
+      equipment: BESTIARY.brute.equipment,
+      modifiers: BESTIARY.brute.modifiers,
+    });
+
+    const lines = buildDebugModel(
+      makeState({ enemies: [sentinel, fallen] }),
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+    ).lines;
+
+    const equipment = lines.filter((line) => line.startsWith('Equipo enemigo'));
+    expect(equipment).toEqual([
+      'Equipo enemigo enemy-1: Espada +3/+4 · Escudo +1 · Armadura +1 · Modificadores +0 acierto · +0 daño · +0 defensa',
+    ]);
   });
 
   it('un fallo en F1 muestra Fallo y no inventa tiradas de daño', () => {
@@ -306,6 +343,8 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Último ataque: player-1→enemy-1 fallo');
     expect(text).toContain('tiradas ataque 1 escudo 6');
     expect(text).not.toContain('tiradas ataque 1 escudo 6 daño');
+    expect(text).toContain('Últimos eventos: player-1→enemy-1 fallo (HP 10)');
+    expect(text).not.toContain('player-1→enemy-1 -0');
     expect(text).toContain('Enemigo bajo cursor: ninguno');
   });
 });
