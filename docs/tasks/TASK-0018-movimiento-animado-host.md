@@ -4,7 +4,7 @@ id: TASK-0018
 title: "Host: animación de movimiento, cámara e input bloqueado"
 description: Presentar cualquier UnitMoved como un recorrido animado tile a tile, con cámara continua a píxel entero, pausas, input bloqueado, cursor oculto, MP progresivo y feedback secuenciado, sin tocar el motor.
 status: stable
-task_status: ready
+task_status: review
 task_type: feature
 requirement: REQ-006
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-009, T-010]
@@ -13,13 +13,31 @@ unlocks: [TASK-0019]
 created_at: 2026-11-08T10:26:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0018/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T10:26:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T11:20:00Z
+    note: >-
+      Verificación independiente en task/TASK-0018 (commits e7cc7a9 y 6fa996a):
+      diff de 10 archivos de producción/tests más artefactos; src/game/, docs/ de
+      requisitos, experiments/, package.json y pnpm-lock.yaml intactos. pnpm run
+      verify OK (101 documentos, 19 tareas, 3 experimentos; 360 tests en 29
+      archivos; build de 53 módulos) y pnpm run test:e2e OK (32/32) reproducible;
+      capturas revisadas (paso intermedio con sprite entre tiles, llegada con
+      cursor y MP 4/6, fase enemiga con HUD Enemigo y cursor oculto, reduced
+      motion instantáneo). Comprobados timeline 125/70/constante con n+1 pausas,
+      diagonal recta, cámara entera con clamp, input descartado con F1/R activos,
+      cursor oculto con puntos vivos, MP/HP progresivos, ataque tras la pausa de
+      destino, overlay al final y advance determinista. Sin tests borrados,
+      saltados o debilitados; las esperas E2E usan settle/advance y conservan la
+      intención. Pendiente de playtest de human:simon para aprobar la sensación.
+      La actualización de docs/design/architecture.md queda elevada a
+      requirements-writer: el permiso de task-lead no incluye docs/design.
 ---
 
 # Objetivo

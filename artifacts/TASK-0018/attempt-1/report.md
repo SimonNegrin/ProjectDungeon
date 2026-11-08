@@ -74,7 +74,7 @@ shell.
 
 | Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Ejecutar E2E modifica artefactos de tareas anteriores (`TASK-0007`, `0010`, `0016`, `0017`). | `git status --short` tras `pnpm run test:e2e` mostraba PNG/JSON de esas tareas modificados. | `git checkout -- artifacts/TASK-0007 ...` antes de commitear. | Todo runner que ejecute E2E ensucia el árbol y debe limpiar rutas ajenas. | Usar `testInfo.outputPath` o ruta por intento y documentarlo en el harness. | Bajo; solo cambia rutas de evidencia. | `pending` |
+| Ejecutar E2E modifica artefactos de tareas anteriores (`TASK-0007`, `0010`, `0016`, `0017`). | `git status --short` tras `pnpm run test:e2e` mostraba PNG/JSON de esas tareas modificados. | `git checkout -- artifacts/TASK-0007 ...` antes de commitear. | Todo runner que ejecute E2E ensucia el árbol y debe limpiar rutas ajenas. | Usar `testInfo.outputPath` o ruta por intento y documentarlo en el harness. | Bajo; solo cambia rutas de evidencia. | `deferred` (task-lead; dueño `requirements-writer`) |
 
 # Métricas de handoff
 
@@ -85,6 +85,22 @@ shell.
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
 | `cause` | none |
+
+# Verificación del lead
+
+- Diff revisado: `src/game/` intacto, sin dependencias, `experiments/` sin
+  imports de producción y cambios limitados a host, tests y artefactos.
+- `pnpm run verify` OK (101 documentos, 19 tareas, 3 experimentos; 360 tests en
+  29 archivos; build 53 módulos) y `pnpm run test:e2e` OK (32/32), reproducidos de
+  forma independiente.
+- Capturas revisadas: paso intermedio (sprite entre centros, MP 6/6 y cursor
+  oculto), llegada (cursor y MP 4/6), fase enemiga (HUD Enemigo y cursor oculto)
+  y reduced motion (mismo destino y coste, sin animación).
+- Sin tests borrados, saltados o debilitados; `settle`/`advance` solo añaden
+  esperas explícitas.
+- Pendiente documental: `docs/design/architecture.md` no se pudo editar por el
+  permiso de `task-lead`; queda elevado a `requirements-writer` con el contenido
+  de `ADR-008` y la sección de presentación del movimiento.
 
 # Checklist
 
