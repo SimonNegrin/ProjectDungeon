@@ -4,7 +4,7 @@ id: TASK-0014
 title: "Host: cursor, input, camino y feedback"
 description: Integra el cursor de selección en el host, mapea el teclado, dibuja estados y camino, actualiza HUD/debug y sustituye el resaltado de casilla activa.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-012, R-013, R-014, R-015, R-016, R-017, R-018, T-001, T-005, T-006, T-007, T-008, T-009, T-010, T-011, T-012]
