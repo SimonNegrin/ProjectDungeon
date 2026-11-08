@@ -12,16 +12,18 @@ Estamos en la **fase 1 cerrada**. La fase 0 dejó documentación, agentes, skill
 y un shell de experimentos fiable. El primer hito jugable está construido y
 probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
 `REQ-003` cerró la generación procedural con BSP, la interfaz `MapGenerator` y
-pasillos anchos de 2 tiles. El siguiente hito es la fase 2: multijugador local
-hotseat.
+pasillos anchos de 2 tiles. El siguiente corte es `REQ-004`: cursor de selección,
+camino resaltado y acciones por destino. Después llega la fase 2: multijugador
+local hotseat.
 
 # Fases
 
 | Fase | Objetivo | Estado |
 |---|---|---|
 | 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
-| 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 cerrada |
+| 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 y REQ-003 cerradas |
 | 1.5 | Generación procedural del mapa y muros (REQ-003) | Completado tras playtest; BSP, `MapGenerator` y pasillos anchos de 2 tiles |
+| 1.6 | Cursor de selección, camino y acciones por destino (REQ-004) | Tareas creadas; TASK-0012 lista, TASK-0013 a TASK-0015 en cadena |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |

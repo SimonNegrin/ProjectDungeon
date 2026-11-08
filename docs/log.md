@@ -2,6 +2,8 @@
 
 ## 2026-11-08
 
+* **Planning**: Se crean las tareas de `REQ-004`, secuenciales: `TASK-0012` (motor: planificación de camino y clasificación de destino, `ready`), `TASK-0013` (motor: Moverse por destino y acercarse + atacar), `TASK-0014` (host: cursor, input, camino y feedback) y `TASK-0015` (E2E y QA visual).
+* **Requirement**: Se crea y aprueba `REQ-004` v1: cursor de selección cuadrado de 4 direcciones, sin MP ni movimiento de cámara; estados verde/ámbar/rojo más enemigo con marca y jugador neutro; camino resaltado con puntos blancos en dos tonos (tramo alcanzable fuerte, resto atenuado); `Espacio`/`Enter` para Moverse (sobre enemigo: acercarse y atacar), `F` para ataque directo y `E` para terminar. Sustituye los controles de `REQ-001` R-007, actualiza la economía de turno y añade la fase 1.6 al alcance antes de la fase 2.
 * **Harness**: Protocolo de fricción reutilizable: el runner observa y reporta con evidencia, el lead tria, el `requirements-writer` escribe y el usuario decide las reglas. Las propuestas no vinculan la tarea y se revisan en lote al cerrar hito o en el playtest. Ver [workflow](harness/workflow.md) y [escalado](harness/escalation.md).
 
 ## 2026-11-07
