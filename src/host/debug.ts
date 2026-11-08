@@ -12,6 +12,11 @@ import type { CursorTargetKind } from '../game/path';
 import type { Corridor, Door, Room, Spawns } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
+import {
+  planDecoration,
+  summarizeDecoration,
+  type DecorationSummary,
+} from './floor';
 import type { Viewport } from './geometry';
 import type { StepResult } from './session';
 
@@ -54,6 +59,8 @@ export interface GameSnapshot {
   readonly corridors: readonly Corridor[];
   readonly doors: readonly Door[];
   readonly spawns: Spawns | null;
+  /** Resumen de solo lectura de la decoración plana; coincide con el render. */
+  readonly decoration: readonly DecorationSummary[];
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   readonly phase: Phase;
@@ -167,6 +174,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     corridors: map ? map.corridors.map(cloneCorridor) : [],
     doors: map ? map.doors.map((door) => ({ ...door })) : [],
     spawns: cloneSpawns(map?.spawns),
+    decoration: [...summarizeDecoration(planDecoration(map))],
     players: source.state.players.map(cloneUnit),
     enemies: source.state.enemies.map(cloneUnit),
     phase: source.state.phase,

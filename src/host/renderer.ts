@@ -11,6 +11,7 @@ import {
   type PixelPosition,
   type Viewport,
 } from './geometry';
+import { floorParity, floorTintStyle, planDecoration } from './floor';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -152,7 +153,9 @@ export function renderScene(
 
   const range = visibleTileRange(camera, viewport, state.grid, tileSize);
   const floorSeed = state.map?.seed ?? 0;
+  const tintStyle = floorTintStyle();
 
+  // Base de suelo: la variante de piedra de siempre; la paridad no la altera.
   for (let y = range.minY; y <= range.maxY; y += 1) {
     for (let x = range.minX; x <= range.maxX; x += 1) {
       if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
@@ -165,6 +168,32 @@ export function renderScene(
         tileSize,
       );
     }
+  }
+
+  // Tinte de presentación en la paridad alterna. Solo recibe relleno el suelo;
+  // la piedra y el PNG quedan intactos, y los muros nunca se recolorean.
+  ctx.fillStyle = tintStyle;
+  for (let y = range.minY; y <= range.maxY; y += 1) {
+    for (let x = range.minX; x <= range.maxX; x += 1) {
+      if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
+      if (floorParity(x, y) !== 1) continue;
+      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+    }
+  }
+
+  // Decals planos deterministas, siempre por encima del tinte y por debajo de
+  // muros, unidades y de las capas DOM de camino/cursor.
+  for (const decoration of planDecoration(state.map)) {
+    if (decoration.x < range.minX || decoration.x > range.maxX) continue;
+    if (decoration.y < range.minY || decoration.y > range.maxY) continue;
+    drawRect(
+      ctx,
+      assets.tiles,
+      decoration.decal.rect,
+      decoration.x * tileSize,
+      decoration.y * tileSize,
+      tileSize,
+    );
   }
 
   for (let y = range.minY; y <= range.maxY; y += 1) {
