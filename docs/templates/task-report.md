@@ -58,6 +58,24 @@ verified:
 
 - ...
 
+# Fricción reutilizable
+
+Solo si cumple un disparador: comportamiento no documentado que hubo que
+descubrir, comando o entorno que falla de forma repetible, contradicción entre
+brief, plantilla, validador o documentación, workaround manual que se repite
+entre tareas, o hallazgo de verificación que se generaliza a otros agentes.
+
+Un bug de esta tarea, una preferencia estética, una idea especulativa o un
+cambio de alcance no son fricción de arnés: van en «Problemas conocidos».
+
+| Síntoma | Evidencia | Workaround aplicado | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
+|---|---|---|---|---|---|---|
+| ... | comando/log/captura/ruta | ... | ... | archivo o sección y texto mínimo | ... | `pending` |
+
+Máximo 1–2 entradas por intento. La propuesta es no vinculante: no cambia los
+criterios, no desbloquea la tarea y no relaja tests. Si el detalle no cabe, va a
+`report-detalle.md` y se enlaza.
+
 # Métricas de handoff
 
 | Métrica | Valor |
@@ -83,3 +101,5 @@ verified:
   enlaza; nada se borra.
 - `report_bytes` se mide sobre el archivo final; `overflow` indica si hay
   detalle enlazado.
+- La disposición la deja el runner en `pending`; el lead la actualiza a
+  `accepted`, `rejected` o `deferred` antes de cerrar.

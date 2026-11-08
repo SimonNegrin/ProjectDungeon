@@ -1,5 +1,9 @@
 # Historial del bundle
 
+## 2026-11-08
+
+* **Harness**: Protocolo de fricción reutilizable: el runner observa y reporta con evidencia, el lead tria, el `requirements-writer` escribe y el usuario decide las reglas. Las propuestas no vinculan la tarea y se revisan en lote al cerrar hito o en el playtest. Ver [workflow](harness/workflow.md) y [escalado](harness/escalation.md).
+
 ## 2026-11-07
 
 * **Harness**: Handoffs compactos con esquema obligatorio y presupuesto blando (~2 KB), desbordamiento enlazado en `brief-detalle.md`/`report-detalle.md` y una sesión por tarea/intento. Ver [workflow](harness/workflow.md), [brief](templates/task-brief.md) e [informe](templates/task-report.md).

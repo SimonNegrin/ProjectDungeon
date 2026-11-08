@@ -90,6 +90,8 @@ Enlazar con ancla; no copiar.
 # Riesgos y decisiones abiertas
 
 - ...
+- Propuestas de fricción del intento anterior que afecten a este, enlazadas; no
+  se copian.
 
 # Desbordamiento
 

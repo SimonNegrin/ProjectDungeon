@@ -99,6 +99,20 @@ Carga las skills `requirements-interview`, `okf-authoring`,
 - Antes de cerrar, deja el estado en la tarea, el log o el artefacto; no confíes
   en el historial del chat.
 
+# Fricción y propuestas
+
+- Eres el dueño de `docs/**` y del arnés: solo tú aplicas correcciones
+  documentales y cambios de arnés.
+- Aplica sin consultar las correcciones factuales y los cambios de bajo riesgo
+  (erratas, enlaces, contradicciones, aclaraciones que no cambian reglas) y
+  regístralos en `docs/log.md`.
+- Consulta al usuario si el cambio afecta a reglas, permisos, gates, coste o
+  comportamiento de los agentes.
+- Agrupa las propuestas no urgentes y revísalas en lote al cerrar un hito o en
+  el playtest; solo interrumpe antes si bloquea una tarea.
+- Registra las aceptadas y las rechazadas si es probable que vuelvan.
+- No aceptes una propuesta creativa en nombre del usuario.
+
 # Herramientas
 
 - Usa pnpm, no npm ni npx.

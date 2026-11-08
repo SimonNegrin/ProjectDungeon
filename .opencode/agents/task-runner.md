@@ -100,6 +100,21 @@ Carga las skills `game-architecture`, `canvas-rendering`, `visual-qa` y
   hacen.
 - No importes código de `experiments/` desde producción.
 
+# Fricción reutilizable
+
+- Puedes reportar fricción del arnés en el informe, pero no editas `docs/` ni el
+  arnés.
+- Solo la reportas si cumple un disparador: comportamiento no documentado que
+  hubo que descubrir, comando o entorno que falla de forma repetible,
+  contradicción entre brief, plantilla, validador o documentación, workaround
+  manual que se repite entre tareas, o hallazgo de verificación generalizable.
+- Un bug de tu tarea, una preferencia estética, una idea especulativa o un
+  cambio de alcance no son fricción: van como desviación o problema conocido.
+- Deja como máximo 1–2 entradas con síntoma, evidencia, workaround, por qué es
+  reutilizable, cambio propuesto, coste/riesgo y disposición `pending`.
+- La propuesta no cambia criterios, no desbloquea la tarea y no relaja tests. No
+  la uses para justificar el resultado.
+
 # Si te bloqueas
 
 Devuelve un informe `blocked` o `failed` con:

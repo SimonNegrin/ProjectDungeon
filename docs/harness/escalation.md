@@ -40,6 +40,9 @@ tomadas por un agente.
 | Test roto por causa desconocida | `task-lead` | Investigar; si no, escalar. |
 | Dos fallos consecutivos | `task-lead` | Escalar con evidencia. |
 | Conflicto de archivos | `task-lead` | Secuenciar o replanificar. |
+| Fricción reutilizable de arnés | `requirements-writer` | Triar la propuesta; usuario decide si cambia reglas. |
+| Corrección factual de documentación | `requirements-writer` | Aplicar y registrar en `docs/log.md`. |
+| Propuesta que cambia el proceso | `requirements-writer` + usuario | Aprobar antes de aplicar. |
 
 # Informe de bloqueo
 
@@ -66,6 +69,10 @@ tomadas por un agente.
 - Abrir una tarea nueva para esquivar una dependencia.
 - Pedir al usuario que revise código si la decisión se puede expresar como
   experiencia, opción o experimento.
+- Usar una propuesta para desbloquear una tarea.
+- Cambiar criterios o tests a través de una propuesta.
+- Convertir cada fricción en una sección o documento nuevo.
+- Escalar erratas al usuario.
 
 # Comunicación al usuario
 

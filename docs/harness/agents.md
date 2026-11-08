@@ -38,6 +38,9 @@ una decisión no se pueda tomar en abstracto.
 - Crear briefs de experimento.
 - Lanzar `task-lead` cuando haya una tarea lista.
 - Actualizar índices y logs.
+- Aplicar correcciones documentales y cambios de arnés de bajo riesgo; consultar
+  al usuario los que cambian reglas, permisos, gates, coste o comportamiento de
+  los agentes.
 
 ## No puede
 
@@ -80,6 +83,14 @@ runner, revisar el resultado y cerrar o escalar.
 9. Si no se resuelve, escalar.
 10. Si pasa, fusionar, actualizar la tarea, el tablero y el log.
 
+## Triaje de fricción
+
+- Clasificar cada propuesta del informe: local, documental, de arnés o creativa.
+- Aplicar solo lo que esté en su alcance y elevar el resto a
+  `requirements-writer` con evidencia.
+- No crear ADRs de arnés por su cuenta.
+- Registrar la disposición (`accepted`, `rejected`, `deferred`) antes de cerrar.
+
 ## No puede
 
 - Cambiar requisitos o criterios de aceptación.
@@ -87,6 +98,8 @@ runner, revisar el resultado y cerrar o escalar.
 - Aceptar el informe del runner sin verificar.
 - Ignorar regresiones.
 - Trabajar en varias tareas a la vez al principio.
+- Ser el dueño del arnés: `docs/harness/**` y las plantillas son del
+  `requirements-writer`.
 
 # task-runner
 
@@ -105,6 +118,8 @@ honesto, incluido lo que no ha funcionado.
 6. Devolver un informe con estado, cambios, pruebas, desviaciones y preguntas,
    siguiendo [task-report](../templates/task-report.md): ~2 KB blando, con la
    evidencia completa en archivos aparte.
+7. Si descubre fricción reutilizable del arnés, reportarla en el informe con
+   evidencia y disposición `pending`, sin editar `docs/`.
 
 ## No puede
 
@@ -114,6 +129,8 @@ honesto, incluido lo que no ha funcionado.
 - Fusionar a la rama principal.
 - Borrar, saltar o debilitar tests para pasar.
 - Ocultar fallos.
+- Editar `docs/` ni usar una propuesta para desbloquear, cambiar criterios o
+  relajar tests.
 
 # Timeouts y procesos
 
@@ -127,6 +144,22 @@ con puerto fijo, comprobación de salud y cierre posterior. Ver
 Ver [escalado](escalation.md). El runner devuelve un bloqueo al lead. El lead
 resuelve si es técnico y está dentro del alcance; si es creativo o cambia el
 alcance, vuelve al `requirements-writer` y al usuario.
+
+# Fricción y propuestas
+
+El runner observa, el lead tria, el `requirements-writer` escribe y el usuario
+decide las reglas.
+
+- `task-runner` reporta fricción reutilizable con evidencia y la deja `pending`;
+  no edita `docs/` ni usa la propuesta para desbloquear.
+- `task-lead` clasifica (local, documental, arnés o creativa), aplica lo suyo y
+  eleva el resto con evidencia; registra la disposición antes de cerrar.
+- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
+  con log; consulta al usuario si cambia reglas, permisos, gates, coste o
+  comportamiento de los agentes.
+- Las propuestas no urgentes se revisan en lote al cerrar un hito o en el
+  playtest; solo se interrumpe antes si bloquean una tarea.
+- Ninguna propuesta queda abierta sin disposición ni dueño.
 
 # Permisos
 

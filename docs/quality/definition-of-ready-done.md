@@ -41,6 +41,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 - Documentación afectada actualizada.
 - Cabecera de tarea actualizada: estado, `completed_at`, intentos y artefactos.
 - `task-lead` ha verificado de forma independiente.
+- Si el runner detectó fricción reutilizable, el informe la registra y el lead
+  la ha triado antes de cerrar.
 - El usuario ha aprobado si la tarea tiene resultado creativo.
 
 # Experimento terminado

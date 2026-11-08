@@ -95,6 +95,21 @@ Ver [experimentos](experiments.md).
 - No se duplican criterios ni requisitos: la tarea es la fuente y el brief
   enlaza.
 
+# Fricción y propuestas
+
+- `task-runner` reporta en el informe la fricción reutilizable del arnés, con
+  evidencia y disposición `pending`. No edita `docs/`.
+- `task-lead` tria al verificar o cerrar: local, corrección documental, cambio de
+  arnés o decisión creativa. Aplica lo que está en su alcance y eleva el resto a
+  `requirements-writer`.
+- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
+  con log; consulta al usuario si cambia reglas, permisos, gates, coste o
+  comportamiento de los agentes.
+- El usuario decide las reglas; las erratas no se le escalan.
+- Las propuestas no urgentes se revisan en lote al cerrar un hito o en el
+  playtest. Solo se interrumpe antes si bloquean una tarea.
+- Ninguna propuesta queda abierta sin disposición ni dueño.
+
 # Estados de tarea
 
 | Estado | Significado |

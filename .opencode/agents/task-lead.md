@@ -92,6 +92,21 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 - No repitas el mismo fallo.
 - Si no se resuelve, sigue `docs/harness/escalation.md`.
 
+# Triaje de fricción
+
+- Clasifica cada propuesta del informe: problema local de la tarea, corrección
+  documental, cambio de arnés o decisión creativa.
+- Aplica solo lo que esté en tu alcance (`docs/tasks/**`, `docs/decisions/**`,
+  `docs/log.md` y artefactos).
+- Eleva a `requirements-writer` lo documental o de arnés con la evidencia; no
+  edites `docs/harness/**` ni las plantillas.
+- No crees ADRs de arnés por tu cuenta: las aclaraciones van a los documentos de
+  arnés.
+- Antes de cerrar, registra la disposición (`accepted`, `rejected`, `deferred`)
+  en el informe. No dejes propuestas abiertas sin dueño.
+- Una propuesta no bloquea ni desbloquea la tarea: el resultado se decide por
+  los criterios de aceptación.
+
 # Cierre
 
 Si todo pasa:
