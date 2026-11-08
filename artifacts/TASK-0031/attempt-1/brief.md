@@ -5,7 +5,7 @@ description: Feedback de daño legible sin solapar con el atacante.
 task: TASK-0031
 attempt: 1
 status: stable
-brief_bytes: 2128
+brief_bytes: 2131
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:10:00Z }
 ---

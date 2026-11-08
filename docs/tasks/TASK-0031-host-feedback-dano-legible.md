@@ -4,22 +4,33 @@ id: TASK-0031
 title: "Host: feedback de daño legible junto a las unidades"
 description: Colocar el texto de impacto o fallo en el lado del objetivo opuesto al atacante para que no se solape con el jugador en pasillos de una casilla y quede dentro del mapa.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-010, T-006]
 depends_on: [TASK-0029]
 unlocks: []
 created_at: 2026-11-08T19:50:00Z
-completed_at:
+completed_at: 2026-11-08T19:52:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0031/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T19:50:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T19:52:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0031: implementación 4257ee6 e informe
+      bce01dd. Diff completo revisado; verify OK (491 tests, 149 documentos,
+      config y build) y test:e2e OK (63/63), re-ejecutados por el lead.
+      `damageFeedbackAnchor` es pura y está testeada en cuatro direcciones,
+      diagonal, misma casilla y bordes; el `-1` del pasillo queda bajo el
+      objetivo sin tocar al jugador. Capturas 1280×720 revisadas. Sin cambios en
+      src/game, index.html, HUD, arte ni dependencias; sin tests borrados o
+      debilitados. Fricción de E2E_ARTIFACTS_DIR: deferred a requirements-writer.
 ---
 
 # Objetivo
@@ -42,25 +53,25 @@ presentación: no cambia reglas, daño ni eventos.
 
 # Criterios de aceptación
 
-- [ ] La colocación se calcula con una función pura exportada a partir de la
+- [x] La colocación se calcula con una función pura exportada a partir de la
       posición del objetivo y la del atacante; tiene tests para las cuatro
       direcciones, diagonal y bordes del mapa.
-- [ ] Si el atacante está arriba, el texto se coloca por debajo del centro del
+- [x] Si el atacante está arriba, el texto se coloca por debajo del centro del
       objetivo; simétrico para abajo, izquierda y derecha. En diagonal o misma
       casilla se usa una regla determinista documentada.
-- [ ] El texto no se solapa con el sprite del atacante ni con el HUD; sigue
+- [x] El texto no se solapa con el sprite del atacante ni con el HUD; sigue
       asociado al objetivo, dentro del marco del mapa y sin tapar camino ni
       cursor.
-- [ ] `Fallo` y `-N` conservan texto, color, `aria-live` y duración; el destello
+- [x] `Fallo` y `-N` conservan texto, color, `aria-live` y duración; el destello
       sigue apareciendo solo en impacto.
-- [ ] Impacto, daño, vida y tiradas se leen del evento; no se duplican fórmulas
+- [x] Impacto, daño, vida y tiradas se leen del evento; no se duplican fórmulas
       ni se toca `src/game/`.
-- [ ] Captura a 1280×720 del caso de pasillo de una casilla donde el `-1` ya no
+- [x] Captura a 1280×720 del caso de pasillo de una casilla donde el `-1` ya no
       se solapa con el jugador, y otra del caso normal, revisadas sin tapar el
       mapa.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni
       debilitan tests; sin dependencias nuevas.
-- [ ] Sin cambios en `src/game/`, reglas, HUD ni arte. `index.html` solo si el
+- [x] Sin cambios en `src/game/`, reglas, HUD ni arte. `index.html` solo si el
       CSS del feedback es imprescindible, documentado en el informe.
 
 # Plan de test
@@ -74,9 +85,9 @@ presentación: no cambia reglas, daño ni eventos.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0031/attempt-1/report.md`.
-- [ ] Capturas en `attempt-1/screenshots/` y salidas de tests/`verify`.
-- [ ] Commit SHA en la rama `task/TASK-0031`.
+- [x] Informe en `artifacts/TASK-0031/attempt-1/report.md`.
+- [x] Capturas en `attempt-1/screenshots/` y salidas de tests/`verify`.
+- [x] Commit SHA en la rama `task/TASK-0031`.
 
 # Comandos
 

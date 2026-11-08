@@ -59,13 +59,13 @@ dentro del mapa; reglas y eventos no cambian.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `E2E_ARTIFACTS_DIR` anida por spec y el brief pide `screenshots/` | `tests/e2e/artifacts.ts` | Copiar los PNG | Se repite en cada tarea con capturas | Documentar la copia | Bajo; arnés | `pending` |
+| `E2E_ARTIFACTS_DIR` anida por spec y el brief pide `screenshots/` | `tests/e2e/artifacts.ts` | Copiar PNG | Reutilizable | Documentar | Bajo; arnés | `deferred` — dueño: `requirements-writer` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 2128 |
-| `report_bytes` | 2559 |
+| `brief_bytes` | 2131 |
+| `report_bytes` | 2557 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
