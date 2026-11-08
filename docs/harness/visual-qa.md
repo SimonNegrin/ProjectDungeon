@@ -109,11 +109,12 @@ puede añadir un subagente con un modelo de visión, pero no es el pilar.
   E2E_ARTIFACTS_DIR=artifacts/TASK-XXXX/attempt-N pnpm run test:e2e <spec>
   ```
 
-  La suite escribe solo en esa carpeta. En `--repeat-each` añade un
-  subdirectorio por repetición para que dos workers no compitan por el mismo
-  PNG/JSON.
-- Guardar la evidencia de una tarea en
-  `artifacts/TASK-XXXX/attempt-N/screenshots/` mediante una corrida explícita.
+  La suite escribe solo en esa carpeta. El helper añade un subdirectorio por
+  spec y, en `--repeat-each`, otro por repetición, para que dos workers no
+  compitan por el mismo PNG/JSON.
+- Guardar la evidencia de una tarea con una corrida explícita. La base es
+  `artifacts/TASK-XXXX/attempt-N/` y las capturas quedan por ejemplo en
+  `artifacts/TASK-XXXX/attempt-N/<spec>/screenshots/`.
 - Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
   reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
   la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.
