@@ -4,22 +4,27 @@ id: TASK-0012
 title: "Motor: planificación de camino y clasificación de destino"
 description: Añade una función pura que calcula el camino, el coste, el tile de ataque y el estado de validez del cursor para REQ-004.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-004
 requirement_ids: [R-005, R-006, R-007, R-011, T-002, T-009, T-010, T-011]
 depends_on: [TASK-0011]
 unlocks: [TASK-0013]
 created_at: 2026-11-08T01:27:27Z
-completed_at:
+completed_at: 2026-11-08T01:37:10Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0012/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:27:27Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T01:37:10Z
+    note: "Verificación independiente: diff completo de `src/game/path.ts`, `movement.ts`, `index.ts`, `tests/unit/game/path.test.ts` y artefactos; `pnpm run verify` OK (79 documentos, 3 agentes/9 skills, 254 tests en 23 archivos, build 43 módulos). Los 16 tests cubren diagonal, corte de esquina, muro, fuera del mapa, aliado, objeto bloqueante, sin camino, jugador, enemigo adyacente/alcanzable/lejano, enemigo sin tile de ataque, empates y determinismo sin mutación. Sin tests existentes modificados, borrados, saltados ni debilitados; sin cambios fuera de alcance; `path.ts` sin DOM, aleatoriedad ni relojes. Commit verificado `087b872`."
+    artifacts: artifacts/TASK-0012/attempt-1/
+    commit: 087b872
 ---
 
 # Objetivo
