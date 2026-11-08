@@ -2,6 +2,7 @@
 
 ## 2026-11-08
 
+* 2026-11-08 — Planning — TASK-0039 — dependencias TASK-0037 y TASK-0038 cerradas; pasa de backlog a ready — [TASK-0039](tasks/TASK-0039-e2e-qa-percepcion-alarma-huida.md)
 * 2026-11-08 — Task — TASK-0038 — cerrada: "!" por `EnemySpotted` con poda al enfriarse, aviso de `AlarmRaised`, radios 6/4/5 y 8 solo en `F1`, snapshot profundo de los 4 enemigos; verify 559 y E2E 64 OK; fusión `c6f8765` — [informe](../artifacts/TASK-0038/attempt-2/report.md)
 * 2026-11-08 — Planning — TASK-0038 — dependencia TASK-0037 cerrada; pasa de backlog a ready — [TASK-0038](tasks/TASK-0038-host-feedback-percepcion-alarma.md)
 * 2026-11-08 — Docs — REQ-009 T-009 — actualizadas la IA de `turn-economy.md`, el glosario (percepción, dormido, alerta, regreso, alarma, memoria, huida) y la arquitectura; sin cambios de valores — [turn-economy](design/turn-economy.md)

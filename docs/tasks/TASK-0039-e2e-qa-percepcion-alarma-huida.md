@@ -4,7 +4,7 @@ id: TASK-0039
 title: "E2E y QA visual de percepción, alarma y huida"
 description: Cubrir con Playwright la detección por paso, la alarma sin cadena, el enfriamiento, el daño como despertador, la huida determinista y el feedback; revisar capturas.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: qa
 requirement: REQ-009
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, T-010]
