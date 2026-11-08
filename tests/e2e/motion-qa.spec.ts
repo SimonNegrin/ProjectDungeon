@@ -66,6 +66,7 @@ async function screenshot(
   page: Page,
   name: string,
   testInfo: TestInfo,
+  clip?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number },
 ): Promise<void> {
   // Las repeticiones escriben en `test-results` para no competir por el mismo
   // PNG versionado entre workers.
@@ -74,7 +75,7 @@ async function screenshot(
       ? `${SCREENSHOTS}/${name}.png`
       : testInfo.outputPath(`${name}.png`);
   await mkdir(dirname(path), { recursive: true });
-  await page.screenshot({ path });
+  await page.screenshot({ path, ...(clip ? { clip } : {}) });
   await testInfo.attach(name, { path, contentType: 'image/png' });
 }
 
@@ -543,6 +544,33 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   expect(afterSecond.animation.animating).toBe(false);
   expect(afterSecond.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
   await expect(page.getByTestId('hud-player-mp')).toHaveText('5/6');
+  expect(afterSecond.cursor).toMatchObject({ x: 7, y: 8, visible: true });
+
+  // F vuelve a responder: sin enemigo bajo el cursor es un aviso, no un comando.
+  const beforeF = await snapshot(page);
+  await page.keyboard.press('f');
+  const afterF = await snapshot(page);
+  expect(afterF.players).toEqual(beforeF.players);
+  expect(afterF.enemies).toEqual(beforeF.enemies);
+  expect(afterF.turn).toBe(beforeF.turn);
+  expect(afterF.phase).toBe(beforeF.phase);
+  expect(afterF.lastEvents).toEqual(beforeF.lastEvents);
+  await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
+  await expect(page.getByTestId('hud-message')).toBeVisible();
+
+  // E vuelve a responder: termina el turno y la fase enemiga se completa.
+  await page.keyboard.press('e');
+  const afterEndTurn = await settle(page);
+  expect(afterEndTurn).toMatchObject({ turn: 2, phase: 'player', status: 'playing' });
+  expect(afterEndTurn.players[0].actionAvailable).toBe(true);
+  expect(afterEndTurn.cursor).toMatchObject({
+    x: afterEndTurn.players[0].x,
+    y: afterEndTurn.players[0].y,
+    visible: true,
+    state: 'player',
+  });
+  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
+  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 2');
 
   expect(consoleErrors).toEqual([]);
 });
@@ -611,7 +639,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText('5/10');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await screenshot(page, 'attack-after-walk', testInfo);
+  await screenshot(page, 'attack-approach', testInfo);
 
   // Pausa de destino: la animación sigue activa y aún no hay daño ni overlay.
   const finalPause = await advance(page, HALF_STEP);
@@ -640,6 +668,33 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     flashActive: true,
     damage: '-5',
   });
+  // El daño se dibuja bajo el overlay de victoria y su animación CSS lo
+  // desvanece en 900 ms. Se espera al pico de opacidad y se pausan las
+  // animaciones para capturar un frame estable con `-5` y overlay a la vez.
+  await page.waitForFunction(
+    () => {
+      const damage = document.querySelector('[data-testid="damage-feedback"]');
+      return damage !== null && Number(getComputedStyle(damage).opacity) > 0.9;
+    },
+    undefined,
+    { timeout: 1000 },
+  );
+  await page.evaluate(() => {
+    for (const animation of document.getAnimations()) animation.pause();
+  });
+  const damageBox = await page.getByTestId('damage-feedback').boundingBox();
+  if (!damageBox || damageBox.width === 0 || damageBox.height === 0) {
+    throw new Error('El feedback de daño no está visible para la captura');
+  }
+  await screenshot(page, 'attack-after-walk', testInfo);
+  await screenshot(page, 'attack-damage-detail', testInfo, {
+    x: Math.max(0, Math.round(damageBox.x) - 70),
+    y: Math.max(0, Math.round(damageBox.y) - 50),
+    width: 180,
+    height: 150,
+  });
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText('0/10');
   await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
