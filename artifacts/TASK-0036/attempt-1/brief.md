@@ -5,7 +5,7 @@ description: Colocación determinista de 4 enemigos desde el mapa y la semilla.
 task: TASK-0036
 attempt: 1
 status: stable
-brief_bytes: 2714
+brief_bytes: 2717
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T21:20:00Z }
 ---

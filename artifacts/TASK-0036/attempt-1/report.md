@@ -62,7 +62,7 @@ Disposición del lead: `accepted`; baseline E2E en futuros briefs.
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 2714 |
-| `report_bytes` | 2474 |
+| `brief_bytes` | 2717 |
+| `report_bytes` | 2543 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
