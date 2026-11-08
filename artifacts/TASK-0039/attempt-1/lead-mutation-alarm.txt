@@ -1,0 +1,105 @@
+
+Running 3 tests using 3 workers
+
+  ✘  1 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:237:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena (1.3s)
+  ✘  2 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:43:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento (1.7s)
+  ✓  3 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:314:1 › TASK-0039: semilla de referencia, R-010 y determinismo (1.8s)
+
+
+  1) [chromium] › tests/e2e/perception-alarm-qa.spec.ts:43:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 4
+    + Received  + 4
+
+      Array [
+        Object {
+          "kind": "alarm",
+    -     "radius": 8,
+    +     "radius": 9,
+          "unitId": "enemy-1",
+        },
+        Object {
+          "kind": "alarm",
+    -     "radius": 8,
+    +     "radius": 9,
+          "unitId": "enemy-2",
+        },
+        Object {
+          "kind": "alarm",
+    -     "radius": 8,
+    +     "radius": 9,
+          "unitId": "enemy-3",
+        },
+        Object {
+          "kind": "alarm",
+    -     "radius": 8,
+    +     "radius": 9,
+          "unitId": "enemy-4",
+        },
+      ]
+
+      166 |     { unitId: 'enemy-4', kind: 'vision', radius: 5 },
+      167 |   ]);
+    > 168 |   expect(radii.filter((entry) => entry.kind === 'alarm')).toEqual([
+          |                                                           ^
+      169 |     { unitId: 'enemy-1', kind: 'alarm', radius: 8 },
+      170 |     { unitId: 'enemy-2', kind: 'alarm', radius: 8 },
+      171 |     { unitId: 'enemy-3', kind: 'alarm', radius: 8 },
+        at /Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:168:59
+
+    attachment #1: normal (image/png) ──────────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/attachments/normal-9e9515dd00162a082db41eb71fa5e304098c523e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: deteccion-paso (image/png) ──────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/attachments/deteccion-paso-1c940e39e4d9626ffb891e3349648d5c1b99e24a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: deteccion-alerta (image/png) ────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/attachments/deteccion-alerta-b035ce814becb782a6099ecc9fe71c5e4e5871d4.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/perception-alarm-qa.spec.ts:237:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 5
+
+      Object {
+    -   "awareness": "dormant",
+    -   "lastKnown": null,
+    +   "awareness": "alert",
+    +   "lastKnown": Object {
+    +     "x": 2,
+    +     "y": 2,
+    +   },
+      }
+
+      271 |     hasShouted: true,
+      272 |   });
+    > 273 |   expect(enemyOf(attacked, 'enemy-2')).toMatchObject({
+          |                                        ^
+      274 |     awareness: 'dormant',
+      275 |     lastKnown: null,
+      276 |   });
+        at /Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:273:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-0e6a2-cante-y-alarma-8-sin-cadena-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-alarm-qa-TASK-0-0e6a2-cante-y-alarma-8-sin-cadena-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/perception-alarm-qa.spec.ts:43:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento 
+    [chromium] › tests/e2e/perception-alarm-qa.spec.ts:237:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena 
+  1 passed (3.5s)
