@@ -64,13 +64,17 @@ No aplica: motor puro, sin UI ni E2E.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `docs:check` avisa desde 2,5 KB aunque el tope sea 4 KB, con avisos históricos acumulados | `verify-output.txt` | Ninguno | Se repite cada tarea | Unificar umbrales | Bajo | `pending` |
+| `docs:check` avisa desde 2,5 KB aunque el tope sea 4 KB, con avisos históricos acumulados | `verify-output.txt` | Ninguno | Se repite cada tarea | Unificar umbrales | Bajo | `deferred` |
+
+Disposición del lead: `deferred` a `requirements-writer` por ser fricción
+documental/de arnés (`docs/harness/**` fuera del alcance del lead). No bloquea
+TASK-0035.
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2732 |
-| `report_bytes` | 2893 |
+| `report_bytes` | 3062 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
