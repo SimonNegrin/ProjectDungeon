@@ -14,8 +14,10 @@ import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
 import {
   planDecoration,
+  roomPalettesFor,
   summarizeDecoration,
   type DecorationSummary,
+  type RoomPalette,
 } from './floor';
 import type { Viewport } from './geometry';
 import type { StepResult } from './session';
@@ -61,6 +63,8 @@ export interface GameSnapshot {
   readonly spawns: Spawns | null;
   /** Resumen de solo lectura de la decoración plana; coincide con el render. */
   readonly decoration: readonly DecorationSummary[];
+  /** Paleta y ambiente deterministas de cada sala; el render usa los mismos. */
+  readonly floorPalettes: readonly RoomPalette[];
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   readonly phase: Phase;
@@ -175,6 +179,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     doors: map ? map.doors.map((door) => ({ ...door })) : [],
     spawns: cloneSpawns(map?.spawns),
     decoration: [...summarizeDecoration(planDecoration(map))],
+    floorPalettes: [...roomPalettesFor(map)],
     players: source.state.players.map(cloneUnit),
     enemies: source.state.enemies.map(cloneUnit),
     phase: source.state.phase,

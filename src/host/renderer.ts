@@ -11,7 +11,7 @@ import {
   type PixelPosition,
   type Viewport,
 } from './geometry';
-import { floorParity, floorTintStyle, planDecoration } from './floor';
+import { floorColorFor, planDecoration } from './floor';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
@@ -54,21 +54,6 @@ function drawRect(
     size,
     size,
   );
-}
-
-/**
- * Variante de suelo determinista por coordenada y semilla. El mismo estado
- * produce siempre los mismos recortes; no usa `Math.random` ni relojes.
- */
-export function floorTileFor(tileX: number, tileY: number, seed = 0): SpriteRect {
-  let hash = Math.imul(tileX, 0x1f123bb5);
-  hash = (hash + Math.imul(tileY, 0x27d4eb2f)) | 0;
-  hash = (hash + Math.imul(seed, 0x165667b1)) | 0;
-  hash = Math.imul(hash ^ (hash >>> 15), 0x2545f491);
-  const variant = ((hash ^ (hash >>> 16)) >>> 0) % 3;
-  if (variant === 0) return TILE_RECTS.floor1;
-  if (variant === 1) return TILE_RECTS.floor2;
-  return TILE_RECTS.floor3;
 }
 
 function unitCenter(
@@ -152,36 +137,19 @@ export function renderScene(
   ctx.translate(-camera.x, -camera.y);
 
   const range = visibleTileRange(camera, viewport, state.grid, tileSize);
-  const floorSeed = state.map?.seed ?? 0;
-  const tintStyle = floorTintStyle();
 
-  // Base de suelo: la variante de piedra de siempre; la paridad no la altera.
+  // Damero programático: un relleno plano por tile de suelo, con la base común
+  // y el segundo tono de la paleta de su sala. Ni muros ni tiles no
+  // transitables reciben color de suelo.
   for (let y = range.minY; y <= range.maxY; y += 1) {
     for (let x = range.minX; x <= range.maxX; x += 1) {
       if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
-      drawRect(
-        ctx,
-        assets.tiles,
-        floorTileFor(x, y, floorSeed),
-        x * tileSize,
-        y * tileSize,
-        tileSize,
-      );
-    }
-  }
-
-  // Tinte de presentación en la paridad alterna. Solo recibe relleno el suelo;
-  // la piedra y el PNG quedan intactos, y los muros nunca se recolorean.
-  ctx.fillStyle = tintStyle;
-  for (let y = range.minY; y <= range.maxY; y += 1) {
-    for (let x = range.minX; x <= range.maxX; x += 1) {
-      if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
-      if (floorParity(x, y) !== 1) continue;
+      ctx.fillStyle = floorColorFor(state.map, x, y);
       ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
     }
   }
 
-  // Decals planos deterministas, siempre por encima del tinte y por debajo de
+  // Decals planos deterministas, siempre por encima del suelo y por debajo de
   // muros, unidades y de las capas DOM de camino/cursor.
   for (const decoration of planDecoration(state.map)) {
     if (decoration.x < range.minX || decoration.x > range.maxX) continue;

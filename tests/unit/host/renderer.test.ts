@@ -13,12 +13,13 @@ import {
   MAP_VIEWPORT,
   RENDER_SCALE,
 } from '../../../src/host/layout';
-import { floorTileFor, renderScene, type SceneAssets } from '../../../src/host/renderer';
+import { renderScene, type SceneAssets } from '../../../src/host/renderer';
 import {
-  FLOOR_TINT,
-  floorParity,
-  floorTintStyle,
+  FLOOR_BASE,
+  FLOOR_PALETTES,
+  floorColorFor,
   planDecoration,
+  roomPalettesFor,
 } from '../../../src/host/floor';
 import { makeState } from '../game/helpers';
 
@@ -150,23 +151,31 @@ function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
 }
 
 describe('render de la sala', () => {
-  it('dibuja exactamente 13x13 tiles con la cámara en el origen', () => {
+  it('cubre exactamente 13x13 tiles con la cámara en el origen', () => {
     const state = makeState();
     const fake = draw(state, { x: 0, y: 0 });
 
     // El viewport 416x416 sobre una sala 20x20 cubre 13 columnas y 13 filas:
-    // 169 tiles (144 de suelo y 25 de muro) más el caballero. El goblin queda
-    // fuera del viewport inicial y no se dibuja.
-    expect(fake.draws.length).toBe(170);
+    // 144 tiles de suelo rellenados, 25 muros dibujados y el caballero. Sin
+    // mapa no hay decals. El goblin queda fuera del viewport inicial.
     expect(fake.isSmoothingEnabled()).toBe(false);
 
-    const floorDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 288);
-    const wallDraws = fake.draws.filter((call) => call.image === assets.tiles && call.sy === 64);
+    const paletteStyles = new Set(
+      Object.values(FLOOR_PALETTES).flatMap((palette) => [
+        palette.base,
+        palette.second,
+      ]),
+    );
+    const floorFills = fake.ops.filter(
+      (op) => op.kind === 'fill' && paletteStyles.has(op.style),
+    );
+    const wallDraws = fake.draws.filter(
+      (call) => call.image === assets.tiles && call.sy === 64,
+    );
 
-    expect(floorDraws.length).toBe(144);
-    expect(wallDraws.length).toBe(25);
-    expect(new Set(floorDraws.map((call) => call.sx))).toEqual(new Set([32, 64, 96]));
-    expect(floorDraws[0]).toMatchObject({ sy: 288, sw: 32, sh: 32 });
+    expect(floorFills).toHaveLength(144);
+    expect(wallDraws).toHaveLength(25);
+    expect(fake.draws).toHaveLength(26);
     expect(wallDraws[0]).toMatchObject({ sx: 0, sy: 64, sw: 32, sh: 32 });
   });
 
@@ -356,46 +365,63 @@ describe('render del mapa generado', () => {
     expect(walls.some((call) => call.sx === 64)).toBe(false);
   });
 
-  it('aplica el tinte solo al suelo de paridad alterna y nunca a muros', () => {
+  it('pinta cada tile de suelo con la base y el segundo tono de su sala, nunca muros', () => {
     const state = generatedState();
     const fake = draw(state, { x: 0, y: 0 });
-    const tint = floorTintStyle();
-    const tintFills = fake.ops.filter(
-      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
-        op.kind === 'fill' && op.style === tint,
-    );
     const range = visibleTileRange({ x: 0, y: 0 }, VIEWPORT, state.grid);
+    const paletteStyles = new Set(
+      Object.values(FLOOR_PALETTES).flatMap((palette) => [
+        palette.base,
+        palette.second,
+      ]),
+    );
+    const floorFills = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' && paletteStyles.has(op.style),
+    );
 
     let expected = 0;
     for (let y = range.minY; y <= range.maxY; y += 1) {
       for (let x = range.minX; x <= range.maxX; x += 1) {
         if (state.grid.tiles[y * state.grid.width + x] !== 'floor') continue;
-        if (floorParity(x, y) === 1) expected += 1;
+        expected += 1;
+        expect(
+          floorFills.some(
+            (fill) =>
+              fill.x === x * 32 &&
+              fill.y === y * 32 &&
+              fill.width === 32 &&
+              fill.height === 32 &&
+              fill.style === floorColorFor(state.map, x, y),
+          ),
+          `Suelo (${x},${y})`,
+        ).toBe(true);
       }
     }
 
-    expect(tintFills.length).toBe(expected);
-    for (const fill of tintFills) {
+    expect(floorFills).toHaveLength(expected);
+    for (const fill of floorFills) {
       const x = fill.x / 32;
       const y = fill.y / 32;
       expect(fill.width).toBe(32);
       expect(fill.height).toBe(32);
       expect(state.grid.tiles[y * state.grid.width + x]).toBe('floor');
-      expect(floorParity(x, y)).toBe(1);
     }
+
+    // Los muros conservan su sprite y nunca reciben un color de suelo.
+    const wallFills = floorFills.filter(
+      (fill) =>
+        state.grid.tiles[(fill.y / 32) * state.grid.width + fill.x / 32] ===
+        'wall',
+    );
+    expect(wallFills).toEqual([]);
   });
 
   it('dibuja solo decals planos de la planificación, sobre tiles de suelo', () => {
     const state = generatedState();
     const fake = draw(state, { x: 0, y: 0 });
-    const isFloorRect = (sx: number, sy: number): boolean =>
-      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
-    const isWallRect = (sy: number): boolean => sy === 64;
     const decalDraws = fake.draws.filter(
-      (call) =>
-        call.image === assets.tiles &&
-        !isFloorRect(call.sx, call.sy) &&
-        !isWallRect(call.sy),
+      (call) => call.image === assets.tiles && call.sy !== 64,
     );
 
     const range = visibleTileRange({ x: 0, y: 0 }, VIEWPORT, state.grid);
@@ -423,58 +449,48 @@ describe('render del mapa generado', () => {
     }
   });
 
-  it('respeta el orden base → tinte → decals → unidades', () => {
+  it('respeta el orden base → decals → unidades', () => {
     const fake = draw(generatedState(), { x: 0, y: 0 });
-    const tint = floorTintStyle();
-    const isFloorRect = (sx: number, sy: number): boolean =>
-      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
+    const paletteStyles = new Set(
+      Object.values(FLOOR_PALETTES).flatMap((palette) => [
+        palette.base,
+        palette.second,
+      ]),
+    );
 
     const baseIndex = fake.ops.findIndex(
-      (op) =>
-        op.kind === 'draw' &&
-        op.image === assets.tiles &&
-        isFloorRect(op.sx, op.sy),
-    );
-    const tintIndex = fake.ops.findIndex(
-      (op) => op.kind === 'fill' && op.style === tint,
+      (op) => op.kind === 'fill' && paletteStyles.has(op.style),
     );
     const decalIndex = fake.ops.findIndex(
       (op) =>
-        op.kind === 'draw' &&
-        op.image === assets.tiles &&
-        !isFloorRect(op.sx, op.sy) &&
-        op.sy !== 64,
+        op.kind === 'draw' && op.image === assets.tiles && op.sy !== 64,
     );
     const unitIndex = fake.ops.findIndex(
       (op) => op.kind === 'draw' && op.image === assets.rogues,
     );
 
     expect(baseIndex).toBeGreaterThanOrEqual(0);
-    expect(tintIndex).toBeGreaterThan(baseIndex);
-    expect(decalIndex).toBeGreaterThan(tintIndex);
+    expect(decalIndex).toBeGreaterThan(baseIndex);
     expect(unitIndex).toBeGreaterThan(decalIndex);
   });
 
-  it('sin mapa pinta damero pero no dibuja decoración', () => {
+  it('sin mapa pinta damero neutro pero no dibuja decoración', () => {
     const fake = draw(makeState(), { x: 0, y: 0 });
 
-    const tint = floorTintStyle();
-    const tintFills = fake.ops.filter(
+    const neutralStyles = new Set([
+      FLOOR_BASE,
+      FLOOR_PALETTES.neutral.second,
+    ]);
+    const floorFills = fake.ops.filter(
       (op): op is Extract<RenderOp, { kind: 'fill' }> =>
-        op.kind === 'fill' && op.style === tint,
+        op.kind === 'fill' && neutralStyles.has(op.style),
     );
-    const isFloorRect = (sx: number, sy: number): boolean =>
-      sy === 288 && (sx === 32 || sx === 64 || sx === 96);
     const decalDraws = fake.draws.filter(
-      (call) =>
-        call.image === assets.tiles &&
-        !isFloorRect(call.sx, call.sy) &&
-        call.sy !== 64,
+      (call) => call.image === assets.tiles && call.sy !== 64,
     );
 
-    expect(tintFills.length).toBeGreaterThan(0);
+    expect(floorFills.length).toBe(144);
     expect(decalDraws).toEqual([]);
-    expect(FLOOR_TINT.alpha).toBeGreaterThan(0);
   });
 
 
@@ -487,17 +503,37 @@ describe('render del mapa generado', () => {
     expect(second.fillRects).toEqual(first.fillRects);
   });
 
-  it('la variante de suelo es determinista por coordenada y semilla', () => {
-    const variants = new Set<number>();
-    for (let y = 0; y < 8; y += 1) {
-      for (let x = 0; x < 8; x += 1) {
-        const rect = floorTileFor(x, y, 279837264);
-        expect(floorTileFor(x, y, 279837264)).toEqual(rect);
-        variants.add(rect.sx);
-      }
-    }
+  it('no usa floorTileFor ni recortes de suelo del PNG en el render', () => {
+    const source = readFileSync(
+      new URL('../../../src/host/renderer.ts', import.meta.url),
+      'utf8',
+    );
 
-    expect(variants).toEqual(new Set([32, 64, 96]));
+    expect(source).not.toMatch(/floorTileFor/);
+    expect(source).not.toMatch(/TILE_RECTS\.floor/);
+    expect(source).not.toMatch(/floorTintStyle/);
+    expect(source).toMatch(/floorColorFor\(state\.map, x, y\)/);
+  });
+
+  it('usa las mismas paletas por sala que expone la planificación', () => {
+    const state = generatedState();
+    const fake = draw(state, { x: 0, y: 0 });
+    const palettes = roomPalettesFor(state.map);
+    const paletteStyles = new Set(
+      Object.values(FLOOR_PALETTES).flatMap((palette) => [
+        palette.base,
+        palette.second,
+      ]),
+    );
+    const floorFills = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' && paletteStyles.has(op.style),
+    );
+
+    expect(palettes).toHaveLength(state.map?.rooms.length ?? 0);
+    for (const fill of floorFills) {
+      expect(paletteStyles.has(fill.style)).toBe(true);
+    }
   });
 
   it('no muta el estado generado', () => {

@@ -29,9 +29,9 @@ const MAP_OFFSET_BACKING = 485;
 /**
  * Umbrales documentados en `report.md`.
  *
- * - `FLOOR_TINT_MIN_LUMINANCE`: el tinte `rgba(143,163,184,0.1)` sobre la
- *   piedra produce ~14 de diferencia de luminancia; 6 deja margen a las
- *   variantes de piedritas y a la escala CSS.
+ * - `FLOOR_TINT_MIN_LUMINANCE`: el damero programático base/segundo tono supera
+ *   12 de diferencia de luminancia; 6 deja margen a los decals y a la escala
+ *   CSS. El nombre se conserva para no reescribir la QA completa de TASK-0024.
  * - `GRAYSCALE_MIN_LUMINANCE`: mismo damero medido sobre `gris.png`; 5 exige
  *   que la alternancia se conserve al eliminar el color.
  * - `WALL_TINT_MAX_LUMINANCE`: los muros no llevan tinte; sus bloques deben
@@ -42,7 +42,18 @@ const FLOOR_TINT_MIN_LUMINANCE = 6;
 const GRAYSCALE_MIN_LUMINANCE = 5;
 const WALL_TINT_MAX_LUMINANCE = 1;
 
-const DECAL_FAMILIES = ['dirt', 'grass', 'bones', 'blood', 'mushroom'] as const;
+const DECAL_FAMILIES = [
+  'pebbles',
+  'grass',
+  'dirt',
+  'blueBrick',
+  'bones',
+  'redBrick',
+  'plant',
+  'mushroom',
+  'corpse',
+  'blood',
+] as const;
 const DIRECTIONS = [
   [0, -1],
   [1, 0],
@@ -643,7 +654,7 @@ test('snapshot: densidades, exclusiones, lista blanca y un decal por tile', asyn
       `Decal ${decal.type} debe ser plano de la lista blanca`,
     ).toBe(true);
     expect(decal.type, `Decal ${decal.type} no debe ser un prop sólido`).toMatch(
-      /^(dirt|grass|bones|blood|mushroom)-[a-z0-9]+$/,
+      /^(pebbles|grass|dirt|blueBrick|bones|redBrick|plant|mushroom|corpse|blood)-[a-z0-9]+$/,
     );
 
     decalKeys.add(key);
@@ -657,10 +668,10 @@ test('snapshot: densidades, exclusiones, lista blanca y un decal por tile', asyn
 
   const roomDensity = decorated.room / eligible.room;
   const corridorDensity = decorated.corridor / eligible.corridor;
-  expect(roomDensity).toBeGreaterThanOrEqual(0.12);
-  expect(roomDensity).toBeLessThanOrEqual(0.18);
-  expect(corridorDensity).toBeGreaterThanOrEqual(0.06);
-  expect(corridorDensity).toBeLessThanOrEqual(0.08);
+  expect(roomDensity).toBeGreaterThanOrEqual(0.32);
+  expect(roomDensity).toBeLessThanOrEqual(0.38);
+  expect(corridorDensity).toBeGreaterThanOrEqual(0.13);
+  expect(corridorDensity).toBeLessThanOrEqual(0.19);
 
   // La paridad global del damero no depende de la semilla ni de la sala.
   for (let y = 0; y < snap.grid.height; y += 1) {
@@ -679,8 +690,8 @@ test('snapshot: densidades, exclusiones, lista blanca y un decal por tile', asyn
     `seed=${REFERENCE_SEED}`,
     `floor_tiles=${floorTiles}`,
     `eligible_room=${eligible.room} eligible_corridor=${eligible.corridor}`,
-    `decorated_room=${decorated.room} density_room=${(roomDensity * 100).toFixed(2)}% (rango 12.00-18.00%)`,
-    `decorated_corridor=${decorated.corridor} density_corridor=${(corridorDensity * 100).toFixed(2)}% (rango 6.00-8.00%)`,
+    `decorated_room=${decorated.room} density_room=${(roomDensity * 100).toFixed(2)}% (rango 32.00-38.00%)`,
+    `decorated_corridor=${decorated.corridor} density_corridor=${(corridorDensity * 100).toFixed(2)}% (rango 13.00-19.00%)`,
     `decorated_total=${snap.decoration.length} unique_tiles=${decalKeys.size}`,
     `doors=${snap.doors.length} spawns=2 decals_on_doors_or_spawns=0`,
     `room_types=${[...new Set(snap.decoration.filter((d) => d.area === 'room').map((d) => d.type))].sort().join(',')}`,

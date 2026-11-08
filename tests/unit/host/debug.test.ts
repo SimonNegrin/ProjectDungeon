@@ -5,7 +5,11 @@ import {
   deriveCursorStatus,
 } from '../../../src/host/cursor';
 import { createDebugApi } from '../../../src/host/debug';
-import { planDecoration, summarizeDecoration } from '../../../src/host/floor';
+import {
+  planDecoration,
+  roomPalettesFor,
+  summarizeDecoration,
+} from '../../../src/host/floor';
 import { GameSession } from '../../../src/host/session';
 import { makeState } from '../game/helpers';
 
@@ -83,6 +87,7 @@ describe('API de debug window.__game', () => {
     expect(snapshot.doors).toEqual([]);
     expect(snapshot.spawns).toBeNull();
     expect(snapshot.decoration).toEqual([]);
+    expect(snapshot.floorPalettes).toEqual([]);
     expect(snapshot.camera).toEqual({ x: 0, y: 0, maxX: 224, maxY: 224 });
     expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
     expect(snapshot.tileSize).toBe(32);
@@ -289,22 +294,57 @@ describe('snapshot del mapa generado', () => {
     );
     expect(first.decoration.length).toBeGreaterThan(0);
     for (const entry of first.decoration) {
-      expect(Object.keys(entry).sort()).toEqual(['area', 'type', 'x', 'y']);
+      expect(Object.keys(entry).sort()).toEqual([
+        'ambient',
+        'area',
+        'family',
+        'type',
+        'x',
+        'y',
+      ]);
       expect(entry.area === 'room' || entry.area === 'corridor').toBe(true);
       expect(typeof entry.type).toBe('string');
+      expect(typeof entry.family).toBe('string');
+    }
+
+    expect(first.floorPalettes).toEqual(roomPalettesFor(map));
+    expect(first.floorPalettes).toHaveLength(map.rooms.length);
+    for (const palette of first.floorPalettes) {
+      expect(Object.keys(palette).sort()).toEqual([
+        'ambient',
+        'base',
+        'palette',
+        'roomId',
+        'second',
+      ]);
     }
   });
 
-  it('mutar el resumen de decoración no altera el estado ni el siguiente snapshot', () => {
+  it('mutar el resumen de decoración o las paletas no altera el siguiente snapshot', () => {
     const api = generatedSetup();
     const snapshot = api.snapshot();
-    const mutable = snapshot.decoration[0] as { x: number; type: string };
+    const mutable = snapshot.decoration[0] as {
+      x: number;
+      type: string;
+      family: string;
+    };
     mutable.x = 999;
     mutable.type = 'mutado';
+    mutable.family = 'mutada';
+
+    const mutablePalette = snapshot.floorPalettes[0] as {
+      ambient: string;
+      second: string;
+    };
+    mutablePalette.ambient = 'mutado';
+    mutablePalette.second = '#ffffff';
 
     const fresh = api.snapshot();
     expect(fresh.decoration[0].x).not.toBe(999);
     expect(fresh.decoration[0].type).not.toBe('mutado');
+    expect(fresh.decoration[0].family).not.toBe('mutada');
+    expect(fresh.floorPalettes[0].ambient).not.toBe('mutado');
+    expect(fresh.floorPalettes[0].second).not.toBe('#ffffff');
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {
