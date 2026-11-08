@@ -16,24 +16,17 @@ verified:
 
 # Cambios
 
-- `hud.ts`: arma, escudo, armadura, modificadores, vida bajo cursor y
-  `weapon-hint`; `F1` con equipo, vida de todos, tiradas y enemigo bajo cursor.
+- `hud.ts`: arma, escudo, armadura y modificadores; vida bajo cursor y
+  `weapon-hint`; `F1` con equipo de jugador y enemigos, vida de todos, tiradas y
+  enemigo bajo cursor.
 - `debug.ts`: `GameSnapshot.weapons` clonado.
 - `renderer.ts`: hacha y daga con formas planas entre decals y unidades.
-- `feedback.ts` + `main.ts`: impacto `-N` ASCII, fallo `Fallo`; destello solo en
-  impacto.
-- Tests: unitarios de hud/feedback/debug/renderer, integración de recogida y
-  cambio de arma, y `tests/e2e/equipment-hud-qa.spec.ts`.
-- Commit de código y tests: **0f6e42a** en `task/TASK-0029`.
-
-## Corrección tras verificación del lead
-
-- `F1` añade `Equipo enemigo <id>: ...` con arma, escudo, armadura y
-  modificadores por enemigo vivo (excluye muertos).
-- `Últimos eventos` muestra `fallo (HP N)` cuando `AttackPerformed.hit` es
-  falso; los impactos conservan `-N`.
-- Tests: línea del centinela (`BESTIARY.sentinel`) y evento de fallo sin `-0`.
-- Commit de la corrección: **e4e4b6d** en `task/TASK-0029`.
+- `feedback.ts` + `main.ts`: impacto `-N` ASCII y fallo `Fallo`; destello solo
+  en impacto.
+- Tests: hud/feedback/debug/renderer, integración de recogida/cambio y
+  `tests/e2e/equipment-hud-qa.spec.ts`.
+- Commits: `0f6e42a` implementación, `e4e4b6d` equipo enemigo en F1 y fallo sin
+  `-0`, `605c95f` informe.
 
 # Tests
 
@@ -48,16 +41,14 @@ verified:
 
 - `screenshots/`: `weapon-in-map`, `weapon-map-hint`, `weapon-picked`,
   `attack-hit` (`-2`), `attack-miss` (`Fallo`) y `debug-f1`.
-- `debug-f1` regenerada: incluye `Equipo enemigo enemy-1: ...` y
+- `debug-f1` muestra `Equipo enemigo enemy-1: ...`, las tiradas y
   `Últimos eventos: player-1→enemy-1 fallo (HP 9)`.
-- Revisar que el HUD no tapa el mapa y que el fallo se lee como texto.
+- El HUD y el feedback no tapan el mapa; el fallo se lee como texto.
 
 # Desviaciones
 
-- El humo usa la semilla 7 y dos tests: arma/pista/recogida y combate. Con la
-  semilla de referencia el recorrido repetía siempre impactos.
-- `weapon-hint` vive en el HUD, no anclada al tile: aparece solo si el jugador
-  ocupa un arma y no cubre el mapa.
+- Humo con semilla 7 y dos tests: la semilla de referencia repetía impactos.
+- `weapon-hint` vive en el HUD; aparece solo sobre un arma y no cubre el mapa.
 
 # Problemas conocidos y preguntas abiertas
 
@@ -67,13 +58,13 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `walkTo` puede terminar con 0 MP y `G` se rechaza | El smoke falló al recoger el arma tras caminar | `EndTurn` hasta MP ≥ 1 en el spec | Cualquier tarea que camine y gaste MP | Documentar `walkTo` o añadir `walkToWithMp` | Bajo; solo E2E | `pending` |
+| `walkTo` puede terminar con 0 MP y `G` se rechaza | El smoke falló al recoger el arma tras caminar | `EndTurn` hasta MP ≥ 1 | Cualquier tarea que camine y gaste MP | Documentarlo o añadir `walkToWithMp` | Bajo; solo E2E | `deferred` (TASK-0030) |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2558 |
-| `report_bytes` | 3020 |
+| `report_bytes` | 2540 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

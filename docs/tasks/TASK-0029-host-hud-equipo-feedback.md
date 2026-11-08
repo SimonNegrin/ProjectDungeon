@@ -4,22 +4,33 @@ id: TASK-0029
 title: "Host: HUD de equipo, armas en el mapa y feedback de combate"
 description: Mostrar arma, escudo, armadura y modificadores, dibujar las armas del mapa, la pista de G y el feedback de impacto, fallo y daño.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-003, R-004, R-010, T-006, T-010]
 depends_on: [TASK-0027, TASK-0028]
 unlocks: [TASK-0030]
 created_at: 2026-11-08T17:31:45Z
-completed_at:
+completed_at: 2026-11-08T19:45:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0029/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T17:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-08T19:45:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0029: implementación 0f6e42a,
+      corrección e4e4b6d e informe 605c95f. Diff completo revisado; verify OK
+      (483 tests, 142 documentos, config y build) y test:e2e OK (57/57). HUD
+      con arma/escudo/armadura/mods, armas del mapa, pista de G, feedback
+      Fallo/-N y F1 con equipo enemigo, tiradas y vida de todos; capturas
+      revisadas. Sin cambios en src/game, index.html, public, docs ni
+      dependencias; sin tests borrados o debilitados. Fricción de walkTo:
+      deferred a TASK-0030.
 ---
 
 # Objetivo
@@ -40,21 +51,21 @@ bajo el cursor y el resto en `F1`. La presentación no cambia reglas.
 
 # Criterios de aceptación
 
-- [ ] El HUD muestra el arma equipada, el escudo, la armadura y los
+- [x] El HUD muestra el arma equipada, el escudo, la armadura y los
       modificadores del jugador; se actualiza al recoger o cambiar de arma y
       coincide con el snapshot.
-- [ ] El hacha y la daga se dibujan en el mapa; la pista de `G` aparece solo
+- [x] El hacha y la daga se dibujan en el mapa; la pista de `G` aparece solo
       cuando el jugador está sobre un arma y desaparece al recogerla.
-- [ ] Un ataque produce "Fallo" o "−N" sobre el objetivo y muestra el daño
+- [x] Un ataque produce "Fallo" o "−N" sobre el objetivo y muestra el daño
       resultante; el feedback no tapa el mapa y el fallo se comunica con texto,
       no solo con color o animación.
-- [ ] En juego normal no se muestran los dados; `F1` muestra tiradas, equipo y
+- [x] En juego normal no se muestran los dados; `F1` muestra tiradas, equipo y
       vida de todos, incluida la vida del enemigo bajo el cursor.
-- [ ] El HUD, el render y el feedback no recalculan reglas: leen estado y
+- [x] El HUD, el render y el feedback no recalculan reglas: leen estado y
       eventos del motor. No se duplican fórmulas ni valores de combate.
-- [ ] Tests de HUD, feedback, debug y renderer; captura de humo a 1280×720 con
+- [x] Tests de HUD, feedback, debug y renderer; captura de humo a 1280×720 con
       un arma en el mapa y un ataque. No se debilitan tests existentes.
-- [ ] `pnpm run verify` pasa; sin cambios en `src/game/`, `package.json` ni
+- [x] `pnpm run verify` pasa; sin cambios en `src/game/`, `package.json` ni
       dependencias.
 
 # Plan de test
@@ -68,9 +79,9 @@ bajo el cursor y el resto en `F1`. La presentación no cambia reglas.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0029/attempt-1/report.md`.
-- [ ] Capturas en `attempt-1/screenshots/` y salidas de tests/`verify`.
-- [ ] Commit SHA en la rama `task/TASK-0029`.
+- [x] Informe en `artifacts/TASK-0029/attempt-1/report.md`.
+- [x] Capturas en `attempt-1/screenshots/` y salidas de tests/`verify`.
+- [x] Commit SHA en la rama `task/TASK-0029`.
 
 # Comandos
 
@@ -91,3 +102,19 @@ bajo el cursor y el resto en `F1`. La presentación no cambia reglas.
 - E2E y QA visual completos (`TASK-0030`).
 - Cambiar el bestiario, la percepción o la huida.
 - Inventario completo, loot o pantallas nuevas.
+
+# Verificación
+
+`task-lead` revisó el diff completo y re-ejecutó `pnpm run verify` (483 tests,
+142 documentos, config y build) y `pnpm run test:e2e` (57/57), con salidas en
+`attempt-1/lead-verify-final.txt` y `attempt-1/lead-e2e-final.txt`. Se
+revisaron las capturas `weapon-in-map`, `weapon-map-hint`, `weapon-picked`,
+`attack-hit`, `attack-miss` y `debug-f1`: HUD de equipo, armas del mapa, pista
+de `G` que desaparece al recoger, impacto `-2`, fallo `Fallo` y `F1` con
+equipo enemigo, tiradas y vida de todos. En la primera verificación faltaba el
+equipo enemigo en `F1` y el fallo se resumía como `-0`; se relanzó al runner
+con esa evidencia y se corrigió en `e4e4b6d`. Sin cambios en `src/game/`,
+`index.html`, `public/`, `docs/` ni dependencias; sin tests borrados, saltados
+o debilitados. Fricción de `walkTo` con 0 MP: error local del smoke,
+`deferred` a `TASK-0030`.
+
