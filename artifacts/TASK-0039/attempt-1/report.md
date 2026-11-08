@@ -23,13 +23,13 @@ verified:
   acorralamiento, feedback, snapshot, R-010 y determinismo.
 - Sin cambios en `src/game/`, combate, IA, percepción, bestiario, `docs/` ni
   dependencias.
-- Commit: `0668f5a` (código y tests); artefactos en el commit siguiente.
+- Commits: `0668f5a` (hook y suite) y `650202f` (artefactos).
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `E2E_ARTIFACTS_DIR=artifacts/TASK-0039/attempt-1 pnpm run test:e2e` | 70/70 en 27,0 s | `e2e-output.txt` |
+| `E2E_ARTIFACTS_DIR=artifacts/TASK-0039/attempt-1 pnpm run test:e2e` | 70/70 en 27,5 s | `e2e-output.txt` |
 | `pnpm run test:e2e --repeat-each=3` | 210/210 en 1,3 min | `e2e-repeat-output.txt` |
 | `pnpm run verify` | docs/config OK; 559 unit; build OK | `verify-output.txt` |
 
@@ -66,6 +66,6 @@ Sin entradas: no se detectó fricción que cumpla un disparador.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2208 |
-| `report_bytes` | 2507 |
+| `report_bytes` | 2495 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

@@ -120,6 +120,15 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
   await settle(page);
   const detected = await snapshot(page);
   expect(detected.players[0]).toMatchObject({ x: 4, y: 2, mp: 3 });
+  // El paso que detecta es (3,2); el destino (4,2) ya no tiene LOS desde el
+  // bruto (la línea desde el observador cruza el muro de (5,3)).
+  expect(
+    hasLineOfSight(
+      detected.grid,
+      { x: 5, y: 4 },
+      { x: detected.players[0].x, y: detected.players[0].y },
+    ),
+  ).toBe(false);
   expect(enemyOf(detected, 'enemy-3')).toMatchObject({
     awareness: 'alert',
     lastKnown: { x: 3, y: 2 },
