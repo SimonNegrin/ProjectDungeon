@@ -4,7 +4,7 @@ id: TASK-0035
 title: "Motor: alarma de una onda, enfriamiento y daño como despertador"
 description: Implementar la alarma de radio 8 sin cadena, el enfriamiento a 3 fases con regreso al puesto y el despertar por daño, con eventos deterministas.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-006, R-008, T-004, T-008, T-009, T-010, T-011]

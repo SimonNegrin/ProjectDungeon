@@ -4,7 +4,7 @@ id: TASK-0036
 title: "Motor: colocación determinista de cuatro enemigos"
 description: Derivar del mapa y la semilla 4 enemigos (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, fuera de la visión inicial, con una pareja dentro del radio de alarma y uno fuera.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-009
 requirement_ids: [R-010, T-007, T-010, T-011]
