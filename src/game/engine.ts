@@ -7,6 +7,7 @@ import { detectEnemiesAfterStep } from './perception';
 import { BspMapGenerator } from './bsp';
 import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
+import { placeMapEnemies } from './enemy-placement';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import {
   ENEMY_MAX_MP,
@@ -96,12 +97,17 @@ function buildInitialState(
   options: MapOptions | undefined,
 ): GameState {
   const map: GeneratedMap = generator.generate(seed, options);
+  const placement = placeMapEnemies(map);
 
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
     players: [createPlayer('player-1', map.spawns.player)],
-    enemies: [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
+    // Los mapas generados por BSP siempre colocan 4. Un generador inyectado sin
+    // datos de salas conserva la compatibilidad con un único enemigo histórico.
+    enemies: placement
+      ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type))
+      : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
     phase: 'player',
     turn: 1,
     status: 'playing',

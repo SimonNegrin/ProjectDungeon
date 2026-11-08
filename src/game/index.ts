@@ -4,6 +4,7 @@ export * from './bestiary';
 export * from './rng';
 export * from './grid';
 export * from './map';
+export * from './enemy-placement';
 export * from './bsp';
 export * from './movement';
 export * from './path';

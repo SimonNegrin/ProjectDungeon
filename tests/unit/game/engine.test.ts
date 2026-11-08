@@ -51,7 +51,7 @@ describe('engine state', () => {
 
     expect(spawns).toBeDefined();
     expect(state.players).toHaveLength(1);
-    expect(state.enemies).toHaveLength(1);
+    expect(state.enemies).toHaveLength(4);
     expect(state.players[0]).toMatchObject({
       id: 'player-1',
       x: spawns?.player.x,
