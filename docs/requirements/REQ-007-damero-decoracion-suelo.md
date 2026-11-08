@@ -8,7 +8,7 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T11:55:58Z
-updated_at: 2026-11-08T11:55:58Z
+updated_at: 2026-11-08T13:49:08Z
 related_tasks: [TASK-0021, TASK-0022]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:55:58Z }
 verified:
@@ -18,6 +18,12 @@ verified:
       Aprueba el damero global 1×1, el tinte sutil, la decoración plana en salas
       y pasillos, las densidades 12-18 % y 6-8 %, la protección de apariciones y
       umbrales, y mantener los muros sin cambios.
+  - by: human:simon
+    at: 2026-11-08T13:49:08Z
+    note: >-
+      Aprueba el playtest de REQ-007: el damero se lee en sala, pasillo y
+      umbral, la decoración no bloquea y el camino y el cursor mantienen el
+      protagonismo.
 ---
 
 # Contexto
