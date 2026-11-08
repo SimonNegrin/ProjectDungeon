@@ -235,10 +235,10 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   // Ataque directo con F: daño, acción usada, feedback y cursor estable.
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(5);
+  expect(afterAttack.enemies[0].hp).toBe(9);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.cursor).toMatchObject({
     x: adjacent.enemies[0].x,
@@ -250,11 +250,11 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
-        damage: 5,
+        damage: 1,
       }),
     ]),
   );
-  await expectHud(page, { enemyHp: '5/10', action: 'No' });
+  await expectHud(page, { enemyHp: '9/10', action: 'No' });
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.
@@ -269,11 +269,11 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterEndTurn.turn).toBe(beforeEndTurn.turn + 1);
   expect(afterEndTurn.lastEvents).toEqual(
     expect.arrayContaining([
-      expect.objectContaining({ type: 'AttackPerformed', attackerId: 'enemy-1', damage: 3 }),
+      expect.objectContaining({ type: 'AttackPerformed', attackerId: 'enemy-1', damage: 4 }),
     ]),
   );
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - 3,
+    hp: beforeEndTurn.players[0].hp - 4,
     mp: 6,
     actionAvailable: true,
   });

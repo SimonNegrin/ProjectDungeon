@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reduce } from '../../../src/game/index';
+import { createRng, reduce } from '../../../src/game/index';
 import { makeState, makeUnit, rngForDice } from './helpers';
 
 describe('turn phase', () => {
@@ -85,15 +85,35 @@ describe('turn phase', () => {
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 5, y: 6 }),
       ],
+      // Semilla fijada: ambos enemigos impactan y hacen exactamente 3.
+      rng: createRng(102),
     });
 
     const result = reduce(state, { type: 'EndTurn' });
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
-    const totalDamage = attacks.reduce((sum, event) => sum + event.damage, 0);
 
     expect(attacks).toHaveLength(2);
-    expect(result.state.players[0].hp).toBe(20 - totalDamage);
-    expect(totalDamage).toBeGreaterThan(0);
+    expect(attacks).toEqual([
+      {
+        type: 'AttackPerformed',
+        attackerId: 'enemy-1',
+        targetId: 'player-1',
+        hit: true,
+        damage: 3,
+        targetHp: 17,
+        rolls: { attack: 6, shield: 5, damage: 5, armor: 5 },
+      },
+      {
+        type: 'AttackPerformed',
+        attackerId: 'enemy-2',
+        targetId: 'player-1',
+        hit: true,
+        damage: 3,
+        targetHp: 14,
+        rolls: { attack: 5, shield: 2, damage: 1, armor: 1 },
+      },
+    ]);
+    expect(result.state.players[0].hp).toBe(14);
   });
 
   it('detiene la fase enemiga en cuanto muere el último jugador', () => {

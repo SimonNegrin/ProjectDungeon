@@ -395,10 +395,10 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   // F ataca sin moverse ni gastar MP.
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterF = await snapshot(page);
-  expect(afterF.enemies[0].hp).toBe(selected.enemies[0].hp - 5);
+  expect(afterF.enemies[0].hp).toBe(selected.enemies[0].hp - 1);
   expect(afterF.players[0]).toMatchObject({
     x: selected.players[0].x,
     y: selected.players[0].y,
@@ -415,7 +415,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
-        damage: 5,
+        damage: 1,
       }),
     ]),
   );
@@ -432,7 +432,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
     expect.arrayContaining(['EnemyPhaseStarted', 'PlayerTurnStarted']),
   );
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - 3,
+    hp: beforeEndTurn.players[0].hp - 4,
     mp: 6,
     actionAvailable: true,
   });
@@ -522,7 +522,7 @@ test('enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse atac
     mp: beforeMoveTo.players[0].mp - cost,
     actionAvailable: false,
   });
-  expect(afterMoveTo.enemies[0].hp).toBe(beforeMoveTo.enemies[0].hp - 5);
+  expect(afterMoveTo.enemies[0].hp).toBe(beforeMoveTo.enemies[0].hp - 1);
   expect(afterMoveTo.cursor).toMatchObject({
     x: beforeMoveTo.enemies[0].x,
     y: beforeMoveTo.enemies[0].y,
@@ -536,7 +536,7 @@ test('enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse atac
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
-        damage: 5,
+        damage: 1,
       }),
     ]),
   );
@@ -558,7 +558,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
-  expect(afterAttack.enemies[0].hp).toBe(5);
+  expect(afterAttack.enemies[0].hp).toBe(9);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
   const retreated = await snapshot(page);

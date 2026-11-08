@@ -210,10 +210,10 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
 
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(5);
+  expect(afterAttack.enemies[0].hp).toBe(9);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.cursor).toMatchObject({
     x: enemyTile.cursor.x,

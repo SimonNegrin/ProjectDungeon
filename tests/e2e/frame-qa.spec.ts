@@ -654,12 +654,12 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-5');
+  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   await screenshot(page, 'attack', testInfo);
 
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(5);
+  expect(afterAttack.enemies[0].hp).toBe(9);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.lastEvents).toEqual(
     expect.arrayContaining([
@@ -667,11 +667,11 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
         type: 'AttackPerformed',
         attackerId: 'player-1',
         targetId: 'enemy-1',
-        damage: 5,
+        damage: 1,
       }),
     ]),
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('5/10');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/10');
   await expect(page.getByTestId('hud-action')).toHaveText('No');
 
   expect(consoleErrors).toEqual([]);

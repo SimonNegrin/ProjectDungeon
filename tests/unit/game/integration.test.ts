@@ -29,8 +29,8 @@ function run(state: GameState, commands: readonly Command[]): RunResult {
   return { states, events, final: current };
 }
 
-/** Semilla elegida para que la secuencia de ataques de ejemplo termine en victoria. */
-const VICTORY_SEED = 0;
+/** Semilla que produce 5, 3 y 5 de daño: el enemigo cae y el jugador acaba con 17 PV. */
+const VICTORY_SEED = 71;
 
 const loopCommands: readonly Command[] = [
   { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 },
@@ -55,14 +55,41 @@ describe('game loop integration', () => {
     expect(result.final.phase).toBe('player');
     // Turno 1: mueve (6 MP → 5), ataca y termina. Turno 2: se restauran
     // 6 MP, mueve (6 → 5) y remata.
-    const enemyDamage = result.events
-      .filter(
-        (event) => event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
-      )
-      .reduce((sum, event) => sum + (event.type === 'AttackPerformed' ? event.damage : 0), 0);
-    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, mp: 5 });
-    expect(result.final.players[0].hp).toBe(20 - enemyDamage);
+    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: 17, mp: 5 });
     expect(result.final.enemies[0]).toMatchObject({ hp: 0 });
+
+    const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
+    expect(
+      attacks.map(({ attackerId, hit, damage, targetHp, rolls }) => ({
+        attackerId,
+        hit,
+        damage,
+        targetHp,
+        rolls,
+      })),
+    ).toEqual([
+      {
+        attackerId: 'player-1',
+        hit: true,
+        damage: 5,
+        targetHp: 5,
+        rolls: { attack: 6, shield: 1, damage: 5, armor: 4 },
+      },
+      {
+        attackerId: 'enemy-1',
+        hit: true,
+        damage: 3,
+        targetHp: 17,
+        rolls: { attack: 4, shield: 3, damage: 6, armor: 6 },
+      },
+      {
+        attackerId: 'player-1',
+        hit: true,
+        damage: 5,
+        targetHp: 0,
+        rolls: { attack: 5, shield: 4, damage: 6, armor: 5 },
+      },
+    ]);
 
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
