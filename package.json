@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:experiments": "vite build --config vite.config.experiments.ts",
+    "check:bundle": "node scripts/check-bundle.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,7 +21,7 @@
     "config:check": "node scripts/validate-opencode.mjs",
     "tasks:board": "node scripts/task-board.mjs",
     "tasks:next": "node scripts/next-task.mjs",
-    "verify": "pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build"
+    "verify": "pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle"
   },
   "devDependencies": {
     "@playwright/test": "^1.50.0",
