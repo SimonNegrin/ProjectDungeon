@@ -1,4 +1,4 @@
-import { ASSET_URLS, loadImage } from '../../../src/host/assets';
+import { ASSET_URLS } from '../../../src/host/assets';
 import { mountExperiment } from '../../_shell/experiment';
 import type {
   ExperimentDefinition,
@@ -207,6 +207,20 @@ function extendPage(api: ExperimentTestApi): void {
     });
     actions.append(button);
   }
+}
+
+async function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = 'async';
+    image.addEventListener('load', () => resolve(image), { once: true });
+    image.addEventListener(
+      'error',
+      () => reject(new Error(`No se pudo cargar el asset local ${src}`)),
+      { once: true },
+    );
+    image.src = src;
+  });
 }
 
 async function loadAssets(): Promise<void> {

@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
 $ node scripts/validate-docs.mjs
-Avisos (21):
+Avisos (22):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
 - artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
@@ -22,7 +22,8 @@ Avisos (21):
 - artifacts/TASK-0038/attempt-1/report.md: handoff de 3521 B; objetivo ≤2560 B
 - artifacts/TASK-0038/attempt-2/brief.md: handoff de 2607 B; objetivo ≤2560 B
 - artifacts/TASK-0038/attempt-2/report.md: handoff de 3037 B; objetivo ≤2560 B
-OK: 185 documentos, 40 tareas, 5 experimentos.
+- artifacts/TASK-0040/attempt-1/report.md: handoff de 3066 B; objetivo ≤2560 B
+OK: 186 documentos, 40 tareas, 5 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 3 agentes, 3 skills.
 $ vitest run
@@ -32,11 +33,11 @@ $ vitest run
 
  Test Files  40 passed (40)
       Tests  584 passed (584)
-   Start at  00:33:55
-   Duration  7.22s (tests 92%, import 5%, transform 2%, worker 1%)
+   Start at  00:36:04
+   Duration  7.34s (tests 93%, import 4%, transform 2%, worker 1%)
 
-    Isolate  40 workers spawned · ~128ms startup each (spawn + environment, per file)
-             at least ~605ms faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  40 workers spawned · ~134ms startup each (spawn + environment, per file)
+             at least ~634ms faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -69,6 +70,6 @@ dist/assets/EXP-002-ritmo-movimiento-sHFwvDm1.js        16.09 kB │ gzip:  6.35
 dist/assets/floor-HIAuA4Wt.js                           19.82 kB │ gzip:  7.33 kB
 dist/assets/EXP-003-mesa-combate-DJVBk1Q0.js            21.94 kB │ gzip:  7.93 kB
 dist/assets/EXP-001-generador-mazmorra-DKZ2A8Wf.js      28.03 kB │ gzip: 10.35 kB
-dist/assets/EXP-004-salas-irregulares-BD-jQ33j.js       55.79 kB │ gzip: 18.30 kB
+dist/assets/EXP-004-salas-irregulares-bT6V1HXE.js       56.02 kB │ gzip: 18.38 kB
 dist/assets/main-Cvx7os_H.js                            76.22 kB │ gzip: 26.70 kB
 ✓ built in 470ms

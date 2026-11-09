@@ -121,7 +121,7 @@
         },
         {
           "label": "Generación",
-          "value": "3.4 ms"
+          "value": "3.1 ms"
         }
       ]
     },
@@ -225,7 +225,7 @@
         },
         {
           "label": "Generación",
-          "value": "5.6 ms"
+          "value": "5.7 ms"
         }
       ]
     },
@@ -327,10 +327,10 @@
         },
         {
           "label": "Generación",
-          "value": "2.7 ms"
+          "value": "2.5 ms"
         }
       ]
     }
   ],
-  "decidedAt": "2026-11-09T00:33:39.233Z"
+  "decidedAt": "2026-11-09T00:35:49.923Z"
 }

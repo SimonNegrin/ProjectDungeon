@@ -6,7 +6,7 @@
  * de las unidades; la capa de debug es conmutable.
  */
 
-import { TILE_RECTS, type SpriteRect } from '../../../src/host/assets';
+import { TILE_RECTS } from '../../../src/host/assets';
 import { FLOOR_PALETTES } from '../../../src/host/floor';
 import { fingerprint } from './generate';
 import { wallTileKind } from './grid';
@@ -15,6 +15,13 @@ import type { Door, Enemy, FloorPaletteId, GeneratedMap, Room, VariantId } from 
 export interface ExperimentAssets {
   readonly tiles: HTMLImageElement | null;
   readonly monsters: HTMLImageElement | null;
+}
+
+interface SpriteRect {
+  readonly sx: number;
+  readonly sy: number;
+  readonly sw: number;
+  readonly sh: number;
 }
 
 export interface RenderParams {
