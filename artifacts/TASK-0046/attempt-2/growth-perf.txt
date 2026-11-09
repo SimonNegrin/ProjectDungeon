@@ -1,0 +1,5 @@
+# TASK-0046 attempt-2 growth performance (seed 2738263054, 22x18)
+# command: pnpm exec vitest run tests/unit/game/growth-generator.test.ts --reporter=verbose
+growth perf seed=2738263054 22x18 avg=1.93ms
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
