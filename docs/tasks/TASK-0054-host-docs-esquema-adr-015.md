@@ -24,12 +24,13 @@ verified:
     at: 2026-11-09T23:55:10Z
     note: >-
       Intento 1 verificado en `task/TASK-0054` (HUD y tests `d8e3876`,
-      evidencia `c7dd711`, ADR y triaje `6713ef7`, docs `15800c4`). Diff
-      revisado: solo host, expectativas de tests, documentación y ADR; sin
-      fórmulas, balance, dependencias ni tests debilitados. Lead re-ejecutó
-      `pnpm run docs:check` (265 documentos), `pnpm run verify` (740/740, build y
-      bundle) y `pnpm run test:e2e` (76/76). HUD/F1 sin etiquetas antiguas; docs
-      sin contradicciones; ADR-015 enlazado en el índice.
+      evidencia `c7dd711`, ADR y triaje `6713ef7`, docs `15800c4`; cierre
+      `4c45c1f`; fusión `658b475`). Diff revisado: solo host, expectativas de
+      tests, documentación y ADR; sin fórmulas, balance, dependencias ni tests
+      debilitados. Lead re-ejecutó `pnpm run docs:check` (265 documentos),
+      `pnpm run verify` (740/740, build y bundle) y `pnpm run test:e2e` (76/76).
+      HUD/F1 sin etiquetas antiguas; docs sin contradicciones; ADR-015 enlazado
+      en el índice.
 ---
 
 # Objetivo

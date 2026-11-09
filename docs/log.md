@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0054 — done: HUD y `F1` con habilidad, fuerza, defensa y resistencia sin etiquetas antiguas; turn-economy, glosario, arquitectura y ADR-015 actualizados; docs:check 265, verify 740/740 y E2E 76/76; fusión `658b475` — [informe](../artifacts/TASK-0054/attempt-1/report.md)
 * 2026-11-09 — Task — TASK-0053 — done: motor de ocho atributos (habilidad, fuerza, defensa, resistencia, puntería y magia) y resistencia en la absorción; balance v1 intacto con resistencia 0, verify 740/740 y E2E 76/76, sin tests debilitados; fusión `ccf7ab5` — [informe](../artifacts/TASK-0053/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-014 — creada: esquema de ocho atributos inherentes y enmienda a la fórmula de REQ-010 (resistencia en la absorción, armadura como bonus); balance v1 conservado con resistencia 0; sin valores de arquetipos ni pantalla de inicio — [REQ-014](requirements/REQ-014-atributos-inherentes-personajes.md)
 * 2026-11-09 — Requirement — REQ-015 — creada: roster de nueve arquetipos con stats, arma temática (cinco con arma futura), Cuchillo +4/1, dos variantes de sprite, nombre editable y método de balance por win % (héroe con iniciativa, 1v1, ±2 %, 1.000 duelos) — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
