@@ -38,6 +38,9 @@ Reglas de sesión:
 - Si ya hay una tarea `ready`, el siguiente paso es `task-lead`; no se implementa
   directamente.
 - Una sesión por requisito o milestone; una por tarea o intento.
+- Fuera de la creación de tareas o de su ejecución, ningún agente edita archivos
+  por iniciativa propia: propone el cambio y pide confirmación. Si el árbol tiene
+  cambios ajenos, pregunta antes de tocar nada.
 
 # Skills
 
@@ -99,6 +102,39 @@ Una pregunta por experimento, shell compartido y decisión registrada. Ver
 6. Si falla, relanza con una hipótesis nueva.
 7. Si no se resuelve, escala.
 8. Al cerrar, actualiza la tarea, el tablero y el log.
+
+# Traspaso a una sesión de ejecución
+
+La conversación de requisitos y la ejecución pueden vivir en sesiones distintas.
+Es útil cuando la sesión de requisitos ha acumulado contexto o cuando se van a
+encadenar varias tareas: la conversación queda cerrada y la ejecución no
+arrastra el ida y vuelta de producto.
+
+`task-lead` y `task-runner` ya arrancan con contexto limpio en sesiones hijas.
+Cambiar de sesión limpia el contexto del orquestador, no el del ejecutor.
+
+Antes de cambiar:
+
+- El requisito está aceptado y las tareas están creadas con criterios, plan de
+  test, dependencias, artefactos y estado.
+- La tarea que se va a ejecutar está `ready` y sus dependencias están `done`.
+- El estado está en la ficha, el tablero y el log; no queda una decisión
+  pendiente solo en el historial del chat.
+
+El traspaso es la ficha de tarea, no un prompt: no se copian criterios ni
+requisitos, se enlazan.
+
+1. Abre una sesión nueva; el agente por defecto sigue siendo
+   `requirements-writer`.
+2. Escribe solo la tarea: `Ejecuta TASK-0049` o `lanza task-lead para
+   TASK-0049`.
+3. La sesión nueva lee la ficha y el requisito enlazado y lanza `task-lead`.
+4. Una tarea por lanzamiento; al cerrar y fusionar, se lanza la siguiente. No se
+   ejecutan tareas en paralelo.
+5. Si la tarea tiene resultado creativo, el playtest va antes de cerrarla.
+
+Si una decisión necesaria no está en la ficha, el traspaso está incompleto: se
+corrige antes de ejecutar, no se reconstruye desde una conversación anterior.
 
 # Handoffs y sesiones
 

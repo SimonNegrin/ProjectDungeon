@@ -71,6 +71,8 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
   se enlaza.
 - Una sesión por tarea o intento; antes de compactar o cambiar, escribe el
   handoff.
+- La ejecución puede seguir en una sesión nueva: el traspaso es la ficha de
+  tarea, no un prompt; se lanza `task-lead` por tarea.
 - No dupliques criterios ni requisitos: enlaza; el estado vive en la tarea y los
   artefactos.
 - El log es un índice de una línea por evento:
