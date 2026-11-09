@@ -695,15 +695,15 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
-  // Se conservan enemy-1 (objetivo) y enemy-2 (para que la muerte del primero
-  // no cierre la partida) con el jugador ya adyacente y vida completa; así la
-  // IA de 4 MP no mata al jugador durante el trayecto.
+  // Se conservan el bruto (objetivo, con los PV del bestiario) y enemy-2 (para
+  // que la muerte del primero no cierre la partida) con el jugador ya adyacente;
+  // así la IA de 4 MP no mata al jugador durante el trayecto y el objetivo
+  // aguanta los dos golpes que ensaya el test sin tocar valores del bestiario.
   const base = await snapshot(page);
-  // El objetivo tiene vida suficiente para no morir en los dos golpes que
-  // ensaya el test; las reglas de combate y el resto del bestiario no cambian.
-  const targetEnemy = { ...base.enemies[0], hp: 20, maxHp: 20 };
+  const targetEnemy = base.enemies.find((enemy) => enemy.enemyType === 'brute');
+  if (!targetEnemy) throw new Error('La partida BSP debe incluir un bruto');
   const beside = floorNeighbor(base, targetEnemy);
-  expect(beside, 'Enemy-1 debe tener una casilla libre adyacente').toBeDefined();
+  expect(beside, 'El bruto debe tener una casilla libre adyacente').toBeDefined();
   const adjacent = await openBspState(page, SEED, SEED_URL, {
     player: beside!,
     enemies: [targetEnemy, base.enemies[1]],

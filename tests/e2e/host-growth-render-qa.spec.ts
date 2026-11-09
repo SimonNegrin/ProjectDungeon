@@ -6,7 +6,7 @@ import { createInitialState } from '../../src/game/engine';
 import type { GameState } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { artifactPath } from './artifacts';
-import { endTurn } from './support';
+import { dispatchCommand, endTurn, settle } from './support';
 
 const SEED = 1;
 const CAVERN_SEED = 6;
@@ -281,7 +281,42 @@ test('playtest 2738263054: estructura, determinismo, render y salida sin transic
   const atExit = await loadAt(page, PLAYTEST_SEED, exit.access);
   expect(atExit.status).toBe('playing');
   expect(atExit.exit).toEqual(first.exit);
+  expect(atExit.players[0]).toMatchObject({ x: exit.access.x, y: exit.access.y });
   await save(page, testInfo, 'growth-playtest-exit');
+
+  // Intento real de cruzar la salida con el mismo comando que usa el jugador.
+  // La puerta ocupa un muro: `MoveTo` al tile de salida debe rechazarse y no
+  // debe mover al jugador, cambiar la semilla ni abrir ningún overlay.
+  const attempt = await dispatchCommand(page, {
+    type: 'MoveTo',
+    unitId: 'player-1',
+    target: { x: exit.position.x, y: exit.position.y },
+  });
+  expect(
+    attempt.events.filter((event) => event.type === 'CommandRejected'),
+    'MoveTo al tile de la salida door debe rechazarse',
+  ).not.toEqual([]);
+  expect(
+    attempt.events.some(
+      (event) =>
+        event.type === 'UnitMoved' &&
+        event.to.x === exit.position.x &&
+        event.to.y === exit.position.y,
+    ),
+    'El jugador no debe atravesar el tile de la salida',
+  ).toBe(false);
+  const afterAttempt = await settle(page);
+  expect(afterAttempt.status).toBe('playing');
+  expect(afterAttempt.seed).toBe(PLAYTEST_SEED);
+  expect(afterAttempt.exit).toEqual(first.exit);
+  expect(afterAttempt.players[0]).toMatchObject({
+    x: exit.access.x,
+    y: exit.access.y,
+  });
+  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+
+  // Un turno completo tampoco dispara la transición.
   await endTurn(page);
   const afterTurn = await page.evaluate(() => window.__game!.snapshot());
   expect(afterTurn.status).toBe('playing');

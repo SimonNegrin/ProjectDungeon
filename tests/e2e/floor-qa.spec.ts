@@ -12,6 +12,9 @@ import {
   openBspState,
   settle,
   snapshot,
+  stableScreenshot,
+  stabilizeHudPaint,
+  waitForCanvasStable,
   walkTo,
 } from './support';
 
@@ -1130,20 +1133,18 @@ test('misma semilla idéntica y otra semilla cambia decals manteniendo el damero
 
   await openGame(page);
   const reference = await snapshot(page);
-  const firstShot = await page.screenshot({
-    fullPage: true,
-    animations: 'disabled',
-  });
+  await stabilizeHudPaint(page);
+  await waitForCanvasStable(page);
+  const firstShot = await stableScreenshot(page);
   const firstCanvas = await page.locator('#game-canvas').evaluate(
     (element) => (element as HTMLCanvasElement).toDataURL('image/png'),
   );
 
   await openGame(page);
   const repeated = await snapshot(page);
-  const secondShot = await page.screenshot({
-    fullPage: true,
-    animations: 'disabled',
-  });
+  await stabilizeHudPaint(page);
+  await waitForCanvasStable(page);
+  const secondShot = await stableScreenshot(page);
   const secondCanvas = await page.locator('#game-canvas').evaluate(
     (element) => (element as HTMLCanvasElement).toDataURL('image/png'),
   );

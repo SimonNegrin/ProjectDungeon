@@ -206,6 +206,81 @@ export async function settle(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.advance(1_000_000));
 }
 
+/**
+ * Espera a que el canvas y las fuentes estén estables antes de capturar.
+ *
+ * Compara dos `toDataURL('image/png')` consecutivos separados por un frame y
+ * exige `stableFrames` muestras idénticas seguidas. No cambia el estado del
+ * juego: solo da tiempo a que el rasterizado y la composición se asienten.
+ */
+export async function waitForCanvasStable(
+  page: Page,
+  selector = '#game-canvas',
+  stableFrames = 2,
+): Promise<void> {
+  await page.evaluate(
+    async ({ selector: target, stableFrames: required }) => {
+      await document.fonts.ready;
+      const canvas = document.querySelector<HTMLCanvasElement>(target);
+      if (!canvas) throw new Error(`Falta ${target} para esperar estabilidad`);
+      const nextFrame = (): Promise<void> =>
+        new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      let previous = canvas.toDataURL('image/png');
+      let stable = 0;
+      for (let attempt = 0; attempt < 120 && stable < required; attempt += 1) {
+        await nextFrame();
+        const current = canvas.toDataURL('image/png');
+        stable = current === previous ? stable + 1 : 0;
+        previous = current;
+      }
+      if (stable < required) {
+        throw new Error(`${target} no se estabilizó en 120 frames`);
+      }
+    },
+    { selector, stableFrames },
+  );
+}
+
+/**
+ * Promueve el panel del HUD a su propia capa antes de capturar. Chromium puede
+ * rasterizar el borde redondeado con una diferencia de 1 nivel en 4 píxeles
+ * entre cargas (verificado: mismo rect, mismo canvas); la capa fija esa
+ * composición sin cambiar el contenido, el estado del juego ni el criterio de
+ * comparación byte a byte.
+ */
+export async function stabilizeHudPaint(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const hud = document.querySelector<HTMLElement>('[data-testid="hud"]');
+    if (hud) hud.style.willChange = 'transform';
+  });
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+}
+
+/**
+ * Captura una captura de página completa estable: repite `page.screenshot`
+ * hasta obtener dos buffers consecutivos idénticos byte a byte. No cambia el
+ * criterio de comparación entre cargas; solo asegura que la captura no recoge
+ * un rasterizado transitorio.
+ */
+export async function stableScreenshot(
+  page: Page,
+  options: Parameters<Page['screenshot']>[0] = {},
+): Promise<Buffer> {
+  const settings = { fullPage: true, animations: 'disabled' as const, ...options };
+  let previous = await page.screenshot(settings);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const current = await page.screenshot(settings);
+    if (Buffer.compare(previous, current) === 0) return current;
+    previous = current;
+  }
+  throw new Error('La captura no se estabilizó tras 12 intentos');
+}
+
 /** Ejecuta un comando y falla si el motor lo rechaza (evita rutas bloqueadas). */
 export async function dispatchAccepted(page: Page, command: Command): Promise<void> {
   const result = await dispatchCommand(page, command);

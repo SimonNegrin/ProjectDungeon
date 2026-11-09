@@ -1,0 +1,45 @@
+
+Running 20 tests using 4 workers
+
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   2 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.6s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   4 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.6s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   3 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.7s)
+  ✓   1 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.7s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   6 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.4s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   8 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.5s)
+  ✓   5 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.5s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   9 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.6s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  10 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.7s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓   7 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (5.8s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  11 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.0s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  12 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.3s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  13 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.3s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  14 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.3s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  15 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.8s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  17 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.3s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  16 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.5s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  18 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (2.4s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  19 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.7s)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  20 [chromium] › tests/e2e/floor-qa.spec.ts:1129:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.3s)
+
+  20 passed (20.5s)
