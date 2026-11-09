@@ -5,6 +5,7 @@ import type { GameEvent } from '../../src/game/types';
 import {
   approachEnemy,
   defeatAllEnemies,
+  findVisibleTile,
   moveCursorTo,
   openBspState,
   settle,
@@ -63,7 +64,10 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   const start = await snapshot(page);
   expect(start.seed).toBe(279837264);
-  expect(start.players[0]).toMatchObject({ x: 6, y: 8 });
+  expect(start.players[0]).toMatchObject({
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+  });
 
   // HUD inicial y ayuda de teclas.
   await expect(page.getByTestId('hud')).toBeVisible();
@@ -166,10 +170,13 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterLeft.cursor).toMatchObject({ x: initial.players[0].x - 3 });
 
   // El cursor puede cruzar el muro, pero Moverse lo rechaza y avisa sin mover.
-  await page.keyboard.press('a');
+  const beforeWall = await snapshot(page);
+  const wall = findVisibleTile(beforeWall, 'wall');
+  await moveCursorTo(page, wall.x, wall.y);
   const cursorOnWall = await snapshot(page);
   expect(cursorOnWall.cursor).toMatchObject({
-    x: initial.players[0].x - 4,
+    x: wall.x,
+    y: wall.y,
     state: 'invalid',
     path: [],
   });
@@ -340,8 +347,18 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await page.keyboard.press('r');
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterVictoryRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
-  expect(afterVictoryRestart.cursor).toMatchObject({ x: 6, y: 8, visible: true, state: 'player' });
+  expect(afterVictoryRestart.players[0]).toMatchObject({
+    hp: 20,
+    mp: 6,
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+  });
+  expect(afterVictoryRestart.cursor).toMatchObject({
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+    visible: true,
+    state: 'player',
+  });
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
@@ -350,14 +367,20 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const debugText = await page.getByTestId('debug-content').textContent();
-  expect(debugText).toContain('Jugador: (6, 8)');
+  expect(debugText).toContain(
+    `Jugador: (${start.spawns!.player.x}, ${start.spawns!.player.y})`,
+  );
   expect(debugText).toContain('MP 6/6');
   expect(debugText).toContain('Fase: Jugador');
-  expect(debugText).toContain('Cursor: (6, 8) jugador');
+  expect(debugText).toContain(
+    `Cursor: (${start.spawns!.player.x}, ${start.spawns!.player.y}) jugador`,
+  );
   expect(debugText).toContain('Semilla: 279837264');
   expect(debugText).toContain('Salas:');
   expect(debugText).toContain('Huecos:');
-  expect(debugText).toContain('Spawns: jugador (6,8) · enemigo (23,28)');
+  expect(debugText).toContain(
+    `Spawns: jugador (${start.spawns!.player.x},${start.spawns!.player.y}) · enemigo (${start.spawns!.enemy.x},${start.spawns!.enemy.y})`,
+  );
   expect(debugText).toContain('Pasillos anchos:');
   expect(debugText).toContain('F2 nueva semilla');
   await screenshot(page, 'debug', testInfo);
@@ -402,8 +425,18 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     .click();
   const afterDefeatRestart = await snapshot(page);
   expect(afterDefeatRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
-  expect(afterDefeatRestart.players[0]).toMatchObject({ hp: 20, mp: 6, x: 6, y: 8 });
-  expect(afterDefeatRestart.cursor).toMatchObject({ x: 6, y: 8, visible: true, state: 'player' });
+  expect(afterDefeatRestart.players[0]).toMatchObject({
+    hp: 20,
+    mp: 6,
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+  });
+  expect(afterDefeatRestart.cursor).toMatchObject({
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+    visible: true,
+    state: 'player',
+  });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
 

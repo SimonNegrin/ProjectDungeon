@@ -1,0 +1,225 @@
+{
+  "experiment": "EXP-003",
+  "question": "¿Qué valores de acierto, daño, escudo, armadura, PV y modificadores producen combates de 2-3 impactos, con roles de arma claros y sin que un enemigo aislado sea letal?",
+  "seed": 1017,
+  "preset": "A",
+  "presetDetail": "Tabla de REQ-010: jugador +1/+1/+1; centinela +0/+0/+0; bruto +0/+1/+0; cobarde +1/+0/+1. Armas, escudos, armaduras y PV de la hoja.",
+  "presetDefinitions": {
+    "C": {
+      "label": "C · Tanque",
+      "summary": "Combates más largos y menos daño.",
+      "detail": "Sobre A: +6 PV y +1 armadura a todas las unidades; −1 al daño base (mínimo 0). No está aprobado: es una hipótesis de playtest."
+    },
+    "D": {
+      "label": "D · Letal",
+      "summary": "Menos PV y más daño.",
+      "detail": "Sobre A: PV × 0,65 redondeado hacia arriba (mínimo 4); +2 al daño base. No está aprobado: es una hipótesis de playtest."
+    }
+  },
+  "roster": [
+    {
+      "id": "jugador",
+      "name": "Jugador",
+      "side": "jugador",
+      "hp": 20,
+      "acc": 1,
+      "dmg": 1,
+      "def": 1,
+      "weapon": "espada",
+      "weaponAcc": 3,
+      "weaponDmg": 4,
+      "shield": 1,
+      "armor": 1
+    },
+    {
+      "id": "centinela",
+      "name": "Centinela",
+      "side": "enemigo",
+      "hp": 9,
+      "acc": 0,
+      "dmg": 0,
+      "def": 0,
+      "weapon": "espada",
+      "weaponAcc": 3,
+      "weaponDmg": 4,
+      "shield": 1,
+      "armor": 1
+    },
+    {
+      "id": "bruto",
+      "name": "Bruto",
+      "side": "enemigo",
+      "hp": 12,
+      "acc": 0,
+      "dmg": 1,
+      "def": 0,
+      "weapon": "hacha",
+      "weaponAcc": 2,
+      "weaponDmg": 6,
+      "shield": 0,
+      "armor": 2
+    },
+    {
+      "id": "cobarde",
+      "name": "Cobarde",
+      "side": "enemigo",
+      "hp": 8,
+      "acc": 1,
+      "dmg": 0,
+      "def": 1,
+      "weapon": "daga",
+      "weaponAcc": 4,
+      "weaponDmg": 3,
+      "shield": 1,
+      "armor": 0
+    }
+  ],
+  "attackerId": "jugador",
+  "defenderId": "centinela",
+  "attack": {
+    "attackerId": "jugador",
+    "defenderId": "centinela",
+    "impactDifference": 3,
+    "impactHits": 30,
+    "impactChance": 0.8333333333333334,
+    "damageMin": 1,
+    "damageMean": 4.111111111111112,
+    "damageMax": 9,
+    "expectedDamagePerAttack": 3.4259259259259265,
+    "expectedAttacksToKill": 2.6270270270270264,
+    "distribution": [
+      {
+        "damage": 1,
+        "count": 6,
+        "probability": 0.16666666666666666
+      },
+      {
+        "damage": 2,
+        "count": 4,
+        "probability": 0.1111111111111111
+      },
+      {
+        "damage": 3,
+        "count": 5,
+        "probability": 0.1388888888888889
+      },
+      {
+        "damage": 4,
+        "count": 6,
+        "probability": 0.16666666666666666
+      },
+      {
+        "damage": 5,
+        "count": 5,
+        "probability": 0.1388888888888889
+      },
+      {
+        "damage": 6,
+        "count": 4,
+        "probability": 0.1111111111111111
+      },
+      {
+        "damage": 7,
+        "count": 3,
+        "probability": 0.08333333333333333
+      },
+      {
+        "damage": 8,
+        "count": 2,
+        "probability": 0.05555555555555555
+      },
+      {
+        "damage": 9,
+        "count": 1,
+        "probability": 0.027777777777777776
+      }
+    ]
+  },
+  "duel": {
+    "seed": 1017,
+    "count": 1000,
+    "attackerId": "jugador",
+    "defenderId": "centinela",
+    "attackerWins": 991,
+    "defenderWins": 9,
+    "draws": 0,
+    "attackerWinRate": 0.991,
+    "defenderWinRate": 0.009,
+    "averageTurns": 5.65,
+    "averageWinnerHp": 15.64,
+    "averageAttackerHp": 15.62,
+    "averageDefenderHp": 0.02,
+    "turnDistribution": [
+      {
+        "turns": 1,
+        "count": 22
+      },
+      {
+        "turns": 3,
+        "count": 292
+      },
+      {
+        "turns": 5,
+        "count": 315
+      },
+      {
+        "turns": 6,
+        "count": 1
+      },
+      {
+        "turns": 7,
+        "count": 206
+      },
+      {
+        "turns": 8,
+        "count": 1
+      },
+      {
+        "turns": 9,
+        "count": 84
+      },
+      {
+        "turns": 10,
+        "count": 2
+      },
+      {
+        "turns": 11,
+        "count": 45
+      },
+      {
+        "turns": 12,
+        "count": 2
+      },
+      {
+        "turns": 13,
+        "count": 16
+      },
+      {
+        "turns": 14,
+        "count": 3
+      },
+      {
+        "turns": 15,
+        "count": 6
+      },
+      {
+        "turns": 17,
+        "count": 3
+      },
+      {
+        "turns": 19,
+        "count": 2
+      }
+    ]
+  },
+  "parameters": {
+    "preset": "A",
+    "seed": 1017,
+    "duels": 1000,
+    "attacker": "jugador",
+    "defender": "centinela"
+  },
+  "decision": "A",
+  "notes": "La tabla A se siente equilibrada; falta el playtest.",
+  "decidedAt": "2026-11-09T19:31:42.351Z"
+}

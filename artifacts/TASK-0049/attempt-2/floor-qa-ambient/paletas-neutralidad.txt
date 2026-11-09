@@ -1,0 +1,7 @@
+TASK-0024 paletas por sala y neutralidad de pasillos/puertas
+seed=279837264
+rooms=9 ambients=death,humid,mixed,ruin,vegetation
+palettes room0:mixed/neutral/#16232b room1:humid/humid/#142528 room2:death/death/#2a2026 room3:ruin/ruin/#2b2419 room4:vegetation/vegetation/#24261f room5:mixed/neutral/#16232b room6:humid/humid/#142528 room7:death/death/#2a2026 room8:ruin/ruin/#2b2419
+neutral_room=5 pair (15,23)p0=13.00,21.00,25.00 (15,24)p1=22.00,35.00,43.00
+corridor pair (14,20)p0=13.00,21.00,25.00 (14,19)p1=22.00,35.00,43.00
+door (10,27) room=1 parity=1 mean=22.00,35.00,43.00 expected_neutral_second=#16232b

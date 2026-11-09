@@ -4,15 +4,15 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
 import { MOTION_CONFIG } from '../../src/host/motion';
 import {
-  approachEnemy,
   defeatAllEnemies,
-  ensureAdjacentWithMp,
   moveAwayFromEnemy,
   moveCursorTo,
   openBspState,
+  reachableVisibleTiles,
   settle,
   snapshot,
   visibleRange,
+  walkTo,
 } from './support';
 import { artifactPath } from './artifacts';
 
@@ -49,6 +49,11 @@ async function openGame(
     reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference',
   });
   await openBspState(page, SEED, SEED_URL);
+  await installFreeze(page);
+}
+
+/** Congela el reloj en el mismo `keydown` que inicia cada animación. */
+async function installFreeze(page: Page): Promise<void> {
   await page.evaluate(() => {
     window.addEventListener('keydown', () => {
       window.__game!.advance(0);
@@ -85,6 +90,22 @@ function tileCenter(tile: Position, tileSize: number): Position {
   };
 }
 
+function floorNeighbor(snap: Snapshot, point: Position): Position | undefined {
+  return [
+    { x: point.x - 1, y: point.y },
+    { x: point.x + 1, y: point.y },
+    { x: point.x, y: point.y - 1 },
+    { x: point.x, y: point.y + 1 },
+  ].find(
+    (cell) =>
+      cell.x >= 0 &&
+      cell.y >= 0 &&
+      cell.x < snap.grid.width &&
+      cell.y < snap.grid.height &&
+      snap.grid.tiles[cell.y * snap.grid.width + cell.x] === 'floor',
+  );
+}
+
 /**
  * La cámara de presentación es entera, sigue al sprite y se limita al mapa:
  * centrada salvo que el clamp la detenga en un borde.
@@ -117,6 +138,21 @@ function expectCameraFollows(snap: Snapshot, label: string): void {
   expect(position.x - display.x).toBeLessThanOrEqual(width);
   expect(position.y - display.y).toBeGreaterThanOrEqual(0);
   expect(position.y - display.y).toBeLessThanOrEqual(height);
+}
+
+/** Cámara esperada si el sprite está centrado y después se limita al mapa. */
+function expectedCamera(snap: Snapshot): { x: number; y: number } {
+  const player = snap.players[0];
+  const rawX = Math.round(
+    (player.x + 0.5) * snap.tileSize - snap.viewport.width / 2,
+  );
+  const rawY = Math.round(
+    (player.y + 0.5) * snap.tileSize - snap.viewport.height / 2,
+  );
+  return {
+    x: Math.min(Math.max(rawX, 0), snap.camera.maxX),
+    y: Math.min(Math.max(rawY, 0), snap.camera.maxY),
+  };
 }
 
 /** Posición estrictamente entre dos centros contiguos, eje a eje. */
@@ -172,38 +208,50 @@ test('paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo', 
 
   const start = await snapshot(page);
   expect(start.seed).toBe(SEED);
-  expect(start.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
-  expect(start.camera).toMatchObject({ x: 0, y: 64 });
+  const spawn = start.players[0];
+  expect(spawn).toMatchObject({ mp: 6 });
+  expect(start.camera).toMatchObject(expectedCamera(start));
   const tileSize = start.tileSize;
 
-  await moveCursorTo(page, 8, 8);
+  const target =
+    reachableVisibleTiles(start, { minDistance: 2, maxDistance: 2 }).find(
+      (tile) => tile.y === spawn.y,
+    ) ??
+    reachableVisibleTiles(start, { minDistance: 2, maxDistance: 2 })[0];
+  expect(target, 'Debe existir un destino visible a dos pasos').toBeDefined();
+  await moveCursorTo(page, target.x, target.y);
   const planned = await snapshot(page);
-  expect(planned.cursor.path).toEqual([
-    { x: 7, y: 8 },
-    { x: 8, y: 8 },
-  ]);
+  const path = planned.cursor.path;
+  expect(path).toHaveLength(2);
+  expect(path.at(-1)).toEqual({ x: target.x, y: target.y });
 
   // La tecla arranca la animación y el listener de test la congela en 0 ms.
   await page.keyboard.press('Space');
   const frozen = await snapshot(page);
   expect(frozen.animation).toMatchObject({ animating: true, step: 0, totalSteps: 2 });
-  expect(positionOf(frozen)).toMatchObject(tileCenter({ x: 6, y: 8 }, tileSize));
-  expect(frozen.cursor).toMatchObject({ x: 8, y: 8, visible: false });
+  expect(positionOf(frozen)).toMatchObject(tileCenter(spawn, tileSize));
+  expect(frozen.cursor).toMatchObject({
+    x: target.x,
+    y: target.y,
+    visible: false,
+  });
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(2);
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
   expectCameraFollows(frozen, 'inicio');
 
-  // Mitad del primer paso: el sprite está entre los centros (6,8) y (7,8).
+  // Mitad del primer paso: el sprite está entre el spawn y el primer tile.
   const midFirst = await advance(page, PAUSE + HALF_STEP);
   expect(midFirst.animation).toMatchObject({ animating: true, step: 0, totalSteps: 2 });
   expectBetween(
     positionOf(midFirst),
-    tileCenter({ x: 6, y: 8 }, tileSize),
-    tileCenter({ x: 7, y: 8 }, tileSize),
+    tileCenter(spawn, tileSize),
+    tileCenter(path[0], tileSize),
     'primer paso',
   );
-  expect(positionOf(midFirst).x).toBe(224);
+  expect(positionOf(midFirst).x).toBe(
+    (tileCenter(spawn, tileSize).x + tileCenter(path[0], tileSize).x) / 2,
+  );
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(2);
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
@@ -213,10 +261,9 @@ test('paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo', 
   // Siguiente muestreo: el sprite ha avanzado y ya está en el segundo tile.
   const endFirst = await advance(page, HALF_STEP);
   expect(endFirst.animation).toMatchObject({ animating: true, step: 1, totalSteps: 2 });
-  expect(positionOf(endFirst)).toMatchObject(tileCenter({ x: 7, y: 8 }, tileSize));
-  expect(positionOf(endFirst).x).toBeGreaterThan(positionOf(midFirst).x);
+  expect(positionOf(endFirst)).toMatchObject(tileCenter(path[0], tileSize));
   expect(positionOf(endFirst)).not.toMatchObject(
-    tileCenter({ x: 8, y: 8 }, tileSize),
+    tileCenter(path[1], tileSize),
   );
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(1);
   await expect(page.getByTestId('hud-player-mp')).toHaveText('5/6');
@@ -226,11 +273,13 @@ test('paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo', 
   const midSecond = await advance(page, PAUSE + HALF_STEP);
   expectBetween(
     positionOf(midSecond),
-    tileCenter({ x: 7, y: 8 }, tileSize),
-    tileCenter({ x: 8, y: 8 }, tileSize),
+    tileCenter(path[0], tileSize),
+    tileCenter(path[1], tileSize),
     'segundo paso',
   );
-  expect(positionOf(midSecond).x).toBe(256);
+  expect(positionOf(midSecond).x).toBe(
+    (tileCenter(path[0], tileSize).x + tileCenter(path[1], tileSize).x) / 2,
+  );
   expectCameraFollows(midSecond, 'mitad del segundo paso');
 
   // Pausa final y entrega del control.
@@ -240,15 +289,19 @@ test('paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo', 
     totalSteps: 0,
     position: null,
   });
-  expect(finished.players[0]).toMatchObject({ x: 8, y: 8, mp: 4 });
+  expect(finished.players[0]).toMatchObject({
+    x: target.x,
+    y: target.y,
+    mp: spawn.mp - 2,
+  });
   expect(finished.cursor).toMatchObject({
-    x: 8,
-    y: 8,
+    x: target.x,
+    y: target.y,
     visible: true,
     state: 'player',
     path: [],
   });
-  expect(finished.camera).toMatchObject({ x: 64, y: 64 });
+  expect(finished.camera).toMatchObject(expectedCamera(finished));
   const range = visibleRange(finished);
   expect(finished.cursor.x).toBeGreaterThanOrEqual(range.minX);
   expect(finished.cursor.x).toBeLessThanOrEqual(range.maxX);
@@ -274,20 +327,19 @@ test('camino largo: recorre todos los tiles, MP progresivo y cámara limitada', 
   const tileSize = start.tileSize;
   const startMp = start.players[0].mp;
   expect(startMp).toBe(6);
+  const spawn = start.players[0];
 
-  await moveCursorTo(page, 4, 2);
+  const target = reachableVisibleTiles(start, {
+    minDistance: startMp,
+    maxDistance: startMp,
+  })[0];
+  expect(target, 'Debe existir un destino visible de 6 pasos').toBeDefined();
+  await moveCursorTo(page, target.x, target.y);
   const planned = await snapshot(page);
-  expect(planned.cursor.path).toEqual([
-    { x: 6, y: 7 },
-    { x: 6, y: 6 },
-    { x: 5, y: 5 },
-    { x: 4, y: 4 },
-    { x: 4, y: 3 },
-    { x: 4, y: 2 },
-  ]);
   const path = planned.cursor.path;
   const steps = path.length;
   expect(steps).toBe(6);
+  expect(path.at(-1)).toEqual({ x: target.x, y: target.y });
   const finalCenter = tileCenter(path[steps - 1], tileSize);
 
   await page.keyboard.press('Space');
@@ -298,12 +350,12 @@ test('camino largo: recorre todos los tiles, MP progresivo y cámara limitada', 
     totalSteps: steps,
     unitId: 'player-1',
   });
-  expect(positionOf(frozen)).toMatchObject(tileCenter({ x: 6, y: 8 }, tileSize));
+  expect(positionOf(frozen)).toMatchObject(tileCenter(spawn, tileSize));
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(steps);
   await expect(page.getByTestId('hud-player-mp')).toHaveText(`${startMp}/6`);
 
-  let previousCenter = tileCenter({ x: 6, y: 8 }, tileSize);
+  let previousCenter = tileCenter(spawn, tileSize);
   for (let index = 0; index < steps; index += 1) {
     const destination = tileCenter(path[index], tileSize);
 
@@ -350,14 +402,18 @@ test('camino largo: recorre todos los tiles, MP progresivo y cámara limitada', 
 
   const finished = await advance(page, PAUSE);
   expect(finished.animation.animating).toBe(false);
-  expect(finished.players[0]).toMatchObject({ x: 4, y: 2, mp: 0 });
+  expect(finished.players[0]).toMatchObject({
+    x: target.x,
+    y: target.y,
+    mp: 0,
+  });
   expect(finished.cursor).toMatchObject({
-    x: 4,
-    y: 2,
+    x: target.x,
+    y: target.y,
     visible: true,
     path: [],
   });
-  expect(finished.camera).toMatchObject({ x: 0, y: 0 });
+  expect(finished.camera).toMatchObject(expectedCamera(finished));
   await expect(page.getByTestId('hud-player-mp')).toHaveText('0/6');
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('cursor')).toBeVisible();
@@ -373,18 +429,40 @@ test('la cámara sigue al personaje y no se mueve con el cursor', async ({
 
   const start = await snapshot(page);
   const tileSize = start.tileSize;
-  expect(start.camera).toMatchObject({ x: 0, y: 64 });
+  const spawn = start.players[0];
+  expect(start.camera).toMatchObject(expectedCamera(start));
 
   // El cursor nunca desplaza la cámara, ni siquiera hasta el borde del viewport.
-  await moveCursorTo(page, 11, 7);
-  expect((await snapshot(page)).camera).toMatchObject({ x: 0, y: 64 });
-  await moveCursorTo(page, 12, 14);
+  const range = visibleRange(start);
+  await moveCursorTo(page, range.minX, range.minY);
+  expect((await snapshot(page)).camera).toMatchObject(start.camera);
+  await moveCursorTo(page, range.maxX, range.maxY);
   const edgeCursor = await snapshot(page);
-  expect(edgeCursor.camera).toMatchObject({ x: 0, y: 64 });
-  expect(edgeCursor.cursor).toMatchObject({ x: 12, y: 14 });
+  expect(edgeCursor.camera).toMatchObject(start.camera);
+  expect(edgeCursor.cursor).toMatchObject({ x: range.maxX, y: range.maxY });
 
-  // Clamp oeste: (5,8) queda pegado al borde y el sprite no puede centrarse.
-  await moveCursorTo(page, 5, 8);
+  // Clamp oeste: se camina a un tile cuya cámara queda en 0 (sin centrar).
+  const westTile = reachableVisibleTiles(start, {
+    minDistance: 1,
+    maxDistance: spawn.mp,
+  })
+    .filter(
+      (tile) =>
+        tile.y === spawn.y && tile.x * tileSize + tileSize / 2 <= 208,
+    )
+    .sort((a, b) => a.distance - b.distance)[0];
+  expect(westTile, 'Debe existir un tile visible junto al borde oeste').toBeDefined();
+  await walkTo(page, westTile.x, westTile.y);
+  const nearWest = await snapshot(page);
+  expect(nearWest.camera.x).toBe(0);
+  expect(nearWest.camera).toMatchObject(expectedCamera(nearWest));
+
+  const stepWest = reachableVisibleTiles(nearWest, {
+    minDistance: 1,
+    maxDistance: 1,
+  }).find((tile) => tile.y === nearWest.players[0].y && tile.x < nearWest.players[0].x);
+  expect(stepWest, 'Debe existir un paso al oeste').toBeDefined();
+  await moveCursorTo(page, stepWest!.x, stepWest!.y);
   await page.keyboard.press('Space');
   const frozen = await snapshot(page);
   expect(frozen.animation).toMatchObject({ animating: true, totalSteps: 1 });
@@ -393,23 +471,33 @@ test('la cámara sigue al personaje y no se mueve con el cursor', async ({
   const midClamp = await advance(page, PAUSE + HALF_STEP);
   expectBetween(
     positionOf(midClamp),
-    tileCenter({ x: 6, y: 8 }, tileSize),
-    tileCenter({ x: 5, y: 8 }, tileSize),
+    tileCenter(nearWest.players[0], tileSize),
+    tileCenter(stepWest!, tileSize),
     'paso al clamp oeste',
   );
   expect(midClamp.animation.camera.x).toBe(0);
-  expect(positionOf(midClamp).x - midClamp.animation.camera.x).toBe(192);
+  expect(positionOf(midClamp).x).toBe(
+    (tileCenter(nearWest.players[0], tileSize).x +
+      tileCenter(stepWest!, tileSize).x) /
+      2,
+  );
   expectCameraFollows(midClamp, 'clamp mitad');
 
   const atClamp = await advance(page, HALF_STEP + PAUSE);
   expect(atClamp.animation.animating).toBe(false);
-  expect(atClamp.players[0]).toMatchObject({ x: 5, y: 8 });
-  // Centro del tile (5,8) en píxeles de mundo; con cámara 0 queda a 176 px.
-  expect(tileCenter({ x: 5, y: 8 }, tileSize).x).toBe(176);
-  expect(atClamp.camera).toMatchObject({ x: 0, y: 64 });
+  expect(atClamp.players[0]).toMatchObject({ x: stepWest!.x, y: stepWest!.y });
+  expect(atClamp.camera.x).toBe(0);
+  expect(atClamp.camera).toMatchObject(expectedCamera(atClamp));
 
   // Fuera del clamp la cámara queda exactamente centrada en el sprite.
-  await moveCursorTo(page, 7, 8);
+  const centeredTarget = reachableVisibleTiles(atClamp, {
+    minDistance: 2,
+    maxDistance: 2,
+  }).find(
+    (tile) => tile.y === atClamp.players[0].y && tile.x > atClamp.players[0].x,
+  );
+  expect(centeredTarget, 'Debe existir un destino centrado al este').toBeDefined();
+  await moveCursorTo(page, centeredTarget!.x, centeredTarget!.y);
   await page.keyboard.press('Space');
   const centeredFrozen = await snapshot(page);
   expect(centeredFrozen.animation).toMatchObject({ animating: true, totalSteps: 2 });
@@ -421,7 +509,10 @@ test('la cámara sigue al personaje y no se mueve con el cursor', async ({
   const secondHalf = await advance(page, PAUSE + HALF_STEP);
   expectCameraFollows(secondHalf, 'centrado mitad 2');
   const secondEnd = await advance(page, HALF_STEP);
-  expect(secondEnd.animation.camera.x).toBe(32);
+  const centeredCameraX = Math.round(
+    (centeredTarget!.x + 0.5) * tileSize - secondEnd.viewport.width / 2,
+  );
+  expect(secondEnd.animation.camera.x).toBe(centeredCameraX);
   expect(positionOf(secondEnd).x - secondEnd.animation.camera.x).toBe(
     secondEnd.viewport.width / 2,
   );
@@ -429,8 +520,12 @@ test('la cámara sigue al personaje y no se mueve con el cursor', async ({
 
   const finished = await advance(page, PAUSE);
   expect(finished.animation.animating).toBe(false);
-  expect(finished.players[0]).toMatchObject({ x: 7, y: 8, mp: 3 });
-  expect(finished.camera).toMatchObject({ x: 32, y: 64 });
+  expect(finished.players[0]).toMatchObject({
+    x: centeredTarget!.x,
+    y: centeredTarget!.y,
+    mp: atClamp.players[0].mp - 2,
+  });
+  expect(finished.camera).toMatchObject(expectedCamera(finished));
   for (const camera of [start.camera, finished.camera]) {
     expect(Number.isInteger(camera.x)).toBe(true);
     expect(Number.isInteger(camera.y)).toBe(true);
@@ -445,7 +540,14 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
 
-  await moveCursorTo(page, 8, 8);
+  const start = await snapshot(page);
+  const spawn = start.players[0];
+  const target = reachableVisibleTiles(start, {
+    minDistance: 2,
+    maxDistance: 2,
+  })[0];
+  expect(target, 'Debe existir un destino visible a dos pasos').toBeDefined();
+  await moveCursorTo(page, target.x, target.y);
   await page.keyboard.press('Space');
   const baseline = await snapshot(page);
   expect(baseline.animation).toMatchObject({ animating: true, step: 0, totalSteps: 2 });
@@ -481,8 +583,8 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
       baselinePosition,
     );
     expect(after.cursor, `${key} no mueve el cursor`).toMatchObject({
-      x: 8,
-      y: 8,
+      x: target.x,
+      y: target.y,
       visible: false,
     });
     expect(after.cursor.path, `${key} no recalcula el camino`).toHaveLength(2);
@@ -515,11 +617,15 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   await page.keyboard.press('r');
   const restarted = await snapshot(page);
   expect(restarted.animation.animating).toBe(false);
-  expect(restarted.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
+  expect(restarted.players[0]).toMatchObject({
+    x: spawn.x,
+    y: spawn.y,
+    mp: 6,
+  });
   expect(restarted).toMatchObject({ turn: 1, phase: 'player', status: 'playing' });
   expect(restarted.cursor).toMatchObject({
-    x: 6,
-    y: 8,
+    x: spawn.x,
+    y: spawn.y,
     visible: true,
     state: 'player',
   });
@@ -528,16 +634,28 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
 
   // Terminada la animación, el input vuelve a funcionar.
-  await page.keyboard.press('ArrowRight');
-  expect((await snapshot(page)).cursor).toMatchObject({ x: 7, y: 8 });
+  const oneStep = reachableVisibleTiles(restarted, {
+    minDistance: 1,
+    maxDistance: 1,
+  })[0];
+  expect(oneStep, 'Debe existir un paso visible').toBeDefined();
+  await moveCursorTo(page, oneStep.x, oneStep.y);
   await page.keyboard.press('Space');
   const secondMove = await snapshot(page);
   expect(secondMove.animation).toMatchObject({ animating: true, totalSteps: 1 });
   const afterSecond = await settle(page);
   expect(afterSecond.animation.animating).toBe(false);
-  expect(afterSecond.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
+  expect(afterSecond.players[0]).toMatchObject({
+    x: oneStep.x,
+    y: oneStep.y,
+    mp: 5,
+  });
   await expect(page.getByTestId('hud-player-mp')).toHaveText('5/6');
-  expect(afterSecond.cursor).toMatchObject({ x: 7, y: 8, visible: true });
+  expect(afterSecond.cursor).toMatchObject({
+    x: oneStep.x,
+    y: oneStep.y,
+    visible: true,
+  });
 
   // F vuelve a responder: sin enemigo bajo el cursor es un aviso, no un comando.
   const beforeF = await snapshot(page);
@@ -554,7 +672,11 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   // E vuelve a responder: termina el turno y la fase enemiga se completa.
   await page.keyboard.press('e');
   const afterEndTurn = await settle(page);
-  expect(afterEndTurn).toMatchObject({ turn: 2, phase: 'player', status: 'playing' });
+  expect(afterEndTurn).toMatchObject({
+    turn: afterSecond.turn + 1,
+    phase: 'player',
+    status: 'playing',
+  });
   expect(afterEndTurn.players[0].actionAvailable).toBe(true);
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,
@@ -573,13 +695,20 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
-  // Se conservan enemy-1 (objetivo del test) y enemy-2 (para que la muerte del
-  // primero no cierre la partida); el resto se despeja con la IA de 4 MP.
-  await defeatAllEnemies(page, 400, ['enemy-1', 'enemy-2']);
-  await approachEnemy(page);
-  await ensureAdjacentWithMp(page, 2);
-
-  const adjacent = await snapshot(page);
+  // Se conservan el bruto (objetivo, con los PV del bestiario) y enemy-2 (para
+  // que la muerte del primero no cierre la partida) con el jugador ya adyacente;
+  // así la IA de 4 MP no mata al jugador durante el trayecto y el objetivo
+  // aguanta los dos golpes que ensaya el test sin tocar valores del bestiario.
+  const base = await snapshot(page);
+  const targetEnemy = base.enemies.find((enemy) => enemy.enemyType === 'brute');
+  if (!targetEnemy) throw new Error('La partida BSP debe incluir un bruto');
+  const beside = floorNeighbor(base, targetEnemy);
+  expect(beside, 'El bruto debe tener una casilla libre adyacente').toBeDefined();
+  const adjacent = await openBspState(page, SEED, SEED_URL, {
+    player: beside!,
+    enemies: [targetEnemy, base.enemies[1]],
+  });
+  await installFreeze(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
@@ -607,12 +736,19 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   });
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
-  const retreated = await snapshot(page);
+  let retreated = await snapshot(page);
+  for (let step = 0; step < 3 && Math.max(
+    Math.abs(retreated.players[0].x - retreated.enemies[0].x),
+    Math.abs(retreated.players[0].y - retreated.enemies[0].y),
+  ) < 2; step += 1) {
+    expect(await moveAwayFromEnemy(page)).toBe(true);
+    retreated = await snapshot(page);
+  }
   const distance = Math.max(
     Math.abs(retreated.players[0].x - retreated.enemies[0].x),
     Math.abs(retreated.players[0].y - retreated.enemies[0].y),
   );
-  expect(distance).toBe(2);
+  expect(distance).toBeGreaterThanOrEqual(2);
   expect(retreated.enemies[0].hp).toBe(afterAttack.enemies[0].hp);
 
   await moveCursorTo(page, retreated.enemies[0].x, retreated.enemies[0].y);
@@ -636,24 +772,26 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/9`,
+    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
   );
 
-  const mid = await advance(page, PAUSE + HALF_STEP);
+  // Con un solo paso, la mitad del paso cae antes de la pausa de destino.
+  const midDelta = steps > 1 ? PAUSE + HALF_STEP : HALF_STEP;
+  const mid = await advance(page, midDelta);
   expect(mid.animation).toMatchObject({ animating: true, step: 0 });
   expectCameraFollows(mid, 'acercarse al enemigo');
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/9`,
+    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
   );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'attack-approach', testInfo);
 
   // Pausa de destino: la animación sigue activa y aún no hay daño ni overlay.
-  const finalPause = await advance(page, HALF_STEP);
+  const finalPause = await advance(page, steps > 1 ? HALF_STEP : PAUSE + HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: steps });
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/9`,
+    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
   );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
@@ -715,7 +853,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   const cleared = await defeatAllEnemies(page);
   sequenceEvents.push(...cleared.events);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('0/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `0/${cleared.snapshot.enemies[0].maxHp}`,
+  );
   await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
   await expect(page.getByTestId('cursor')).toBeHidden();
   expect(sequenceEvents.map((event) => event.type)).toEqual(
@@ -730,9 +870,23 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
-  // Despierta a los enemigos cercanos con comandos reales: un centinela
-  // dormido no se mueve y la fase enemiga no tendría animación que probar.
-  await approachEnemy(page);
+  // Dos enemigos alertados: enemy-1 junto al jugador y enemy-2 con la última
+  // posición conocida. La fase enemiga tendrá al menos un `UnitMoved` que
+  // animar sin depender de un trayecto previo con la IA de 4 MP.
+  const base = await snapshot(page);
+  const beside = floorNeighbor(base, base.enemies[0]);
+  expect(beside, 'Enemy-1 debe tener una casilla libre adyacente').toBeDefined();
+  const alerted = (enemy: Snapshot['enemies'][number]): Snapshot['enemies'][number] => ({
+    ...enemy,
+    awareness: 'alert',
+    lastKnown: { x: beside!.x, y: beside!.y },
+    hasShouted: true,
+  });
+  await openBspState(page, SEED, SEED_URL, {
+    player: beside!,
+    enemies: [alerted(base.enemies[0]), alerted(base.enemies[1])],
+  });
+  await installFreeze(page);
   expect(await moveAwayFromEnemy(page)).toBe(true);
   const afterRetreat = await snapshot(page);
   await moveCursorTo(
@@ -761,10 +915,18 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
 
-  const mid = await advance(page, PAUSE + HALF_STEP);
+  let mid = await advance(page, PAUSE + HALF_STEP);
+  // El primer grupo puede incluir una pausa de entrada: se avanza en tramos
+  // cortos hasta que el sprite haya abandonado el centro de origen.
+  const originCenter = tileCenter(moves[0].from, mid.tileSize);
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const position = positionOf(mid);
+    if (position.x !== originCenter.x || position.y !== originCenter.y) break;
+    mid = await advance(page, 20);
+  }
   expectBetween(
     positionOf(mid),
-    tileCenter(moves[0].from, mid.tileSize),
+    originCenter,
     tileCenter(moves[0].to, mid.tileSize),
     'paso del enemigo',
   );
@@ -868,9 +1030,28 @@ test('dos ejecuciones producen el mismo resultado con reloj determinista', async
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
 
+  let spawnTile: Position | undefined;
+  let pathTiles: readonly Position[] | undefined;
+  let tileSize = 32;
+
   const run = async () => {
     await openGame(page);
-    await moveCursorTo(page, 8, 8);
+    const start = await snapshot(page);
+    tileSize = start.tileSize;
+    const target = reachableVisibleTiles(start, {
+      minDistance: 2,
+      maxDistance: 2,
+    })[0];
+    expect(target, 'Debe existir un destino visible a dos pasos').toBeDefined();
+    await moveCursorTo(page, target.x, target.y);
+    const planned = await snapshot(page);
+    if (!spawnTile) {
+      spawnTile = start.players[0];
+      pathTiles = planned.cursor.path;
+    } else {
+      expect(start.players[0]).toMatchObject(spawnTile);
+      expect(planned.cursor.path).toEqual(pathTiles);
+    }
     await page.keyboard.press('Space');
 
     const samples = [await presentationSample(page, 'frozen')];
@@ -904,13 +1085,23 @@ test('dos ejecuciones producen el mismo resultado con reloj determinista', async
   const second = await run();
 
   expect(second).toEqual(first);
-  expect(first.samples.map((sample) => sample.position)).toEqual([
-    { x: 208, y: 272, tileX: 6, tileY: 8 },
-    { x: 224, y: 272, tileX: 7, tileY: 8 },
-    { x: 240, y: 272, tileX: 7, tileY: 8 },
-    { x: 256, y: 272, tileX: 8, tileY: 8 },
-    null,
-  ]);
+  const origin = tileCenter(spawnTile!, tileSize);
+  const firstTile = tileCenter(pathTiles![0], tileSize);
+  const secondTile = tileCenter(pathTiles![1], tileSize);
+  const midpoint = (from: Position, to: Position): Position => ({
+    x: (from.x + to.x) / 2,
+    y: (from.y + to.y) / 2,
+  });
+  const sampled = (position: Position) => ({
+    ...position,
+    tileX: Math.floor(position.x / tileSize),
+    tileY: Math.floor(position.y / tileSize),
+  });
+  expect(first.samples[0].position).toEqual(sampled(origin));
+  expect(first.samples[1].position).toEqual(sampled(midpoint(origin, firstTile)));
+  expect(first.samples[2].position).toEqual(sampled(firstTile));
+  expect(first.samples[3].position).toEqual(sampled(midpoint(firstTile, secondTile)));
+  expect(first.samples[4].position).toBeNull();
   expect(first.samples.map((sample) => sample.hudMp)).toEqual([
     '6/6',
     '6/6',

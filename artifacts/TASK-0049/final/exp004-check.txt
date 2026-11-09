@@ -1,0 +1,7 @@
+EXP-004 · comprobación de reproducción
+Comando: playwright sobre /experiments/EXP-004-salas-irregulares/?seed=2738263054&test=1
+Resultado:
+- snapshot.seed === decision.seed (2738263054)
+- snapshot.params coincide con decision.parameters
+- getExportData().parameters coincide con decision.parameters
+- ambientes: 22x18, 5 salas, 6 jugadores, 0,02/1,2, emboscadas 0,25, exitMode random

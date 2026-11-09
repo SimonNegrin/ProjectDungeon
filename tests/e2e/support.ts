@@ -3,12 +3,101 @@ import { BspMapGenerator } from '../../src/game/bsp';
 import { BESTIARY } from '../../src/game/bestiary';
 import { createInitialState } from '../../src/game/engine';
 import { DEFAULT_MAP_SEED, type MapGenerator } from '../../src/game/map';
-import type { Command, GameEvent } from '../../src/game/types';
+import type { Command, GameEvent, GameState, Position } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
 
 export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
+}
+
+export interface ReachableTile {
+  readonly x: number;
+  readonly y: number;
+  readonly distance: number;
+}
+
+/**
+ * Tiles de suelo alcanzables desde el jugador con su coste BFS, limitados al
+ * viewport actual. Excluye por defecto a las unidades vivas. Permite a los
+ * tests derivar destinos verdes/ámbar del snapshot en vez de fijar coordenadas
+ * de una geometría concreta.
+ */
+export function reachableVisibleTiles(
+  snap: GameSnapshot,
+  options: {
+    readonly minDistance?: number;
+    readonly maxDistance?: number;
+  } = {},
+): ReachableTile[] {
+  const width = snap.grid.width;
+  const height = snap.grid.height;
+  const start = snap.players[0];
+  const blocked = new Set(
+    [...snap.players, ...snap.enemies]
+      .filter((unit) => unit.hp > 0)
+      .map((unit) => unit.y * width + unit.x),
+  );
+  const distances = new Int32Array(width * height).fill(-1);
+  const startIndex = start.y * width + start.x;
+  if (snap.grid.tiles[startIndex] !== 'floor') return [];
+  distances[startIndex] = 0;
+  const queue: number[] = [startIndex];
+  for (let head = 0; head < queue.length; head += 1) {
+    const current = queue[head];
+    const x = current % width;
+    const y = (current - x) / width;
+    const distance = distances[current];
+    for (const [dx, dy] of [
+      [0, -1],
+      [1, 0],
+      [0, 1],
+      [-1, 0],
+    ] as const) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+      const index = ny * width + nx;
+      if (snap.grid.tiles[index] !== 'floor') continue;
+      if (blocked.has(index)) continue;
+      if (distances[index] !== -1) continue;
+      distances[index] = distance + 1;
+      queue.push(index);
+    }
+  }
+
+  const minX = Math.floor(snap.camera.x / snap.tileSize);
+  const minY = Math.floor(snap.camera.y / snap.tileSize);
+  const maxX = Math.ceil((snap.camera.x + snap.viewport.width) / snap.tileSize) - 1;
+  const maxY = Math.ceil((snap.camera.y + snap.viewport.height) / snap.tileSize) - 1;
+  const minDistance = options.minDistance ?? 1;
+  const maxDistance = options.maxDistance ?? Number.POSITIVE_INFINITY;
+  const tiles: ReachableTile[] = [];
+  for (let y = Math.max(0, minY); y <= Math.min(height - 1, maxY); y += 1) {
+    for (let x = Math.max(0, minX); x <= Math.min(width - 1, maxX); x += 1) {
+      const distance = distances[y * width + x];
+      if (distance < minDistance || distance > maxDistance) continue;
+      tiles.push({ x, y, distance });
+    }
+  }
+  return tiles;
+}
+
+/** Primer tile visible (dentro del viewport actual) del tipo pedido. */
+export function findVisibleTile(
+  snap: GameSnapshot,
+  wanted: 'wall' | 'floor',
+): { x: number; y: number } {
+  const minX = Math.floor(snap.camera.x / snap.tileSize);
+  const minY = Math.floor(snap.camera.y / snap.tileSize);
+  const maxX = Math.ceil((snap.camera.x + snap.viewport.width) / snap.tileSize) - 1;
+  const maxY = Math.ceil((snap.camera.y + snap.viewport.height) / snap.tileSize) - 1;
+  for (let y = Math.max(0, minY); y <= Math.min(snap.grid.height - 1, maxY); y += 1) {
+    for (let x = Math.max(0, minX); x <= Math.min(snap.grid.width - 1, maxX); x += 1) {
+      if (snap.grid.tiles[y * snap.grid.width + x] === wanted) return { x, y };
+    }
+  }
+  throw new Error(`No hay ningún tile ${wanted} en el viewport.`);
 }
 
 /**
@@ -19,10 +108,20 @@ export async function snapshot(page: Page): Promise<GameSnapshot> {
  * No relaja aserciones: el estado cargado es el mismo `createInitialState` con
  * `BspMapGenerator`, expuesto por el hook `?test=1` de `window.__game.setup`.
  */
+export interface BspStateOptions {
+  /** Reposiciona al jugador y reinicia su origen, sin tocar el mapa. */
+  readonly player?: Position;
+  /** Sustituye las unidades enemigas del estado cargado. */
+  readonly enemies?: GameState['enemies'];
+  /** Fija el RNG de combate para un resultado determinista. */
+  readonly rng?: GameState['rng'];
+}
+
 export async function openBspState(
   page: Page,
   seed: number = DEFAULT_MAP_SEED,
   url = `/?seed=${seed}&test=1`,
+  options: BspStateOptions = {},
 ): Promise<GameSnapshot> {
   const target = new URL(url, 'http://127.0.0.1:4173');
   target.searchParams.set('test', '1');
@@ -31,7 +130,18 @@ export async function openBspState(
   await page.waitForFunction(
     () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
   );
-  const state = createInitialState({ seed, generator: new BspMapGenerator() });
+  let state = createInitialState({ seed, generator: new BspMapGenerator() });
+  if (options.player) {
+    const player = state.players[0];
+    state = {
+      ...state,
+      players: [
+        { ...player, x: options.player.x, y: options.player.y, home: { ...options.player } },
+      ],
+    };
+  }
+  if (options.enemies) state = { ...state, enemies: options.enemies };
+  if (options.rng) state = { ...state, rng: options.rng };
   const loaded = await page.evaluate(
     async (next) => {
       // El generador BSP se importa solo en el contexto de test del navegador;
@@ -94,6 +204,81 @@ export async function dispatchCommand(page: Page, command: Command) {
  */
 export async function settle(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.advance(1_000_000));
+}
+
+/**
+ * Espera a que el canvas y las fuentes estén estables antes de capturar.
+ *
+ * Compara dos `toDataURL('image/png')` consecutivos separados por un frame y
+ * exige `stableFrames` muestras idénticas seguidas. No cambia el estado del
+ * juego: solo da tiempo a que el rasterizado y la composición se asienten.
+ */
+export async function waitForCanvasStable(
+  page: Page,
+  selector = '#game-canvas',
+  stableFrames = 2,
+): Promise<void> {
+  await page.evaluate(
+    async ({ selector: target, stableFrames: required }) => {
+      await document.fonts.ready;
+      const canvas = document.querySelector<HTMLCanvasElement>(target);
+      if (!canvas) throw new Error(`Falta ${target} para esperar estabilidad`);
+      const nextFrame = (): Promise<void> =>
+        new Promise((resolve) => requestAnimationFrame(() => resolve()));
+      let previous = canvas.toDataURL('image/png');
+      let stable = 0;
+      for (let attempt = 0; attempt < 120 && stable < required; attempt += 1) {
+        await nextFrame();
+        const current = canvas.toDataURL('image/png');
+        stable = current === previous ? stable + 1 : 0;
+        previous = current;
+      }
+      if (stable < required) {
+        throw new Error(`${target} no se estabilizó en 120 frames`);
+      }
+    },
+    { selector, stableFrames },
+  );
+}
+
+/**
+ * Promueve el panel del HUD a su propia capa antes de capturar. Chromium puede
+ * rasterizar el borde redondeado con una diferencia de 1 nivel en 4 píxeles
+ * entre cargas (verificado: mismo rect, mismo canvas); la capa fija esa
+ * composición sin cambiar el contenido, el estado del juego ni el criterio de
+ * comparación byte a byte.
+ */
+export async function stabilizeHudPaint(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const hud = document.querySelector<HTMLElement>('[data-testid="hud"]');
+    if (hud) hud.style.willChange = 'transform';
+  });
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+}
+
+/**
+ * Captura una captura de página completa estable: repite `page.screenshot`
+ * hasta obtener dos buffers consecutivos idénticos byte a byte. No cambia el
+ * criterio de comparación entre cargas; solo asegura que la captura no recoge
+ * un rasterizado transitorio.
+ */
+export async function stableScreenshot(
+  page: Page,
+  options: Parameters<Page['screenshot']>[0] = {},
+): Promise<Buffer> {
+  const settings = { fullPage: true, animations: 'disabled' as const, ...options };
+  let previous = await page.screenshot(settings);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const current = await page.screenshot(settings);
+    if (Buffer.compare(previous, current) === 0) return current;
+    previous = current;
+  }
+  throw new Error('La captura no se estabilizó tras 12 intentos');
 }
 
 /** Ejecuta un comando y falla si el motor lo rechaza (evita rutas bloqueadas). */

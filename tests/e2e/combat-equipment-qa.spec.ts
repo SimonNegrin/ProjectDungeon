@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
+import { damageFeedbackAnchor } from '../../src/host/feedback';
 import { artifactPath } from './artifacts';
 import {
   approachEnemy,
@@ -26,13 +27,12 @@ const REFERENCE_SEED = 279837264;
  * Semillas elegidas con la IA de 4 MP: la ruta segura llega viva y la primera
  * tirada produce el fallo/impacto que el test necesita.
  */
-const FEEDBACK_SEED = 1;
+const FEEDBACK_SEED = 13;
 /**
- * Partida con el jugador a la derecha del enemigo en una sala abierta. Es el
- * caso "normal" que contrasta con el pasillo de una casilla de la semilla de
- * referencia; la dirección y el impacto se comprueban en el propio test.
+ * Semilla con una sala abierta y el jugador colocado a un lado del enemigo. El
+ * primer ataque de esta semilla impacta con el RNG de combate en estado 0.
  */
-const NORMAL_FEEDBACK_SEED = 9;
+const NORMAL_FEEDBACK_SEED = 1;
 
 const WEAPON_LABELS = {
   sword: 'Espada +3/+4',
@@ -307,15 +307,23 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
-  await openGame(page);
-  await approachEnemy(page, 'north');
-
-  const adjacent = await snapshot(page);
+  const base = await openBspState(page, REFERENCE_SEED);
+  const baseEnemy = base.enemies[0];
+  const beside = floorNeighbor(base, baseEnemy.x, baseEnemy.y);
+  expect(beside, 'Enemy-1 debe tener una casilla libre adyacente').toBeDefined();
+  // RNG fijado: el primer ataque del jugador impacta y el de la fase enemiga
+  // también, sin depender de cuántas tiradas consuma la aproximación.
+  const adjacent = await openBspState(page, REFERENCE_SEED, undefined, {
+    player: beside!,
+    enemies: [baseEnemy],
+    rng: { seed: 2, state: 0 },
+  });
   const enemy = adjacent.enemies[0];
   expect(distance(adjacent.players[0], enemy)).toBe(1);
-  // La semilla de referencia llega desde arriba: es el pasillo de una casilla
-  // que provocaba el solape del `-1` con el jugador.
-  expect(adjacent.players[0]).toMatchObject({ x: enemy.x, y: enemy.y - 1 });
+  expect(
+    Math.abs(adjacent.players[0].x - enemy.x) +
+      Math.abs(adjacent.players[0].y - enemy.y),
+  ).toBe(1);
   await moveCursorTo(page, enemy.x, enemy.y);
   const selected = await snapshot(page);
   expect(selected.cursor).toMatchObject({
@@ -348,9 +356,23 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   );
   const targetTile = await mapTileBox(page, adjacent, enemy.x, enemy.y);
   expect(overlaps(hitBox, playerTile), 'El daño no debe tapar al jugador').toBe(false);
-  expect(hitBox.y + hitBox.height / 2).toBeGreaterThan(
-    targetTile.y + targetTile.height / 2,
-  );
+  const anchor = damageFeedbackAnchor(enemy, adjacent.players[0], {
+    width: adjacent.grid.width,
+    height: adjacent.grid.height,
+  });
+  const feedbackCenterX = hitBox.x + hitBox.width / 2;
+  const feedbackCenterY = hitBox.y + hitBox.height / 2;
+  const targetCenterX = targetTile.x + targetTile.width / 2;
+  const targetCenterY = targetTile.y + targetTile.height / 2;
+  if (anchor.side === 'below') {
+    expect(feedbackCenterY).toBeGreaterThan(targetCenterY);
+  } else if (anchor.side === 'above') {
+    expect(feedbackCenterY).toBeLessThan(targetCenterY);
+  } else if (anchor.side === 'right') {
+    expect(feedbackCenterX).toBeGreaterThan(targetCenterX);
+  } else {
+    expect(feedbackCenterX).toBeLessThan(targetCenterX);
+  }
   await screenshot(page, 'attack-hit', testInfo);
   await screenshot(page, 'attack-corridor', testInfo);
   await settle(page);
@@ -490,16 +512,20 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
 
 test('feedback de daño en un ataque normal desde el lado', async ({ page }, testInfo) => {
   const consoleErrors = watchConsole(page);
-  await openGame(page, NORMAL_FEEDBACK_SEED);
-  await approachEnemy(page);
-
-  const adjacent = await snapshot(page);
+  const base = await openBspState(page, NORMAL_FEEDBACK_SEED);
+  const baseEnemy = base.enemies[0];
+  const west = { x: baseEnemy.x - 1, y: baseEnemy.y };
+  expect(base.grid.tiles[west.y * base.grid.width + west.x]).toBe('floor');
+  const adjacent = await openBspState(page, NORMAL_FEEDBACK_SEED, undefined, {
+    player: west,
+    enemies: [baseEnemy],
+  });
   const player = adjacent.players[0];
   const enemy = adjacent.enemies[0];
   expect(adjacent.status).toBe('playing');
-  // El jugador ataca desde la derecha en una sala abierta: el texto debe quedar
-  // a la izquierda del objetivo.
-  expect(player).toMatchObject({ x: enemy.x + 1, y: enemy.y });
+  // El jugador ataca desde el oeste en una sala abierta: el texto debe quedar a
+  // la derecha del objetivo y no tapar al atacante.
+  expect(player).toMatchObject({ x: enemy.x - 1, y: enemy.y });
 
   await moveCursorTo(page, enemy.x, enemy.y);
   const beforeAttack = await snapshot(page);
@@ -519,7 +545,7 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
   const attackerTile = await mapTileBox(page, adjacent, player.x, player.y);
   expect(overlaps(box, targetTile), 'El daño debe quedar sobre el objetivo').toBe(true);
   expect(overlaps(box, attackerTile), 'El daño no debe tapar al atacante').toBe(false);
-  expect(box.x + box.width / 2).toBeLessThan(targetTile.x + targetTile.width / 2);
+  expect(box.x + box.width / 2).toBeGreaterThan(targetTile.x + targetTile.width / 2);
   await screenshot(page, 'attack-normal', testInfo);
   await settle(page);
 
@@ -542,12 +568,16 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
-  await openGame(page, FEEDBACK_SEED);
-  const start = await snapshot(page);
-  expect(start.seed).toBe(FEEDBACK_SEED);
-  await approachEnemy(page);
-
-  const adjacent = await snapshot(page);
+  const base = await openBspState(page, FEEDBACK_SEED);
+  expect(base.seed).toBe(FEEDBACK_SEED);
+  const baseEnemy = base.enemies[0];
+  const beside = floorNeighbor(base, baseEnemy.x, baseEnemy.y);
+  expect(beside, 'El enemigo debe tener una casilla libre al lado').toBeDefined();
+  const adjacent = await openBspState(page, FEEDBACK_SEED, undefined, {
+    player: beside!,
+    enemies: [baseEnemy],
+    rng: { seed: FEEDBACK_SEED, state: 0 },
+  });
   const enemy = adjacent.enemies[0];
   await moveCursorTo(page, enemy.x, enemy.y);
   const beforeMiss = await snapshot(page);
@@ -609,9 +639,16 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
 });
 
 test('determinismo: dos cargas con la misma semilla y comandos', async ({ page }) => {
+  const base = await openBspState(page, REFERENCE_SEED);
+  const baseEnemy = base.enemies[0];
+  const beside = floorNeighbor(base, baseEnemy.x, baseEnemy.y);
+  expect(beside, 'El enemigo debe tener una casilla libre al lado').toBeDefined();
+
   const runScript = async () => {
-    await openGame(page);
-    await approachEnemy(page);
+    await openBspState(page, REFERENCE_SEED, undefined, {
+      player: beside!,
+      enemies: [baseEnemy],
+    });
     const attacks: Array<{
       attackerId: string;
       targetId: string;

@@ -7,13 +7,7 @@ import { DECAL_RECTS } from '../../src/host/assets';
 import type { GameSnapshot } from '../../src/host/debug';
 import { DECAL_WHITELIST } from '../../src/host/floor';
 import { artifactPath } from './artifacts';
-import {
-  defeatAllEnemies,
-  openBspState,
-  settle,
-  snapshot,
-  walkTo,
-} from './support';
+import { openBspState, settle, snapshot } from './support';
 
 const REFERENCE_SEED = 279837264;
 const ALTERNATE_SEED = 279837265;
@@ -204,7 +198,7 @@ function bfsDistances(snap: GameSnapshot): Int32Array {
       const nx = x + dx;
       const ny = y + dy;
       if (nx < 0 || ny < 0 || nx >= width || ny >= snap.grid.height) continue;
-      if (nx === enemy.x && ny === enemy.y) continue;
+      if (enemy && nx === enemy.x && ny === enemy.y) continue;
       const index = ny * width + nx;
       if (snap.grid.tiles[index] !== 'floor') continue;
       if (distances[index] !== -1) continue;
@@ -286,6 +280,23 @@ async function openGame(page: Page, search = REFERENCE_URL): Promise<void> {
   await settleLayout(page);
 }
 
+/**
+ * Carga el mismo BSP con el jugador en `point` y sin enemigos. Las pruebas de
+ * paleta solo necesitan la cámara centrada en la sala; evita que la IA de 4 MP
+ * mate al jugador durante una caminata larga.
+ */
+async function openAt(page: Page, point: Point): Promise<GameSnapshot> {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const snap = await openBspState(page, REFERENCE_SEED, REFERENCE_URL, {
+    player: point,
+    enemies: [],
+  });
+  await settleLayout(page);
+  await settle(page);
+  await settleLayout(page);
+  return snap;
+}
+
 function watchConsole(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (message) => {
@@ -325,18 +336,19 @@ async function measureCanvasTile(
   page: Page,
   snap: GameSnapshot,
   tile: TilePoint,
+  region: { readonly inset?: number; readonly size?: number } = {},
 ): Promise<TileMeasurement> {
   return page.evaluate(
-    ({ point, camera, offset }) => {
+    ({ point, camera, offset, regionInset, regionSize }) => {
       const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
       const context = canvas?.getContext('2d');
       if (!canvas || !context) throw new Error('Falta #game-canvas o su contexto 2D');
 
       const blockSize = 32 * 3;
-      const inset = 18;
+      const inset = regionInset ?? 18;
       const backingX = offset + (point.x * 32 - camera.x) * 3;
       const backingY = (point.y * 32 - camera.y) * 3;
-      const size = blockSize - inset * 2;
+      const size = regionSize ?? blockSize - inset * 2;
       const data = context.getImageData(
         backingX + inset,
         backingY + inset,
@@ -364,7 +376,13 @@ async function measureCanvasTile(
         uniqueColors: colors.size,
       };
     },
-    { point: tile, camera: snap.camera, offset: MAP_OFFSET_BACKING },
+    {
+      point: tile,
+      camera: snap.camera,
+      offset: MAP_OFFSET_BACKING,
+      regionInset: region.inset,
+      regionSize: region.size,
+    },
   );
 }
 
@@ -462,11 +480,14 @@ test('snapshot y canvas: base común, una paleta por sala y puertas/pasillos neu
     );
   });
   if (!door) throw new Error('No hay puerta no neutra visible de paridad impar');
-  const doorMeasurement = await measureCanvasTile(page, snap, {
-    x: door.x,
-    y: door.y,
-    parity: 1,
-  });
+  // La puerta dibuja hoja y marco sobre el suelo: se muestrea una esquina libre
+  // del tile para leer la paleta neutra real sin medir el sprite de la puerta.
+  const doorMeasurement = await measureCanvasTile(
+    page,
+    snap,
+    { x: door.x, y: door.y, parity: 1 },
+    { inset: 6, size: 12 },
+  );
   expectColor(doorMeasurement, PALETTE_SECONDS.neutral, 'puerta neutra');
 
   const lines = [
@@ -497,9 +518,6 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page);
-  // La IA alertada persigue con 4 MP; se despejan los enemigos que interceptan
-  // la caminata y se deja vivo a enemy-1, lejos de los tiles de ambiente.
-  await defeatAllEnemies(page, 400, 'enemy-1');
   let snap = await snapshot(page);
   const paletteById = new Map(
     snap.floorPalettes.map((entry) => [entry.roomId, entry]),
@@ -558,6 +576,14 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
   const deathRoom = nearestRoom(snap, (sample) => sample.ambient === 'death');
   const humidRoom = nearestRoom(snap, (sample) => sample.ambient === 'humid');
 
+  // La cámara debe cubrir la sala entera para que haya tiles de ambas
+  // paridades; se carga el jugador en el centro antes de medir.
+  const neutralTarget = roomFloorTile(neutralRoom.room);
+  snap = await openAt(page, neutralTarget);
+  expect(snap.players[0]).toMatchObject({
+    x: neutralTarget.x,
+    y: neutralTarget.y,
+  });
   await saveScreenshot(page, 'ambiente-sala-neutra', testInfo);
   const neutral = await verifyPalette(
     page,
@@ -568,10 +594,7 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
   );
 
   const corridorTarget = nearestCorridorTile(snap);
-  await walkTo(page, corridorTarget.x, corridorTarget.y);
-  await settle(page);
-  await settleLayout(page);
-  snap = await snapshot(page);
+  snap = await openAt(page, corridorTarget);
   expect(snap.players[0]).toMatchObject({
     x: corridorTarget.x,
     y: corridorTarget.y,
@@ -587,10 +610,7 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
   expect(tileAt(snap, corridorTarget.x, corridorTarget.y)).toBe('floor');
 
   const deathTarget = roomFloorTile(deathRoom.room);
-  await walkTo(page, deathTarget.x, deathTarget.y);
-  await settle(page);
-  await settleLayout(page);
-  snap = await snapshot(page);
+  snap = await openAt(page, deathTarget);
   expect(snap.players[0]).toMatchObject({ x: deathTarget.x, y: deathTarget.y });
   await saveScreenshot(page, 'ambiente-sala-muerte', testInfo);
   const death = await verifyPalette(
@@ -602,10 +622,7 @@ test('ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla', asy
   );
 
   const humidTarget = roomFloorTile(humidRoom.room);
-  await walkTo(page, humidTarget.x, humidTarget.y);
-  await settle(page);
-  await settleLayout(page);
-  snap = await snapshot(page);
+  snap = await openAt(page, humidTarget);
   expect(snap.players[0]).toMatchObject({ x: humidTarget.x, y: humidTarget.y });
   await saveScreenshot(page, 'ambiente-sala-humedad', testInfo);
   const humid = await verifyPalette(
@@ -665,10 +682,7 @@ test('ruina o vegetación: paleta y mezcla distintas del neutro', async ({
     (candidate) => candidate.ambient === 'ruin' || candidate.ambient === 'vegetation',
   );
   const target = roomFloorTile(sample.room);
-  await walkTo(page, target.x, target.y);
-  await settle(page);
-  await settleLayout(page);
-  snap = await snapshot(page);
+  snap = await openAt(page, target);
   expect(snap.players[0]).toMatchObject({ x: target.x, y: target.y });
   await saveScreenshot(page, 'ambiente-sala-ruina', testInfo);
 
