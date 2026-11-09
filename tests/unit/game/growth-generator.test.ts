@@ -6,6 +6,8 @@ import {
   createRoomGrid,
   DEFAULT_MAP_SEED,
   floorDistances,
+  isFloorTile,
+  MAP_WEAPON_SPECS,
   reduce,
   roomAt,
   tileIndex,
@@ -84,6 +86,8 @@ describe('GrowthMapGenerator', () => {
 
     expect(second).toEqual(first);
     expect(JSON.stringify(second)).toBe(JSON.stringify(first));
+    expect(first.weapons).toHaveLength(2);
+    expect(second.weapons).toEqual(first.weapons);
     expect(new GrowthMapGenerator().generate(PERF_SEED + 1).tiles).not.toEqual(
       first.tiles,
     );
@@ -144,6 +148,54 @@ describe('GrowthMapGenerator', () => {
     }
   });
 
+  it('coloca exactamente el hacha y la daga fuera de spawn, puertas, salida y enemigos', () => {
+    const map = generatedMap(PERF_SEED);
+    const weapons = map.weapons ?? [];
+
+    expect(weapons).toHaveLength(2);
+    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger']);
+    expect(weapons.map((weapon) => weapon.id)).toEqual(
+      MAP_WEAPON_SPECS.map((spec) => spec.id),
+    );
+
+    const distances = floorDistances(map, map.spawns.player);
+    const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
+    const spawnKeys = new Set([
+      ...(map.spawns.party ?? []).map((cell) => `${cell.x},${cell.y}`),
+      `${map.spawns.player.x},${map.spawns.player.y}`,
+      `${map.spawns.enemy.x},${map.spawns.enemy.y}`,
+    ]);
+    const exitKeys = new Set([
+      `${map.exit?.position.x},${map.exit?.position.y}`,
+      `${map.exit?.access.x},${map.exit?.access.y}`,
+    ]);
+    const enemyKeys = new Set(
+      (map.enemies ?? []).map((enemy) => `${enemy.x},${enemy.y}`),
+    );
+    const roomIds = new Set<number>();
+
+    for (const weapon of weapons) {
+      const key = `${weapon.x},${weapon.y}`;
+      expect(isFloorTile(map, weapon.x, weapon.y), weapon.id).toBe(true);
+      expect(
+        distances[tileIndex(map.width, weapon.x, weapon.y)],
+        weapon.id,
+      ).toBeGreaterThan(0);
+
+      const room = roomAt(map.rooms, weapon.x, weapon.y);
+      expect(room, weapon.id).toBeDefined();
+      expect(room?.id, weapon.id).not.toBe(map.spawns.roomId);
+      if (room) roomIds.add(room.id);
+
+      expect(doorKeys.has(key), `${weapon.id} puerta`).toBe(false);
+      expect(spawnKeys.has(key), `${weapon.id} spawn`).toBe(false);
+      expect(exitKeys.has(key), `${weapon.id} salida`).toBe(false);
+      expect(enemyKeys.has(key), `${weapon.id} enemigo`).toBe(false);
+    }
+
+    expect(roomIds.size).toBe(2);
+  });
+
   it('genera 22×18 en menos de 50 ms con la semilla de playtest', () => {
     const generator = new GrowthMapGenerator();
     generator.generate(PERF_SEED);
@@ -195,6 +247,29 @@ describe('createInitialState con growth por defecto', () => {
         hp: BESTIARY[source.type].maxHp,
       });
     }
+  });
+
+  it('expone las dos armas del catálogo por defecto y permite recogerlas desde su celda', () => {
+    const state = createInitialState();
+    const weapons = state.map?.weapons ?? [];
+
+    expect(weapons).toHaveLength(2);
+    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger']);
+
+    const weapon = weapons[0];
+    const onWeapon = {
+      ...state,
+      players: [{ ...state.players[0], x: weapon.x, y: weapon.y }],
+    };
+    const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(picked.state.players[0].weapons).toEqual(['sword', weapon.weaponId]);
+    expect(picked.state.players[0].equipment.weaponId).toBe(weapon.weaponId);
+    expect(
+      picked.state.map?.weapons?.some((entry) => entry.id === weapon.id),
+    ).toBe(false);
+    expect(picked.state.map?.weapons).toHaveLength(1);
+    expect(JSON.parse(JSON.stringify(picked.state.map))).toEqual(picked.state.map);
   });
 
   it('mantiene BSP inyectado con 32×32 y exactamente cuatro enemigos', () => {
@@ -326,6 +401,37 @@ describe('validateGrowthMap', () => {
     const validation = validateGrowthMap(broken);
     expect(validation.ok).toBe(false);
     expect(validation.issues.join(' ')).toMatch(/party\[0\]|repite/);
+  });
+
+  it('rechaza un arma sobre muro', () => {
+    const map = generatedMap(PERF_SEED);
+    const weapons = [...(map.weapons ?? [])];
+    const wallIndex = map.tiles.findIndex((tile) => tile === 'wall');
+    const wallX = wallIndex % map.width;
+    const wallY = Math.floor(wallIndex / map.width);
+    const broken = {
+      ...map,
+      weapons: [{ ...weapons[0], x: wallX, y: wallY }, ...weapons.slice(1)],
+    };
+
+    const validation = validateGrowthMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('muro');
+  });
+
+  it('rechaza un arma solapada con un enemigo', () => {
+    const map = generatedMap(PERF_SEED);
+    const weapons = [...(map.weapons ?? [])];
+    const enemy = map.enemies?.[0];
+    if (!enemy) throw new Error('La semilla de referencia debe tener enemigos');
+    const broken = {
+      ...map,
+      weapons: [{ ...weapons[0], x: enemy.x, y: enemy.y }, ...weapons.slice(1)],
+    };
+
+    const validation = validateGrowthMap(broken);
+    expect(validation.ok).toBe(false);
+    expect(validation.issues.join(' ')).toContain('enemigo');
   });
 
   it('rechaza un enemigo con home distinto de su posición', () => {
