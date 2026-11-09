@@ -12,6 +12,7 @@ import {
   type MapGenerator,
   type MapOptions,
 } from '../../../src/game/index';
+import { GrowthMapGenerator } from '../../../src/game/chambers/variants/growth';
 import { makeState, makeUnit, rngForDice } from './helpers';
 
 function stubMap(seed: number, options: MapOptions = {}): GeneratedMap {
@@ -44,28 +45,40 @@ class StubGenerator implements MapGenerator {
   }
 }
 
-describe('createInitialState con BSP', () => {
-  it('usa por defecto BspMapGenerator, la semilla de referencia y sus opciones', () => {
+describe('createInitialState por defecto y BSP inyectado', () => {
+  it('usa GrowthMapGenerator por defecto con 22×18 y los enemigos del mapa', () => {
     const state = createInitialState();
+    const map = state.map;
+    if (!map) throw new Error('El estado inicial debe incluir mapa');
 
-    expect(state.map).toEqual(
-      new BspMapGenerator().generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS),
-    );
-    expect(state.map?.seed).toBe(DEFAULT_MAP_SEED);
-    expect(state.map?.options).toEqual(DEFAULT_MAP_OPTIONS);
+    expect(map).toEqual(new GrowthMapGenerator().generate(DEFAULT_MAP_SEED));
+    expect(map.seed).toBe(DEFAULT_MAP_SEED);
+    expect(map.width).toBe(22);
+    expect(map.height).toBe(18);
+    expect(map.options.mapWidth).toBe(22);
+    expect(map.options.mapHeight).toBe(18);
     expect(state.grid).toEqual({
-      width: state.map?.width,
-      height: state.map?.height,
-      tiles: state.map?.tiles,
+      width: map.width,
+      height: map.height,
+      tiles: map.tiles,
     });
-    expect(state.players[0].x).toBe(state.map?.spawns.player.x);
-    expect(state.players[0].y).toBe(state.map?.spawns.player.y);
-    expect(state.enemies[0].x).toBe(state.map?.spawns.enemy.x);
-    expect(state.enemies[0].y).toBe(state.map?.spawns.enemy.y);
+    expect(state.players[0]).toMatchObject({
+      x: map.spawns.player.x,
+      y: map.spawns.player.y,
+    });
+    expect(state.enemies).toHaveLength(map.enemies?.length ?? 0);
+    expect(state.enemies[0]).toMatchObject({
+      id: map.enemies?.[0].id,
+      enemyType: map.enemies?.[0].type,
+      x: map.enemies?.[0].x,
+      y: map.enemies?.[0].y,
+      home: map.enemies?.[0].home,
+    });
   });
 
-  it('acepta semilla y opciones sin cambiar el generador por defecto', () => {
+  it('acepta semilla y opciones con BSP inyectado', () => {
     const state = createInitialState({
+      generator: new BspMapGenerator(),
       seed: 42,
       options: { mapWidth: 24, mapHeight: 24 },
     });
@@ -77,9 +90,21 @@ describe('createInitialState con BSP', () => {
     expect(state.map?.rooms.length).toBeGreaterThanOrEqual(8);
   });
 
-  it('varias semillas producen mapas aceptados por el validador', () => {
+  it('BSP inyectado sigue produciendo 32×32 y cuatro enemigos', () => {
+    const state = createInitialState({ generator: new BspMapGenerator() });
+
+    expect(state.map).toEqual(
+      new BspMapGenerator().generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS),
+    );
+    expect(state.grid).toMatchObject({ width: 32, height: 32 });
+    expect(state.enemies).toHaveLength(4);
+    expect(state.enemies[0].x).toBe(state.map?.spawns.enemy.x);
+    expect(state.enemies[0].y).toBe(state.map?.spawns.enemy.y);
+  });
+
+  it('varias semillas BSP producen mapas aceptados por el validador', () => {
     for (const seed of [DEFAULT_MAP_SEED, 1, 42, 1234, 987654]) {
-      const state = createInitialState({ seed });
+      const state = createInitialState({ generator: new BspMapGenerator(), seed });
       expect(state.map, `semilla ${seed}`).toBeDefined();
       const validation = validateGeneratedMap(state.map!);
       expect(validation.issues, `semilla ${seed}`).toEqual([]);

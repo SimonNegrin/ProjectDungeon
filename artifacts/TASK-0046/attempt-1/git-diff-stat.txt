@@ -1,0 +1,42 @@
+# TASK-0046 diff stat
+# base: ecc1dd4
+# code/tests: 4627913..f6507e6
+ src/game/chambers/variants/growth.ts          | 454 ++++++++++++++++++++++++++
+ src/game/engine.ts                            |  36 +-
+ tests/unit/game/enemy-placement.test.ts       |  28 +-
+ tests/unit/game/engine.test.ts                |   9 +-
+ tests/unit/game/growth-generator.test.ts      | 377 +++++++++++++++++++++
+ tests/unit/game/map-integration.test.ts       |  61 +++-
+ tests/unit/host/debug.test.ts                 |  37 ++-
+ tests/unit/host/equipment-integration.test.ts |  12 +-
+ tests/unit/host/floor.test.ts                 |  21 +-
+ tests/unit/host/hud.test.ts                   |  22 +-
+ tests/unit/host/perception-overlay.test.ts    |   7 +-
+ tests/unit/host/renderer.test.ts              |  12 +-
+ tests/unit/host/session.test.ts               |   7 +-
+ 13 files changed, 1015 insertions(+), 68 deletions(-)
+
+# name-status
+A	src/game/chambers/variants/growth.ts
+M	src/game/engine.ts
+M	tests/unit/game/enemy-placement.test.ts
+M	tests/unit/game/engine.test.ts
+A	tests/unit/game/growth-generator.test.ts
+M	tests/unit/game/map-integration.test.ts
+M	tests/unit/host/debug.test.ts
+M	tests/unit/host/equipment-integration.test.ts
+M	tests/unit/host/floor.test.ts
+M	tests/unit/host/hud.test.ts
+M	tests/unit/host/perception-overlay.test.ts
+M	tests/unit/host/renderer.test.ts
+M	tests/unit/host/session.test.ts
+
+# evidence files
+artifacts/TASK-0046/attempt-1/brief.md
+artifacts/TASK-0046/attempt-1/bsp-regression.txt
+artifacts/TASK-0046/attempt-1/git-diff-stat.txt
+artifacts/TASK-0046/attempt-1/growth-perf.txt
+artifacts/TASK-0046/attempt-1/report.md
+artifacts/TASK-0046/attempt-1/seed-sweep.txt
+artifacts/TASK-0046/attempt-1/test-output.txt
+artifacts/TASK-0046/attempt-1/verify-output.txt

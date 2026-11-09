@@ -1,0 +1,9 @@
+# TASK-0046 attempt-2 diff stat (ed176cf)
+ src/game/chambers/variants/growth.ts     |  96 +++++++++++++++++++++++++++-
+ src/game/map.ts                          |  20 +++++-
+ tests/unit/game/growth-generator.test.ts | 106 +++++++++++++++++++++++++++++++
+ tests/unit/game/map.test.ts              |  23 +++++++
+ 4 files changed, 239 insertions(+), 6 deletions(-)
+
+# status
+?? artifacts/TASK-0046/attempt-2/

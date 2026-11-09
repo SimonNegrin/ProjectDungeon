@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../../src/game/index';
+import { BspMapGenerator, createInitialState } from '../../../src/game/index';
 import type { Position } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
@@ -120,7 +120,10 @@ describe('sesión de juego', () => {
   });
 
   it('arranca con la semilla y los spawns del mapa generado', () => {
-    const session = new GameSession({ seed: 279837264 });
+    const session = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const spawns = session.state.map?.spawns;
 
     expect(session.seed).toBe(279837264);

@@ -578,6 +578,7 @@ function eligibleWeaponCells(
   map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'doors' | 'spawns'>,
   room: Room,
   distances: Int32Array,
+  blockedKeys: ReadonlySet<string>,
 ): Position[] {
   const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
   const spawnKeys = new Set([
@@ -590,14 +591,22 @@ function eligibleWeaponCells(
   for (let y = room.y; y < room.y + room.height; y += 1) {
     for (let x = room.x; x < room.x + room.width; x += 1) {
       if (!isFloorTile(map, x, y)) continue;
+      // La caja de una sala irregular (caverna) puede contener suelo de pasillo;
+      // solo cuenta la máscara real cuando existe.
+      if (!roomContains(room, x, y)) continue;
       if (distances[tileIndex(map.width, x, y)] < 0) continue;
       const key = `${x},${y}`;
-      if (doorKeys.has(key) || spawnKeys.has(key)) continue;
+      if (doorKeys.has(key) || spawnKeys.has(key) || blockedKeys.has(key)) continue;
       cells.push({ x, y });
     }
   }
 
   return cells;
+}
+
+/** Celdas adicionales que ninguna arma debe ocupar (salida, enemigos, etc.). */
+export interface PlaceMapWeaponsOptions {
+  readonly blockedCells?: readonly Position[];
 }
 
 /**
@@ -606,18 +615,23 @@ function eligibleWeaponCells(
  * aparición del jugador y sin caer en muro, puerta ni aparición.
  *
  * Usa un `mulberry32` derivado de la semilla con una sal propia. No consume ni
- * reordena la secuencia del generador BSP ni la del RNG de combate.
+ * reordena la secuencia del generador BSP ni la del RNG de combate. El parámetro
+ * opcional `blockedCells` no altera el PRNG: solo filtra candidatos.
  */
 export function placeMapWeapons(
   map: Pick<
     GeneratedMap,
     'seed' | 'width' | 'height' | 'tiles' | 'rooms' | 'doors' | 'spawns'
   >,
+  options: PlaceMapWeaponsOptions = {},
 ): readonly MapWeapon[] {
   const distances = floorDistances(map, map.spawns.player);
   const initialRoom = roomAt(map.rooms, map.spawns.player.x, map.spawns.player.y);
   const rng = mulberry32(normalizeSeed(map.seed) ^ WEAPON_PLACEMENT_SALT);
   const usedRoomIds = new Set<number>();
+  const blockedKeys = new Set(
+    (options.blockedCells ?? []).map((cell) => `${cell.x},${cell.y}`),
+  );
   const placed: MapWeapon[] = [];
 
   for (const spec of MAP_WEAPON_SPECS) {
@@ -626,7 +640,7 @@ export function placeMapWeapons(
     for (const room of map.rooms) {
       if (room.id === initialRoom?.id) continue;
       if (usedRoomIds.has(room.id)) continue;
-      const cells = eligibleWeaponCells(map, room, distances);
+      const cells = eligibleWeaponCells(map, room, distances, blockedKeys);
       if (cells.length > 0) candidates.push({ room, cells });
     }
 

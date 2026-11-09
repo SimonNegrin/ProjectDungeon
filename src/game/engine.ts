@@ -4,7 +4,7 @@ import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
 import { planCursorTarget, type CursorBlockedReason } from './path';
 import { detectEnemiesAfterStep } from './perception';
-import { BspMapGenerator } from './bsp';
+import { GrowthMapGenerator } from './chambers/variants/growth';
 import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
@@ -56,7 +56,12 @@ function createPlayer(id: string, position: Position): Unit {
 }
 
 /** Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario. */
-function createEnemy(id: string, position: Position, type: EnemyType): Unit {
+function createEnemy(
+  id: string,
+  position: Position,
+  type: EnemyType,
+  home: Position = position,
+): Unit {
   const definition = BESTIARY[type];
 
   return {
@@ -75,7 +80,7 @@ function createEnemy(id: string, position: Position, type: EnemyType): Unit {
     weapons: [definition.equipment.weaponId],
     awareness: 'dormant',
     fleeing: false,
-    home: { x: position.x, y: position.y },
+    home: { x: home.x, y: home.y },
     lastKnown: null,
     alertTurns: 0,
     hasShouted: false,
@@ -97,7 +102,10 @@ function buildInitialState(
   options: MapOptions | undefined,
 ): GameState {
   const map: GeneratedMap = generator.generate(seed, options);
-  const placement = placeMapEnemies(map);
+  const mapEnemies = map.enemies;
+  // BSP no aporta `map.enemies`; su colocación histórica de 4 fichas sigue
+  // viva como fallback. Un generador que sí los aporta (growth) los consume.
+  const placement = mapEnemies === undefined ? placeMapEnemies(map) : null;
 
   const playerPosition = map.spawns.party?.[0] ?? map.spawns.player;
 
@@ -105,11 +113,19 @@ function buildInitialState(
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
     players: [createPlayer('player-1', playerPosition)],
-    // Los mapas generados por BSP siempre colocan 4. Un generador inyectado sin
-    // datos de salas conserva la compatibilidad con un único enemigo histórico.
-    enemies: placement
-      ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type))
-      : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
+    enemies:
+      mapEnemies !== undefined
+        ? mapEnemies.map((enemy) =>
+            createEnemy(
+              enemy.id,
+              { x: enemy.x, y: enemy.y },
+              enemy.type,
+              enemy.home,
+            ),
+          )
+        : placement
+          ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type))
+          : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
     phase: 'player',
     turn: 1,
     status: 'playing',
@@ -142,7 +158,7 @@ export function createInitialState(
 
   const config = configOrGenerator;
   return buildInitialState(
-    config.generator ?? new BspMapGenerator(),
+    config.generator ?? new GrowthMapGenerator(),
     config.seed ?? DEFAULT_MAP_SEED,
     config.options,
   );

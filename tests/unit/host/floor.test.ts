@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
+  BspMapGenerator,
   createInitialState,
   floorDistances,
   roomAt,
@@ -51,7 +52,10 @@ const PALETTES: readonly FloorPaletteId[] = [
 ];
 
 function referenceMap(): GeneratedMap {
-  const map = createInitialState({ seed: REFERENCE_SEED }).map;
+  const map = createInitialState({
+    seed: REFERENCE_SEED,
+    generator: new BspMapGenerator(),
+  }).map;
   if (!map) throw new Error('La semilla de referencia debe generar mapa');
   return map;
 }
@@ -185,7 +189,10 @@ describe('ambientes y paletas por sala', () => {
 
   it('otra semilla cambia al menos un ambiente sin tocar la paridad', () => {
     const map = referenceMap();
-    const other = createInitialState({ seed: REFERENCE_SEED + 1 }).map;
+    const other = createInitialState({
+      seed: REFERENCE_SEED + 1,
+      generator: new BspMapGenerator(),
+    }).map;
     if (!other) throw new Error('La semilla alternativa debe generar mapa');
 
     const ambients = roomPalettesFor(map).map((entry) => entry.ambient);
@@ -511,7 +518,10 @@ describe('planificación determinista de decoración', () => {
     expect(second).toEqual(first);
     expect(summarizeDecoration(second)).toEqual(summarizeDecoration(first));
 
-    const other = createInitialState({ seed: REFERENCE_SEED + 1 }).map;
+    const other = createInitialState({
+      seed: REFERENCE_SEED + 1,
+      generator: new BspMapGenerator(),
+    }).map;
     if (!other) throw new Error('La semilla alternativa debe generar mapa');
     expect(planDecoration(other)).not.toEqual(first);
 
@@ -560,7 +570,10 @@ describe('planificación determinista de decoración', () => {
   });
 
   it('un MoveTo puede terminar en un tile decorado sin bloquear ni cambiar el estado', () => {
-    const session = new GameSession({ seed: REFERENCE_SEED });
+    const session = new GameSession({
+      seed: REFERENCE_SEED,
+      generator: new BspMapGenerator(),
+    });
     const map = session.state.map;
     if (!map) throw new Error('La semilla de referencia debe generar mapa');
     const player = session.state.players[0];

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { WEAPONS } from '../../../src/game/equipment';
-import { BESTIARY, createInitialState, reduce } from '../../../src/game/index';
+import {
+  BESTIARY,
+  BspMapGenerator,
+  createInitialState,
+  reduce,
+} from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import type { CursorStatus } from '../../../src/host/cursor';
@@ -93,7 +98,10 @@ describe('modelo del HUD', () => {
   });
 
   it('muestra la pista de G solo cuando el jugador ocupa un arma del mapa', () => {
-    const state = createInitialState({ seed: 279837264 });
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const map = state.map;
     if (!map || !map.weapons || map.weapons.length === 0) {
       throw new Error('La semilla de referencia debe colocar armas');
@@ -214,7 +222,10 @@ describe('modelo del overlay de debug', () => {
   });
 
   it('con un mapa generado muestra semilla, salas, huecos, spawns y pasillos anchos', () => {
-    const state = createInitialState({ seed: 279837264 });
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const spawns = state.map!.spawns;
     const model = buildDebugModel(
       state,
@@ -326,7 +337,10 @@ describe('modelo del overlay de debug', () => {
   });
 
   it('muestra el estado de percepción por enemigo y las etiquetas de sus eventos', () => {
-    const state = createInitialState({ seed: 279837264 });
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const events = [
       {
         type: 'EnemySpotted' as const,

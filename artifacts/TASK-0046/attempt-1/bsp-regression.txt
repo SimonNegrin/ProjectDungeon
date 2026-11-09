@@ -1,0 +1,188 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState por defecto y BSP inyectado > usa GrowthMapGenerator por defecto con 22×18 y los enemigos del mapa 158ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > coloca exactamente 2 centinelas, 1 bruto y 1 cobarde con el bestiario 115ms
+ ✓ tests/unit/game/bsp-spawn-contract.test.ts > BSP adopta el contrato de spawn de REQ-012 > la semilla de referencia usa el spawn protegido y conserva 4 enemigos 182ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > usa la configuración de referencia de EXP-001 por defecto 3ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > expone la interfaz MapGenerator con id bsp 85ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > normaliza valores fuera de rango con avisos y no lanza 0ms
+ ✓ tests/unit/game/map.test.ts > opciones del mapa > acepta wideCorridorCount 1 y 2 y normaliza el ancho a 2 31ms
+ ✓ tests/unit/game/engine.test.ts > engine state > crea un mapa generado de 32x32 con muros en el borde y suelo transitable 87ms
+ ✓ tests/unit/game/engine.test.ts > engine state > coloca al jugador y al enemigo en los spawns del mapa con vida, MP y acción iniciales 145ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > usa salas distintas, fuera de la visión inicial y con las distancias acordadas 76ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > conserva map.spawns.enemy como ancla de enemy-1 en la semilla de referencia 33ms
+ ✓ tests/unit/game/map-production-model.test.ts > sala con máscara y caja > usa la máscara para pertenencia y deja fuera las celdas de la caja sin suelo 1ms
+ ✓ tests/unit/game/map-production-model.test.ts > sala con máscara y caja > conserva el fallback de caja para fixtures sin máscara 0ms
+ ✓ tests/unit/game/map-production-model.test.ts > sala con máscara y caja > BSP rellena cells y area con la máscara rectangular ordenada 16ms
+ ✓ tests/unit/game/map-production-model.test.ts > sala con máscara y caja > el validador entiende la máscara y no acepta un área incoherente 2ms
+ ✓ tests/unit/game/map-production-model.test.ts > serialización del modelo de producción > todo el mapa, incluidas máscaras y campos nuevos, sobrevive al round-trip 29ms
+ ✓ tests/unit/game/map-production-model.test.ts > serialización del modelo de producción > varias semillas generan mapas válidos con todos los campos nuevos 183ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState por defecto y BSP inyectado > acepta semilla y opciones con BSP inyectado 174ms
+ ✓ tests/unit/game/map.test.ts > determinismo > la misma semilla y opciones producen un mapa profundamente igual 41ms
+ ✓ tests/unit/game/map.test.ts > determinismo > semillas distintas producen diferencias estructurales 20ms
+ ✓ tests/unit/game/map.test.ts > determinismo > las opciones forman parte del resultado y cambian el mapa 94ms
+ ✓ tests/unit/game/map-production-model.test.ts > pasillos con extremos > expone id, roomA/roomB, cells y length sin perder el contrato heredado 1ms
+ ✓ tests/unit/game/map-production-model.test.ts > pasillos con extremos > cada extremo queda pegado a la sala que declara 3ms
+ ✓ tests/unit/game/map-production-model.test.ts > puertas entre salas distintas > BSP rellena id, style, roomA/roomB, direct y corridorId 2ms
+ ✓ tests/unit/game/map-production-model.test.ts > puertas entre salas distintas > es determinista y conserva los huecos de BSP 14ms
+ ✓ tests/unit/game/map-production-model.test.ts > puertas entre salas distintas > el validador rechaza una puerta que conecta dos veces la misma sala 5ms
+ ✓ tests/unit/game/map-production-model.test.ts > spawns: sala, grupo de 6 y alias player > BSP rellena roomId y party, con party[0] como alias profundo de player 1ms
+ ✓ tests/unit/game/map-production-model.test.ts > spawns: sala, grupo de 6 y alias player > el motor coloca al jugador en party[0] y cae a player si falta party 1ms
+ ✓ tests/unit/game/map-production-model.test.ts > validadores sin relajar BSP > los negativos históricos siguen fallando con el mismo motivo 2ms
+ ✓ tests/unit/game/map-production-model.test.ts > validadores sin relajar BSP > el mapa de referencia sigue pasando el validador completo 1ms
+ ✓ tests/unit/game/engine.test.ts > engine state > no coloca entidades sobre muros ni casillas ocupadas 73ms
+ ✓ tests/unit/game/engine.test.ts > engine state > es serializable y puede reducirse tras un round-trip JSON 63ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState por defecto y BSP inyectado > BSP inyectado sigue produciendo 32×32 y cuatro enemigos 101ms
+ ✓ tests/unit/game/engine.test.ts > engine state > deriva el RNG de la semilla de la partida y lo serializa 5ms
+ ✓ tests/unit/game/engine.test.ts > engine state > el jugador y el enemigo actual empiezan con el equipo y los modificadores acordados 43ms
+ ✓ tests/unit/game/engine.test.ts > engine state > es determinista: dos estados iniciales son profundamente iguales 15ms
+ ✓ tests/unit/game/engine.test.ts > engine state > reduce es pura y no muta el estado de entrada 8ms
+ ✓ tests/unit/game/engine.test.ts > engine state > Restart vuelve siempre al estado inicial 17ms
+ ✓ tests/unit/game/engine.test.ts > engine state > rechaza comandos de juego cuando la partida ha terminado 4ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > G recoge, gasta 1 MP, conserva la acción, auto-equipa y elimina el arma 27ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > home es la posición inicial y el estado serializable lo conserva 24ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > el snapshot de depuración expone los cuatro enemigos y su home 12ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > es determinista por semilla: dos ejecuciones son idénticas 195ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > otra semilla cumple las mismas restricciones 62ms
+ ✓ tests/unit/game/enemy-placement.test.ts > colocación inicial de los cuatro enemigos > no llama a Math.random 18ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState por defecto y BSP inyectado > varias semillas BSP producen mapas aceptados por el validador 159ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > con 0 MP rechaza la recogida sin tocar el mapa ni el inventario 9ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > sin arma en el tile del jugador rechaza no-weapon 11ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > recoger dos veces no duplica el arma 38ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > no admite una cuarta arma distinta 21ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > 1-3 cambia de arma sin gastar MP ni acción 19ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > rechaza huecos vacíos o fuera de rango 13ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState por defecto y BSP inyectado > el estado con mapa es serializable y el motor lo conserva 18ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState con un MapGenerator inyectado > pasa semilla y opciones al stub y usa su rejilla y spawns 1ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState con un MapGenerator inyectado > mantiene la compatibilidad con createInitialState(generator, options) 0ms
+ ✓ tests/unit/game/map-integration.test.ts > createInitialState con un MapGenerator inyectado > el motor funciona con el mapa del stub: movimiento, ataque, fin de turno y reinicio 53ms
+ ✓ tests/unit/game/map-integration.test.ts > estado manual sin mapa > sigue funcionando para los tests de reglas aisladas 1ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > el enemigo no recoge objetos ni cambia de arma 9ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > ataca con el arma recién equipada y aplica su daño 26ms
+ ✓ tests/unit/game/engine.test.ts > recogida y cambio de armas > dos ejecuciones con la misma semilla y comandos dan el mismo estado 48ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > elige al jugador más cercano y avanza hacia él 10ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > desempata por índice de jugador de forma determinista 32ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > ataca si el jugador más cercano está en rango 4ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > gasta hasta los 4 MP avanzando por BFS en una fase 2ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > espera si no puede avanzar ni atacar 9ms
+ ✓ tests/unit/game/ai.test.ts > enemy AI > es determinista con el mismo estado 2ms
+ ✓ tests/unit/game/ai.test.ts > alerta con todos los MP > converge a lastKnown y ataca al quedar adyacente conservando la acción 1ms
+ ✓ tests/unit/game/ai.test.ts > alerta con todos los MP > investiga lastKnown sin atacar si no termina adyacente 1ms
+ ✓ tests/unit/game/ai.test.ts > alerta con todos los MP > el regreso vuelve a home sin atacar aunque tenga un jugador adyacente 1ms
+ ✓ tests/unit/game/ai.test.ts > huida del cobarde > rompe la línea de visión de todos los jugadores visibles 9ms
+ ✓ tests/unit/game/ai.test.ts > huida del cobarde > sin cobertura maximiza la distancia al jugador más cercano 2ms
+ ✓ tests/unit/game/ai.test.ts > huida del cobarde > sin jugador visible vuelve hacia home 1ms
+ ✓ tests/unit/game/ai.test.ts > huida del cobarde > acorralado se queda y ataca si está adyacente 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > contiene la tabla A completa y serializable de los tres tipos 2ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > el equipo del catálogo resuelve al arma, escudo y armadura aceptados 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > cambiar un valor del catálogo cambia el combate sin tocar fórmulas 1ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > cada tipo ataca con su arma y modificadores del bestiario 1ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > la fase enemiga usa el centinela del bestiario y resolveAttack 1ms
+ ✓ tests/unit/game/bestiary.test.ts > tiempo para matar de la tabla A > los nueve cruces quedan dentro de ±0,3 ataques del requisito 792ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en adyacencia ortogonal e impacta con las tiradas del RNG 6ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en diagonal y hace 5 al enemigo 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar fuera de rango sin consumir tiradas 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > solo permite una acción por turno 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > permite moverse después de atacar mientras quede MP 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a un objetivo inexistente o muerto 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a una unidad de la misma facción 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > emite muerte y victoria cuando el enemigo llega a 0 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara victoria mientras quede otro enemigo vivo 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara derrota mientras quede otro jugador vivo 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > el enemigo hace 3 al jugador con el mismo resolvedor 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > la muerte del jugador ocurre a 0 y emite derrota 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe del 40 % de la vida máxima que sobrevive inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe por debajo del umbral no hace huir al cobarde 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > el valiente no huye aunque cruce el umbral 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe letal no inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un nuevo golpe fuerte renueva la huida y vuelve a emitir EnemyFled 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > las 36 combinaciones dan 15 impactos con diferencia 0 y 21 con +1 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el empate falla 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > respeta la fórmula de daño y el mínimo 1 1ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la armadura no anula el golpe: siempre hay al menos 1 de daño 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el daño coincide con la tabla esperada de espada contra armadura 0 y 2 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la muestra empírica de daño queda a menos de 2 puntos de la teórica 2ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el catálogo tiene IDs estables y los valores aceptados 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el arma equipada cambia acierto y daño sin tocar la fórmula 1ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > la armadura reduce daño y el escudo no 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > quitar el escudo sube el impacto recibido sin cambiar el daño 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > los modificadores de acierto, daño y defensa cambian el combate 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > al golpear a un dormido emite AlarmRaised tras AttackPerformed y alerta la onda 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > si el golpe mata, no hay alarma 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un fallo no despierta al dormido 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un alertado reinicia la memoria sin segunda onda 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > es puro, serializable y reproducible con la misma semilla 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un fallo consume dos tiradas y avanza el estado exactamente dos pasos 8ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un impacto consume cuatro tiradas y avanza el estado exactamente cuatro pasos 3ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un ataque rechazado no consume tiradas 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > mide 32x32, está cerrado por muro y expone los datos del mapa 1ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > tiene entre 8 y 12 salas con los roles mínimos y dimensiones válidas 1ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > no tiene salas solapadas y deja al menos un tile de muro entre ellas 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > cada sala tiene al menos una salida de pasillo 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > los corredores son estrechos o anchos, ortogonales y forman un árbol más bucles 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > incluye un tramo recto largo y un corredor con dos o más esquinas 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > no tiene callejones sin salida de más de 4 tiles 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > todas las celdas de suelo son alcanzables desde el jugador 0ms
+ ✓ tests/unit/game/map.test.ts > estructura del mapa de referencia > pasa el validador estructural completo 1ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > cada sala tiene entre 1 y 3 huecos y ninguna puerta está en pasillo ancho 1ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > cada hueco coincide con un extremo de corredor estrecho y su orientación 9ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > detecta una orientación incoherente con el eje del muro 5ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > detecta un hueco sin muro lateral 1ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > detecta un hueco duplicado 1ms
+ ✓ tests/unit/game/map.test.ts > huecos de puerta > detecta una puerta fabricada sobre un pasillo ancho 1ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > hay 1 o 2 pasillos de 2 tiles con al menos 4 tiles de carril real 0ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > cada sala conserva al menos un acceso estrecho con hueco 0ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > varía el número y la posición de pasillos anchos entre semillas, siempre 1-2 467ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > traza la línea inclusiva esperada 2ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > los muros intermedios bloquean y las unidades no 1ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > un muro en diagonal también bloquea 0ms
+ ✓ tests/unit/game/perception.test.ts > radios de visión del bestiario > cada tipo usa su radio (6/4/5) y no ve un tile más allá 1ms
+ ✓ tests/unit/game/perception.test.ts > radios de visión del bestiario > los jugadores y las unidades sin tipo no tienen radio 0ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > Move que cruza la vista emite la detección y no consume acción 1ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > MoveTo de 3 pasos emite la detección en el paso correcto 1ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > un MoveTo que acaba tras un muro deja al enemigo alertado 1ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > una nueva visión reinicia la memoria y el contador 1ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > todos los tipos del bestiario comparten radio de alarma 8 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > alerta a 8 tiles aunque haya un muro y no a 9 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > no se propaga en cadena: un receptor no alerta a otro 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > un receptor ya alertado comparte lastKnown y no repite la onda 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > con dos emisores emite todos los EnemySpotted y luego las ondas por índice 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > un enemigo dormido despierta en alerta y guarda la posición del atacante 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > reinicia la memoria de un enemigo alertado sin repetir la alarma 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > devuelve a alerta a un enemigo en regreso como episodio nuevo 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > no cambia nada si el enemigo está muerto o no existe 0ms
+ ✓ tests/unit/game/perception.test.ts > dormido, investigación y regreso > un enemigo dormido no se mueve ni ataca y conserva el estado 1ms
+ ✓ tests/unit/game/perception.test.ts > dormido, investigación y regreso > investiga 2 fases, vuelve en la tercera y se duerme al llegar 6ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > la percepción y la memoria sobreviven a un round-trip JSON 1ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > dos ejecuciones idénticas producen los mismos eventos y posiciones 3ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > detectar no muta el estado de entrada 0ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > la misma semilla reproduce huecos y pasillos anchos exactamente 22ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > un width 2 sin carril real se detecta sobre la geometría 1ms
+ ✓ tests/unit/game/map.test.ts > pasillos anchos > un 2x2 con corredor ancho declarado no cuenta y uno suelto sí 0ms
+ ✓ tests/unit/game/map.test.ts > apariciones > coloca al jugador en una sala con salida y al enemigo en la más lejana 0ms
+ ✓ tests/unit/game/map.test.ts > apariciones > coloca al enemigo fuera del viewport inicial de 13x13 sobre suelo 0ms
+ ✓ tests/unit/game/map.test.ts > armas del mapa > coloca el hacha y la daga como entidades con ID, posición y arma 0ms
+ ✓ tests/unit/game/map.test.ts > armas del mapa > usa dos salas distintas y ninguna es la sala inicial 0ms
+ ✓ tests/unit/game/map.test.ts > armas del mapa > es alcanzable y no ocupa muro, puerta ni aparición 0ms
+ ✓ tests/unit/game/map.test.ts > armas del mapa > es determinista y otra semilla cambia la colocación 11ms
+ ✓ tests/unit/game/map.test.ts > armas del mapa > no usa Math.random ni altera los spawns de la semilla de referencia 13ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > el mapa es JSON-safe y sobrevive al round-trip 2ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta salas solapadas fabricadas a mano 1ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta un mapa sin conectividad total 0ms
+ ✓ tests/unit/game/map.test.ts > serialización y validadores negativos > detecta bloques 2x2 de suelo fuera de salas 0ms
+ ✓ tests/unit/game/map.test.ts > otros tamaños > genera 24x24 con 8-12 salas y conectividad total 43ms
+ ✓ tests/unit/game/map.test.ts > otros tamaños > genera 40x40 con los roles mínimos y conectividad total 12ms
+stdout | tests/unit/game/map.test.ts > rendimiento > genera la semilla de referencia por debajo de 100 ms
+[map-performance] seed=279837264 runs=4.93,6.70,6.20 median=6.20 max=6.70
+
+ ✓ tests/unit/game/bsp-spawn-contract.test.ts > BSP adopta el contrato de spawn de REQ-012 > mantiene el contrato en 25 semillas alternativas 790ms
+ ✓ tests/unit/game/map.test.ts > rendimiento > genera la semilla de referencia por debajo de 100 ms 24ms
+ ✓ tests/unit/game/bsp-spawn-contract.test.ts > BSP adopta el contrato de spawn de REQ-012 > spawns.enemy sigue serializado y no es la fuente de verdad 6ms
+ ✓ tests/unit/game/bsp-spawn-contract.test.ts > BSP adopta el contrato de spawn de REQ-012 > no usa Math.random ni añade salida 13ms
+
+ Test Files  10 passed (10)
+      Tests  176 passed (176)
+   Start at  16:51:52
+   Duration  1.29s (tests 78%, import 12%, transform 9%, worker 1%)
+

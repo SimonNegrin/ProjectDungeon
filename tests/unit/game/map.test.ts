@@ -15,6 +15,7 @@ import {
   isSmallRoom,
   longestStraight,
   maxDeadEndLength,
+  placeMapWeapons,
   resolveMapOptions,
   roomAt,
   roomsOverlap,
@@ -654,6 +655,28 @@ describe('armas del mapa', () => {
     const other = generator.generate(1234, DEFAULT_MAP_OPTIONS);
     expect(other.weapons).toHaveLength(2);
     expect(other.weapons).not.toEqual(weapons);
+  });
+
+  it('admite celdas bloqueadas opcionales sin cambiar las armas BSP por defecto', () => {
+    const first = weapons[0];
+    if (!first) throw new Error('La semilla de referencia debe colocar armas');
+    const restricted = placeMapWeapons(reference, {
+      blockedCells: [{ x: first.x, y: first.y }],
+    });
+
+    expect(restricted).toHaveLength(2);
+    expect(restricted.map((weapon) => weapon.weaponId).sort()).toEqual([
+      'axe',
+      'dagger',
+    ]);
+    expect(
+      restricted.some(
+        (weapon) => weapon.x === first.x && weapon.y === first.y,
+      ),
+    ).toBe(false);
+    expect(
+      generator.generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS).weapons,
+    ).toEqual(weapons);
   });
 
   it('no usa Math.random ni altera los spawns de la semilla de referencia', () => {

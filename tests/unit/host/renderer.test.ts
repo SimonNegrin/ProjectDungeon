@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../../src/game/index';
+import { BspMapGenerator, createInitialState } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { gridPixelSize, visibleTileRange, type Viewport } from '../../../src/host/geometry';
@@ -336,7 +336,10 @@ describe('render de la sala', () => {
 
 describe('render del mapa generado', () => {
   function generatedState(): GameState {
-    return createInitialState({ seed: 279837264 });
+    return createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
   }
 
   it('el muro del borde superior usa wallTop (sx 0)', () => {
@@ -559,7 +562,10 @@ describe('render de armas del mapa', () => {
   function stateWithWeapon(
     weaponId: 'axe' | 'dagger',
   ): { state: GameState; x: number; y: number; camera: { x: number; y: number } } {
-    const base = createInitialState({ seed: 279837264 });
+    const base = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const player = base.players[0];
     const x = player.x + 1;
     const y = player.y;

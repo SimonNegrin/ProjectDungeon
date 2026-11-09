@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   ALARM_RADIUS,
   BESTIARY,
+  BspMapGenerator,
   canSee,
   createInitialState,
   DEFAULT_MAP_SEED,
@@ -68,7 +69,7 @@ function assertValidPlacement(state: GameState): void {
 
 describe('colocación inicial de los cuatro enemigos', () => {
   it('coloca exactamente 2 centinelas, 1 bruto y 1 cobarde con el bestiario', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
 
     expect(state.enemies.map((enemy) => enemy.id)).toEqual(
       ENEMY_PLACEMENT_SPECS.map((spec) => spec.id),
@@ -104,11 +105,11 @@ describe('colocación inicial de los cuatro enemigos', () => {
   });
 
   it('usa salas distintas, fuera de la visión inicial y con las distancias acordadas', () => {
-    assertValidPlacement(createInitialState());
+    assertValidPlacement(createInitialState({ generator: new BspMapGenerator() }));
   });
 
   it('conserva map.spawns.enemy como ancla de enemy-1 en la semilla de referencia', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
     const spawns = state.map?.spawns;
 
     expect(state.map?.seed).toBe(DEFAULT_MAP_SEED);
@@ -122,7 +123,7 @@ describe('colocación inicial de los cuatro enemigos', () => {
   });
 
   it('home es la posición inicial y el estado serializable lo conserva', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
     const parsed = JSON.parse(JSON.stringify(state)) as GameState;
 
     expect(parsed).toEqual(state);
@@ -133,7 +134,10 @@ describe('colocación inicial de los cuatro enemigos', () => {
   });
 
   it('el snapshot de depuración expone los cuatro enemigos y su home', () => {
-    const session = new GameSession({ seed: DEFAULT_MAP_SEED });
+    const session = new GameSession({
+      seed: DEFAULT_MAP_SEED,
+      generator: new BspMapGenerator(),
+    });
     const camera: Camera = { x: 0, y: 64 };
     const cursor = cursorAtPlayer(session.state.players[0]);
     const api = createDebugApi(
@@ -165,22 +169,26 @@ describe('colocación inicial de los cuatro enemigos', () => {
   });
 
   it('es determinista por semilla: dos ejecuciones son idénticas', () => {
-    expect(JSON.stringify(createInitialState())).toBe(JSON.stringify(createInitialState()));
-    expect(JSON.stringify(createInitialState({ seed: 42 }))).toBe(
-      JSON.stringify(createInitialState({ seed: 42 })),
+    expect(JSON.stringify(createInitialState({ generator: new BspMapGenerator() }))).toBe(
+      JSON.stringify(createInitialState({ generator: new BspMapGenerator() })),
+    );
+    expect(
+      JSON.stringify(createInitialState({ generator: new BspMapGenerator(), seed: 42 })),
+    ).toBe(
+      JSON.stringify(createInitialState({ generator: new BspMapGenerator(), seed: 42 })),
     );
   });
 
   it('otra semilla cumple las mismas restricciones', () => {
     for (const seed of [42, 1234]) {
-      assertValidPlacement(createInitialState({ seed }));
+      assertValidPlacement(createInitialState({ generator: new BspMapGenerator(), seed }));
     }
   });
 
   it('no llama a Math.random', () => {
     const random = vi.spyOn(Math, 'random');
     try {
-      createInitialState();
+      createInitialState({ generator: new BspMapGenerator() });
       expect(random).not.toHaveBeenCalled();
     } finally {
       random.mockRestore();
