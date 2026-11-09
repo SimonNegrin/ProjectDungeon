@@ -2,12 +2,12 @@
  * Catálogo de bestiario (REQ-010, tabla A de EXP-003).
  *
  * Datos puros y serializables: cada tipo de enemigo referencia el catálogo de
- * equipo por ID y declara modificadores, PV, visión, alarma y perfil. La visión
- * alimenta la percepción; la onda usa el radio de alarma; la huida llega en
- * TASK-0037.
+ * equipo por ID y declara sus ocho atributos (REQ-014), visión, alarma y perfil.
+ * La visión alimenta la percepción; la onda usa el radio de alarma; la huida
+ * llega en TASK-0037.
  */
 
-import type { UnitEquipment, UnitModifiers } from './types';
+import type { UnitEquipment, UnitStats } from './types';
 
 export type EnemyType = 'sentinel' | 'brute' | 'coward';
 
@@ -25,7 +25,7 @@ export interface EnemyDefinition {
   readonly alarm: number;
   readonly maxHp: number;
   readonly maxMp: number;
-  readonly modifiers: UnitModifiers;
+  readonly stats: UnitStats;
   readonly equipment: UnitEquipment;
 }
 
@@ -38,7 +38,14 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     alarm: 5,
     maxHp: 6,
     maxMp: 5,
-    modifiers: { accuracy: 0, damage: 0, defense: 0 },
+    stats: {
+      habilidad: 0,
+      fuerza: 0,
+      defensa: 0,
+      resistencia: 0,
+      punteria: 0,
+      magia: [],
+    },
     equipment: { weaponId: 'sword', armorId: null, shieldId: 'shield' },
   },
   brute: {
@@ -49,7 +56,14 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     alarm: 5,
     maxHp: 8,
     maxMp: 4,
-    modifiers: { accuracy: 0, damage: 1, defense: 0 },
+    stats: {
+      habilidad: 0,
+      fuerza: 1,
+      defensa: 0,
+      resistencia: 0,
+      punteria: 0,
+      magia: [],
+    },
     equipment: { weaponId: 'axe', armorId: 'plate', shieldId: null },
   },
   coward: {
@@ -60,7 +74,14 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     alarm: 5,
     maxHp: 5,
     maxMp: 6,
-    modifiers: { accuracy: 1, damage: 0, defense: 1 },
+    stats: {
+      habilidad: 1,
+      fuerza: 0,
+      defensa: 1,
+      resistencia: 0,
+      punteria: 0,
+      magia: [],
+    },
     equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
   },
 };

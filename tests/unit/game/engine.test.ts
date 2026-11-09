@@ -132,7 +132,14 @@ describe('engine state', () => {
     expect(state.players[0]).toMatchObject({
       hp: 20,
       maxHp: 20,
-      modifiers: { accuracy: 1, damage: 1, defense: 1 },
+      stats: {
+        habilidad: 1,
+        fuerza: 1,
+        defensa: 1,
+        resistencia: 0,
+        punteria: 0,
+        magia: [],
+      },
       equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
       weapons: ['sword'],
     });
@@ -140,7 +147,7 @@ describe('engine state', () => {
       enemyType: 'sentinel',
       hp: BESTIARY.sentinel.maxHp,
       maxHp: BESTIARY.sentinel.maxHp,
-      modifiers: BESTIARY.sentinel.modifiers,
+      stats: BESTIARY.sentinel.stats,
       equipment: BESTIARY.sentinel.equipment,
       weapons: [BESTIARY.sentinel.equipment.weaponId],
     });
@@ -407,7 +414,7 @@ describe('recogida y cambio de armas', () => {
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
     const damage = resolveDamage(
-      pickup.state.players[0].modifiers.damage + WEAPONS.axe.damage,
+      pickup.state.players[0].stats.fuerza + WEAPONS.axe.damage,
       armorValue(pickup.state.enemies[0].equipment.armorId),
       3,
       6,

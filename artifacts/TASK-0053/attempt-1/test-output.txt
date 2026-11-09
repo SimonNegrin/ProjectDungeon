@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /private/tmp/pd-task0053
+
+
+ Test Files  4 passed (4)
+      Tests  69 passed (69)
+   Start at  23:29:11
+   Duration  474ms (tests 53%, transform 32%, import 14%, worker 1%)
+

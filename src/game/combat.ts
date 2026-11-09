@@ -31,14 +31,14 @@ export function resolveHit(
   return attackBonus + attackDie > defenseBonus + shieldDie;
 }
 
-/** Daño: la armadura resta a la tirada de daño; nunca baja de 1. */
+/** Daño: la absorción (resistencia + armadura) resta a la tirada; mínimo 1. */
 export function resolveDamage(
   damageBonus: number,
-  armor: number,
+  absorption: number,
   damageDie: number,
-  armorDie: number,
+  absorptionDie: number,
 ): number {
-  return Math.max(1, damageBonus + damageDie - (armor + armorDie));
+  return Math.max(1, damageBonus + damageDie - (absorption + absorptionDie));
 }
 
 export type AttackResult =
@@ -92,12 +92,13 @@ export function resolveAttack(
   const weapon = weaponFor(attacker.equipment.weaponId);
   const armor = armorValue(target.equipment.armorId);
   const shield = shieldValue(target.equipment.shieldId);
+  const absorption = target.stats.resistencia + armor;
 
   const attackRoll = rollDie(state.rng);
   const shieldRoll = rollDie(attackRoll.rng);
   const hit = resolveHit(
-    attacker.modifiers.accuracy + weapon.accuracy,
-    target.modifiers.defense + shield,
+    attacker.stats.habilidad + weapon.accuracy,
+    target.stats.defensa + shield,
     attackRoll.die,
     shieldRoll.die,
   );
@@ -116,8 +117,8 @@ export function resolveAttack(
     const armorRoll = rollDie(damageRoll.rng);
     rng = armorRoll.rng;
     damage = resolveDamage(
-      attacker.modifiers.damage + weapon.damage,
-      armor,
+      attacker.stats.fuerza + weapon.damage,
+      absorption,
       damageRoll.die,
       armorRoll.die,
     );

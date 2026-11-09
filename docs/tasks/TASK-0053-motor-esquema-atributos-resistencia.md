@@ -4,22 +4,34 @@ id: TASK-0053
 title: "Motor: esquema de ocho atributos y resistencia en la absorción"
 description: "Renombrar acierto/daño a habilidad/fuerza, añadir resistencia/puntería/magia y usar la resistencia en la capa de daño; resistencia 0 conserva el balance v1."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-014
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, T-001, T-002, T-003, T-004]
 depends_on: []
 unlocks: [TASK-0054, TASK-0055]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T23:32:10Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0053/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4-pro, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T23:32:10Z
+    note: >-
+      Intento 1 verificado en `task/TASK-0053` (código y tests `ca928f1`,
+      evidencia `10cc5c9`). Diff completo revisado: solo `src/game/`, migración
+      mecánica de host y tests; sin cambios de balance, fórmulas paralelas,
+      dependencias ni documentación de TASK-0054. Lead re-ejecutó
+      `pnpm run verify` (740/740, docs/config, build y bundle OK) y
+      `pnpm run test:e2e` (76/76). Comprobados los ocho atributos, nivel de magia
+      1–4, resistencia 0 equivalente, absorción resistencia+armadura y bestiario
+      como fuente única; sin tests borrados, saltados ni debilitados (+6 tests).
+      El HUD conserva los textos «acierto/daño» para TASK-0054.
 ---
 
 # Objetivo
@@ -42,18 +54,18 @@ no cambia.
 
 # Criterios de aceptación
 
-- [ ] El estado de unidad declara `habilidad`, `fuerza`, `defensa`,
+- [x] El estado de unidad declara `habilidad`, `fuerza`, `defensa`,
   `resistencia`, `puntería`, `magia`, PV y MP; `magia` es una lista de
   `{ familia, nivel }` con nivel 1–4.
-- [ ] `acierto`→`habilidad` y `daño`→`fuerza` en tipos, combate, bestiario, IA y
+- [x] `acierto`→`habilidad` y `daño`→`fuerza` en tipos, combate, bestiario, IA y
   tests; no quedan nombres antiguos como fuente de verdad.
-- [ ] Impacto: `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el
+- [x] Impacto: `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el
   empate falla.
-- [ ] Daño: `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`.
-- [ ] El jugador provisional y los enemigos tienen resistencia 0, puntería 0 y
+- [x] Daño: `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`.
+- [x] El jugador provisional y los enemigos tienen resistencia 0, puntería 0 y
   magia vacía; el resultado de combate del balance v1 no cambia.
-- [ ] El bestiario declara los ocho atributos por tipo, sin duplicar valores.
-- [ ] Tests unitarios actualizados; `pnpm run verify` pasa.
+- [x] El bestiario declara los ocho atributos por tipo, sin duplicar valores.
+- [x] Tests unitarios actualizados; `pnpm run verify` pasa.
 
 # Plan de test
 
@@ -66,9 +78,9 @@ no cambia.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0053/attempt-1/report.md`.
-- [ ] Salidas de tests y `pnpm run verify` en `attempt-1/`.
-- [ ] Commit SHA.
+- [x] Informe en `artifacts/TASK-0053/attempt-1/report.md`.
+- [x] Salidas de tests y `pnpm run verify` en `attempt-1/`.
+- [x] Commit SHA.
 
 # Restricciones
 
