@@ -3,15 +3,15 @@ type: Task
 id: TASK-0050
 title: "Motor: balance provisional v1 (bestiario y armas)"
 description: Aplicar PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura y armas 3/5/2 desde los catálogos; motor y tests unitarios en verde.
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-003, R-007, R-008, R-009, T-003, T-005, T-008]
 depends_on: []
 unlocks: [TASK-0051, TASK-0052]
 created_at: 2026-11-09T12:00:00Z
-completed_at:
+completed_at: 2026-11-09T22:00:32Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0050/
@@ -20,6 +20,20 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T12:00:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T22:00:32Z
+    note: >-
+      Intento 1 verificado en `task/TASK-0050` (código y tests `f8ef0c4`,
+      evidencia `87e11d4`; fusión `7949443`). Diff completo revisado: solo
+      catálogos, lecturas de motor, colocación y tests unitarios; sin cambios en
+      fórmulas, host de producción, E2E, dependencias ni arte. Lead re-ejecutó
+      `pnpm exec vitest run tests/unit/game tests/unit/host` (581/581) y
+      `pnpm run verify` (734/734, docs/config, build 52 módulos y guarda OK).
+      Comprobados los valores 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura
+      y armas 3/5/2; colocación de 4 en semillas 279837264, 42 y 1234 con
+      pareja ≤5 y aislado >5. Tests migrados al catálogo sin borrar ni saltar
+      ninguno (+2 tests); la adaptación de dos integraciones conserva la
+      intención de alarma y acción del alertado.
 ---
 
 # Objetivo
@@ -42,17 +56,17 @@ PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura y armas 3/5/2.
 
 # Criterios de aceptación
 
-- [ ] `BESTIARY` declara `maxMp` (Centinela 5, Bruto 4, Cobarde 6), `maxHp`
+- [x] `BESTIARY` declara `maxMp` (Centinela 5, Bruto 4, Cobarde 6), `maxHp`
       6/8/5 y `alarm` 5; el centinela usa `armorId: null`.
-- [ ] `WEAPONS` declara daño 3/5/2; el acierto no cambia.
-- [ ] `createEnemy` usa `definition.maxMp`; no hay una constante global como
+- [x] `WEAPONS` declara daño 3/5/2; el acierto no cambia.
+- [x] `createEnemy` usa `definition.maxMp`; no hay una constante global como
       fuente de verdad.
-- [ ] `enemy-placement.ts` deriva el radio de alarma del bestiario y la
+- [x] `enemy-placement.ts` deriva el radio de alarma del bestiario y la
       colocación sigue colocando 4 enemigos en las semillas 279837264, 42 y
       1234 (pareja ≤5 y aislado >5).
-- [ ] Los tests unitarios leen del catálogo y no duplican valores; los de
+- [x] Los tests unitarios leen del catálogo y no duplican valores; los de
       balance usan propiedades o rangos.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas; `src/game/` sigue puro.
 
 # Plan de test
 
@@ -66,9 +80,9 @@ PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura y armas 3/5/2.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0050/attempt-1/report.md`.
-- [ ] Salidas de tests y `verify` en `attempt-1/`.
-- [ ] Commit SHA en la rama `task/TASK-0050`.
+- [x] Informe en `artifacts/TASK-0050/attempt-1/report.md`.
+- [x] Salidas de tests y `verify` en `attempt-1/`.
+- [x] Commit SHA en la rama `task/TASK-0050`.
 
 # Comandos
 

@@ -41,7 +41,7 @@ Total: **52**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0039](TASK-0039-e2e-qa-percepcion-alarma-huida.md) | E2E y QA visual de percepción, alarma y huida | `done` | REQ-009 | TASK-0037, TASK-0038 | P1 |
 | [TASK-0040](TASK-0040-exp-004-salas-irregulares.md) | EXP-004: comparador de generadores de salas irregulares | `done` | REQ-011 | — | P1 |
 | [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `done` | REQ-011 | — | P1 |
-| [TASK-0050](TASK-0050-motor-balance-provisional-v1.md) | Motor: balance provisional v1 (bestiario y armas) | `ready` | REQ-010 | — | P1 |
+| [TASK-0050](TASK-0050-motor-balance-provisional-v1.md) | Motor: balance provisional v1 (bestiario y armas) | `done` | REQ-010 | — | P1 |
 | [TASK-0051](TASK-0051-host-e2e-qa-balance-v1.md) | Host, E2E y QA visual del balance provisional v1 | `backlog` | REQ-010 | TASK-0050 | P1 |
 | [TASK-0042](TASK-0042-exp-004-distribucion-emboscadas-salida.md) | EXP-004: distribución orgánica, emboscadas y salida de nivel | `done` | REQ-012 | — | P1 |
 | [TASK-0043](TASK-0043-motor-modelo-mapa-produccion.md) | Motor: modelo de mapa de producción con máscaras y spawn de grupo | `done` | REQ-011 | — | P1 |
@@ -56,10 +56,6 @@ Total: **52**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
 | [TASK-0052](TASK-0052-exp-003-preset-balance-v1.md) | EXP-003: preset de balance provisional v1 | `backlog` | REQ-010 | TASK-0050 | P2 |
-
-# ready
-
-* [TASK-0050 — Motor: balance provisional v1 (bestiario y armas)](TASK-0050-motor-balance-provisional-v1.md)
 
 # review
 
@@ -109,6 +105,7 @@ Total: **52**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0039 — E2E y QA visual de percepción, alarma y huida](TASK-0039-e2e-qa-percepcion-alarma-huida.md)
 * [TASK-0040 — EXP-004: comparador de generadores de salas irregulares](TASK-0040-exp-004-salas-irregulares.md)
 * [TASK-0041 — EXP-004: puertas, acceso de spawn y presupuesto de enemigos](TASK-0041-exp-004-puertas-spawn-enemigos.md)
+* [TASK-0050 — Motor: balance provisional v1 (bestiario y armas)](TASK-0050-motor-balance-provisional-v1.md)
 * [TASK-0042 — EXP-004: distribución orgánica, emboscadas y salida de nivel](TASK-0042-exp-004-distribucion-emboscadas-salida.md)
 * [TASK-0043 — Motor: modelo de mapa de producción con máscaras y spawn de grupo](TASK-0043-motor-modelo-mapa-produccion.md)
 * [TASK-0044 — Motor: núcleo compartido de salas, pasillos y puertas](TASK-0044-motor-nucleo-salas-pasillos-puertas.md)
