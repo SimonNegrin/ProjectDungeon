@@ -24,6 +24,7 @@ export interface EnemyDefinition {
   /** Radio de la onda de alarma en tiles (REQ-009). */
   readonly alarm: number;
   readonly maxHp: number;
+  readonly maxMp: number;
   readonly modifiers: UnitModifiers;
   readonly equipment: UnitEquipment;
 }
@@ -34,18 +35,20 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     name: 'Centinela',
     profile: 'brave',
     vision: 6,
-    alarm: 8,
-    maxHp: 9,
+    alarm: 5,
+    maxHp: 6,
+    maxMp: 5,
     modifiers: { accuracy: 0, damage: 0, defense: 0 },
-    equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+    equipment: { weaponId: 'sword', armorId: null, shieldId: 'shield' },
   },
   brute: {
     id: 'brute',
     name: 'Bruto',
     profile: 'brave',
     vision: 4,
-    alarm: 8,
-    maxHp: 12,
+    alarm: 5,
+    maxHp: 8,
+    maxMp: 4,
     modifiers: { accuracy: 0, damage: 1, defense: 0 },
     equipment: { weaponId: 'axe', armorId: 'plate', shieldId: null },
   },
@@ -54,8 +57,9 @@ export const BESTIARY: Readonly<Record<EnemyType, EnemyDefinition>> = {
     name: 'Cobarde',
     profile: 'coward',
     vision: 5,
-    alarm: 8,
-    maxHp: 8,
+    alarm: 5,
+    maxHp: 5,
+    maxMp: 6,
     modifiers: { accuracy: 1, damage: 0, defense: 1 },
     equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
   },

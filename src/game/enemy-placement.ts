@@ -42,8 +42,10 @@ export const ENEMY_PLACEMENT_SALT = 0x4c2f9a17;
 export const MIN_ENEMY_DISTANCE = 2;
 /** Distancia mínima al jugador; la visión máxima es 6, así que 7 evita verlo. */
 export const MIN_PLAYER_DISTANCE = 7;
-/** Radio de alarma de REQ-009: una pareja debe quedar dentro. */
-export const ALARM_RADIUS = 8;
+/** Radio de alarma de REQ-009 derivado del bestiario: una pareja debe quedar dentro. */
+export const ALARM_RADIUS = Math.max(
+  ...Object.values(BESTIARY).map((definition) => definition.alarm),
+);
 /** Intentos deterministas antes de probar sin el ancla o devolver `null`. */
 const MAX_PLACEMENT_ATTEMPTS = 8192;
 

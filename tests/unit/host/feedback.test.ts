@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { reduce } from '../../../src/game/index';
+import {
+  WEAPONS,
+  armorValue,
+  reduce,
+  resolveDamage,
+  type Unit,
+} from '../../../src/game/index';
 import {
   collectAttackFeedbacks,
   collectDamageFeedbacks,
@@ -9,6 +15,20 @@ import {
   type DamageFeedbackAnchor,
 } from '../../../src/host/feedback';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
+
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 describe('feedback de ataque', () => {
   it('convierte AttackPerformed en daño y posición del objetivo', () => {
@@ -24,7 +44,12 @@ describe('feedback de ataque', () => {
     });
 
     expect(collectDamageFeedbacks(result.events, result.state)).toEqual([
-      { targetId: 'enemy-1', damage: 5, x: 6, y: 5 },
+      {
+        targetId: 'enemy-1',
+        damage: expectedDamage(state.players[0], state.enemies[0], 2, 1),
+        x: 6,
+        y: 5,
+      },
     ]);
   });
 
@@ -37,7 +62,12 @@ describe('feedback de ataque', () => {
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(collectDamageFeedbacks(result.events, result.state)).toEqual([
-      { targetId: 'player-1', damage: 3, x: 5, y: 5 },
+      {
+        targetId: 'player-1',
+        damage: expectedDamage(state.enemies[0], state.players[0], 3, 3),
+        x: 5,
+        y: 5,
+      },
     ]);
   });
 
@@ -62,14 +92,15 @@ describe('feedback de impacto y fallo', () => {
       targetId: 'enemy-1',
     });
 
+    const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
     expect(collectAttackFeedbacks(result.events, result.state)).toEqual([
       {
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
-        targetHp: 5,
+        damage,
+        targetHp: state.enemies[0].maxHp - damage,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
-        text: '-5',
+        text: `-${damage}`,
         x: 6,
         y: 5,
         attacker: { x: 5, y: 5 },

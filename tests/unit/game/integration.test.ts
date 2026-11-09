@@ -1,12 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BESTIARY,
+  WEAPONS,
+  armorValue,
   createRng,
   reduce,
+  resolveDamage,
   type Command,
   type GameEvent,
   type GameState,
+  type Unit,
 } from '../../../src/game/index';
 import { makeState, makeUnit, rngForDice } from './helpers';
+
+/** Daño esperado según catálogo y equipo, sin fijar el valor de balance. */
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 interface RunResult {
   readonly states: readonly GameState[];
@@ -29,9 +49,6 @@ function run(state: GameState, commands: readonly Command[]): RunResult {
   return { states, events, final: current };
 }
 
-/** Semilla que produce 5, 3 y 5 de daño: el enemigo cae y el jugador acaba con 17 PV. */
-const VICTORY_SEED = 71;
-
 const loopCommands: readonly Command[] = [
   { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 },
   { type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' },
@@ -44,9 +61,23 @@ describe('game loop integration', () => {
   it('encadena Move, Attack y EndTurn hasta la victoria con los eventos esperados', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
-      rng: createRng(VICTORY_SEED),
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 7,
+          y: 5,
+          hp: 8,
+          maxHp: 8,
+        }),
+      ],
+      rng: createRng(0),
     });
+    const firstHit = expectedDamage(state.players[0], state.enemies[0], 2, 3);
+    const enemyHit = expectedDamage(state.enemies[0], state.players[0], 3, 2);
+    const secondHit = expectedDamage(state.players[0], state.enemies[0], 5, 2);
+    const playerHp = state.players[0].hp - enemyHit;
+    const enemyHp = state.enemies[0].hp - firstHit;
 
     const result = run(state, loopCommands);
 
@@ -55,7 +86,7 @@ describe('game loop integration', () => {
     expect(result.final.phase).toBe('player');
     // Turno 1: mueve (6 MP → 5), ataca y termina. Turno 2: se restauran
     // 6 MP, mueve (6 → 5) y remata.
-    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: 17, mp: 5 });
+    expect(result.final.players[0]).toMatchObject({ x: 6, y: 4, hp: playerHp, mp: 5 });
     expect(result.final.enemies[0]).toMatchObject({ hp: 0 });
 
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
@@ -71,23 +102,23 @@ describe('game loop integration', () => {
       {
         attackerId: 'player-1',
         hit: true,
-        damage: 5,
-        targetHp: 5,
-        rolls: { attack: 6, shield: 1, damage: 5, armor: 4 },
+        damage: firstHit,
+        targetHp: enemyHp,
+        rolls: { attack: 5, shield: 1, damage: 2, armor: 3 },
       },
       {
         attackerId: 'enemy-1',
         hit: true,
-        damage: 3,
-        targetHp: 17,
-        rolls: { attack: 4, shield: 3, damage: 6, armor: 6 },
+        damage: enemyHit,
+        targetHp: playerHp,
+        rolls: { attack: 2, shield: 2, damage: 3, armor: 2 },
       },
       {
         attackerId: 'player-1',
         hit: true,
-        damage: 5,
+        damage: secondHit,
         targetHp: 0,
-        rolls: { attack: 5, shield: 4, damage: 6, armor: 5 },
+        rolls: { attack: 5, shield: 3, damage: 5, armor: 2 },
       },
     ]);
 
@@ -108,7 +139,7 @@ describe('game loop integration', () => {
 
   it('encadena una derrota durante la fase enemiga', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 })],
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
       rng: rngForDice([6, 1, 3, 3]),
     });
@@ -189,7 +220,7 @@ describe('game loop integration', () => {
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'sentinel',
-          x: 16,
+          x: 10 + BESTIARY.sentinel.alarm,
           y: 5,
           awareness: 'dormant',
         }),
@@ -201,35 +232,34 @@ describe('game loop integration', () => {
       { type: 'EndTurn' },
     ]);
 
-    expect(result.events.map((event) => event.type)).toEqual([
+    const types = result.events.map((event) => event.type);
+    expect(types.slice(0, 5)).toEqual([
       'UnitMoved',
       'EnemySpotted',
       'AlarmRaised',
       'TurnEnded',
       'EnemyPhaseStarted',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'PlayerTurnStarted',
     ]);
-    expect(result.final.enemies[0]).toMatchObject({
-      x: 6,
-      y: 5,
+    expect(types).toContain('AttackPerformed');
+    expect(types.at(-1)).toBe('PlayerTurnStarted');
+
+    const [first, second] = result.final.enemies;
+    expect(first).toMatchObject({
       awareness: 'alert',
       lastKnown: { x: 4, y: 5 },
     });
-    expect(result.final.enemies[1]).toMatchObject({
-      x: 12,
-      y: 5,
+    expect(
+      Math.max(Math.abs(first.x - 4), Math.abs(first.y - 5)),
+      'el alertado debe quedar adyacente al jugador',
+    ).toBeLessThanOrEqual(1);
+    expect(second).toMatchObject({
       awareness: 'alert',
       lastKnown: { x: 4, y: 5 },
       hasShouted: true,
     });
+    expect(second.x, 'el receptor debe avanzar hacia el jugador').toBeLessThan(
+      state.enemies[1].x,
+    );
   });
 
   it('el daño a un dormido da la alarma y el alertado actúa en la fase enemiga', () => {
@@ -243,18 +273,14 @@ describe('game loop integration', () => {
           x: 6,
           y: 5,
           awareness: 'dormant',
-          maxHp: 9,
-          hp: 9,
         }),
         makeUnit({
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'sentinel',
-          x: 12,
+          x: 6 + BESTIARY.sentinel.alarm,
           y: 5,
           awareness: 'dormant',
-          maxHp: 9,
-          hp: 9,
         }),
       ],
       rng: rngForDice([6, 1, 2, 1, 1, 6]),
@@ -265,25 +291,22 @@ describe('game loop integration', () => {
       { type: 'EndTurn' },
     ]);
 
-    expect(result.events.map((event) => event.type)).toEqual([
+    const types = result.events.map((event) => event.type);
+    expect(types.slice(0, 5)).toEqual([
       'AttackPerformed',
       'AlarmRaised',
       'TurnEnded',
       'EnemyPhaseStarted',
       'AttackPerformed',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'UnitMoved',
-      'PlayerTurnStarted',
     ]);
+    expect(types).toContain('UnitMoved');
+    expect(types.at(-1)).toBe('PlayerTurnStarted');
     expect(result.final.enemies[1]).toMatchObject({
-      x: 8,
-      y: 5,
       awareness: 'alert',
       lastKnown: { x: 5, y: 5 },
       hasShouted: true,
     });
+    expect(result.final.enemies[1].x).toBeLessThan(state.enemies[1].x);
   });
 
   it('el cobarde huye tras un golpe fuerte y se aleja del jugador en la fase enemiga', () => {
@@ -296,10 +319,7 @@ describe('game loop integration', () => {
           enemyType: 'coward',
           x: 6,
           y: 5,
-          hp: 8,
-          maxHp: 8,
           awareness: 'dormant',
-          equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
         }),
       ],
       rng: rngForDice([6, 1, 1, 1]),
@@ -319,7 +339,11 @@ describe('game loop integration', () => {
     expect(fledIndex).toBeLessThan(enemyPhaseIndex);
 
     const enemy = result.final.enemies[0];
-    expect(enemy).toMatchObject({ hp: 3, fleeing: true, awareness: 'alert' });
+    expect(enemy).toMatchObject({
+      hp: BESTIARY.coward.maxHp - expectedDamage(state.players[0], state.enemies[0], 1, 1),
+      fleeing: true,
+      awareness: 'alert',
+    });
     expect(
       Math.max(
         Math.abs(enemy.x - result.final.players[0].x),

@@ -6,14 +6,16 @@ import {
   createRng,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
-  ENEMY_MAX_MP,
   isOccupied,
   isWallAt,
   normalizeSeed,
   PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
+  WEAPONS,
+  armorValue,
   reduce,
+  resolveDamage,
   type GameState,
   type Position,
   type RngState,
@@ -69,12 +71,11 @@ describe('engine state', () => {
       y: spawns?.enemy.y,
       hp: BESTIARY.sentinel.maxHp,
       maxHp: BESTIARY.sentinel.maxHp,
-      mp: ENEMY_MAX_MP,
-      maxMp: ENEMY_MAX_MP,
+      mp: BESTIARY.sentinel.maxMp,
+      maxMp: BESTIARY.sentinel.maxMp,
       actionAvailable: true,
     });
     expect(PLAYER_MAX_MP).toBe(6);
-    expect(ENEMY_MAX_MP).toBe(4);
     expect(state.phase).toBe('player');
     expect(state.turn).toBe(1);
     expect(state.status).toBe('playing');
@@ -137,11 +138,11 @@ describe('engine state', () => {
     });
     expect(state.enemies[0]).toMatchObject({
       enemyType: 'sentinel',
-      hp: 9,
-      maxHp: 9,
-      modifiers: { accuracy: 0, damage: 0, defense: 0 },
-      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-      weapons: ['sword'],
+      hp: BESTIARY.sentinel.maxHp,
+      maxHp: BESTIARY.sentinel.maxHp,
+      modifiers: BESTIARY.sentinel.modifiers,
+      equipment: BESTIARY.sentinel.equipment,
+      weapons: [BESTIARY.sentinel.equipment.weaponId],
     });
   });
 
@@ -401,10 +402,16 @@ describe('recogida y cambio de armas', () => {
     const state = stateWithWeapon({
       weapon: 'axe',
       enemy: { x: 6, y: 5 },
-      rng: rngForDice([1, 1, 3, 1]),
+      rng: rngForDice([1, 1, 3, 6]),
     });
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+    const damage = resolveDamage(
+      pickup.state.players[0].modifiers.damage + WEAPONS.axe.damage,
+      armorValue(pickup.state.enemies[0].equipment.armorId),
+      3,
+      6,
+    );
     const attack = reduce(pickup.state, {
       type: 'Attack',
       unitId: 'player-1',
@@ -417,12 +424,14 @@ describe('recogida y cambio de armas', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 8,
-        rolls: { attack: 1, shield: 1, damage: 3, armor: 1 },
+        damage,
+        rolls: { attack: 1, shield: 1, damage: 3, armor: 6 },
       }),
       { type: 'AlarmRaised', unitId: 'enemy-1', position: { x: 6, y: 5 } },
     ]);
-    expect(attack.state.enemies[0]).toMatchObject({ hp: 1 });
+    expect(attack.state.enemies[0].hp).toBe(
+      pickup.state.enemies[0].maxHp - damage,
+    );
     expect(attack.state.players[0]).toMatchObject({
       equipment: { weaponId: 'axe' },
       actionAvailable: false,

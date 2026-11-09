@@ -1,8 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { planCursorTarget, reduce } from '../../../src/game/index';
+import {
+  WEAPONS,
+  armorValue,
+  planCursorTarget,
+  reduce,
+  resolveDamage,
+  type Unit,
+} from '../../../src/game/index';
 import { makeGridWithWalls, makeState, makeUnit, rngForDice } from './helpers';
 
-const PLAYER_HIT_5 = [6, 1, 2, 1] as const;
+const PLAYER_HIT = [6, 1, 2, 1] as const;
+
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 function playerAt(x: number, y: number, patch: { mp?: number; actionAvailable?: boolean } = {}) {
   return makeUnit({ id: 'player-1', faction: 'player', x, y, ...patch });
@@ -200,9 +221,11 @@ describe('MoveTo', () => {
       const state = makeState({
         players: [playerAt(2, 2, { mp: 3 })],
         enemies: [enemyAt(6, 6)],
-        rng: rngForDice(PLAYER_HIT_5),
+        rng: rngForDice(PLAYER_HIT),
       });
 
+      const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
+      const targetHp = state.enemies[0].hp - damage;
       const result = reduce(state, {
         type: 'MoveTo',
         unitId: 'player-1',
@@ -215,7 +238,7 @@ describe('MoveTo', () => {
         mp: 0,
         actionAvailable: false,
       });
-      expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, hp: 5 });
+      expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, hp: targetHp });
       expect(result.state.players[0]).not.toMatchObject({ x: 6, y: 6 });
       expect(result.events.map((event) => event.type)).toEqual([
         'UnitMoved',
@@ -228,8 +251,8 @@ describe('MoveTo', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
-        targetHp: 5,
+        damage,
+        targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       });
     });
@@ -237,8 +260,8 @@ describe('MoveTo', () => {
     it('si el ataque mata, aplica UnitDied y GameEnded tras los movimientos', () => {
       const state = makeState({
         players: [playerAt(2, 2, { mp: 3 })],
-        enemies: [enemyAt(6, 6, { hp: 5 })],
-        rng: rngForDice(PLAYER_HIT_5),
+        enemies: [enemyAt(6, 6, { hp: 1 })],
+        rng: rngForDice(PLAYER_HIT),
       });
 
       const result = reduce(state, {
@@ -315,9 +338,11 @@ describe('MoveTo', () => {
       const state = makeState({
         players: [playerAt(5, 5)],
         enemies: [enemyAt(6, 5)],
-        rng: rngForDice(PLAYER_HIT_5),
+        rng: rngForDice(PLAYER_HIT),
       });
 
+      const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
+      const targetHp = state.enemies[0].hp - damage;
       const result = reduce(state, {
         type: 'MoveTo',
         unitId: 'player-1',
@@ -327,18 +352,18 @@ describe('MoveTo', () => {
       expect(result.state.players[0]).toMatchObject({
         x: 5,
         y: 5,
-        mp: 6,
+        mp: state.players[0].maxMp,
         actionAvailable: false,
       });
-      expect(result.state.enemies[0].hp).toBe(5);
+      expect(result.state.enemies[0].hp).toBe(targetHp);
       expect(result.events).toEqual([
         {
           type: 'AttackPerformed',
           attackerId: 'player-1',
           targetId: 'enemy-1',
           hit: true,
-          damage: 5,
-          targetHp: 5,
+          damage,
+          targetHp,
           rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
         },
       ]);

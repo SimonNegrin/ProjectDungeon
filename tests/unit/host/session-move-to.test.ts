@@ -40,7 +40,7 @@ describe('GameSession con MoveTo', () => {
       makeState({
         players: [makeUnit({ id: 'player-1', faction: 'player', x: 2, y: 2, mp: 3 })],
         enemies: [
-          makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 6, hp: 5 }),
+          makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 6, hp: 1 }),
         ],
         rng: rngForDice([6, 1, 2, 1]),
       }),

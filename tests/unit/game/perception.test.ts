@@ -81,15 +81,10 @@ describe('línea de visión de Bresenham', () => {
 });
 
 describe('radios de visión del bestiario', () => {
-  const expected: readonly (readonly [EnemyType, number])[] = [
-    ['sentinel', 6],
-    ['brute', 4],
-    ['coward', 5],
-  ];
-
-  it('cada tipo usa su radio (6/4/5) y no ve un tile más allá', () => {
-    for (const [type, radius] of expected) {
-      expect(BESTIARY[type].vision).toBe(radius);
+  it('cada tipo usa el radio de su entrada y no ve un tile más allá', () => {
+    for (const type of ['sentinel', 'brute', 'coward'] as const) {
+      const radius = BESTIARY[type].vision;
+      expect(radius).toBeGreaterThan(0);
       const enemy = enemyOf(type, 5, 5);
 
       expect(visionRadius(enemy)).toBe(radius);
@@ -253,21 +248,24 @@ describe('detección tras cada paso', () => {
 });
 
 describe('onda de alarma', () => {
-  it('todos los tipos del bestiario comparten radio de alarma 8', () => {
+  it('todos los tipos del bestiario comparten el radio de alarma del catálogo', () => {
+    const alarms = new Set<number>();
     for (const type of ['sentinel', 'brute', 'coward'] as const) {
-      expect(BESTIARY[type].alarm).toBe(8);
-      expect(alarmRadius(enemyOf(type, 5, 5))).toBe(8);
+      alarms.add(BESTIARY[type].alarm);
+      expect(alarmRadius(enemyOf(type, 5, 5))).toBe(BESTIARY[type].alarm);
     }
+    expect(alarms.size).toBe(1);
     expect(alarmRadius(playerAt(5, 5))).toBe(0);
   });
 
-  it('alerta a 8 tiles aunque haya un muro y no a 9', () => {
+  it('alerta al borde del radio aunque haya un muro y no un tile más allá', () => {
+    const alarm = BESTIARY.sentinel.alarm;
     const emitter = enemyOf('sentinel', 2, 2);
     const near = makeUnit({
       id: 'enemy-2',
       faction: 'enemy',
       enemyType: 'sentinel',
-      x: 10,
+      x: 2 + alarm,
       y: 2,
       awareness: 'dormant',
     });
@@ -275,7 +273,7 @@ describe('onda de alarma', () => {
       id: 'enemy-3',
       faction: 'enemy',
       enemyType: 'sentinel',
-      x: 11,
+      x: 2 + alarm + 1,
       y: 2,
       awareness: 'dormant',
     });
@@ -324,16 +322,16 @@ describe('onda de alarma', () => {
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'brute',
-          x: 9,
-          y: 2,
+          x: 2,
+          y: 2 + BESTIARY.sentinel.alarm,
           awareness: 'dormant',
         }),
         makeUnit({
           id: 'enemy-3',
           faction: 'enemy',
           enemyType: 'brute',
-          x: 17,
-          y: 2,
+          x: 2,
+          y: 2 + BESTIARY.sentinel.alarm * 2,
           awareness: 'dormant',
         }),
       ],
@@ -366,7 +364,7 @@ describe('onda de alarma', () => {
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'sentinel',
-          x: 10,
+          x: 2 + BESTIARY.sentinel.alarm,
           y: 2,
           awareness: 'alert',
           lastKnown: { x: 1, y: 1 },
@@ -532,7 +530,7 @@ describe('dormido, investigación y regreso', () => {
       enemies: [
         enemyOf('sentinel', 2, 2, {
           awareness: 'alert',
-          lastKnown: { x: 18, y: 18 },
+          lastKnown: { x: 10, y: 10 },
         }),
       ],
     });

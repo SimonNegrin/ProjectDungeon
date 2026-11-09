@@ -1,7 +1,7 @@
 import {
+  BESTIARY,
   createRoomGrid,
   createRng,
-  ENEMY_MAX_MP,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   rollDie,
@@ -19,8 +19,9 @@ import {
   type WeaponId,
 } from '../../../src/game/index';
 
-/** Vida de los enemigos sintéticos de test; el bestiario fija la de los reales. */
+/** Valores de las unidades sintéticas sin `enemyType`; los reales leen el bestiario. */
 const FIXTURE_ENEMY_MAX_HP = 10;
+const FIXTURE_ENEMY_MAX_MP = 4;
 
 export interface UnitOptions {
   readonly id: string;
@@ -47,8 +48,11 @@ export interface UnitOptions {
 
 export function makeUnit(options: UnitOptions): Unit {
   const isPlayer = options.faction === 'player';
-  const maxHp = options.maxHp ?? (isPlayer ? PLAYER_MAX_HP : FIXTURE_ENEMY_MAX_HP);
-  const maxMp = options.maxMp ?? (isPlayer ? PLAYER_MAX_MP : ENEMY_MAX_MP);
+  const definition = options.enemyType ? BESTIARY[options.enemyType] : null;
+  const maxHp =
+    options.maxHp ?? (isPlayer ? PLAYER_MAX_HP : definition?.maxHp ?? FIXTURE_ENEMY_MAX_HP);
+  const maxMp =
+    options.maxMp ?? (isPlayer ? PLAYER_MAX_MP : definition?.maxMp ?? FIXTURE_ENEMY_MAX_MP);
 
   return {
     id: options.id,
@@ -65,11 +69,11 @@ export function makeUnit(options: UnitOptions): Unit {
       options.modifiers ??
       (isPlayer
         ? { accuracy: 1, damage: 1, defense: 1 }
-        : { accuracy: 0, damage: 0, defense: 0 }),
+        : definition?.modifiers ?? { accuracy: 0, damage: 0, defense: 0 }),
     equipment:
       options.equipment ??
-      { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-    weapons: options.weapons ?? ['sword'],
+      definition?.equipment ?? { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+    weapons: options.weapons ?? [definition?.equipment.weaponId ?? 'sword'],
     awareness: options.awareness ?? 'alert',
     fleeing: options.fleeing ?? false,
     home: options.home ?? { x: options.x, y: options.y },

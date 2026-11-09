@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  ALARM_RADIUS,
   BspMapGenerator,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
@@ -173,7 +174,7 @@ function assertEnemiesContract(map: GeneratedMap): void {
         Math.abs(enemies[first].y - enemies[second].y),
       );
       expect(distance).toBeGreaterThanOrEqual(2);
-      if (distance <= 8) {
+      if (distance <= ALARM_RADIUS) {
         pairInsideAlarm = true;
         farFromEveryone = false;
       }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { BspMapGenerator, createInitialState } from '../../../src/game/index';
+import { BESTIARY, BspMapGenerator, createInitialState } from '../../../src/game/index';
 import { perceptionRadii } from '../../../src/host/perception-overlay';
 import { makeState, makeUnit } from '../game/helpers';
 
@@ -10,7 +10,7 @@ describe('radios de percepción del overlay de debug', () => {
     expect(perceptionRadii(state, false)).toEqual([]);
   });
 
-  it('con F1 expone visión 6/4/5 y alarma 8 de los 4 enemigos', () => {
+  it('con F1 expone visión y alarma de los 4 enemigos desde el bestiario', () => {
     const state = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
@@ -22,22 +22,22 @@ describe('radios de percepción del overlay de debug', () => {
       radii
         .filter((radius) => radius.kind === 'vision')
         .map((radius) => [radius.unitId, radius.radius]),
-    ).toEqual([
-      ['enemy-1', 6],
-      ['enemy-2', 6],
-      ['enemy-3', 4],
-      ['enemy-4', 5],
-    ]);
+    ).toEqual(
+      state.enemies.map((enemy) => [
+        enemy.id,
+        BESTIARY[enemy.enemyType!].vision,
+      ]),
+    );
     expect(
       radii
         .filter((radius) => radius.kind === 'alarm')
         .map((radius) => [radius.unitId, radius.radius]),
-    ).toEqual([
-      ['enemy-1', 8],
-      ['enemy-2', 8],
-      ['enemy-3', 8],
-      ['enemy-4', 8],
-    ]);
+    ).toEqual(
+      state.enemies.map((enemy) => [
+        enemy.id,
+        BESTIARY[enemy.enemyType!].alarm,
+      ]),
+    );
   });
 
   it('no dibuja radios de enemigos muertos ni de unidades sin bestiario', () => {

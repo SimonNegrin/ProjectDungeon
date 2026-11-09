@@ -210,7 +210,6 @@ export const ROOM_WIDTH = 20;
 export const ROOM_HEIGHT = 20;
 export const PLAYER_MAX_HP = 20;
 export const PLAYER_MAX_MP = 6;
-export const ENEMY_MAX_MP = 4;
 export const MOVE_COST = 1;
 /** Huecos de arma que puede llevar una unidad. */
 export const MAX_WEAPONS = 3;
