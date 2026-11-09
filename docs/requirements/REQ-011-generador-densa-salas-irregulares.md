@@ -2,15 +2,15 @@
 type: Requirement Sheet
 id: REQ-011
 title: Generador de mazmorra densa con salas irregulares
-description: Segundo MapGenerator seleccionable con mapas pequeños y densos, 4-6 salas poligonales pared con pared, pasillos de 0-3 tiles, pasillos anchos ocasionales, caverna excepcional y puertas decorativas con soporte de muro y separación.
+description: Segundo MapGenerator seleccionable con mapas pequeños y densos, 4-6 salas poligonales en mapas normales y 3 en cavernas (mínimo global 3), pasillos de 0-3 tiles, pasillos anchos ocasionales, caverna excepcional y puertas decorativas con soporte de muro y separación.
 status: draft
-version: 2
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T10:50:25Z
+updated_at: 2026-11-09T12:21:36Z
 related_tasks: [TASK-0040, TASK-0041]
-related_requirements: [REQ-003, REQ-008, REQ-012]
+related_requirements: [REQ-003, REQ-008, REQ-012, REQ-013]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
   - by: human:simon
@@ -28,6 +28,12 @@ verified:
       lados, conexión entre dos salas, separación Chebyshev ≥3, máximo una por
       pasillo, sin puertas en pasillos anchos y boca abierta con aviso cuando
       la geometría no permite una puerta válida.
+  - by: human:simon
+    at: 2026-11-09T12:21:36Z
+    note: >-
+      Aprueba la v3: mínimo global de 3 salas; mapas normales de 4-6 y
+      caverna de 3 (caverna + 2 anexas). La exploración mínima y la salida de
+      nivel se definen en REQ-013.
 ---
 
 # Contexto
@@ -72,24 +78,26 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
   generador y pasan a ser ocasionales.
 - La aparición de jugadores y enemigos se rige por `REQ-012`, no por `R-007` de
   `REQ-003`.
+- La entrada y la salida de nivel se rigen por `REQ-013`: este generador reserva
+  el tile de salida y lo excluye de enemigos, decoración y huecos de spawn.
 
 # Requisitos creativos
 
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El mapa por defecto mide 22×18 tiles. El tamaño es un parámetro interno para que los niveles futuros puedan variar. | `generate` acepta `mapWidth`/`mapHeight`; con la configuración por defecto el mapa mide 22×18; los tests generan 16×14 y 32×32 sin cambios de código. |
-| R-002 | Hay entre 4 y 6 salas por mapa. Al menos 1 es grande (caja de 7×7 o más, o área ≥50 tiles) y al menos 1 es pequeña (caja de 3×3 a 4×4, o área ≤19 tiles); el resto son medianas. En los mapas con caverna (R-007) el recuento baja a 2-3 salas: la caverna y 1-2 anexas. | Un validador cuenta salas y roles, comprueba que no se solapan y que ninguna sala queda fuera del borde transitable. Con la semilla de referencia se cumple el mínimo de grandes y pequeñas. |
+| R-002 | Hay al menos **3 salas en cualquier mapa**. Los mapas normales tienen **4-6 salas**: al menos 1 es grande (caja de 7×7 o más, o área ≥50 tiles) y al menos 1 es pequeña (caja de 3×3 a 4×4, o área ≤19 tiles); el resto son medianas. En los mapas con caverna (R-007) hay exactamente **3 salas**: la caverna y **2 anexas**. | Un validador cuenta salas y roles, comprueba que no se solapan y que ninguna sala queda fuera del borde transitable. En mapas normales el recuento está en 4-6; en caverna es 3; ningún mapa baja de 3. Con la semilla de referencia se cumple el mínimo de grandes y pequeñas cuando aplica. |
 | R-003 | Las salas son polígonos rectilíneos: todas sus celdas de suelo están conectadas en ortogonal, sin celdas sueltas ni islas. Al menos una sala por mapa no es un rectángulo y tiene una muesca, un entrante o una forma en L/T. Las hornacinas y muescas miden 1-2 tiles de fondo. | Un validador comprueba conectividad de celdas, ausencia de islas, al menos una sala no rectangular y al menos 3 hornacinas de 1-2 tiles por mapa. La relación área/caja de las salas no rectangulares queda entre 0,55 y 0,92. |
-| R-004 | Las salas pueden compartir pared: al menos una pareja de salas queda separada por 1-2 tiles de muro y se conecta con una puerta válida en esa pared, directa o con un tile de paso. El grosor de muro entre salas es de 1-2 tiles y el borde exterior del mapa es muro en todo su perímetro. | Un validador encuentra al menos una pareja con distancia de 2 tiles entre suelos y una puerta válida entre ellos; mide el grosor de muro entre salas (1-2) y comprueba el cierre del borde. |
+| R-004 | Las salas pueden compartir pared: al menos una pareja de salas queda separada por 1-2 tiles de muro y se conecta con una puerta válida en esa pared, directa o con un tile de paso. El grosor de muro entre salas es de 1-2 tiles y el borde exterior del mapa es muro en todo su perímetro. Una puerta de salida de `REQ-013` puede dibujarse sobre un tile de muro del borde, pero no abre paso ni crea suelo fuera. | Un validador encuentra al menos una pareja con distancia de 2 tiles entre suelos y una puerta válida entre ellos; mide el grosor de muro entre salas (1-2) y comprueba el cierre del borde, incluida la puerta de salida si existe. |
 | R-005 | Las conexiones son puertas directas (0 tiles de pasillo) o pasillos de 1-3 tiles de recorrido. No hay pasillos de 4 o más tiles salvo el pasillo ancho de R-006. El grafo de salas es conexo y tiene entre 0 y 3 bucles. | Un BFS confirma conectividad; la distribución de longitudes de pasillo está entre 0 y 3; el número de conexiones extra sobre el árbol está entre 0 y 3; no hay pasos diagonales. |
 | R-006 | En aproximadamente 1 de cada 3 mapas aparece un pasillo ancho de 2 tiles, con al menos 3 tiles de longitud, sin puertas. Como máximo hay uno por mapa y no aparece en todos. | Sobre 30 semillas, entre el 25 % y el 40 % tiene exactamente un pasillo `wide` de 2 tiles y longitud ≥3; ninguna tiene más de uno; ningún `wide` tiene puerta. |
-| R-007 | En aproximadamente 1 de cada 6 mapas, el mapa es una caverna: una sala irregular grande (≥55 % del suelo de sala) más 1-2 salas anexas. La caverna tiene al menos 4 muescas y el resto del mapa conserva pasillos cortos. | Sobre 60 semillas, entre el 10 % y el 20 % son mapas de caverna; la sala principal cumple área, muescas y número total de salas 2-3; el resto de mapas no activa la variante. |
-| R-008 | La sala de spawn se elige y se expone según `REQ-012`: la más protegida, con al menos 6 tiles libres para los 6 jugadores futuros y sin enemigos. El generador devuelve la sala, los 6 huecos y los enemigos ya repartidos. | Un validador comprueba que la sala de spawn tiene ≥6 tiles libres, que no hay enemigos en ella y que los 6 huecos son suelo distinto, fuera de puertas y armas. |
+| R-007 | En aproximadamente 1 de cada 6 mapas, el mapa es una caverna: una sala irregular grande (≥55 % del suelo de sala) más **2 salas anexas** (3 salas en total). La caverna tiene al menos 4 muescas y el resto del mapa conserva pasillos cortos. | Sobre 60 semillas, entre el 10 % y el 20 % son mapas de caverna; la sala principal cumple área, muescas y número total de salas **3**; el resto de mapas no activa la variante. |
+| R-008 | La sala de spawn se elige y se expone según `REQ-012`: la más protegida (evitando la mayor en empate), con **6 huecos válidos** para los 6 jugadores futuros y sin enemigos. El generador devuelve la sala, los 6 huecos, la entrada, la salida y los enemigos ya repartidos. | Un validador comprueba que la sala de spawn admite 6 huecos, que no hay enemigos en ella y que los 6 huecos son suelo distinto, fuera de puertas, salida y armas. |
 | R-009 | Cada acceso entre dos salas distintas tiene una **puerta decorativa** transitable cuando la geometría cumple las reglas; si no, queda una **boca abierta con aviso**. Una puerta válida ocupa un tile de muro con **dos vecinos de muro en la línea del muro** (arriba/abajo o izquierda/derecha) y **suelo transitable a ambos lados** del eje de paso. La separación global entre puertas es **Chebyshev ≥3** y hay **como máximo una puerta por pasillo** de 0-3 tiles; los pasillos anchos no llevan puertas. La puerta no bloquea, no tiene llave ni estado abierto/cerrado y no cambia las reglas. Su estilo visual se deriva de la zona o la paleta de la sala y es estable por semilla. | Un validador comprueba soporte de muro, suelo a ambos lados, conexión entre dos salas distintas, separación Chebyshev ≥3, una puerta por pasillo y ausencia en pasillos anchos. Cada puerta tiene estilo; caminar por ella no cuesta más; dos partidas con la misma semilla usan los mismos estilos; las posiciones inválidas no dibujan puerta y aparecen como boca abierta con motivo en debug/métricas. |
 | R-010 | Cada sala usa una paleta de suelo de `REQ-008`; los pasillos usan la paleta neutra. La asignación se hace por sala completa, incluidas sus muescas, y no cambia dentro de una misma sala. En la caverna, toda la sala comparte una paleta. | Un validador comprueba que todas las celdas de una sala comparten paleta, que los pasillos son neutros y que la decoración no invade puertas ni huecos de spawn. |
 | R-011 | La cámara y el render siguen limitados al mapa; no se ve suelo fuera del borde. El viewport 13×13 de `REQ-005` se mantiene. | Los tests de cámara y encuadre de `REQ-002`/`REQ-005` siguen pasando con el generador nuevo. |
 | R-012 | La decoración plana de `REQ-008` se mantiene: 35 % en salas y 16 % en pasillos, sin bloquear ni cambiar muros. Las hornacinas pueden decorarse; las puertas y los huecos de spawn nunca. | Dos renders de la misma semilla son idénticos; la densidad está dentro de los rangos; no hay decals en puertas, spawns ni muros. |
-| R-013 | La capa de debug muestra la máscara de cada sala, sus límites, las puertas y su estilo, la sala de spawn, los huecos de spawn, la anchura de cada pasillo y si el mapa es una caverna. Está oculta por defecto. | `F1` alterna la capa; con ella activa se leen los datos; al desactivarla el juego se ve igual que sin ella. |
+| R-013 | La capa de debug muestra la máscara de cada sala, sus límites, las puertas y su estilo, la sala de spawn, los huecos de spawn, la entrada y la salida de nivel (`REQ-013`), la anchura de cada pasillo y si el mapa es una caverna. Está oculta por defecto. | `F1` alterna la capa; con ella activa se leen los datos; al desactivarla el juego se ve igual que sin ella. |
 
 # Requisitos técnicos
 
@@ -99,7 +107,7 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | T-002 | La implementación nueva se encapsula tras `MapGenerator` con un `id` propio (propuesta: `chambers`). BSP sigue siendo la implementación por defecto. El host puede seleccionar la nueva explícitamente. | `MapGenerator` no cambia de forma incompatible; `createInitialState` sigue usando BSP si no se inyecta nada; el host puede cargar `chambers` por URL o configuración sin registro de plugins. |
 | T-003 | El modelo de sala deja de ser solo rectangular. `Room` conserva `x`, `y`, `width`, `height` como caja de límites y añade la máscara de celdas o la lista de rectángulos que forma la sala. `roomAt` y cualquier consulta de pertenencia usan la máscara. | Un test comprueba que una celda de una muesca pertenece a la sala correcta y que una celda de la caja que no es suelo no pertenece a ninguna sala; el estado sigue siendo serializable. |
 | T-004 | `GeneratedMap.spawns` se amplía con la sala de spawn y 6 posiciones de grupo. `spawns.player` se conserva como alias del primer hueco para no romper el motor actual. `spawns.enemy` queda como dato heredado y no es la fuente de verdad de la colocación. | El snapshot incluye `spawnRoomId`, `party` y al menos 1 jugador; los tests antiguos que leen `spawns.player` siguen funcionando; el motor usa `party[0]` para el jugador. |
-| T-005 | `MapOptions` gana parámetros de forma: número de salas, tamaño mínimo/máximo, longitud máxima de pasillo, probabilidad de pasillo ancho, grosor de muro, probabilidad de caverna y mínimo de huecos de spawn. Los valores imposibles se corrigen con aviso, sin lanzar. | Los tests pasan opciones extremas y reciben un mapa válido con `warnings`; la configuración por defecto es 22×18, 4-6 salas, pasillo máximo 3, ancho ~33 %, pared 1-2, caverna ~17 % y spawn mínimo 6. |
+| T-005 | `MapOptions` gana parámetros de forma: número de salas, tamaño mínimo/máximo, longitud máxima de pasillo, probabilidad de pasillo ancho, grosor de muro, probabilidad de caverna y mínimo de huecos de spawn. Los valores imposibles se corrigen con aviso, sin lanzar. El recuento de salas nunca baja de 3; los mapas normales usan 4-6 y la caverna fija 3. | Los tests pasan opciones extremas y reciben un mapa válido con `warnings`; la configuración por defecto es 22×18, 4-6 salas normales, 3 en caverna, pasillo máximo 3, ancho ~33 %, pared 1-2, caverna ~17 % y spawn mínimo 6. |
 | T-006 | `Door` incluye un estilo visual estable (`wood`, `metal`, `grated` o equivalente) derivado del ambiente/paleta de la sala. El host dibuja el tile correspondiente de 32rogues. | El estilo está en el estado serializable; el render no usa `Math.random`; la misma semilla produce los mismos estilos; hay al menos 3 estilos disponibles. |
 | T-007 | El render consume la máscara de sala y dibuja puertas decorativas solo en huecos válidos, por debajo de las unidades; las bocas abiertas se dibujan sin puerta. La regla de muro por borde (`wallSide1` solo con suelo al sur, `wallTop` en el resto) se mantiene. | Una tabla de casos cubre la selección de tile de muro; las puertas se dibujan en horizontal y vertical; el jugador puede estar sobre la puerta; no hay puertas dibujadas en pasillos anchos ni en bocas abiertas inválidas. |
 | T-008 | Hay validadores puros y tests para conectividad, formas, muescas, muros compartidos, longitud de pasillos, frecuencia de anchos y cavernas, spawn y puertas. | Vitest cubre cada criterio con al menos un caso positivo y uno negativo; no se debilitan tests de `REQ-003` ni de `REQ-008`. |
@@ -130,21 +138,27 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 - `REQ-003` cerrada: interfaz `MapGenerator`, BSP, regla de muros y semilla por
   URL.
 - `REQ-008` cerrada: paletas por sala y decoración no bloqueante.
-- `REQ-012` aprobada: sala de spawn protegida y reparto de enemigos.
+- `REQ-012` aprobada: sala de spawn protegida, adyacencia de grupo y reparto
+  orgánico de enemigos.
+- `REQ-013` aprobada: entrada, salida y exploración mínima por nivel.
 - [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md): tiles y sprites
   de 32rogues.
 - [ADR-007](../decisions/ADR-007-map-generator.md): interfaz inyectable.
 - `EXP-004`: comparador de algoritmos y parámetros de forma; decide el algoritmo
-  antes de crear las tareas de implementación.
-- `TASK-0040`: construye `EXP-004`.
+  antes de crear las tareas de implementación. La v3 añade distribución orgánica,
+  emboscadas y salida.
+- `TASK-0040`: construye `EXP-004`. `TASK-0041`: aplica la v2 de puertas, spawn
+  y enemigos.
 
 # Fuera de alcance
 
 - Materiales de muro distintos por zona o sala; en este corte hay uno solo.
-- Puertas funcionales, llaves, cerraduras, puertas secretas, trampas y
-  escaleras.
+- Puertas funcionales, llaves, cerraduras, puertas secretas y trampas. La
+  entrada, la salida y su representación como puerta o escalera se definen en
+  `REQ-013`.
 - Pasillos de 3 tiles de ancho, barricadas y objetos tácticos.
-- Multinivel y transiciones entre niveles.
+- Transiciones funcionales entre niveles y generación del siguiente mapa;
+  `REQ-013` solo define el dato de salida y su visualización.
 - Bestiario nuevo, cambios de IA o de combate más allá de `REQ-012`.
 - Implementar el cooperativo; solo se reservan los 6 huecos de spawn.
 - Paletas de suelo o decals nuevos; se reutiliza `REQ-008`.
@@ -181,6 +195,8 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | 2026-11-09 | Puertas con dos muros en la línea, suelo a ambos lados y conexión entre dos salas distintas; sustituye la puerta en cada hueco. | human:simon | aceptada |
 | 2026-11-09 | Separación global Chebyshev ≥3 y máximo una puerta por pasillo; ninguna en pasillo ancho. | human:simon | aceptada |
 | 2026-11-09 | Si no hay posición válida, boca abierta con aviso; nunca una puerta inválida. | human:simon | aceptada |
+| 2026-11-09 | Mínimo global de 3 salas; normales 4-6; caverna 3 (caverna + 2 anexas). | human:simon | aceptada |
+| 2026-11-09 | La entrada y la salida de nivel se definen en `REQ-013`; este generador reserva el tile de salida. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

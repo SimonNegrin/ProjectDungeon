@@ -14,11 +14,16 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Controlador** | Interfaz del jugador. En la fase remota será el móvil; ahora es el teclado. |
 | **Sala de juego** | Sesión de juego identificada por un código. En remoto la emite el servidor. En las hojas de requisitos, «sala» sin calificar suele referirse a una sala de la mazmorra. |
 | **Sala de la mazmorra** | Habitación generada por el mapa; unidad `Room`. Puede ser rectangular (BSP) o un polígono rectilíneo con muescas y hornacinas (generador denso). |
-| **Generador denso** | Segundo `MapGenerator` de mapas pequeños con salas poligonales pegadas, pasillos de 0-3 tiles, puertas validadas y enemigos calculados por superficie y jugadores. BSP sigue siendo el defecto hasta el playtest. |
+| **Generador denso** | Segundo `MapGenerator` de mapas pequeños con al menos 3 salas poligonales pegadas, pasillos de 0-3 tiles, puertas validadas, enemigos calculados por superficie y jugadores con emboscadas, y salida de nivel. BSP sigue siendo el defecto hasta el playtest. |
 | **Pared compartida** | Dos salas separadas por 1-2 tiles de muro que se conectan con una puerta válida en esa pared, directa o con un tile de paso. |
-| **Sala protegida** | Sala de spawn con menos accesos, al menos 6 huecos libres para los jugadores y sin enemigos ni línea de visión enemiga al empezar. |
-| **Acceso de spawn** | Tile de suelo interior junto a la puerta elegida de la sala de spawn (o junto a su boca de pasillo si no hay puerta); ancla del grupo al empezar. |
-| **Caverna** | Variante excepcional del generador denso: una sala irregular grande (≥55 % del suelo de sala) más 1-2 salas anexas. |
+| **Sala protegida** | Sala de spawn con menos accesos, al menos 6 huecos libres para los jugadores y sin enemigos ni línea de visión enemiga al empezar. En empate se prefiere una sala que no sea la de mayor área. |
+| **Acceso de spawn** | Tile de suelo interior junto a la puerta elegida de la sala de spawn (o junto a su boca de pasillo si no hay puerta); ancla del grupo al empezar y entrada del nivel en `REQ-013`. |
+| **Componente de adyacencia** | Grupo de fichas conectadas por vecindad de 8 direcciones. En `REQ-012` v3 ninguna componente de jugadores o enemigos puede superar 2 fichas; se permiten parejas. |
+| **Punto caliente** | Celda de suelo de una sala no-spawn con ≥3 vecinos ortogonales de muro o sin línea de visión a ningún acceso de la sala, candidata a emboscada. |
+| **Enemigo emboscado** | Enemigo colocado en un punto caliente mediante una tirada determinista independiente con `hiddenEnemyChance` (0,5 por defecto). Consume el presupuesto; no añade fichas. |
+| **Entrada de nivel** | Acceso de spawn por el que empieza el grupo; se expone como dato serializable. |
+| **Salida de nivel** | Salida única de una sala no-spawn a distancia de grafo ≥2 desde el spawn, preferiblemente la más lejana. Puede ser una puerta dibujada sobre el muro del borde (no transitable) o una escalera (abajo/arriba) sobre suelo; no es funcional en este corte. |
+| **Caverna** | Variante excepcional del generador denso: una sala irregular grande (≥55 % del suelo de sala) más 2 salas anexas (3 salas en total). |
 | **Puerta decorativa** | Puerta transitable dibujada solo en un hueco válido: dos muros en la línea, suelo a ambos lados y conexión entre dos salas distintas; separación Chebyshev ≥3 y máximo una por pasillo. No bloquea, no tiene llave ni estado. |
 | **Boca abierta** | Acceso entre salas que no cumple las reglas de puerta; se deja transitable sin puerta y se registra el motivo en métricas y debug. |
 | **Presupuesto de enemigos** | Total `T = ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P)` del generador denso, con `N` = tiles de suelo de sala y `P` = jugadores; se reparte por área con mínimo 1 por sala no-spawn. |

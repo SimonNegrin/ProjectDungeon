@@ -2,16 +2,16 @@
 type: Experiment
 id: EXP-004
 title: Comparador de generadores de salas irregulares
-description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla; incluye puertas validadas, spawn alrededor del acceso y enemigos por superficie y jugadores.
+description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla; incluye puertas validadas, spawn alrededor del acceso, enemigos interiores con emboscadas y salida de nivel.
 status: draft
 experiment_status: ready
-question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?
-related_requirements: [REQ-011, REQ-012]
+question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable con entrada, enemigos y salida?
+related_requirements: [REQ-011, REQ-012, REQ-013]
 seed: 279837264
 parameters:
   mapWidth: 22
   mapHeight: 18
-  roomTarget: 5
+  roomCount: 5
   roomMin: 3
   roomMax: 9
   corridorMaxLength: 3
@@ -22,6 +22,8 @@ parameters:
   numPlayers: 3
   enemySurfaceFactor: 0.02
   enemyPlayersFactor: 1.35
+  hiddenEnemyChance: 0.5
+  exitMode: random
   showDebug: false
   showDoors: true
   showSpawn: true
@@ -30,7 +32,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T11:33:41Z
+updated_at: 2026-11-09T12:21:36Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -40,7 +42,8 @@ verified:
 Responder una sola pregunta: qué algoritmo y qué parámetros producen la mazmorra
 densa de [REQ-011](../../docs/requirements/REQ-011-generador-densa-salas-irregulares.md)
 y permiten validar el reparto de
-[REQ-012](../../docs/requirements/REQ-012-spawn-sala-protegida.md).
+[REQ-012](../../docs/requirements/REQ-012-spawn-sala-protegida.md) y la salida de
+[REQ-013](../../docs/requirements/REQ-013-entrada-salida-exploracion.md).
 
 El experimento usa el tileset real de 32rogues, la regla de muro por borde y las
 paletas de suelo de `REQ-008`. No es una maqueta abstracta: las salas, los muros,
@@ -50,6 +53,12 @@ La v2 aplica las reglas aprobadas de puertas (soporte de muro, conexión entre d
 salas, separación Chebyshev ≥3 y máximo una por pasillo), coloca al grupo
 alrededor del acceso de la sala de spawn y calcula los enemigos por superficie y
 jugadores con factores configurables.
+
+La v3 añade el mínimo global de 3 salas, la preferencia por una sala de spawn que
+no sea la mayor cuando hay empate de protección, la adyacencia en parejas (máximo
+2 por componente en 8 direcciones), la colocación de enemigos en el interior con
+emboscadas probabilísticas en puntos calientes y la salida de nivel como puerta
+exterior o escalera. La salida no es funcional: solo se dibuja y se mide.
 
 # Hipótesis
 
@@ -70,6 +79,14 @@ del acceso se lee como una llegada y no como fichas pegadas a la pared; y un
 presupuesto de enemigos por superficie y jugadores hace que las salas grandes se
 sientan más habitadas sin multiplicar fichas en las pequeñas.
 
+La v3 añade cuatro hipótesis: permitir parejas de jugadores hace que el grupo se
+lea como una formación sin perder separación táctica; los enemigos interiores y
+las emboscadas en rincones hacen que las salas se lean habitadas y no como un
+perímetro de fichas; una probabilidad de emboscada evita que el jugador aprenda
+una posición fija; y una salida a distancia ≥2 convierte la exploración en un
+recorrido con al menos una sala intermedia, en vez de un mapa que se resuelve
+junto al spawn.
+
 # Opciones
 
 | Variante | Descripción | Tradeoff |
@@ -85,17 +102,21 @@ sientan más habitadas sin multiplicar fichas en las pequeñas.
    parámetros.
 3. Ajustar tamaño, número de salas, longitud máxima de pasillo, probabilidad de
    pasillo ancho, grosor de muro y probabilidad de caverna.
-4. Ajustar `numPlayers` (1-6), `enemySurfaceFactor` (0-0,10) y
-   `enemyPlayersFactor` (0-3,00) para comparar densidades; por defecto 3
-   jugadores, 0,02 y 1,35.
-5. Activar y desactivar la capa de debug: máscaras de sala, puertas válidas,
-   bocas abiertas, anchura de pasillo, acceso y huecos de spawn, y enemigos.
-6. Alternar la vista de mapa completo y la vista de juego 13×13 para comprobar
+4. Ajustar `numPlayers` (1-6), `enemySurfaceFactor` (0-0,10),
+   `enemyPlayersFactor` (0-3,00) y `hiddenEnemyChance` (0-1) para comparar
+   densidades y emboscadas; por defecto 3 jugadores, 0,02, 1,35 y 0,5.
+5. Cambiar `exitMode` entre `door`, `stairs-down`, `stairs-up` y `random` para
+   comparar la lectura de la salida y su distancia al spawn.
+6. Activar y desactivar la capa de debug: máscaras de sala, puertas válidas,
+   bocas abiertas, anchura de pasillo, acceso y huecos de spawn, puntos calientes,
+   emboscados, entrada, salida y enemigos.
+7. Alternar la vista de mapa completo y la vista de juego 13×13 para comprobar
    que la cámara y la lectura funcionan a escala real.
-7. Probar al menos 8 semillas, incluidas varias que activen caverna y pasillo
+8. Probar al menos 8 semillas, incluidas varias que activen caverna y pasillo
    ancho; no decidir con una sola.
-8. Comparar con las tres capturas de referencia del usuario.
-9. Elegir una variante, añadir notas y exportar el JSON de decisión.
+9. Comparar con las tres capturas de referencia del usuario.
+10. Elegir una variante y una representación de salida, añadir notas y exportar
+    el JSON de decisión.
 
 # Métricas
 
@@ -108,11 +129,17 @@ sientan más habitadas sin multiplicar fichas en las pequeñas.
 - Longitud de cada pasillo (0-3) y número de bucles.
 - Pasillos anchos de 2 tiles, longitud y ausencia de puertas.
 - Caverna: área de la sala principal y número de anexas.
-- Sala de spawn: accesos, tile de acceso, huecos libres, distancia al acceso y
-  separación entre personajes.
+- Sala de spawn: accesos, tile de acceso, huecos libres, distancia al acceso,
+  componentes adyacentes y si coincide con la sala mayor.
 - Enemigos: `N`, `P`, factores, término por superficie, término por jugadores,
   total `T`, presupuesto por sala, tipos y salas vacías.
-- Enemigos por sala, separación y ausencia de línea de visión al spawn.
+- Enemigos por sala, componentes adyacentes, interiores, borde y ausencia de
+  línea de visión al spawn.
+- Puntos calientes: total, elegibles, tiradas, ocupados, motivo (`rincón`,
+  `sin-LOS`, `ambos`) y porcentaje ocupado por mapa.
+- Salida: sala, tipo, posición, acceso, distancia de grafo desde el spawn,
+  camino, motivo de fallback y reserva del tile. En `door`, la puerta es muro y
+  el acceso es el suelo interior adyacente.
 - Conectividad (debe ser 100 %) y ausencia de pasos diagonales.
 - Tiempo de generación y número de intentos internos.
 
@@ -152,11 +179,21 @@ con esa separación. En mapas de dos salas o con una sala pequeña junto al
 spawn, la línea de visión inicial se relaja con un aviso honesto (R-011); en el
 resto no hay visión al spawn.
 
-Queda pendiente el playtest para elegir variante; la decisión no se cierra aquí.
+La **v3** se aprobó el 2026-11-09 y **todavía no está implementada**. Sustituye
+la separación ≥2 por componentes adyacentes ≤2 en 8 direcciones, permite parejas
+de jugadores, añade preferencia por interior y emboscadas en puntos calientes con
+`hiddenEnemyChance` (0,5 por defecto), evita la sala mayor en el desempate de
+spawn, fija el mínimo de 3 salas y añade la salida con `exitMode`. Las capturas y
+métricas de la v2 no validan estos cambios; hace falta una tarea nueva.
+
+Queda pendiente el playtest para elegir variante y representación de salida; la
+decisión no se cierra aquí.
 
 - Informe de la v1: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
 - Capturas de la v1: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
 - Tests de la v1: `pnpm run test`, `pnpm run docs:check` y `pnpm run build` en verde.
+- Informe de la v2: [attempt-2/report.md](../../artifacts/TASK-0041/attempt-2/report.md).
+- Capturas de la v2: [attempt-2/screenshots/](../../artifacts/TASK-0041/attempt-2/screenshots/).
 
 # Decisión
 
@@ -172,15 +209,21 @@ Queda pendiente el playtest para elegir variante; la decisión no se cierra aqu�
 - Capturas A/B/C normal y debug de la v1: [screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
 - Export de ejemplo de la v1: [decision-example.json](../../artifacts/TASK-0040/attempt-2/decision-example.json).
 - Salidas de test, docs y build de la v1 en `artifacts/TASK-0040/attempt-2/`.
-- Informe de la v2: [artifacts/TASK-0041/attempt-1/report.md](../../artifacts/TASK-0041/attempt-1/report.md).
-- Capturas y JSON de la v2: [artifacts/TASK-0041/attempt-1/](../../artifacts/TASK-0041/attempt-1/).
+- Informe de la v2: [artifacts/TASK-0041/attempt-2/report.md](../../artifacts/TASK-0041/attempt-2/report.md).
+- Capturas y JSON de la v2: [artifacts/TASK-0041/attempt-2/](../../artifacts/TASK-0041/attempt-2/).
+- Requisitos de la v3: [REQ-011 v3](../../docs/requirements/REQ-011-generador-densa-salas-irregulares.md),
+  [REQ-012 v3](../../docs/requirements/REQ-012-spawn-sala-protegida.md) y
+  [REQ-013](../../docs/requirements/REQ-013-entrada-salida-exploracion.md).
 
 # Siguientes pasos
 
-- Ejecutar `TASK-0041` y revisar las capturas de la v2 con el usuario.
-- Actualizar `REQ-011` a v2 con el algoritmo y los parámetros elegidos tras el
-  playtest.
+- Crear y ejecutar la tarea de `EXP-004` v3: distribución orgánica, emboscadas,
+  spawn no-mayor, mínimo de 3 salas y salida.
+- Revisar las capturas de la v3 con el usuario y comparar `exitMode`.
+- Elegir variante y representación de salida; registrar la decisión.
+- Actualizar `REQ-011`, `REQ-012` y `REQ-013` con el algoritmo, los parámetros y
+  la salida elegidos tras el playtest.
 - Crear las tareas de implementación del generador, el modelo de sala, el render
-  de puertas y el reparto de enemigos.
+  de puertas, el reparto de enemigos y el encadenado de niveles.
 - Promocionar la variante elegida a `src/game/` con tests de producción.
 - Archivar el experimento o dejarlo como referencia.

@@ -34,11 +34,12 @@ la alarma de una onda y la huida determinista del cobarde.
 El siguiente corte está en requisitos. `REQ-011` añade un segundo `MapGenerator`
 de mazmorra densa con salas poligonales, pasillos cortos y puertas validadas;
 `REQ-012` cambia la aparición para todos los generadores (grupo alrededor del
-acceso de la sala más protegida) y el presupuesto de enemigos del generador
-denso por superficie y jugadores. El algoritmo y los parámetros de forma se
-deciden en `EXP-004`: `TASK-0040` construyó la v1 y `TASK-0041` aplica las
-reglas v2 antes de crear las tareas de producción. Después, la fase 2:
-multijugador local hotseat.
+acceso de la sala más protegida), la adyacencia en parejas y el reparto orgánico
+de enemigos del generador denso por superficie y jugadores; `REQ-013` define la
+entrada, la salida y la exploración mínima por nivel. El algoritmo y los
+parámetros de forma se deciden en `EXP-004`: `TASK-0040` construyó la v1,
+`TASK-0041` aplicó la v2 y la v3 está pendiente de tarea antes de crear las de
+producción. Después, la fase 2: multijugador local hotseat.
 
 # Fases
 
@@ -53,7 +54,7 @@ multijugador local hotseat.
 | 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 8, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
-| 1.12 | Generador de mazmorra densa y aparición alrededor del acceso (REQ-011/REQ-012) | En requisitos; EXP-004 v1 construida en TASK-0040 y v2 pendiente en TASK-0041 |
+| 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | En requisitos; EXP-004 v1 en TASK-0040, v2 en TASK-0041 y v3 pendiente de tarea |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -106,18 +107,24 @@ Los valores concretos de la economía de turno son provisionales y viven en
   cadena. El perfil cobarde huye de forma determinista al recibir un golpe de al
   menos el 40 % de su vida máxima; la alerta y la huida usan los 4 MP.
 - Habrá un segundo generador de mazmorra densa, seleccionable, con mapas
-  pequeños (~22×18), 4-6 salas poligonales pared con pared, pasillos de 0-3
-  tiles, pasillos anchos ocasionales y una caverna excepcional. BSP sigue siendo
-  el defecto hasta el playtest.
+  pequeños (~22×18), mínimo de 3 salas (4-6 normales y 3 en caverna), salas
+  poligonales pared con pared, pasillos de 0-3 tiles, pasillos anchos ocasionales
+  y una caverna excepcional. BSP sigue siendo el defecto hasta el playtest.
 - Las puertas de los accesos son decorativas y acordes a la zona; no bloquean.
   Solo se dibujan con dos muros en la línea, suelo a ambos lados y conexión
   entre dos salas distintas, con separación Chebyshev ≥3 y máximo una por
   pasillo; si la geometría no lo permite, queda una boca abierta con aviso.
 - En todos los generadores, el grupo aparece alrededor del acceso de la sala más
-  protegida, con al menos 6 huecos y sin enemigos ni línea de visión inicial.
-  BSP conserva 4 enemigos; el generador denso calcula el total por superficie de
-  salas y jugadores (factores 0,02 y 1,35 configurables) y lo reparte por área
-  con mínimo 1 por sala no-spawn.
+  protegida, con al menos 6 huecos y sin enemigos ni línea de visión inicial. En
+  empate se evita la sala mayor y se permiten parejas adyacentes, nunca grupos
+  de 3 o más. BSP conserva 4 enemigos; el generador denso calcula el total por
+  superficie de salas y jugadores (factores 0,02 y 1,35 configurables), lo
+  reparte por área con mínimo 1 por sala no-spawn, prefiere interiores y puede
+  colocar emboscados en puntos calientes con probabilidad 0,5.
+- La entrada es el acceso de spawn y la salida es única: una sala no-spawn a
+  distancia de grafo ≥2, preferiblemente la más lejana. Se representa como
+  puerta exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional
+  de niveles queda fuera de este corte.
 
 # Fuera de alcance ahora
 
@@ -125,7 +132,7 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Cuentas, base de datos, matchmaking y persistencia.
 - Multijugador local y remoto.
 - Arte y audio finales.
-- Múltiples niveles, clases y objetivos.
+- Encadenado funcional de múltiples niveles, clases y objetivos.
 
 # Restricciones
 

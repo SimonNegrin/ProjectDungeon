@@ -2,6 +2,11 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Requirement — REQ-011/REQ-012 — v3 aprobadas: mínimo 3 salas, spawn no-mayor, parejas adyacentes ≤2, enemigos interiores con emboscadas al 0,5 y salida delegada a REQ-013 — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
+* 2026-11-09 — Requirement — REQ-013 — creada: entrada de spawn, salida única no-spawn a distancia ≥2, puerta exterior o escalera con `exitMode` en EXP-004; sin transición funcional — [REQ-013](requirements/REQ-013-entrada-salida-exploracion.md)
+* 2026-11-09 — Experiment — EXP-004 — v3 definida: distribución orgánica, emboscadas, spawn no-mayor, mínimo 3 salas y salida; pendiente de tarea — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
+* 2026-11-09 — Docs — scope/glossary — actualizados con mínimo 3 salas, parejas adyacentes, emboscadas y salida de nivel; índice de requisitos con REQ-013 — [scope](scope.md)
+* 2026-11-09 — Planning — TASK-0042 — ready: EXP-004 v3 con mínimo 3 salas, spawn no-mayor, parejas adyacentes, emboscadas y salida — [TASK-0042](tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md)
 * 2026-11-09 — Task — TASK-0041 — cerrada: EXP-004 v2 con puertas validadas, spawn con separación ≥2 (30/60 devuelven <6 con aviso, 0 pares adyacentes) y enemigos por superficie/jugadores; verify 605, E2E 70/70 — [informe](../artifacts/TASK-0041/attempt-2/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012 — v2 aprobadas: puertas con soporte de muro, conexión entre dos salas, Chebyshev ≥3 y una por pasillo; spawn alrededor del acceso; enemigos por superficie y jugadores con factores 0,02/1,35 configurables — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)
 * 2026-11-09 — Experiment — EXP-004 — actualizado a v2: reglas de puertas, acceso de spawn y presupuesto de enemigos; TASK-0041 pendiente — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
