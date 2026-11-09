@@ -5,12 +5,19 @@
  * PRNG se comparten con el generador BSP y con los tests.
  */
 
+import type { EnemyType } from './bestiary';
 import type { WeaponId } from './equipment';
 import type { Position, Tile } from './types';
 
 export type RoomRole = 'large' | 'small' | 'medium';
 export type CorridorKind = 'tree' | 'loop';
 export type DoorOrientation = 'horizontal' | 'vertical';
+export type DoorStyle = 'wood' | 'metal' | 'grated';
+export type ExitKind = 'door' | 'stairs-down' | 'stairs-up';
+export type ExitTile = 'exit-door' | 'staircase-down' | 'staircase-up';
+
+/** Estilos en el orden estable que usa el generador. */
+export const DOOR_STYLES: readonly DoorStyle[] = ['wood', 'metal', 'grated'];
 
 export interface Room {
   readonly id: number;
@@ -19,30 +26,93 @@ export interface Room {
   readonly width: number;
   readonly height: number;
   readonly role: RoomRole;
+  /**
+   * Máscara de suelo ordenada por `y` y luego `x`. Opcional de compatibilidad
+   * para fixtures legacy; BSP y todo mapa generado la rellenan siempre.
+   */
+  readonly cells?: readonly Position[];
+  /** Número de celdas de `cells`; opcional junto con `cells`. */
+  readonly area?: number;
 }
 
 export interface Corridor {
+  /** Índice estable dentro de `GeneratedMap.corridors`. */
+  readonly id?: number;
   readonly fromRoomId: number;
   readonly toRoomId: number;
+  /** Alias de `fromRoomId` para el contrato de producción. */
+  readonly roomA?: number;
+  /** Alias de `toRoomId` para el contrato de producción. */
+  readonly roomB?: number;
   readonly kind: CorridorKind;
   /** 1 = pasillo estrecho; 2 = pasillo ancho con carril lateral tallado. */
   readonly width: 1 | 2;
   readonly doorEligible: boolean;
   /** Línea central ortogonal; el carril del pasillo ancho no se guarda aquí. */
   readonly path: readonly Position[];
+  /** Máscara de tiles del pasillo: `path` deduplicado. */
+  readonly cells?: readonly Position[];
+  /** Longitud de la ruta en tiles. */
+  readonly length?: number;
 }
 
 export interface Door {
+  /** Identificador estable dentro de `GeneratedMap.doors`. */
+  readonly id?: number;
   readonly x: number;
   readonly y: number;
   readonly orientation: DoorOrientation;
+  /** Sala del hueco. */
   readonly roomId: number;
+  readonly style?: DoorStyle;
+  /** Alias de `roomId`: sala del hueco. */
+  readonly roomA?: number;
+  /** La otra sala que conecta la puerta; siempre distinta de `roomA`. */
+  readonly roomB?: number;
+  /** Índice del corredor que contiene el hueco. */
+  readonly corridorId?: number;
+  /** `true` si las salas están a 0 tiles de pasillo (puerta directa). */
+  readonly direct?: boolean;
 }
 
 export interface Spawns {
+  /** Sala de spawn. */
+  readonly roomId?: number;
+  /** Grupo de 6 huecos; `party[0]` es el alias profundo de `player`. */
+  readonly party?: readonly Position[];
   readonly player: Position;
   readonly enemy: Position;
   readonly distance: number;
+}
+
+/** Entrada de nivel (REQ-013); BSP no la genera en esta tarea. */
+export interface Entrance {
+  readonly roomId: number;
+  readonly position: Position;
+}
+
+/** Salida única de nivel (REQ-013); BSP no la genera en esta tarea. */
+export interface Exit {
+  readonly roomId: number;
+  readonly kind: ExitKind;
+  readonly position: Position;
+  readonly access: Position;
+  readonly tile: ExitTile;
+  readonly distance: number;
+  readonly path: readonly number[];
+  readonly fallback: boolean;
+}
+
+/** Enemigo ya repartido por el mapa (REQ-012); BSP no lo genera aquí. */
+export interface MapEnemy {
+  readonly id: string;
+  readonly type: EnemyType;
+  readonly x: number;
+  readonly y: number;
+  readonly roomId: number;
+  readonly home: Position;
+  readonly hidden: boolean;
+  readonly interior: boolean;
 }
 
 export interface MapOptions {
@@ -100,6 +170,12 @@ export interface GeneratedMap {
   /** Huecos de puerta de los accesos estrechos, ordenados y sin duplicados. */
   readonly doors: readonly Door[];
   readonly spawns: Spawns;
+  /** Entrada de nivel; opcional y generada por variantes de producción. */
+  readonly entrance?: Entrance;
+  /** Salida de nivel; opcional y generada por variantes de producción. */
+  readonly exit?: Exit | null;
+  /** Enemigos repartidos por el mapa; opcionales para mapas manuales. */
+  readonly enemies?: readonly MapEnemy[];
   /**
    * Armas recogibles colocadas por semilla. Opcional para mapas construidos a
    * mano en tests; el generador BSP siempre las incluye.
@@ -317,11 +393,23 @@ export function roomCenter(room: Pick<Room, 'x' | 'y' | 'width' | 'height'>): Po
   };
 }
 
-export function roomContains(
-  room: Pick<Room, 'x' | 'y' | 'width' | 'height'>,
-  x: number,
-  y: number,
-): boolean {
+export interface RoomShape {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+  readonly cells?: readonly Position[];
+}
+
+/**
+ * Pertenencia a sala. Si existe máscara (`cells`), la celda debe estar en ella;
+ * una celda de la caja sin suelo no pertenece a la sala. Sin máscara se usa la
+ * caja como fallback de compatibilidad para fixtures legacy.
+ */
+export function roomContains(room: RoomShape, x: number, y: number): boolean {
+  if (room.cells) {
+    return room.cells.some((cell) => cell.x === x && cell.y === y);
+  }
   return x >= room.x && y >= room.y && x < room.x + room.width && y < room.y + room.height;
 }
 
@@ -601,9 +689,13 @@ export function countWideFloor(
   const { width, height, tiles, rooms } = map;
   const roomCells = new Uint8Array(width * height);
   for (const room of rooms) {
-    for (let y = room.y; y < room.y + room.height; y += 1) {
-      for (let x = room.x; x < room.x + room.width; x += 1) {
-        roomCells[tileIndex(width, x, y)] = 1;
+    if (room.cells) {
+      for (const cell of room.cells) roomCells[tileIndex(width, cell.x, cell.y)] = 1;
+    } else {
+      for (let y = room.y; y < room.y + room.height; y += 1) {
+        for (let x = room.x; x < room.x + room.width; x += 1) {
+          roomCells[tileIndex(width, x, y)] = 1;
+        }
       }
     }
   }
@@ -791,9 +883,13 @@ export function maxDeadEndLength(
   const { width, height, tiles, rooms } = map;
   const roomCells = new Uint8Array(width * height);
   for (const room of rooms) {
-    for (let y = room.y; y < room.y + room.height; y += 1) {
-      for (let x = room.x; x < room.x + room.width; x += 1) {
-        roomCells[tileIndex(width, x, y)] = 1;
+    if (room.cells) {
+      for (const cell of room.cells) roomCells[tileIndex(width, cell.x, cell.y)] = 1;
+    } else {
+      for (let y = room.y; y < room.y + room.height; y += 1) {
+        for (let x = room.x; x < room.x + room.width; x += 1) {
+          roomCells[tileIndex(width, x, y)] = 1;
+        }
       }
     }
   }
@@ -1042,7 +1138,7 @@ function corridorIssues(
 }
 
 function doorIssues(
-  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms'>,
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms' | 'corridors'>,
   door: Door,
   endpoints: ReadonlyMap<string, readonly CorridorEndpoint[]>,
   widePath: Uint8Array,
@@ -1073,6 +1169,54 @@ function doorIssues(
   }
   if (widePath[tileIndex(width, door.x, door.y)]) {
     issues.push(`Puerta (${door.x},${door.y}) dentro de un pasillo ancho.`);
+  }
+
+  if (door.style !== undefined && !DOOR_STYLES.includes(door.style)) {
+    issues.push(`Puerta (${door.x},${door.y}) con estilo desconocido.`);
+  }
+
+  if (door.roomA !== undefined) {
+    if (door.roomA !== door.roomId) {
+      issues.push(
+        `Puerta (${door.x},${door.y}) con sala A ${door.roomA} distinta de su hueco ${door.roomId}.`,
+      );
+    }
+    if (door.roomB !== undefined) {
+      if (door.roomB === door.roomA) {
+        issues.push(
+          `Puerta (${door.x},${door.y}) conecta dos veces la sala ${door.roomA}; debe unir salas distintas.`,
+        );
+      }
+      const roomA = rooms.find((candidate) => candidate.id === door.roomA);
+      const roomB = rooms.find((candidate) => candidate.id === door.roomB);
+      if (!roomA) {
+        issues.push(`Puerta (${door.x},${door.y}) con sala A ${door.roomA} inexistente.`);
+      }
+      if (!roomB) {
+        issues.push(`Puerta (${door.x},${door.y}) con sala B ${door.roomB} inexistente.`);
+      }
+      if (door.corridorId !== undefined) {
+        const corridor = (map.corridors ?? [])[door.corridorId];
+        if (!corridor) {
+          issues.push(
+            `Puerta (${door.x},${door.y}) con corredor ${door.corridorId} inexistente.`,
+          );
+        } else {
+          const corridorRooms = new Set([corridor.fromRoomId, corridor.toRoomId]);
+          if (!corridorRooms.has(door.roomA) || !corridorRooms.has(door.roomB)) {
+            issues.push(
+              `Puerta (${door.x},${door.y}) no coincide con las salas de su corredor.`,
+            );
+          }
+          const expectedDirect = dedupePath(corridor.path).length <= 2;
+          if (door.direct !== undefined && door.direct !== expectedDirect) {
+            issues.push(
+              `Puerta (${door.x},${door.y}) con direct ${door.direct}; se esperaba ${expectedDirect}.`,
+            );
+          }
+        }
+      }
+    }
   }
 
   const matching = (endpoints.get(key) ?? []).find(
@@ -1140,6 +1284,131 @@ function doorIssues(
   return issues;
 }
 
+/** Valida la máscara de sala cuando existe; los fixtures legacy no la traen. */
+function roomMaskIssues(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles'>,
+  room: Room,
+): readonly string[] {
+  if (!room.cells) return [];
+  const issues: string[] = [];
+  const { width, tiles } = map;
+
+  if (room.area === undefined || room.area !== room.cells.length) {
+    issues.push(
+      `Sala ${room.id} declara área ${String(room.area)} pero tiene ${room.cells.length} celdas.`,
+    );
+  }
+
+  const seen = new Set<string>();
+  let ordered = true;
+  let previous: Position | null = null;
+  for (const cell of room.cells) {
+    const key = `${cell.x},${cell.y}`;
+    if (seen.has(key)) issues.push(`Sala ${room.id} repite la celda ${key}.`);
+    seen.add(key);
+
+    if (
+      cell.x < room.x ||
+      cell.y < room.y ||
+      cell.x >= room.x + room.width ||
+      cell.y >= room.y + room.height
+    ) {
+      issues.push(`Sala ${room.id} tiene la celda ${key} fuera de su caja.`);
+    }
+    if (tiles[tileIndex(width, cell.x, cell.y)] !== 'floor') {
+      issues.push(`Sala ${room.id} tiene la celda ${key} sobre muro.`);
+    }
+    if (previous && (cell.y < previous.y || (cell.y === previous.y && cell.x < previous.x))) {
+      ordered = false;
+    }
+    previous = cell;
+  }
+  if (!ordered) issues.push(`Sala ${room.id} tiene la máscara desordenada.`);
+
+  return issues;
+}
+
+/** Valida los campos de producción del pasillo sin tocar las reglas BSP. */
+function corridorModelIssues(corridor: Corridor, index: number): readonly string[] {
+  const issues: string[] = [];
+  if (corridor.id !== undefined && corridor.id !== index) {
+    issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} con id ${corridor.id} != ${index}.`);
+  }
+  if (corridor.roomA !== undefined && corridor.roomA !== corridor.fromRoomId) {
+    issues.push(
+      `Corredor ${corridor.fromRoomId}->${corridor.toRoomId} con roomA ${corridor.roomA} distinto de fromRoomId.`,
+    );
+  }
+  if (corridor.roomB !== undefined && corridor.roomB !== corridor.toRoomId) {
+    issues.push(
+      `Corredor ${corridor.fromRoomId}->${corridor.toRoomId} con roomB ${corridor.roomB} distinto de toRoomId.`,
+    );
+  }
+  if (corridor.length !== undefined && corridor.length !== pathLength(corridor.path)) {
+    issues.push(
+      `Corredor ${corridor.fromRoomId}->${corridor.toRoomId} con length ${corridor.length} != ${pathLength(corridor.path)}.`,
+    );
+  }
+  if (corridor.cells) {
+    const expected = dedupePath(corridor.path);
+    const matches =
+      expected.length === corridor.cells.length &&
+      expected.every(
+        (point, position) =>
+          point.x === corridor.cells?.[position].x && point.y === corridor.cells?.[position].y,
+      );
+    if (!matches) {
+      issues.push(`Corredor ${corridor.fromRoomId}->${corridor.toRoomId} con cells != path.`);
+    }
+  }
+  return issues;
+}
+
+/** Valida sala, grupo de 6 huecos y alias `player` de las apariciones. */
+function spawnModelIssues(
+  map: Pick<GeneratedMap, 'width' | 'height' | 'tiles' | 'rooms'>,
+  spawns: Spawns,
+): readonly string[] {
+  const issues: string[] = [];
+  const playerRoom = roomAt(map.rooms, spawns.player.x, spawns.player.y);
+
+  if (spawns.roomId !== undefined && playerRoom?.id !== spawns.roomId) {
+    issues.push(
+      `Sala de spawn declarada ${spawns.roomId} != sala del jugador ${String(playerRoom?.id)}.`,
+    );
+  }
+
+  if (!spawns.party) return issues;
+  if (spawns.party.length !== 6) {
+    issues.push(`El grupo de spawn tiene ${spawns.party.length} huecos; se esperaban 6.`);
+  }
+  const first = spawns.party[0];
+  if (!first || first.x !== spawns.player.x || first.y !== spawns.player.y) {
+    issues.push('El grupo de spawn no tiene a `player` como alias de `party[0]`.');
+  }
+
+  const seen = new Set<string>();
+  for (const cell of spawns.party) {
+    const key = `${cell.x},${cell.y}`;
+    if (seen.has(key)) issues.push(`El grupo de spawn repite la celda ${key}.`);
+    seen.add(key);
+    if (map.tiles[tileIndex(map.width, cell.x, cell.y)] !== 'floor') {
+      issues.push(`El grupo de spawn tiene la celda ${key} sobre muro.`);
+      continue;
+    }
+    const room = roomAt(map.rooms, cell.x, cell.y);
+    if (!room) {
+      issues.push(`El grupo de spawn tiene la celda ${key} fuera de sala.`);
+    } else if (spawns.roomId !== undefined && room.id !== spawns.roomId) {
+      issues.push(
+        `El grupo de spawn tiene la celda ${key} en la sala ${room.id}, no en ${spawns.roomId}.`,
+      );
+    }
+  }
+
+  return issues;
+}
+
 /**
  * Validación estructural del mapa de TASK-0009. No exige un número concreto
  * de salas ni roles: eso depende de las opciones y se valida en los tests.
@@ -1188,12 +1457,15 @@ export function validateGeneratedMap(
     if (classifyRoom(room) !== room.role) {
       issues.push(`Sala ${room.id} tiene rol ${room.role} pero mide ${room.width}×${room.height}.`);
     }
+    issues.push(...roomMaskIssues(map, room));
   }
 
   const narrowEndpoints = new Map<string, CorridorEndpoint[]>();
   const widePath = new Uint8Array(width * height);
-  for (const corridor of corridors) {
+  for (let corridorIndex = 0; corridorIndex < corridors.length; corridorIndex += 1) {
+    const corridor = corridors[corridorIndex];
     issues.push(...corridorIssues(map, corridor));
+    issues.push(...corridorModelIssues(corridor, corridorIndex));
     if (corridor.width === 1) {
       for (const endpoint of corridorEndpointInfos(corridor)) {
         const key = `${endpoint.x},${endpoint.y}`;
@@ -1253,6 +1525,8 @@ export function validateGeneratedMap(
   if (playerRoom && enemyRoom && playerRoom.id === enemyRoom.id) {
     issues.push('Jugador y enemigo comparten sala.');
   }
+
+  issues.push(...spawnModelIssues(map, spawns));
 
   const distances = floorDistances(map, spawns.player);
   const enemyDistance = distances[tileIndex(width, spawns.enemy.x, spawns.enemy.y)];
