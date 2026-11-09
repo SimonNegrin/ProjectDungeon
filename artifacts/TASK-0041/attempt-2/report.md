@@ -65,7 +65,7 @@ aviso; 4 en radio 2, 2 en radio 3 y 24 en sala completa. Fallback en 56/60.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `edit`/`write` rechazan `experiment.md`; solo funciona por shell. | Actualizado con `python3`. | Escribir por shell. | Todo `task-runner` con experimento usa el mismo brief y herramienta. | Permitirlo o documentar el workaround. | Bajo. | `pending` |
+| `edit`/`write` rechazan `experiment.md`; solo funciona por shell. | Actualizado con `python3`. | Escribir por shell. | Todo `task-runner` con experimento usa el mismo brief y herramienta. | Permitirlo o documentar el workaround. | Bajo. | `deferred` — dueño `requirements-writer` |
 
 # Métricas de handoff
 

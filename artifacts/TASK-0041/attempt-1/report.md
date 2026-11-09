@@ -73,7 +73,7 @@ A/B/C sigue abierta.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief pide actualizar `experiment.md`, pero `edit`/`write` lo rechazan con `permission.rejected`; solo funcionó por shell. | `experiment.md` actualizado con `python3`; `edit` devolvió `permission.rejected`. | Escribir por shell. | Cualquier `task-runner` con un experimento recibe el mismo brief y la misma herramienta. | Permitir `experiment.md` al `task-runner` o documentar el workaround. | Bajo. | `pending` |
+| El brief pide actualizar `experiment.md`, pero `edit`/`write` lo rechazan con `permission.rejected`; solo funcionó por shell. | `experiment.md` actualizado con `python3`; `edit` devolvió `permission.rejected`. | Escribir por shell. | Cualquier `task-runner` con un experimento recibe el mismo brief y la misma herramienta. | Permitir `experiment.md` al `task-runner` o documentar el workaround. | Bajo. | `deferred` — dueño `requirements-writer` |
 
 # Métricas de handoff
 
