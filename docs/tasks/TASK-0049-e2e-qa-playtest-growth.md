@@ -3,8 +3,8 @@ type: Task
 id: TASK-0049
 title: "E2E, QA visual y playtest de growth por defecto"
 description: Cubrir con Playwright la partida growth y su debug, verificar la guarda de bundle y preparar el playtest con la semilla 2738263054 y la configuración registrada.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: qa
 requirement: REQ-011
 requirement_ids: [R-001, R-002, R-008, R-010, R-011, R-012, R-013, T-007, T-009, T-015, T-016]
