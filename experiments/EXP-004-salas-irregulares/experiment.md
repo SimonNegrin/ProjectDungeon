@@ -4,7 +4,7 @@ id: EXP-004
 title: Comparador de generadores de salas irregulares
 description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla; incluye puertas validadas, spawn alrededor del acceso y enemigos por superficie y jugadores.
 status: draft
-experiment_status: building
+experiment_status: ready
 question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?
 related_requirements: [REQ-011, REQ-012]
 seed: 279837264
@@ -30,7 +30,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T10:50:25Z
+updated_at: 2026-11-09T11:15:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -123,10 +123,32 @@ con la misma semilla, tileset real, puertas, spawn, enemigos, métricas y vista
 13×13. El intento 2 corrige las puertas de la vista 13×13, hace funcional el
 grosor de muro y mantiene el contrato.
 
-La v2 está pendiente de `TASK-0041`: puertas validadas (soporte, dos salas,
-Chebyshev ≥3, una por pasillo), spawn alrededor del acceso y presupuesto de
-enemigos por superficie y jugadores con factores configurables. Queda pendiente
-el playtest para elegir variante; la decisión no se cierra aquí.
+La v2 se implementó en `TASK-0041` (intento 1). Las tres variantes validan cada
+puerta sobre la geometría final: soporte de dos muros en la línea, suelo a ambos
+lados, conexión entre salas distintas, separación global Chebyshev ≥3 y como
+máximo una puerta por pasillo. Los pasillos anchos no llevan puertas. Los accesos
+descartados quedan como bocas abiertas con motivo (`sin-soporte`, `sin-suelo`,
+`misma-sala`, `separacion`, `una-por-pasillo`, `pasillo-ancho`) y se dibujan en
+debug.
+
+El spawn elige el suelo interior junto a la puerta más cercana al centro (o la
+boca si no hay puerta), con `party[0]` en el acceso. El resto prioriza tiles con
+al menos dos vecinos libres, separación ≥2 y radio 2; si no caben 6, se amplía a
+radio 3 y después a la sala completa con un aviso honesto. En algunas semillas
+BSP y de crecimiento el acceso queda en un brazo estrecho y hay que usar el
+fallback de sala completa; no se oculta el aviso.
+
+El total de enemigos usa `T = ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P)`
+con `N` = suelo de salas (sin pasillos) y `P` = jugadores. Con los valores por
+defecto y las semillas muestreadas, `N` ronda 85-162 y `T` queda en 7-9. El
+reparto es proporcional al área con mínimo 1 por sala no-spawn, 0 en spawn y
+tipos 60/20/20; los cobardes van a las salas más lejanas y los brutos a las de
+mayor área. Los enemigos se separan ≥2 y el presupuesto se recorta a lo que cabe
+con esa separación. En mapas de dos salas o con una sala pequeña junto al
+spawn, la línea de visión inicial se relaja con un aviso honesto (R-011); en el
+resto no hay visión al spawn.
+
+Queda pendiente el playtest para elegir variante; la decisión no se cierra aquí.
 
 - Informe de la v1: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
 - Capturas de la v1: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
@@ -146,7 +168,8 @@ el playtest para elegir variante; la decisión no se cierra aquí.
 - Capturas A/B/C normal y debug de la v1: [screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
 - Export de ejemplo de la v1: [decision-example.json](../../artifacts/TASK-0040/attempt-2/decision-example.json).
 - Salidas de test, docs y build de la v1 en `artifacts/TASK-0040/attempt-2/`.
-- v2: pendiente en `artifacts/TASK-0041/`.
+- Informe de la v2: [artifacts/TASK-0041/attempt-1/report.md](../../artifacts/TASK-0041/attempt-1/report.md).
+- Capturas y JSON de la v2: [artifacts/TASK-0041/attempt-1/](../../artifacts/TASK-0041/attempt-1/).
 
 # Siguientes pasos
 
