@@ -41,11 +41,17 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Determinista** | Mismo estado inicial, comandos y semilla producen el mismo resultado. |
 | **Semilla** | Valor que inicializa el generador pseudoaleatorio. |
 | **RNG sembrado** | Generador pseudoaleatorio determinista inicializado por la semilla; su estado es serializable y reproducible. |
-| **Acierto** | Modificador del personaje que se suma al acierto del arma para resolver el impacto. |
-| **Defensa** | Modificador del personaje que se suma al escudo para resistir el impacto. |
+| **Atributos inherentes** | Los ocho valores propios de un personaje, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV y MP. |
+| **Habilidad** | Atributo inherente que se suma al acierto del arma para resolver el impacto; sustituye al antiguo modificador de acierto. |
+| **Fuerza** | Atributo inherente que se suma al daño del arma; sustituye al antiguo modificador de daño. |
+| **Defensa** | Atributo inherente que se suma al escudo para resistir el impacto. |
+| **Resistencia** | Atributo inherente de absorción: se suma a la armadura en una sola capa para reducir el daño. |
+| **Acierto del arma** | Bonus del arma que se suma a la habilidad al resolver el impacto. |
+| **Daño del arma** | Bonus del arma que se suma a la fuerza al resolver el daño. |
+| **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
+| **Magia** | Atributo inherente compuesto por familias con nivel 1–4; sin efecto en este corte. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
-| **Armadura** | Equipo que resta al daño de un impacto; no evita el impacto. |
-| **Modificador** | Valor por personaje de acierto, daño o defensa; es un dato serializable. |
+| **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
 | **Equipo** | Arma, escudo y armadura de una unidad, guardados por IDs en el estado. |
 | **Damero** | Patrón de suelo de dos colores planos generados por código que alternan por tile; la paridad es global `(x + y) % 2` y no se reinicia por sala. |
 | **Paleta de sala** | Par de colores del damero: una base común para la mazmorra y un segundo tono curado por sala. Se asigna por contraste con el ambiente, no por imitación. |

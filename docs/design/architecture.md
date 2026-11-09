@@ -52,12 +52,14 @@ y eventos.
 
 El combate vive en `src/game/` y es puro y determinista:
 
-- `combat.ts` resuelve impacto y daño con las fórmulas de `REQ-010`; un fallo
-  consume dos tiradas y un impacto cuatro, en el orden ataque, escudo, daño y
-  armadura.
+- `combat.ts` resuelve impacto y daño con el esquema de `REQ-014`: habilidad y
+  fuerza son los modificadores del atacante; defensa se suma al escudo y la
+  resistencia a la armadura en una sola capa de absorción. Un fallo consume dos
+  tiradas y un impacto cuatro, en el orden ataque, escudo, golpe y absorción.
 - `equipment.ts` guarda el catálogo de armas, armaduras y escudos con IDs
-  estables; `bestiary.ts` guarda por tipo arma, escudo, armadura, PV,
-  modificadores, visión y perfil.
+  estables; `bestiary.ts` guarda por tipo los ocho atributos (habilidad, fuerza,
+  defensa, resistencia, puntería, magia, PV y MP), arma, escudo, armadura, visión
+  y perfil.
 - `rng.ts` implementa un d6 serializable. El estado guarda la semilla y el
   contador; la misma semilla y los mismos comandos dan la misma secuencia.
 - Los eventos `AttackPerformed` incluyen impacto, daño, PV resultante y tiradas;
@@ -65,8 +67,11 @@ El combate vive en `src/game/` y es puro y determinista:
 - El jugador y los enemigos comparten el mismo resolvedor. La recogida (`G`,
   1 MP) y el cambio de arma (`1`-`3`, gratis) son comandos del motor.
 
-Ver [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
-[ADR-012](../decisions/ADR-012-combate-equipo-rng.md).
+Ver [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md) y
+[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md). El combate con
+equipo y RNG de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
+y [ADR-012](../decisions/ADR-012-combate-equipo-rng.md) queda como historia; el
+balance v1 se conserva con resistencia 0.
 
 # Percepción, alarma y huida
 
