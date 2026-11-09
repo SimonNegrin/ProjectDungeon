@@ -4,7 +4,7 @@ id: TASK-0053
 title: "Motor: esquema de ocho atributos y resistencia en la absorción"
 description: "Renombrar acierto/daño a habilidad/fuerza, añadir resistencia/puntería/magia y usar la resistencia en la capa de daño; resistencia 0 conserva el balance v1."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-014
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, T-001, T-002, T-003, T-004]
