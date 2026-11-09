@@ -8,6 +8,12 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T16:10:00Z }
 artifacts: artifacts/TASK-0044/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-09T16:12:00Z
+    note: >-
+      Verificación independiente: `pnpm run verify` 657/657, suites dirigidas
+      22/22 y barrido extra de 200 semillas sin incidencias. Sin cambios fuera
+      de src/game/chambers/core/, tests nuevos y artefactos.
 ---
 
 # Estado
@@ -56,7 +62,7 @@ No aplica: no se toca UI ni render; la evidencia es geométrica y de tests.
 
 | Síntoma | Evidencia | Workaround | Reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Validador de producción vs. enlaces directos de 0 tiles | `map.ts` rechaza paths <3; R-005/T-014 permiten puerta directa | Core no valida; TASK-0045 reconcilia | Afecta a toda integración de growth | Validador de growth o regla que distinga enlace directo | Medio; toca modelo y tests BSP | `pending` |
+| Validador de producción vs. enlaces directos de 0 tiles | `map.ts` rechaza paths <3; R-005/T-014 permiten puerta directa | Core no valida; TASK-0045 reconcilia | Afecta a toda integración de growth | Validador de growth o regla que distinga enlace directo | Medio; toca modelo y tests BSP | `deferred` a TASK-0045/0046; el core no debilita BSP |
 
 # Métricas de handoff
 

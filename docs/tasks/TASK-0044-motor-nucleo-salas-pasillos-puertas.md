@@ -4,22 +4,37 @@ id: TASK-0044
 title: "Motor: núcleo compartido de salas, pasillos y puertas"
 description: Promocionar a src/game/chambers/core/ la resolución de opciones, las formas irregulares, la caverna, los pasillos y la validación de puertas de EXP-004, con tests puros.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-002, R-003, R-004, R-005, R-006, R-007, R-009, R-010, T-005, T-006, T-014]
 depends_on: [TASK-0043]
 unlocks: [TASK-0045]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T16:12:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0044/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T16:12:00Z
+    note: >-
+      Intento 1 verificado en task/TASK-0044 (commits c297699 y dfc2ffa; fusión
+      a8ff8c5). Diff completo revisado: solo src/game/chambers/core/, dos tests
+      nuevos y artefactos; sin tocar src/host/, experiments/, index.html,
+      dependencias, BSP ni src/game/index.ts. Lead re-ejecutó `pnpm run verify`
+      (657/657 tests, docs/config y build OK), las suites dirigidas (22/22) y un
+      barrido independiente de 200 semillas (100 % conectividad, 1 componente,
+      4-6 salas normales/3 caverna, 39 cavernas ~19,5 %, 50 pasillos anchos
+      ~25 %, todos los mapas con ≥1 puerta válida y separación ≥3). Core sin
+      Math.random, relojes, DOM, estado global ni imports de
+      experiments/variants/bsp/templates/host. La incompatibilidad documentada
+      con validateGeneratedMap (paths de enlace directo y 1-3 huecos) queda
+      diferida a TASK-0045/0046 sin debilitar BSP.
 ---
 
 # Objetivo
