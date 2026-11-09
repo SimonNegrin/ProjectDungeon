@@ -1,0 +1,171 @@
+/* Ajustes de EXP-004 para que A/B/C y la vista 13×13 quepan a 1280×720. */
+
+.experiment-shell {
+  width: 100%;
+  max-width: none;
+  padding: 10px 14px;
+}
+
+.experiment-header {
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.experiment-header h1 {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+}
+
+.experiment-header .question {
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.experiment-header .description {
+  display: none;
+}
+
+.toolbar {
+  gap: 8px;
+  padding: 7px 9px;
+  margin-bottom: 9px;
+}
+
+.seed-label {
+  gap: 2px;
+  font-size: 0.72rem;
+}
+
+.seed-label input {
+  width: 130px;
+  padding: 5px 7px;
+}
+
+.button {
+  padding: 6px 10px;
+  font-size: 0.8rem;
+}
+
+.experiment-layout {
+  grid-template-columns: 178px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.controls-panel {
+  top: 8px;
+  gap: 5px;
+  padding: 9px;
+  max-height: calc(100vh - 124px);
+  overflow: auto;
+}
+
+.controls-panel h2 {
+  font-size: 0.86rem;
+}
+
+.controls-panel .panel-hint {
+  display: none;
+}
+
+.controls {
+  gap: 7px;
+  margin-top: 0;
+}
+
+.control {
+  gap: 2px;
+}
+
+.control-heading {
+  font-size: 0.72rem;
+}
+
+.control select {
+  padding: 5px 6px;
+  font-size: 0.76rem;
+}
+
+.control input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+
+.stages {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stage {
+  gap: 5px;
+  padding: 7px;
+}
+
+.stage-header h2 {
+  font-size: 0.84rem;
+}
+
+.stage-header p {
+  display: none;
+}
+
+.stage canvas {
+  border-radius: 7px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.metric {
+  min-width: 0;
+  padding: 4px 6px;
+}
+
+.metric-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+}
+
+.metric-value {
+  font-size: 0.78rem;
+}
+
+.metric-hint {
+  font-size: 0.62rem;
+}
+
+.decision-panel {
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.decision-panel h2 {
+  font-size: 0.9rem;
+}
+
+.decision-panel .panel-hint {
+  font-size: 0.74rem;
+}
+
+@media (max-width: 1120px) {
+  .stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .experiment-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stages {
+    grid-template-columns: 1fr;
+  }
+
+  .controls-panel {
+    position: static;
+    max-height: none;
+  }
+}

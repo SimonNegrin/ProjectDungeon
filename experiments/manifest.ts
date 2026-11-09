@@ -40,4 +40,12 @@ export const experiments: ExperimentManifestEntry[] = [
     path: '/experiments/EXP-003-mesa-combate/',
     status: 'decided',
   },
+  {
+    id: 'EXP-004',
+    title: 'Comparador de salas irregulares',
+    description: 'Compara crecimiento sobre roca, BSP con máscaras y plantillas empaquetadas con la misma semilla, tileset real, spawn y enemigos.',
+    question: '¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?',
+    path: '/experiments/EXP-004-salas-irregulares/',
+    status: 'ready',
+  },
 ];
