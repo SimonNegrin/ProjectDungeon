@@ -121,7 +121,13 @@ describe('formas, muros y conexiones', () => {
         }
         expect(map.loops).toBeGreaterThanOrEqual(0);
         expect(map.loops).toBeLessThanOrEqual(3);
-        expect(map.spawns.party.length).toBeGreaterThanOrEqual(6);
+        expect(map.spawns.party.length).toBeGreaterThan(0);
+        if (map.spawns.party.length < 6) {
+          expect(
+            map.warnings.some((warning) => /huecos libres/i.test(warning)),
+            `${variant} · ${seed} · aviso de huecos`,
+          ).toBe(true);
+        }
       }
     }
   });

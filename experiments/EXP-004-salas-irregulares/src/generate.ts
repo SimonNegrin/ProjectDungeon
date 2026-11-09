@@ -26,7 +26,7 @@ import {
 } from './grid';
 import { createRng, hashSeed, type Rng } from './rng';
 import { placeDoors, validateDoorCandidate } from './doors';
-import { hasLineOfSight, placeEnemies, placeSpawns } from './spawn';
+import { SPAWN_SEPARATION, hasLineOfSight, placeEnemies, placeSpawns } from './spawn';
 import type {
   Corridor,
   CorridorKind,
@@ -2470,7 +2470,7 @@ function finalizeMap(
       base: colors.base,
       second: colors.second,
     });
-    const accesses = accessesFor(index, doors, openMouths);
+    const accesses = accessesFor(index, doors, corridors);
     const doorIds = doors.filter((door) => door.roomA === index || door.roomB === index).map((door) => door.id);
     const shape = shapeStats(room.cells, room.box);
     const sizeRole: SizeRole = index === cavernIndex ? 'cavern' : sizeRoleFor(room.box, room.cells.length);
@@ -2571,18 +2571,30 @@ function finalizeMap(
   };
 }
 
+/**
+ * Accesos de la sala según REQ-012 R-001: puertas más bocas de pasillo ancho.
+ * Contar las `openMouths` de todos los pasillos duplicaba la apertura de un
+ * mismo pasillo (puerta en un extremo y boca en el otro) y cambiaba la sala más
+ * protegida; los pasillos normales sin puerta no se cuentan, como antes.
+ */
 function accessesFor(
   roomId: number,
   doors: readonly Door[],
-  openMouths: readonly OpenMouth[],
+  corridors: readonly Corridor[],
 ): number {
-  const doorAccesses = doors.filter(
+  let accesses = doors.filter(
     (door) => door.roomA === roomId || door.roomB === roomId,
   ).length;
-  const mouthAccesses = openMouths.filter(
-    (mouth) => mouth.roomA === roomId || mouth.roomB === roomId,
-  ).length;
-  return doorAccesses + mouthAccesses;
+  for (const corridor of corridors) {
+    if (
+      corridor.kind === 'wide' &&
+      (corridor.roomA === roomId || corridor.roomB === roomId)
+    ) {
+      // Una boca ancha ocupa dos tiles: pesa como dos accesos al elegir refugio.
+      accesses += 2;
+    }
+  }
+  return accesses;
 }
 
 function sizeRoleFor(box: Box, area: number): SizeRole {
@@ -2845,11 +2857,29 @@ export function validateMap(map: GeneratedMap): string[] {
 
   const spawnRoom = map.rooms.find((room) => room.id === map.spawns.roomId);
   if (!spawnRoom) issues.push('la sala de spawn no existe');
-  if (map.spawns.party.length < map.options.spawnMinTiles) {
-    issues.push(`menos de ${map.options.spawnMinTiles} huecos de spawn`);
+  if (map.spawns.party.length === 0) {
+    issues.push('no hay huecos de spawn');
+  } else if (
+    map.spawns.party.length < map.options.spawnMinTiles &&
+    !map.warnings.some((warning) => /huecos libres/i.test(warning))
+  ) {
+    issues.push(`menos de ${map.options.spawnMinTiles} huecos de spawn sin aviso`);
   }
   if (new Set(map.spawns.party.map((point) => pointKey(point.x, point.y))).size !== map.spawns.party.length) {
     issues.push('hay huecos de spawn repetidos');
+  }
+  for (let first = 0; first < map.spawns.party.length; first += 1) {
+    for (let second = first + 1; second < map.spawns.party.length; second += 1) {
+      const distance = Math.max(
+        Math.abs(map.spawns.party[first].x - map.spawns.party[second].x),
+        Math.abs(map.spawns.party[first].y - map.spawns.party[second].y),
+      );
+      if (distance < SPAWN_SEPARATION) {
+        issues.push(
+          `huecos de spawn ${first} y ${second} a distancia ${distance}`,
+        );
+      }
+    }
   }
   for (const hole of map.spawns.party) {
     if (map.tiles[hole.y * map.width + hole.x] !== 1) issues.push(`hueco de spawn en muro (${hole.x},${hole.y})`);

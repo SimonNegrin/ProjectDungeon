@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { generateMap, validateMap } from './generate';
 import {
   ENEMY_SEPARATION,
+  SPAWN_FALLBACK_RADIUS,
   SPAWN_MIN_TILES,
   SPAWN_RADIUS,
   SPAWN_SEPARATION,
@@ -12,7 +13,7 @@ import {
   hasLineOfSight,
   placeSpawns,
 } from './spawn';
-import type { GeneratedMap, Point, Room, VariantId } from './types';
+import type { GeneratedMap, Point, Room, Tile, VariantId } from './types';
 
 const VARIANTS: VariantId[] = ['growth', 'bsp', 'templates'];
 const SEEDS = Array.from({ length: 20 }, (_, index) => index + 1);
@@ -94,6 +95,73 @@ function hasSpawnRelaxWarning(map: GeneratedMap): boolean {
   );
 }
 
+function hasSpawnShortfallWarning(source: {
+  readonly warnings: readonly string[];
+}): boolean {
+  return source.warnings.some((warning) => /huecos libres/i.test(warning));
+}
+
+function minPairDistance(points: readonly Point[]): number {
+  if (points.length < 2) return Number.POSITIVE_INFINITY;
+  let minimum = Number.POSITIVE_INFINITY;
+  for (let first = 0; first < points.length; first += 1) {
+    for (let second = first + 1; second < points.length; second += 1) {
+      minimum = Math.min(minimum, chebyshev(points[first], points[second]));
+    }
+  }
+  return minimum;
+}
+
+function syntheticRoom(id: number, cells: readonly Point[]): Room {
+  const xs = cells.map((cell) => cell.x);
+  const ys = cells.map((cell) => cell.y);
+  const x = Math.min(...xs);
+  const y = Math.min(...ys);
+  const width = Math.max(...xs) - x + 1;
+  const height = Math.max(...ys) - y + 1;
+  return {
+    id,
+    x,
+    y,
+    width,
+    height,
+    cells: [...cells].sort((a, b) => a.y - b.y || a.x - b.x),
+    role: 'medium',
+    sizeRole: 'medium',
+    area: cells.length,
+    boxArea: width * height,
+    notches: 0,
+    alcoves: 0,
+    accesses: 1,
+    doorIds: [],
+    ambient: 'mixed',
+    palette: 'neutral',
+  };
+}
+
+function syntheticTiles(
+  cells: readonly Point[],
+  width: number,
+  height: number,
+): Tile[] {
+  const tiles = new Array<Tile>(width * height).fill(0);
+  for (const cell of cells) tiles[cell.y * width + cell.x] = 1;
+  return tiles;
+}
+
+function placeSyntheticParty(cells: readonly Point[], width: number, height: number) {
+  return placeSpawns({
+    rooms: [syntheticRoom(0, cells)],
+    doors: [],
+    openMouths: [],
+    tiles: syntheticTiles(cells, width, height),
+    width,
+    height,
+    minTiles: SPAWN_MIN_TILES,
+    seed: 7,
+  });
+}
+
 describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () => {
   it('la sala de spawn es la más protegida entre las que tienen ≥6 huecos', () => {
     for (const variant of VARIANTS) {
@@ -149,7 +217,10 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
         expect(spawnRoom).toBeDefined();
         if (!spawnRoom) continue;
 
-        expect(map.spawns.party.length).toBeGreaterThanOrEqual(SPAWN_MIN_TILES);
+        expect(map.spawns.party.length).toBeGreaterThan(0);
+        if (map.spawns.party.length < SPAWN_MIN_TILES) {
+          expect(hasSpawnShortfallWarning(map), `${variant} · ${seed} · aviso`).toBe(true);
+        }
         expect(
           new Set(map.spawns.party.map((hole) => `${hole.x},${hole.y}`)).size,
         ).toBe(map.spawns.party.length);
@@ -167,10 +238,14 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('sin fallback, el grupo queda a radio 2 y separado 2; con fallback hay aviso', () => {
+  it('sin fallback, el grupo queda a radio 2; con o sin fallback, siempre separado 2', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
+        expect(
+          minPairDistance(map.spawns.party),
+          `${variant} · ${seed} · separación`,
+        ).toBeGreaterThanOrEqual(SPAWN_SEPARATION);
         if (hasSpawnRelaxWarning(map)) continue;
         for (const hole of map.spawns.party.slice(1)) {
           expect(
@@ -178,15 +253,132 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
             `${variant} · ${seed} · radio`,
           ).toBeLessThanOrEqual(SPAWN_RADIUS);
         }
-        for (let first = 0; first < map.spawns.party.length; first += 1) {
-          for (let second = first + 1; second < map.spawns.party.length; second += 1) {
-            expect(
-              chebyshev(map.spawns.party[first], map.spawns.party[second]),
-              `${variant} · ${seed} · separación`,
-            ).toBeGreaterThanOrEqual(SPAWN_SEPARATION);
-          }
-        }
       }
+    }
+  });
+
+  it('el barrido A/B/C × 20 semillas mantiene separación ≥2, acceso y avisos de fallback', () => {
+    for (const variant of VARIANTS) {
+      for (const seed of SEEDS) {
+        const map = generateMap(variant, seed);
+        const spawnRoom = map.rooms.find((room) => room.id === map.spawns.roomId);
+        expect(spawnRoom, `${variant} · ${seed}`).toBeDefined();
+        if (!spawnRoom) continue;
+
+        expect(map.spawns.player, `${variant} · ${seed} · acceso`).toEqual(
+          map.spawns.party[0],
+        );
+        expect(map.spawns.player, `${variant} · ${seed} · acceso esperado`).toEqual(
+          expectedAccess(map, spawnRoom),
+        );
+        expect(
+          minPairDistance(map.spawns.party),
+          `${variant} · ${seed} · separación`,
+        ).toBeGreaterThanOrEqual(SPAWN_SEPARATION);
+
+        const farthest = Math.max(
+          0,
+          ...map.spawns.party.map((hole) => chebyshev(hole, map.spawns.player)),
+        );
+        if (farthest > SPAWN_RADIUS) {
+          expect(
+            map.warnings.some((warning) =>
+              /radio 3|sala completa|huecos libres/i.test(warning),
+            ),
+            `${variant} · ${seed} · aviso de fallback`,
+          ).toBe(true);
+        }
+        if (map.spawns.party.length < SPAWN_MIN_TILES) {
+          expect(
+            hasSpawnShortfallWarning(map),
+            `${variant} · ${seed} · aviso de huecos`,
+          ).toBe(true);
+        }
+        expect(validateMap(map), `${variant} · ${seed}`).toEqual([]);
+      }
+    }
+  });
+
+  it('6 huecos separados en radio 2 no usan fallback', () => {
+    const cells: Point[] = [];
+    for (let y = 0; y < 5; y += 1) {
+      for (let x = 0; x < 5; x += 1) cells.push({ x, y });
+    }
+    const result = placeSyntheticParty(cells, 5, 5);
+    expect(result.warnings).toEqual([]);
+    expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
+    expect(result.spawns.player).toEqual({ x: 2, y: 2 });
+    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
+      SPAWN_SEPARATION,
+    );
+    for (const hole of result.spawns.party.slice(1)) {
+      expect(chebyshev(hole, result.spawns.player)).toBeLessThanOrEqual(
+        SPAWN_RADIUS,
+      );
+    }
+  });
+
+  it('si solo caben 6 separados en radio 3, avisa y no relaja la separación', () => {
+    const access = { x: 10, y: 10 };
+    const diagonals = [
+      { x: 8, y: 8 },
+      { x: 8, y: 12 },
+      { x: 12, y: 8 },
+      { x: 12, y: 12 },
+    ];
+    const neighbors: Point[] = [];
+    for (let dy = -1; dy <= 1; dy += 1) {
+      for (let dx = -1; dx <= 1; dx += 1) {
+        if (dx === 0 && dy === 0) continue;
+        neighbors.push({ x: access.x + dx, y: access.y + dy });
+      }
+    }
+    const connectors = [
+      { x: 8, y: 9 },
+      { x: 8, y: 11 },
+      { x: 12, y: 9 },
+      { x: 12, y: 11 },
+    ];
+    const outer = [
+      { x: 7, y: 9 },
+      { x: 7, y: 10 },
+      { x: 7, y: 11 },
+      { x: 13, y: 9 },
+      { x: 13, y: 10 },
+      { x: 13, y: 11 },
+    ];
+    const cells = [access, ...neighbors, ...diagonals, ...connectors, ...outer];
+    const result = placeSyntheticParty(cells, 15, 15);
+    expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
+    expect(result.spawns.player).toEqual(access);
+    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
+      SPAWN_SEPARATION,
+    );
+    const farthest = Math.max(
+      ...result.spawns.party.map((hole) => chebyshev(hole, access)),
+    );
+    expect(farthest).toBeLessThanOrEqual(SPAWN_FALLBACK_RADIUS);
+    expect(
+      result.warnings.some((warning) => /radio 3/i.test(warning)),
+    ).toBe(true);
+  });
+
+  it('si no caben 6 separados, devuelve los que caben con aviso y separación ≥2', () => {
+    const cells: Point[] = [];
+    for (let y = 0; y < 3; y += 1) {
+      for (let x = 0; x < 3; x += 1) cells.push({ x, y });
+    }
+    const result = placeSyntheticParty(cells, 3, 3);
+    expect(result.spawns.party.length).toBeLessThan(SPAWN_MIN_TILES);
+    expect(result.spawns.party.length).toBeGreaterThanOrEqual(1);
+    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
+      SPAWN_SEPARATION,
+    );
+    expect(result.spawns.player).toEqual(result.spawns.party[0]);
+    expect(hasSpawnShortfallWarning(result)).toBe(true);
+    for (const hole of result.spawns.party) {
+      expect(hole.x).toBeLessThan(3);
+      expect(hole.y).toBeLessThan(3);
     }
   });
 

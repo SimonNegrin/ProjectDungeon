@@ -199,14 +199,11 @@ function freeNeighborCount(
   ).length;
 }
 
-interface PartyFillInput {
-  readonly room: Room;
+interface PartySearchInput {
   readonly candidates: readonly Point[];
-  readonly selected: Point[];
   readonly access: Point;
   readonly radius: number;
   readonly minTiles: number;
-  readonly relaxSeparation: boolean;
   readonly tiles: readonly Tile[];
   readonly width: number;
   readonly height: number;
@@ -214,50 +211,70 @@ interface PartyFillInput {
   readonly seed: number;
 }
 
-function fillParty(input: PartyFillInput): void {
-  while (input.selected.length < input.minTiles) {
-    const pool = input.candidates.filter((cell) => {
-      if (input.selected.some((chosen) => samePoint(chosen, cell))) return false;
-      if (input.radius !== Number.POSITIVE_INFINITY && chebyshev(cell, input.access) > input.radius) {
-        return false;
-      }
-      if (
-        !input.relaxSeparation &&
-        input.selected.some((chosen) => chebyshev(chosen, cell) < SPAWN_SEPARATION)
-      ) {
-        return false;
-      }
-      return true;
-    });
-    if (pool.length === 0) return;
-
-    let best: Point | null = null;
-    let bestScore = Number.NEGATIVE_INFINITY;
-    for (const cell of pool) {
-      const freeNeighbors = freeNeighborCount(
-        cell,
-        input.tiles,
-        input.width,
-        input.height,
-        input.doorsAt,
+/**
+ * Orden determinista de candidatos: primero los tiles con al menos dos vecinos
+ * libres, luego los más cercanos al acceso y, por último, el hash de la semilla.
+ */
+function orderPartyCandidates(input: PartySearchInput): Point[] {
+  return input.candidates
+    .filter(
+      (cell) =>
+        !samePoint(cell, input.access) &&
+        chebyshev(cell, input.access) >= SPAWN_SEPARATION &&
+        (input.radius === Number.POSITIVE_INFINITY ||
+          chebyshev(cell, input.access) <= input.radius),
+    )
+    .sort((a, b) => {
+      const freeA = freeNeighborCount(a, input.tiles, input.width, input.height, input.doorsAt);
+      const freeB = freeNeighborCount(b, input.tiles, input.width, input.height, input.doorsAt);
+      const rankA = freeA >= 2 ? 0 : 1;
+      const rankB = freeB >= 2 ? 0 : 1;
+      const distanceA = chebyshev(a, input.access);
+      const distanceB = chebyshev(b, input.access);
+      return (
+        rankA - rankB ||
+        freeB - freeA ||
+        distanceA - distanceB ||
+        deterministicOrder(input.seed, a, 0x51ed270b) -
+          deterministicOrder(input.seed, b, 0x51ed270b) ||
+        a.y - b.y ||
+        a.x - b.x
       );
-      const priority = freeNeighbors >= 2 ? 10_000 : 0;
-      const spread =
-        input.radius === Number.POSITIVE_INFINITY
-          ? 0
-          : (input.radius + 1 - chebyshev(cell, input.access)) * 100;
-      const score =
-        priority +
-        spread +
-        (deterministicOrder(input.seed, cell, 0x51ed270b) % 1000);
-      if (score > bestScore) {
-        best = cell;
-        bestScore = score;
-      }
+    });
+}
+
+/**
+ * Búsqueda determinista del mayor conjunto de huecos dentro de `radius`,
+ * incluyendo el acceso y con separación Chebyshev ≥2 entre todos. Devuelve el
+ * conjunto máximo encontrado; si no llega a `minTiles`, el llamador avisa y no
+ * relaja la separación. Nunca inventa huecos adyacentes.
+ */
+function searchParty(input: PartySearchInput): Point[] {
+  const ordered = orderPartyCandidates(input);
+  const target = Math.max(0, input.minTiles - 1);
+  const chosen: Point[] = [];
+  let best: Point[] = [];
+  let nodes = 0;
+  const maxNodes = 500_000;
+
+  function search(start: number): boolean {
+    if (chosen.length > best.length) best = [...chosen];
+    if (chosen.length >= target) return true;
+    nodes += 1;
+    if (nodes > maxNodes) return false;
+    for (let index = start; index < ordered.length; index += 1) {
+      if (chosen.length + (ordered.length - index) <= best.length) break;
+      const cell = ordered[index];
+      if (chosen.some((other) => chebyshev(other, cell) < SPAWN_SEPARATION)) continue;
+      chosen.push(cell);
+      if (search(index + 1)) return true;
+      chosen.pop();
     }
-    if (!best) return;
-    input.selected.push(best);
+    return false;
   }
+
+  search(0);
+  return [input.access, ...best];
 }
 
 function chooseParty(
@@ -285,12 +302,9 @@ function chooseParty(
         chebyshev(a, access) - chebyshev(b, access) ||
         deterministicOrder(seed, a, 0x9e3779b9) - deterministicOrder(seed, b, 0x9e3779b9),
     )[0];
-  const selected: Point[] = [accessCell];
   const base = {
-    room,
     candidates,
-    selected,
-    access,
+    access: accessCell,
     minTiles,
     tiles,
     width,
@@ -299,29 +313,26 @@ function chooseParty(
     seed,
   };
 
-  fillParty({ ...base, radius: SPAWN_RADIUS, relaxSeparation: false });
+  let selected = searchParty({ ...base, radius: SPAWN_RADIUS });
   if (selected.length < minTiles) {
-    fillParty({ ...base, radius: SPAWN_FALLBACK_RADIUS, relaxSeparation: false });
-    if (selected.length < minTiles) {
-      fillParty({ ...base, radius: Number.POSITIVE_INFINITY, relaxSeparation: false });
-      if (selected.length < minTiles) {
-        fillParty({ ...base, radius: Number.POSITIVE_INFINITY, relaxSeparation: true });
-        warnings.push(
-          'La sala de spawn no reunió los huecos pedidos con separación; se abrió a la sala completa y se relajó la separación.',
-        );
-      } else {
+    const atThree = searchParty({ ...base, radius: SPAWN_FALLBACK_RADIUS });
+    if (atThree.length >= minTiles) {
+      selected = atThree;
+      warnings.push('No cabían los huecos pedidos a radio 2; se amplió a radio 3.');
+    } else {
+      const wholeRoom = searchParty({ ...base, radius: Number.POSITIVE_INFINITY });
+      selected = wholeRoom.length >= atThree.length ? wholeRoom : atThree;
+      if (selected.length >= minTiles) {
         warnings.push(
           'No cabían los huecos pedidos a radio 2 ni 3; se amplió a la sala completa.',
         );
       }
-    } else {
-      warnings.push('No cabían los huecos pedidos a radio 2; se amplió a radio 3.');
     }
   }
 
   if (selected.length < minTiles) {
     warnings.push(
-      `La sala de spawn solo ofreció ${selected.length} de ${minTiles} huecos libres.`,
+      `La sala de spawn solo ofreció ${selected.length} de ${minTiles} huecos libres con separación ≥2.`,
     );
   }
 
