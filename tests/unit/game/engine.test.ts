@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
+  BspMapGenerator,
   createInitialState,
   createRng,
   DEFAULT_MAP_OPTIONS,
@@ -22,7 +23,7 @@ import { makeState, makeUnit, rngForDice } from './helpers';
 
 describe('engine state', () => {
   it('crea un mapa generado de 32x32 con muros en el borde y suelo transitable', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
 
     expect(state.grid.width).toBe(32);
     expect(state.grid.height).toBe(32);
@@ -46,7 +47,7 @@ describe('engine state', () => {
   });
 
   it('coloca al jugador y al enemigo en los spawns del mapa con vida, MP y acción iniciales', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
     const spawns = state.map?.spawns;
 
     expect(spawns).toBeDefined();
@@ -125,7 +126,7 @@ describe('engine state', () => {
   });
 
   it('el jugador y el enemigo actual empiezan con el equipo y los modificadores acordados', () => {
-    const state = createInitialState();
+    const state = createInitialState({ generator: new BspMapGenerator() });
 
     expect(state.players[0]).toMatchObject({
       hp: 20,
@@ -209,7 +210,7 @@ interface WeaponStateOptions {
  * indicado. Mantiene el mapa y los spawns reales de la semilla de referencia.
  */
 function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
-  const base = createInitialState();
+  const base = createInitialState({ generator: new BspMapGenerator() });
   const playerPosition = options.player ?? { x: 5, y: 5 };
   const enemyPosition = options.enemy ?? base.enemies[0];
   const map = base.map;

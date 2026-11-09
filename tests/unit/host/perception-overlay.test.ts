@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createInitialState } from '../../../src/game/index';
+import { BspMapGenerator, createInitialState } from '../../../src/game/index';
 import { perceptionRadii } from '../../../src/host/perception-overlay';
 import { makeState, makeUnit } from '../game/helpers';
 
@@ -11,7 +11,10 @@ describe('radios de percepción del overlay de debug', () => {
   });
 
   it('con F1 expone visión 6/4/5 y alarma 8 de los 4 enemigos', () => {
-    const state = createInitialState({ seed: 279837264 });
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const radii = perceptionRadii(state, true);
 
     expect(radii).toHaveLength(8);

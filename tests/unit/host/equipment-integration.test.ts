@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reduce, createInitialState } from '../../../src/game/index';
+import { BspMapGenerator, reduce, createInitialState } from '../../../src/game/index';
 import { WEAPONS } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
@@ -16,7 +16,10 @@ function stateOnWeapon(
 
 describe('integración de recogida y cambio de arma con el HUD', () => {
   it('recoger actualiza el HUD, el inventario y el arma equipada', () => {
-    const base = createInitialState({ seed: 279837264 });
+    const base = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const weapons = base.map?.weapons ?? [];
     expect(weapons.length).toBeGreaterThan(0);
     const weapon = weapons[0];
@@ -37,7 +40,10 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
   });
 
   it('cambiar de hueco actualiza el HUD sin gastar MP ni acción', () => {
-    const base = createInitialState({ seed: 279837264 });
+    const base = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const weapons = base.map?.weapons ?? [];
     expect(weapons.length).toBeGreaterThanOrEqual(2);
 

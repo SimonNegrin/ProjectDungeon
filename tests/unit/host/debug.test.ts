@@ -4,7 +4,7 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { createInitialState, reduce } from '../../../src/game/index';
+import { BspMapGenerator, createInitialState, reduce } from '../../../src/game/index';
 import type { WeaponId } from '../../../src/game/equipment';
 import type { GameState, RngState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
@@ -45,7 +45,10 @@ function setup(initial: GameState = makeState()) {
 }
 
 function generatedSetup() {
-  const session = new GameSession({ seed: 279837264 });
+  const session = new GameSession({
+    seed: 279837264,
+    generator: new BspMapGenerator(),
+  });
   let camera: Camera = { x: 0, y: 64 };
   let lastEvents: ReturnType<GameSession['dispatch']>['events'] = [];
   const cursor = cursorAtPlayer(session.state.players[0]);
@@ -313,7 +316,10 @@ describe('API de debug window.__game', () => {
 describe('snapshot del mapa generado', () => {
   it('expone semilla, salas, corredores, huecos y spawns', () => {
     const api = generatedSetup();
-    const map = new GameSession({ seed: 279837264 }).state.map;
+    const map = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    }).state.map;
 
     const snapshot = api.snapshot();
 
@@ -337,7 +343,10 @@ describe('snapshot del mapa generado', () => {
 
   it('el snapshot completo sobrevive a un round-trip JSON', () => {
     const api = generatedSetup();
-    const map = new GameSession({ seed: 279837264 }).state.map;
+    const map = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    }).state.map;
     const snapshot = api.snapshot();
 
     const roundTrip = JSON.parse(JSON.stringify(snapshot));
@@ -358,7 +367,10 @@ describe('snapshot del mapa generado', () => {
 
   it('no expone el mapa vivo: mutar salas o spawns del snapshot no lo altera', () => {
     const api = generatedSetup();
-    const map = new GameSession({ seed: 279837264 }).state.map;
+    const map = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    }).state.map;
     api.dispatch({
       type: 'MoveTo',
       unitId: 'player-1',
@@ -381,7 +393,10 @@ describe('snapshot del mapa generado', () => {
 
   it('expone un resumen determinista de decoración que coincide con el render', () => {
     const api = generatedSetup();
-    const map = new GameSession({ seed: 279837264 }).state.map;
+    const map = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    }).state.map;
     if (!map) throw new Error('La semilla de referencia debe generar mapa');
 
     const first = api.snapshot();
@@ -468,7 +483,10 @@ describe('snapshot del mapa generado', () => {
   });
 
   it('las armas del snapshot desaparecen al recogerlas', () => {
-    const session = new GameSession({ seed: 279837264 });
+    const session = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const weapon = session.state.map?.weapons?.[0];
     if (!weapon) throw new Error('La semilla de referencia debe colocar armas');
 
@@ -503,7 +521,10 @@ describe('snapshot del mapa generado', () => {
   });
 
   it('expone los 4 enemigos con percepción completa y clona home/lastKnown', () => {
-    const base = createInitialState({ seed: 279837264 });
+    const base = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
     const state: GameState = {
       ...base,
       enemies: base.enemies.map((enemy, index) =>
