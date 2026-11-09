@@ -1,0 +1,33 @@
+$ git diff --cached --stat
+ .gitignore                      |   1 +
+ README.md                       |   4 +-
+ package.json                    |   4 +-
+ scripts/check-bundle.d.mts      |  33 ++++
+ scripts/check-bundle.mjs        | 349 ++++++++++++++++++++++++++++++++++++++++
+ tests/unit/bundle-guard.test.ts | 175 ++++++++++++++++++++
+ tsconfig.json                   |   2 +-
+ vite.config.experiments.ts      |  34 ++++
+ vite.config.ts                  |  18 +--
+ 9 files changed, 603 insertions(+), 17 deletions(-)
+
+$ git status --short (code staged)
+M  .gitignore
+M  README.md
+M  package.json
+A  scripts/check-bundle.d.mts
+A  scripts/check-bundle.mjs
+A  tests/unit/bundle-guard.test.ts
+M  tsconfig.json
+A  vite.config.experiments.ts
+M  vite.config.ts
+?? artifacts/TASK-0047/attempt-1/build-experiments-output.txt
+?? artifacts/TASK-0047/attempt-1/build-output.txt
+?? artifacts/TASK-0047/attempt-1/config-check.txt
+?? artifacts/TASK-0047/attempt-1/dev-health.txt
+?? artifacts/TASK-0047/attempt-1/diff-stat.txt
+?? artifacts/TASK-0047/attempt-1/docs-check.txt
+?? artifacts/TASK-0047/attempt-1/e2e-output.txt
+?? artifacts/TASK-0047/attempt-1/guard-negative.txt
+?? artifacts/TASK-0047/attempt-1/guard-positive.txt
+?? artifacts/TASK-0047/attempt-1/test-output.txt
+?? artifacts/TASK-0047/attempt-1/verify-output.txt

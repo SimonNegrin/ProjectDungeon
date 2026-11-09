@@ -1,0 +1,14 @@
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 53 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                13.45 kB │ gzip:  3.23 kB
+dist/assets/main-DbkBk5II.js  106.92 kB │ gzip: 37.56 kB
+✓ built in 326ms
+$ node scripts/check-bundle.mjs
+check:bundle: FAIL — forbidden production bundle markers found:
+  - BSP module in production graph at src/game/bsp.ts
+[ELIFECYCLE] Command failed with exit code 1.
+build_status=0 guard_status=1
