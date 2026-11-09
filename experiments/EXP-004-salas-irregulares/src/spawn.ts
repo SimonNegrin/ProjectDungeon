@@ -887,6 +887,7 @@ function candidateOrder(a: EnemyCandidate, b: EnemyCandidate, seed: number): num
 function selectCandidates(
   ordered: readonly EnemyCandidate[],
   budget: number,
+  placed: readonly Point[] = [],
 ): EnemyCandidate[] {
   if (budget <= 0 || ordered.length === 0) return [];
   const chosen: EnemyCandidate[] = [];
@@ -902,7 +903,7 @@ function selectCandidates(
     for (let index = start; index < ordered.length; index += 1) {
       if (chosen.length + (ordered.length - index) <= best.length) break;
       const candidate = ordered[index];
-      const points = chosen.map((item) => item.point);
+      const points = [...placed, ...chosen.map((item) => item.point)];
       if (componentSizeWith(points, candidate.point) > ENEMY_MAX_COMPONENT) continue;
       chosen.push(candidate);
       if (search(index + 1)) return true;
@@ -928,6 +929,7 @@ function placeRoomEnemies(
   hiddenEnemyChance: number,
   doorsAt: ReadonlySet<string>,
   spawnHoles: ReadonlySet<string>,
+  placed: readonly Point[] = [],
 ): RoomPlacement {
   const { candidates, hotspots } = roomCandidates(
     room,
@@ -939,12 +941,12 @@ function placeRoomEnemies(
   const strict = candidates
     .filter((candidate) => candidate.noLosToSpawn)
     .sort((a, b) => candidateOrder(a, b, input.seed));
-  let selected = selectCandidates(strict, budget);
+  let selected = selectCandidates(strict, budget, placed);
   let relaxed = 0;
 
   if (selected.length < budget) {
     const all = [...candidates].sort((a, b) => candidateOrder(a, b, input.seed));
-    const withLos = selectCandidates(all, budget);
+    const withLos = selectCandidates(all, budget, placed);
     if (withLos.length > selected.length) {
       relaxed = withLos.length - selected.length;
       selected = withLos;
@@ -952,7 +954,7 @@ function placeRoomEnemies(
   }
 
   // Preferencia estricta por interior: si un borde no emboscado puede sustituirse
-  // por un interior libre sin romper componentes, se sustituye.
+  // por un interior libre sin romper componentes (locales ni globales), se sustituye.
   for (let index = 0; index < selected.length; index += 1) {
     const current = selected[index];
     if (current.interior || current.hiddenHit) continue;
@@ -966,7 +968,7 @@ function placeRoomEnemies(
     const replacement = pool.find(
       (candidate) =>
         componentSizeWith(
-          others.map((item) => item.point),
+          [...placed, ...others.map((item) => item.point)],
           candidate.point,
         ) <= ENEMY_MAX_COMPONENT,
     );
@@ -1029,7 +1031,11 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
   const hotspots: Hotspot[] = [];
   const missingByRoom = new Map<number, number>();
   const relaxedByRoom = new Map<number, number>();
+  const placements = new Map<number, RoomPlacement>();
+  const placedPoints: Point[] = [];
 
+  // Pase secuencial: cada sala ve las fichas ya colocadas para que la
+  // componente global de 8 direcciones nunca supere 2, no solo la local.
   for (const room of input.rooms) {
     const types = assignmentsByRoom.get(room.id) ?? [];
     if (types.length === 0) continue;
@@ -1040,7 +1046,48 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
       hiddenEnemyChance,
       doorsAt,
       spawnHoles,
+      placedPoints,
     );
+    placements.set(room.id, placement);
+    placedPoints.push(...placement.selected.map((candidate) => candidate.point));
+  }
+
+  // Post-pase determinista de reubicación: si una sala se quedó corta por los
+  // conflictos globales, se recalcula su selección viendo el resto del mapa.
+  // Las salas con mínimo 1 intentan reubicarse dentro de sí mismas antes de
+  // aceptar el hueco vacío (que se avisa más abajo).
+  for (let pass = 0; pass < 2; pass += 1) {
+    let improved = false;
+    for (const room of input.rooms) {
+      const types = assignmentsByRoom.get(room.id) ?? [];
+      const placement = placements.get(room.id);
+      if (!placement || placement.selected.length >= types.length) continue;
+      const others = input.rooms
+        .filter((other) => other.id !== room.id)
+        .flatMap((other) =>
+          (placements.get(other.id)?.selected ?? []).map((candidate) => candidate.point),
+        );
+      const retry = placeRoomEnemies(
+        room,
+        types.length,
+        input,
+        hiddenEnemyChance,
+        doorsAt,
+        spawnHoles,
+        others,
+      );
+      if (retry.selected.length > placement.selected.length) {
+        placements.set(room.id, retry);
+        improved = true;
+      }
+    }
+    if (!improved) break;
+  }
+
+  for (const room of input.rooms) {
+    const types = assignmentsByRoom.get(room.id) ?? [];
+    const placement = placements.get(room.id);
+    if (!placement) continue;
     hotspots.push(...placement.hotspots);
     if (placement.relaxed > 0) {
       relaxedByRoom.set(room.id, placement.relaxed);
@@ -1112,7 +1159,7 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
       hidden,
       hotspotsTotal: hotspots.length,
       hotspotsEligible: eligibleHotspots,
-      hotspotRolls: eligibleHotspots,
+      hotspotRolls: hotspots.length,
       hotspotsOccupied: hidden,
       componentsMax: maxComponentSize(points),
     },

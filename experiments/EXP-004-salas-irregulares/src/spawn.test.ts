@@ -575,6 +575,71 @@ describe('spawn alrededor del acceso y enemigos de la v3', () => {
     }
   });
 
+  it('hotspotRolls cuenta todos los puntos calientes, no solo los elegibles', () => {
+    let sawIneligible = false;
+    for (const variant of VARIANTS) {
+      for (const seed of SEEDS) {
+        const map = generateMap(variant, seed);
+        expect(
+          map.stats.hotspotRolls,
+          `${variant} · ${seed} · rolls globales`,
+        ).toBe(map.stats.hotspotsTotal);
+        expect(
+          map.stats.enemy.hotspotRolls,
+          `${variant} · ${seed} · rolls de enemigos`,
+        ).toBe(map.stats.hotspotsTotal);
+        if (map.stats.hotspotsEligible < map.stats.hotspotsTotal) sawIneligible = true;
+      }
+    }
+    expect(sawIneligible).toBe(true);
+  });
+
+  it('las semillas BSP 104 y 371 no cruzan componentes entre salas', () => {
+    for (const seed of [104, 371]) {
+      const map = generateMap('bsp', seed);
+      expect(
+        maxComponentSize(map.enemies),
+        `bsp · ${seed} · componente global`,
+      ).toBeLessThanOrEqual(ENEMY_MAX_COMPONENT);
+      expect(validateMap(map), `bsp · ${seed}`).toEqual([]);
+    }
+  });
+
+  it('el barrido A/B/C × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas', () => {
+    const sweepSeeds = Array.from({ length: 200 }, (_, index) => index + 1);
+    // 104 y 371 están incluidos aquí y tienen regresión explícita arriba.
+    for (const variant of VARIANTS) {
+      for (const seed of sweepSeeds) {
+        const map = generateMap(variant, seed);
+        const label = `${variant} · ${seed}`;
+        expect(validateMap(map), label).toEqual([]);
+        expect(
+          maxComponentSize(map.enemies),
+          `${label} · componente global`,
+        ).toBeLessThanOrEqual(ENEMY_MAX_COMPONENT);
+        expect(
+          map.enemies.length,
+          `${label} · presupuesto máximo`,
+        ).toBeLessThanOrEqual(map.stats.enemy.total);
+        expect(
+          map.stats.hotspotRolls,
+          `${label} · hotspotRolls`,
+        ).toBe(map.stats.hotspotsTotal);
+        expect(
+          map.stats.enemy.hotspotRolls,
+          `${label} · enemy.hotspotRolls`,
+        ).toBe(map.stats.hotspotsTotal);
+        for (const room of map.rooms) {
+          if (room.id === map.spawns.roomId) continue;
+          expect(
+            map.enemies.filter((enemy) => enemy.roomId === room.id).length,
+            `${label} · sala ${room.id} sin enemigos`,
+          ).toBeGreaterThanOrEqual(1);
+        }
+      }
+    }
+  });
+
   it('los no emboscados prefieren interior cuando hay sitio compatible', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {

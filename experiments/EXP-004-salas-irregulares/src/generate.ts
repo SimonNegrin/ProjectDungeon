@@ -2603,6 +2603,19 @@ function finalizeMap(
       : room,
   );
 
+  // Defensa documentada: las cajas que se tocan a gap 0 no se rechazan (la
+  // aceptación no cambia), pero se avisa porque dos salas pueden quedar unidas
+  // sin muro y la componente global de enemigos debe validarse entre ellas.
+  for (let first = 0; first < rooms.length; first += 1) {
+    for (let second = first + 1; second < rooms.length; second += 1) {
+      if (boxesTouch(rooms[first], rooms[second])) {
+        warnings.push(
+          `Las salas ${rooms[first].id} y ${rooms[second].id} tienen cajas a gap 0; comparten borde sin muro.`,
+        );
+      }
+    }
+  }
+
   // REQ-013: la salida se elige después de puertas y spawn, antes de enemigos.
   const exitResult = selectExit({
     rooms,
@@ -2879,9 +2892,20 @@ function buildStats(input: {
     hiddenEnemies,
     hotspotsTotal: hotspots.length,
     hotspotsEligible: eligibleHotspots,
-    hotspotRolls: eligibleHotspots,
+    hotspotRolls: hotspots.length,
     hotspotOccupied: hiddenEnemies,
   };
+}
+
+function boxesTouch(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+): boolean {
+  return (
+    !boxesOverlap(a, b) &&
+    Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.width, b.x + b.width)) === 0 &&
+    Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.height, b.y + b.height)) === 0
+  );
 }
 
 function countSharedWalls(rooms: readonly Room[]): number {
