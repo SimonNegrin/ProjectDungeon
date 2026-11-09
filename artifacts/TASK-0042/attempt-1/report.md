@@ -72,7 +72,7 @@ playtest abierto.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief pide editar `experiment.md`; la herramienta lo deniega y el rol lo reserva al lead. | `experiment-observations.md`; edición rechazada. | Texto listo en artefactos. | Se repite en tareas de experimento. | Permitir editar solo Observaciones o no pedirlo en el brief. | Bajo; riesgo de pisar al lead. | `pending` |
+| El brief pide editar `experiment.md`; la herramienta lo deniega y el rol lo reserva al lead. | `experiment-observations.md`; edición rechazada. | Texto listo en artefactos; el lead aplica la sección. | Se repite en tareas de experimento. | Permitir editar solo Observaciones o no pedirlo en el brief. | Bajo; riesgo de pisar al lead. | `deferred` — dueño `requirements-writer` |
 
 # Métricas de handoff
 
