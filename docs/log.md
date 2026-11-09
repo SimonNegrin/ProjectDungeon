@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0053 — done: motor de ocho atributos (habilidad, fuerza, defensa, resistencia, puntería y magia) y resistencia en la absorción; balance v1 intacto con resistencia 0, verify 740/740 y E2E 76/76, sin tests debilitados; fusión `ccf7ab5` — [informe](../artifacts/TASK-0053/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-014 — creada: esquema de ocho atributos inherentes y enmienda a la fórmula de REQ-010 (resistencia en la absorción, armadura como bonus); balance v1 conservado con resistencia 0; sin valores de arquetipos ni pantalla de inicio — [REQ-014](requirements/REQ-014-atributos-inherentes-personajes.md)
 * 2026-11-09 — Requirement — REQ-015 — creada: roster de nueve arquetipos con stats, arma temática (cinco con arma futura), Cuchillo +4/1, dos variantes de sprite, nombre editable y método de balance por win % (héroe con iniciativa, 1v1, ±2 %, 1.000 duelos) — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
 * 2026-11-09 — Requirement — REQ-016 — creada (borrador): pantalla de inicio con nº de jugadores 1-6, arquetipo, variante y nombre por jugador; preguntas abiertas pendientes (hotseat, límites del nombre, mapeo de sprites) — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)

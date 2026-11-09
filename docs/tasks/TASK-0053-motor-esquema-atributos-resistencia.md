@@ -24,10 +24,10 @@ verified:
     at: 2026-11-09T23:32:10Z
     note: >-
       Intento 1 verificado en `task/TASK-0053` (código y tests `ca928f1`,
-      evidencia `10cc5c9`). Diff completo revisado: solo `src/game/`, migración
-      mecánica de host y tests; sin cambios de balance, fórmulas paralelas,
-      dependencias ni documentación de TASK-0054. Lead re-ejecutó
-      `pnpm run verify` (740/740, docs/config, build y bundle OK) y
+      evidencia `10cc5c9`; fusión `ccf7ab5`). Diff completo revisado: solo
+      `src/game/`, migración mecánica de host y tests; sin cambios de balance,
+      fórmulas paralelas, dependencias ni documentación de TASK-0054. Lead
+      re-ejecutó `pnpm run verify` (740/740, docs/config, build y bundle OK) y
       `pnpm run test:e2e` (76/76). Comprobados los ocho atributos, nivel de magia
       1–4, resistencia 0 equivalente, absorción resistencia+armadura y bestiario
       como fuente única; sin tests borrados, saltados ni debilitados (+6 tests).
