@@ -3,7 +3,7 @@ type: Requirement Sheet
 id: REQ-014
 title: Atributos inherentes de los personajes
 description: "Esquema de ocho atributos por personaje (habilidad, fuerza, defensa, resistencia, puntería, magia, PV y MP) y enmienda a la fórmula de combate de REQ-010: la resistencia entra en la capa de absorción y la armadura es su bonus."
-status: draft
+status: stable
 version: 1
 decision_owner: human:simon
 review_required: true
