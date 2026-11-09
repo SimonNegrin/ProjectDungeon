@@ -9,6 +9,7 @@ import {
   dispatchCommand,
   endTurn,
   moveCursorTo,
+  openBspState,
   settle,
   snapshot,
   walkTo,
@@ -254,10 +255,8 @@ async function settleLayout(page: Page): Promise<void> {
 
 async function openGame(page: Page, search = REFERENCE_URL): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(search);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  const seed = Number(new URL(search, 'http://127.0.0.1').searchParams.get('seed') ?? REFERENCE_SEED);
+  await openBspState(page, seed, search);
   await settleLayout(page);
   await settle(page);
   await settleLayout(page);

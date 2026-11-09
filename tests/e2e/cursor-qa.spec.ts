@@ -9,6 +9,7 @@ import {
   ensureAdjacentWithMp,
   moveAwayFromEnemy,
   moveCursorTo,
+  openBspState,
   restart,
   retreatEnemyOutOfReach,
   settle,
@@ -18,7 +19,6 @@ import {
 import { artifactPath } from './artifacts';
 
 const SEED = 279837264;
-const SEED_URL = `/?seed=${SEED}`;
 
 function trackConsoleErrors(page: Page): string[] {
   const errors: string[] = [];
@@ -31,10 +31,7 @@ function trackConsoleErrors(page: Page): string[] {
 
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(SEED_URL);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, SEED);
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {

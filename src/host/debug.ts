@@ -10,7 +10,19 @@ import type {
   Unit,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
-import type { Corridor, Door, MapWeapon, Room, Spawns } from '../game/map';
+import type {
+  Corridor,
+  Door,
+  Entrance,
+  Exit,
+  MapEnemy,
+  MapGenerator,
+  MapWeapon,
+  Room,
+  Spawns,
+} from '../game/map';
+import type { OpenMouth } from '../game/chambers/core/doors';
+import type { Hotspot } from '../game/chambers/core/enemies';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
 import {
@@ -64,6 +76,18 @@ export interface GameSnapshot {
   readonly corridors: readonly Corridor[];
   readonly doors: readonly Door[];
   readonly spawns: Spawns | null;
+  /** Entrada de nivel de la variante, o `null` si el mapa no la declara. */
+  readonly entrance: Entrance | null;
+  /** Salida de nivel de la variante, o `null`. */
+  readonly exit: Exit | null;
+  /** Enemigos declarados por el generador (`type`, `home`, `hidden`, `interior`). */
+  readonly mapEnemies: readonly MapEnemy[];
+  /** Bocas sin puerta con su motivo; vacío si el generador no las declara. */
+  readonly openMouths: readonly OpenMouth[];
+  /** Puntos calientes de emboscada; vacío si el generador no los declara. */
+  readonly hotspots: readonly Hotspot[];
+  /** Sala caverna de la variante, o `null`. */
+  readonly cavernRoomId: number | null;
   /** Armas aún presentes en el mapa, clonadas y en solo lectura. */
   readonly weapons: readonly MapWeapon[];
   /** Resumen de solo lectura de la decoración plana; coincide con el render. */
@@ -104,7 +128,7 @@ export interface GameDebugApi {
    * host cuando la URL trae `test=1`; en juego normal la API conserva sus tres
    * claves históricas.
    */
-  setup?(state: GameState): GameSnapshot;
+  setup?(state: GameState, generator?: MapGenerator): GameSnapshot;
 }
 
 declare global {
@@ -156,10 +180,31 @@ function cloneCorridor(corridor: Corridor): Corridor {
 function cloneSpawns(spawns: Spawns | undefined): Spawns | null {
   if (!spawns) return null;
   return {
+    ...(spawns.roomId !== undefined ? { roomId: spawns.roomId } : {}),
+    ...(spawns.party ? { party: spawns.party.map((hole) => ({ ...hole })) } : {}),
     player: { ...spawns.player },
     enemy: { ...spawns.enemy },
     distance: spawns.distance,
   };
+}
+
+function cloneEntrance(entrance: Entrance | undefined): Entrance | null {
+  if (!entrance) return null;
+  return { roomId: entrance.roomId, position: { ...entrance.position } };
+}
+
+function cloneExit(exit: Exit | null | undefined): Exit | null {
+  if (!exit) return null;
+  return {
+    ...exit,
+    position: { ...exit.position },
+    access: { ...exit.access },
+    path: [...exit.path],
+  };
+}
+
+function cloneMapEnemy(enemy: MapEnemy): MapEnemy {
+  return { ...enemy, home: { ...enemy.home } };
 }
 
 function cloneCursor(cursor: CursorStatus): CursorSnapshot {
@@ -197,6 +242,12 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     corridors: map ? map.corridors.map(cloneCorridor) : [],
     doors: map ? map.doors.map((door) => ({ ...door })) : [],
     spawns: cloneSpawns(map?.spawns),
+    entrance: cloneEntrance(map?.entrance),
+    exit: cloneExit(map?.exit ?? null),
+    mapEnemies: map?.enemies?.map(cloneMapEnemy) ?? [],
+    openMouths: map?.openMouths?.map((mouth) => ({ ...mouth })) ?? [],
+    hotspots: map?.hotspots?.map((hotspot) => ({ ...hotspot })) ?? [],
+    cavernRoomId: map?.cavernRoomId ?? null,
     weapons: map?.weapons?.map((weapon) => ({ ...weapon })) ?? [],
     decoration: [...summarizeDecoration(planDecoration(map))],
     floorPalettes: [...roomPalettesFor(map)],

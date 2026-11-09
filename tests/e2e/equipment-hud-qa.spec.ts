@@ -7,6 +7,7 @@ import {
   dispatchCommand,
   ensureMp,
   moveCursorTo,
+  openBspState,
   snapshot,
   walkTo,
 } from './support';
@@ -19,8 +20,7 @@ async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise
 
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/?seed=1');
-  await page.waitForFunction(() => Boolean(window.__game));
+  await openBspState(page, 1);
 }
 
 function watchConsole(page: Page): string[] {

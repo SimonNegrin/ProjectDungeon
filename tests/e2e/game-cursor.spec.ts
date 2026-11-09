@@ -1,7 +1,15 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { approachEnemy, moveCursorTo, restart, settle, snapshot, walkTo } from './support';
+import {
+  approachEnemy,
+  moveCursorTo,
+  openBspState,
+  restart,
+  settle,
+  snapshot,
+  walkTo,
+} from './support';
 import { artifactPath } from './artifacts';
 
 const SEED = '/?seed=279837264';
@@ -10,10 +18,7 @@ const VIEWPORT_SIZE = 416;
 
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(SEED);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, 279837264, SEED);
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {

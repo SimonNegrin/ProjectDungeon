@@ -212,7 +212,72 @@ function roomLabel(room: Room): string {
 }
 
 function doorLabel(door: Door): string {
-  return `(${door.x},${door.y}) ${door.orientation} sala ${door.roomId}`;
+  const style = door.style ? ` · ${door.style}` : '';
+  return `(${door.x},${door.y}) ${door.orientation} sala ${door.roomId}${style}`;
+}
+
+function spawnAccessLabel(map: NonNullable<GameState['map']>): string {
+  const roomId = map.spawns.roomId;
+  if (roomId === undefined) return 'sin sala';
+  const cells = [
+    ...map.doors
+      .filter((door) => door.roomA === roomId || door.roomB === roomId || door.roomId === roomId)
+      .map((door) => `puerta (${door.x},${door.y})`),
+    ...(map.openMouths ?? [])
+      .filter((mouth) => mouth.roomA === roomId || mouth.roomB === roomId)
+      .map((mouth) => `boca (${mouth.x},${mouth.y}) ${mouth.reason}`),
+  ];
+  return cells.length === 0 ? 'sin accesos' : cells.join(' · ');
+}
+
+function spawnDebugLine(map: NonNullable<GameState['map']>): string {
+  const party = map.spawns.party ?? [map.spawns.player];
+  const holes = party.map((hole, index) => `${index === 0 ? 'J' : index + 1}(${hole.x},${hole.y})`);
+  const entrance = map.entrance ? `(${map.entrance.position.x},${map.entrance.position.y})` : '—';
+  return `Spawn: sala ${map.spawns.roomId ?? '—'} · ${holes.join(' ')} · entrada ${entrance} · accesos ${spawnAccessLabel(map)}`;
+}
+
+function exitDebugLine(map: NonNullable<GameState['map']>): string {
+  if (!map.exit) return 'Salida: —';
+  const exit = map.exit;
+  return `Salida: ${exit.kind} (${exit.position.x},${exit.position.y}) · acceso (${exit.access.x},${exit.access.y}) · sala ${exit.roomId} · distancia ${exit.distance}${exit.fallback ? ' · fallback' : ''}`;
+}
+
+function mouthDebugLine(map: NonNullable<GameState['map']>): string {
+  const mouths = map.openMouths ?? [];
+  if (mouths.length === 0) return 'Bocas sin puerta: ninguna';
+  return `Bocas sin puerta: ${mouths
+    .map((mouth) => `(${mouth.x},${mouth.y}) ${mouth.reason}`)
+    .join(' · ')}`;
+}
+
+function mapEnemyDebugLine(map: NonNullable<GameState['map']>): string {
+  const enemies = map.enemies ?? [];
+  if (enemies.length === 0) return 'Enemigos del generador: ninguno';
+  return `Enemigos del generador: ${enemies
+    .map(
+      (enemy) =>
+        `${enemy.id} ${enemy.type} (${enemy.x},${enemy.y}) home (${enemy.home.x},${enemy.home.y}) sala ${enemy.roomId}${enemy.hidden ? ' emboscada' : ''}${enemy.interior ? ' interior' : ' borde'}`,
+    )
+    .join(' · ')}`;
+}
+
+function hotspotDebugLine(map: NonNullable<GameState['map']>): string {
+  const hotspots = map.hotspots ?? [];
+  if (hotspots.length === 0) return 'Puntos calientes: ninguno';
+  const eligible = hotspots.filter((hotspot) => hotspot.eligible).length;
+  const occupied = hotspots.filter((hotspot) => hotspot.occupied).length;
+  return `Puntos calientes: ${hotspots.length} · elegibles ${eligible} · ocupados ${occupied}`;
+}
+
+function corridorDebugLine(map: NonNullable<GameState['map']>): string {
+  if (map.corridors.length === 0) return 'Pasillos: ninguno';
+  return `Pasillos: ${map.corridors
+    .map(
+      (corridor) =>
+        `${corridor.fromRoomId}→${corridor.toRoomId} ancho ${corridor.width} · ${pathLength(corridor.path)} tiles`,
+    )
+    .join(' · ')}`;
 }
 
 function wideCorridorLabel(map: NonNullable<GameState['map']>, corridor: Corridor): string {
@@ -239,11 +304,18 @@ function mapDebugLines(state: GameState): readonly string[] {
     `Salas: ${map.rooms.map(roomLabel).join(' · ')}`,
     `Huecos: ${map.doors.length === 0 ? 'ninguno' : map.doors.map(doorLabel).join(' · ')}`,
     `Spawns: jugador (${map.spawns.player.x},${map.spawns.player.y}) · enemigo (${map.spawns.enemy.x},${map.spawns.enemy.y}) · distancia ${map.spawns.distance}`,
+    spawnDebugLine(map),
+    mouthDebugLine(map),
     `Pasillos anchos: ${
       wide.length === 0
         ? 'ninguno'
         : wide.map((corridor) => wideCorridorLabel(map, corridor)).join(' · ')
     }`,
+    corridorDebugLine(map),
+    exitDebugLine(map),
+    mapEnemyDebugLine(map),
+    hotspotDebugLine(map),
+    `Caverna: ${map.cavernRoomId !== undefined && map.cavernRoomId !== null ? `sala ${map.cavernRoomId}` : 'ninguna'}`,
   ];
 }
 

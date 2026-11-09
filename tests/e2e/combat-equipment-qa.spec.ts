@@ -10,6 +10,7 @@ import {
   dispatchCommand,
   ensureMp,
   moveCursorTo,
+  openBspState,
   settle,
   snapshot,
   walkTo,
@@ -41,10 +42,7 @@ const WEAPON_LABELS = {
 
 async function openGame(page: Page, seed: number = REFERENCE_SEED): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(`/?seed=${seed}`);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, seed);
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {

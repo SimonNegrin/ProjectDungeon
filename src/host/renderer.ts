@@ -1,4 +1,5 @@
 import type { GameState, Unit } from '../game/types';
+import type { Door, DoorStyle, Exit } from '../game/map';
 import {
   GOBLIN_RECT,
   KNIGHT_RECT,
@@ -31,9 +32,42 @@ export interface SceneAssets {
 export interface RenderOptions {
   /** Centro en píxeles enteros de cada unidad, por `unitId`. */
   readonly positions?: ReadonlyMap<string, PixelPosition>;
+  /** Capa de `F1`: máscaras, límites, spawn, salida, pasillos y puntos calientes. */
+  readonly debug?: boolean;
 }
 
 const SPRITE_SIZE = 32;
+
+/** Colores de puerta por estilo; mismo criterio que `EXP-004`. */
+const DOOR_COLORS: Readonly<Record<DoorStyle, { frame: string; leaf: string }>> = {
+  wood: { frame: '#6b4423', leaf: '#c88a4a' },
+  metal: { frame: '#4e5d6b', leaf: '#a9bece' },
+  grated: { frame: '#3d4a55', leaf: '#7c8c99' },
+};
+
+/**
+ * Recorte local de las escaleras de 32rogues (`tiles.txt` 17.h y 17.i).
+ * Producción aún no lo expone en `assets.ts`, así que se mantiene aquí como en
+ * `EXP-004` para no añadir arte ni cambiar el catálogo de tiles.
+ */
+const STAIR_RECTS = {
+  'stairs-down': { sx: 224, sy: 512, sw: 32, sh: 32 },
+  'stairs-up': { sx: 256, sy: 512, sw: 32, sh: 32 },
+} as const satisfies Record<'stairs-down' | 'stairs-up', SpriteRect>;
+
+const EXIT_GOLD = '#f2c14e';
+const ROOM_TINTS: readonly string[] = [
+  'rgba(127, 179, 213, 0.13)',
+  'rgba(232, 184, 109, 0.13)',
+  'rgba(159, 211, 168, 0.13)',
+  'rgba(224, 122, 122, 0.13)',
+  'rgba(186, 154, 224, 0.13)',
+];
+const HOTSPOT_COLORS: Readonly<Record<string, string>> = {
+  rincon: '#f2c14e',
+  'sin-LOS': '#c084fc',
+  ambos: '#fb7185',
+};
 
 /**
  * Formas planas provisionales de las armas del mapa (sin assets). Son solo
@@ -132,6 +166,431 @@ function drawUnit(
   drawRect(ctx, image, rect, dx, dy, SPRITE_SIZE);
 }
 
+function tileVisible(x: number, y: number, range: ReturnType<typeof visibleTileRange>): boolean {
+  return x >= range.minX && x <= range.maxX && y >= range.minY && y <= range.maxY;
+}
+
+/** Dibuja una puerta válida con el estilo de su hueco; nunca una boca abierta. */
+function drawDoor(
+  ctx: CanvasRenderingContext2D,
+  door: Door,
+  range: ReturnType<typeof visibleTileRange>,
+  tileSize: number,
+  debug: boolean,
+): void {
+  if (!tileVisible(door.x, door.y, range)) return;
+  const colors = DOOR_COLORS[door.style ?? 'wood'];
+  const x = door.x * tileSize;
+  const y = door.y * tileSize;
+  const pad = Math.max(1, tileSize * 0.14);
+  const frame = Math.max(1.5, tileSize * 0.16);
+
+  if (door.orientation === 'vertical') {
+    ctx.fillStyle = colors.frame;
+    ctx.fillRect(x + tileSize * 0.34, y + pad, frame, tileSize - pad * 2);
+    ctx.fillRect(x + tileSize * 0.66 - frame, y + pad, frame, tileSize - pad * 2);
+    ctx.fillStyle = colors.leaf;
+    ctx.fillRect(x + tileSize * 0.4, y + pad * 1.5, tileSize * 0.2, tileSize - pad * 3);
+    if ((door.style ?? 'wood') === 'grated') {
+      ctx.fillStyle = colors.frame;
+      for (let step = 1; step <= 3; step += 1) {
+        ctx.fillRect(
+          x + tileSize * 0.38,
+          y + (tileSize * step) / 4,
+          tileSize * 0.24,
+          Math.max(1, tileSize * 0.05),
+        );
+      }
+    }
+  } else {
+    ctx.fillStyle = colors.frame;
+    ctx.fillRect(x + pad, y + tileSize * 0.34, tileSize - pad * 2, frame);
+    ctx.fillRect(x + pad, y + tileSize * 0.66 - frame, tileSize - pad * 2, frame);
+    ctx.fillStyle = colors.leaf;
+    ctx.fillRect(x + pad * 1.5, y + tileSize * 0.4, tileSize - pad * 3, tileSize * 0.2);
+    if ((door.style ?? 'wood') === 'grated') {
+      ctx.fillStyle = colors.frame;
+      for (let step = 1; step <= 3; step += 1) {
+        ctx.fillRect(
+          x + (tileSize * step) / 4,
+          y + tileSize * 0.38,
+          Math.max(1, tileSize * 0.05),
+          tileSize * 0.24,
+        );
+      }
+    }
+  }
+
+  if (debug) {
+    ctx.fillStyle = 'rgba(8, 11, 16, 0.78)';
+    ctx.fillRect(x + pad, y + tileSize * 0.02, tileSize - pad * 2, tileSize * 0.22);
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = `700 ${Math.max(6, Math.round(tileSize * 0.2))}px ui-monospace, monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      (door.style ?? 'wood').slice(0, 1).toUpperCase(),
+      x + tileSize / 2,
+      y + tileSize * 0.13,
+    );
+  }
+}
+
+/** Escaleras y puerta de salida: se distingue de una puerta decorativa. */
+function drawExit(
+  ctx: CanvasRenderingContext2D,
+  exit: Exit,
+  assets: SceneAssets,
+  range: ReturnType<typeof visibleTileRange>,
+  tileSize: number,
+): void {
+  if (!tileVisible(exit.position.x, exit.position.y, range)) return;
+  const x = exit.position.x * tileSize;
+  const y = exit.position.y * tileSize;
+
+  if (exit.kind === 'door') {
+    const pad = Math.max(1, tileSize * 0.1);
+    ctx.fillStyle = EXIT_GOLD;
+    ctx.fillRect(x + pad, y + pad, tileSize - pad * 2, tileSize - pad * 2);
+    ctx.fillStyle = '#3b2a12';
+    ctx.fillRect(x + pad * 2, y + pad * 2, tileSize - pad * 4, tileSize - pad * 4);
+    ctx.fillStyle = '#fbbf24';
+    ctx.fillRect(
+      x + tileSize * 0.44,
+      y + tileSize * 0.44,
+      Math.max(1, tileSize * 0.12),
+      Math.max(1, tileSize * 0.12),
+    );
+    ctx.fillStyle = '#fef3c7';
+    ctx.fillRect(x + 1, y + 1, tileSize - 2, Math.max(1, tileSize * 0.06));
+  } else {
+    const rect = STAIR_RECTS[exit.kind];
+    ctx.drawImage(
+      assets.tiles,
+      rect.sx,
+      rect.sy,
+      rect.sw,
+      rect.sh,
+      x,
+      y,
+      tileSize,
+      tileSize,
+    );
+    const steps = 4;
+    for (let step = 0; step < steps; step += 1) {
+      const width = tileSize * (0.68 - step * 0.13);
+      const height = Math.max(1.5, tileSize * 0.065);
+      const stepX = x + (tileSize - width) / 2;
+      const stepY =
+        exit.kind === 'stairs-down'
+          ? y + tileSize * (0.2 + step * 0.16)
+          : y + tileSize * (0.7 - step * 0.16);
+      ctx.fillStyle =
+        step % 2 === 0 ? 'rgba(254, 243, 199, 0.92)' : 'rgba(242, 193, 78, 0.92)';
+      ctx.fillRect(stepX, stepY, width, height);
+    }
+    ctx.fillStyle = EXIT_GOLD;
+    ctx.fillRect(x + 1, y + 1, tileSize - 2, Math.max(1, tileSize * 0.06));
+  }
+}
+
+function drawBorder(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  thickness = 1,
+): void {
+  ctx.fillStyle = color;
+  ctx.fillRect(x, y, width, thickness);
+  ctx.fillRect(x, y + height - thickness, width, thickness);
+  ctx.fillRect(x, y, thickness, height);
+  ctx.fillRect(x + width - thickness, y, thickness, height);
+}
+
+function drawDebugLabel(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  color = '#dbeafe',
+): void {
+  ctx.font = `700 ${Math.max(6, Math.round(size))}px ui-monospace, monospace`;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  const width = ctx.measureText(text).width + 6;
+  ctx.fillStyle = 'rgba(8, 11, 16, 0.78)';
+  ctx.fillRect(x, y, width, size + 4);
+  ctx.fillStyle = color;
+  ctx.fillText(text, x + 3, y + 2);
+}
+
+/**
+ * Capa de `F1` bajo las unidades: máscaras y límites de sala, corredores con su
+ * anchura y la caverna. No interviene en el juego normal.
+ */
+function drawDebugUnderlay(
+  ctx: CanvasRenderingContext2D,
+  state: GameState,
+  range: ReturnType<typeof visibleTileRange>,
+  tileSize: number,
+): void {
+  const map = state.map;
+  if (!map) return;
+
+  map.rooms.forEach((room, index) => {
+    ctx.fillStyle = ROOM_TINTS[index % ROOM_TINTS.length];
+    for (const cell of room.cells ?? []) {
+      if (!tileVisible(cell.x, cell.y, range)) continue;
+      ctx.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
+    }
+    if (room.x > range.maxX || room.y > range.maxY) return;
+    drawBorder(
+      ctx,
+      room.x * tileSize + 0.5,
+      room.y * tileSize + 0.5,
+      room.width * tileSize - 1,
+      room.height * tileSize - 1,
+      'rgba(127, 179, 213, 0.8)',
+    );
+  });
+
+  for (const corridor of map.corridors) {
+    const color =
+      corridor.width === 2
+        ? 'rgba(232, 184, 109, 0.95)'
+        : 'rgba(127, 179, 213, 0.35)';
+    for (const cell of corridor.cells ?? corridor.path) {
+      if (!tileVisible(cell.x, cell.y, range)) continue;
+      drawBorder(
+        ctx,
+        cell.x * tileSize + 0.5,
+        cell.y * tileSize + 0.5,
+        tileSize - 1,
+        tileSize - 1,
+        color,
+      );
+    }
+  }
+
+  const cavernId = map.cavernRoomId;
+  if (cavernId !== undefined && cavernId !== null) {
+    const cavern = map.rooms.find((room) => room.id === cavernId);
+    if (cavern) {
+      drawBorder(
+        ctx,
+        cavern.x * tileSize + 1,
+        cavern.y * tileSize + 1,
+        cavern.width * tileSize - 2,
+        cavern.height * tileSize - 2,
+        'rgba(186, 154, 224, 0.95)',
+        2,
+      );
+    }
+  }
+}
+
+/**
+ * Capa de `F1` sobre las unidades: spawn de 6, accesos, entrada/salida, puertas
+ * con motivo, bocas sin puerta y puntos calientes.
+ */
+function drawDebugOverlay(
+  ctx: CanvasRenderingContext2D,
+  state: GameState,
+  range: ReturnType<typeof visibleTileRange>,
+  tileSize: number,
+): void {
+  const map = state.map;
+  if (!map) return;
+
+  const spawnRoom =
+    map.spawns.roomId === undefined
+      ? undefined
+      : map.rooms.find((room) => room.id === map.spawns.roomId);
+  if (spawnRoom) {
+    ctx.fillStyle = 'rgba(127, 179, 213, 0.18)';
+    for (const cell of spawnRoom.cells ?? []) {
+      if (!tileVisible(cell.x, cell.y, range)) continue;
+      ctx.fillRect(cell.x * tileSize, cell.y * tileSize, tileSize, tileSize);
+    }
+    drawBorder(
+      ctx,
+      spawnRoom.x * tileSize + 0.5,
+      spawnRoom.y * tileSize + 0.5,
+      spawnRoom.width * tileSize - 1,
+      spawnRoom.height * tileSize - 1,
+      'rgba(127, 179, 213, 0.9)',
+      2,
+    );
+  }
+
+  const party = map.spawns.party ?? [map.spawns.player];
+  party.forEach((hole, index) => {
+    if (!tileVisible(hole.x, hole.y, range)) return;
+    const radius = Math.max(2, tileSize * (index === 0 ? 0.38 : 0.28));
+    ctx.fillStyle = index === 0 ? 'rgba(127, 179, 213, 0.95)' : 'rgba(232, 184, 109, 0.9)';
+    ctx.fillRect(
+      hole.x * tileSize + tileSize / 2 - radius,
+      hole.y * tileSize + tileSize / 2 - radius,
+      radius * 2,
+      radius * 2,
+    );
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(
+      hole.x * tileSize + tileSize / 2 - radius,
+      hole.y * tileSize + tileSize / 2 - radius,
+      radius * 2,
+      Math.max(1, tileSize * 0.08),
+    );
+    ctx.fillStyle = '#0d1117';
+    ctx.font = `700 ${Math.max(6, Math.round(tileSize * 0.42))}px ui-sans-serif, system-ui, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(
+      index === 0 ? 'J' : String(index + 1),
+      hole.x * tileSize + tileSize / 2,
+      hole.y * tileSize + tileSize / 2 + 0.5,
+    );
+    ctx.fillStyle = '#dbeafe';
+    ctx.font = `600 ${Math.max(6, Math.round(tileSize * 0.22))}px ui-monospace, monospace`;
+    ctx.fillText(
+      `${hole.x},${hole.y}`,
+      hole.x * tileSize + tileSize / 2,
+      hole.y * tileSize + tileSize * 0.12,
+    );
+  });
+
+  for (const door of map.doors) {
+    if (!tileVisible(door.x, door.y, range)) continue;
+    drawBorder(
+      ctx,
+      door.x * tileSize + 1,
+      door.y * tileSize + 1,
+      tileSize - 2,
+      tileSize - 2,
+      'rgba(248, 250, 252, 0.7)',
+    );
+  }
+
+  for (const mouth of map.openMouths ?? []) {
+    if (!tileVisible(mouth.x, mouth.y, range)) continue;
+    const color =
+      mouth.reason === 'pasillo-ancho'
+        ? 'rgba(232, 184, 109, 0.95)'
+        : 'rgba(224, 122, 122, 0.95)';
+    drawBorder(
+      ctx,
+      mouth.x * tileSize + 1.5,
+      mouth.y * tileSize + 1.5,
+      tileSize - 3,
+      tileSize - 3,
+      color,
+    );
+    drawDebugLabel(
+      ctx,
+      mouth.reason,
+      mouth.x * tileSize,
+      mouth.y * tileSize - Math.max(7, tileSize * 0.3),
+      Math.max(5, tileSize * 0.18),
+      '#fecaca',
+    );
+  }
+
+  if (map.entrance) {
+    const point = map.entrance.position;
+    if (tileVisible(point.x, point.y, range)) {
+      const x = point.x * tileSize;
+      const y = point.y * tileSize;
+      drawBorder(ctx, x + 2, y + 2, tileSize - 4, tileSize - 4, '#7dd3fc', 2);
+      drawDebugLabel(ctx, 'entrada', x, y - Math.max(8, tileSize * 0.32), Math.max(6, tileSize * 0.2), '#dbeafe');
+    }
+  }
+
+  if (map.exit) {
+    const exit = map.exit;
+    if (tileVisible(exit.position.x, exit.position.y, range)) {
+      const x = exit.position.x * tileSize;
+      const y = exit.position.y * tileSize;
+      drawBorder(ctx, x + 1, y + 1, tileSize - 2, tileSize - 2, EXIT_GOLD);
+      drawDebugLabel(
+        ctx,
+        `salida ${exit.kind} · R${exit.roomId} · d${exit.distance}`,
+        x,
+        y - Math.max(8, tileSize * 0.32),
+        Math.max(6, tileSize * 0.2),
+        EXIT_GOLD,
+      );
+      for (const roomId of exit.path) {
+        const room = map.rooms.find((candidate) => candidate.id === roomId);
+        if (!room) continue;
+        drawBorder(
+          ctx,
+          room.x * tileSize + 2,
+          room.y * tileSize + 2,
+          room.width * tileSize - 4,
+          room.height * tileSize - 4,
+          'rgba(242, 193, 78, 0.65)',
+        );
+      }
+    }
+  }
+
+  for (const hotspot of map.hotspots ?? []) {
+    if (!tileVisible(hotspot.x, hotspot.y, range)) continue;
+    const color = HOTSPOT_COLORS[hotspot.reason] ?? '#f2c14e';
+    const centerX = hotspot.x * tileSize + tileSize / 2;
+    const centerY = hotspot.y * tileSize + tileSize / 2;
+    const radius = Math.max(2, tileSize * 0.18);
+    ctx.fillStyle = hotspot.eligible ? color : 'transparent';
+    if (hotspot.eligible) {
+      ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+    drawBorder(
+      ctx,
+      centerX - radius,
+      centerY - radius,
+      radius * 2,
+      radius * 2,
+      color,
+    );
+    if (hotspot.occupied) {
+      drawBorder(
+        ctx,
+        centerX - radius * 1.55,
+        centerY - radius * 1.55,
+        radius * 3.1,
+        radius * 3.1,
+        '#f8fafc',
+      );
+    }
+  }
+
+  for (const enemy of map.enemies ?? []) {
+    if (!tileVisible(enemy.x, enemy.y, range)) continue;
+    if (enemy.hidden) {
+      drawBorder(
+        ctx,
+        enemy.x * tileSize + tileSize * 0.12,
+        enemy.y * tileSize + tileSize * 0.12,
+        tileSize * 0.76,
+        tileSize * 0.76,
+        '#f472b6',
+      );
+    }
+    drawDebugLabel(
+      ctx,
+      `s${enemy.roomId} · ${enemy.type}${enemy.hidden ? ' · H' : ''}`,
+      enemy.x * tileSize,
+      enemy.y * tileSize - Math.max(7, tileSize * 0.3),
+      Math.max(5, tileSize * 0.18),
+      enemy.hidden ? '#f9a8d4' : '#f8fafc',
+    );
+  }
+}
+
 /**
  * Dibuja la sala y las entidades en un contexto 2D. Es una función de solo
  * lectura: recibe el estado del motor, la cámara y el viewport, y no conoce
@@ -200,6 +659,9 @@ export function renderScene(
     );
   }
 
+  const debug = options.debug ?? false;
+  if (debug) drawDebugUnderlay(ctx, state, range, tileSize);
+
   for (let y = range.minY; y <= range.maxY; y += 1) {
     for (let x = range.minX; x <= range.maxX; x += 1) {
       if (state.grid.tiles[y * state.grid.width + x] !== 'wall') continue;
@@ -212,6 +674,14 @@ export function renderScene(
         tileSize,
       );
     }
+  }
+
+  // Puertas válidas y salida de nivel; las bocas abiertas nunca dibujan puerta.
+  for (const door of state.map?.doors ?? []) {
+    drawDoor(ctx, door, range, tileSize, debug);
+  }
+  if (state.map?.exit) {
+    drawExit(ctx, state.map.exit, assets, range, tileSize);
   }
 
   // Armas del mapa: formas planas provisionales entre decals/muros y unidades.
@@ -236,6 +706,8 @@ export function renderScene(
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
     drawUnit(ctx, assets.rogues, KNIGHT_RECT, center);
   }
+
+  if (debug) drawDebugOverlay(ctx, state, range, tileSize);
 
   ctx.restore();
 }

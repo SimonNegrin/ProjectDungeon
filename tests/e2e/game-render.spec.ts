@@ -2,6 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { artifactPath } from './artifacts';
+import { openBspState } from './support';
 
 const CANVAS_ID = '#game-canvas';
 
@@ -38,10 +39,7 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  await page.goto('/?seed=279837264');
-  await page.waitForFunction(() => Boolean(window.__game));
-
-  const snapshot = await page.evaluate(() => window.__game!.snapshot());
+  const snapshot = await openBspState(page, 279837264);
 
   expect(snapshot.grid.width).toBe(32);
   expect(snapshot.grid.height).toBe(32);
@@ -50,11 +48,14 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   expect(snapshot.rooms).toHaveLength(9);
   expect(snapshot.corridors).toHaveLength(10);
   expect(snapshot.doors).toHaveLength(18);
-  expect(snapshot.spawns).toEqual({
-    player: { x: 6, y: 8 },
-    enemy: { x: 23, y: 28 },
+  expect(snapshot.spawns).toMatchObject({
+    player: { x: 9, y: 27 },
+    enemy: { x: 28, y: 5 },
     distance: 59,
   });
+  expect(typeof snapshot.spawns?.roomId).toBe('number');
+  expect(snapshot.spawns?.party).toHaveLength(6);
+  expect(snapshot.spawns?.party?.[0]).toEqual(snapshot.spawns?.player);
   expect(snapshot.tileSize).toBe(32);
   expect(snapshot.players.map((unit) => unit.id)).toEqual(['player-1']);
   expect(snapshot.enemies.map((unit) => unit.id)).toEqual([
@@ -63,8 +64,8 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
     'enemy-3',
     'enemy-4',
   ]);
-  expect(snapshot.players[0]).toMatchObject({ x: 6, y: 8 });
-  expect(snapshot.enemies[0]).toMatchObject({ x: 23, y: 28 });
+  expect(snapshot.players[0]).toMatchObject({ x: 9, y: 27 });
+  expect(snapshot.enemies[0]).toMatchObject({ x: 28, y: 5 });
   expect(snapshot.phase).toBe('player');
   expect(snapshot.status).toBe('playing');
   expect(snapshot.turn).toBe(1);
@@ -73,7 +74,7 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
   expect(snapshot.viewport.width / snapshot.tileSize).toBe(13);
   expect(snapshot.viewport.height / snapshot.tileSize).toBe(13);
-  expect(snapshot.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+  expect(snapshot.camera).toEqual({ x: 96, y: 608, maxX: 608, maxY: 608 });
   expect(snapshot.camera.x).toBeGreaterThanOrEqual(0);
   expect(snapshot.camera.x).toBeLessThanOrEqual(snapshot.camera.maxX);
   expect(snapshot.camera.y).toBeGreaterThanOrEqual(0);
@@ -81,13 +82,14 @@ test('la página de juego renderiza el mapa generado, expone el snapshot y limit
   expect(() => JSON.stringify(snapshot)).not.toThrow();
   expect(JSON.parse(JSON.stringify(snapshot)).spawns).toEqual(snapshot.spawns);
 
-  // El enemigo en (23,28) empieza fuera del viewport de 416 px.
-  expect(snapshot.enemies[0].x * snapshot.tileSize).toBeGreaterThan(
-    snapshot.camera.x + snapshot.viewport.width,
-  );
-  expect(snapshot.enemies[0].y * snapshot.tileSize).toBeGreaterThan(
-    snapshot.camera.y + snapshot.viewport.height,
-  );
+  // El enemigo en (28,5) empieza fuera del viewport de 416 px.
+  const enemy = snapshot.enemies[0];
+  const outside =
+    enemy.x * snapshot.tileSize > snapshot.camera.x + snapshot.viewport.width ||
+    enemy.y * snapshot.tileSize > snapshot.camera.y + snapshot.viewport.height ||
+    (enemy.x + 1) * snapshot.tileSize < snapshot.camera.x ||
+    (enemy.y + 1) * snapshot.tileSize < snapshot.camera.y;
+  expect(outside).toBe(true);
 
   const canvas = page.locator(CANVAS_ID);
   await expect(canvas).toBeVisible();

@@ -79,6 +79,81 @@ describe('GrowthMapGenerator', () => {
     expect(validateGrowthMap(map).issues).toEqual([]);
   });
 
+  it('expone bocas abiertas, puntos calientes y caverna sin tocar el contrato BSP', () => {
+    const map = generatedMap(PERF_SEED);
+    const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
+
+    expect(Array.isArray(map.openMouths)).toBe(true);
+    expect(Array.isArray(map.hotspots)).toBe(true);
+    expect(map.cavernRoomId === null || typeof map.cavernRoomId === 'number').toBe(true);
+    for (const mouth of map.openMouths ?? []) {
+      expect(doorKeys.has(`${mouth.x},${mouth.y}`), `boca ${mouth.x},${mouth.y}`).toBe(false);
+      expect(isFloorTile(map, mouth.x, mouth.y), `boca ${mouth.x},${mouth.y}`).toBe(true);
+      expect([
+        'sin-soporte',
+        'sin-suelo',
+        'misma-sala',
+        'separacion',
+        'una-por-pasillo',
+        'pasillo-ancho',
+      ]).toContain(mouth.reason);
+      expect(map.rooms.some((room) => room.id === mouth.roomA)).toBe(true);
+      expect(map.rooms.some((room) => room.id === mouth.roomB)).toBe(true);
+    }
+    for (const hotspot of map.hotspots ?? []) {
+      expect(isFloorTile(map, hotspot.x, hotspot.y), `hotspot ${hotspot.x},${hotspot.y}`).toBe(
+        true,
+      );
+      expect(roomAt(map.rooms, hotspot.x, hotspot.y)?.id).toBe(hotspot.roomId);
+      expect(['rincon', 'sin-LOS', 'ambos']).toContain(hotspot.reason);
+    }
+    const hidden = (map.enemies ?? []).filter((enemy) => enemy.hidden);
+    const occupied = (map.hotspots ?? []).filter((hotspot) => hotspot.occupied);
+    expect(occupied.length).toBe(hidden.length);
+    expect(occupied.every((hotspot) => hotspot.eligible)).toBe(true);
+
+    const bsp = new BspMapGenerator().generate(PERF_SEED);
+    expect(bsp.openMouths).toBeUndefined();
+    expect(bsp.hotspots).toBeUndefined();
+    expect(bsp.cavernRoomId).toBeUndefined();
+  });
+
+  it('marca una sala caverna cuando se fuerza la variante', () => {
+    const map = new GrowthMapGenerator().generate(PERF_SEED, {
+      cavernChance: 100,
+      wideCorridorChance: 0,
+    });
+
+    expect(typeof map.cavernRoomId).toBe('number');
+    const cavern = map.rooms.find((room) => room.id === map.cavernRoomId);
+    expect(cavern).toBeDefined();
+    expect(map.rooms.length).toBe(3);
+  });
+
+  it('el jugador inicial es party[0] y los enemigos conservan tipo, home y emboscada', () => {
+    const state = createInitialState({
+      seed: PERF_SEED,
+      generator: new GrowthMapGenerator(),
+    });
+    const map = state.map!;
+
+    expect(state.players[0]).toMatchObject({
+      x: map.spawns.party![0].x,
+      y: map.spawns.party![0].y,
+    });
+    expect(state.enemies).toHaveLength(map.enemies!.length);
+    for (const [index, enemy] of state.enemies.entries()) {
+      const source = map.enemies![index];
+      expect(enemy).toMatchObject({
+        id: source.id,
+        enemyType: source.type,
+        x: source.x,
+        y: source.y,
+        home: source.home,
+      });
+    }
+  });
+
   it('es determinista: misma semilla y opciones producen estructuras profundamente iguales', () => {
     const options = { mapWidth: 22, mapHeight: 18, roomCount: 5 };
     const first = new GrowthMapGenerator().generate(PERF_SEED, options);

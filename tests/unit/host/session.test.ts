@@ -171,6 +171,35 @@ describe('sesión de juego', () => {
     expect(session.state.status).toBe('playing');
   });
 
+  it('cargar un estado BSP conserva su generador y mapa al reiniciar', () => {
+    const bsp = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
+    const session = new GameSession(makeState());
+    session.load(bsp, new BspMapGenerator());
+    const before = JSON.parse(JSON.stringify(session.state.map));
+
+    const result = session.dispatch({ type: 'Restart' });
+
+    expect(result.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(session.seed).toBe(279837264);
+    expect(JSON.parse(JSON.stringify(session.state.map))).toEqual(before);
+    expect(session.state.grid).toMatchObject({ width: 32, height: 32 });
+  });
+
+  it('cargar un estado growth conserva su generador y mapa al reiniciar', () => {
+    const growth = createInitialState({ seed: 2738263054 });
+    const session = new GameSession(makeState());
+    session.load(growth);
+    const before = JSON.parse(JSON.stringify(session.state.map));
+
+    session.dispatch({ type: 'Restart' });
+
+    expect(session.seed).toBe(2738263054);
+    expect(JSON.parse(JSON.stringify(session.state.map))).toEqual(before);
+  });
+
   it('una sesión manual sin mapa sigue reiniciando al estado por defecto', () => {
     const session = new GameSession(makeState());
     session.dispatch(commandFromKey(' ', session, { x: 5, y: 4 }));

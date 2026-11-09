@@ -6,6 +6,8 @@
  */
 
 import type { EnemyType } from './bestiary';
+import type { OpenMouth } from './chambers/core/doors';
+import type { Hotspot } from './chambers/core/enemies';
 import type { WeaponId } from './equipment';
 import type { Position, Tile } from './types';
 
@@ -176,6 +178,18 @@ export interface GeneratedMap {
   readonly exit?: Exit | null;
   /** Enemigos repartidos por el mapa; opcionales para mapas manuales. */
   readonly enemies?: readonly MapEnemy[];
+  /**
+   * Accesos sin puerta calculados por variantes de producción (`growth`).
+   * Opcional: BSP y los mapas manuales no lo rellenan.
+   */
+  readonly openMouths?: readonly OpenMouth[];
+  /**
+   * Puntos calientes de emboscada calculados por variantes de producción.
+   * Opcional para no cambiar el contrato histórico.
+   */
+  readonly hotspots?: readonly Hotspot[];
+  /** Sala caverna de la variante, o `null`/`undefined` si no hay. */
+  readonly cavernRoomId?: number | null;
   /**
    * Armas recogibles colocadas por semilla. Opcional para mapas construidos a
    * mano en tests; el generador BSP siempre las incluye.

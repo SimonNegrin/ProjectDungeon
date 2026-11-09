@@ -11,6 +11,7 @@ import {
   detectionState,
   loadState,
   openGame,
+  referenceState,
   screenshot,
   watchConsole,
 } from './perception-fixtures';
@@ -317,7 +318,13 @@ test('TASK-0039: semilla de referencia, R-010 y determinismo', async ({
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page, NORMAL_SEED_URL);
-  const initial = await snapshot(page);
+
+  // Juego normal conserva exactamente las claves históricas de `__game`.
+  const normalKeys = await page.evaluate(() => Object.keys(window.__game!).sort());
+  expect(normalKeys).toEqual(['advance', 'dispatch', 'snapshot']);
+
+  await openGame(page, TEST_SEED_URL);
+  const initial = await loadState(page, referenceState());
 
   expect(initial.seed).toBe(REFERENCE_SEED);
   expect(
@@ -368,9 +375,6 @@ test('TASK-0039: semilla de referencia, R-010 y determinismo', async ({
   );
   expect(isolated.map((enemy) => enemy.id)).toContain('enemy-3');
 
-  // Juego normal conserva exactamente las claves históricas de `__game`.
-  const normalKeys = await page.evaluate(() => Object.keys(window.__game!).sort());
-  expect(normalKeys).toEqual(['advance', 'dispatch', 'snapshot']);
   await screenshot(page, testInfo, 'colocacion-semilla');
 
   // Misma semilla y misma secuencia => mismo estado y mismos eventos, incluida

@@ -9,6 +9,7 @@ import {
   ensureAdjacentWithMp,
   moveAwayFromEnemy,
   moveCursorTo,
+  openBspState,
   settle,
   snapshot,
   visibleRange,
@@ -47,10 +48,7 @@ async function openGame(
   await page.emulateMedia({
     reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference',
   });
-  await page.goto(SEED_URL);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, SEED, SEED_URL);
   await page.evaluate(() => {
     window.addEventListener('keydown', () => {
       window.__game!.advance(0);
@@ -813,9 +811,18 @@ test('reduced motion: movimiento instantáneo con el mismo estado y eventos', as
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
 
+  // El destino se deriva del jugador actual: el cursor debe caber en el
+  // viewport 13×13 del BSP vigente, sin fijar la geometría histórica.
+  const targetOf = (snap: Awaited<ReturnType<typeof snapshot>>) => ({
+    x: snap.players[0].x + 1,
+    y: snap.players[0].y,
+  });
+
   // Referencia animada: mismo comando y misma semilla.
   await openGame(page);
-  await moveCursorTo(page, 8, 8);
+  const animatedStart = await snapshot(page);
+  const animatedTarget = targetOf(animatedStart);
+  await moveCursorTo(page, animatedTarget.x, animatedTarget.y);
   await page.keyboard.press('Space');
   const animated = await settle(page);
   expect(animated.animation.animating).toBe(false);
@@ -826,7 +833,10 @@ test('reduced motion: movimiento instantáneo con el mismo estado y eventos', as
 
   // Misma ejecución con la preferencia de movimiento reducido activa.
   await openGame(page, { reducedMotion: true });
-  await moveCursorTo(page, 8, 8);
+  const instantStart = await snapshot(page);
+  const instantTarget = targetOf(instantStart);
+  expect(instantTarget).toEqual(animatedTarget);
+  await moveCursorTo(page, instantTarget.x, instantTarget.y);
   await page.keyboard.press('Space');
   const instant = await snapshot(page);
 

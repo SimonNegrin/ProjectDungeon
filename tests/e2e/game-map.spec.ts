@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
-import { settle, walkTo } from './support';
+import { openBspState, settle, walkTo } from './support';
 import { artifactPath } from './artifacts';
 
 const TILE_SIZE = 32;
@@ -17,10 +17,7 @@ async function snapshot(page: Page): Promise<GameSnapshot> {
 
 async function openGame(page: Page, search = '/?seed=279837264'): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(search);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, 279837264, search);
 }
 
 async function saveScreenshot(
@@ -107,14 +104,16 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   expect(initial.rooms).toHaveLength(9);
   expect(initial.corridors).toHaveLength(10);
   expect(initial.doors).toHaveLength(18);
-  expect(initial.spawns).toEqual({
-    player: { x: 6, y: 8 },
-    enemy: { x: 23, y: 28 },
+  expect(initial.spawns).toMatchObject({
+    player: { x: 9, y: 27 },
+    enemy: { x: 28, y: 5 },
     distance: 59,
   });
-  expect(initial.players[0]).toMatchObject({ x: 6, y: 8 });
-  expect(initial.enemies[0]).toMatchObject({ x: 23, y: 28 });
-  expect(initial.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+  expect(initial.spawns?.party).toHaveLength(6);
+  expect(initial.spawns?.party?.[0]).toEqual(initial.spawns?.player);
+  expect(initial.players[0]).toMatchObject({ x: 9, y: 27 });
+  expect(initial.enemies[0]).toMatchObject({ x: 28, y: 5 });
+  expect(initial.camera).toEqual({ x: 96, y: 608, maxX: 608, maxY: 608 });
   expect(initial.camera.x).toBe(expectedCamera(initial).x);
   expect(initial.camera.y).toBe(expectedCamera(initial).y);
 
@@ -132,8 +131,8 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   await page.keyboard.press('Space');
   await settle(page);
   const moved = await snapshot(page);
-  expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
-  expect(moved.camera).toEqual({ x: 32, y: 64, maxX: 608, maxY: 608 });
+  expect(moved.players[0]).toMatchObject({ x: 10, y: 27, mp: 5 });
+  expect(moved.camera).toEqual({ x: 128, y: 608, maxX: 608, maxY: 608 });
   expect(moved.camera.x).toBe(expectedCamera(moved).x);
   expect(moved.camera.y).toBe(expectedCamera(moved).y);
 
@@ -148,7 +147,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   expect(debugText).toContain('0 (3,4) 7×9 large');
   expect(debugText).toContain('Huecos:');
   expect(debugText).toContain('(10,5) vertical sala 0');
-  expect(debugText).toContain('Spawns: jugador (6,8) · enemigo (23,28) · distancia 59');
+  expect(debugText).toContain('Spawns: jugador (9,27) · enemigo (28,5) · distancia 59');
   expect(debugText).toContain('Pasillos anchos:');
   expect(debugText).toContain('F2 nueva semilla');
   await saveScreenshot(page, 'debug-on', testInfo);
@@ -165,7 +164,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   const afterRestart = await snapshot(page);
   expect(afterRestart.seed).toBe(initial.seed);
   expect(afterRestart.spawns).toEqual(initial.spawns);
-  expect(afterRestart.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
+  expect(afterRestart.players[0]).toMatchObject({ x: 9, y: 27, mp: 6 });
   expect(afterRestart.grid.tiles).toEqual(initial.grid.tiles);
 
   // F2: semilla nueva y mapa regenerado.
@@ -193,7 +192,7 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   await saveCanvasCrop(page, 'wall-corner', testInfo, 3.5 * TILE_SIZE, 11.5 * TILE_SIZE);
   // Pasillo ancho 0→1 en la columna x≈1-2, ahora visible sobre y≈15.
   await saveCanvasCrop(page, 'wide-corridor', testInfo, 2.5 * TILE_SIZE, 15.5 * TILE_SIZE);
-  expect(corner.spawns?.player).toEqual({ x: 6, y: 8 });
+  expect(corner.spawns?.player).toEqual({ x: 9, y: 27 });
 
   expect(consoleErrors).toEqual([]);
 });
