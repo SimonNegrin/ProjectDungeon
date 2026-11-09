@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0045 — cerrada: core de spawn protegido, enemigos y salida; BSP conserva 4 sin salida; intento 1 corregido en el 2 (0/200 fallos); verify 689/689 y barrido de 200; fusión `55cb174` — [informe](../artifacts/TASK-0045/attempt-2/report.md)
 * 2026-11-09 — Task — TASK-0044 — cerrada: núcleo puro de chambers (opciones, formas, pasillos, puertas, paletas) con plan geométrico sin spawn/salida; verify 657/657, suites dirigidas 22/22 y barrido de 200 semillas (100 % conectividad, 3 caverna/4-6 normal, ~19,5 % caverna, ~25 % ancho); fusión `a8ff8c5` — [informe](../artifacts/TASK-0044/attempt-1/report.md)
 * 2026-11-09 — Task — TASK-0043 — cerrada: modelo serializable con máscaras, puertas entre salas, pasillos con extremos y spawn de grupo; BSP intacto; verify 635/635 y suites dirigidas 93/93; fusión `76f9a7e` — [informe](../artifacts/TASK-0043/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012/REQ-013 — v4/v4/v2 stable: `growth` elegido y por defecto; 22×18, 5 salas, salas 3-8, 6 jugadores, 0,02/1,2, emboscadas 0,25 y `exitMode random`; BSP queda como alternativa — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)

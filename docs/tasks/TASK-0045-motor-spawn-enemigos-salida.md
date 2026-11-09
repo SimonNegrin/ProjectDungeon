@@ -4,22 +4,50 @@ id: TASK-0045
 title: "Motor: spawn de grupo, enemigos y salida compartidos"
 description: Promocionar la selección de spawn, el reparto de enemigos y la salida de EXP-004 al core, y adaptar BSP al nuevo spawn sin cambiar sus 4 enemigos.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-012
 requirement_ids: [R-001, R-002, R-003, R-004, R-006, R-007, R-008, R-009, R-011, R-014, R-015, T-001, T-002, T-003, T-004, T-005, T-006]
 depends_on: [TASK-0044]
 unlocks: [TASK-0046]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T16:42:00Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0045/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T16:42:00Z
+    note: >-
+      Intentos 1 y 2 verificados en task/TASK-0045 (código a5cf2e2, 28330d8,
+      00046a1 y 7123fb9; evidencia 1095598, 50abec9 y 9a40eaa; fusión 55cb174).
+      El intento 1 se rechazó: el spawn contaba también las bocas estrechas y
+      33/200 semillas no elegían la sala más protegida (evidencia en
+      attempt-1/lead-access-check.txt). El intento 2 lo corrige: accesos =
+      puertas + 2 por pasillo ancho y desempate por superficie libre sin
+      puertas; el chequeo independiente da 0/200 fallos. Diff completo revisado:
+      core nuevo (spawn, enemies, exit, contents), adaptación de BSP y
+      enemy-placement, una línea en map.ts y tests de spawn; sin tocar
+      src/host/, experiments/, index.html, dependencias, bestiario, percepción,
+      alarma, IA ni combate, y sin variants/growth.ts. Lead re-ejecutó
+      `pnpm run verify` (689/689 tests, docs/config y build OK; lead-verify.txt),
+      las suites dirigidas (155/155; lead-targeted.txt) y el barrido de 200
+      semillas (T 10-12, spawn protegido, sin enemigos ni LOS en spawn, reserva
+      de salida). BSP conserva 4 enemigos en 4 salas, pareja ≤8 y aislado >8 en
+      25 semillas (bsp-regression.txt). Sin tests borrados, saltados o
+      debilitados: solo se adaptaron las coordenadas de spawn afectadas.
+      Desviaciones: `validateGeneratedMap` sigue rechazando planes densos con
+      enlaces de 1 tile y 1-3 huecos; se difiere a TASK-0046 sin relajar BSP.
+      3/200 mapas de 3 salas con spawn central no tienen sala a distancia ≥2 y
+      la salida cae a distancia 1 con aviso R-007 (lead-exit-fallback-check.txt,
+      semillas 26, 62 y 194); se eleva a requirements-writer por la tensión
+      REQ-013 R-005/R-007. E2E no aplica: es TASK-0049 y su spec fija el spawn
+      antiguo. Fricción del runner (BSP no expone openMouths): aceptada como
+      workaround local derivado de corredores `width: 2`; sin cambio de modelo.
 ---
 
 # Objetivo
