@@ -1,0 +1,29 @@
+{
+  "experiment": "EXP-004",
+  "seed": 2738263054,
+  "parameters": {
+    "mapWidth": 22,
+    "mapHeight": 18,
+    "roomCount": 5,
+    "roomMin": 3,
+    "roomMax": 8,
+    "corridorMaxLength": 3,
+    "wideCorridorChance": 33,
+    "wallThickness": 1,
+    "megaRoomChance": 15,
+    "spawnMinTiles": 6,
+    "numPlayers": 6,
+    "enemySurfaceFactor": 0.02,
+    "enemyPlayersFactor": 1.2,
+    "hiddenEnemyChance": 0.25,
+    "exitMode": "random",
+    "variant": "growth",
+    "showDebug": false,
+    "showDoors": true,
+    "showSpawn": true,
+    "showEnemies": true
+  },
+  "decision": "growth",
+  "notes": "Growth se promociona a generador por defecto en producción. La configuración registrada es la candidata: 22x18, 5 salas, salas de 3-8 tiles, pasillo máximo 3, ancho 33%, muro 1, caverna 15%, 6 huecos de spawn, 6 jugadores, factores 0,02/1,2 y emboscadas 0,25. La representación final de la salida se valida en el playtest de producción; producción usa exitMode random por defecto. BSP con máscaras y plantillas quedan en EXP-004 hasta que se pidan.",
+  "decidedAt": "2026-11-09T14:59:21.082Z"
+}

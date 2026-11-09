@@ -3,13 +3,13 @@ type: Requirement Sheet
 id: REQ-012
 title: Aparición alrededor del acceso y reparto de enemigos por superficie
 description: Los jugadores aparecen juntos alrededor del acceso de la sala más protegida (evitando la mayor en empate), con 6 huecos y componentes adyacentes de máximo 2; el generador denso reparte enemigos interiores con emboscadas por puntos calientes y calcula el total por superficie y jugadores. BSP conserva 4 enemigos.
-status: draft
-version: 3
+status: stable
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T12:21:36Z
-related_tasks: [TASK-0040, TASK-0041]
+updated_at: 2026-11-09T15:30:00Z
+related_tasks: [TASK-0040, TASK-0041, TASK-0042, TASK-0043, TASK-0044, TASK-0045, TASK-0046, TASK-0047, TASK-0048, TASK-0049]
 related_requirements: [REQ-003, REQ-009, REQ-011, REQ-013]
 amends: [REQ-003, REQ-009]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
@@ -37,6 +37,13 @@ verified:
       en 8 direcciones y ninguna componente puede superar 2 fichas; los enemigos
       prefieren el interior y pueden aparecer emboscados en puntos calientes con
       tirada independiente al 0,5. La salida de nivel se define en REQ-013.
+  - by: human:simon
+    at: 2026-11-09T14:59:21Z
+    note: >-
+      Aprueba la v4 con la configuración registrada en EXP-004: 6 jugadores por
+      defecto, factor por jugador 1,2 y emboscadas al 0,25. El término de
+      jugadores de T pasa a ceil(1,2 × 6) = 8; con N de 85-162 el total queda en
+      10-12 en un mapa 22×18. BSP conserva 4 enemigos.
 ---
 
 # Contexto
@@ -97,7 +104,7 @@ unidades y cómo se reparten las fichas.
 | R-003 | La sala de spawn no contiene enemigos. | Ninguna ficha enemiga cae dentro de la máscara de la sala de spawn. |
 | R-004 | Ningún enemigo empieza con línea de visión a ningún hueco de spawn. Se elimina la distancia fija de 12 tiles. | Para cada enemigo y cada hueco de spawn, la comprobación de línea de visión de `REQ-009` devuelve `false`; el test cubre muros y puertas abiertas. |
 | R-005 | En BSP se mantienen **4 enemigos**: 2 centinelas, 1 bruto y 1 cobarde, en salas distintas, ninguno en la sala de spawn y ninguno con visión inicial. Se conservan la pareja de alarma y el aislado de `REQ-009`. | La semilla de referencia cumple las 4 fichas, 4 salas distintas, sin spawn, sin visión inicial, pareja ≤8 y aislado >8; otra semilla también. |
-| R-006 | En el generador denso, el total de enemigos se calcula por **superficie de salas y número de jugadores**: `T = ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P)`, donde `N` es la suma de tiles de suelo de las salas (sin pasillos) y `P` son los jugadores (1-6). Los factores por defecto son **0,02** por tile y **1,35** por jugador; ambos son parámetros configurables y se exponen en el experimento y en el snapshot. BSP conserva 4 enemigos y no usa esta fórmula. | Un validador comprueba el total con varias `N`, `P` y factores; con los valores por defecto de un mapa 22×18 el total queda en 9-11; factores a 0 producen 0 enemigos; cambiar un factor cambia `T` como indica la fórmula; BSP sigue con 4. |
+| R-006 | En el generador denso, el total de enemigos se calcula por **superficie de salas y número de jugadores**: `T = ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P)`, donde `N` es la suma de tiles de suelo de las salas (sin pasillos) y `P` son los jugadores (1-6). Los valores por defecto son **0,02** por tile, **1,2** por jugador y **6 jugadores**; todos son parámetros configurables y se exponen en el experimento y en el snapshot. BSP conserva 4 enemigos y no usa esta fórmula. | Un validador comprueba el total con varias `N`, `P` y factores; con los valores por defecto de un mapa 22×18 el total queda en 10-12; factores a 0 producen 0 enemigos; cambiar un factor o `P` cambia `T` como indica la fórmula; BSP sigue con 4. |
 | R-007 | El total se reparte de forma **proporcional al área** de cada sala no-spawn, con **mínimo 1 por sala**. La sala de spawn no recibe enemigos y no hay salas vacías por defecto. El reparto usa el método del mayor resto con desempate determinista. El tile de salida no recibe ninguna ficha. | La suma de presupuestos es `T`; cada sala no-spawn tiene al menos 1; la de spawn tiene 0; las salas grandes reciben al menos tantas fichas como las pequeñas salvo el mínimo; el reparto es estable por semilla; ninguna ficha cae en la salida. |
 | R-008 | Composición del generador denso: **60 % centinelas, 20 % brutos y 20 % cobardes**. Brutos y cobardes se redondean a la unidad y el resto son centinelas; si `T ≥ 4` hay al menos 1 bruto y 1 cobarde. Los cobardes van a las salas más lejanas del spawn, los brutos a las de mayor área y los centinelas rellenan el resto. | Con 10 enemigos: 6 centinelas, 2 brutos y 2 cobardes; con 4: 2/1/1; con 3: 1/1/1; con 2: 2/0/0; con 0: ninguna ficha. Las posiciones y tipos son deterministas. |
 | R-009 | En el generador denso, los enemigos pueden ser **adyacentes en parejas**, pero ninguna **componente conexa de adyacencia de 8 direcciones** puede superar **2** fichas. Se permiten dos enemigos que se toquen, pero no una cadena o piña de 3 o más. No hay dos fichas en el mismo tile y dos parejas distintas no pueden tocarse. BSP conserva sus 4 enemigos en salas distintas. | Un test con una pareja adyacente la acepta; otro con tres en línea o en triángulo la rechaza; dos parejas separadas por Chebyshev 2 se aceptan; no hay dos fichas en el mismo tile. |
@@ -106,7 +113,7 @@ unidades y cómo se reparten las fichas.
 | R-012 | La sala de spawn, el número de accesos, los 6 huecos y el reparto de enemigos se exponen en el snapshot y en la capa de debug. | `F1` muestra la sala, sus accesos y los huecos; el snapshot serializa `spawnRoomId`, `party` y las fichas con su sala. |
 | R-013 | La regla de spawn se aplica a todos los generadores: BSP y el generador denso. No hay una variante “antigua” para BSP. | Los tests de ambos generadores comprueban la misma sala protegida, la ausencia de enemigos y la ausencia de visión inicial. |
 | R-014 | En el generador denso, la colocación prefiere **celdas interiores**: una celda es interior si sus 4 vecinos ortogonales son suelo de la misma sala. El borde se usa solo cuando no queda una celda interior compatible con el presupuesto, la adyacencia, el spawn y la salida. Los emboscados de R-015 son la excepción deliberada. | Un validador comprueba que ningún enemigo no-emboscado queda en el borde si existe una celda interior libre y compatible que pueda sustituirlo sin romper reglas. Las métricas separan interiores, borde y emboscados; las salas sin interior suficiente lo declaran. |
-| R-015 | **Emboscadas en puntos calientes:** un punto caliente es una celda de suelo de una sala no-spawn con **≥3 vecinos ortogonales de muro** o **sin línea de visión a ningún acceso** de la sala. Cada punto caliente elegible tiene una tirada determinista **independiente** con probabilidad `hiddenEnemyChance` (0-1, por defecto **0,5**). Si sale, ocupa una ficha del presupuesto de su sala; nunca añade enemigos. No todos los puntos calientes se ocupan: el resultado varía con la semilla. Se excluyen spawn, salida, puertas, armas y celdas que rompan R-009. Cualquier tipo puede ser emboscado. | Con probabilidad 0 no hay emboscados; con 1 se ocupan todos los puntos calientes elegibles hasta agotar el presupuesto; con 0,5 el porcentaje ocupado varía y no es 0 % ni 100 % en el barrido. Dos llamadas con la misma semilla devuelven lo mismo. No se supera `T`, no hay fichas en spawn/salida/puerta/arma y se respeta la adyacencia ≤2. |
+| R-015 | **Emboscadas en puntos calientes:** un punto caliente es una celda de suelo de una sala no-spawn con **≥3 vecinos ortogonales de muro** o **sin línea de visión a ningún acceso** de la sala. Cada punto caliente elegible tiene una tirada determinista **independiente** con probabilidad `hiddenEnemyChance` (0-1, por defecto **0,25**). Si sale, ocupa una ficha del presupuesto de su sala; nunca añade enemigos. No todos los puntos calientes se ocupan: el resultado varía con la semilla. Se excluyen spawn, salida, puertas, armas y celdas que rompan R-009. Cualquier tipo puede ser emboscado. | Con probabilidad 0 no hay emboscados; con 1 se ocupan todos los puntos calientes elegibles hasta agotar el presupuesto; con 0,25 el porcentaje ocupado varía y no es 0 % ni 100 % en el barrido. Dos llamadas con la misma semilla devuelven lo mismo. No se supera `T`, no hay fichas en spawn/salida/puerta/arma y se respeta la adyacencia ≤2. |
 
 # Requisitos técnicos
 
@@ -117,13 +124,13 @@ unidades y cómo se reparten las fichas.
 | T-003 | La colocación de BSP conserva las 4 fichas y sus restricciones de alarma, pero excluye la sala de spawn y exige ausencia de línea de visión. | `placeMapEnemies` o su sucesor acepta el mapa nuevo; la semilla de referencia mantiene 4 fichas, 4 salas, pareja ≤8 y aislado >8. |
 | T-004 | La colocación del generador denso usa un presupuesto calculado por superficie y jugadores, lo reparte por área con mínimo 1 por sala no-spawn y permite varias fichas por sala con **componentes de adyacencia ≤2**, preferencia por interior y emboscadas en puntos calientes. | Un test con 4-6 salas comprueba el total, el reparto, los tipos, la adyacencia, el interior y las emboscadas; no se fuerza el cupo de 4 ni un máximo fijo por sala. |
 | T-005 | La comprobación de “sin línea de visión” reutiliza la función de percepción de `REQ-009` y se evalúa para todos los huecos de spawn antes de aceptar una colocación. Si no hay combinación, se aplica R-011. | Un test con un enemigo detrás de un muro y otro delante del hueco comprueba que solo el segundo invalida la colocación. |
-| T-006 | Los umbrales viven en constantes documentadas: mínimo de huecos de spawn (6), radio del acceso (2), **adyacencia de grupo en 8 direcciones y máximo 2 por componente**, factor por tile (0,02), factor por jugador (1,35), **probabilidad de emboscada (0,5)**, distancia mínima de salida (2, `REQ-013`) y jugadores por defecto (3). Los valores de BSP para sus 4 fichas se mantienen separados. | Las constantes se exportan y los tests las usan; cambiarlas no exige tocar la lógica. |
+| T-006 | Los umbrales viven en constantes documentadas: mínimo de huecos de spawn (6), radio del acceso (2), **adyacencia de grupo en 8 direcciones y máximo 2 por componente**, factor por tile (0,02), factor por jugador (1,2), **probabilidad de emboscada (0,25)**, distancia mínima de salida (2, `REQ-013`) y jugadores por defecto (6). Los valores de BSP para sus 4 fichas se mantienen separados. | Las constantes se exportan y los tests las usan; cambiarlas no exige tocar la lógica. |
 | T-007 | Hay validadores y tests para ambos generadores con la semilla de referencia y al menos 20 semillas alternativas. | Vitest cubre sala protegida, 6 huecos, sin enemigos, sin visión, reparto, adyacencia, interior, puntos calientes, probabilidad 0/1, fallback y reserva de la salida; no se debilitan tests de `REQ-003`/`REQ-009`. |
 | T-008 | El host muestra en debug la sala de spawn, sus accesos, los huecos, los puntos calientes y los enemigos emboscados; el HUD no cambia en juego normal. | `F1` alterna la capa; sin `F1` no aparece información nueva; el snapshot incluye los datos. |
 | T-009 | No se añaden dependencias y el coste de la colocación no bloquea el arranque. | `package.json` no cambia; la generación de 22×18 con reparto queda por debajo de 50 ms en CI. |
 | T-010 | Las sustituciones de `REQ-003` R-007 y `REQ-009` R-010/T-007 se registran en esas hojas y en el glosario, incluidos **punto caliente**, **enemigo emboscado** y **componente de adyacencia**. | Las tres hojas enlazan entre sí y no queda una regla contradictoria sin marcar. |
 | T-011 | No se borran, saltan ni debilitan tests existentes; las expectativas que cambian se justifican por esta hoja. | El diff de tests solo adapta los casos de spawn afectados; el resto se mantiene. |
-| T-012 | `EXP-004` expone `enemySurfaceFactor` (0-0,10, por defecto 0,02), `enemyPlayersFactor` (0-3,00, por defecto 1,35), `numPlayers` (1-6, por defecto 3) y **`hiddenEnemyChance`** (0-1, por defecto 0,5). El panel muestra `N`, `P`, ambos términos, `T`, el reparto por sala, puntos calientes, emboscados y componentes adyacentes; el JSON de decisión incluye factores, probabilidad y desglose. | Un test unitario comprueba que cambiar cada factor cambia `T` según la fórmula, incluido 0; cambiar la probabilidad cambia los emboscados sin cambiar `T`; la página permite editar y exportar los cuatro valores; el payload serializa el desglose completo. |
+| T-012 | `EXP-004` expone `enemySurfaceFactor` (0-0,10, por defecto 0,02), `enemyPlayersFactor` (0-3,00, por defecto 1,2), `numPlayers` (1-6, por defecto 6) y **`hiddenEnemyChance`** (0-1, por defecto 0,25). El panel muestra `N`, `P`, ambos términos, `T`, el reparto por sala, puntos calientes, emboscados y componentes adyacentes; el JSON de decisión incluye factores, probabilidad y desglose. | Un test unitario comprueba que cambiar cada factor o `P` cambia `T` según la fórmula, incluido 0; cambiar la probabilidad cambia los emboscados sin cambiar `T`; la página permite editar y exportar los cuatro valores; el payload serializa el desglose completo. |
 | T-013 | La colocación de enemigos del generador denso es una función pura y determinista: puntúa celdas interiores, puntos calientes y borde, aplica la tirada de emboscada por celda y valida componentes de adyacencia ≤2. El tile de salida de `REQ-013` se excluye. | Dos llamadas con la misma semilla devuelven las mismas fichas; un test con una celda de salida comprueba que no se ocupa; la función no usa `Math.random`, relojes ni DOM. |
 
 # Requisitos no funcionales
@@ -176,12 +183,12 @@ unidades y cómo se reparten las fichas.
    dirá si esa concentración se lee mal y conviene limitarla.
 3. **Umbral de 6 huecos:** es el mínimo para 6 jugadores. Si una sala protegida
    tiene 6 pero muy apretados, el experimento dirá si conviene exigir 8.
-4. **Factores de densidad:** 0,02 y 1,35 son el punto de partida aprobado. El
-   experimento valida si la densidad resultante es la buscada; el usuario puede
-   ajustarlos sin cambiar código.
-5. **Calibración de emboscadas:** 0,5 es el punto de partida. El experimento
-   dirá si conviene bajarlo para que sorprendan más o subirlo para que se lean
-   como parte de la sala. La probabilidad no altera `T`.
+4. **Factores de densidad:** 0,02, 1,2 y 6 jugadores son la configuración
+   aprobada tras el playtest. El usuario puede ajustarlos sin cambiar código; el
+   playtest de producción dirá si `T` queda alto o bajo.
+5. **Calibración de emboscadas:** 0,25 es el valor aprobado. El playtest dirá si
+   conviene bajarlo para que sorprendan más o subirlo para que se lean como
+   parte de la sala. La probabilidad no altera `T`.
 6. **Sala de spawn no-mayor:** el desempate evita la sala mayor solo cuando hay
    empate de protección. Si el playtest pide evitar la mayor incluso con más
    accesos, se cambiará la jerarquía en una versión posterior.
@@ -207,6 +214,8 @@ unidades y cómo se reparten las fichas.
 | 2026-11-09 | Adyacencia de 8 direcciones con componentes de grupo ≤2 para jugadores y enemigos; se permiten parejas. | human:simon | aceptada |
 | 2026-11-09 | Enemigos interiores con borde como recurso; puntos calientes con tirada independiente al 0,5, sin enemigos extra. | human:simon | aceptada |
 | 2026-11-09 | La salida se define en `REQ-013`; esta hoja solo reserva su tile. | human:simon | aceptada |
+| 2026-11-09 | Valores por defecto del generador denso: 6 jugadores, factor por jugador 1,2 y emboscadas al 0,25; `T` resultante 10-12 en 22×18. | human:simon | aceptada |
+| 2026-11-09 | La colocación de enemigos del generador denso se promociona con `growth`; BSP conserva sus 4 fichas y su propia colocación. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

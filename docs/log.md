@@ -2,6 +2,10 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Requirement — REQ-011/REQ-012/REQ-013 — v4/v4/v2 stable: `growth` elegido y por defecto; 22×18, 5 salas, salas 3-8, 6 jugadores, 0,02/1,2, emboscadas 0,25 y `exitMode random`; BSP queda como alternativa — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)
+* 2026-11-09 — Experiment — EXP-004 — decidido `growth` con semilla 2738263054 y configuración de playtest; registro en `results/decision-2026-11-09T14-59-21Z.json`; A/B/C restantes siguen en el experimento — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
+* 2026-11-09 — Decision — ADR-013 — core compartido, variante `growth`, import estático, BSP alternativo, build de producción sin `experiments/` y guarda de bundle — [ADR-013](decisions/ADR-013-generador-produccion-por-variante.md)
+* 2026-11-09 — Planning — TASK-0043 a TASK-0049 — modelo, núcleo, spawn/enemigos/salida, variante, guarda de bundle, host y QA/playtest; solo TASK-0043 `ready` — [TASK-0043](tasks/TASK-0043-motor-modelo-mapa-produccion.md)
 * 2026-11-09 — Task — TASK-0042 — cerrada: EXP-004 v3 con mínimo 3 salas, spawn no-mayor, parejas adyacentes ≤2, enemigos interiores con emboscadas y salida `door`/`stairs`; verify 620, barrido de 1.200 mapas sin incidencias y 128 capturas; fusión `b5f62fa` — [informe](../artifacts/TASK-0042/attempt-2/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012 — v3 aprobadas: mínimo 3 salas, spawn no-mayor, parejas adyacentes ≤2, enemigos interiores con emboscadas al 0,5 y salida delegada a REQ-013 — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
 * 2026-11-09 — Requirement — REQ-013 — creada: entrada de spawn, salida única no-spawn a distancia ≥2, puerta exterior o escalera con `exitMode` en EXP-004; sin transición funcional — [REQ-013](requirements/REQ-013-entrada-salida-exploracion.md)

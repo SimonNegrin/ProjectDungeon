@@ -3,13 +3,13 @@ type: Requirement Sheet
 id: REQ-011
 title: Generador de mazmorra densa con salas irregulares
 description: Segundo MapGenerator seleccionable con mapas pequeños y densos, 4-6 salas poligonales en mapas normales y 3 en cavernas (mínimo global 3), pasillos de 0-3 tiles, pasillos anchos ocasionales, caverna excepcional y puertas decorativas con soporte de muro y separación.
-status: draft
-version: 3
+status: stable
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T12:21:36Z
-related_tasks: [TASK-0040, TASK-0041]
+updated_at: 2026-11-09T15:30:00Z
+related_tasks: [TASK-0040, TASK-0041, TASK-0042, TASK-0043, TASK-0044, TASK-0045, TASK-0046, TASK-0047, TASK-0048, TASK-0049]
 related_requirements: [REQ-003, REQ-008, REQ-012, REQ-013]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
@@ -34,6 +34,15 @@ verified:
       Aprueba la v3: mínimo global de 3 salas; mapas normales de 4-6 y
       caverna de 3 (caverna + 2 anexas). La exploración mínima y la salida de
       nivel se definen en REQ-013.
+  - by: human:simon
+    at: 2026-11-09T14:59:21Z
+    note: >-
+      Aprueba la v4: growth es el método elegido y pasa a generador por defecto
+      en producción. La configuración registrada en EXP-004 es la candidata:
+      22×18, 5 salas, salas de 3-8 tiles, pasillo máximo 3, ancho 33 %, muro 1,
+      caverna 15 % y mínimo 6 huecos. BSP sigue disponible como alternativa
+      inyectable y conserva sus tests; BSP con máscaras y plantillas quedan en
+      el experimento hasta que se pidan.
 ---
 
 # Contexto
@@ -45,9 +54,14 @@ hechos con el mismo tileset de 32rogues que responden a una intención distinta:
 mazmorras **densas**, talladas dentro de una masa de muro, con salas de silueta
 caprichosa, rincones, pasillos muy cortos y habitaciones que comparten pared.
 
-Este corte añade un **segundo** `MapGenerator` seleccionable. BSP sigue siendo
-el generador por defecto hasta que el usuario lo decida después de jugar. No se
-sustituye el motor, la cámara, el HUD, el combate ni la IA.
+Este corte añade un **segundo** `MapGenerator` seleccionable y, tras el playtest
+de `EXP-004`, `growth` pasa a ser el generador por defecto de producción. BSP se
+mantiene como implementación alternativa inyectable, no se borra y conserva sus
+tests. No se sustituye el motor, la cámara, el HUD, el combate ni la IA.
+
+La comparación A/B/C no vive en producción: sigue en `EXP-004`. El build de
+producción importa solo la variante elegida de forma estática y no incluye un
+`switch` runtime ni los módulos de las variantes descartadas.
 
 La referencia visual está en las tres capturas aportadas por el usuario en la
 conversación de requisitos del 2026-11-08. El experimento `EXP-004` reproduce el
@@ -91,7 +105,7 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | R-004 | Las salas pueden compartir pared: al menos una pareja de salas queda separada por 1-2 tiles de muro y se conecta con una puerta válida en esa pared, directa o con un tile de paso. El grosor de muro entre salas es de 1-2 tiles y el borde exterior del mapa es muro en todo su perímetro. Una puerta de salida de `REQ-013` puede dibujarse sobre un tile de muro del borde, pero no abre paso ni crea suelo fuera. | Un validador encuentra al menos una pareja con distancia de 2 tiles entre suelos y una puerta válida entre ellos; mide el grosor de muro entre salas (1-2) y comprueba el cierre del borde, incluida la puerta de salida si existe. |
 | R-005 | Las conexiones son puertas directas (0 tiles de pasillo) o pasillos de 1-3 tiles de recorrido. No hay pasillos de 4 o más tiles salvo el pasillo ancho de R-006. El grafo de salas es conexo y tiene entre 0 y 3 bucles. | Un BFS confirma conectividad; la distribución de longitudes de pasillo está entre 0 y 3; el número de conexiones extra sobre el árbol está entre 0 y 3; no hay pasos diagonales. |
 | R-006 | En aproximadamente 1 de cada 3 mapas aparece un pasillo ancho de 2 tiles, con al menos 3 tiles de longitud, sin puertas. Como máximo hay uno por mapa y no aparece en todos. | Sobre 30 semillas, entre el 25 % y el 40 % tiene exactamente un pasillo `wide` de 2 tiles y longitud ≥3; ninguna tiene más de uno; ningún `wide` tiene puerta. |
-| R-007 | En aproximadamente 1 de cada 6 mapas, el mapa es una caverna: una sala irregular grande (≥55 % del suelo de sala) más **2 salas anexas** (3 salas en total). La caverna tiene al menos 4 muescas y el resto del mapa conserva pasillos cortos. | Sobre 60 semillas, entre el 10 % y el 20 % son mapas de caverna; la sala principal cumple área, muescas y número total de salas **3**; el resto de mapas no activa la variante. |
+| R-007 | En aproximadamente 1 de cada 6 mapas (~15 %), el mapa es una caverna: una sala irregular grande (≥55 % del suelo de sala) más **2 salas anexas** (3 salas en total). La caverna tiene al menos 4 muescas y el resto del mapa conserva pasillos cortos. | Sobre 60 semillas, entre el 10 % y el 20 % son mapas de caverna; la sala principal cumple área, muescas y número total de salas **3**; el resto de mapas no activa la variante. |
 | R-008 | La sala de spawn se elige y se expone según `REQ-012`: la más protegida (evitando la mayor en empate), con **6 huecos válidos** para los 6 jugadores futuros y sin enemigos. El generador devuelve la sala, los 6 huecos, la entrada, la salida y los enemigos ya repartidos. | Un validador comprueba que la sala de spawn admite 6 huecos, que no hay enemigos en ella y que los 6 huecos son suelo distinto, fuera de puertas, salida y armas. |
 | R-009 | Cada acceso entre dos salas distintas tiene una **puerta decorativa** transitable cuando la geometría cumple las reglas; si no, queda una **boca abierta con aviso**. Una puerta válida ocupa un tile de muro con **dos vecinos de muro en la línea del muro** (arriba/abajo o izquierda/derecha) y **suelo transitable a ambos lados** del eje de paso. La separación global entre puertas es **Chebyshev ≥3** y hay **como máximo una puerta por pasillo** de 0-3 tiles; los pasillos anchos no llevan puertas. La puerta no bloquea, no tiene llave ni estado abierto/cerrado y no cambia las reglas. Su estilo visual se deriva de la zona o la paleta de la sala y es estable por semilla. | Un validador comprueba soporte de muro, suelo a ambos lados, conexión entre dos salas distintas, separación Chebyshev ≥3, una puerta por pasillo y ausencia en pasillos anchos. Cada puerta tiene estilo; caminar por ella no cuesta más; dos partidas con la misma semilla usan los mismos estilos; las posiciones inválidas no dibujan puerta y aparecen como boca abierta con motivo en debug/métricas. |
 | R-010 | Cada sala usa una paleta de suelo de `REQ-008`; los pasillos usan la paleta neutra. La asignación se hace por sala completa, incluidas sus muescas, y no cambia dentro de una misma sala. En la caverna, toda la sala comparte una paleta. | Un validador comprueba que todas las celdas de una sala comparten paleta, que los pasillos son neutros y que la decoración no invade puertas ni huecos de spawn. |
@@ -104,10 +118,10 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | T-001 | La generación es una función pura, determinista y sin DOM. Recibe semilla y opciones y devuelve un `GeneratedMap` completo. | No importa `src/host/`; no usa `Math.random`, `Date.now` ni `performance.now`; dos llamadas con la misma semilla devuelven estructuras profundamente iguales. |
-| T-002 | La implementación nueva se encapsula tras `MapGenerator` con un `id` propio (propuesta: `chambers`). BSP sigue siendo la implementación por defecto. El host puede seleccionar la nueva explícitamente. | `MapGenerator` no cambia de forma incompatible; `createInitialState` sigue usando BSP si no se inyecta nada; el host puede cargar `chambers` por URL o configuración sin registro de plugins. |
+| T-002 | La implementación de `growth` se encapsula tras `MapGenerator` con `id = 'growth'` y pasa a ser la implementación por defecto. BSP queda como alternativa inyectable. El host no elige variante en runtime: el punto de composición importa `growth` de forma estática. | `MapGenerator` no cambia de forma incompatible; `createInitialState` usa `growth` si no se inyecta nada; los tests inyectan BSP y siguen pasando; no hay registro de plugins ni `switch` de variantes en producción. |
 | T-003 | El modelo de sala deja de ser solo rectangular. `Room` conserva `x`, `y`, `width`, `height` como caja de límites y añade la máscara de celdas o la lista de rectángulos que forma la sala. `roomAt` y cualquier consulta de pertenencia usan la máscara. | Un test comprueba que una celda de una muesca pertenece a la sala correcta y que una celda de la caja que no es suelo no pertenece a ninguna sala; el estado sigue siendo serializable. |
 | T-004 | `GeneratedMap.spawns` se amplía con la sala de spawn y 6 posiciones de grupo. `spawns.player` se conserva como alias del primer hueco para no romper el motor actual. `spawns.enemy` queda como dato heredado y no es la fuente de verdad de la colocación. | El snapshot incluye `spawnRoomId`, `party` y al menos 1 jugador; los tests antiguos que leen `spawns.player` siguen funcionando; el motor usa `party[0]` para el jugador. |
-| T-005 | `MapOptions` gana parámetros de forma: número de salas, tamaño mínimo/máximo, longitud máxima de pasillo, probabilidad de pasillo ancho, grosor de muro, probabilidad de caverna y mínimo de huecos de spawn. Los valores imposibles se corrigen con aviso, sin lanzar. El recuento de salas nunca baja de 3; los mapas normales usan 4-6 y la caverna fija 3. | Los tests pasan opciones extremas y reciben un mapa válido con `warnings`; la configuración por defecto es 22×18, 4-6 salas normales, 3 en caverna, pasillo máximo 3, ancho ~33 %, pared 1-2, caverna ~17 % y spawn mínimo 6. |
+| T-005 | `MapOptions` gana parámetros de forma: número de salas, tamaño mínimo/máximo **en tiles**, longitud máxima de pasillo, probabilidad de pasillo ancho, grosor de muro, probabilidad de caverna y mínimo de huecos de spawn. Los valores imposibles se corrigen con aviso, sin lanzar. El recuento de salas nunca baja de 3; los mapas normales usan 4-6 y la caverna fija 3. | Los tests pasan opciones extremas y reciben un mapa válido con `warnings`; la configuración por defecto es 22×18, 5 salas, salas de 3-8 tiles, pasillo máximo 3, ancho 33 %, muro 1 (se admite 1-2), caverna 15 % y spawn mínimo 6. `roomMin`/`roomMax` son tamaños de sala, no número de salas. |
 | T-006 | `Door` incluye un estilo visual estable (`wood`, `metal`, `grated` o equivalente) derivado del ambiente/paleta de la sala. El host dibuja el tile correspondiente de 32rogues. | El estilo está en el estado serializable; el render no usa `Math.random`; la misma semilla produce los mismos estilos; hay al menos 3 estilos disponibles. |
 | T-007 | El render consume la máscara de sala y dibuja puertas decorativas solo en huecos válidos, por debajo de las unidades; las bocas abiertas se dibujan sin puerta. La regla de muro por borde (`wallSide1` solo con suelo al sur, `wallTop` en el resto) se mantiene. | Una tabla de casos cubre la selección de tile de muro; las puertas se dibujan en horizontal y vertical; el jugador puede estar sobre la puerta; no hay puertas dibujadas en pasillos anchos ni en bocas abiertas inválidas. |
 | T-008 | Hay validadores puros y tests para conectividad, formas, muescas, muros compartidos, longitud de pasillos, frecuencia de anchos y cavernas, spawn y puertas. | Vitest cubre cada criterio con al menos un caso positivo y uno negativo; no se debilitan tests de `REQ-003` ni de `REQ-008`. |
@@ -117,6 +131,8 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | T-012 | BSP sigue funcionando y conserva su estructura, sus salas rectangulares y sus tests, salvo la aparición de `REQ-012`. La implementación nueva no comparte estado mutable con BSP. | Todos los tests de BSP pasan; la misma semilla produce el mismo mapa BSP que antes salvo spawns; no hay estado global compartido. |
 | T-013 | Los tests existentes no se borran, saltan ni debilitan para hacer pasar el generador nuevo. Las diferencias de contrato se documentan y se cubren con tests nuevos. | El diff de tests solo añade casos o adapta expectativas de spawn justificadas por `REQ-012`; el resto queda intacto. |
 | T-014 | La colocación de puertas es una función pura y determinista que valida soporte de muro, suelo a ambos lados, conexión entre dos salas distintas, separación global Chebyshev ≥3 y máximo una puerta por pasillo. Devuelve las puertas válidas y la lista de bocas abiertas con su motivo. | Dos llamadas con la misma semilla y geometría devuelven las mismas puertas y bocas; un mapa con una puerta sin dos muros, dos puertas a distancia <3, dos puertas en un pasillo o una puerta en pasillo ancho conserva como máximo una puerta válida y convierte el resto en bocas abiertas con aviso, nunca en puertas inválidas. |
+| T-015 | El generador se organiza en `src/game/chambers/core/` para lo compartido y `src/game/chambers/variants/growth.ts` para la variante elegida. El punto de composición de producción importa solo `growth`, de forma estática. No hay un `switch (variant)` runtime ni imports de `experiments/` en producción. | El build de producción no contiene marcadores de variantes no elegidas (`buildBsp`, `pickTemplate` u otros) ni chunks de `bsp`/`templates`; un test o comprobación de CI lo verifica. Añadir una variante exige un módulo y un import estático nuevos, no un registro dinámico. |
+| T-016 | La comparación A/B/C vive en `EXP-004` y en el servidor de desarrollo. El build de producción no incluye los entry points de `experiments/`; si se necesitan, se construyen con un comando separado. | `pnpm run build` genera solo el entry de producción y la guarda de bundle pasa; `pnpm run build:experiments` (o equivalente) construye los experimentos sin contaminar el bundle de juego. |
 
 # Requisitos no funcionales
 
@@ -162,26 +178,29 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 - Bestiario nuevo, cambios de IA o de combate más allá de `REQ-012`.
 - Implementar el cooperativo; solo se reservan los 6 huecos de spawn.
 - Paletas de suelo o decals nuevos; se reutiliza `REQ-008`.
-- Cambiar BSP como generador por defecto antes del playtest.
+- Promover BSP con máscaras o plantillas a producción; quedan en `EXP-004`
+  hasta que se pidan expresamente.
+- Un selector de generador en runtime o un registro de plugins.
+- La cámara secreta; se añadirá después, solo sobre la variante elegida.
 - Arte y audio finales.
 
 # Preguntas abiertas
 
-1. **Algoritmo y parámetros de forma:** se deciden en `EXP-004` comparando
-   A · crecimiento de salas sobre roca, B · BSP con máscaras irregulares y
-   C · plantillas poligonales empaquetadas.
+1. **Cámara secreta:** se añadirá después de validar `growth` en producción,
+   solo sobre la variante elegida. No entra en este corte.
 2. **Caverna grande:** una sola paleta de suelo para toda la caverna. Si el
-   experimento la ve monótona, se prueban dos subzonas.
+   playtest la ve monótona, se prueban dos subzonas.
 3. **Mapeo exacto puerta-zona:** se elige viendo el experimento con el tileset
    real; la hoja solo exige estabilidad y al menos 3 estilos.
 4. **Umbrales de forma:** la relación área/caja 0,55-0,92 y las 3 hornacinas son
-   objetivos; el experimento puede ajustarlos si la sensación no funciona.
+   objetivos; el playtest de producción puede ajustarlos si la sensación no
+   funciona.
 
 # Decisiones
 
 | Fecha | Decisión | Quién | Estado |
 |---|---|---|---|
-| 2026-11-08 | Segundo generador seleccionable; BSP sigue siendo el defecto hasta decidir tras jugar. | human:simon | aceptada |
+| 2026-11-08 | Segundo generador seleccionable; BSP sigue siendo el defecto hasta decidir tras jugar. | human:simon | sustituida por la decisión del 2026-11-09 |
 | 2026-11-08 | Mapas pequeños y densos por defecto (~22×18), con tamaño parametrizable para niveles futuros. | human:simon | aceptada |
 | 2026-11-08 | 4-6 salas, 1-2 grandes; caverna excepcional en ~1 de cada 6 mapas. | human:simon | aceptada |
 | 2026-11-08 | Salas poligonales rectilíneas con muescas, entrantes, salientes y hornacinas de 1-2 tiles. | human:simon | aceptada |
@@ -190,13 +209,16 @@ estilo con el tileset real y decide el algoritmo y los parámetros de forma.
 | 2026-11-08 | Puerta decorativa en cada hueco, acorde a la zona, sin reglas de bloqueo. | human:simon | aceptada |
 | 2026-11-08 | Un solo material de muro por ahora; el estilo viene de la geometría. | human:simon | aceptada |
 | 2026-11-08 | Validar el estilo en `EXP-004` antes de fijar el algoritmo y las tareas. | human:simon | aceptada |
-| 2026-11-08 | El modelo de sala pasa a máscara de celdas conservando la caja de límites. | requirements-writer | propuesta |
-| 2026-11-08 | La nueva implementación se llamará `chambers` y se seleccionará explícitamente. | requirements-writer | propuesta |
+| 2026-11-08 | El modelo de sala pasa a máscara de celdas conservando la caja de límites. | requirements-writer | aceptada en v4 |
+| 2026-11-08 | La nueva implementación se llamará `chambers` y se seleccionará explícitamente. | requirements-writer | sustituida: variante `growth` |
 | 2026-11-09 | Puertas con dos muros en la línea, suelo a ambos lados y conexión entre dos salas distintas; sustituye la puerta en cada hueco. | human:simon | aceptada |
 | 2026-11-09 | Separación global Chebyshev ≥3 y máximo una puerta por pasillo; ninguna en pasillo ancho. | human:simon | aceptada |
 | 2026-11-09 | Si no hay posición válida, boca abierta con aviso; nunca una puerta inválida. | human:simon | aceptada |
 | 2026-11-09 | Mínimo global de 3 salas; normales 4-6; caverna 3 (caverna + 2 anexas). | human:simon | aceptada |
 | 2026-11-09 | La entrada y la salida de nivel se definen en `REQ-013`; este generador reserva el tile de salida. | human:simon | aceptada |
+| 2026-11-09 | `growth` es el método elegido y pasa a generador por defecto en producción; BSP queda como alternativa inyectable. | human:simon | aceptada |
+| 2026-11-09 | Configuración candidata registrada en `EXP-004`: semilla 2738263054, 22×18, 5 salas, salas 3-8, pasillo 3, ancho 33 %, muro 1, caverna 15 %, spawn 6, 6 jugadores y `exitMode` random. | human:simon | aceptada |
+| 2026-11-09 | Módulos por variante, import estático de `growth` y build de producción sin `experiments/` ni variantes descartadas. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

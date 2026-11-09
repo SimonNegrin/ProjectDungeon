@@ -3,36 +3,37 @@ type: Experiment
 id: EXP-004
 title: Comparador de generadores de salas irregulares
 description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla; incluye puertas validadas, spawn alrededor del acceso, enemigos interiores con emboscadas y salida de nivel.
-status: draft
-experiment_status: ready
+status: stable
+experiment_status: decided
 question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable con entrada, enemigos y salida?
 related_requirements: [REQ-011, REQ-012, REQ-013]
-seed: 279837264
+seed: 2738263054
 parameters:
   mapWidth: 22
   mapHeight: 18
   roomCount: 5
   roomMin: 3
-  roomMax: 9
+  roomMax: 8
   corridorMaxLength: 3
   wideCorridorChance: 33
-  wallThickness: "1-2"
-  megaRoomChance: 17
+  wallThickness: 1
+  megaRoomChance: 15
   spawnMinTiles: 6
-  numPlayers: 3
+  numPlayers: 6
   enemySurfaceFactor: 0.02
-  enemyPlayersFactor: 1.35
-  hiddenEnemyChance: 0.5
+  enemyPlayersFactor: 1.2
+  hiddenEnemyChance: 0.25
   exitMode: random
+  variant: growth
   showDebug: false
   showDoors: true
   showSpawn: true
   showEnemies: true
-decision:
-decided_by:
-decided_at:
+decision: growth
+decided_by: human:simon
+decided_at: 2026-11-09T14:59:21.082Z
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T13:15:55Z
+updated_at: 2026-11-09T15:30:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -98,15 +99,17 @@ junto al spawn.
 # Cómo usarlo
 
 1. Abrir `/experiments/EXP-004-salas-irregulares/`.
-2. Fijar la semilla de referencia `279837264` y comparar A, B y C con los mismos
-   parámetros.
+2. Fijar la semilla de referencia `279837264` para comparar A, B y C, o la
+   semilla de playtest `2738263054` para reproducir la configuración elegida.
 3. Ajustar tamaño, número de salas, longitud máxima de pasillo, probabilidad de
    pasillo ancho, grosor de muro y probabilidad de caverna.
 4. Ajustar `numPlayers` (1-6), `enemySurfaceFactor` (0-0,10),
    `enemyPlayersFactor` (0-3,00) y `hiddenEnemyChance` (0-1) para comparar
-   densidades y emboscadas; por defecto 3 jugadores, 0,02, 1,35 y 0,5.
+   densidades y emboscadas; la configuración registrada es 6 jugadores, 0,02,
+   1,2 y 0,25.
 5. Cambiar `exitMode` entre `door`, `stairs-down`, `stairs-up` y `random` para
-   comparar la lectura de la salida y su distancia al spawn.
+   comparar la lectura de la salida y su distancia al spawn; producción usa
+   `random` por defecto.
 6. Activar y desactivar la capa de debug: máscaras de sala, puertas válidas,
    bocas abiertas, anchura de pasillo, acceso y huecos de spawn, puntos calientes,
    emboscados, entrada, salida y enemigos.
@@ -115,8 +118,12 @@ junto al spawn.
 8. Probar al menos 8 semillas, incluidas varias que activen caverna y pasillo
    ancho; no decidir con una sola.
 9. Comparar con las tres capturas de referencia del usuario.
-10. Elegir una variante y una representación de salida, añadir notas y exportar
-    el JSON de decisión.
+10. Reproducir la decisión registrada: `growth` con la semilla `2738263054` y la
+    configuración de playtest. Las otras variantes siguen disponibles para
+    comparar y se promoverán solo si se piden expresamente. Los sliders
+    conservan sus defaults históricos; para reproducir la configuración exacta,
+    fija los valores del JSON de decisión o cárgalo cuando la tarea de QA añada
+    el preset.
 
 # Métricas
 
@@ -221,8 +228,13 @@ recorte y producción no se toca. El experimento define el recorte local
 huellas doradas y una flecha para que la escalera se lea a 32 px y en 13×13. El
 render de `door` dibuja un marco dorado sobre el muro del borde; no abre paso.
 
-Queda pendiente el playtest para elegir variante y representación de salida; la
-decisión no se cierra aquí.
+**Decisión de playtest (2026-11-09):** se elige **A · crecimiento (`growth`)** con
+la semilla `2738263054` y la configuración registrada: 22×18, 5 salas, salas de
+3-8 tiles, pasillo máximo 3, ancho 33 %, muro 1, caverna 15 %, 6 huecos de
+spawn, 6 jugadores, factores 0,02/1,2, emboscadas 0,25 y `exitMode: random`.
+`growth` pasa a generador por defecto en producción. La representación final de
+la salida se valida en el playtest de producción; no bloquea la promoción. BSP
+con máscaras y plantillas quedan en el experimento hasta que se pidan.
 
 - Informe de la v1: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
 - Capturas de la v1: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
@@ -232,11 +244,15 @@ decisión no se cierra aquí.
 
 # Decisión
 
-- Opción:
-- Motivo:
-- Fecha:
-- Decidido por:
-- Semilla y parámetros:
+- Opción: **A · crecimiento de salas sobre roca (`growth`)**.
+- Motivo: es la variante que el usuario elige tras el playtest; se promociona a
+  producción sin arrastrar BSP con máscaras ni plantillas al bundle.
+- Fecha: 2026-11-09T14:59:21.082Z.
+- Decidido por: `human:simon`.
+- Semilla y parámetros: `2738263054`, 22×18, 5 salas, salas 3-8, pasillo 3,
+  ancho 33 %, muro 1, caverna 15 %, spawn 6, 6 jugadores, 0,02/1,2, emboscadas
+  0,25 y `exitMode: random`.
+- Registro: [decision-2026-11-09T14-59-21Z.json](results/decision-2026-11-09T14-59-21Z.json).
 
 # Evidencia
 
@@ -254,11 +270,11 @@ decisión no se cierra aquí.
 
 # Siguientes pasos
 
-- Revisar las capturas de la v3 con el usuario y comparar `exitMode`.
-- Elegir variante y representación de salida; registrar la decisión.
-- Actualizar `REQ-011`, `REQ-012` y `REQ-013` con el algoritmo, los parámetros y
-  la salida elegidos tras el playtest.
-- Crear las tareas de implementación del generador, el modelo de sala, el render
-  de puertas, el reparto de enemigos y el encadenado de niveles.
-- Promocionar la variante elegida a `src/game/` con tests de producción.
-- Archivar el experimento o dejarlo como referencia.
+- Promocionar `growth` a `src/game/chambers/variants/growth.ts` con el modelo
+  compartido en `src/game/chambers/core/` y un import estático en producción.
+- Crear las tareas `TASK-0043` a `TASK-0049`: modelo, núcleo, spawn/enemigos/
+  salida, variante, guarda de bundle, host y QA/playtest.
+- Mantener BSP como alternativa inyectable; no borrar ni debilitar sus tests.
+- Dejar A/B/C restantes en este experimento hasta que se pidan expresamente.
+- Añadir la cámara secreta después del playtest de producción, solo sobre
+  `growth`.

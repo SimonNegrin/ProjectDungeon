@@ -3,13 +3,13 @@ type: Requirement Sheet
 id: REQ-013
 title: Entrada, salida y exploración mínima por nivel
 description: Cada nivel tiene una entrada reconocible en la sala de spawn y una salida única en una sala no-spawn a distancia de grafo ≥2, preferiblemente la más lejana; la salida se representa como puerta exterior o escalera y se valida en EXP-004 sin transición funcional.
-status: draft
-version: 1
+status: stable
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T12:21:36Z
-updated_at: 2026-11-09T12:21:36Z
-related_tasks: []
+updated_at: 2026-11-09T15:30:00Z
+related_tasks: [TASK-0042, TASK-0043, TASK-0045, TASK-0046, TASK-0048, TASK-0049]
 related_requirements: [REQ-011, REQ-012]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T12:21:36Z }
 verified:
@@ -20,6 +20,13 @@ verified:
       sala no-spawn a distancia de grafo ≥2 y preferiblemente la más lejana;
       una salida por mapa, representada como puerta exterior o escalera
       (abajo/arriba) con `exitMode` en EXP-004; sin transición funcional todavía.
+  - by: human:simon
+    at: 2026-11-09T14:59:21Z
+    note: >-
+      Aprueba la v2 con la configuración de EXP-004: `exitMode: random` por
+      defecto, con las tres representaciones implementadas y deterministas por
+      semilla. La elección de estilo final no bloquea la promoción de `growth`;
+      se valida en el playtest de producción. Sin transición funcional.
 ---
 
 # Contexto
@@ -76,7 +83,7 @@ visual. No implementa la transición al siguiente nivel.
 | T-002 | El modelo serializable expone `entrance` y `exit`: `entrance = { roomId, position }`; `exit = { roomId, kind, position, access, tile }`, con `kind` en `door`, `stairs-down` o `stairs-up`. En `door`, `position` es el muro del borde y `access` el suelo interior adyacente; en escaleras, `access` coincide con `position`. `spawns.player` sigue siendo el alias de `party[0]`. | `JSON.parse(JSON.stringify(state))` conserva ambos datos; el snapshot los incluye; los tests pueden leer `kind`, `roomId`, `position` y `access`. |
 | T-003 | La salida se elige después de salas, puertas y spawn, y antes de enemigos y decoración; su tile se reserva y se excluye de las colocaciones posteriores. | Un test con una salida rodeada de candidatos comprueba que no recibe enemigos, spawn ni decals; el orden de generación es determinista. |
 | T-004 | El grafo de salas y la distancia se calculan con las conexiones existentes, sin contar puertas decorativas como nodos. El desempate usa distancia, menor `id` y mayor área. Para `door` se filtra a salas que tocan el borde del mapa; para escaleras no se filtra. | El test de un mapa de 3 salas en cadena devuelve la tercera; un mapa con dos salas a la misma distancia elige por `id`; una sala interior no se elige para `door`; no hay bucles infinitos. |
-| T-005 | `EXP-004` expone `exitMode` con los cuatro valores y muestra sala, tipo, posición, distancia de grafo y camino hasta la salida. El JSON de decisión incluye el modo y la salida elegida. | La página permite cambiar el modo y exportar la decisión; `random` produce el mismo resultado con la misma semilla; el payload serializa sala, tipo y distancia. |
+| T-005 | `EXP-004` expone `exitMode` con los cuatro valores y muestra sala, tipo, posición, distancia de grafo y camino hasta la salida. El JSON de decisión incluye el modo y la salida elegida. El modo por defecto de producción es `random`. | La página permite cambiar el modo y exportar la decisión; `random` produce el mismo resultado con la misma semilla; el payload serializa sala, tipo y distancia; producción implementa las tres representaciones y no cambia de mapa al cambiar solo el render. |
 | T-006 | Hay validadores y tests de salida: positiva en mapa de 3 salas, y negativas para salida en spawn, distancia 1, sala inalcanzable, tile o acceso ocupado, puerta fuera del borde, puerta en sala interior y escalera sobre muro. También cubre el fallback de `door` a escalera y que la puerta no abre paso. | Vitest cubre cada caso; los tests de conectividad y spawn de `REQ-011`/`REQ-012` siguen pasando. |
 | T-007 | La capa de debug muestra entrada, salida, tipo, sala, distancia y camino; el HUD normal no cambia. | `F1` alterna la capa; sin `F1` no aparece información nueva; la salida se lee también en la vista 13×13. |
 | T-008 | No se añaden dependencias y el cálculo no bloquea el arranque. | `package.json` no cambia; la generación de 22×18 con salida queda por debajo de 50 ms en CI. |
@@ -114,8 +121,8 @@ visual. No implementa la transición al siguiente nivel.
 # Preguntas abiertas
 
 1. **Representación final:** puerta exterior, escalera abajo o escalera arriba.
-   Se decide tras comparar las tres en `EXP-004`; el experimento no cierra la
-   decisión.
+   Producción usa `random` por defecto y dibuja las tres; el estilo definitivo se
+   valida en el playtest de producción y no bloquea la promoción de `growth`.
 2. **Semántica de las escaleras:** si bajar y subir representan profundidad,
    plantas o simplemente dos estilos. Se fijará al definir el encadenado.
 3. **Entrada exterior:** hoy la entrada es el acceso interior de spawn. Si el
@@ -132,6 +139,7 @@ visual. No implementa la transición al siguiente nivel.
 | 2026-11-09 | Entrada = acceso de spawn; salida en sala no-spawn a distancia de grafo ≥2, preferiblemente la más lejana. | human:simon | aceptada |
 | 2026-11-09 | Una salida por mapa; representación como puerta exterior o escalera (abajo/arriba), seleccionable en EXP-004 con `exitMode`. | human:simon | aceptada |
 | 2026-11-09 | Sin transición funcional: solo dato, render, debug y métricas. | human:simon | aceptada |
+| 2026-11-09 | Producción implementa las tres representaciones con `exitMode: random` por defecto; el estilo final se valida en playtest sin bloquear `growth`. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

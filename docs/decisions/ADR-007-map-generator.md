@@ -1,7 +1,7 @@
 ---
 type: ADR
 title: "ADR-007: interfaz MapGenerator inyectable"
-description: La generación de mapas se encapsula tras una interfaz pura y reemplazable; BSP es la implementación por defecto.
+description: La generación de mapas se encapsula tras una interfaz pura y reemplazable; el generador por defecto cambia a growth en ADR-013 y BSP queda como alternativa inyectable.
 status: stable
 decision_status: accepted
 decided_by: [human:simon, deepseek/v4.1-flash]
@@ -28,9 +28,12 @@ queremos tests deterministas que puedan sustituir el generador por un stub.
 
 - `GeneratedMap` contiene `seed`, `width`, `height`, `tiles`, `rooms`,
   `corridors`, `doors`, `spawns`, `warnings` y las opciones resueltas.
-- `BspMapGenerator` es la implementación por defecto.
+- `BspMapGenerator` fue la implementación por defecto.
 - `createInitialState` recibe un `MapGenerator` y lo usa para construir el mapa;
-  si no se pasa, instancia `BspMapGenerator`.
+  si no se pasa, instancia el generador por defecto.
+- **Actualización:** [ADR-013](ADR-013-generador-produccion-por-variante.md)
+  sustituye la parte de “BSP por defecto”: `growth` es ahora el defecto y BSP
+  queda como alternativa inyectable. La interfaz `MapGenerator` no cambia.
 - El motor depende de la interfaz, no de BSP. El host decide la semilla y las
   opciones de dificultad.
 - No se crea un registro de plugins ni carga dinámica: una implementación nueva
@@ -42,7 +45,8 @@ queremos tests deterministas que puedan sustituir el generador por un stub.
 - Los tests pueden inyectar un generador mínimo y comprobar el flujo del motor.
 - Los mapas siguen siendo datos serializables.
 - Hay una abstracción pequeña que mantener; no se generaliza más hasta que haya
-  un segundo generador real.
+  un segundo generador real. Con `growth` ya existe ese segundo generador;
+  ADR-013 fija cómo se separa del bundle el que no se elige.
 - Los prototipos de `experiments/` no se importan desde producción; el código
   validado se promociona a `src/game/`.
 

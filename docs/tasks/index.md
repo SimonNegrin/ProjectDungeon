@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **42**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **49**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -42,10 +42,30 @@ Total: **42**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0040](TASK-0040-exp-004-salas-irregulares.md) | EXP-004: comparador de generadores de salas irregulares | `done` | REQ-011 | — | P1 |
 | [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `done` | REQ-011 | — | P1 |
 | [TASK-0042](TASK-0042-exp-004-distribucion-emboscadas-salida.md) | EXP-004: distribución orgánica, emboscadas y salida de nivel | `done` | REQ-012 | — | P1 |
+| [TASK-0043](TASK-0043-motor-modelo-mapa-produccion.md) | Motor: modelo de mapa de producción con máscaras y spawn de grupo | `ready` | REQ-011 | — | P1 |
+| [TASK-0044](TASK-0044-motor-nucleo-salas-pasillos-puertas.md) | Motor: núcleo compartido de salas, pasillos y puertas | `backlog` | REQ-011 | TASK-0043 | P1 |
+| [TASK-0045](TASK-0045-motor-spawn-enemigos-salida.md) | Motor: spawn de grupo, enemigos y salida compartidos | `backlog` | REQ-012 | TASK-0044 | P1 |
+| [TASK-0046](TASK-0046-motor-variante-growth-defecto.md) | Motor: variante growth y generador por defecto | `backlog` | REQ-011 | TASK-0045 | P1 |
+| [TASK-0047](TASK-0047-arnes-build-produccion-guarda-bundle.md) | Arnés: build de producción separado y guarda de bundle | `backlog` | REQ-011 | TASK-0046 | P1 |
+| [TASK-0048](TASK-0048-host-render-spawn-puertas-salida.md) | Host: render de máscaras, puertas, spawn, entrada/salida y enemigos | `backlog` | REQ-011 | TASK-0046 | P1 |
+| [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `backlog` | REQ-011 | TASK-0047, TASK-0048 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
+
+# ready
+
+* [TASK-0043 — Motor: modelo de mapa de producción con máscaras y spawn de grupo](TASK-0043-motor-modelo-mapa-produccion.md)
+
+# backlog
+
+* [TASK-0044 — Motor: núcleo compartido de salas, pasillos y puertas](TASK-0044-motor-nucleo-salas-pasillos-puertas.md)
+* [TASK-0045 — Motor: spawn de grupo, enemigos y salida compartidos](TASK-0045-motor-spawn-enemigos-salida.md)
+* [TASK-0046 — Motor: variante growth y generador por defecto](TASK-0046-motor-variante-growth-defecto.md)
+* [TASK-0047 — Arnés: build de producción separado y guarda de bundle](TASK-0047-arnes-build-produccion-guarda-bundle.md)
+* [TASK-0048 — Host: render de máscaras, puertas, spawn, entrada/salida y enemigos](TASK-0048-host-render-spawn-puertas-salida.md)
+* [TASK-0049 — E2E, QA visual y playtest de growth por defecto](TASK-0049-e2e-qa-playtest-growth.md)
 
 # done
 

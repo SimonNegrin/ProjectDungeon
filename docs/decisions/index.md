@@ -6,9 +6,10 @@
 * [ADR-004: pnpm](ADR-004-pnpm.md) - pnpm 12.18.0 y un único lockfile.
 * [ADR-005: timeouts](ADR-005-command-timeouts.md) - Timeouts explícitos y control de procesos en background.
 * [ADR-006: arte placeholder](ADR-006-arte-placeholder-32rogues.md) - Uso del pack 32rogues, su licencia y su crédito.
-* [ADR-007: interfaz MapGenerator](ADR-007-map-generator.md) - Generación encapsulada y reemplazable; BSP por defecto.
+* [ADR-007: interfaz MapGenerator](ADR-007-map-generator.md) - Generación encapsulada y reemplazable; su parte de BSP por defecto queda sustituida por ADR-013.
 * [ADR-008: presentación animada](ADR-008-presentacion-animada.md) - El motor atómico sigue siendo la verdad; la animación vive en el host.
 * [ADR-009: recorte del arnés](ADR-009-recorte-arnes.md) - Menos documentos, tres skills, handoffs como deltas y topes validados.
 * [ADR-010: damero y decoración de presentación](ADR-010-damero-decoracion-presentacion.md) - El suelo se pinta en el host; el tinte y los decals no cambian el motor ni bloquean. Sustituido en la capa de suelo por ADR-011.
 * [ADR-011: suelo programático por sala y decoración ambiental](ADR-011-suelo-programatico-ambientes.md) - Dos colores planos por sala, cinco paletas por contraste y 33 decals agrupados por ambientes; el motor sigue sin cambiar.
 * [ADR-012: combate con equipo, modificadores y RNG sembrado](ADR-012-combate-equipo-rng.md) - Impacto y daño con dos tiradas, equipo y modificadores como datos, resolvedor compartido y azar reproducible por semilla.
+* [ADR-013: generador de producción por variante](ADR-013-generador-produccion-por-variante.md) - Core compartido, `growth` por defecto, import estático, BSP alternativo y build de producción sin experimentos ni variantes descartadas.
