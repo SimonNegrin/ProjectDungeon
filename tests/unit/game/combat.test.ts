@@ -12,8 +12,10 @@ import {
   resolveDamage,
   resolveHit,
   rollDie,
+  shieldValue,
   type RngState,
   type Unit,
+  type UnitStats,
 } from '../../../src/game/index';
 import { advanceRng, makeState, makeUnit, rngForDice } from './helpers';
 
@@ -28,7 +30,7 @@ function expectedDamage(
   armorDie: number,
 ): number {
   return resolveDamage(
-    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId].damage,
     armorValue(target.equipment.armorId),
     damageDie,
     armorDie,
@@ -463,6 +465,34 @@ describe('fórmulas de impacto y daño', () => {
     return hits;
   }
 
+  it('las 36 combinaciones de impacto usan habilidad y defensa y el empate falla', () => {
+    const player = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
+    const enemy = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 6,
+      y: 5,
+    });
+    const attackBonus =
+      player.stats.habilidad + WEAPONS[player.equipment.weaponId].accuracy;
+    const defense =
+      enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
+    let hits = 0;
+
+    for (let attackDie = 1; attackDie <= 6; attackDie += 1) {
+      for (let shieldDie = 1; shieldDie <= 6; shieldDie += 1) {
+        const hit = resolveHit(attackBonus, defense, attackDie, shieldDie);
+        expect(hit).toBe(attackBonus + attackDie > defense + shieldDie);
+        if (hit) hits += 1;
+      }
+    }
+
+    expect(attackBonus - defense).toBe(3);
+    expect(hits).toBe(30);
+    expect(resolveHit(attackBonus, attackBonus, 3, 3)).toBe(false);
+  });
+
   it('las 36 combinaciones dan 15 impactos con diferencia 0 y 21 con +1', () => {
     expect(countHits(0)).toBe(15);
     expect(countHits(1)).toBe(21);
@@ -549,6 +579,91 @@ describe('fórmulas de impacto y daño', () => {
       const observedPercent = ((observed.get(value) ?? 0) / samples) * 100;
       expect(Math.abs(observedPercent - expectedPercent)).toBeLessThanOrEqual(2);
     }
+  });
+});
+
+describe('resistencia en la absorción', () => {
+  it('la resistencia se suma a la armadura en una sola capa y el daño nunca baja de 1', () => {
+    for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
+      for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
+        const withoutResistance = resolveDamage(5, 0 + 2, damageDie, armorDie);
+        const withResistance = resolveDamage(5, 3 + 2, damageDie, armorDie);
+
+        expect(withResistance).toBe(Math.max(1, 5 + damageDie - (3 + 2 + armorDie)));
+        expect(withResistance).toBeLessThanOrEqual(withoutResistance);
+        expect(resolveDamage(5, 100, damageDie, armorDie)).toBe(1);
+      }
+    }
+  });
+
+  it('con resistencia 0 el daño coincide con la fórmula previa en las 36 tiradas', () => {
+    const player = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
+
+    for (const type of ['sentinel', 'brute', 'coward'] as const) {
+      const enemy = makeUnit({
+        id: 'enemy-1',
+        faction: 'enemy',
+        enemyType: type,
+        x: 6,
+        y: 5,
+      });
+      const weapon = WEAPONS[player.equipment.weaponId];
+      const armor = armorValue(enemy.equipment.armorId);
+
+      expect(enemy.stats.resistencia).toBe(0);
+      for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
+        for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
+          const previous = Math.max(
+            1,
+            player.stats.fuerza + weapon.damage + damageDie - (armor + armorDie),
+          );
+          const current = resolveDamage(
+            player.stats.fuerza + weapon.damage,
+            enemy.stats.resistencia + armor,
+            damageDie,
+            armorDie,
+          );
+          expect(current).toBe(previous);
+        }
+      }
+    }
+  });
+
+  it('un objetivo con resistencia recibe menos daño que uno sin ella', () => {
+    const attacker = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
+    const withoutResistance = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 6,
+      y: 5,
+    });
+    const withResistance = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 6,
+      y: 5,
+      stats: { resistencia: 2 },
+    });
+
+    function attack(target: typeof withoutResistance): ReturnType<typeof resolveAttack> {
+      const state = makeState({
+        players: [attacker],
+        enemies: [target],
+        rng: rngForDice([6, 1, 3, 1]),
+      });
+      return resolveAttack(state, 'player-1', 'enemy-1');
+    }
+
+    const soft = attack(withoutResistance);
+    const tough = attack(withResistance);
+    if (!soft.ok || !tough.ok) throw new Error('ataque rechazado');
+
+    expect(soft.hit).toBe(true);
+    expect(tough.hit).toBe(true);
+    expect(soft.damage - tough.damage).toBe(2);
+    expect(tough.damage).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -668,54 +783,54 @@ describe('equipo y modificadores', () => {
     expect(withoutShield.hit).toBe(true);
   });
 
-  it('los modificadores de acierto, daño y defensa cambian el combate', () => {
+  it('los atributos de habilidad, fuerza y defensa cambian el combate', () => {
     const base = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
     const enemy = makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 });
 
+    const stats = (overrides: Partial<UnitStats>): UnitStats => ({
+      habilidad: 1,
+      fuerza: 1,
+      defensa: 1,
+      resistencia: 0,
+      punteria: 0,
+      magia: [],
+      ...overrides,
+    });
+
     function playerAttack(
-      modifiers: { readonly accuracy: number; readonly damage: number; readonly defense: number },
+      overrides: Partial<UnitStats>,
       target: typeof enemy,
       dice: readonly number[],
     ): ReturnType<typeof resolveAttack> {
       const state = makeState({
-        players: [{ ...base, modifiers }],
+        players: [{ ...base, stats: stats(overrides) }],
         enemies: [target],
         rng: rngForDice(dice),
       });
       return resolveAttack(state, 'player-1', 'enemy-1');
     }
 
-    const lowAccuracy = playerAttack({ accuracy: 0, damage: 1, defense: 1 }, enemy, [3, 5]);
-    const highAccuracy = playerAttack({ accuracy: 1, damage: 1, defense: 1 }, enemy, [3, 5]);
+    const lowAccuracy = playerAttack({ habilidad: 0 }, enemy, [3, 5]);
+    const highAccuracy = playerAttack({ habilidad: 1 }, enemy, [3, 5]);
     if (!lowAccuracy.ok || !highAccuracy.ok) throw new Error('ataque rechazado');
     expect(lowAccuracy.hit).toBe(false);
     expect(highAccuracy.hit).toBe(true);
 
-    const lowDamage = playerAttack({ accuracy: 1, damage: 0, defense: 1 }, enemy, [6, 1, 3, 1]);
-    const highDamage = playerAttack({ accuracy: 1, damage: 5, defense: 1 }, enemy, [6, 1, 3, 1]);
+    const lowDamage = playerAttack({ fuerza: 0 }, enemy, [6, 1, 3, 1]);
+    const highDamage = playerAttack({ fuerza: 5 }, enemy, [6, 1, 3, 1]);
     if (!lowDamage.ok || !highDamage.ok) throw new Error('ataque rechazado');
     expect(lowDamage.damage).toBe(
-      expectedDamage(
-        { ...base, modifiers: { accuracy: 1, damage: 0, defense: 1 } },
-        enemy,
-        3,
-        1,
-      ),
+      expectedDamage({ ...base, stats: stats({ fuerza: 0 }) }, enemy, 3, 1),
     );
     expect(highDamage.damage).toBe(
-      expectedDamage(
-        { ...base, modifiers: { accuracy: 1, damage: 5, defense: 1 } },
-        enemy,
-        3,
-        1,
-      ),
+      expectedDamage({ ...base, stats: stats({ fuerza: 5 }) }, enemy, 3, 1),
     );
     expect(highDamage.damage).toBeGreaterThan(lowDamage.damage);
 
-    const softTarget = { ...enemy, modifiers: { accuracy: 0, damage: 0, defense: 0 } };
-    const toughTarget = { ...enemy, modifiers: { accuracy: 0, damage: 0, defense: 5 } };
-    const hitSoft = playerAttack({ accuracy: 1, damage: 1, defense: 1 }, softTarget, [5, 5]);
-    const hitTough = playerAttack({ accuracy: 1, damage: 1, defense: 1 }, toughTarget, [5, 5]);
+    const softTarget = { ...enemy, stats: stats({}) };
+    const toughTarget = { ...enemy, stats: stats({ defensa: 5 }) };
+    const hitSoft = playerAttack({}, softTarget, [5, 5]);
+    const hitTough = playerAttack({}, toughTarget, [5, 5]);
     if (!hitSoft.ok || !hitTough.ok) throw new Error('ataque rechazado');
     expect(hitSoft.hit).toBe(true);
     expect(hitTough.hit).toBe(false);

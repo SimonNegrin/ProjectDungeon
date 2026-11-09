@@ -663,7 +663,7 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(result.snapshot.rng.seed).toBe(before.rng.seed);
   });
 
-  it('clona modifiers, equipment y weapons de cada unidad', () => {
+  it('clona stats, equipment y weapons de cada unidad', () => {
     const { api, session } = combatSetup();
     const snapshot = api.snapshot();
 
@@ -671,8 +671,9 @@ describe('snapshot profundo y RNG de combate', () => {
       [snapshot.players, session.state.players],
       [snapshot.enemies, session.state.enemies],
     ] as const) {
-      expect(units[0].modifiers).toEqual(liveUnits[0].modifiers);
-      expect(units[0].modifiers).not.toBe(liveUnits[0].modifiers);
+      expect(units[0].stats).toEqual(liveUnits[0].stats);
+      expect(units[0].stats).not.toBe(liveUnits[0].stats);
+      expect(units[0].stats.magia).not.toBe(liveUnits[0].stats.magia);
       expect(units[0].equipment).toEqual(liveUnits[0].equipment);
       expect(units[0].equipment).not.toBe(liveUnits[0].equipment);
       expect(units[0].weapons).toEqual(liveUnits[0].weapons);
@@ -683,30 +684,30 @@ describe('snapshot profundo y RNG de combate', () => {
   it('mutar cada campo anidado del snapshot no altera el estado vivo', () => {
     const { api, session } = combatSetup();
     const liveRng = { ...session.state.rng };
-    const liveModifiers = { ...session.state.players[0].modifiers };
+    const liveStats = { ...session.state.players[0].stats };
     const liveEquipment = { ...session.state.players[0].equipment };
     const liveWeapons = [...session.state.players[0].weapons];
 
     const snapshot = api.snapshot();
     (snapshot.rng as { state: number }).state = 999_999;
     const player = snapshot.players[0];
-    (player.modifiers as { accuracy: number }).accuracy = 999;
+    (player.stats as { habilidad: number }).habilidad = 999;
     (player.equipment as { weaponId: WeaponId }).weaponId = 'axe';
     (player.weapons as WeaponId[]).push('axe');
 
     expect(session.state.rng).toEqual(liveRng);
-    expect(session.state.players[0].modifiers).toEqual(liveModifiers);
+    expect(session.state.players[0].stats).toEqual(liveStats);
     expect(session.state.players[0].equipment).toEqual(liveEquipment);
     expect(session.state.players[0].weapons).toEqual(liveWeapons);
 
     const fresh = api.snapshot();
     expect(fresh.rng).toEqual(liveRng);
-    expect(fresh.players[0].modifiers).toEqual(liveModifiers);
+    expect(fresh.players[0].stats).toEqual(liveStats);
     expect(fresh.players[0].equipment).toEqual(liveEquipment);
     expect(fresh.players[0].weapons).toEqual(liveWeapons);
   });
 
-  it('sobrevive a un round-trip JSON conservando RNG, equipo y modificadores', () => {
+  it('sobrevive a un round-trip JSON conservando RNG, equipo y atributos', () => {
     const { api } = combatSetup(rngForDice([6, 1, 2, 1]));
     api.dispatch({ type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' });
 
@@ -716,7 +717,7 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(roundTrip.rng).toEqual(snapshot.rng);
     expect(roundTrip.players).toEqual(snapshot.players);
     expect(roundTrip.enemies).toEqual(snapshot.enemies);
-    expect(roundTrip.players[0].modifiers).toEqual(snapshot.players[0].modifiers);
+    expect(roundTrip.players[0].stats).toEqual(snapshot.players[0].stats);
     expect(roundTrip.players[0].equipment).toEqual(snapshot.players[0].equipment);
     expect(roundTrip.players[0].weapons).toEqual(snapshot.players[0].weapons);
   });

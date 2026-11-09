@@ -35,7 +35,7 @@ function makeEnemy(
     y: position.y,
     hp: definition.maxHp,
     maxHp: definition.maxHp,
-    modifiers: definition.modifiers,
+    stats: definition.stats,
     equipment: definition.equipment,
     weapons: [definition.equipment.weaponId],
   });
@@ -53,7 +53,7 @@ function makePlayer(weaponId: WeaponId = 'sword'): Unit {
 
 function damageWith(attacker: Unit, target: Unit, damageDie: number, armorDie: number): number {
   return resolveDamage(
-    attacker.modifiers.damage + weaponFor(attacker.equipment.weaponId).damage,
+    attacker.stats.fuerza + weaponFor(attacker.equipment.weaponId).damage,
     armorValue(target.equipment.armorId),
     damageDie,
     armorDie,
@@ -72,17 +72,43 @@ describe('bestiario', () => {
       expect(definition.alarm).toBeGreaterThan(0);
       expect(definition.maxHp).toBeGreaterThan(0);
       expect(definition.maxMp).toBeGreaterThan(0);
-      expect(definition.modifiers.accuracy).toBeGreaterThanOrEqual(0);
-      expect(definition.modifiers.damage).toBeGreaterThanOrEqual(0);
-      expect(definition.modifiers.defense).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.habilidad).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.fuerza).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.defensa).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.resistencia).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.punteria).toBeGreaterThanOrEqual(0);
+      expect(definition.stats.magia).toEqual([]);
       expect(enemyDefinition(type)).toBe(definition);
     }
 
     expect(JSON.parse(JSON.stringify(BESTIARY))).toEqual(BESTIARY);
   });
 
-  it('usa un radio de alarma común y el papel de cada tipo en PV y MP', () => {
-    const alarms = Object.values(BESTIARY).map((definition) => definition.alarm);
+  it('declara los ocho atributos de REQ-014 por tipo, con PV y MP incluidos', () => {
+    for (const type of ENEMY_TYPES) {
+      const definition = BESTIARY[type];
+      expect(Object.keys(definition.stats).sort()).toEqual([
+        'defensa',
+        'fuerza',
+        'habilidad',
+        'magia',
+        'punteria',
+        'resistencia',
+      ]);
+      expect(definition.maxHp).toBeGreaterThan(0);
+      expect(definition.maxMp).toBeGreaterThan(0);
+
+      for (const family of definition.stats.magia) {
+        expect(family.nivel).toBeGreaterThanOrEqual(1);
+        expect(family.nivel).toBeLessThanOrEqual(4);
+      }
+
+      const roundTrip = JSON.parse(JSON.stringify(definition.stats));
+      expect(roundTrip).toEqual(definition.stats);
+    }
+  });
+
+  it('usa un radio de alarma común y el papel de cada tipo en PV y MP', () => {    const alarms = Object.values(BESTIARY).map((definition) => definition.alarm);
     expect(new Set(alarms).size).toBe(1);
 
     // El bruto es el tanque y el cobarde el más frágil (REQ-010).
@@ -132,7 +158,7 @@ describe('bestiario', () => {
     const baseDefinition = BESTIARY.sentinel;
     const strongerDefinition = {
       ...baseDefinition,
-      modifiers: { ...baseDefinition.modifiers, damage: 5 },
+      stats: { ...baseDefinition.stats, fuerza: 5 },
     };
     const dice = rngForDice([6, 1, 1, 1]);
 
@@ -169,8 +195,8 @@ describe('ataque enemigo con el resolvedor compartido', () => {
 
       expect(result.hit).toBe(
         resolveHit(
-          definition.modifiers.accuracy + weapon.accuracy,
-          player.modifiers.defense + shieldValue(player.equipment.shieldId),
+          definition.stats.habilidad + weapon.accuracy,
+          player.stats.defensa + shieldValue(player.equipment.shieldId),
           6,
           1,
         ),
@@ -241,9 +267,9 @@ describe('tiempo para matar según el catálogo', () => {
     const definition = BESTIARY[type];
     const player = makePlayer(weaponId);
     const enemy = makeEnemy(type);
-    const attackBonus = player.modifiers.accuracy + WEAPONS[weaponId].accuracy;
-    const defense = enemy.modifiers.defense + shieldValue(enemy.equipment.shieldId);
-    const damageBonus = player.modifiers.damage + WEAPONS[weaponId].damage;
+    const attackBonus = player.stats.habilidad + WEAPONS[weaponId].accuracy;
+    const defense = enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
+    const damageBonus = player.stats.fuerza + WEAPONS[weaponId].damage;
     const armor = armorValue(enemy.equipment.armorId);
     let hits = 0;
     let damageSum = 0;

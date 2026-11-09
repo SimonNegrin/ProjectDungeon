@@ -77,7 +77,7 @@ describe('modelo del HUD', () => {
           x: 4,
           y: 4,
           equipment: { weaponId: 'axe', armorId: null, shieldId: null },
-          modifiers: { accuracy: 2, damage: 0, defense: 1 },
+          stats: { habilidad: 2, fuerza: 0, defensa: 1 },
           weapons: ['sword', 'axe'],
         }),
       ],
@@ -336,7 +336,7 @@ describe('modelo del overlay de debug', () => {
       x: 6,
       y: 5,
       equipment: BESTIARY.sentinel.equipment,
-      modifiers: BESTIARY.sentinel.modifiers,
+      stats: BESTIARY.sentinel.stats,
     });
     const fallen = makeUnit({
       id: 'enemy-2',
@@ -346,7 +346,7 @@ describe('modelo del overlay de debug', () => {
       y: 5,
       hp: 0,
       equipment: BESTIARY.brute.equipment,
-      modifiers: BESTIARY.brute.modifiers,
+      stats: BESTIARY.brute.stats,
     });
 
     const lines = buildDebugModel(

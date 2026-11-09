@@ -140,8 +140,8 @@ function armorLabel(unit: Unit): string {
 }
 
 function modifiersLabel(unit: Unit): string {
-  const { accuracy, damage, defense } = unit.modifiers;
-  return `${signed(accuracy)} acierto · ${signed(damage)} daño · ${signed(defense)} defensa`;
+  const { habilidad, fuerza, defensa } = unit.stats;
+  return `${signed(habilidad)} acierto · ${signed(fuerza)} daño · ${signed(defensa)} defensa`;
 }
 
 function equipmentBody(unit: Unit): string {
@@ -213,7 +213,14 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
     shieldId: 'shield',
   });
   expect(player.weapons).toEqual(['sword']);
-  expect(player.modifiers).toEqual({ accuracy: 1, damage: 1, defense: 1 });
+  expect(player.stats).toEqual({
+    habilidad: 1,
+    fuerza: 1,
+    defensa: 1,
+    resistencia: 0,
+    punteria: 0,
+    magia: [],
+  });
   expect(initial.weapons).toHaveLength(2);
 
   const axe = initial.weapons.find((weapon) => weapon.weaponId === 'axe');
@@ -421,21 +428,23 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   const playerUnit = adjacent.players[0];
   const playerWeapon = WEAPONS[playerUnit.equipment.weaponId];
   expect(
-    playerUnit.modifiers.accuracy +
+    playerUnit.stats.habilidad +
       playerWeapon.accuracy +
       attack!.rolls.attack,
   ).toBeGreaterThan(
-    enemy.modifiers.defense +
+    enemy.stats.defensa +
       shieldValue(enemy.equipment.shieldId) +
       attack!.rolls.shield,
   );
   expect(attack!.damage).toBe(
     Math.max(
       1,
-      playerUnit.modifiers.damage +
+      playerUnit.stats.fuerza +
         playerWeapon.damage +
         attack!.rolls.damage! -
-        (armorValue(enemy.equipment.armorId) + attack!.rolls.armor!),
+        (enemy.stats.resistencia +
+          armorValue(enemy.equipment.armorId) +
+          attack!.rolls.armor!),
     ),
   );
 
@@ -650,11 +659,11 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   expect(miss!.rolls.armor).toBeNull();
   const missAttacker = adjacent.players[0];
   expect(
-    missAttacker.modifiers.accuracy +
+    missAttacker.stats.habilidad +
       WEAPONS[missAttacker.equipment.weaponId].accuracy +
       miss!.rolls.attack,
   ).toBeLessThanOrEqual(
-    enemy.modifiers.defense +
+    enemy.stats.defensa +
       shieldValue(enemy.equipment.shieldId) +
       miss!.rolls.shield,
   );

@@ -98,8 +98,8 @@ function armorLabel(unit: Unit | undefined): string {
 
 function modifiersLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
-  const { accuracy, damage, defense } = unit.modifiers;
-  return `${signed(accuracy)} acierto · ${signed(damage)} daño · ${signed(defense)} defensa`;
+  const { habilidad, fuerza, defensa } = unit.stats;
+  return `${signed(habilidad)} acierto · ${signed(fuerza)} daño · ${signed(defensa)} defensa`;
 }
 
 function enemyAt(state: GameState, position: Position | undefined): Unit | undefined {

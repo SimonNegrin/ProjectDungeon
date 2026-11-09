@@ -15,13 +15,31 @@ import {
   type RngState,
   type Unit,
   type UnitEquipment,
-  type UnitModifiers,
+  type UnitStats,
   type WeaponId,
 } from '../../../src/game/index';
 
 /** Valores de las unidades sintéticas sin `enemyType`; los reales leen el bestiario. */
 const FIXTURE_ENEMY_MAX_HP = 10;
 const FIXTURE_ENEMY_MAX_MP = 4;
+
+const PLAYER_STATS: UnitStats = {
+  habilidad: 1,
+  fuerza: 1,
+  defensa: 1,
+  resistencia: 0,
+  punteria: 0,
+  magia: [],
+};
+
+const NEUTRAL_STATS: UnitStats = {
+  habilidad: 0,
+  fuerza: 0,
+  defensa: 0,
+  resistencia: 0,
+  punteria: 0,
+  magia: [],
+};
 
 export interface UnitOptions {
   readonly id: string;
@@ -34,7 +52,7 @@ export interface UnitOptions {
   readonly mp?: number;
   readonly maxMp?: number;
   readonly actionAvailable?: boolean;
-  readonly modifiers?: UnitModifiers;
+  readonly stats?: Partial<UnitStats>;
   readonly equipment?: UnitEquipment;
   readonly weapons?: readonly WeaponId[];
   /** Por defecto `alert`: conserva la intención de los tests legacy. */
@@ -65,11 +83,10 @@ export function makeUnit(options: UnitOptions): Unit {
     mp: options.mp ?? maxMp,
     maxMp,
     actionAvailable: options.actionAvailable ?? true,
-    modifiers:
-      options.modifiers ??
-      (isPlayer
-        ? { accuracy: 1, damage: 1, defense: 1 }
-        : definition?.modifiers ?? { accuracy: 0, damage: 0, defense: 0 }),
+    stats: {
+      ...(isPlayer ? PLAYER_STATS : definition?.stats ?? NEUTRAL_STATS),
+      ...options.stats,
+    },
     equipment:
       options.equipment ??
       definition?.equipment ?? { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },

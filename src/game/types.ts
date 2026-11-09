@@ -21,11 +21,26 @@ export interface Position {
   readonly y: number;
 }
 
-/** Modificadores propios de cada personaje; futuras habilidades suman aquí. */
-export interface UnitModifiers {
-  readonly accuracy: number;
-  readonly damage: number;
-  readonly defense: number;
+/** Nivel de una familia de magia (REQ-014 R-007): siempre de 1 a 4. */
+export type MagicLevel = 1 | 2 | 3 | 4;
+
+/** Familia de magia con su nivel; el efecto aún no existe (REQ-014 R-007). */
+export interface MagicSchool {
+  readonly familia: string;
+  readonly nivel: MagicLevel;
+}
+
+/**
+ * Atributos inherentes de un personaje (REQ-014 R-001). PV y MP viven en sus
+ * campos actuales de `Unit`; el equipo no define ninguno de estos valores.
+ */
+export interface UnitStats {
+  readonly habilidad: number;
+  readonly fuerza: number;
+  readonly defensa: number;
+  readonly resistencia: number;
+  readonly punteria: number;
+  readonly magia: readonly MagicSchool[];
 }
 
 /** Equipo equipado, serializable y estable por ID de catálogo. */
@@ -55,7 +70,7 @@ export interface Unit {
   readonly mp: number;
   readonly maxMp: number;
   readonly actionAvailable: boolean;
-  readonly modifiers: UnitModifiers;
+  readonly stats: UnitStats;
   readonly equipment: UnitEquipment;
   /** Armas llevadas; la equipada es `equipment.weaponId`. */
   readonly weapons: readonly WeaponId[];
