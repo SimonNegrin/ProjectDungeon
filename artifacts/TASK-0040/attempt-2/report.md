@@ -24,7 +24,7 @@ verified:
   semillas con grosor 2.
 - `experiment.md`: `experiment_status: ready`, `updated_at`, observaciones y
   enlaces al informe/capturas. La decisión sigue abierta.
-- Commit SHA: `pending`.
+- Commit SHA: `55313d2`.
 
 # Tests
 
