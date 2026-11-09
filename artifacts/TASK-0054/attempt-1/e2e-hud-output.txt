@@ -1,0 +1,8 @@
+$ playwright test tests/e2e/equipment-hud-qa.spec.ts
+
+Running 2 tests using 2 workers
+
+  ✓  2 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:94:1 › arma en el mapa, pista de G y HUD de equipo (1.5s)
+  ✓  1 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:153:1 › impacto, fallo y F1 con tiradas y vida (1.6s)
+
+  2 passed (3.3s)

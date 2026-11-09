@@ -1,0 +1,7 @@
+$ playwright test tests/e2e/combat-equipment-qa.spec.ts -g 'impacto, vida bajo cursor'
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:342:1 › impacto, vida bajo cursor, F1, economía de turno y victoria (1.9s)
+
+  1 passed (3.3s)
