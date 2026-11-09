@@ -4,10 +4,10 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
 import {
   approachEnemy,
-  defeatAllEnemies,
   findVisibleTile,
   moveCursorTo,
   openBspState,
+  openBspWithOnlyEnemy,
   reachableVisibleTiles,
   restart,
   settle,
@@ -208,8 +208,8 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  await openGame(page);
-  await defeatAllEnemies(page, 400, 'enemy-1');
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await openBspWithOnlyEnemy(page, 279837264, 'enemy-1');
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   expect(

@@ -5,7 +5,6 @@ import type { GameEvent, Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import {
   approachEnemy,
-  defeatAllEnemies,
   endTurn,
   moveCursorTo,
   openBspState,
@@ -673,15 +672,21 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page, 1280, 720);
+  const initial = await snapshot(page);
+  const initialEnemy = initial.enemies[0];
 
   await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
   await expect(page.getByTestId('hud-action')).toHaveText('Sí');
   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${initialEnemy.hp}/${initialEnemy.maxHp}`,
+  );
 
-  await defeatAllEnemies(page, 400, 'enemy-1');
+  // Solo enemy-1: el resto de la guardia con su MP por tipo puede matar al
+  // jugador durante el trayecto; el combate y sus aserciones no cambian.
+  await openGame(page, 1280, 720, { enemies: [initialEnemy] });
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   expect(
@@ -719,7 +724,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
     ]),
   );
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${playerAttack!.targetHp}/9`,
+    `${playerAttack!.targetHp}/${initialEnemy.maxHp}`,
   );
   await expect(page.getByTestId('hud-action')).toHaveText('No');
 

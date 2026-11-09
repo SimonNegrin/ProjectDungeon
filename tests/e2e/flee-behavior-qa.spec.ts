@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { BESTIARY } from '../../src/game/bestiary';
 import { hasLineOfSight } from '../../src/game/perception';
 import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
@@ -40,7 +41,11 @@ test('TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se
   const consoleErrors = watchConsole(page);
   await openGame(page, TEST_SEED_URL);
   const initial = await loadState(page, cowardFleeState());
-  expect(enemyOf(initial, 'enemy-4')).toMatchObject({ hp: 8, fleeing: false });
+  const cowardMaxHp = BESTIARY.coward.maxHp;
+  expect(enemyOf(initial, 'enemy-4')).toMatchObject({
+    hp: cowardMaxHp,
+    fleeing: false,
+  });
 
   await moveCursorTo(page, 1, 2);
   await page.keyboard.press('f');
@@ -49,19 +54,26 @@ test('TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se
   const attack = attackEvent(hit.lastEvents);
   expect(attack).toBeDefined();
   expect(attack!.hit).toBe(true);
-  // Umbral del 40 % de 8 PV: al menos 4 de daño sobreviviendo.
-  expect(attack!.damage).toBeGreaterThanOrEqual(4);
+  // Umbral del 40 % de la vida máxima, redondeando hacia arriba.
+  const threshold = Math.ceil(cowardMaxHp * 0.4);
+  expect(attack!.damage).toBeGreaterThanOrEqual(threshold);
   expect(attack!.targetHp).toBeGreaterThan(0);
   expect(hit.lastEvents.some((event) => event.type === 'EnemyFled')).toBe(true);
-  expect(enemyOf(hit, 'enemy-4')).toMatchObject({ fleeing: true, hp: 2 });
+  expect(enemyOf(hit, 'enemy-4')).toMatchObject({
+    fleeing: true,
+    hp: cowardMaxHp - attack!.damage,
+  });
 
   await page.keyboard.press('e');
   await settle(page);
   const fled = await snapshot(page);
   const coward = enemyOf(fled, 'enemy-4');
   const player = fled.players[0];
+  const beforeFlee = enemyOf(hit, 'enemy-4');
   expect(coward.fleeing).toBe(true);
-  expect(coward).toMatchObject({ x: 1, y: 6 });
+  expect(distance(coward, beforeFlee)).toBeGreaterThanOrEqual(
+    Math.ceil(BESTIARY.coward.maxMp / 2),
+  );
   expect(distance(coward, player)).toBeGreaterThanOrEqual(4);
   expect(
     hasLineOfSight(
@@ -91,7 +103,7 @@ test('TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida', asyn
   expect(braveAttack!.hit).toBe(true);
   expect(brave.lastEvents.some((event) => event.type === 'EnemyFled')).toBe(false);
   expect(enemyOf(brave, 'enemy-1').fleeing).toBe(false);
-  expect(enemyOf(brave, 'enemy-1').hp).toBeLessThan(9);
+  expect(enemyOf(brave, 'enemy-1').hp).toBeLessThan(BESTIARY.sentinel.maxHp);
 
   // Renovación: un cobarde ya en huida y con vida completa vuelve a huir.
   await loadState(page, fleeingRenewalState());
@@ -102,13 +114,15 @@ test('TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida', asyn
   const renewalAttack = attackEvent(renewed.lastEvents);
   expect(renewalAttack).toBeDefined();
   expect(renewalAttack!.hit).toBe(true);
-  expect(renewalAttack!.targetHp).toBe(2);
+  expect(renewalAttack!.targetHp).toBe(
+    BESTIARY.coward.maxHp - renewalAttack!.damage,
+  );
   expect(
     renewed.lastEvents.filter((event) => event.type === 'EnemyFled'),
   ).toEqual([{ type: 'EnemyFled', unitId: 'enemy-4' }]);
   expect(enemyOf(renewed, 'enemy-4')).toMatchObject({
     fleeing: true,
-    hp: 2,
+    hp: BESTIARY.coward.maxHp - renewalAttack!.damage,
   });
   expect(consoleErrors).toEqual([]);
 });

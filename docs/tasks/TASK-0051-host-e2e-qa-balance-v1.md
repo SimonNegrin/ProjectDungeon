@@ -4,7 +4,7 @@ id: TASK-0051
 title: "Host, E2E y QA visual del balance provisional v1"
 description: Actualizar expectativas E2E y QA visual (HP, alarma 5, MP 5/4/6 y armas 3/5/2), verificar el host y dejar capturas y playtest.
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-010
 requirement_ids: [R-007, R-008, R-009, T-008]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-09T12:00:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0051/
 priority: P1
 risk: medium

@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { BESTIARY } from '../../src/game/bestiary';
 import { artifactPath } from './artifacts';
 import {
   settle,
@@ -95,7 +96,7 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
   expect(await page.locator('[data-testid="debug-perception-radius"]').count()).toBe(0);
   await screenshot(page, 'normal', testInfo);
 
-  // F1: radios de visión 6/6/4/5 y alarma 8, estado por enemigo en el overlay.
+  // F1: radios de visión y alarma del bestiario, estado por enemigo en el overlay.
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   await expect(page.getByTestId('perception-overlay')).toBeVisible();
@@ -109,19 +110,21 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
         radius: Number((node as HTMLElement).dataset.radius),
       })),
     );
-  expect(radii).toHaveLength(8);
-  expect(radii.filter((entry) => entry.kind === 'vision')).toEqual([
-    { unitId: 'enemy-1', kind: 'vision', radius: 6 },
-    { unitId: 'enemy-2', kind: 'vision', radius: 6 },
-    { unitId: 'enemy-3', kind: 'vision', radius: 4 },
-    { unitId: 'enemy-4', kind: 'vision', radius: 5 },
-  ]);
-  expect(radii.filter((entry) => entry.kind === 'alarm')).toEqual([
-    { unitId: 'enemy-1', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-2', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-3', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-4', kind: 'alarm', radius: 8 },
-  ]);
+  expect(radii).toHaveLength(initial.enemies.length * 2);
+  expect(radii.filter((entry) => entry.kind === 'vision')).toEqual(
+    initial.enemies.map((enemy) => ({
+      unitId: enemy.id,
+      kind: 'vision',
+      radius: BESTIARY[enemy.enemyType!].vision,
+    })),
+  );
+  expect(radii.filter((entry) => entry.kind === 'alarm')).toEqual(
+    initial.enemies.map((enemy) => ({
+      unitId: enemy.id,
+      kind: 'alarm',
+      radius: BESTIARY[enemy.enemyType!].alarm,
+    })),
+  );
   await expect(page.getByTestId('debug-content')).toContainText('Percepción enemy-3');
   await screenshot(page, 'debug-f1', testInfo);
 

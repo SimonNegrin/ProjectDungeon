@@ -160,19 +160,21 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
         radius: Number((node as HTMLElement).dataset.radius),
       })),
     );
-  expect(radii).toHaveLength(8);
-  expect(radii.filter((entry) => entry.kind === 'vision')).toEqual([
-    { unitId: 'enemy-1', kind: 'vision', radius: 6 },
-    { unitId: 'enemy-2', kind: 'vision', radius: 6 },
-    { unitId: 'enemy-3', kind: 'vision', radius: 4 },
-    { unitId: 'enemy-4', kind: 'vision', radius: 5 },
-  ]);
-  expect(radii.filter((entry) => entry.kind === 'alarm')).toEqual([
-    { unitId: 'enemy-1', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-2', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-3', kind: 'alarm', radius: 8 },
-    { unitId: 'enemy-4', kind: 'alarm', radius: 8 },
-  ]);
+  expect(radii).toHaveLength(initial.enemies.length * 2);
+  expect(radii.filter((entry) => entry.kind === 'vision')).toEqual(
+    initial.enemies.map((enemy) => ({
+      unitId: enemy.id,
+      kind: 'vision',
+      radius: BESTIARY[enemy.enemyType!].vision,
+    })),
+  );
+  expect(radii.filter((entry) => entry.kind === 'alarm')).toEqual(
+    initial.enemies.map((enemy) => ({
+      unitId: enemy.id,
+      kind: 'alarm',
+      radius: BESTIARY[enemy.enemyType!].alarm,
+    })),
+  );
   await screenshot(page, testInfo, 'debug-f1');
   await page.keyboard.press('F1');
   await expect(page.getByTestId('perception-overlay')).toBeHidden();
@@ -236,7 +238,7 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
   expect(consoleErrors).toEqual([]);
 });
 
-test('TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena', async ({
+test('TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
@@ -266,7 +268,7 @@ test('TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena', 
     lastKnown: { x: 2, y: 2 },
     hasShouted: true,
   });
-  // R-006: a 8 tiles tras un muro sí; a 9 no; el receptor no encadena la onda.
+  // R-006: a 5 tiles tras un muro sí; a 6 no; el receptor no encadena la onda.
   expect(enemyOf(attacked, 'enemy-1')).toMatchObject({
     awareness: 'alert',
     lastKnown: { x: 2, y: 2 },
@@ -277,34 +279,35 @@ test('TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena', 
     lastKnown: null,
   });
   expect(enemyOf(attacked, 'enemy-4').awareness).toBe('dormant');
-  // El receptor a 8 está tras un muro (la onda no necesita LOS) y el de 9 queda
+  // El receptor a 5 está tras un muro (la onda no necesita LOS) y el de 6 queda
   // fuera. Un daño sin `EnemySpotted` no muestra "!" (R-012).
   const emitter = enemyOf(attacked, 'enemy-3');
-  const atEight = enemyOf(attacked, 'enemy-1');
-  const atNine = enemyOf(attacked, 'enemy-2');
+  const atFive = enemyOf(attacked, 'enemy-1');
+  const atSix = enemyOf(attacked, 'enemy-2');
   expect(
     Math.max(
-      Math.abs(emitter.x - atEight.x),
-      Math.abs(emitter.y - atEight.y),
+      Math.abs(emitter.x - atFive.x),
+      Math.abs(emitter.y - atFive.y),
     ),
-  ).toBe(8);
-  expect(hasLineOfSight(attacked.grid, emitter, atEight)).toBe(false);
+  ).toBe(BESTIARY.brute.alarm);
+  expect(hasLineOfSight(attacked.grid, emitter, atFive)).toBe(false);
   expect(
     Math.max(
-      Math.abs(emitter.x - atNine.x),
-      Math.abs(emitter.y - atNine.y),
+      Math.abs(emitter.x - atSix.x),
+      Math.abs(emitter.y - atSix.y),
     ),
-  ).toBe(9);
+  ).toBe(BESTIARY.brute.alarm + 1);
   expect(await page.locator('[data-testid="spot-marker"]').count()).toBe(0);
   await screenshot(page, testInfo, 'alarma-aviso');
 
   await page.keyboard.press('e');
   await settle(page);
   const afterTurn = await snapshot(page);
+  const dormantBefore = enemyOf(initial, 'enemy-2');
   expect(enemyOf(afterTurn, 'enemy-2')).toMatchObject({
     awareness: 'dormant',
-    x: 10,
-    y: 5,
+    x: dormantBefore.x,
+    y: dormantBefore.y,
   });
   expect(enemyOf(afterTurn, 'enemy-1').awareness).toBe('alert');
   expect(
@@ -362,16 +365,19 @@ test('TASK-0039: semilla de referencia, R-010 y determinismo', async ({
       distance: distance(first, second),
     })),
   );
-  const openPairs = pairs.filter((entry) => entry.distance <= 8);
+  const alarmRadius = Math.min(
+    ...initial.enemies.map((enemy) => BESTIARY[enemy.enemyType!].alarm),
+  );
+  const openPairs = pairs.filter((entry) => entry.distance <= alarmRadius);
   expect(openPairs.length).toBeGreaterThan(0);
-  expect(openPairs.map((entry) => entry.pair)).toContain('enemy-2/enemy-4');
-  expect(openPairs.every((entry) => entry.distance <= 8)).toBe(true);
+  expect(openPairs.map((entry) => entry.pair)).toContain('enemy-3/enemy-4');
+  expect(openPairs.every((entry) => entry.distance <= alarmRadius)).toBe(true);
   const isolated = initial.enemies.filter((enemy) =>
     initial.enemies
       .filter((other) => other.id !== enemy.id)
-      .every((other) => distance(enemy, other) > 8),
+      .every((other) => distance(enemy, other) > alarmRadius),
   );
-  expect(isolated.map((enemy) => enemy.id)).toContain('enemy-3');
+  expect(isolated.map((enemy) => enemy.id)).toContain('enemy-1');
 
   await screenshot(page, testInfo, 'colocacion-semilla');
 

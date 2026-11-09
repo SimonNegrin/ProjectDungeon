@@ -1,0 +1,22 @@
+
+Running 18 tests using 4 workers
+
+[1/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:38:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja
+[2/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:130:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar
+[3/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:45:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento
+[4/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:89:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida
+[5/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:241:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena
+[6/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:319:1 › TASK-0039: semilla de referencia, R-010 y determinismo
+[7/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:38:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja
+[8/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:89:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida
+[9/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:241:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena
+[10/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:130:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar
+[11/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:319:1 › TASK-0039: semilla de referencia, R-010 y determinismo
+[12/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:45:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento
+[13/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:38:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja
+[14/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:89:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida
+[15/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:45:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento
+[16/18] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:130:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar
+[17/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:241:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena
+[18/18] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:319:1 › TASK-0039: semilla de referencia, R-010 y determinismo
+  18 passed (10.9s)
