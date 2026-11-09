@@ -160,6 +160,23 @@ export async function openBspState(
 }
 
 /**
+ * Carga el BSP de referencia y deja únicamente al enemigo pedido. Los tests que
+ * preparan un combate necesitan un estado controlado sin que el resto de la
+ * guardia converja durante el trayecto; no cambia aserciones ni reglas.
+ */
+export async function openBspWithOnlyEnemy(
+  page: Page,
+  seed: number,
+  enemyId: string,
+  options: Omit<BspStateOptions, 'enemies'> = {},
+): Promise<GameSnapshot> {
+  const base = await openBspState(page, seed);
+  const enemy = base.enemies.find((candidate) => candidate.id === enemyId);
+  if (!enemy) throw new Error(`Falta ${enemyId} en el BSP de la semilla ${seed}`);
+  return openBspState(page, seed, undefined, { ...options, enemies: [enemy] });
+}
+
+/**
  * Lleva el cursor al tile `(x, y)` con flechas reales. El cursor cruza muros y
  * unidades; si el destino no está en el viewport o una pulsación no cambia el
  * cursor, falla en vez de esperar indefinidamente.
@@ -461,8 +478,9 @@ export async function approachEnemy(
 
     /**
      * Dijkstra sobre la rejilla con un coste extra en las casillas dentro de la
-     * visión de otros enemigos. La IA alertada usa 4 MP: rodear una sala evita
-     * que el jugador termine la fase a tiro y llegue muerto al objetivo.
+     * visión de otros enemigos. La IA alertada gasta su MP (5/4/6 por tipo):
+     * rodear una sala evita que el jugador termine la fase a tiro y llegue
+     * muerto al objetivo.
      */
     const bfsNextStep = (
       grid: GameSnapshot['grid'],
@@ -640,8 +658,9 @@ export async function approachEnemy(
         }
       }
 
-      // La IA alertada persigue con sus 4 MP: si otro enemigo se acerca, se
-      // elimina con `MoveTo` (que ataca al llegar) antes de que acumule golpes.
+      // La IA alertada persigue con el MP de su tipo: si otro enemigo se
+      // acerca, se elimina con `MoveTo` (que ataca al llegar) antes de que
+      // acumule golpes.
       // El objetivo del helper se excluye para que el test lo ataque después.
       if (player.actionAvailable) {
         const chaser = snap.enemies
@@ -800,7 +819,8 @@ export async function defeatAllEnemies(
     /**
      * Retirada con búsqueda en anchura: elige la casilla alcanzable con el MP
      * que maximiza la distancia al enemigo vivo más cercano y la recorre. La IA
-     * alertada gasta 4 MP, así que retirarse un solo tile ya no basta.
+     * alertada gasta todo su MP por tipo, así que retirarse un solo tile ya no
+     * basta.
      */
     const retreat = (): void => {
       const snap = game.snapshot();

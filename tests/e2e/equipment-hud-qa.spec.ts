@@ -1,6 +1,8 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { ARMORS, SHIELDS, WEAPONS } from '../../src/game/equipment';
+import type { Unit } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
   approachEnemy,
@@ -23,6 +25,63 @@ async function openGame(page: Page): Promise<void> {
   await openBspState(page, 1);
 }
 
+function signed(value: number): string {
+  return value >= 0 ? `+${value}` : `${value}`;
+}
+
+function weaponLabel(unit: Unit): string {
+  const weapon = WEAPONS[unit.equipment.weaponId];
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+}
+
+function shieldLabel(unit: Unit): string {
+  if (unit.equipment.shieldId === null) return 'Sin escudo';
+  const shield = SHIELDS[unit.equipment.shieldId];
+  return `${shield.name} ${signed(shield.defense)}`;
+}
+
+function armorLabel(unit: Unit): string {
+  if (unit.equipment.armorId === null) return 'Sin armadura';
+  const armor = ARMORS[unit.equipment.armorId];
+  return `${armor.name} ${signed(armor.armor)}`;
+}
+
+function floorNeighbor(
+  snap: { readonly grid: { readonly width: number; readonly height: number; readonly tiles: readonly string[] } },
+  x: number,
+  y: number,
+): { x: number; y: number } | undefined {
+  return [
+    { x, y: y - 1 },
+    { x: x + 1, y },
+    { x, y: y + 1 },
+    { x: x - 1, y },
+  ].find((cell) => {
+    if (cell.x < 0 || cell.y < 0) return false;
+    if (cell.x >= snap.grid.width || cell.y >= snap.grid.height) return false;
+    return snap.grid.tiles[cell.y * snap.grid.width + cell.x] === 'floor';
+  });
+}
+
+/**
+ * Prepara un centinela adyacente con el RNG de combate fijado: el primer ataque
+ * falla y el segundo impacta, de modo que el test captura ambos feedbacks antes
+ * de que el objetivo muera.
+ */
+async function openAdjacentSentinel(page: Page): Promise<void> {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const base = await openBspState(page, 1);
+  const sentinel = base.enemies.find((enemy) => enemy.enemyType === 'sentinel');
+  if (!sentinel) throw new Error('La semilla debe colocar un centinela');
+  const beside = floorNeighbor(base, sentinel.x, sentinel.y);
+  if (!beside) throw new Error('El centinela debe tener una casilla libre al lado');
+  await openBspState(page, 1, undefined, {
+    player: beside,
+    enemies: [sentinel],
+    rng: { seed: 15, state: 0 },
+  });
+}
+
 function watchConsole(page: Page): string[] {
   const errors: string[] = [];
   page.on('console', (message) => {
@@ -40,9 +99,15 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   expect(initial.weapons).toHaveLength(2);
   const weapon = initial.weapons[0];
 
-  await expect(page.getByTestId('hud-weapon')).toHaveText('Espada +3/+4');
-  await expect(page.getByTestId('hud-shield')).toHaveText('Escudo +1');
-  await expect(page.getByTestId('hud-armor')).toHaveText('Armadura +1');
+  await expect(page.getByTestId('hud-weapon')).toHaveText(
+    weaponLabel(initial.players[0]),
+  );
+  await expect(page.getByTestId('hud-shield')).toHaveText(
+    shieldLabel(initial.players[0]),
+  );
+  await expect(page.getByTestId('hud-armor')).toHaveText(
+    armorLabel(initial.players[0]),
+  );
   await expect(page.getByTestId('hud-modifiers')).toHaveText(
     '+1 acierto · +1 daño · +1 defensa',
   );
@@ -75,8 +140,11 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   await page.keyboard.press('g');
   await page.evaluate(() => window.__game!.advance(1_000_000));
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
-  await expect(page.getByTestId('hud-weapon')).toHaveText('Hacha +2/+6');
-  expect((await snapshot(page)).weapons).toHaveLength(1);
+  const afterPickup = await snapshot(page);
+  await expect(page.getByTestId('hud-weapon')).toHaveText(
+    weaponLabel(afterPickup.players[0]),
+  );
+  expect(afterPickup.weapons).toHaveLength(1);
   await screenshot(page, 'weapon-picked', testInfo);
 
   expect(consoleErrors).toEqual([]);
@@ -84,8 +152,7 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
 
 test('impacto, fallo y F1 con tiradas y vida', async ({ page }, testInfo) => {
   const consoleErrors = watchConsole(page);
-  await openGame(page);
-  await approachEnemy(page);
+  await openAdjacentSentinel(page);
 
   let hitCaptured = false;
   let missCaptured = false;

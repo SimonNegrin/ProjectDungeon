@@ -64,6 +64,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   const start = await snapshot(page);
   expect(start.seed).toBe(279837264);
+  const startEnemy = start.enemies[0];
   expect(start.players[0]).toMatchObject({
     x: start.spawns!.player.x,
     y: start.spawns!.player.y,
@@ -76,7 +77,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     playerMp: '6/6',
     action: 'Sí',
     phase: 'Jugador',
-    enemyHp: '9/9',
+    enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
   });
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
@@ -206,7 +207,10 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterMiss.turn).toBe(beforeMiss.turn);
   expect(afterMiss.status).toBe(beforeMiss.status);
   await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
-  await expectHud(page, { enemyHp: '9/9', action: 'Sí' });
+  await expectHud(page, {
+    enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
+    action: 'Sí',
+  });
 
   const rejected = await page.evaluate(() =>
     window.__game!.dispatch({
@@ -218,12 +222,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(rejected.events).toEqual([
     { type: 'CommandRejected', commandType: 'Attack', reason: 'target-not-adjacent' },
   ]);
-  expect(rejected.snapshot.enemies[0].hp).toBe(9);
+  expect(rejected.snapshot.enemies[0].hp).toBe(startEnemy.hp);
 
-  // Preparación determinista del combate con comandos reales. La IA de 4 MP
-  // hace inviable la victoria scriptada con los cuatro enemigos: se despejan
-  // los demás y se deja enemy-1 para las comprobaciones de este test.
-  await defeatAllEnemies(page, 400, 'enemy-1');
+  // Preparación determinista del combate con comandos reales. Solo enemy-1:
+  // el resto de la guardia, con su MP por tipo, hace inviable la victoria
+  // scriptada; las comprobaciones de este test no cambian.
+  await openBspState(page, 279837264, undefined, { enemies: [startEnemy] });
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   expect(
@@ -276,7 +280,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     ]),
   );
   await expectHud(page, {
-    enemyHp: `${playerAttack!.targetHp}/9`,
+    enemyHp: `${playerAttack!.targetHp}/${startEnemy.maxHp}`,
     action: 'No',
   });
   await screenshot(page, 'attack', testInfo);

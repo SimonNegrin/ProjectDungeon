@@ -134,22 +134,24 @@ export function detectionState(): GameState {
 }
 
 /**
- * B: bruto dormido adyacente; centinela a 8 tiles tras un muro y otro a 9. El
- * ataque debe despertar al bruto y al de 8, sin cadena hacia el de 9.
+ * B: bruto dormido adyacente; centinela a 5 tiles tras un muro y otro a 6. El
+ * ataque debe despertar al bruto y al de 5, sin cadena hacia el de 6.
  */
 export function damageAlarmState(): GameState {
   let state = placePlayer(referenceState(), 2, 2);
   state = withRng(state, 1);
   state = placeEnemy(state, 'enemy-3', 1, 2, DORMANT);
-  state = placeEnemy(state, 'enemy-1', 9, 4, DORMANT);
-  state = placeEnemy(state, 'enemy-2', 10, 5, DORMANT);
+  state = placeEnemy(state, 'enemy-1', 6, 4, DORMANT);
+  state = placeEnemy(state, 'enemy-2', 7, 4, DORMANT);
   return state;
 }
 
 /** C: cobarde dormido adyacente; un golpe fuerte inicia la huida. */
 export function cowardFleeState(): GameState {
   let state = placePlayer(referenceState(), 2, 2);
-  state = withRng(state, 1);
+  // Semilla de combate: el primer impacto hace 3 de daño y deja vivo al
+  // cobarde (2/5 PV), justo por encima del umbral del 40 %.
+  state = withRng(state, 3);
   state = placeEnemy(state, 'enemy-4', 1, 2, DORMANT);
   return state;
 }
@@ -165,7 +167,8 @@ export function braveHitState(): GameState {
 /** Cobarde ya en huida con vida completa: otro golpe fuerte renueva la huida. */
 export function fleeingRenewalState(): GameState {
   let state = placePlayer(referenceState(), 19, 18);
-  state = withRng(state, 1);
+  // Misma semilla de combate que `cowardFleeState`: impacto de 3 y 2/5 PV.
+  state = withRng(state, 3);
   state = placeEnemy(state, 'enemy-4', 20, 18, {
     ...DORMANT,
     awareness: 'alert',

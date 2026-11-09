@@ -1,7 +1,8 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import type { GameEvent } from '../../src/game/types';
+import { ARMORS, SHIELDS, WEAPONS, armorValue, shieldValue } from '../../src/game/equipment';
+import type { GameEvent, Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { damageFeedbackAnchor } from '../../src/host/feedback';
 import { artifactPath } from './artifacts';
@@ -24,8 +25,8 @@ const REFERENCE_SEED = 279837264;
  * produce un fallo y un impacto con los primeros comandos, sin tocar el motor.
  */
 /**
- * Semillas elegidas con la IA de 4 MP: la ruta segura llega viva y la primera
- * tirada produce el fallo/impacto que el test necesita.
+ * Semillas elegidas con el MP por tipo del bestiario: la ruta segura llega
+ * viva y la primera tirada produce el fallo/impacto que el test necesita.
  */
 const FEEDBACK_SEED = 13;
 /**
@@ -34,15 +35,22 @@ const FEEDBACK_SEED = 13;
  */
 const NORMAL_FEEDBACK_SEED = 1;
 
-const WEAPON_LABELS = {
-  sword: 'Espada +3/+4',
-  axe: 'Hacha +2/+6',
-  dagger: 'Daga +4/+3',
-} as const;
-
 async function openGame(page: Page, seed: number = REFERENCE_SEED): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
   await openBspState(page, seed);
+}
+
+/**
+ * Prepara el mapa con un solo centinela para los recorridos de equipo. Las
+ * armas pueden caer junto al bruto o al cobarde; el resto de la guardia no
+ * forma parte de este criterio y no debe convertir el trayecto en un combate.
+ */
+async function openEquipmentRun(page: Page): Promise<GameSnapshot> {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const base = await openBspState(page, REFERENCE_SEED);
+  const sentinel = base.enemies.find((enemy) => enemy.enemyType === 'sentinel');
+  if (!sentinel) throw new Error('La semilla debe colocar un centinela');
+  return openBspState(page, REFERENCE_SEED, undefined, { enemies: [sentinel] });
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
@@ -114,6 +122,36 @@ function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
+function weaponLabel(unit: Unit): string {
+  const weapon = WEAPONS[unit.equipment.weaponId];
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+}
+
+function shieldLabel(unit: Unit): string {
+  if (unit.equipment.shieldId === null) return 'Sin escudo';
+  const shield = SHIELDS[unit.equipment.shieldId];
+  return `${shield.name} ${signed(shield.defense)}`;
+}
+
+function armorLabel(unit: Unit): string {
+  if (unit.equipment.armorId === null) return 'Sin armadura';
+  const armor = ARMORS[unit.equipment.armorId];
+  return `${armor.name} ${signed(armor.armor)}`;
+}
+
+function modifiersLabel(unit: Unit): string {
+  const { accuracy, damage, defense } = unit.modifiers;
+  return `${signed(accuracy)} acierto · ${signed(damage)} daño · ${signed(defense)} defensa`;
+}
+
+function equipmentBody(unit: Unit): string {
+  return `${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)}`;
+}
+
+function debugEquipmentLine(unit: Unit): string {
+  return `Equipo: ${equipmentBody(unit)} · Modificadores ${modifiersLabel(unit)}`;
+}
+
 function roomAt(snap: GameSnapshot, x: number, y: number) {
   return snap.rooms.find(
     (room) =>
@@ -136,19 +174,10 @@ function floorNeighbor(snap: GameSnapshot, x: number, y: number) {
 
 async function expectHudEquipment(page: Page, snap: GameSnapshot): Promise<void> {
   const player = snap.players[0];
-  await expect(page.getByTestId('hud-weapon')).toHaveText(
-    WEAPON_LABELS[player.equipment.weaponId],
-  );
-  await expect(page.getByTestId('hud-shield')).toHaveText(
-    player.equipment.shieldId === null ? 'Sin escudo' : 'Escudo +1',
-  );
-  await expect(page.getByTestId('hud-armor')).toHaveText(
-    player.equipment.armorId === null ? 'Sin armadura' : 'Armadura +1',
-  );
-  const { accuracy, damage, defense } = player.modifiers;
-  await expect(page.getByTestId('hud-modifiers')).toHaveText(
-    `${signed(accuracy)} acierto · ${signed(damage)} daño · ${signed(defense)} defensa`,
-  );
+  await expect(page.getByTestId('hud-weapon')).toHaveText(weaponLabel(player));
+  await expect(page.getByTestId('hud-shield')).toHaveText(shieldLabel(player));
+  await expect(page.getByTestId('hud-armor')).toHaveText(armorLabel(player));
+  await expect(page.getByTestId('hud-modifiers')).toHaveText(modifiersLabel(player));
 }
 
 async function expectHudOutsideMap(page: Page): Promise<void> {
@@ -174,9 +203,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
-  await openGame(page);
-
-  const initial = await snapshot(page);
+  const initial = await openEquipmentRun(page);
   const player = initial.players[0];
   expect(initial.seed).toBe(REFERENCE_SEED);
   expect(initial.status).toBe('playing');
@@ -209,7 +236,9 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
 
   await expectHudEquipment(page, initial);
   await expect(page.getByTestId('hud-cursor-enemy-hp')).toHaveText('—/—');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
+  );
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudOutsideMap(page);
   await screenshot(page, 'hud-sword', testInfo);
@@ -389,9 +418,25 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(attack!.targetHp).toBe(Math.max(0, enemy.hp - attack!.damage));
   expect(attack!.rolls.damage).not.toBeNull();
   expect(attack!.rolls.armor).not.toBeNull();
-  expect(4 + attack!.rolls.attack).toBeGreaterThan(1 + attack!.rolls.shield);
+  const playerUnit = adjacent.players[0];
+  const playerWeapon = WEAPONS[playerUnit.equipment.weaponId];
+  expect(
+    playerUnit.modifiers.accuracy +
+      playerWeapon.accuracy +
+      attack!.rolls.attack,
+  ).toBeGreaterThan(
+    enemy.modifiers.defense +
+      shieldValue(enemy.equipment.shieldId) +
+      attack!.rolls.shield,
+  );
   expect(attack!.damage).toBe(
-    Math.max(1, 5 + attack!.rolls.damage! - (1 + attack!.rolls.armor!)),
+    Math.max(
+      1,
+      playerUnit.modifiers.damage +
+        playerWeapon.damage +
+        attack!.rolls.damage! -
+        (armorValue(enemy.equipment.armorId) + attack!.rolls.armor!),
+    ),
   );
 
   const afterAttack = await snapshot(page);
@@ -406,11 +451,9 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const debugText = (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(debugText).toContain(debugEquipmentLine(adjacent.players[0]));
   expect(debugText).toContain(
-    'Equipo: Espada +3/+4 · Escudo +1 · Armadura +1 · Modificadores +1 acierto · +1 daño · +1 defensa',
-  );
-  expect(debugText).toContain(
-    'Equipo enemigo enemy-1: Espada +3/+4 · Escudo +1 · Armadura +1',
+    `Equipo enemigo ${enemy.id}: ${equipmentBody(enemy)}`,
   );
   expect(debugText).toContain('Vida: player-1');
   expect(debugText).toContain(`Último ataque: player-1→enemy-1 impacto ${attack!.damage}`);
@@ -605,7 +648,16 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   expect(miss!.targetHp).toBe(enemy.hp);
   expect(miss!.rolls.damage).toBeNull();
   expect(miss!.rolls.armor).toBeNull();
-  expect(4 + miss!.rolls.attack).toBeLessThanOrEqual(1 + miss!.rolls.shield);
+  const missAttacker = adjacent.players[0];
+  expect(
+    missAttacker.modifiers.accuracy +
+      WEAPONS[missAttacker.equipment.weaponId].accuracy +
+      miss!.rolls.attack,
+  ).toBeLessThanOrEqual(
+    enemy.modifiers.defense +
+      shieldValue(enemy.equipment.shieldId) +
+      miss!.rolls.shield,
+  );
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
     `${enemy.hp}/${enemy.maxHp}`,
   );

@@ -4,7 +4,6 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import {
-  approachEnemy,
   defeatAllEnemies,
   ensureAdjacentWithMp,
   moveAwayFromEnemy,
@@ -37,8 +36,9 @@ async function openGame(page: Page): Promise<void> {
 
 /**
  * Carga el mismo BSP con el jugador en una casilla libre junto a enemy-1 y solo
- * ese enemigo. Evita que la IA de 4 MP mate al jugador durante el trayecto y
- * mantiene el combate y las aserciones sobre el estado real.
+ * ese enemigo. Evita que el resto de la guardia (con su MP por tipo) mate al
+ * jugador durante el trayecto y mantiene el combate y las aserciones sobre el
+ * estado real.
  */
 async function openAdjacentEnemy(page: Page): Promise<GameSnapshot> {
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -421,11 +421,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   page,
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openGame(page);
-  // La IA de 4 MP puede matar al jugador en la victoria scriptada posterior;
-  // se despejan los demás enemigos y se deja enemy-1 para el combate del test.
-  await defeatAllEnemies(page, 400, 'enemy-1');
-  await approachEnemy(page);
+  await openAdjacentEnemy(page);
 
   const adjacent = await snapshot(page);
   expect(distance(adjacent.players[0], adjacent.enemies[0])).toBe(1);
@@ -673,9 +669,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
 
 test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async ({ page }) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openGame(page);
-  await defeatAllEnemies(page, 400, 'enemy-1');
-  await approachEnemy(page);
+  await openAdjacentEnemy(page);
   const adjacent = await snapshot(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
