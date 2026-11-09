@@ -2,6 +2,8 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0048 — cerrada: render growth con máscaras, puertas por estilo, bocas sin puerta, salida `door`/escaleras, spawn de 6, enemigos y capa `F1`; BSP intacto; verify 732/732, build 52 módulos y guarda OK; E2E 38 pasan / 36 fallan stale de BSP (0 regresiones frente a los 50 de `main`) asignados a TASK-0049; fusión `9f3f95f` — [informe](../artifacts/TASK-0048/attempt-2/report.md)
+
 * 2026-11-09 — Task — TASK-0047 — cerrada: build de producción solo con el juego, experimentos en `dist-experiments/` y guarda `check:bundle` en `verify`; negativa real con BSP en bundle detectada por grafo; verify 721/721; E2E rojo preexistente de TASK-0046 diferido a TASK-0048/0049; fusión `08e97e3` — [informe](../artifacts/TASK-0047/attempt-1/report.md)
 
 * 2026-11-09 — Task — TASK-0046 — cerrada: growth compone el core, es el generador por defecto y BSP sigue inyectable con 4 enemigos; incluye 2 armas deterministas; verify 711/711, barrido 200 y 1,93 ms; fusión `be5022a` — [informe](../artifacts/TASK-0046/attempt-2/report.md)
