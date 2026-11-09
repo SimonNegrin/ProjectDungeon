@@ -199,6 +199,12 @@ function doorKeySet(doors: readonly Door[]): Set<string> {
   return new Set(doors.map((door) => pointKey(door.x, door.y)));
 }
 
+/** Superficie libre de la sala: sus celdas menos las ocupadas por puertas. */
+function freeRoomCells(room: Room, doors: readonly Door[]): readonly Point[] {
+  const doorsAt = doorKeySet(doors);
+  return roomCellsOf(room).filter((cell) => !doorsAt.has(pointKey(cell.x, cell.y)));
+}
+
 function freeNeighborCount(
   cell: Point,
   tiles: readonly Tile[],
@@ -392,6 +398,11 @@ function chooseParty(
   return selected;
 }
 
+/**
+ * Accesos de la sala según REQ-012 R-001: puertas más dos por pasillo ancho.
+ * Las bocas estrechas no cuentan: una puerta en un extremo ya representa el
+ * acceso del pasillo y la boca del otro extremo lo duplicaría.
+ */
 function accessesFor(
   roomId: number,
   doors: readonly Door[],
@@ -401,10 +412,13 @@ function accessesFor(
   for (const door of doors) {
     if (door.roomA === roomId || door.roomB === roomId) count += 1;
   }
+  const wideCorridors = new Set<number>();
   for (const mouth of openMouths) {
-    if (mouth.roomA === roomId || mouth.roomB === roomId) count += 1;
+    if (mouth.reason !== 'pasillo-ancho') continue;
+    if (mouth.roomA !== roomId && mouth.roomB !== roomId) continue;
+    wideCorridors.add(mouth.corridorId);
   }
-  return count;
+  return count + wideCorridors.size * 2;
 }
 
 /**
@@ -442,7 +456,7 @@ export function placeSpawns(input: SpawnInput): SpawnResult {
       (a, b) =>
         accessesOf(a) - accessesOf(b) ||
         Number(roomAreaOf(a) === largestArea) - Number(roomAreaOf(b) === largestArea) ||
-        roomCellsOf(b).length - roomCellsOf(a).length ||
+        freeRoomCells(b, input.doors).length - freeRoomCells(a, input.doors).length ||
         a.id - b.id,
     );
 
@@ -452,7 +466,7 @@ export function placeSpawns(input: SpawnInput): SpawnResult {
       (a, b) =>
         capacityOf(b) - capacityOf(a) ||
         accessesOf(a) - accessesOf(b) ||
-        roomCellsOf(b).length - roomCellsOf(a).length ||
+        freeRoomCells(b, input.doors).length - freeRoomCells(a, input.doors).length ||
         Number(roomAreaOf(a) === largestArea) - Number(roomAreaOf(b) === largestArea) ||
         roomAreaOf(b) - roomAreaOf(a) ||
         a.id - b.id,

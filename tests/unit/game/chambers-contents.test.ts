@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { Room } from '../../../src/game/map';
+import { hasLineOfSight } from '../../../src/game/perception';
 import {
   SPAWN_MIN_TILES,
   chooseSpawnAccess,
@@ -12,16 +13,26 @@ import {
 
 const SEEDS = Array.from({ length: 200 }, (_, index) => index + 1);
 
+/**
+ * Accesos según REQ-012 R-001: puertas más dos por pasillo ancho que toca la
+ * sala. Se deriva de la geometría (`corridors`), no de `openMouths`, para que la
+ * prueba no copie la implementación y detecte las bocas estrechas contadas de más.
+ */
 function accessesFor(
   roomId: number,
   plan: ReturnType<typeof generateChamberPlan>,
 ): number {
-  let count = 0;
-  for (const door of plan.doors) {
-    if (door.roomA === roomId || door.roomB === roomId) count += 1;
-  }
-  for (const mouth of plan.openMouths) {
-    if (mouth.roomA === roomId || mouth.roomB === roomId) count += 1;
+  let count = plan.doors.filter(
+    (door) => door.roomA === roomId || door.roomB === roomId,
+  ).length;
+  for (const corridor of plan.corridors) {
+    if (corridor.width !== 2) continue;
+    if (
+      (corridor.roomA ?? corridor.fromRoomId) === roomId ||
+      (corridor.roomB ?? corridor.toRoomId) === roomId
+    ) {
+      count += 2;
+    }
   }
   return count;
 }
@@ -54,6 +65,14 @@ describe('barrido de 200 semillas del plan con contenido', () => {
           (room) => room.id === contents.spawns.roomId,
         );
         expect(spawnRoom, `${label} · sala de spawn`).toBeDefined();
+
+        expect(plan.width, `${label} · ancho`).toBe(22);
+        expect(plan.height, `${label} · alto`).toBe(18);
+        expect(contents.breakdown.total, `${label} · T`).toBeGreaterThanOrEqual(10);
+        expect(contents.breakdown.total, `${label} · T`).toBeLessThanOrEqual(12);
+        expect(contents.enemies.length, `${label} · fichas ≤ T`).toBeLessThanOrEqual(
+          contents.breakdown.total,
+        );
 
         expect(contents.spawns.party, `${label} · seis huecos`).toHaveLength(
           SPAWN_MIN_TILES,
@@ -125,6 +144,17 @@ describe('barrido de 200 semillas del plan con contenido', () => {
           maxComponentSize(contents.enemies),
           `${label} · componentes de enemigos`,
         ).toBeLessThanOrEqual(2);
+
+        const grid = { width: plan.width, height: plan.height, tiles: plan.tiles };
+        const seesSpawn = contents.enemies.some((enemy) =>
+          contents.spawns.party.some((hole) => hasLineOfSight(grid, enemy, hole)),
+        );
+        if (seesSpawn) {
+          expect(
+            contents.warnings.some((warning) => /línea de visión/i.test(warning)),
+            `${label} · LOS relajada sin aviso`,
+          ).toBe(true);
+        }
 
         for (const room of plan.rooms) {
           const inRoom = contents.enemies.filter((enemy) => enemy.roomId === room.id);

@@ -1798,56 +1798,59 @@ function wideOpenMouths(context: GenerationContext): OpenMouth[] {
 }
 
 /**
- * Ancla legacy de `spawns.enemy`: la sala más lejana con una celda sin línea de
- * visión a ningún hueco de spawn. No es fuente de verdad para la colocación,
- * pero conserva el contrato serializable y el ancla de `enemy-1`.
+ * Ancla legacy de `spawns.enemy`: la celda no-spawn más lejana sin línea de
+ * visión a ningún hueco del grupo, fuera de puertas, armas y huecos. Si no
+ * existe, usa la más lejana aunque tenga visión y lo avisa. No es fuente de
+ * verdad para la colocación, pero conserva el contrato serializable y el ancla
+ * opcional de `enemy-1`.
  */
 function enemyAnchor(
   context: GenerationContext,
   spawns: SpawnPlacement,
-): { readonly point: Position; readonly distance: number } {
+  doors: readonly Door[],
+  weaponCells: ReadonlySet<string>,
+): { readonly point: Position; readonly distance: number; readonly relaxed: boolean } {
   const { width, height } = context;
   const grid = { width, height, tiles: tileView(context) };
   const holes = spawns.party.length > 0 ? spawns.party : [spawns.player];
   const distances = distancesFrom(context, spawns.player);
+  const excluded = new Set<string>([
+    ...holes.map((hole) => `${hole.x},${hole.y}`),
+    ...doors.map((door) => `${door.x},${door.y}`),
+    ...weaponCells,
+  ]);
 
-  const candidates: MutableRoom[] = context.rooms.filter(
-    (room) => room.id !== spawns.roomId,
-  );
-  const roomScore = (room: MutableRoom): number => {
-    let best = -1;
-    for (let y = room.y; y < room.y + room.height; y += 1) {
-      for (let x = room.x; x < room.x + room.width; x += 1) {
-        const distance = distances[indexOf(width, x, y)];
-        if (distance > best) best = distance;
-      }
-    }
-    return best;
-  };
-  candidates.sort((a, b) => roomScore(b) - roomScore(a) || a.id - b.id);
+  let best: { point: Position; distance: number } | null = null;
+  let farthest: { point: Position; distance: number } | null = null;
 
-  for (const room of candidates) {
-    let best: { point: Position; distance: number; visible: boolean } | null = null;
+  for (const room of context.rooms) {
+    if (room.id === spawns.roomId) continue;
     for (let y = room.y; y < room.y + room.height; y += 1) {
       for (let x = room.x; x < room.x + room.width; x += 1) {
         const distance = distances[indexOf(width, x, y)];
         if (distance < 0) continue;
+        if (excluded.has(`${x},${y}`)) continue;
         const point = { x, y };
-        const visible = holes.some((hole) => hasLineOfSight(grid, point, hole));
+        const betterFarthest =
+          !farthest ||
+          distance > farthest.distance ||
+          (distance === farthest.distance &&
+            (y < farthest.point.y || (y === farthest.point.y && x < farthest.point.x)));
+        if (betterFarthest) farthest = { point, distance };
+        if (holes.some((hole) => hasLineOfSight(grid, point, hole))) continue;
         const better =
           !best ||
-          Number(best.visible) - Number(visible) > 0 ||
-          (best.visible === visible && distance > best.distance) ||
-          (best.visible === visible &&
-            distance === best.distance &&
+          distance > best.distance ||
+          (distance === best.distance &&
             (y < best.point.y || (y === best.point.y && x < best.point.x)));
-        if (better) best = { point, distance, visible };
+        if (better) best = { point, distance };
       }
     }
-    if (best) return { point: best.point, distance: best.distance };
   }
 
-  return { point: spawns.player, distance: 0 };
+  if (best) return { ...best, relaxed: false };
+  if (farthest) return { ...farthest, relaxed: true };
+  return { point: spawns.player, distance: 0, relaxed: true };
 }
 
 /**
@@ -1897,7 +1900,25 @@ function chooseSpawns(
     );
   }
 
-  const anchor = enemyAnchor(context, spawns);
+  // Las armas se colocan después del mapa, pero su resultado es puro y estable:
+  // se calculan aquí solo para no anclar `spawns.enemy` sobre una de ellas.
+  const weaponCells = new Set(
+    placeMapWeapons({
+      seed,
+      width: context.width,
+      height: context.height,
+      tiles: tileView(context),
+      rooms,
+      doors,
+      spawns: { ...spawns, enemy: spawns.player, distance: 0 },
+    }).map((weapon) => `${weapon.x},${weapon.y}`),
+  );
+  const anchor = enemyAnchor(context, spawns, doors, weaponCells);
+  if (anchor.relaxed) {
+    warnings.push(
+      'No había ancla sin visión al spawn; se usó la celda más lejana con línea de visión.',
+    );
+  }
   return {
     spawns: {
       roomId: spawns.roomId,

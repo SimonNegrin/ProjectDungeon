@@ -131,13 +131,11 @@ describe('colocación de enemigos del generador denso', () => {
             `${label} · acceso de salida`,
           ).toBe(false);
         }
-        if (!enemy.hidden) {
-          for (const hole of holes) {
-            expect(
-              hasLineOfSight(grid, enemy, hole),
-              `${label} · enemigo ${enemy.id} ve el spawn`,
-            ).toBe(false);
-          }
+        for (const hole of holes) {
+          expect(
+            hasLineOfSight(grid, enemy, hole),
+            `${label} · enemigo ${enemy.id}${enemy.hidden ? ' (emboscado)' : ''} ve el spawn`,
+          ).toBe(false);
         }
       }
 

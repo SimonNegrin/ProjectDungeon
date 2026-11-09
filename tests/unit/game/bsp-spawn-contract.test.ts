@@ -107,6 +107,27 @@ function assertBspSpawnContract(map: GeneratedMap): void {
     }
   }
 
+  const anchor = map.spawns.enemy;
+  expect(roomAt(map.rooms, anchor.x, anchor.y)?.id).not.toBe(map.spawns.roomId);
+  expect(
+    map.doors.some((door) => door.x === anchor.x && door.y === anchor.y),
+    'ancla sobre una puerta',
+  ).toBe(false);
+  expect(
+    (map.weapons ?? []).some((weapon) => weapon.x === anchor.x && weapon.y === anchor.y),
+    'ancla sobre un arma',
+  ).toBe(false);
+  expect(
+    party.some((cell) => cell.x === anchor.x && cell.y === anchor.y),
+    'ancla sobre un hueco de spawn',
+  ).toBe(false);
+  for (const hole of party) {
+    expect(
+      hasLineOfSight(map, anchor, hole),
+      `ancla ve el spawn (${anchor.x},${anchor.y})`,
+    ).toBe(false);
+  }
+
   // El validador histórico no debe recibir la salida de BSP en este corte.
   expect(map.exit).toBeUndefined();
   expect(validateGeneratedMap(map).issues).toEqual([]);

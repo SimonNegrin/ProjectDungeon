@@ -11,6 +11,7 @@ import {
   maxComponentSize,
   partyCapacity,
   placeSpawns,
+  type OpenMouth,
 } from '../../../src/game/chambers/core';
 
 function room(id: number, x: number, y: number, width: number, height: number): Room {
@@ -94,6 +95,64 @@ describe('spawn protegido de REQ-012', () => {
     );
 
     expect(result.spawns.roomId).toBe(tied.id);
+    expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
+  });
+
+  it('no cuenta las bocas estrechas que acompañan a una puerta', () => {
+    // P (id 0) y Q (id 1) empatan con el cómputo antiguo (puerta + boca ancha
+    // estrecha). La regla aprobada deja a Q con 0 accesos y a P con 1, así que Q
+    // gana aunque sea la sala mayor; el cómputo antiguo evitaba la mayor y elegía P.
+    const protectedRoom = room(0, 1, 1, 5, 5);
+    const largest = room(1, 12, 1, 7, 7);
+    const annex = room(2, 8, 12, 2, 2);
+    const doors = [door(0, 1, 3, 0, 2)];
+    const openMouths: OpenMouth[] = [
+      // Pasillo estrecho con puerta: la boca del otro extremo no suma acceso.
+      {
+        id: 0,
+        x: 2,
+        y: 7,
+        orientation: 'vertical',
+        roomA: 0,
+        roomB: 2,
+        corridorId: 0,
+        reason: 'una-por-pasillo',
+      },
+      // Pasillo estrecho sin puerta: sus dos bocas tampoco son accesos de R-001.
+      {
+        id: 1,
+        x: 11,
+        y: 3,
+        orientation: 'vertical',
+        roomA: 1,
+        roomB: 2,
+        corridorId: 1,
+        reason: 'separacion',
+      },
+      {
+        id: 2,
+        x: 11,
+        y: 4,
+        orientation: 'vertical',
+        roomA: 1,
+        roomB: 2,
+        corridorId: 1,
+        reason: 'separacion',
+      },
+    ];
+
+    const result = placeSpawns({
+      rooms: [protectedRoom, largest, annex],
+      doors,
+      openMouths,
+      tiles: tilesFor([protectedRoom, largest, annex], 22, 18),
+      width: 22,
+      height: 18,
+      minTiles: SPAWN_MIN_TILES,
+      seed: 7,
+    });
+
+    expect(result.spawns.roomId).toBe(largest.id);
     expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
   });
 
