@@ -8,6 +8,12 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T11:30:00Z }
 artifacts: artifacts/TASK-0041/attempt-2/
 verified:
+  - by: task-lead
+    at: 2026-11-09T11:34:04Z
+    note: >-
+      Verificado en task/TASK-0041: separación de spawn ≥2 en 60/60 mapas,
+      `party[0]` acceso, fallback <6 con aviso, verify 605, E2E 70/70 y 45
+      capturas 1280×720 revisadas. Detalle en la tarea.
 ---
 
 # Estado
