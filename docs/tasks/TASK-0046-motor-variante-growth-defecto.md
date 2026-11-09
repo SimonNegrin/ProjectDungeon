@@ -4,22 +4,51 @@ id: TASK-0046
 title: "Motor: variante growth y generador por defecto"
 description: Crear src/game/chambers/variants/growth.ts, el adaptador GrowthMapGenerator y el import estático que convierte growth en el generador por defecto sin switch runtime.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-001, R-002, R-008, T-001, T-002, T-009, T-015, T-016]
 depends_on: [TASK-0045]
 unlocks: [TASK-0047, TASK-0048]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T17:00:09Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0046/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T17:00:09Z
+    note: >-
+      Intentos 1 y 2 verificados en task/TASK-0046 (código 4627913, 7abe223;
+      tests f6507e6, ed176cf; evidencia 6c5b017 y 45a6108; fusión be5022a).
+      El intento 1 se rechazó por una regresión detectada en la verificación:
+      `createInitialState()` ya usaba growth pero su mapa no traía `weapons`, y
+      los tests de armas se habían redirigido a BSP. El intento 2 lo corrige
+      reutilizando `placeMapWeapons` con `blockedCells` aditivo y añade hacha y
+      daga deterministas fuera de spawn, puertas, salida y enemigos. Diff
+      completo revisado: solo `src/game/chambers/variants/growth.ts`,
+      `src/game/engine.ts`, `src/game/map.ts` (extensión aditiva), tests y
+      artefactos; sin tocar `src/host/`, `experiments/`, `index.html`,
+      dependencias, bestiario, IA ni combate. Lead re-ejecutó `pnpm run verify`
+      (711/711 tests, docs/config y build OK), las suites dirigidas
+      growth/BSP/REQ-009/REQ-010 (187/187 en la selección del lead) y las de
+      armas host (68/68); growth mide 1,93 ms de media en 22×18 con semilla
+      2738263054 y el barrido de 200 semillas pasa el validador de growth. BSP
+      inyectado conserva 32×32, 4 enemigos y sus armas exactas. `growth` es el
+      default, consume `map.enemies` con tipo y `home`, admite BSP inyectado y
+      no importa BSP, plantillas ni experimentos. `validateGeneratedMap` sigue
+      siendo BSP-específico; growth usa `validateGrowthMap` con positivos y
+      negativos. Sin tests borrados, saltados o debilitados: solo se adaptaron
+      los casos que probaban BSP inyectándolo. E2E no aplica: es TASK-0049 y el
+      render de growth es TASK-0048. Fricción triada: el desajuste
+      `MapOptions`/opciones de growth se acepta como workaround local y se eleva
+      a requirements-writer como propuesta documental; la falta de test de
+      default sin inyección se cubre con el test nuevo y se registra como
+      lección (`accepted`).
 ---
 
 # Objetivo
