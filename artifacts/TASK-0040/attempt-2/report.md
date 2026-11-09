@@ -36,9 +36,9 @@ verified:
 
 # Evidencia visual
 
-- `screenshots/`: 13 PNG de la semilla 279837264 (overview, página normal/debug
-  por variante y recortes `fullmap-zoom` / `13x13-zoom`).
-- Puertas del 13×13 alineadas y sin marcas en el margen.
+- `screenshots/`: 16 PNG (referencia 279837264 y semilla 5 caverna) con página
+  normal/debug y recortes `fullmap`/`13x13`.
+- Semilla 5 y 13×13 alineados, sin marcas en el margen negro.
 - `decision-example.json`, `capture-log.txt` y `logs/`.
 
 # Desviaciones
@@ -66,6 +66,6 @@ verified:
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3112 |
-| `report_bytes` | 2528 |
+| `report_bytes` | 2519 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
