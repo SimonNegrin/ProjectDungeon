@@ -1,0 +1,648 @@
+{
+  "base": "http://127.0.0.1:4173/experiments/EXP-004-salas-irregulares/",
+  "seeds": [
+    2,
+    4,
+    5,
+    6,
+    7
+  ],
+  "variants": [
+    "growth",
+    "bsp",
+    "templates"
+  ],
+  "errors": [],
+  "datasets": [
+    {
+      "seed": 2,
+      "variant": "growth",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "2",
+        "fingerprint": "eec1b702",
+        "doors": "4",
+        "openMouths": "4",
+        "spawnHoles": "6",
+        "spawnAccess": "11,7",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "104",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 2,
+      "variant": "growth",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "2",
+        "fingerprint": "eec1b702",
+        "doors": "4",
+        "openMouths": "4",
+        "spawnHoles": "6",
+        "spawnAccess": "11,7",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "104",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 2,
+      "variant": "bsp",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "2",
+        "fingerprint": "ce58e260",
+        "doors": "2",
+        "openMouths": "3",
+        "spawnHoles": "4",
+        "spawnAccess": "16,9",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "100",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 2,
+      "variant": "bsp",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "2",
+        "fingerprint": "ce58e260",
+        "doors": "2",
+        "openMouths": "3",
+        "spawnHoles": "4",
+        "spawnAccess": "16,9",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "100",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 2,
+      "variant": "templates",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "2",
+        "fingerprint": "fc755c8a",
+        "doors": "4",
+        "openMouths": "5",
+        "spawnHoles": "3",
+        "spawnAccess": "18,14",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "109",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 2,
+      "variant": "templates",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "2",
+        "fingerprint": "fc755c8a",
+        "doors": "4",
+        "openMouths": "5",
+        "spawnHoles": "3",
+        "spawnAccess": "18,14",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "109",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "growth",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "4",
+        "fingerprint": "9a0a74eb",
+        "doors": "3",
+        "openMouths": "3",
+        "spawnHoles": "4",
+        "spawnAccess": "18,7",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "94",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "growth",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "4",
+        "fingerprint": "9a0a74eb",
+        "doors": "3",
+        "openMouths": "3",
+        "spawnHoles": "4",
+        "spawnAccess": "18,7",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "94",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "bsp",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "4",
+        "fingerprint": "7979c29a",
+        "doors": "1",
+        "openMouths": "3",
+        "spawnHoles": "2",
+        "spawnAccess": "8,14",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "91",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "bsp",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "4",
+        "fingerprint": "7979c29a",
+        "doors": "1",
+        "openMouths": "3",
+        "spawnHoles": "2",
+        "spawnAccess": "8,14",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "91",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "templates",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "4",
+        "fingerprint": "373c846f",
+        "doors": "4",
+        "openMouths": "2",
+        "spawnHoles": "5",
+        "spawnAccess": "3,10",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "108",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 4,
+      "variant": "templates",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "4",
+        "fingerprint": "373c846f",
+        "doors": "4",
+        "openMouths": "2",
+        "spawnHoles": "5",
+        "spawnAccess": "3,10",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "108",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "growth",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "5",
+        "fingerprint": "52031777",
+        "doors": "2",
+        "openMouths": "1",
+        "spawnHoles": "3",
+        "spawnAccess": "16,11",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "93",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "growth",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "5",
+        "fingerprint": "52031777",
+        "doors": "2",
+        "openMouths": "1",
+        "spawnHoles": "3",
+        "spawnAccess": "16,11",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "93",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "bsp",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "5",
+        "fingerprint": "9fcaad8a",
+        "doors": "6",
+        "openMouths": "5",
+        "spawnHoles": "6",
+        "spawnAccess": "14,7",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "147",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "bsp",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "5",
+        "fingerprint": "9fcaad8a",
+        "doors": "6",
+        "openMouths": "5",
+        "spawnHoles": "6",
+        "spawnAccess": "14,7",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "147",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "templates",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "5",
+        "fingerprint": "b2f9ede4",
+        "doors": "6",
+        "openMouths": "7",
+        "spawnHoles": "6",
+        "spawnAccess": "6,6",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "114",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 5,
+      "variant": "templates",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "5",
+        "fingerprint": "b2f9ede4",
+        "doors": "6",
+        "openMouths": "7",
+        "spawnHoles": "6",
+        "spawnAccess": "6,6",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "114",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "growth",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "6",
+        "fingerprint": "411b9ff2",
+        "doors": "2",
+        "openMouths": "3",
+        "spawnHoles": "6",
+        "spawnAccess": "13,7",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "95",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "growth",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "6",
+        "fingerprint": "411b9ff2",
+        "doors": "2",
+        "openMouths": "3",
+        "spawnHoles": "6",
+        "spawnAccess": "13,7",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "95",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "bsp",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "6",
+        "fingerprint": "109f1d2e",
+        "doors": "1",
+        "openMouths": "0",
+        "spawnHoles": "6",
+        "spawnAccess": "7,4",
+        "enemies": "4",
+        "enemyTotal": "7",
+        "enemySurface": "86",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "bsp",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "6",
+        "fingerprint": "109f1d2e",
+        "doors": "1",
+        "openMouths": "0",
+        "spawnHoles": "6",
+        "spawnAccess": "7,4",
+        "enemies": "4",
+        "enemyTotal": "7",
+        "enemySurface": "86",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "templates",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "6",
+        "fingerprint": "ae60881f",
+        "doors": "4",
+        "openMouths": "3",
+        "spawnHoles": "5",
+        "spawnAccess": "18,4",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "102",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 6,
+      "variant": "templates",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "6",
+        "fingerprint": "ae60881f",
+        "doors": "4",
+        "openMouths": "3",
+        "spawnHoles": "5",
+        "spawnAccess": "18,4",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "102",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "growth",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "7",
+        "fingerprint": "8e053acb",
+        "doors": "4",
+        "openMouths": "1",
+        "spawnHoles": "4",
+        "spawnAccess": "17,9",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "106",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "growth",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-growth",
+        "variant": "growth",
+        "seed": "7",
+        "fingerprint": "8e053acb",
+        "doors": "4",
+        "openMouths": "1",
+        "spawnHoles": "4",
+        "spawnAccess": "17,9",
+        "enemies": "8",
+        "enemyTotal": "8",
+        "enemySurface": "106",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "bsp",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "7",
+        "fingerprint": "27648e0d",
+        "doors": "5",
+        "openMouths": "2",
+        "spawnHoles": "6",
+        "spawnAccess": "9,5",
+        "enemies": "9",
+        "enemyTotal": "9",
+        "enemySurface": "162",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "bsp",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-bsp",
+        "variant": "bsp",
+        "seed": "7",
+        "fingerprint": "27648e0d",
+        "doors": "5",
+        "openMouths": "2",
+        "spawnHoles": "6",
+        "spawnAccess": "9,5",
+        "enemies": "9",
+        "enemyTotal": "9",
+        "enemySurface": "162",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "templates",
+      "debug": false,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "7",
+        "fingerprint": "edf08a37",
+        "doors": "2",
+        "openMouths": "1",
+        "spawnHoles": "4",
+        "spawnAccess": "13,4",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "85",
+        "enemyPlayers": "3",
+        "debug": "false",
+        "rendered": "true"
+      }
+    },
+    {
+      "seed": 7,
+      "variant": "templates",
+      "debug": true,
+      "dataset": {
+        "testid": "canvas-templates",
+        "variant": "templates",
+        "seed": "7",
+        "fingerprint": "edf08a37",
+        "doors": "2",
+        "openMouths": "1",
+        "spawnHoles": "4",
+        "spawnAccess": "13,4",
+        "enemies": "7",
+        "enemyTotal": "7",
+        "enemySurface": "85",
+        "enemyPlayers": "3",
+        "debug": "true",
+        "rendered": "true"
+      }
+    }
+  ]
+}

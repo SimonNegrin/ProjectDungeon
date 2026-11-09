@@ -4,7 +4,7 @@ id: TASK-0041
 title: "EXP-004: puertas, acceso de spawn y presupuesto de enemigos"
 description: Actualizar el experimento con puertas validadas por geometría, spawn alrededor del acceso y enemigos calculados por superficie y jugadores con factores configurables.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-011
 requirement_ids: [R-004, R-009, T-007, T-014, R-002, R-006, R-007, R-008, T-004, T-006, T-012]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-09T10:50:25Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0041/
 priority: P1
 risk: medium

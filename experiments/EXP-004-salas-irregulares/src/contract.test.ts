@@ -65,12 +65,23 @@ describe('contrato y determinismo de A/B/C', () => {
       expect(map.rooms.length).toBeGreaterThanOrEqual(4);
       expect(map.rooms.length).toBeLessThanOrEqual(6);
       expect(map.doors.length).toBeGreaterThan(0);
+      expect(Array.isArray(map.openMouths)).toBe(true);
       expect(map.corridors.length).toBeGreaterThan(0);
       expect(map.spawns.party.length).toBeGreaterThanOrEqual(6);
       expect(map.spawns.player).toEqual(map.spawns.party[0]);
       expect(map.enemies.length).toBeGreaterThan(0);
       expect(map.palettes.length).toBe(map.rooms.length);
       expect(map.stats.roomCount).toBe(map.rooms.length);
+      expect(map.stats.validDoors).toBe(map.doors.length);
+      expect(map.stats.openMouths).toBe(map.openMouths.length);
+      expect(map.stats.enemy.surfaceN).toBe(map.stats.roomFloor);
+      expect(map.stats.enemy.playersP).toBe(map.options.numPlayers);
+      expect(map.stats.enemy.total).toBe(
+        map.stats.enemy.surfaceTerm + map.stats.enemy.playersTerm,
+      );
+      expect(map.options.enemySurfaceFactor).toBe(0.02);
+      expect(map.options.enemyPlayersFactor).toBe(1.35);
+      expect(map.options.numPlayers).toBe(3);
       expect(Array.isArray(map.warnings)).toBe(true);
       expect(JSON.parse(JSON.stringify(map))).toEqual(map);
     }
@@ -87,7 +98,7 @@ describe('contrato y determinismo de A/B/C', () => {
   });
 
   it('las opciones extremas se corrigen con warnings y no rompen el contrato', () => {
-    const { warnings } = resolveOptions({
+    const { warnings, options } = resolveOptions({
       mapWidth: 12,
       mapHeight: 10,
       roomCount: 2,
@@ -98,8 +109,14 @@ describe('contrato y determinismo de A/B/C', () => {
       wallThickness: 5,
       megaRoomChance: -5,
       spawnMinTiles: 12,
+      enemySurfaceFactor: 5,
+      enemyPlayersFactor: -2,
+      numPlayers: 99,
     });
     expect(warnings.length).toBeGreaterThan(0);
+    expect(options.enemySurfaceFactor).toBe(0.1);
+    expect(options.enemyPlayersFactor).toBe(0);
+    expect(options.numPlayers).toBe(6);
 
     for (const variant of VARIANTS) {
       const map = generateMap(variant, 42, {
@@ -113,10 +130,14 @@ describe('contrato y determinismo de A/B/C', () => {
         wallThickness: 5,
         megaRoomChance: -5,
         spawnMinTiles: 12,
+        enemySurfaceFactor: 5,
+        enemyPlayersFactor: -2,
+        numPlayers: 99,
       });
       expect(map.warnings.length).toBeGreaterThan(0);
       expect(map.rooms.length).toBeGreaterThan(0);
       expect(map.tiles).toHaveLength(map.width * map.height);
+      expect(map.stats.enemy.playersP).toBe(6);
     }
   });
 

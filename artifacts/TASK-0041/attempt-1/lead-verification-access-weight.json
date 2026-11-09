@@ -1,0 +1,1050 @@
+[
+  {
+    "variant": "growth",
+    "seed": 2,
+    "newId": 3,
+    "oldId": 1,
+    "newAccess": 1,
+    "oldAccess": 0,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 2,
+        "free": 42,
+        "area": 42
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 0,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 2,
+        "accesses": 7,
+        "old": 3,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 3,
+        "accesses": 1,
+        "old": 1,
+        "free": 19,
+        "area": 19
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 9,
+        "area": 9
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 3,
+    "newId": 3,
+    "oldId": 4,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 2,
+        "free": 14,
+        "area": 14
+      },
+      {
+        "id": 1,
+        "accesses": 4,
+        "old": 2,
+        "free": 13,
+        "area": 13
+      },
+      {
+        "id": 2,
+        "accesses": 6,
+        "old": 4,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 3,
+        "accesses": 1,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 4,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 4,
+    "newId": 2,
+    "oldId": 1,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 2,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 2,
+        "free": 36,
+        "area": 36
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 3,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 18,
+        "area": 18
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "growth",
+    "seed": 5,
+    "newId": 2,
+    "oldId": 1,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 2,
+        "free": 75,
+        "area": 75
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 2,
+        "accesses": 1,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 8,
+    "newId": 2,
+    "oldId": 3,
+    "newAccess": 2,
+    "oldAccess": 2,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 5,
+        "old": 3,
+        "free": 42,
+        "area": 42
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 3,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 2,
+        "free": 20,
+        "area": 20
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 22,
+        "area": 22
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 19,
+        "area": 19
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "growth",
+    "seed": 9,
+    "newId": 0,
+    "oldId": 2,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 2,
+        "free": 54,
+        "area": 54
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 2,
+        "free": 23,
+        "area": 23
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 1,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 13,
+    "newId": 3,
+    "oldId": 2,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 4,
+        "old": 3,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 2,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 1,
+        "free": 17,
+        "area": 17
+      },
+      {
+        "id": 3,
+        "accesses": 1,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 2,
+        "old": 1,
+        "free": 13,
+        "area": 13
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 15,
+    "newId": 4,
+    "oldId": 3,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 1,
+        "accesses": 4,
+        "old": 2,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 2,
+        "accesses": 4,
+        "old": 3,
+        "free": 6,
+        "area": 6
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 1,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 4,
+        "accesses": 1,
+        "old": 1,
+        "free": 25,
+        "area": 25
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 18,
+    "newId": 0,
+    "oldId": 4,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 2,
+        "accesses": 8,
+        "old": 2,
+        "free": 13,
+        "area": 13
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 1,
+        "free": 54,
+        "area": 54
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "growth",
+    "seed": 19,
+    "newId": 2,
+    "oldId": 0,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 15,
+        "area": 15
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 14,
+        "area": 14
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 2,
+        "free": 47,
+        "area": 47
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 15,
+        "area": 15
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "bsp",
+    "seed": 2,
+    "newId": 1,
+    "oldId": 2,
+    "newAccess": 3,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 2,
+        "free": 81,
+        "area": 81
+      },
+      {
+        "id": 2,
+        "accesses": 4,
+        "old": 1,
+        "free": 10,
+        "area": 10
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "bsp",
+    "seed": 4,
+    "newId": 1,
+    "oldId": 2,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 4,
+        "old": 3,
+        "free": 76,
+        "area": 76
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 2,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 1,
+        "free": 6,
+        "area": 6
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "bsp",
+    "seed": 12,
+    "newId": 4,
+    "oldId": 0,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 31,
+        "area": 31
+      },
+      {
+        "id": 1,
+        "accesses": 5,
+        "old": 3,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 3,
+        "accesses": 2,
+        "old": 2,
+        "free": 54,
+        "area": 54
+      },
+      {
+        "id": 4,
+        "accesses": 1,
+        "old": 1,
+        "free": 31,
+        "area": 31
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "bsp",
+    "seed": 13,
+    "newId": 3,
+    "oldId": 4,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 5,
+        "old": 2,
+        "free": 62,
+        "area": 62
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 3,
+        "free": 35,
+        "area": 35
+      },
+      {
+        "id": 2,
+        "accesses": 8,
+        "old": 3,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 3,
+        "accesses": 2,
+        "old": 1,
+        "free": 14,
+        "area": 14
+      },
+      {
+        "id": 4,
+        "accesses": 4,
+        "old": 1,
+        "free": 26,
+        "area": 26
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "bsp",
+    "seed": 14,
+    "newId": 0,
+    "oldId": 2,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 2,
+        "free": 60,
+        "area": 60
+      },
+      {
+        "id": 1,
+        "accesses": 5,
+        "old": 3,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 1,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 26,
+        "area": 26
+      },
+      {
+        "id": 4,
+        "accesses": 4,
+        "old": 2,
+        "free": 33,
+        "area": 33
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "bsp",
+    "seed": 17,
+    "newId": 1,
+    "oldId": 3,
+    "newAccess": 4,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 8,
+        "old": 3,
+        "free": 15,
+        "area": 15
+      },
+      {
+        "id": 1,
+        "accesses": 4,
+        "old": 1,
+        "free": 30,
+        "area": 30
+      },
+      {
+        "id": 2,
+        "accesses": 4,
+        "old": 3,
+        "free": 9,
+        "area": 9
+      },
+      {
+        "id": 3,
+        "accesses": 5,
+        "old": 1,
+        "free": 60,
+        "area": 60
+      },
+      {
+        "id": 4,
+        "accesses": 5,
+        "old": 4,
+        "free": 31,
+        "area": 31
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "templates",
+    "seed": 3,
+    "newId": 3,
+    "oldId": 1,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 6,
+        "old": 4,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 2,
+        "accesses": 4,
+        "old": 2,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 3,
+        "accesses": 1,
+        "old": 1,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 6,
+        "area": 6
+      }
+    ],
+    "wide": 1
+  },
+  {
+    "variant": "templates",
+    "seed": 5,
+    "newId": 4,
+    "oldId": 0,
+    "newAccess": 3,
+    "oldAccess": 2,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 4,
+        "old": 2,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 1,
+        "accesses": 6,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 2,
+        "accesses": 6,
+        "old": 3,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 3,
+        "accesses": 7,
+        "old": 3,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 21,
+        "area": 21
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 8,
+    "newId": 2,
+    "oldId": 1,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 2,
+        "free": 74,
+        "area": 74
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 2,
+        "accesses": 1,
+        "old": 1,
+        "free": 7,
+        "area": 7
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 11,
+    "newId": 2,
+    "oldId": 0,
+    "newAccess": 2,
+    "oldAccess": 2,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 6,
+        "old": 2,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 1,
+        "accesses": 3,
+        "old": 2,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 2,
+        "accesses": 2,
+        "old": 2,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 3,
+        "accesses": 4,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 3,
+        "old": 2,
+        "free": 16,
+        "area": 16
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 13,
+    "newId": 4,
+    "oldId": 2,
+    "newAccess": 2,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 4,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 1,
+        "accesses": 6,
+        "old": 3,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 2,
+        "accesses": 4,
+        "old": 1,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 3,
+        "accesses": 2,
+        "old": 2,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 4,
+        "accesses": 2,
+        "old": 2,
+        "free": 21,
+        "area": 21
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 14,
+    "newId": 4,
+    "oldId": 0,
+    "newAccess": 2,
+    "oldAccess": 2,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 3,
+        "old": 2,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 1,
+        "accesses": 6,
+        "old": 4,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 2,
+        "accesses": 5,
+        "old": 3,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 3,
+        "accesses": 4,
+        "old": 3,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 4,
+        "accesses": 2,
+        "old": 2,
+        "free": 12,
+        "area": 12
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 16,
+    "newId": 4,
+    "oldId": 0,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 1,
+        "accesses": 2,
+        "old": 1,
+        "free": 18,
+        "area": 18
+      },
+      {
+        "id": 2,
+        "accesses": 6,
+        "old": 3,
+        "free": 12,
+        "area": 12
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 4,
+        "accesses": 1,
+        "old": 1,
+        "free": 16,
+        "area": 16
+      }
+    ],
+    "wide": 0
+  },
+  {
+    "variant": "templates",
+    "seed": 19,
+    "newId": 4,
+    "oldId": 0,
+    "newAccess": 1,
+    "oldAccess": 1,
+    "rooms": [
+      {
+        "id": 0,
+        "accesses": 2,
+        "old": 1,
+        "free": 21,
+        "area": 21
+      },
+      {
+        "id": 1,
+        "accesses": 5,
+        "old": 3,
+        "free": 16,
+        "area": 16
+      },
+      {
+        "id": 2,
+        "accesses": 1,
+        "old": 1,
+        "free": 6,
+        "area": 6
+      },
+      {
+        "id": 3,
+        "accesses": 3,
+        "old": 2,
+        "free": 48,
+        "area": 48
+      },
+      {
+        "id": 4,
+        "accesses": 1,
+        "old": 1,
+        "free": 18,
+        "area": 18
+      }
+    ],
+    "wide": 0
+  }
+]

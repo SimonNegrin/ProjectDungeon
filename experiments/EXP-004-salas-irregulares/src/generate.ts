@@ -25,19 +25,19 @@ import {
   type Box,
 } from './grid';
 import { createRng, hashSeed, type Rng } from './rng';
-import { hasLineOfSight, placeEnemies, placeSpawns, refineSpawnHoles } from './spawn';
+import { placeDoors, validateDoorCandidate } from './doors';
+import { SPAWN_SEPARATION, hasLineOfSight, placeEnemies, placeSpawns } from './spawn';
 import type {
   Corridor,
   CorridorKind,
   Door,
-  DoorOrientation,
-  DoorStyle,
   Enemy,
   FloorAmbient,
   FloorPaletteId,
   GeneratedMap,
   MapOptions,
   MapStats,
+  OpenMouth,
   ResolvedMapOptions,
   Room,
   SizeRole,
@@ -59,8 +59,6 @@ const AMBIENT_ORDER: readonly FloorAmbient[] = [
   'vegetation',
   'mixed',
 ];
-
-const DOOR_STYLES: readonly DoorStyle[] = ['wood', 'metal', 'grated'];
 
 const DIRECTIONS = [
   { dx: 1, dy: 0 },
@@ -161,6 +159,23 @@ export function resolveOptions(input: MapOptions = {}): {
     return clamped;
   }
 
+  function clampFloat(
+    value: number | undefined,
+    fallback: number,
+    min: number,
+    max: number,
+    label: string,
+  ): number {
+    const numeric = value === undefined ? fallback : Number(value);
+    const safe = Number.isFinite(numeric) ? numeric : fallback;
+    const clamped = Math.min(max, Math.max(min, safe));
+    const rounded = Number(clamped.toFixed(2));
+    if (Math.abs(rounded - safe) > 1e-9) {
+      warnings.push(`El ${label} se ajustó de ${safe} a ${rounded}.`);
+    }
+    return rounded;
+  }
+
   const mapWidth = clampInt(input.mapWidth, 22, 12, 40, 'ancho del mapa');
   const mapHeight = clampInt(input.mapHeight, 18, 10, 34, 'alto del mapa');
   let roomCount = clampInt(input.roomCount, 5, 4, 6, 'número de salas');
@@ -210,6 +225,21 @@ export function resolveOptions(input: MapOptions = {}): {
     12,
     'mínimo de huecos de spawn',
   );
+  const enemySurfaceFactor = clampFloat(
+    input.enemySurfaceFactor,
+    0.02,
+    0,
+    0.1,
+    'factor de enemigos por superficie',
+  );
+  const enemyPlayersFactor = clampFloat(
+    input.enemyPlayersFactor,
+    1.35,
+    0,
+    3,
+    'factor de enemigos por jugador',
+  );
+  const numPlayers = clampInt(input.numPlayers, 3, 1, 6, 'número de jugadores');
 
   return {
     options: {
@@ -223,6 +253,9 @@ export function resolveOptions(input: MapOptions = {}): {
       wallThickness,
       megaRoomChance,
       spawnMinTiles,
+      enemySurfaceFactor,
+      enemyPlayersFactor,
+      numPlayers,
     },
     warnings,
   };
@@ -2347,19 +2380,12 @@ function finalizeMap(
     }
   }
 
-  const doors: Door[] = [];
-  const corridors: Corridor[] = [];
-  let nextDoorId = 0;
+  const rawCorridors: Corridor[] = [];
 
+  // Primero se tallan todos los pasillos; después se validan las puertas sobre
+  // la geometría final, porque el soporte de muro puede depender de cada hueco.
   for (const link of allLinks) {
     const isWide = wideKey !== null && linkKey(link) === wideKey;
-    const roomA = ordered[link.roomA];
-    const roomB = ordered[link.roomB];
-    const direction =
-      Math.abs(roomA.box.x - roomB.box.x) >= Math.abs(roomA.box.y - roomB.box.y)
-        ? 'vertical'
-        : 'horizontal';
-    const orientation: DoorOrientation = direction;
 
     if (isWide) {
       const widened = widenLink(link, options, roomMask);
@@ -2368,8 +2394,8 @@ function finalizeMap(
           tiles[cell.y * options.mapWidth + cell.x] = 1;
         }
       }
-      corridors.push({
-        id: corridors.length,
+      rawCorridors.push({
+        id: rawCorridors.length,
         cells: widened,
         kind: 'wide',
         length: link.length,
@@ -2381,47 +2407,39 @@ function finalizeMap(
       continue;
     }
 
-    const corridorCells = link.cells;
-    for (const cell of corridorCells) {
+    for (const cell of link.cells) {
       tiles[cell.y * options.mapWidth + cell.x] = 1;
     }
-
-    const doorCells =
-      link.length === 0
-        ? [link.cells[0]]
-        : [link.cells[0], link.cells[link.cells.length - 1]];
-    const doorIds: number[] = [];
-    for (const doorCell of doorCells) {
-      if (!doorCell) continue;
-      const style = doorStyleFor(seed, link.roomA, link.roomB, doorCell.x, doorCell.y);
-      const door: Door = {
-        id: nextDoorId,
-        x: doorCell.x,
-        y: doorCell.y,
-        orientation,
-        style,
-        roomA: link.roomA,
-        roomB: link.roomB,
-        direct: link.length === 0,
-        corridorId: corridors.length,
-      };
-      doors.push(door);
-      doorIds.push(door.id);
-      nextDoorId += 1;
-    }
-
     const kind: CorridorKind = link.length === 0 ? 'door' : 'short';
-    corridors.push({
-      id: corridors.length,
-      cells: corridorCells,
+    rawCorridors.push({
+      id: rawCorridors.length,
+      cells: link.cells,
       kind,
       length: link.length,
-      doors: doorIds,
+      doors: [],
       roomA: link.roomA,
       roomB: link.roomB,
       width: 1,
     });
   }
+
+  const placement = placeDoors({
+    rooms: ordered.map((room, index) => ({ id: index, cells: room.cells })),
+    corridors: rawCorridors,
+    tiles,
+    width: options.mapWidth,
+    height: options.mapHeight,
+    seed,
+  });
+  warnings.push(...placement.warnings);
+  const doors = placement.doors;
+  const openMouths = placement.openMouths;
+  const corridors: Corridor[] = rawCorridors.map((corridor) => ({
+    ...corridor,
+    doors: doors
+      .filter((door) => door.corridorId === corridor.id)
+      .map((door) => door.id),
+  }));
 
   // La puerta directa comparte hueco entre dos salas; el resto de puertas son
   // accesos de pasillo y se cuentan en su sala correspondiente.
@@ -2479,7 +2497,7 @@ function finalizeMap(
   const spawnResult = placeSpawns({
     rooms: rawRoomObjects,
     doors,
-    corridors,
+    openMouths,
     tiles,
     width: options.mapWidth,
     height: options.mapHeight,
@@ -2502,22 +2520,13 @@ function finalizeMap(
     height: options.mapHeight,
     spawns: spawnResult.spawns,
     seed,
-    emptyRoomChance: 0.3,
+    enemySurfaceFactor: options.enemySurfaceFactor,
+    enemyPlayersFactor: options.enemyPlayersFactor,
+    numPlayers: options.numPlayers,
   });
   warnings.push(...enemyResult.warnings);
 
-  const refined = refineSpawnHoles({
-    rooms,
-    doors,
-    tiles,
-    width: options.mapWidth,
-    height: options.mapHeight,
-    spawns: spawnResult.spawns,
-    enemies: enemyResult.enemies,
-    minTiles: options.spawnMinTiles,
-  });
-  warnings.push(...refined.warnings);
-  const finalSpawns = refined.spawns;
+  const finalSpawns = spawnResult.spawns;
 
   if (
     enemyResult.enemies.some((enemy) =>
@@ -2532,13 +2541,14 @@ function finalizeMap(
   const stats = buildStats({
     rooms,
     doors,
+    openMouths,
     corridors,
     tiles,
     loops: selection.extras.length,
     counter,
     enemies: enemyResult.enemies,
     spawns: finalSpawns,
-    doorsForSpawn: doors,
+    enemy: enemyResult.breakdown,
   });
 
   return {
@@ -2549,6 +2559,7 @@ function finalizeMap(
     tiles,
     rooms,
     doors,
+    openMouths,
     corridors,
     loops: selection.extras.length,
     spawns: finalSpawns,
@@ -2560,10 +2571,25 @@ function finalizeMap(
   };
 }
 
-function accessesFor(roomId: number, doors: readonly Door[], corridors: readonly Corridor[]): number {
-  let accesses = doors.filter((door) => door.roomA === roomId || door.roomB === roomId).length;
+/**
+ * Accesos de la sala según REQ-012 R-001: puertas más bocas de pasillo ancho.
+ * Contar las `openMouths` de todos los pasillos duplicaba la apertura de un
+ * mismo pasillo (puerta en un extremo y boca en el otro) y cambiaba la sala más
+ * protegida; los pasillos normales sin puerta no se cuentan, como antes.
+ */
+function accessesFor(
+  roomId: number,
+  doors: readonly Door[],
+  corridors: readonly Corridor[],
+): number {
+  let accesses = doors.filter(
+    (door) => door.roomA === roomId || door.roomB === roomId,
+  ).length;
   for (const corridor of corridors) {
-    if (corridor.kind === 'wide' && (corridor.roomA === roomId || corridor.roomB === roomId)) {
+    if (
+      corridor.kind === 'wide' &&
+      (corridor.roomA === roomId || corridor.roomB === roomId)
+    ) {
       // Una boca ancha ocupa dos tiles: pesa como dos accesos al elegir refugio.
       accesses += 2;
     }
@@ -2595,29 +2621,20 @@ function shapeStats(cells: readonly import('./types').Point[], box: Box): { notc
   return { notches, alcoves };
 }
 
-function doorStyleFor(
-  seed: number,
-  roomA: number,
-  roomB: number,
-  x: number,
-  y: number,
-): DoorStyle {
-  const hash = hashSeed(seed ^ Math.imul(roomA + 1, 0x9e3779b9) ^ Math.imul(roomB + 7, 0x85ebca6b), x * 31 + y * 17);
-  return DOOR_STYLES[hash % DOOR_STYLES.length];
-}
-
 function buildStats(input: {
   rooms: readonly Room[];
   doors: readonly Door[];
+  openMouths: readonly OpenMouth[];
   corridors: readonly Corridor[];
   tiles: readonly Tile[];
   loops: number;
   counter: Counter;
   enemies: readonly Enemy[];
   spawns: Spawns;
-  doorsForSpawn: readonly Door[];
+  enemy: MapStats['enemy'];
 }): MapStats {
-  const { rooms, doors, corridors, tiles, loops, counter, enemies, spawns } = input;
+  const { rooms, doors, openMouths, corridors, tiles, loops, counter, enemies, spawns, enemy } =
+    input;
   const roomFloor = rooms.reduce((sum, room) => sum + room.area, 0);
   const totalFloor = tiles.reduce<number>((sum, tile) => sum + (tile === 1 ? 1 : 0), 0);
   const corridorFloor = Math.max(0, totalFloor - roomFloor);
@@ -2628,9 +2645,36 @@ function buildStats(input: {
   const wide = corridors.filter((corridor) => corridor.kind === 'wide');
   const cavernRoom = rooms.find((room) => room.sizeRole === 'cavern');
   const cavernArea = cavernRoom?.area ?? 0;
-  const occupied = new Set(enemies.map((enemy) => enemy.roomId));
+  const occupied = new Set(enemies.map((enemyItem) => enemyItem.roomId));
   const spawnRoom = rooms.find((room) => room.id === spawns.roomId);
-  const maxEnemies = Math.max(0, ...rooms.map((room) => enemies.filter((enemy) => enemy.roomId === room.id).length));
+  const maxEnemies = Math.max(
+    0,
+    ...rooms.map(
+      (room) => enemies.filter((enemyItem) => enemyItem.roomId === room.id).length,
+    ),
+  );
+  let doorMinDistance: number | null = null;
+  for (let first = 0; first < doors.length; first += 1) {
+    for (let second = first + 1; second < doors.length; second += 1) {
+      const distance = Math.max(
+        Math.abs(doors[first].x - doors[second].x),
+        Math.abs(doors[first].y - doors[second].y),
+      );
+      doorMinDistance =
+        doorMinDistance === null ? distance : Math.min(doorMinDistance, distance);
+    }
+  }
+  const spawnHoleMaxDistance = spawns.party.reduce(
+    (max, hole) =>
+      Math.max(
+        max,
+        Math.max(
+          Math.abs(hole.x - spawns.player.x),
+          Math.abs(hole.y - spawns.player.y),
+        ),
+      ),
+    0,
+  );
 
   return {
     roomCount: rooms.length,
@@ -2644,12 +2688,20 @@ function buildStats(input: {
     averageAreaRatio:
       rooms.length === 0
         ? 0
-        : Number((rooms.reduce((sum, room) => sum + room.area / room.boxArea, 0) / rooms.length).toFixed(3)),
+        : Number(
+            (
+              rooms.reduce((sum, room) => sum + room.area / room.boxArea, 0) /
+              rooms.length
+            ).toFixed(3),
+          ),
     notchCount: rooms.reduce((sum, room) => sum + room.notches, 0),
     alcoveCount: rooms.reduce((sum, room) => sum + room.alcoves, 0),
     sharedWalls: countSharedWalls(rooms),
     doorCount: doors.length,
+    validDoors: doors.length,
     directDoors: doors.filter((door) => door.direct).length,
+    openMouths: openMouths.length,
+    doorMinDistance,
     corridorCount: corridors.length,
     corridorLengths: lengths,
     loops,
@@ -2659,10 +2711,15 @@ function buildStats(input: {
     cavernShare: roomFloor === 0 ? 0 : Number((cavernArea / roomFloor).toFixed(3)),
     spawnHoles: spawns.party.length,
     spawnAccesses: spawnRoom?.accesses ?? 0,
+    spawnAccess: spawns.party.length > 0 ? spawns.player : null,
+    spawnHoleMaxDistance,
     enemyCount: enemies.length,
-    emptyRooms: rooms.filter((room) => room.id !== spawns.roomId && !occupied.has(room.id)).length,
+    emptyRooms: rooms.filter(
+      (room) => room.id !== spawns.roomId && !occupied.has(room.id),
+    ).length,
     maxEnemiesPerRoom: maxEnemies,
     generationAttempts: counter.value,
+    enemy,
   };
 }
 
@@ -2757,15 +2814,72 @@ export function validateMap(map: GeneratedMap): string[] {
     }
   }
 
+  for (const door of map.doors) {
+    if (map.tiles[door.y * map.width + door.x] !== 1) {
+      issues.push(`puerta ${door.id} fuera de suelo (${door.x},${door.y})`);
+    }
+    const reason = validateDoorCandidate(
+      door,
+      map.tiles,
+      map.width,
+      map.height,
+    );
+    if (reason) issues.push(`puerta ${door.id} inválida: ${reason}`);
+  }
+  for (let first = 0; first < map.doors.length; first += 1) {
+    for (let second = first + 1; second < map.doors.length; second += 1) {
+      const distance = Math.max(
+        Math.abs(map.doors[first].x - map.doors[second].x),
+        Math.abs(map.doors[first].y - map.doors[second].y),
+      );
+      if (distance < 3) {
+        issues.push(`puertas ${map.doors[first].id} y ${map.doors[second].id} a distancia ${distance}`);
+      }
+    }
+  }
+  const doorsPerCorridor = new Map<number, number>();
+  for (const door of map.doors) {
+    doorsPerCorridor.set(door.corridorId, (doorsPerCorridor.get(door.corridorId) ?? 0) + 1);
+  }
+  for (const [corridorId, count] of doorsPerCorridor) {
+    if (count > 1) issues.push(`pasillo ${corridorId} con ${count} puertas`);
+  }
+  for (const mouth of map.openMouths) {
+    if (map.tiles[mouth.y * map.width + mouth.x] !== 1) {
+      issues.push(`boca ${mouth.id} fuera de suelo (${mouth.x},${mouth.y})`);
+    }
+    if (map.doors.some((door) => door.x === mouth.x && door.y === mouth.y)) {
+      issues.push(`boca ${mouth.id} sobre una puerta (${mouth.x},${mouth.y})`);
+    }
+  }
+
   if (map.loops < 0 || map.loops > 3) issues.push(`bucles fuera de rango: ${map.loops}`);
 
   const spawnRoom = map.rooms.find((room) => room.id === map.spawns.roomId);
   if (!spawnRoom) issues.push('la sala de spawn no existe');
-  if (map.spawns.party.length < map.options.spawnMinTiles) {
-    issues.push(`menos de ${map.options.spawnMinTiles} huecos de spawn`);
+  if (map.spawns.party.length === 0) {
+    issues.push('no hay huecos de spawn');
+  } else if (
+    map.spawns.party.length < map.options.spawnMinTiles &&
+    !map.warnings.some((warning) => /huecos libres/i.test(warning))
+  ) {
+    issues.push(`menos de ${map.options.spawnMinTiles} huecos de spawn sin aviso`);
   }
   if (new Set(map.spawns.party.map((point) => pointKey(point.x, point.y))).size !== map.spawns.party.length) {
     issues.push('hay huecos de spawn repetidos');
+  }
+  for (let first = 0; first < map.spawns.party.length; first += 1) {
+    for (let second = first + 1; second < map.spawns.party.length; second += 1) {
+      const distance = Math.max(
+        Math.abs(map.spawns.party[first].x - map.spawns.party[second].x),
+        Math.abs(map.spawns.party[first].y - map.spawns.party[second].y),
+      );
+      if (distance < SPAWN_SEPARATION) {
+        issues.push(
+          `huecos de spawn ${first} y ${second} a distancia ${distance}`,
+        );
+      }
+    }
   }
   for (const hole of map.spawns.party) {
     if (map.tiles[hole.y * map.width + hole.x] !== 1) issues.push(`hueco de spawn en muro (${hole.x},${hole.y})`);
@@ -2787,6 +2901,15 @@ export function fingerprint(map: GeneratedMap): string {
   }
   for (const room of map.rooms) {
     hash = Math.imul(hash ^ room.id ^ room.area, 0x27d4eb2f) >>> 0;
+  }
+  for (const door of map.doors) {
+    hash = Math.imul(hash ^ (door.x * 31 + door.y), 0x9e3779b9) >>> 0;
+  }
+  for (const mouth of map.openMouths) {
+    hash = Math.imul(hash ^ (mouth.x * 17 + mouth.y), 0x85ebca6b) >>> 0;
+  }
+  for (const enemy of map.enemies) {
+    hash = Math.imul(hash ^ (enemy.x * 7 + enemy.y * 13 + enemy.roomId), 0xc2b2ae35) >>> 0;
   }
   return hash.toString(16).padStart(8, '0');
 }
