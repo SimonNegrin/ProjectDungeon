@@ -5,7 +5,7 @@ import type { Corridor, Door, Room } from '../../src/game/map';
 import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
-import { settle, walkTo } from './support';
+import { openBspState, settle, walkTo } from './support';
 import { artifactPath } from './artifacts';
 
 const REFERENCE_SEED = 279837264;
@@ -75,10 +75,7 @@ async function settleLayout(page: Page): Promise<void> {
 
 async function openGame(page: Page, search = REFERENCE_URL): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(search);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, REFERENCE_SEED, search);
   await settleLayout(page);
 }
 

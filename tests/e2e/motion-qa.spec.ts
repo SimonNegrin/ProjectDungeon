@@ -9,6 +9,7 @@ import {
   ensureAdjacentWithMp,
   moveAwayFromEnemy,
   moveCursorTo,
+  openBspState,
   settle,
   snapshot,
   visibleRange,
@@ -47,10 +48,7 @@ async function openGame(
   await page.emulateMedia({
     reducedMotion: options.reducedMotion ? 'reduce' : 'no-preference',
   });
-  await page.goto(SEED_URL);
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, SEED, SEED_URL);
   await page.evaluate(() => {
     window.addEventListener('keydown', () => {
       window.__game!.advance(0);

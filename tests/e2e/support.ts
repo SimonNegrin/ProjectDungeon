@@ -1,11 +1,52 @@
 import { expect, type Page } from '@playwright/test';
+import { BspMapGenerator } from '../../src/game/bsp';
 import { BESTIARY } from '../../src/game/bestiary';
+import { createInitialState } from '../../src/game/engine';
+import { DEFAULT_MAP_SEED, type MapGenerator } from '../../src/game/map';
 import type { Command, GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
 
 export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
+}
+
+/**
+ * Abre el host en modo test y sustituye la partida por un estado BSP construido
+ * en Node con el generador histórico. Los specs anteriores a TASK-0046 fijan
+ * coordenadas y recuentos de BSP; el juego normal usa `growth` por defecto.
+ *
+ * No relaja aserciones: el estado cargado es el mismo `createInitialState` con
+ * `BspMapGenerator`, expuesto por el hook `?test=1` de `window.__game.setup`.
+ */
+export async function openBspState(
+  page: Page,
+  seed: number = DEFAULT_MAP_SEED,
+  url = `/?seed=${seed}&test=1`,
+): Promise<GameSnapshot> {
+  const target = new URL(url, 'http://127.0.0.1:4173');
+  target.searchParams.set('test', '1');
+  if (!target.searchParams.has('seed')) target.searchParams.set('seed', String(seed));
+  await page.goto(`${target.pathname}${target.search}`);
+  await page.waitForFunction(
+    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
+  );
+  const state = createInitialState({ seed, generator: new BspMapGenerator() });
+  const loaded = await page.evaluate(
+    async (next) => {
+      // El generador BSP se importa solo en el contexto de test del navegador;
+      // producción no lo incluye en el bundle.
+      const moduleUrl = '/src/game/index.ts';
+      const module = (await import(/* @vite-ignore */ moduleUrl)) as {
+        BspMapGenerator: new () => MapGenerator;
+      };
+      const generator = new module.BspMapGenerator();
+      return window.__game!.setup!(next, generator);
+    },
+    JSON.parse(JSON.stringify(state)),
+  );
+  await settle(page);
+  return loaded;
 }
 
 /**

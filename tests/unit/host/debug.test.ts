@@ -330,6 +330,8 @@ describe('snapshot del mapa generado', () => {
     expect(snapshot.corridors).toHaveLength(10);
     expect(snapshot.doors).toHaveLength(18);
     expect(snapshot.spawns).toEqual({
+      roomId: map?.spawns.roomId,
+      party: map?.spawns.party,
       player: map?.spawns.player,
       enemy: map?.spawns.enemy,
       distance: map?.spawns.distance,
@@ -339,6 +341,40 @@ describe('snapshot del mapa generado', () => {
     expect(snapshot.doors.every((door) => door.orientation === 'horizontal' || door.orientation === 'vertical')).toBe(
       true,
     );
+  });
+
+  it('expone entrada, salida, enemigos, bocas, puntos calientes y caverna de growth', () => {
+    const session = new GameSession({ seed: 2738263054 });
+    let camera: Camera = { x: 0, y: 0 };
+    const api = createDebugApi(
+      () => ({
+        state: session.state,
+        camera,
+        bounds: { maxX: 608, maxY: 608 },
+        viewport: { width: 416, height: 416 },
+        tileSize: 32,
+        assetsLoaded: true,
+        lastEvents: [],
+        cursor: deriveCursorStatus(session.state, cursorAtPlayer(session.state.players[0])),
+      }),
+      (command) => session.dispatch(command),
+    );
+    camera = { x: 1, y: 2 };
+
+    const snapshot = api.snapshot();
+    const map = session.state.map!;
+
+    expect(snapshot.entrance).toEqual(map.entrance);
+    expect(snapshot.exit).toEqual(map.exit);
+    expect(snapshot.spawns?.roomId).toBe(map.spawns.roomId);
+    expect(snapshot.spawns?.party).toEqual(map.spawns.party);
+    expect(snapshot.openMouths).toEqual(map.openMouths);
+    expect(snapshot.hotspots).toEqual(map.hotspots);
+    expect(snapshot.cavernRoomId).toBe(map.cavernRoomId);
+    expect(snapshot.mapEnemies).toEqual(map.enemies);
+    expect(snapshot.mapEnemies.some((enemy) => enemy.hidden)).toBe(true);
+    expect(snapshot.hotspots?.some((hotspot) => hotspot.occupied)).toBe(true);
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
   });
 
   it('el snapshot completo sobrevive a un round-trip JSON', () => {

@@ -2,7 +2,13 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
-import { approachEnemy, defeatAllEnemies, moveCursorTo, settle } from './support';
+import {
+  approachEnemy,
+  defeatAllEnemies,
+  moveCursorTo,
+  openBspState,
+  settle,
+} from './support';
 import { artifactPath } from './artifacts';
 
 async function snapshot(page: Page) {
@@ -53,10 +59,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto('/?seed=279837264');
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page, 279837264);
 
   const start = await snapshot(page);
   expect(start.seed).toBe(279837264);

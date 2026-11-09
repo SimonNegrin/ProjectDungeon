@@ -3,7 +3,15 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
-import { endTurn, restart, snapshot, walkTo, approachEnemy, moveCursorTo } from './support';
+import {
+  approachEnemy,
+  endTurn,
+  moveCursorTo,
+  openBspState,
+  restart,
+  snapshot,
+  walkTo,
+} from './support';
 import { artifactPath } from './artifacts';
 
 const CANVAS_ID = '#game-canvas';
@@ -129,10 +137,7 @@ async function settleLayout(page: Page): Promise<void> {
 
 async function openGame(page: Page, width: number, height: number): Promise<void> {
   await page.setViewportSize({ width, height });
-  await page.goto('/');
-  await page.waitForFunction(
-    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
-  );
+  await openBspState(page);
   await settleLayout(page);
 }
 

@@ -2,7 +2,12 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { artifactPath } from './artifacts';
-import { dispatchCommand, settle, snapshot as readSnapshot } from './support';
+import {
+  dispatchCommand,
+  openBspState,
+  settle,
+  snapshot as readSnapshot,
+} from './support';
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -21,15 +26,12 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  await page.goto('/?seed=279837264');
-  await page.waitForFunction(() => Boolean(window.__game));
+  const initial = await openBspState(page, 279837264);
 
   // Sin F1 no hay radios ni overlay de percepción.
   await expect(page.getByTestId('perception-overlay')).toBeHidden();
   expect(await page.locator('[data-testid="debug-perception-radius"]').count()).toBe(0);
   expect(await page.locator('[data-testid="spot-marker"]').count()).toBe(0);
-
-  const initial = await readSnapshot(page);
   expect(initial.enemies.map((enemy) => enemy.id)).toEqual([
     'enemy-1',
     'enemy-2',

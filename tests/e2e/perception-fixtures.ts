@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import type { Page, TestInfo } from '@playwright/test';
+import { BspMapGenerator } from '../../src/game/bsp';
 import { createInitialState } from '../../src/game/engine';
 import type { GameState, Tile, Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
@@ -117,9 +118,17 @@ function withRng(state: GameState, seed: number): GameState {
   return { ...state, rng: { seed, state: 0 } };
 }
 
+/** Estado BSP de referencia, con las coordenadas fijas de REQ-009. */
+export function referenceState(): GameState {
+  return createInitialState({
+    seed: REFERENCE_SEED,
+    generator: new BspMapGenerator(),
+  });
+}
+
 /** A: jugador en (1,2) y bruto en (5,4); el `MoveTo` a (4,2) cruza su vista. */
 export function detectionState(): GameState {
-  let state = placePlayer(createInitialState({ seed: REFERENCE_SEED }), 1, 2);
+  let state = placePlayer(referenceState(), 1, 2);
   state = placeEnemy(state, 'enemy-3', 5, 4, DORMANT);
   return state;
 }
@@ -129,7 +138,7 @@ export function detectionState(): GameState {
  * ataque debe despertar al bruto y al de 8, sin cadena hacia el de 9.
  */
 export function damageAlarmState(): GameState {
-  let state = placePlayer(createInitialState({ seed: REFERENCE_SEED }), 2, 2);
+  let state = placePlayer(referenceState(), 2, 2);
   state = withRng(state, 1);
   state = placeEnemy(state, 'enemy-3', 1, 2, DORMANT);
   state = placeEnemy(state, 'enemy-1', 9, 4, DORMANT);
@@ -139,7 +148,7 @@ export function damageAlarmState(): GameState {
 
 /** C: cobarde dormido adyacente; un golpe fuerte inicia la huida. */
 export function cowardFleeState(): GameState {
-  let state = placePlayer(createInitialState({ seed: REFERENCE_SEED }), 2, 2);
+  let state = placePlayer(referenceState(), 2, 2);
   state = withRng(state, 1);
   state = placeEnemy(state, 'enemy-4', 1, 2, DORMANT);
   return state;
@@ -147,7 +156,7 @@ export function cowardFleeState(): GameState {
 
 /** Valiente adyacente: el mismo golpe fuerte no debe activar `fleeing`. */
 export function braveHitState(): GameState {
-  let state = placePlayer(createInitialState({ seed: REFERENCE_SEED }), 19, 18);
+  let state = placePlayer(referenceState(), 19, 18);
   state = withRng(state, 1);
   state = placeEnemy(state, 'enemy-1', 20, 18, DORMANT);
   return state;
@@ -155,7 +164,7 @@ export function braveHitState(): GameState {
 
 /** Cobarde ya en huida con vida completa: otro golpe fuerte renueva la huida. */
 export function fleeingRenewalState(): GameState {
-  let state = placePlayer(createInitialState({ seed: REFERENCE_SEED }), 19, 18);
+  let state = placePlayer(referenceState(), 19, 18);
   state = withRng(state, 1);
   state = placeEnemy(state, 'enemy-4', 20, 18, {
     ...DORMANT,
@@ -193,7 +202,7 @@ export function corralledState(): GameState {
     tiles[y * width + x] = 'wall';
   }
 
-  const base = createInitialState({ seed: REFERENCE_SEED });
+  const base = referenceState();
   const player = base.players[0];
   const coward = base.enemies[3];
   return {
