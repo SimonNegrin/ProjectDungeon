@@ -41,6 +41,16 @@ el 2026-11-09: `growth` es el generador por defecto y BSP queda como alternativa
 inyectable; las tareas `TASK-0043` a `TASK-0049` promocionan el modelo, el
 generador y el host. Después, la fase 2: multijugador local hotseat.
 
+El milestone actual prepara la fase 2 y adelanta contenido de héroes. `REQ-014`
+fija el esquema de ocho atributos inherentes (habilidad, fuerza, defensa,
+resistencia, puntería, magia, PV y MP) y enmienda la fórmula de combate: la
+resistencia entra en la absorción junto a la armadura. `REQ-015` define el roster
+de nueve arquetipos con stats, arma temática, dos variantes de sprite y nombre
+editable, y el método de balance por porcentaje de victorias esperado. `REQ-016`
+(borrador) define la pantalla de inicio (nº de jugadores 1–6, arquetipo, variante
+y nombre). Las tareas `TASK-0053` a `TASK-0056` implementan el esquema y el
+roster; la pantalla de inicio espera cerrar su borrador.
+
 # Fases
 
 | Fase | Objetivo | Estado |
@@ -55,7 +65,7 @@ generador y el host. Después, la fase 2: multijugador local hotseat.
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
 | 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Decidido: `growth` por defecto; EXP-004 cerrado en TASK-0042; producción planificada en TASK-0043 a TASK-0049 |
-| 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
+| 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
 
@@ -128,14 +138,27 @@ Los valores concretos de la economía de turno son provisionales y viven en
   distancia de grafo ≥2, preferiblemente la más lejana. Se representa como
   puerta exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional
   de niveles queda fuera de este corte.
+- Cada personaje tiene ocho atributos inherentes independientes del equipo:
+  habilidad (acierto), fuerza (daño), defensa (evitación), resistencia
+  (absorción), puntería y magia (sin efecto aún), PV y MP. La resistencia se suma
+  a la armadura en una sola capa; la armadura es un bonus a la resistencia.
+- El roster tiene nueve arquetipos (Guerrero, Bárbaro, Pícaro, Arquero, Mago,
+  Clérigo, Guerrero mágico, Cocinero y Agricultor) con el Guerrero como
+  referencia. Cinco quedan con arma futura; se añade el Cuchillo +4/1. Cada
+  personaje tiene nombre editable y dos variantes de sprite sin etiqueta de
+  género.
+- El balance se ajusta por porcentaje de victorias esperado en duelo 1v1 con el
+  héroe atacando primero, equipo básico y 1.000 duelos, con tolerancia ±2 %.
 
 # Fuera de alcance ahora
 
 - Servidor, WebSocket, QR y salas.
 - Cuentas, base de datos, matchmaking y persistencia.
-- Multijugador local y remoto.
+- Hotseat jugable (varios jugadores por turnos en un teclado); la pantalla de
+  configuración (REQ-016, borrador) es preparación. Red y remoto siguen fuera.
 - Arte y audio finales.
-- Encadenado funcional de múltiples niveles, clases y objetivos.
+- Encadenado funcional de múltiples niveles, objetivos, progresión de clase y
+  habilidades (el roster de arquetipos ya está definido, sin progresión).
 
 # Restricciones
 

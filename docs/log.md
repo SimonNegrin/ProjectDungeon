@@ -2,6 +2,14 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Requirement — REQ-014 — creada: esquema de ocho atributos inherentes y enmienda a la fórmula de REQ-010 (resistencia en la absorción, armadura como bonus); balance v1 conservado con resistencia 0; sin valores de arquetipos ni pantalla de inicio — [REQ-014](requirements/REQ-014-atributos-inherentes-personajes.md)
+* 2026-11-09 — Requirement — REQ-015 — creada: roster de nueve arquetipos con stats, arma temática (cinco con arma futura), Cuchillo +4/1, dos variantes de sprite, nombre editable y método de balance por win % (héroe con iniciativa, 1v1, ±2 %, 1.000 duelos) — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
+* 2026-11-09 — Requirement — REQ-016 — creada (borrador): pantalla de inicio con nº de jugadores 1-6, arquetipo, variante y nombre por jugador; preguntas abiertas pendientes (hotseat, límites del nombre, mapeo de sprites) — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
+* 2026-11-09 — Planning — TASK-0053 — ready: motor del esquema de ocho atributos (rename habilidad/fuerza + resistencia en la absorción); desbloquea TASK-0054 y TASK-0055 — [TASK-0053](tasks/TASK-0053-motor-esquema-atributos-resistencia.md)
+* 2026-11-09 — Planning — TASK-0054 — backlog: host y docs del esquema + ADR-015; depende de TASK-0053 — [TASK-0054](tasks/TASK-0054-host-docs-esquema-adr-015.md)
+* 2026-11-09 — Planning — TASK-0055 — backlog: roster, Cuchillo y nombre; depende de TASK-0053 — [TASK-0055](tasks/TASK-0055-motor-roster-cuchillo-nombre.md)
+* 2026-11-09 — Planning — TASK-0056 — backlog: Guerrero por defecto, host y docs; depende de TASK-0054 y TASK-0055 — [TASK-0056](tasks/TASK-0056-guerrero-defecto-host-docs.md)
+* 2026-11-09 — Docs — scope — actualizado el milestone de preparación de la fase 2: esquema (REQ-014), roster (REQ-015), pantalla de inicio (REQ-016 borrador), tabla de fases y fuera de alcance — [scope](scope.md)
 * 2026-11-09 — Task — TASK-0051 — review: E2E y QA visual del balance v1 (HP 6/8/5, alarma 5, MP 5/4/6, armas 3/5/2 y centinela sin armadura), 16 fallos stale corregidos sin debilitar tests; E2E 76/76, repeat-each 18/18, verify 734/734, capturas 1280×720; fusión `8e39d6e`; pendiente playtest del usuario — [informe](../artifacts/TASK-0051/attempt-1/report.md)
 * 2026-11-09 — Task — TASK-0050 — cerrada: balance provisional v1 en catálogos (PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura, armas 3/5/2), colocación derivada del bestiario y tests migrados sin duplicar valores; verify 734/734 y fusión `7949443` — [informe](../artifacts/TASK-0050/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-010 — v5 stable: balance provisional v1 (PV 6/8/5, armas 3/5/2, centinela sin armadura), tablas recalculadas y guía de ajuste; ADR-014 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
