@@ -67,7 +67,7 @@ Ninguna.
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 2563 |
+| `brief_bytes` | 2552 |
 | `report_bytes` | 2538 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

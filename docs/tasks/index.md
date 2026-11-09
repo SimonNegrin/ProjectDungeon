@@ -51,7 +51,7 @@ Total: **56**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0047](TASK-0047-arnes-build-produccion-guarda-bundle.md) | Arnés: build de producción separado y guarda de bundle | `done` | REQ-011 | TASK-0046 | P1 |
 | [TASK-0048](TASK-0048-host-render-spawn-puertas-salida.md) | Host: render de máscaras, puertas, spawn, entrada/salida y enemigos | `done` | REQ-011 | TASK-0046 | P1 |
 | [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `review` | REQ-011 | TASK-0047, TASK-0048 | P1 |
-| [TASK-0053](TASK-0053-motor-esquema-atributos-resistencia.md) | Motor: esquema de ocho atributos y resistencia en la absorción | `ready` | REQ-014 | — | P1 |
+| [TASK-0053](TASK-0053-motor-esquema-atributos-resistencia.md) | Motor: esquema de ocho atributos y resistencia en la absorción | `done` | REQ-014 | — | P1 |
 | [TASK-0054](TASK-0054-host-docs-esquema-adr-015.md) | Host y docs: nombres nuevos del esquema y ADR-015 | `backlog` | REQ-014 | TASK-0053 | P1 |
 | [TASK-0055](TASK-0055-motor-roster-cuchillo-nombre.md) | Motor: catálogo de roster, Cuchillo y nombre de personaje | `backlog` | REQ-015 | TASK-0053 | P1 |
 | [TASK-0056](TASK-0056-guerrero-defecto-host-docs.md) | Guerrero por defecto, host, tests y docs del roster | `backlog` | REQ-015 | TASK-0054, TASK-0055 | P1 |
@@ -60,10 +60,6 @@ Total: **56**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
 | [TASK-0052](TASK-0052-exp-003-preset-balance-v1.md) | EXP-003: preset de balance provisional v1 | `backlog` | REQ-010 | TASK-0050 | P2 |
-
-# ready
-
-* [TASK-0053 — Motor: esquema de ocho atributos y resistencia en la absorción](TASK-0053-motor-esquema-atributos-resistencia.md)
 
 # review
 
@@ -124,6 +120,7 @@ Total: **56**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0046 — Motor: variante growth y generador por defecto](TASK-0046-motor-variante-growth-defecto.md)
 * [TASK-0047 — Arnés: build de producción separado y guarda de bundle](TASK-0047-arnes-build-produccion-guarda-bundle.md)
 * [TASK-0048 — Host: render de máscaras, puertas, spawn, entrada/salida y enemigos](TASK-0048-host-render-spawn-puertas-salida.md)
+* [TASK-0053 — Motor: esquema de ocho atributos y resistencia en la absorción](TASK-0053-motor-esquema-atributos-resistencia.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

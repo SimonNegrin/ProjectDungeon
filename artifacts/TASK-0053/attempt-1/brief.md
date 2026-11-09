@@ -1,11 +1,11 @@
 ---
 type: Task Brief
 title: "TASK-0053: brief del intento 1"
-description: Esquema de ocho atributos y resistencia en la absorción sin cambiar el balance v1.
+description: Ocho atributos y resistencia en la absorción sin cambiar el balance v1.
 task: TASK-0053
 attempt: 1
 status: stable
-brief_bytes: 2560
+brief_bytes: 2552
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T23:30:00Z }
 ---
