@@ -581,6 +581,7 @@ function eligibleWeaponCells(
 ): Position[] {
   const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
   const spawnKeys = new Set([
+    ...(map.spawns.party ?? []).map((hole) => `${hole.x},${hole.y}`),
     `${map.spawns.player.x},${map.spawns.player.y}`,
     `${map.spawns.enemy.x},${map.spawns.enemy.y}`,
   ]);

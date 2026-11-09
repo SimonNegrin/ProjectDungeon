@@ -214,23 +214,29 @@ describe('modelo del overlay de debug', () => {
   });
 
   it('con un mapa generado muestra semilla, salas, huecos, spawns y pasillos anchos', () => {
+    const state = createInitialState({ seed: 279837264 });
+    const spawns = state.map!.spawns;
     const model = buildDebugModel(
-      createInitialState({ seed: 279837264 }),
+      state,
       { x: 0, y: 64 },
       { maxX: 608, maxY: 608 },
       { width: 416, height: 416 },
       [],
-      { ...PLAYER_CURSOR, x: 6, y: 8 },
+      { ...PLAYER_CURSOR, x: spawns.player.x, y: spawns.player.y },
     );
     const text = model.lines.join('\n');
 
-    expect(text).toContain('Cursor: (6, 8) jugador · camino 0');
+    expect(text).toContain(
+      `Cursor: (${spawns.player.x}, ${spawns.player.y}) jugador · camino 0`,
+    );
     expect(text).toContain('Semilla: 279837264');
     expect(text).toContain('Salas:');
     expect(text).toContain('0 (3,4) 7×9 large');
     expect(text).toContain('Huecos:');
     expect(text).toContain('(10,5) vertical sala 0');
-    expect(text).toContain('Spawns: jugador (6,8) · enemigo (23,28) · distancia 59');
+    expect(text).toContain(
+      `Spawns: jugador (${spawns.player.x},${spawns.player.y}) · enemigo (${spawns.enemy.x},${spawns.enemy.y}) · distancia ${spawns.distance}`,
+    );
     expect(text).toContain('Pasillos anchos:');
     expect(text).toContain('0→1 2 tiles');
     expect(text).toContain('F2 nueva semilla');

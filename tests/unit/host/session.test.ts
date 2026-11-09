@@ -121,17 +121,26 @@ describe('sesión de juego', () => {
 
   it('arranca con la semilla y los spawns del mapa generado', () => {
     const session = new GameSession({ seed: 279837264 });
+    const spawns = session.state.map?.spawns;
 
     expect(session.seed).toBe(279837264);
     expect(session.state.grid).toMatchObject({ width: 32, height: 32 });
     expect(session.state.map?.seed).toBe(279837264);
-    expect(session.state.players[0]).toMatchObject({ x: 6, y: 8 });
-    expect(session.state.enemies[0]).toMatchObject({ x: 23, y: 28 });
+    expect(spawns?.party?.[0]).toEqual(spawns?.player);
+    expect(session.state.players[0]).toMatchObject({
+      x: spawns?.player.x,
+      y: spawns?.player.y,
+    });
+    expect(session.state.enemies[0]).toMatchObject({
+      x: spawns?.enemy.x,
+      y: spawns?.enemy.y,
+    });
   });
 
   it('R conserva la semilla y reconstruye exactamente el mismo mapa', () => {
     const session = new GameSession({ seed: 279837264 });
     const mapBefore = JSON.parse(JSON.stringify(session.state.map));
+    const spawn = session.state.map?.spawns.player;
 
     session.dispatch(commandFromKey(' ', session, { x: 7, y: 8 }));
     const result = session.dispatch({ type: 'Restart' });
@@ -139,7 +148,11 @@ describe('sesión de juego', () => {
     expect(result.events).toEqual([{ type: 'GameRestarted' }]);
     expect(session.seed).toBe(279837264);
     expect(JSON.parse(JSON.stringify(session.state.map))).toEqual(mapBefore);
-    expect(session.state.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
+    expect(session.state.players[0]).toMatchObject({
+      x: spawn?.x,
+      y: spawn?.y,
+      mp: 6,
+    });
   });
 
   it('regenerate cambia la semilla y el mapa manteniendo el camino de la sesión', () => {

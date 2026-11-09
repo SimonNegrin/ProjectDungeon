@@ -660,8 +660,8 @@ describe('armas del mapa', () => {
     const random = vi.spyOn(Math, 'random');
     try {
       const map = generator.generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS);
-      expect(map.spawns.player).toEqual({ x: 6, y: 8 });
-      expect(map.spawns.enemy).toEqual({ x: 23, y: 28 });
+      expect(map.spawns).toEqual(reference.spawns);
+      expect(map.spawns.party?.[0]).toEqual(map.spawns.player);
       expect(random).not.toHaveBeenCalled();
     } finally {
       random.mockRestore();

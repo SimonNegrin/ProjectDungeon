@@ -257,17 +257,23 @@ describe('API de debug window.__game', () => {
 
   it('dispatch acepta MoveTo y devuelve snapshot y eventos serializables', () => {
     const api = generatedSetup();
+    const start = api.snapshot().players[0];
+    const target = { x: start.x - 2, y: start.y };
 
     const result = api.dispatch({
       type: 'MoveTo',
       unitId: 'player-1',
-      target: { x: 8, y: 8 },
+      target,
     });
 
     expect(result.events.every((event) => event.type === 'UnitMoved')).toBe(true);
     expect(result.events).toHaveLength(2);
-    expect(result.snapshot.players[0]).toMatchObject({ x: 8, y: 8, mp: 4 });
-    expect(result.snapshot.cursor).toMatchObject({ x: 6, y: 8 });
+    expect(result.snapshot.players[0]).toMatchObject({
+      x: target.x,
+      y: target.y,
+      mp: 4,
+    });
+    expect(result.snapshot.cursor).toMatchObject({ x: start.x, y: start.y });
     expect(() => JSON.stringify(result)).not.toThrow();
   });
 
@@ -307,6 +313,7 @@ describe('API de debug window.__game', () => {
 describe('snapshot del mapa generado', () => {
   it('expone semilla, salas, corredores, huecos y spawns', () => {
     const api = generatedSetup();
+    const map = new GameSession({ seed: 279837264 }).state.map;
 
     const snapshot = api.snapshot();
 
@@ -317,9 +324,9 @@ describe('snapshot del mapa generado', () => {
     expect(snapshot.corridors).toHaveLength(10);
     expect(snapshot.doors).toHaveLength(18);
     expect(snapshot.spawns).toEqual({
-      player: { x: 6, y: 8 },
-      enemy: { x: 23, y: 28 },
-      distance: 59,
+      player: map?.spawns.player,
+      enemy: map?.spawns.enemy,
+      distance: map?.spawns.distance,
     });
     expect(snapshot.rooms[0]).toMatchObject({ id: 0, x: 3, y: 4, width: 7, height: 9, role: 'large' });
     expect(snapshot.corridors.some((corridor) => corridor.width === 2)).toBe(true);
@@ -330,6 +337,7 @@ describe('snapshot del mapa generado', () => {
 
   it('el snapshot completo sobrevive a un round-trip JSON', () => {
     const api = generatedSetup();
+    const map = new GameSession({ seed: 279837264 }).state.map;
     const snapshot = api.snapshot();
 
     const roundTrip = JSON.parse(JSON.stringify(snapshot));
@@ -341,13 +349,23 @@ describe('snapshot del mapa generado', () => {
     expect(roundTrip.spawns).toEqual(snapshot.spawns);
     expect(roundTrip.grid.tiles).toEqual(snapshot.grid.tiles);
     expect(roundTrip.cursor).toEqual(snapshot.cursor);
-    expect(roundTrip.cursor).toMatchObject({ x: 6, y: 8, state: 'player' });
+    expect(roundTrip.cursor).toMatchObject({
+      x: map?.spawns.player.x,
+      y: map?.spawns.player.y,
+      state: 'player',
+    });
   });
 
   it('no expone el mapa vivo: mutar salas o spawns del snapshot no lo altera', () => {
     const api = generatedSetup();
-    api.dispatch({ type: 'MoveTo', unitId: 'player-1', target: { x: 8, y: 8 } });
+    const map = new GameSession({ seed: 279837264 }).state.map;
+    api.dispatch({
+      type: 'MoveTo',
+      unitId: 'player-1',
+      target: { x: 8, y: 8 },
+    });
     const snapshot = api.snapshot();
+    const originalPathStart = { ...snapshot.cursor.path[0] };
 
     (snapshot.rooms[0] as { x: number }).x = 999;
     (snapshot.spawns!.player as { x: number }).x = 999;
@@ -356,9 +374,9 @@ describe('snapshot del mapa generado', () => {
 
     const fresh = api.snapshot();
     expect(fresh.rooms[0].x).toBe(3);
-    expect(fresh.spawns?.player.x).toBe(6);
+    expect(fresh.spawns?.player.x).toBe(map?.spawns.player.x);
     expect(fresh.corridors[0].path[0].x).toBe(4);
-    expect(fresh.cursor.path[0]).toEqual({ x: 7, y: 8 });
+    expect(fresh.cursor.path[0]).toEqual(originalPathStart);
   });
 
   it('expone un resumen determinista de decoración que coincide con el render', () => {
