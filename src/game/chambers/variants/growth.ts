@@ -12,6 +12,8 @@ import {
   DOOR_STYLES,
   floorDistances,
   isFloorTile,
+  MAP_WEAPON_SPECS,
+  placeMapWeapons,
   roomAt,
   tileIndex,
   type GeneratedMap,
@@ -130,8 +132,8 @@ function mapFor(
   contents: ReturnType<typeof placeChamberContents>,
 ): GeneratedMap {
   const enemies = cloneEnemies(contents.enemies);
-
-  return {
+  const exit = contents.exit ? cloneExit(contents.exit) : null;
+  const map: GeneratedMap = {
     seed: plan.seed,
     width: plan.width,
     height: plan.height,
@@ -144,11 +146,20 @@ function mapFor(
       roomId: contents.entrance.roomId,
       position: { x: contents.entrance.position.x, y: contents.entrance.position.y },
     },
-    exit: contents.exit ? cloneExit(contents.exit) : null,
+    exit,
     enemies,
     warnings: [...new Set([...plan.warnings, ...contents.warnings])],
     options: resolvedOptionsFor(plan),
   };
+
+  // Los spawns y las puertas ya los excluye `placeMapWeapons`; aquí se añaden
+  // la salida y cada enemigo. El PRNG de armas es propio y no cambia.
+  const blockedCells = [
+    ...(exit ? [exit.position, exit.access] : []),
+    ...enemies.map((enemy) => ({ x: enemy.x, y: enemy.y })),
+  ];
+
+  return { ...map, weapons: placeMapWeapons(map, { blockedCells }) };
 }
 
 function cloneExit(
@@ -196,6 +207,7 @@ export function validateGrowthMap(
     | 'entrance'
     | 'exit'
     | 'enemies'
+    | 'weapons'
     | 'warnings'
     | 'options'
   >,
@@ -442,6 +454,84 @@ export function validateGrowthMap(
       ]);
       if (reserved.has(`${enemy.x},${enemy.y}`)) {
         issues.push(`Enemigo ${enemy.id} sobre la salida reservada.`);
+      }
+    }
+  }
+
+  const weapons = map.weapons;
+  if (!weapons) {
+    issues.push('El mapa no declara armas.');
+  } else {
+    if (weapons.length !== MAP_WEAPON_SPECS.length) {
+      issues.push(
+        `El mapa tiene ${weapons.length} armas; se esperaban ${MAP_WEAPON_SPECS.length}.`,
+      );
+    }
+
+    const doorKeys = new Set(doors.map((door) => `${door.x},${door.y}`));
+    const spawnKeys = new Set([
+      ...(spawns.party ?? []).map((cell) => `${cell.x},${cell.y}`),
+      `${spawns.player.x},${spawns.player.y}`,
+      `${spawns.enemy.x},${spawns.enemy.y}`,
+    ]);
+    const exitKeys = new Set(
+      map.exit
+        ? [
+            `${map.exit.position.x},${map.exit.position.y}`,
+            `${map.exit.access.x},${map.exit.access.y}`,
+          ]
+        : [],
+    );
+    const enemyKeys = new Set(
+      (map.enemies ?? []).map((enemy) => `${enemy.x},${enemy.y}`),
+    );
+    const weaponIds = new Set<string>();
+    const weaponCells = new Set<string>();
+    const weaponRoomIds = new Set<number>();
+
+    for (let index = 0; index < weapons.length; index += 1) {
+      const weapon = weapons[index];
+      const spec = MAP_WEAPON_SPECS[index];
+      const key = `${weapon.x},${weapon.y}`;
+
+      if (!spec) {
+        issues.push(`Arma sobrante ${weapon.id}.`);
+      } else if (weapon.id !== spec.id || weapon.weaponId !== spec.weaponId) {
+        issues.push(
+          `Arma ${index} es ${weapon.id}/${weapon.weaponId}; se esperaba ${spec.id}/${spec.weaponId}.`,
+        );
+      }
+      if (weaponIds.has(weapon.id)) issues.push(`Arma duplicada ${weapon.id}.`);
+      weaponIds.add(weapon.id);
+      if (weaponCells.has(key)) issues.push(`Dos armas en la celda ${key}.`);
+      weaponCells.add(key);
+
+      if (!isFloorTile(map, weapon.x, weapon.y)) {
+        issues.push(`Arma ${weapon.id} sobre muro.`);
+        continue;
+      }
+      if (distances[tileIndex(width, weapon.x, weapon.y)] <= 0) {
+        issues.push(`Arma ${weapon.id} no es alcanzable desde el spawn.`);
+      }
+      const room = roomAt(rooms, weapon.x, weapon.y);
+      if (!room) {
+        issues.push(`Arma ${weapon.id} fuera de sala.`);
+      } else {
+        if (room.id === spawns.roomId) {
+          issues.push(`Arma ${weapon.id} en la sala de spawn.`);
+        }
+        if (weaponRoomIds.has(room.id)) {
+          issues.push(`Dos armas comparten la sala ${room.id}.`);
+        }
+        weaponRoomIds.add(room.id);
+      }
+      if (doorKeys.has(key)) issues.push(`Arma ${weapon.id} sobre una puerta.`);
+      if (spawnKeys.has(key)) {
+        issues.push(`Arma ${weapon.id} sobre un hueco de spawn.`);
+      }
+      if (exitKeys.has(key)) issues.push(`Arma ${weapon.id} sobre la salida.`);
+      if (enemyKeys.has(key)) {
+        issues.push(`Arma ${weapon.id} sobre un enemigo.`);
       }
     }
   }
