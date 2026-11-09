@@ -4,22 +4,36 @@ id: TASK-0043
 title: "Motor: modelo de mapa de producción con máscaras y spawn de grupo"
 description: Ampliar el modelo serializable de mapa con máscaras de sala, puertas entre dos salas, pasillos con roomA/roomB, spawnRoomId/party, entrada/salida y enemigos, manteniendo BSP y sus tests.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-003, R-004, R-005, R-008, T-001, T-003, T-004, T-011, T-012, T-013]
 depends_on: []
 unlocks: [TASK-0044]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T15:52:09Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0043/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T15:52:09Z
+    note: >-
+      Intento 1 verificado en task/TASK-0043 (commits 2e14c7d, 9e70064 y
+      b20ad1b; fusión 76f9a7e). Diff completo revisado: solo
+      src/game/map.ts, src/game/bsp.ts, src/game/engine.ts, un test nuevo y
+      artefactos; sin tocar src/host/, experiments/, index.html ni
+      dependencias. BSP sigue inyectable, determinista, con id 'bsp' y sin
+      cambios de geometría ni huecos. Lead re-ejecutó `pnpm run verify`
+      (635/635 tests, docs/config y build OK) y las suites dirigidas (93/93);
+      la generación de referencia mide ~2,7 ms. No se borraron, saltaron ni
+      debilitaron tests. Los campos nuevos son opcionales para fixtures
+      legacy, pero BSP y todo mapa generado los rellenan y los tests lo
+      exigen; entrance/exit/enemies quedan como tipos opcionales.
 ---
 
 # Objetivo

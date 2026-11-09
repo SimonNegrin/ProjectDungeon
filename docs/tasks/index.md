@@ -42,7 +42,7 @@ Total: **49**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0040](TASK-0040-exp-004-salas-irregulares.md) | EXP-004: comparador de generadores de salas irregulares | `done` | REQ-011 | — | P1 |
 | [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `done` | REQ-011 | — | P1 |
 | [TASK-0042](TASK-0042-exp-004-distribucion-emboscadas-salida.md) | EXP-004: distribución orgánica, emboscadas y salida de nivel | `done` | REQ-012 | — | P1 |
-| [TASK-0043](TASK-0043-motor-modelo-mapa-produccion.md) | Motor: modelo de mapa de producción con máscaras y spawn de grupo | `ready` | REQ-011 | — | P1 |
+| [TASK-0043](TASK-0043-motor-modelo-mapa-produccion.md) | Motor: modelo de mapa de producción con máscaras y spawn de grupo | `done` | REQ-011 | — | P1 |
 | [TASK-0044](TASK-0044-motor-nucleo-salas-pasillos-puertas.md) | Motor: núcleo compartido de salas, pasillos y puertas | `backlog` | REQ-011 | TASK-0043 | P1 |
 | [TASK-0045](TASK-0045-motor-spawn-enemigos-salida.md) | Motor: spawn de grupo, enemigos y salida compartidos | `backlog` | REQ-012 | TASK-0044 | P1 |
 | [TASK-0046](TASK-0046-motor-variante-growth-defecto.md) | Motor: variante growth y generador por defecto | `backlog` | REQ-011 | TASK-0045 | P1 |
@@ -53,10 +53,6 @@ Total: **49**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
-
-# ready
-
-* [TASK-0043 — Motor: modelo de mapa de producción con máscaras y spawn de grupo](TASK-0043-motor-modelo-mapa-produccion.md)
 
 # backlog
 
@@ -107,6 +103,7 @@ Total: **49**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0040 — EXP-004: comparador de generadores de salas irregulares](TASK-0040-exp-004-salas-irregulares.md)
 * [TASK-0041 — EXP-004: puertas, acceso de spawn y presupuesto de enemigos](TASK-0041-exp-004-puertas-spawn-enemigos.md)
 * [TASK-0042 — EXP-004: distribución orgánica, emboscadas y salida de nivel](TASK-0042-exp-004-distribucion-emboscadas-salida.md)
+* [TASK-0043 — Motor: modelo de mapa de producción con máscaras y spawn de grupo](TASK-0043-motor-modelo-mapa-produccion.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

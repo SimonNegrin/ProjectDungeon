@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0043 — cerrada: modelo serializable con máscaras, puertas entre salas, pasillos con extremos y spawn de grupo; BSP intacto; verify 635/635 y suites dirigidas 93/93; fusión `76f9a7e` — [informe](../artifacts/TASK-0043/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012/REQ-013 — v4/v4/v2 stable: `growth` elegido y por defecto; 22×18, 5 salas, salas 3-8, 6 jugadores, 0,02/1,2, emboscadas 0,25 y `exitMode random`; BSP queda como alternativa — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)
 * 2026-11-09 — Experiment — EXP-004 — decidido `growth` con semilla 2738263054 y configuración de playtest; registro en `results/decision-2026-11-09T14-59-21Z.json`; A/B/C restantes siguen en el experimento — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
 * 2026-11-09 — Decision — ADR-013 — core compartido, variante `growth`, import estático, BSP alternativo, build de producción sin `experiments/` y guarda de bundle — [ADR-013](decisions/ADR-013-generador-produccion-por-variante.md)
