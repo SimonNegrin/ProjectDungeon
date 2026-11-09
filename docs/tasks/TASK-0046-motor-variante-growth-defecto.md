@@ -3,8 +3,8 @@ type: Task
 id: TASK-0046
 title: "Motor: variante growth y generador por defecto"
 description: Crear src/game/chambers/variants/growth.ts, el adaptador GrowthMapGenerator y el import estático que convierte growth en el generador por defecto sin switch runtime.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-001, R-002, R-008, T-001, T-002, T-009, T-015, T-016]
