@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0042 — cerrada: EXP-004 v3 con mínimo 3 salas, spawn no-mayor, parejas adyacentes ≤2, enemigos interiores con emboscadas y salida `door`/`stairs`; verify 620, barrido de 1.200 mapas sin incidencias y 128 capturas; fusión `b5f62fa` — [informe](../artifacts/TASK-0042/attempt-2/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012 — v3 aprobadas: mínimo 3 salas, spawn no-mayor, parejas adyacentes ≤2, enemigos interiores con emboscadas al 0,5 y salida delegada a REQ-013 — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
 * 2026-11-09 — Requirement — REQ-013 — creada: entrada de spawn, salida única no-spawn a distancia ≥2, puerta exterior o escalera con `exitMode` en EXP-004; sin transición funcional — [REQ-013](requirements/REQ-013-entrada-salida-exploracion.md)
 * 2026-11-09 — Experiment — EXP-004 — v3 definida: distribución orgánica, emboscadas, spawn no-mayor, mínimo 3 salas y salida; pendiente de tarea — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
