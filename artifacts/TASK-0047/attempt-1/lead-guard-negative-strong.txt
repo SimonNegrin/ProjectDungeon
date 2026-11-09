@@ -1,0 +1,33 @@
+TASK-0047 — verificación independiente de la guarda negativa fuerte
+Fecha: 2026-11-09
+
+Objetivo: comprobar que un import real de una variante descartada mete BSP en el
+bundle y que la guarda falla aunque la minificación borre los literales.
+
+Cambio temporal en src/host/main.ts:
+  import { BspMapGenerator } from '../game/bsp';
+  Object.assign(globalThis, { __discardedBsp: BspMapGenerator });
+
+$ pnpm run build
+  ✓ 53 modules transformed.
+  dist/assets/main-CbECoQrB.js  144.87 kB (antes 106.91 kB; el archivo ocupa 141K
+  en disco frente a 104K del bundle sano: BSP está dentro)
+
+$ grep -o -E "BspMapGenerator|buildBspTree|BSP_MAP_GENERATOR_ID|buildBsp|pickTemplate" \
+    dist/assets/main-*.js | sort | uniq -c
+  (sin salida: los literales no sobreviven a la minificación)
+
+$ pnpm run check:bundle
+  check:bundle: FAIL — forbidden production bundle markers found:
+    - BSP module in production graph at src/game/bsp.ts
+  exit code 1
+
+Reversión:
+  cp src/host/main.ts /tmp/main.ts.bak ... (antes del cambio)
+  cp /tmp/main.ts.bak src/host/main.ts
+  cmp -s /tmp/main.ts.bak src/host/main.ts  -> restaurado exactamente
+  git status --short -> limpio
+
+$ pnpm run build && pnpm run check:bundle
+  check:bundle: OK — scanned 10 dist files and 49 production modules;
+  no forbidden markers.
