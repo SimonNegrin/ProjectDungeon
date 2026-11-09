@@ -3,8 +3,8 @@ type: Task
 id: TASK-0047
 title: "Arnés: build de producción separado y guarda de bundle"
 description: Separar el build de juego del de experimentos y añadir una comprobación que falle si el bundle de producción contiene variantes no elegidas o marcadores de BSP/plantillas.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: harness
 requirement: REQ-011
 requirement_ids: [T-015, T-016]
