@@ -132,11 +132,15 @@ descartados quedan como bocas abiertas con motivo (`sin-soporte`, `sin-suelo`,
 debug.
 
 El spawn elige el suelo interior junto a la puerta más cercana al centro (o la
-boca si no hay puerta), con `party[0]` en el acceso. El resto prioriza tiles con
-al menos dos vecinos libres, separación ≥2 y radio 2; si no caben 6, se amplía a
-radio 3 y después a la sala completa con un aviso honesto. En algunas semillas
-BSP y de crecimiento el acceso queda en un brazo estrecho y hay que usar el
-fallback de sala completa; no se oculta el aviso.
+boca si no hay puerta), con `party[0]` en el acceso. El resto se busca con una
+búsqueda determinista que maximiza huecos separados ≥2, primero en radio 2,
+después en radio 3 y por último en la sala completa, priorizando tiles con al
+menos dos vecinos libres. La separación **nunca** se relaja: si no caben 6, se
+devuelven los que quepan (≥1) con un aviso, antes que juntar huecos adyacentes.
+En el barrido A/B/C × 20 semillas, 56 de 60 mapas usan algún fallback (30 se
+quedan por debajo de 6 huecos con aviso, 2 necesitan radio 3 y 24 usan la sala
+completa con 6); solo 4 mapas caben en radio 2. Es el comportamiento esperado de
+las salas irregulares, no un caso aislado.
 
 El total de enemigos usa `T = ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P)`
 con `N` = suelo de salas (sin pasillos) y `P` = jugadores. Con los valores por
