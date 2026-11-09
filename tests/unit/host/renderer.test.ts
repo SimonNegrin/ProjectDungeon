@@ -454,7 +454,13 @@ describe('render del mapa generado', () => {
   });
 
   it('respeta el orden base → decals → unidades', () => {
-    const fake = draw(generatedState(), { x: 0, y: 0 });
+    const state = generatedState();
+    const camera = centerCameraOnTile(
+      state.players[0],
+      VIEWPORT,
+      gridPixelSize(state.grid),
+    );
+    const fake = draw(state, camera);
     const paletteStyles = new Set(
       Object.values(FLOOR_PALETTES).flatMap((palette) => [
         palette.base,
@@ -552,7 +558,7 @@ describe('render del mapa generado', () => {
 describe('render de armas del mapa', () => {
   function stateWithWeapon(
     weaponId: 'axe' | 'dagger',
-  ): { state: GameState; x: number; y: number } {
+  ): { state: GameState; x: number; y: number; camera: { x: number; y: number } } {
     const base = createInitialState({ seed: 279837264 });
     const player = base.players[0];
     const x = player.x + 1;
@@ -569,12 +575,13 @@ describe('render de armas del mapa', () => {
       },
       x,
       y,
+      camera: centerCameraOnTile(player, VIEWPORT, gridPixelSize(base.grid)),
     };
   }
 
   it('dibuja el hacha con formas planas en su tile, sin assets nuevos', () => {
-    const { state, x, y } = stateWithWeapon('axe');
-    const fake = draw(state, { x: 0, y: 64 });
+    const { state, x, y, camera } = stateWithWeapon('axe');
+    const fake = draw(state, camera);
 
     const axeFills = fake.ops.filter(
       (op): op is Extract<RenderOp, { kind: 'fill' }> =>
@@ -606,8 +613,8 @@ describe('render de armas del mapa', () => {
   it('el hacha y la daga usan formas distintas en el mismo tile', () => {
     const axe = stateWithWeapon('axe');
     const dagger = stateWithWeapon('dagger');
-    const axeFake = draw(axe.state, { x: 0, y: 64 });
-    const daggerFake = draw(dagger.state, { x: 0, y: 64 });
+    const axeFake = draw(axe.state, axe.camera);
+    const daggerFake = draw(dagger.state, dagger.camera);
 
     const axeShape = axeFake.ops.filter(
       (op) =>
@@ -637,8 +644,8 @@ describe('render de armas del mapa', () => {
   });
 
   it('dibuja las armas entre decals y unidades', () => {
-    const { state } = stateWithWeapon('axe');
-    const fake = draw(state, { x: 0, y: 64 });
+    const { state, camera } = stateWithWeapon('axe');
+    const fake = draw(state, camera);
 
     const weaponIndex = fake.ops.findIndex(
       (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.handle,

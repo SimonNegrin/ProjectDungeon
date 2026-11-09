@@ -18,6 +18,7 @@ import {
   type GeneratedMap,
   type Room,
 } from './map';
+import { hasLineOfSight } from './perception';
 import type { Position } from './types';
 
 /** Ficha estable de cada enemigo inicial. Los IDs no cambian entre partidas. */
@@ -75,20 +76,38 @@ function roomIdAt(rooms: readonly Room[], position: Position): number | undefine
   return roomAt(rooms, position.x, position.y)?.id;
 }
 
+function spawnRoomId(map: MapForPlacement): number | undefined {
+  return map.spawns.roomId ?? roomIdAt(map.rooms, map.spawns.player);
+}
+
+function spawnHoles(map: MapForPlacement): readonly Position[] {
+  return map.spawns.party && map.spawns.party.length > 0
+    ? map.spawns.party
+    : [map.spawns.player];
+}
+
+function seesSpawnHole(map: MapForPlacement, position: Position): boolean {
+  return spawnHoles(map).some((hole) => hasLineOfSight(map, position, hole));
+}
+
 /**
  * Celdas válidas agrupadas por sala: suelo alcanzable desde el jugador, fuera
- * de puertas, armas y la aparición del jugador, y a ≥7 Chebyshev del jugador.
+ * de la sala de spawn, puertas, armas y todos los huecos del grupo, y sin línea
+ * de visión a ningún hueco de spawn.
  */
 function collectRoomCells(map: MapForPlacement): readonly RoomCells[] {
   const distances = floorDistances(map, map.spawns.player);
+  const spawnRoom = spawnRoomId(map);
+  const holes = spawnHoles(map);
   const excluded = new Set<string>([
-    cellKey(map.spawns.player),
+    ...holes.map(cellKey),
     ...map.doors.map(cellKey),
     ...(map.weapons ?? []).map(cellKey),
   ]);
   const result: RoomCells[] = [];
 
   for (const room of map.rooms) {
+    if (room.id === spawnRoom) continue;
     const cells: Position[] = [];
     for (let y = room.y; y < room.y + room.height; y += 1) {
       for (let x = room.x; x < room.x + room.width; x += 1) {
@@ -96,6 +115,7 @@ function collectRoomCells(map: MapForPlacement): readonly RoomCells[] {
         if (distances[tileIndex(map.width, x, y)] < 0) continue;
         if (excluded.has(`${x},${y}`)) continue;
         if (chebyshev({ x, y }, map.spawns.player) < MIN_PLAYER_DISTANCE) continue;
+        if (seesSpawnHole(map, { x, y })) continue;
         cells.push({ x, y });
       }
     }
@@ -128,12 +148,15 @@ function isValidPlacement(
   if (positions.length !== ENEMY_PLACEMENT_SPECS.length) return false;
 
   const roomIds = new Set<number>();
+  const spawnRoom = spawnRoomId(map);
   for (const position of positions) {
     if (!isFloorTile(map, position.x, position.y)) return false;
     const roomId = roomIdAt(map.rooms, position);
-    if (roomId === undefined || roomIds.has(roomId)) return false;
+    if (roomId === undefined || roomId === spawnRoom) return false;
+    if (roomIds.has(roomId)) return false;
     roomIds.add(roomId);
     if (chebyshev(position, map.spawns.player) < MIN_PLAYER_DISTANCE) return false;
+    if (seesSpawnHole(map, position)) return false;
   }
 
   let hasOpenPair = false;

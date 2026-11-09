@@ -7,7 +7,6 @@
 
 import {
   classifyRoom,
-  clamp,
   countPathCorners,
   DEFAULT_MAP_OPTIONS,
   dedupePath,
@@ -22,7 +21,6 @@ import {
   placeMapWeapons,
   randInt,
   resolveMapOptions,
-  roomCenter,
   straightPathRuns,
   validateGeneratedMap,
   type Corridor,
@@ -38,6 +36,9 @@ import {
   type Spawns,
 } from './map';
 import type { Position, Tile } from './types';
+import type { OpenMouth } from './chambers/core/doors';
+import { placeSpawns, SPAWN_MIN_TILES, type SpawnPlacement } from './chambers/core/spawn';
+import { hasLineOfSight } from './perception';
 
 const DIRECTIONS: ReadonlyArray<readonly [number, number]> = [
   [0, -1],
@@ -47,7 +48,6 @@ const DIRECTIONS: ReadonlyArray<readonly [number, number]> = [
 ];
 
 const MAX_ROLE_SLOTS = 3;
-const VIEWPORT_TILES = 13;
 const MAX_GENERATION_ATTEMPTS = 8;
 const MAX_BSP_ROLE_ATTEMPTS = 120;
 
@@ -1691,12 +1691,6 @@ function buildDoors(context: GenerationContext): Door[] {
 // Apariciones
 // ---------------------------------------------------------------------------
 
-function roomHasExit(context: GenerationContext, roomId: number): boolean {
-  return context.connections.some(
-    (connection) => connection.fromRoomId === roomId || connection.toRoomId === roomId,
-  );
-}
-
 function distancesFrom(
   context: GenerationContext,
   from: Position,
@@ -1739,152 +1733,183 @@ interface SpawnResult {
   readonly issues: readonly string[];
 }
 
-/**
- * Seis celdas de suelo distintas de la sala de spawn, en orden determinista.
- * `party[0]` es el jugador; no es el spawn protegido de REQ-012.
- */
-function spawnParty(
-  context: GenerationContext,
-  room: MutableRoom,
-  player: Position,
-): Position[] {
-  const party: Position[] = [{ x: player.x, y: player.y }];
-  for (let y = room.y; y < room.y + room.height && party.length < 6; y += 1) {
-    for (let x = room.x; x < room.x + room.width && party.length < 6; x += 1) {
-      if (x === player.x && y === player.y) continue;
-      if (!context.tiles[indexOf(context.width, x, y)]) continue;
-      party.push({ x, y });
-    }
+function tileView(context: GenerationContext): Tile[] {
+  const tiles: Tile[] = new Array<Tile>(context.width * context.height);
+  for (let index = 0; index < tiles.length; index += 1) {
+    tiles[index] = context.tiles[index] ? 'floor' : 'wall';
   }
-  return party;
+  return tiles;
 }
 
-function chooseSpawns(context: GenerationContext): SpawnResult {
-  const playerRoom =
-    context.rooms.find((room) => roomHasExit(context, room.id)) ?? context.rooms[0];
-  if (!playerRoom) {
+function contextRoomModels(context: GenerationContext): Room[] {
+  return context.rooms.map((room) => {
+    const cells: Position[] = [];
+    for (let y = room.y; y < room.y + room.height; y += 1) {
+      for (let x = room.x; x < room.x + room.width; x += 1) {
+        if (context.tiles[indexOf(context.width, x, y)]) cells.push({ x, y });
+      }
+    }
+    return {
+      id: room.id,
+      x: room.x,
+      y: room.y,
+      width: room.width,
+      height: room.height,
+      role: room.role ?? classifyRoom({ width: room.width, height: room.height }),
+      cells,
+      area: cells.length,
+    };
+  });
+}
+
+/** Bocas de los pasillos anchos de BSP, que no generan puerta. */
+function wideOpenMouths(context: GenerationContext): OpenMouth[] {
+  const mouths: OpenMouth[] = [];
+  let nextId = 0;
+  for (let corridorIndex = 0; corridorIndex < context.connections.length; corridorIndex += 1) {
+    const corridor = context.connections[corridorIndex];
+    if (corridor.width !== 2) continue;
+    const path = dedupePath(corridor.path);
+    if (path.length < 2) continue;
+    const endpoints: Array<{ point: Position; next: Position; roomId: number }> = [
+      { point: path[0], next: path[1], roomId: corridor.fromRoomId },
+      {
+        point: path[path.length - 1],
+        next: path[path.length - 2],
+        roomId: corridor.toRoomId,
+      },
+    ];
+    for (const endpoint of endpoints) {
+      const outY = Math.sign(endpoint.next.y - endpoint.point.y);
+      mouths.push({
+        id: nextId,
+        x: endpoint.point.x,
+        y: endpoint.point.y,
+        orientation: outY !== 0 ? 'horizontal' : 'vertical',
+        roomA: corridor.fromRoomId,
+        roomB: corridor.toRoomId,
+        corridorId: corridorIndex,
+        reason: 'pasillo-ancho',
+      });
+      nextId += 1;
+    }
+  }
+  return mouths;
+}
+
+/**
+ * Ancla legacy de `spawns.enemy`: la sala más lejana con una celda sin línea de
+ * visión a ningún hueco de spawn. No es fuente de verdad para la colocación,
+ * pero conserva el contrato serializable y el ancla de `enemy-1`.
+ */
+function enemyAnchor(
+  context: GenerationContext,
+  spawns: SpawnPlacement,
+): { readonly point: Position; readonly distance: number } {
+  const { width, height } = context;
+  const grid = { width, height, tiles: tileView(context) };
+  const holes = spawns.party.length > 0 ? spawns.party : [spawns.player];
+  const distances = distancesFrom(context, spawns.player);
+
+  const candidates: MutableRoom[] = context.rooms.filter(
+    (room) => room.id !== spawns.roomId,
+  );
+  const roomScore = (room: MutableRoom): number => {
+    let best = -1;
+    for (let y = room.y; y < room.y + room.height; y += 1) {
+      for (let x = room.x; x < room.x + room.width; x += 1) {
+        const distance = distances[indexOf(width, x, y)];
+        if (distance > best) best = distance;
+      }
+    }
+    return best;
+  };
+  candidates.sort((a, b) => roomScore(b) - roomScore(a) || a.id - b.id);
+
+  for (const room of candidates) {
+    let best: { point: Position; distance: number; visible: boolean } | null = null;
+    for (let y = room.y; y < room.y + room.height; y += 1) {
+      for (let x = room.x; x < room.x + room.width; x += 1) {
+        const distance = distances[indexOf(width, x, y)];
+        if (distance < 0) continue;
+        const point = { x, y };
+        const visible = holes.some((hole) => hasLineOfSight(grid, point, hole));
+        const better =
+          !best ||
+          Number(best.visible) - Number(visible) > 0 ||
+          (best.visible === visible && distance > best.distance) ||
+          (best.visible === visible &&
+            distance === best.distance &&
+            (y < best.point.y || (y === best.point.y && x < best.point.x)));
+        if (better) best = { point, distance, visible };
+      }
+    }
+    if (best) return { point: best.point, distance: best.distance };
+  }
+
+  return { point: spawns.player, distance: 0 };
+}
+
+/**
+ * Contrato nuevo de REQ-012: la sala más protegida, seis huecos alrededor del
+ * acceso y `party[0]` como jugador. El ancla `spawns.enemy` se conserva como
+ * dato serializable y ancla opcional de `enemy-1`, nunca como fuente de verdad.
+ */
+function chooseSpawns(
+  context: GenerationContext,
+  doors: readonly Door[],
+  seed: number,
+): SpawnResult {
+  const rooms = contextRoomModels(context);
+  if (rooms.length === 0) {
     return {
       spawns: { player: { x: 1, y: 1 }, enemy: { x: 1, y: 1 }, distance: 0 },
       issues: ['No hay salas para colocar las apariciones.'],
     };
   }
 
-  const player = roomCenter(playerRoom);
-  const party = spawnParty(context, playerRoom, player);
-  const distances = distancesFrom(context, player);
+  const warnings = context.warnings;
+  const placed = placeSpawns({
+    rooms,
+    doors,
+    openMouths: wideOpenMouths(context),
+    tiles: tileView(context),
+    width: context.width,
+    height: context.height,
+    minTiles: SPAWN_MIN_TILES,
+    seed,
+  });
+  for (const warning of placed.warnings) warnings.push(warning);
 
-  let enemyRoom: MutableRoom | null = null;
-  let enemyRoomBest = -1;
-
-  for (const room of context.rooms) {
-    if (room.id === playerRoom.id) continue;
-    let roomBest = -1;
-    for (let y = room.y; y < room.y + room.height; y += 1) {
-      for (let x = room.x; x < room.x + room.width; x += 1) {
-        const distance = distances[indexOf(context.width, x, y)];
-        if (distance > roomBest) roomBest = distance;
-      }
-    }
-    if (roomBest > enemyRoomBest) {
-      enemyRoomBest = roomBest;
-      enemyRoom = room;
-    }
-  }
-
-  const originX = clamp(
-    player.x - Math.floor(VIEWPORT_TILES / 2),
-    0,
-    context.width - VIEWPORT_TILES,
-  );
-  const originY = clamp(
-    player.y - Math.floor(VIEWPORT_TILES / 2),
-    0,
-    context.height - VIEWPORT_TILES,
-  );
-
-  const isOutsideViewport = (x: number, y: number): boolean =>
-    x < originX ||
-    x > originX + VIEWPORT_TILES - 1 ||
-    y < originY ||
-    y > originY + VIEWPORT_TILES - 1;
-
-  const pickFarthest = (
-    room: MutableRoom,
-    requireDistance: boolean,
-    requireOutside: boolean,
-  ): { point: Position | null; distance: number } => {
-    let bestPoint: Position | null = null;
-    let bestDistance = -1;
-
-    for (let y = room.y; y < room.y + room.height; y += 1) {
-      for (let x = room.x; x < room.x + room.width; x += 1) {
-        const distance = distances[indexOf(context.width, x, y)];
-        if (distance < 0) continue;
-        if (requireDistance && distance < 12) continue;
-        if (requireOutside && !isOutsideViewport(x, y)) continue;
-        if (
-          distance > bestDistance ||
-          (distance === bestDistance &&
-            bestPoint !== null &&
-            (y < bestPoint.y || (y === bestPoint.y && x < bestPoint.x)))
-        ) {
-          bestDistance = distance;
-          bestPoint = { x, y };
-        }
-      }
-    }
-
-    return { point: bestPoint, distance: bestDistance };
-  };
-
-  if (!enemyRoom) {
+  const spawns = placed.spawns;
+  if (spawns.roomId < 0) {
     return {
-      spawns: {
-        roomId: playerRoom.id,
-        party,
-        player,
-        enemy: player,
-        distance: 0,
-      },
-      issues: ['No hay una segunda sala alcanzable para el enemigo.'],
+      spawns: { player: spawns.player, enemy: spawns.player, distance: 0 },
+      issues: ['No se pudo elegir la sala de spawn.'],
     };
   }
 
   const issues: string[] = [];
-  let picked = pickFarthest(enemyRoom, true, true);
-  if (!picked.point) {
-    issues.push('La sala más lejana no tiene una celda a ≥12 tiles fuera del viewport inicial.');
-    picked = pickFarthest(enemyRoom, false, false);
-  }
-  if (!picked.point) {
-    return {
-      spawns: {
-        roomId: playerRoom.id,
-        party,
-        player,
-        enemy: player,
-        distance: 0,
-      },
-      issues: ['La sala más lejana no tiene celdas alcanzables.'],
-    };
+  const party = spawns.party;
+  if (party.length < SPAWN_MIN_TILES) {
+    issues.push(
+      `La sala de spawn solo ofreció ${party.length} de ${SPAWN_MIN_TILES} huecos.`,
+    );
   }
 
-  if (picked.distance < 12) issues.push(`Distancia jugador→enemigo ${picked.distance} < 12.`);
-  if (!isOutsideViewport(picked.point.x, picked.point.y)) {
-    issues.push('El enemigo cae dentro del viewport inicial de 13×13.');
-  }
-
+  const anchor = enemyAnchor(context, spawns);
   return {
     spawns: {
-      roomId: playerRoom.id,
+      roomId: spawns.roomId,
       party,
-      player,
-      enemy: picked.point,
-      distance: picked.distance,
+      player: spawns.player,
+      enemy: anchor.point,
+      distance: anchor.distance,
     },
     issues,
   };
 }
+
 
 // ---------------------------------------------------------------------------
 // Ensamblado y aceptación
@@ -1896,6 +1921,7 @@ function buildMap(
   seed: number,
   warnings: readonly string[],
   spawns: Spawns,
+  doors?: readonly Door[],
 ): GeneratedMap {
   const tiles: Tile[] = new Array<Tile>(context.width * context.height);
   for (let index = 0; index < tiles.length; index += 1) {
@@ -1940,7 +1966,7 @@ function buildMap(
         length: pathLength(cells),
       };
     }),
-    doors: buildDoors(context),
+    doors: doors ?? buildDoors(context),
     spawns,
     warnings,
     options,
@@ -2091,8 +2117,16 @@ export class BspMapGenerator implements MapGenerator {
 
       if (placement.rooms.length < 2) {
         const context = createContext(placement.rooms, resolvedOptions, warnings);
-        const spawnResult = chooseSpawns(context);
-        const map = buildMap(context, resolvedOptions, normalizedSeed, warnings, spawnResult.spawns);
+        const doors = buildDoors(context);
+        const spawnResult = chooseSpawns(context, doors, normalizedSeed);
+        const map = buildMap(
+          context,
+          resolvedOptions,
+          normalizedSeed,
+          warnings,
+          spawnResult.spawns,
+          doors,
+        );
         const issues = [
           ...spawnResult.issues,
           ...assessMap(map, placement, resolvedOptions),
@@ -2122,8 +2156,16 @@ export class BspMapGenerator implements MapGenerator {
       addLoops(context, resolvedOptions.loopRatio, shape);
       widenCorridors(context, normalizedSeed, attempt, wideTarget);
 
-      const spawnResult = chooseSpawns(context);
-      const map = buildMap(context, resolvedOptions, normalizedSeed, warnings, spawnResult.spawns);
+      const doors = buildDoors(context);
+      const spawnResult = chooseSpawns(context, doors, normalizedSeed);
+      const map = buildMap(
+        context,
+        resolvedOptions,
+        normalizedSeed,
+        warnings,
+        spawnResult.spawns,
+        doors,
+      );
       const issues = [
         ...spawnResult.issues,
         ...assessMap(map, placement, resolvedOptions),
@@ -2158,8 +2200,16 @@ export class BspMapGenerator implements MapGenerator {
     const rooms = emergencyRooms(resolvedOptions);
     const context = createContext(rooms, resolvedOptions, warnings);
     ensureConnected(context);
-    const spawnResult = chooseSpawns(context);
-    return buildMap(context, resolvedOptions, normalizedSeed, warnings, spawnResult.spawns);
+    const doors = buildDoors(context);
+    const spawnResult = chooseSpawns(context, doors, normalizedSeed);
+    return buildMap(
+      context,
+      resolvedOptions,
+      normalizedSeed,
+      warnings,
+      spawnResult.spawns,
+      doors,
+    );
   }
 }
 
