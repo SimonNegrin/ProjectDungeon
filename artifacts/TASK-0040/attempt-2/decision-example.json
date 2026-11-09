@@ -1,0 +1,336 @@
+{
+  "experiment": "EXP-004",
+  "question": "¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?",
+  "seed": 279837264,
+  "variant": "growth",
+  "parameters": {
+    "mapWidth": 22,
+    "mapHeight": 18,
+    "roomCount": 5,
+    "roomMin": 3,
+    "roomMax": 9,
+    "corridorMaxLength": 3,
+    "wideCorridorChance": 33,
+    "wallThickness": 1,
+    "megaRoomChance": 17,
+    "spawnMinTiles": 6,
+    "variant": "growth",
+    "showDebug": false,
+    "showDoors": true,
+    "showSpawn": true,
+    "showEnemies": true
+  },
+  "variants": [
+    {
+      "variant": "growth",
+      "seed": 279837264,
+      "stats": {
+        "roomCount": 5,
+        "largeRooms": 1,
+        "mediumRooms": 0,
+        "smallRooms": 4,
+        "cavernRooms": 0,
+        "totalFloor": 134,
+        "roomFloor": 117,
+        "corridorFloor": 17,
+        "averageAreaRatio": 0.692,
+        "notchCount": 40,
+        "alcoveCount": 2,
+        "sharedWalls": 5,
+        "doorCount": 8,
+        "directDoors": 2,
+        "corridorCount": 6,
+        "corridorLengths": {
+          "0": 2,
+          "1": 3,
+          "2": 0,
+          "3": 0
+        },
+        "loops": 2,
+        "wideCount": 1,
+        "wideLength": 3,
+        "cavernArea": 0,
+        "cavernShare": 0,
+        "spawnHoles": 6,
+        "spawnAccesses": 2,
+        "enemyCount": 4,
+        "emptyRooms": 1,
+        "maxEnemiesPerRoom": 2,
+        "generationAttempts": 59
+      },
+      "fingerprint": "4c9f4137",
+      "warnings": [],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 5,
+          "hint": "1 grandes · 4 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "1G · 0M · 4P"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.69",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 40
+        },
+        {
+          "label": "Hornacinas",
+          "value": 2
+        },
+        {
+          "label": "Pared compartida",
+          "value": 5,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:2 1:3 2:0 3:0"
+        },
+        {
+          "label": "Bucles",
+          "value": "2 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "1 × 3 tiles",
+          "hint": "2 tiles, sin puertas"
+        },
+        {
+          "label": "Caverna",
+          "value": "no"
+        },
+        {
+          "label": "Accesos spawn",
+          "value": 2
+        },
+        {
+          "label": "Huecos spawn",
+          "value": 6
+        },
+        {
+          "label": "Enemigos/sala",
+          "value": "2·1·0·0·1",
+          "hint": "4 fichas · 1 vacía · 2 sentinel · 1 brute · 1 coward"
+        },
+        {
+          "label": "Generación",
+          "value": "3.0 ms"
+        }
+      ]
+    },
+    {
+      "variant": "bsp",
+      "seed": 279837264,
+      "stats": {
+        "roomCount": 5,
+        "largeRooms": 1,
+        "mediumRooms": 3,
+        "smallRooms": 1,
+        "cavernRooms": 0,
+        "totalFloor": 156,
+        "roomFloor": 145,
+        "corridorFloor": 11,
+        "averageAreaRatio": 0.788,
+        "notchCount": 30,
+        "alcoveCount": 1,
+        "sharedWalls": 4,
+        "doorCount": 9,
+        "directDoors": 1,
+        "corridorCount": 5,
+        "corridorLengths": {
+          "0": 1,
+          "1": 3,
+          "2": 0,
+          "3": 1
+        },
+        "loops": 1,
+        "wideCount": 0,
+        "wideLength": 0,
+        "cavernArea": 0,
+        "cavernShare": 0,
+        "spawnHoles": 6,
+        "spawnAccesses": 3,
+        "enemyCount": 4,
+        "emptyRooms": 1,
+        "maxEnemiesPerRoom": 2,
+        "generationAttempts": 4
+      },
+      "fingerprint": "94ddd559",
+      "warnings": [
+        "No hubo un par de salas para abrir el pasillo ancho."
+      ],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 5,
+          "hint": "1 grandes · 1 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "1G · 3M · 1P"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.79",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 30
+        },
+        {
+          "label": "Hornacinas",
+          "value": 1
+        },
+        {
+          "label": "Pared compartida",
+          "value": 4,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:1 1:3 2:0 3:1"
+        },
+        {
+          "label": "Bucles",
+          "value": "1 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "no"
+        },
+        {
+          "label": "Caverna",
+          "value": "no"
+        },
+        {
+          "label": "Accesos spawn",
+          "value": 3
+        },
+        {
+          "label": "Huecos spawn",
+          "value": 6
+        },
+        {
+          "label": "Enemigos/sala",
+          "value": "0·1·2·0·1",
+          "hint": "4 fichas · 1 vacía · 2 sentinel · 1 brute · 1 coward"
+        },
+        {
+          "label": "Generación",
+          "value": "4.0 ms"
+        }
+      ]
+    },
+    {
+      "variant": "templates",
+      "seed": 279837264,
+      "stats": {
+        "roomCount": 5,
+        "largeRooms": 1,
+        "mediumRooms": 2,
+        "smallRooms": 2,
+        "cavernRooms": 0,
+        "totalFloor": 145,
+        "roomFloor": 120,
+        "corridorFloor": 25,
+        "averageAreaRatio": 0.724,
+        "notchCount": 33,
+        "alcoveCount": 1,
+        "sharedWalls": 3,
+        "doorCount": 8,
+        "directDoors": 2,
+        "corridorCount": 6,
+        "corridorLengths": {
+          "0": 2,
+          "1": 0,
+          "2": 1,
+          "3": 2
+        },
+        "loops": 2,
+        "wideCount": 1,
+        "wideLength": 3,
+        "cavernArea": 0,
+        "cavernShare": 0,
+        "spawnHoles": 6,
+        "spawnAccesses": 3,
+        "enemyCount": 4,
+        "emptyRooms": 1,
+        "maxEnemiesPerRoom": 2,
+        "generationAttempts": 18
+      },
+      "fingerprint": "6f10aa03",
+      "warnings": [],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 5,
+          "hint": "1 grandes · 2 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "1G · 2M · 2P"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.72",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 33
+        },
+        {
+          "label": "Hornacinas",
+          "value": 1
+        },
+        {
+          "label": "Pared compartida",
+          "value": 3,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:2 1:0 2:1 3:2"
+        },
+        {
+          "label": "Bucles",
+          "value": "2 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "1 × 3 tiles",
+          "hint": "2 tiles, sin puertas"
+        },
+        {
+          "label": "Caverna",
+          "value": "no"
+        },
+        {
+          "label": "Accesos spawn",
+          "value": 3
+        },
+        {
+          "label": "Huecos spawn",
+          "value": 6
+        },
+        {
+          "label": "Enemigos/sala",
+          "value": "0·1·1·0·2",
+          "hint": "4 fichas · 1 vacía · 2 sentinel · 1 brute · 1 coward"
+        },
+        {
+          "label": "Generación",
+          "value": "2.5 ms"
+        }
+      ]
+    }
+  ],
+  "decidedAt": "2026-11-09T00:49:00.109Z"
+}

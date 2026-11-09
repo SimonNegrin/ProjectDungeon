@@ -1,0 +1,5 @@
+{
+  "base": "http://127.0.0.1:4173/experiments/EXP-004-salas-irregulares/",
+  "seed": 279837264,
+  "errors": []
+}

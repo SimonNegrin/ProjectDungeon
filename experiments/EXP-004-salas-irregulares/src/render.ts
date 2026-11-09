@@ -142,17 +142,47 @@ function drawFloorAndWalls(
   }
 }
 
+export interface ViewRect {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** Posición de una puerta relativa al viewport, o `null` si queda fuera. */
+export function doorViewPosition(
+  door: Pick<Door, 'x' | 'y'>,
+  view: ViewRect,
+  tile: number,
+): { x: number; y: number } | null {
+  if (
+    door.x < view.x ||
+    door.y < view.y ||
+    door.x >= view.x + view.width ||
+    door.y >= view.y + view.height
+  ) {
+    return null;
+  }
+  return {
+    x: (door.x - view.x) * tile,
+    y: (door.y - view.y) * tile,
+  };
+}
+
 function drawDoor(
   ctx: CanvasRenderingContext2D,
   door: Door,
   tile: number,
   offsetX: number,
   offsetY: number,
+  view: ViewRect,
   showStyle: boolean,
 ): void {
+  const position = doorViewPosition(door, view, tile);
+  if (!position) return;
   const colors = DOOR_COLORS[door.style];
-  const x = offsetX + door.x * tile;
-  const y = offsetY + door.y * tile;
+  const x = offsetX + position.x;
+  const y = offsetY + position.y;
   const pad = Math.max(1, tile * 0.14);
   const frame = Math.max(1.5, tile * 0.16);
 
@@ -452,6 +482,11 @@ function drawMap(
   ctx.beginPath();
   ctx.rect(area.x, area.y, area.width, area.height);
   ctx.clip();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(offsetX, offsetY, boardWidth, boardHeight);
+  ctx.clip();
   drawFloorAndWalls(ctx, map, assets, tile, offsetX, offsetY, view);
 
   if (showSpawn) {
@@ -460,12 +495,13 @@ function drawMap(
   }
 
   if (showDoors) {
-    for (const door of map.doors) drawDoor(ctx, door, tile, offsetX, offsetY, debug);
+    for (const door of map.doors) drawDoor(ctx, door, tile, offsetX, offsetY, view, debug);
   }
 
   if (debug) drawDebug(ctx, map, tile, offsetX, offsetY, view);
   if (showSpawn) drawSpawnHoles(ctx, map, tile, offsetX, offsetY, view, debug);
   if (showEnemies) drawEnemies(ctx, map, tile, offsetX, offsetY, view, debug);
+  ctx.restore();
 
   drawLabel(ctx, label, area.x + 4, area.y + 4, Math.max(9, area.height * 0.035));
   ctx.restore();

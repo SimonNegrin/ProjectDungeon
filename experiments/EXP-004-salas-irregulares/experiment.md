@@ -4,7 +4,7 @@ id: EXP-004
 title: Comparador de generadores de salas irregulares
 description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla.
 status: draft
-experiment_status: proposed
+experiment_status: ready
 question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?
 related_requirements: [REQ-011, REQ-012]
 seed: 279837264
@@ -26,7 +26,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-08T23:55:54Z
+updated_at: 2026-11-09T00:48:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -95,8 +95,15 @@ reparto de enemigos sin relajar la jugabilidad.
 
 # Observaciones
 
-Pendiente de construir y probar en `TASK-0040`. Rellenar con capturas y una
-tabla comparativa por semilla.
+Construido y probado en `TASK-0040` (intentos 1 y 2). La página compara A/B/C
+con la misma semilla, tileset real, puertas, spawn, enemigos, métricas y vista
+13×13. El intento 2 corrige las puertas de la vista 13×13, hace funcional el
+grosor de muro y mantiene el contrato. Queda pendiente el playtest para elegir
+variante; la decisión no se cierra aquí.
+
+- Informe: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
+- Capturas: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
+- Tests: `pnpm run test`, `pnpm run docs:check` y `pnpm run build` en verde.
 
 # Decisión
 
@@ -108,7 +115,10 @@ tabla comparativa por semilla.
 
 # Evidencia
 
-- Pendiente: capturas A/B/C, JSON de decisión e informe de `TASK-0040`.
+- Informe del intento 2: [report.md](../../artifacts/TASK-0040/attempt-2/report.md).
+- Capturas A/B/C normal y debug: [screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
+- Export de ejemplo: [decision-example.json](../../artifacts/TASK-0040/attempt-2/decision-example.json).
+- Salidas de test, docs y build en `artifacts/TASK-0040/attempt-2/`.
 
 # Siguientes pasos
 

@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { hasDiagonalLeak, wallTileKind } from './grid';
-import { generateMap, validateMap } from './generate';
+import {
+  connectivityPercentage,
+  fingerprint,
+  generateMap,
+  validateMap,
+} from './generate';
 import type { GeneratedMap, VariantId } from './types';
 
 const VARIANTS: VariantId[] = ['growth', 'bsp', 'templates'];
@@ -72,6 +77,51 @@ describe('formas, muros y conexiones', () => {
         expect(direct, `${variant} · ${seed}`).toBeDefined();
         if (!direct) continue;
         expect(minRoomDistance(map, direct.roomA, direct.roomB)).toBe(2);
+      }
+    }
+  });
+
+  it('el grosor de muro 1 y 2 cambia el mapa y el 2 mantiene el contrato', () => {
+    for (const variant of VARIANTS) {
+      const thin = generateMap(variant, 279837264, { wallThickness: 1 });
+      const thick = generateMap(variant, 279837264, { wallThickness: 2 });
+      expect(fingerprint(thick), `${variant} · grosor 2`).not.toBe(fingerprint(thin));
+      expect(validateMap(thick), `${variant} · grosor 2`).toEqual([]);
+      expect(connectivityPercentage(thick)).toBeCloseTo(100, 5);
+      expect(thick.doors.some((door) => door.direct)).toBe(true);
+      if (thick.stats.cavernRooms === 0) {
+        expect(thick.rooms.length).toBeGreaterThanOrEqual(4);
+        expect(thick.rooms.length).toBeLessThanOrEqual(6);
+      }
+      for (const corridor of thick.corridors) {
+        expect(corridor.length).toBeGreaterThanOrEqual(0);
+        expect(corridor.length).toBeLessThanOrEqual(3);
+        if (corridor.kind === 'wide') expect(corridor.doors).toHaveLength(0);
+      }
+      expect(thick.loops).toBeGreaterThanOrEqual(0);
+      expect(thick.loops).toBeLessThanOrEqual(3);
+      expect(thick.spawns.party.length).toBeGreaterThanOrEqual(6);
+    }
+  });
+
+  it('el grosor 2 conserva conectividad, puertas directas y longitudes en varias semillas', () => {
+    for (const variant of VARIANTS) {
+      for (let seed = 1; seed <= 12; seed += 1) {
+        const map = generateMap(variant, seed, { wallThickness: 2 });
+        expect(validateMap(map), `${variant} · ${seed} · grosor 2`).toEqual([]);
+        expect(connectivityPercentage(map)).toBeCloseTo(100, 5);
+        expect(map.doors.some((door) => door.direct), `${variant} · ${seed}`).toBe(true);
+        if (map.stats.cavernRooms === 0) {
+          expect(map.rooms.length).toBeGreaterThanOrEqual(4);
+          expect(map.rooms.length).toBeLessThanOrEqual(6);
+        }
+        for (const corridor of map.corridors) {
+          expect(corridor.length).toBeGreaterThanOrEqual(0);
+          expect(corridor.length).toBeLessThanOrEqual(3);
+        }
+        expect(map.loops).toBeGreaterThanOrEqual(0);
+        expect(map.loops).toBeLessThanOrEqual(3);
+        expect(map.spawns.party.length).toBeGreaterThanOrEqual(6);
       }
     }
   });

@@ -277,6 +277,12 @@ export function generateMap(
     ensureSharedWallBox(rawRooms, options);
   }
   ensureDirectDoor(rawRooms);
+  if (
+    !roomsHaveDirectPair(rawRooms) &&
+    (!wantsWide || (options.wallThickness === 2 && rawRooms.length <= 3))
+  ) {
+    if (ensureSharedWallBox(rawRooms, options, true)) ensureDirectDoor(rawRooms);
+  }
   normalizeRatios(rawRooms, 0.92, protectedEdgeCells(rawRooms), options, true);
 
   return finalizeMap(
@@ -334,7 +340,7 @@ function buildGrowth(
         counter.value += 1;
         const box = randomBox(rng, options, spec);
         if (!boxInside(box, options.mapWidth, options.mapHeight, 1)) continue;
-        if (rooms.some((room) => boxGap(box, room.box) < 1)) continue;
+        if (rooms.some((room) => boxGap(box, room.box) < placementMinGap(options, index))) continue;
         if (rooms.length > 0) {
           const gaps = rooms.map((room) => boxGap(box, room.box));
           const nearest = Math.min(...gaps);
@@ -353,6 +359,17 @@ function buildGrowth(
 
     if (!placed) {
       warnings.push(`No se pudo colocar la sala ${index + 1} con crecimiento.`);
+    }
+  }
+
+  if (rooms.length < Math.min(4, options.roomCount)) {
+    warnings.push('El grosor de muro pedido no cupo; se relajó la separación para completar las salas.');
+    let guard = 0;
+    while (rooms.length < Math.min(4, options.roomCount) && guard < 4) {
+      guard += 1;
+      const before = rooms.length;
+      placeFallbackRoom(rooms, rng, options, 'small');
+      if (rooms.length === before) break;
     }
   }
 
@@ -579,10 +596,37 @@ function buildBsp(
     const isLargest = leafArea(leaf) === largestArea;
     const isSmallest = leafArea(leaf) === smallestArea && index === leaves.findIndex((item) => leafArea(item) === smallestArea);
     const spec: RoomSpec = isLargest ? 'large' : isSmallest ? 'small' : 'medium';
-    const box = roomBoxForLeaf(leaf, spec, options, isLargest);
+    const baseBox = roomBoxForLeaf(leaf, spec, options, isLargest);
+    const box = shiftBoxForThickness(baseBox, leaf, index, spec, options);
     const cells = bspMask(box, spec, rng, index);
     return { box, cells };
   });
+}
+
+/**
+ * Con grosor 2 desplaza 1 tile las salas no grandes dentro de su hoja. Así
+ * aparecen paredes de 2 tiles en un lado y de 1 en el otro, sin cambiar el
+ * tamaño de la caja ni la conectividad.
+ */
+function shiftBoxForThickness(
+  box: Box,
+  leaf: Box,
+  index: number,
+  spec: RoomSpec,
+  options: ResolvedMapOptions,
+): Box {
+  if (options.wallThickness !== 2 || spec === 'large') return box;
+  const direction = index % 2 === 0 ? 1 : -1;
+  if (leaf.width >= leaf.height) {
+    const minX = leaf.x;
+    const maxX = leaf.x + leaf.width - box.width;
+    if (maxX <= minX) return box;
+    return { ...box, x: clamp(box.x + direction, minX, maxX) };
+  }
+  const minY = leaf.y;
+  const maxY = leaf.y + leaf.height - box.height;
+  if (maxY <= minY) return box;
+  return { ...box, y: clamp(box.y + direction, minY, maxY) };
 }
 
 function canSplit(leaf: Box, options: ResolvedMapOptions): boolean {
@@ -745,7 +789,7 @@ function buildTemplates(
         const shape = transformTemplate(template, orientation);
         const box = randomBoxForShape(rng, options, shape.width, shape.height);
         if (!boxInside(box, options.mapWidth, options.mapHeight, 1)) continue;
-        if (rooms.some((room) => boxGap(box, room.box) < 1)) continue;
+        if (rooms.some((room) => boxGap(box, room.box) < placementMinGap(options, index))) continue;
         if (rooms.length > 0) {
           const gaps = rooms.map((room) => boxGap(box, room.box));
           const nearest = Math.min(...gaps);
@@ -765,6 +809,17 @@ function buildTemplates(
     if (!placed) {
       warnings.push(`No se pudo empaquetar la plantilla ${template.id}.`);
       placeFallbackRoom(rooms, rng, options, spec === 'large' ? 'medium' : spec);
+    }
+  }
+
+  if (rooms.length < Math.min(4, options.roomCount)) {
+    warnings.push('El grosor de muro pedido no cupo; se relajó la separación para completar las salas.');
+    let guard = 0;
+    while (rooms.length < Math.min(4, options.roomCount) && guard < 4) {
+      guard += 1;
+      const before = rooms.length;
+      placeFallbackRoom(rooms, rng, options, 'small');
+      if (rooms.length === before) break;
     }
   }
 
@@ -913,6 +968,12 @@ function buildCavern(
 // ---------------------------------------------------------------------------
 
 type RoomSpec = 'large' | 'small' | 'medium';
+
+function placementMinGap(options: ResolvedMapOptions, index: number): number {
+  // La segunda sala mantiene la pared compartida de la puerta directa; el
+  // resto prefiere 2 tiles de muro cuando el control está en 2.
+  return options.wallThickness === 2 && index !== 1 ? 2 : 1;
+}
 
 function roomSpecs(count: number): RoomSpec[] {
   const specs: RoomSpec[] = ['large', 'small'];
@@ -1276,6 +1337,50 @@ function roomsHaveDirectPair(rooms: readonly RawRoom[]): boolean {
   return false;
 }
 
+function edgeCellsToTarget(
+  room: RawRoom,
+  targetX: number,
+  targetY: number,
+  others: ReadonlySet<string>,
+): import('./types').Point[] | null {
+  if (targetX < room.box.x || targetY < room.box.y) return null;
+  if (targetX >= room.box.x + room.box.width || targetY >= room.box.y + room.box.height) {
+    return null;
+  }
+  if (room.cells.some((cell) => cell.x === targetX && cell.y === targetY)) return [];
+  if (others.has(pointKey(targetX, targetY))) return null;
+
+  const sameColumn = room.cells
+    .filter((cell) => cell.x === targetX)
+    .sort((a, b) => Math.abs(a.y - targetY) - Math.abs(b.y - targetY));
+  if (sameColumn.length > 0) {
+    const from = sameColumn[0].y;
+    const additions: import('./types').Point[] = [];
+    const step = from < targetY ? 1 : -1;
+    for (let y = from + step; y !== targetY + step; y += step) {
+      if (others.has(pointKey(targetX, y))) return null;
+      additions.push({ x: targetX, y });
+    }
+    return additions;
+  }
+
+  const sameRow = room.cells
+    .filter((cell) => cell.y === targetY)
+    .sort((a, b) => Math.abs(a.x - targetX) - Math.abs(b.x - targetX));
+  if (sameRow.length > 0) {
+    const from = sameRow[0].x;
+    const additions: import('./types').Point[] = [];
+    const step = from < targetX ? 1 : -1;
+    for (let x = from + step; x !== targetX + step; x += step) {
+      if (others.has(pointKey(x, targetY))) return null;
+      additions.push({ x, y: targetY });
+    }
+    return additions;
+  }
+
+  return null;
+}
+
 /**
  * Garantiza al menos una puerta directa. Si dos cajas están separadas por un
  * único tile de muro, extiende las máscaras hasta la pared para que exista un
@@ -1386,6 +1491,66 @@ function ensureDirectDoor(rooms: RawRoom[]): boolean {
           }
           rooms[first] = { box: a.box, cells: sortPoints([...a.cells, ...additionsA]) };
           rooms[second] = { box: b.box, cells: sortPoints([...b.cells, ...additionsB]) };
+          return true;
+        }
+      }
+    }
+  }
+
+  // Último recurso: crea un saliente de una celda hasta la pared compartida
+  // usando una columna o fila ya existente de cada sala.
+  for (let first = 0; first < rooms.length; first += 1) {
+    for (let second = first + 1; second < rooms.length; second += 1) {
+      const a = rooms[first];
+      const b = rooms[second];
+      const others = new Set<string>();
+      for (let index = 0; index < rooms.length; index += 1) {
+        if (index === first || index === second) continue;
+        for (const cell of rooms[index].cells) others.add(pointKey(cell.x, cell.y));
+      }
+
+      const overlapY =
+        Math.min(a.box.y + a.box.height, b.box.y + b.box.height) - Math.max(a.box.y, b.box.y);
+      if (a.box.x + a.box.width + 1 === b.box.x && overlapY > 0) {
+        for (let y = Math.max(a.box.y, b.box.y); y < Math.min(a.box.y + a.box.height, b.box.y + b.box.height); y += 1) {
+          const addA = edgeCellsToTarget(a, b.box.x - 2, y, others);
+          const addB = edgeCellsToTarget(b, b.box.x, y, others);
+          if (addA === null || addB === null) continue;
+          rooms[first] = { box: a.box, cells: sortPoints([...a.cells, ...addA]) };
+          rooms[second] = { box: b.box, cells: sortPoints([...b.cells, ...addB]) };
+          return true;
+        }
+      }
+      if (b.box.x + b.box.width + 1 === a.box.x && overlapY > 0) {
+        for (let y = Math.max(a.box.y, b.box.y); y < Math.min(a.box.y + a.box.height, b.box.y + b.box.height); y += 1) {
+          const addA = edgeCellsToTarget(a, a.box.x, y, others);
+          const addB = edgeCellsToTarget(b, a.box.x - 2, y, others);
+          if (addA === null || addB === null) continue;
+          rooms[first] = { box: a.box, cells: sortPoints([...a.cells, ...addA]) };
+          rooms[second] = { box: b.box, cells: sortPoints([...b.cells, ...addB]) };
+          return true;
+        }
+      }
+
+      const overlapX =
+        Math.min(a.box.x + a.box.width, b.box.x + b.box.width) - Math.max(a.box.x, b.box.x);
+      if (a.box.y + a.box.height + 1 === b.box.y && overlapX > 0) {
+        for (let x = Math.max(a.box.x, b.box.x); x < Math.min(a.box.x + a.box.width, b.box.x + b.box.width); x += 1) {
+          const addA = edgeCellsToTarget(a, x, b.box.y - 2, others);
+          const addB = edgeCellsToTarget(b, x, b.box.y, others);
+          if (addA === null || addB === null) continue;
+          rooms[first] = { box: a.box, cells: sortPoints([...a.cells, ...addA]) };
+          rooms[second] = { box: b.box, cells: sortPoints([...b.cells, ...addB]) };
+          return true;
+        }
+      }
+      if (b.box.y + b.box.height + 1 === a.box.y && overlapX > 0) {
+        for (let x = Math.max(a.box.x, b.box.x); x < Math.min(a.box.x + a.box.width, b.box.x + b.box.width); x += 1) {
+          const addA = edgeCellsToTarget(a, x, a.box.y, others);
+          const addB = edgeCellsToTarget(b, x, a.box.y - 2, others);
+          if (addA === null || addB === null) continue;
+          rooms[first] = { box: a.box, cells: sortPoints([...a.cells, ...addA]) };
+          rooms[second] = { box: b.box, cells: sortPoints([...b.cells, ...addB]) };
           return true;
         }
       }
@@ -1664,7 +1829,12 @@ function ensureWideCells(rooms: RawRoom[]): boolean {
  * Si no hay pared compartida, ensancha una caja hacia su vecina para dejar un
  * único tile de muro. Después `ensureDirectDoor` alinea las máscaras.
  */
-function ensureSharedWallBox(rooms: RawRoom[], options: ResolvedMapOptions): boolean {
+function ensureSharedWallBox(
+  rooms: RawRoom[],
+  options: ResolvedMapOptions,
+  allowGap4 = false,
+): boolean {
+  const maxGap = allowGap4 ? 4 : 3;
   if (hasSharedWall(rooms)) return true;
 
   for (let first = 0; first < rooms.length; first += 1) {
@@ -1679,13 +1849,13 @@ function ensureSharedWallBox(rooms: RawRoom[], options: ResolvedMapOptions): boo
       if (overlapY > 0) {
         if (b.box.x > a.box.x + a.box.width) {
           const gap = b.box.x - (a.box.x + a.box.width);
-          if (gap >= 2 && gap <= 3) {
+          if (gap >= 2 && gap <= maxGap) {
             const sharedY = sharedCoordinate(a.cells, b.cells, 'y');
             if (expandRoomToward(rooms, first, gap - 1, 'x', options, sharedY)) return true;
           }
         } else if (a.box.x > b.box.x + b.box.width) {
           const gap = a.box.x - (b.box.x + b.box.width);
-          if (gap >= 2 && gap <= 3) {
+          if (gap >= 2 && gap <= maxGap) {
             const sharedY = sharedCoordinate(a.cells, b.cells, 'y');
             if (expandRoomToward(rooms, second, gap - 1, 'x', options, sharedY)) return true;
           }
@@ -1695,13 +1865,13 @@ function ensureSharedWallBox(rooms: RawRoom[], options: ResolvedMapOptions): boo
       if (overlapX > 0) {
         if (b.box.y > a.box.y + a.box.height) {
           const gap = b.box.y - (a.box.y + a.box.height);
-          if (gap >= 2 && gap <= 3) {
+          if (gap >= 2 && gap <= maxGap) {
             const sharedX = sharedCoordinate(a.cells, b.cells, 'x');
             if (expandRoomToward(rooms, first, gap - 1, 'y', options, sharedX)) return true;
           }
         } else if (a.box.y > b.box.y + b.box.height) {
           const gap = a.box.y - (b.box.y + b.box.height);
-          if (gap >= 2 && gap <= 3) {
+          if (gap >= 2 && gap <= maxGap) {
             const sharedX = sharedCoordinate(a.cells, b.cells, 'x');
             if (expandRoomToward(rooms, second, gap - 1, 'y', options, sharedX)) return true;
           }
@@ -1909,24 +2079,46 @@ function linkKey(link: Link): string {
   return `${link.roomA}:${link.roomB}:${link.cells.map((cell) => pointKey(cell.x, cell.y)).join('|')}`;
 }
 
+function compareLinks(a: Link, b: Link, wallThickness: number): number {
+  const gapScore = (link: Link): number =>
+    wallThickness === 2
+      ? Math.abs(link.cells.length - 2) * 10 + link.length
+      : link.length;
+  return (
+    gapScore(a) - gapScore(b) ||
+    a.roomA - b.roomA ||
+    a.roomB - b.roomB ||
+    (a.cells[0]?.y ?? 0) - (b.cells[0]?.y ?? 0) ||
+    (a.cells[0]?.x ?? 0) - (b.cells[0]?.x ?? 0)
+  );
+}
+
 function selectLinks(
   candidates: readonly Link[],
   roomCount: number,
   rng: Rng,
   wantsWide: boolean,
+  wallThickness: number,
   warnings: string[],
 ): LinkSelection {
-  const sorted = [...candidates].sort(
-    (a, b) =>
-      a.length - b.length ||
-      a.roomA - b.roomA ||
-      a.roomB - b.roomB ||
-      (a.cells[0]?.y ?? 0) - (b.cells[0]?.y ?? 0) ||
-      (a.cells[0]?.x ?? 0) - (b.cells[0]?.x ?? 0),
-  );
+  const sorted = [...candidates].sort((a, b) => compareLinks(a, b, wallThickness));
   const union = new UnionFind(roomCount);
   const tree: Link[] = [];
   const used = new Set<string>();
+
+  // Con grosor 2 se conserva una puerta directa como excepción, pero el resto
+  // del árbol prefiere paredes de 2 tiles.
+  if (wallThickness === 2) {
+    const direct = sorted.find((link) => link.length === 0);
+    if (direct) {
+      union.union(direct.roomA, direct.roomB);
+      tree.push(direct);
+      used.add(linkKey(direct));
+    }
+    if (!sorted.some((link) => link.cells.length >= 2)) {
+      warnings.push('No hubo enlaces con 2 tiles de muro; se usaron los disponibles.');
+    }
+  }
 
   for (const link of sorted) {
     if (used.has(linkKey(link))) continue;
@@ -2137,7 +2329,14 @@ function finalizeMap(
     if (detour) candidates.push(detour);
   }
 
-  const selection = selectLinks(candidates, ordered.length, rng, wantsWide, warnings);
+  const selection = selectLinks(
+    candidates,
+    ordered.length,
+    rng,
+    wantsWide,
+    options.wallThickness,
+    warnings,
+  );
   const allLinks = [...selection.links, ...selection.extras];
   const wideKey = selection.wide ? linkKey(selection.wide) : null;
 
