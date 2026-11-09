@@ -1,7 +1,7 @@
 ---
 type: Task Report
 title: "TASK-0054: informe de ejecución"
-description: HUD y F1 con atributos nuevos; docs y ADR bloqueados por permisos.
+description: HUD y F1 con atributos nuevos; ADR-015 aplicado y diseño/glosario pendientes.
 task: TASK-0054
 attempt: 1
 report_status: blocked
@@ -16,6 +16,11 @@ verified:
 (permiso denegado) y `task-lead` tampoco `docs/design/` ni el glosario. La
 propuesta documental está lista en `docs-proposal/`.
 
+Actualización del lead: `docs/decisions/ADR-015-atributos-inherentes-absorcion.md`
+y el enlace de `docs/decisions/index.md` ya están aplicados y verificados con
+`docs:check`, `verify` y E2E. Solo quedan `turn-economy`, glosario y arquitectura
+para `requirements-writer`.
+
 # Cambios
 
 - `src/host/hud.ts`: `HudModel.stats` sustituye a `modifiers`; testid
@@ -23,8 +28,9 @@ propuesta documental está lista en `docs-proposal/`.
   resistencia. `F1` usa `Atributos` y las tiradas `golpe`/`absorción`.
 - Tests unitarios y E2E de HUD/combate: solo expectativas y helpers; ningún test
   borrado, saltado o debilitado.
-- `docs-proposal/`: contenido exacto para turn-economy, glosario, arquitectura,
-  ADR-015 e índice.
+- `docs-proposal/`: contenido exacto para turn-economy, glosario y arquitectura.
+- `docs/decisions/ADR-015-atributos-inherentes-absorcion.md` y su línea en
+  `docs/decisions/index.md` (aplicados por el lead).
 - Commit de implementación: `d8e3876`. Sin cambios de fórmulas, balance,
   `experiments/`, `index.html`, `public/` ni dependencias.
 
@@ -48,10 +54,10 @@ propuesta documental está lista en `docs-proposal/`.
 
 # Desviaciones
 
-- No se editaron `docs/design/turn-economy.md`, `docs/glossary.md`,
-  `docs/design/architecture.md` ni se creó `docs/decisions/ADR-015-*.md`; los dos
-  criterios documentales quedan pendientes. `docs:check` pasa porque el árbol
-  documental sigue intacto.
+- No se editaron `docs/design/turn-economy.md`, `docs/glossary.md` ni
+  `docs/design/architecture.md`; el criterio documental de diseño queda pendiente
+  para `requirements-writer`. El ADR-015 y su índice sí están aplicados.
+  `docs:check` pasa porque los tres documentos pendientes siguen intactos.
 
 # Problemas conocidos y preguntas abiertas
 
@@ -62,13 +68,13 @@ propuesta documental está lista en `docs-proposal/`.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Tarea «host y docs» asigna al runner ediciones de `docs/` que su permiso deniega | `.opencode/agents/task-runner.md` solo permite `src/**`, `tests/**`, etc.; `edit`/`write` en `docs/` devuelven `Permission denied`; `task-lead` no puede editar diseño ni glosario. | Propuesta `.txt` en `docs-proposal/`. | Cualquier tarea mixta bloquea al runner y exige otra sesión. | Separar la parte documental o permitir al runner `docs/design/**`, `docs/glossary.md` y `docs/decisions/**` con brief que lo autorice. | Bajo; validable con `config:check`. | `pending` |
+| Tarea «host y docs» asigna al runner ediciones de `docs/` que su permiso deniega | `.opencode/agents/task-runner.md` solo permite `src/**`, `tests/**`, etc.; `edit`/`write` en `docs/` devuelven `Permission denied`; `task-lead` no puede editar diseño ni glosario. | Propuesta `.txt` en `docs-proposal/`. | Cualquier tarea mixta bloquea al runner y exige otra sesión. | Separar la parte documental o permitir al runner `docs/design/**`, `docs/glossary.md` y `docs/decisions/**` con brief que lo autorice. | Bajo; validable con `config:check`. | `deferred` (requirements-writer) |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2427 |
-| `report_bytes` | 3261 |
+| `report_bytes` | 3744 |
 | `overflow` | `none` |
-| `criteria_failed` | 2 (docs y ADR) |
+| `criteria_failed` | 1 (diseño y glosario pendientes) |

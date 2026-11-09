@@ -14,3 +14,4 @@
 * [ADR-012: combate con equipo, modificadores y RNG sembrado](ADR-012-combate-equipo-rng.md) - Impacto y daño con dos tiradas, equipo y modificadores como datos, resolvedor compartido y azar reproducible por semilla.
 * [ADR-013: generador de producción por variante](ADR-013-generador-produccion-por-variante.md) - Core compartido, `growth` por defecto, import estático, BSP alternativo y build de producción sin experimentos ni variantes descartadas.
 * [ADR-014: balance provisional y fuente única de datos](ADR-014-balance-provisional-fuente-unica.md) - Los valores de combate y bestiario viven en catálogos, el MP y la alarma salen del bestiario y los tests de balance comprueban propiedades.
+* [ADR-015: atributos inherentes y resistencia en la absorción](ADR-015-atributos-inherentes-absorcion.md) - Ocho atributos por personaje, habilidad/fuerza como modificadores y resistencia en la capa de absorción con la armadura como bonus.
