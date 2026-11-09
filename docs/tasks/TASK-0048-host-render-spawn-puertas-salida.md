@@ -4,22 +4,35 @@ id: TASK-0048
 title: "Host: render de máscaras, puertas, spawn, entrada/salida y enemigos"
 description: Consumir en el host el mapa growth con máscaras de sala, puertas con estilo, party de 6, entrada y salida y enemigos del generador; debug F1 sin cambiar el HUD normal.
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-010, R-011, R-012, R-013, T-006, T-007]
 depends_on: [TASK-0046]
 unlocks: [TASK-0049]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T17:43:59Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0048/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T17:43:59Z
+    note: >-
+      Intentos 1 y 2 verificados en task/TASK-0048 (código b662e81, tests
+      bcc4c1d, evidencia 8d20e92; intento 2 7507f97/f6e7c41). Lead re-ejecutó
+      `pnpm run verify` (732/732 tests, docs/config, build 52 módulos y guarda
+      de bundle) y `pnpm run test:e2e` (38 pasan / 36 fallan). Comparación por
+      título con `main` (50 fallos): 0 regresiones; los 36 restantes son
+      fixtures BSP obsoletas de TASK-0045, ya presentes en `main` y asignadas a
+      TASK-0049. Revisados diff completo, capturas 1280×720 (normal, F1 on/off,
+      caverna, pasillo ancho, spawn, entrada/salida y 13×13) y ausencia de
+      cambios en experiments/, index.html, public/ ni dependencias. Sin tests
+      borrados, saltados o debilitados.
 ---
 
 # Objetivo

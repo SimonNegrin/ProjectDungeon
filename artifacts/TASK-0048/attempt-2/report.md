@@ -64,8 +64,8 @@ TASK-0045.
 
 # Fricción reutilizable
 
-Ninguna nueva. Se mantiene la entrada `pending` del intento 1 sobre
-`E2E_ARTIFACTS_DIR`.
+Ninguna nueva. Se mantiene la entrada del intento 1 ya triada como
+`deferred` (owner: requirements-writer) sobre `E2E_ARTIFACTS_DIR`.
 
 # Métricas de handoff
 

@@ -70,7 +70,7 @@ obsoletas, documentados y asignados a TASK-0049. Baseline: 50 fallos / 20 pasan.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `E2E_ARTIFACTS_DIR` siempre añade `<spec>/screenshots`, pero el brief pide capturas en `attempt-N/screenshots` | `tests/e2e/artifacts.ts:39-45`; capturas movidas a mano | Ruta propia en el spec nuevo | Afecta a cualquier tarea que pida capturas en la raíz del intento | Permitir `artifactPath` sin segmento de spec o documentar la subcarpeta | Bajo | `pending` |
+| `E2E_ARTIFACTS_DIR` siempre añade `<spec>/screenshots`, pero el brief pide capturas en `attempt-N/screenshots` | `tests/e2e/artifacts.ts:39-45`; capturas movidas a mano | Ruta propia en el spec nuevo | Afecta a cualquier tarea que pida capturas en la raíz del intento | Permitir `artifactPath` sin segmento de spec o documentar la subcarpeta | Bajo | `deferred` (requirements-writer) |
 
 # Métricas de handoff
 
