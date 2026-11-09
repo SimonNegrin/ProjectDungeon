@@ -3,8 +3,8 @@ type: Task
 id: TASK-0044
 title: "Motor: núcleo compartido de salas, pasillos y puertas"
 description: Promocionar a src/game/chambers/core/ la resolución de opciones, las formas irregulares, la caverna, los pasillos y la validación de puertas de EXP-004, con tests puros.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-002, R-003, R-004, R-005, R-006, R-007, R-009, R-010, T-005, T-006, T-014]
