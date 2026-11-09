@@ -1,10 +1,10 @@
 ---
 type: Task Report
 title: "TASK-0054: informe de ejecución"
-description: HUD y F1 con atributos nuevos; ADR-015 aplicado y diseño/glosario pendientes.
+description: HUD, F1, documentación y ADR-015 terminados y verificados.
 task: TASK-0054
 attempt: 1
-report_status: blocked
+report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T23:55:00Z }
 artifacts: artifacts/TASK-0054/attempt-1/
 verified:
@@ -12,14 +12,13 @@ verified:
 
 # Estado
 
-`blocked`: HUD y `F1` funcionan, pero `task-runner` no puede editar `docs/`
-(permiso denegado) y `task-lead` tampoco `docs/design/` ni el glosario. La
-propuesta documental está lista en `docs-proposal/`.
+`success`: HUD y `F1` muestran los atributos nuevos; `turn-economy`, glosario,
+arquitectura y `ADR-015` están actualizados y enlazados. `docs:check`, `verify`
+y E2E pasan sin regresiones.
 
-Actualización del lead: `docs/decisions/ADR-015-atributos-inherentes-absorcion.md`
-y el enlace de `docs/decisions/index.md` ya están aplicados y verificados con
-`docs:check`, `verify` y E2E. Solo quedan `turn-economy`, glosario y arquitectura
-para `requirements-writer`.
+Nota de secuencia: `task-runner` no puede editar `docs/` y `task-lead` no tiene
+permiso sobre `docs/design/` ni el glosario. `requirements-writer` aplicó esos
+tres documentos; el lead revisó el diff y cerró la verificación.
 
 # Cambios
 
@@ -28,20 +27,23 @@ para `requirements-writer`.
   resistencia. `F1` usa `Atributos` y las tiradas `golpe`/`absorción`.
 - Tests unitarios y E2E de HUD/combate: solo expectativas y helpers; ningún test
   borrado, saltado o debilitado.
-- `docs-proposal/`: contenido exacto para turn-economy, glosario y arquitectura.
 - `docs/decisions/ADR-015-atributos-inherentes-absorcion.md` y su línea en
   `docs/decisions/index.md` (aplicados por el lead).
-- Commit de implementación: `d8e3876`. Sin cambios de fórmulas, balance,
+- `docs/design/turn-economy.md`, `docs/glossary.md` y
+  `docs/design/architecture.md` actualizados con el esquema de atributos y la
+  absorción (aplicados por `requirements-writer`, revisados por el lead).
+- Commits: `d8e3876` (HUD/tests), `c7dd711` (evidencia), `6713ef7` (ADR y
+  triaje), `15800c4` (documentación). Sin cambios de fórmulas, balance,
   `experiments/`, `index.html`, `public/` ni dependencias.
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run docs:check` | OK, 263 documentos | `docs-check-output.txt` |
-| `pnpm run verify` | OK, 740 tests; build y bundle OK | `verify-output.txt` |
-| E2E `equipment-hud-qa.spec.ts` | 2/2 | `e2e-hud-output.txt` |
-| E2E `combat-equipment-qa.spec.ts -g "impacto, vida bajo cursor"` | 1/1 | `e2e-combat-f1-output.txt` |
+| `pnpm run docs:check` | OK, 265 documentos | `final-docs-check-output.txt` |
+| `pnpm run verify` | OK, 740 tests; build y bundle OK | `final-verify-output.txt` |
+| `pnpm run test:e2e` | 76/76 | `final-e2e-output.txt` |
+| E2E focalizado de HUD y F1 | 3/3 | `e2e-hud-output.txt`, `e2e-combat-f1-output.txt` |
 
 # Evidencia visual
 
@@ -54,15 +56,15 @@ para `requirements-writer`.
 
 # Desviaciones
 
-- No se editaron `docs/design/turn-economy.md`, `docs/glossary.md` ni
-  `docs/design/architecture.md`; el criterio documental de diseño queda pendiente
-  para `requirements-writer`. El ADR-015 y su índice sí están aplicados.
-  `docs:check` pasa porque los tres documentos pendientes siguen intactos.
+- `task-runner` no puede editar `docs/` y `task-lead` no puede editar
+  `docs/design/` ni el glosario. `requirements-writer` aplicó esos tres
+  documentos; el lead revisó el diff, ejecutó la verificación final y no encontró
+  cambios fuera de alcance.
 
 # Problemas conocidos y preguntas abiertas
 
-- ¿Aplica `requirements-writer` la propuesta y relanza el intento? `task-lead`
-  podría aplicar el ADR, pero no el diseño ni el glosario.
+- Ninguno. La fricción de permisos queda registrada abajo como propuesta
+  `deferred` con dueño `requirements-writer`.
 
 # Fricción reutilizable
 
@@ -75,6 +77,6 @@ para `requirements-writer`.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2427 |
-| `report_bytes` | 3744 |
+| `report_bytes` | 3753 |
 | `overflow` | `none` |
-| `criteria_failed` | 1 (diseño y glosario pendientes) |
+| `criteria_failed` | 0 |

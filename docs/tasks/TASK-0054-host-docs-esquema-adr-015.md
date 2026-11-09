@@ -4,14 +4,14 @@ id: TASK-0054
 title: "Host y docs: nombres nuevos del esquema y ADR-015"
 description: "HUD/F1 con habilidad, fuerza, defensa y resistencia; turn-economy, glosario y arquitectura actualizados; ADR-015 registrado."
 status: stable
-task_status: blocked
+task_status: done
 task_type: feature
 requirement: REQ-014
 requirement_ids: [T-005]
 depends_on: [TASK-0053]
 unlocks: [TASK-0056]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-09T23:55:10Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0054/
@@ -20,6 +20,16 @@ risk: low
 review_required: true
 generated: { by: deepseek/v4-pro, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T23:55:10Z
+    note: >-
+      Intento 1 verificado en `task/TASK-0054` (HUD y tests `d8e3876`,
+      evidencia `c7dd711`, ADR y triaje `6713ef7`, docs `15800c4`). Diff
+      revisado: solo host, expectativas de tests, documentación y ADR; sin
+      fórmulas, balance, dependencias ni tests debilitados. Lead re-ejecutó
+      `pnpm run docs:check` (265 documentos), `pnpm run verify` (740/740, build y
+      bundle) y `pnpm run test:e2e` (76/76). HUD/F1 sin etiquetas antiguas; docs
+      sin contradicciones; ADR-015 enlazado en el índice.
 ---
 
 # Objetivo
@@ -40,13 +50,13 @@ reflejen el esquema y la resistencia en la absorción.
 
 # Criterios de aceptación
 
-- [ ] El HUD y `F1` muestran `habilidad`, `fuerza`, `defensa` y `resistencia`;
+- [x] El HUD y `F1` muestran `habilidad`, `fuerza`, `defensa` y `resistencia`;
   no quedan etiquetas `acierto`/`daño`.
-- [ ] `turn-economy`, glosario y arquitectura describen el esquema nuevo sin
+- [x] `turn-economy`, glosario y arquitectura describen el esquema nuevo sin
   contradicciones.
-- [ ] El ADR-015 registra los ocho atributos y la resistencia en la absorción, y
+- [x] El ADR-015 registra los ocho atributos y la resistencia en la absorción, y
   está enlazado en el índice de decisiones.
-- [ ] `pnpm run docs:check` y `pnpm run verify` pasan; E2E sin regresiones.
+- [x] `pnpm run docs:check` y `pnpm run verify` pasan; E2E sin regresiones.
 
 # Plan de test
 
@@ -56,9 +66,9 @@ reflejen el esquema y la resistencia en la absorción.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0054/attempt-1/report.md`.
-- [ ] Salidas de `docs:check`/`verify` y captura del HUD.
-- [ ] Commit SHA.
+- [x] Informe en `artifacts/TASK-0054/attempt-1/report.md`.
+- [x] Salidas de `docs:check`/`verify` y captura del HUD.
+- [x] Commit SHA.
 
 # Restricciones
 
