@@ -1,5 +1,9 @@
 # Historial del bundle
 
+## 2026-11-09
+
+* 2026-11-09 — Task — TASK-0040 — cerrada: EXP-004 con A/B/C deterministas, render real, spawn/enemigos, métricas y export; verify 588, E2E 70/70, puertas 13×13 y grosor de muro corregidos; fusión `1f2f9e0` — [informe](../artifacts/TASK-0040/attempt-2/report.md)
+
 ## 2026-11-08
 
 * 2026-11-08 — Planning — TASK-0040 — ready: experimento comparativo A/B/C de salas irregulares con tileset real, métricas, spawn, enemigos y export de decisión; sin tocar producción — [TASK-0040](tasks/TASK-0040-exp-004-salas-irregulares.md)
