@@ -3,8 +3,8 @@ type: Task
 id: TASK-0045
 title: "Motor: spawn de grupo, enemigos y salida compartidos"
 description: Promocionar la selección de spawn, el reparto de enemigos y la salida de EXP-004 al core, y adaptar BSP al nuevo spawn sin cambiar sus 4 enemigos.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: feature
 requirement: REQ-012
 requirement_ids: [R-001, R-002, R-003, R-004, R-006, R-007, R-008, R-009, R-011, R-014, R-015, T-001, T-002, T-003, T-004, T-005, T-006]
