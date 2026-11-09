@@ -20,7 +20,7 @@ tileset real; tests, build y checklist visual completados.
 - `experiments/EXP-004-salas-irregulares/`: página, generadores A/B/C,
   validadores, spawn/enemigos, render Canvas, métricas, export y tests.
 - `experiments/manifest.ts`: entrada `EXP-004` (`ready`).
-- Commit SHA: `d3628d0`.
+- Commit SHA: `394d424`.
 
 # Tests
 
