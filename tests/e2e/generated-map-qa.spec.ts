@@ -5,7 +5,7 @@ import type { Corridor, Door, Room } from '../../src/game/map';
 import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
-import { openBspState, settle, walkTo } from './support';
+import { openBspState, settle } from './support';
 import { artifactPath } from './artifacts';
 
 const REFERENCE_SEED = 279837264;
@@ -682,17 +682,26 @@ test('carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara', 
   expect(snap.camera.maxY).toBe(608);
   expect(snap.camera.x).toBe(expectedCamera(snap).x);
   expect(snap.camera.y).toBe(expectedCamera(snap).y);
-  expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+  expect(snap.camera).toEqual({
+    ...expectedCamera(snap),
+    maxX: 608,
+    maxY: 608,
+  });
   expect(unitIntersectsViewport(spawns.enemy, snap)).toBe(false);
   expect(unitIntersectsViewport(spawns.player, snap)).toBe(true);
 
   // Un movimiento real aceptado actualiza la cámara. ArrowRight mueve el
-  // cursor y Space ejecuta Moverse sobre ese destino.
+  // cursor y Space ejecuta Moverse sobre ese destino derivado del snapshot.
   await page.keyboard.press('ArrowRight');
+  const destination = (await snapshot(page)).cursor;
   await page.keyboard.press('Space');
   await settle(page);
   const moved = await snapshot(page);
-  expect(moved.players[0]).toMatchObject({ x: 7, y: 8, mp: 5 });
+  expect(moved.players[0]).toMatchObject({
+    x: destination.x,
+    y: destination.y,
+    mp: snap.players[0].mp - 1,
+  });
   expect(moved.camera).not.toEqual(snap.camera);
   expect(moved.camera.x).toBe(expectedCamera(moved).x);
   expect(moved.camera.y).toBe(expectedCamera(moved).y);
@@ -711,17 +720,16 @@ test('muros por borde: muestra estructural, píxel y capturas', async ({ page },
   expect(samples.some((sample) => sample.expected === 'wallTop')).toBe(true);
   expect(samples.some((sample) => sample.expected === 'wallSide1')).toBe(true);
 
-  // Tiles de referencia del brief, sin unidades encima en la cámara inicial.
-  expect(samples.find((sample) => sample.x === 2 && sample.y === 6)).toEqual({
-    x: 2,
-    y: 6,
-    expected: 'wallTop',
-  });
-  expect(samples.find((sample) => sample.x === 3 && sample.y === 3)).toEqual({
-    x: 3,
-    y: 3,
-    expected: 'wallSide1',
-  });
+  // Muestras derivadas de la cámara vigente: un muro con suelo debajo
+  // (`wallSide1`) y otro sin él (`wallTop`). La regla se aplica a todos los
+  // muros visibles en `visibleWallSamples`; aquí se fijan dos referencias
+  // estructurales explícitas.
+  const topSample = samples.find((sample) => sample.expected === 'wallTop');
+  const sideSample = samples.find((sample) => sample.expected === 'wallSide1');
+  expect(topSample, 'Debe verse un muro superior').toBeDefined();
+  expect(sideSample, 'Debe verse un muro lateral').toBeDefined();
+  expect(isFloor(snap, topSample!.x, topSample!.y + 1)).toBe(false);
+  expect(isFloor(snap, sideSample!.x, sideSample!.y + 1)).toBe(true);
 
   // Comparación a nivel de píxel: cada muro visible coincide exactamente con el
   // sprite top/side que dicta la regla; no hay wallSide2 ni caras verticales
@@ -747,10 +755,15 @@ test('muros por borde: muestra estructural, píxel y capturas', async ({ page },
   await saveCanvasCrop(page, 'wall-corner', testInfo, 3.5 * TILE_SIZE, 3.5 * TILE_SIZE);
 
   // El tramo realmente ancho de 0→1 está en y≈13-20: (1,y) y (2,y) son suelo,
-  // con muro en (0,y) y (3,y). Se mueve al jugador con comandos reales hasta
-  // (3,12) para que la cámara (0,192) muestre ese tramo, no el estrecho y≈8.
-  await walkTo(page, 3, 12);
-  const corridorSnap = await snapshot(page);
+  // con muro en (0,y) y (3,y). Se carga el mismo BSP con el jugador en (3,12)
+  // para que la cámara (0,192) muestre ese tramo, no el estrecho y≈8.
+  const corridorSnap = await openBspState(page, REFERENCE_SEED, undefined, {
+    player: { x: 3, y: 12 },
+    enemies: [],
+  });
+  await settleLayout(page);
+  await settle(page);
+  await settleLayout(page);
   expect(corridorSnap.players[0]).toMatchObject({ x: 3, y: 12 });
   expect(corridorSnap.camera).toEqual({ x: 0, y: 192, maxX: 608, maxY: 608 });
   for (const y of [13, 16, 20]) {
@@ -829,7 +842,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   expect(debugText).toContain('Salas:');
   expect(debugText).toContain('Huecos:');
   expect(debugText).toContain(
-    'Spawns: jugador (6,8) · enemigo (23,28) · distancia 59',
+    `Spawns: jugador (${initial.spawns!.player.x},${initial.spawns!.player.y}) · enemigo (${initial.spawns!.enemy.x},${initial.spawns!.enemy.y}) · distancia ${initial.spawns!.distance}`,
   );
   expect(debugText).toMatch(/Pasillos anchos:.*2 tiles/s);
   expect(debugText).toContain('F2 nueva semilla');
@@ -846,8 +859,8 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   expect(afterRestart.grid.tiles).toEqual(initial.grid.tiles);
   expect(afterRestart.spawns).toEqual(initial.spawns);
   expect(afterRestart.players[0]).toMatchObject({
-    x: 6,
-    y: 8,
+    x: initial.spawns!.player.x,
+    y: initial.spawns!.player.y,
     hp: 20,
     maxHp: 20,
     mp: 6,

@@ -3,11 +3,15 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { artifactPath } from './artifacts';
 import {
-  dispatchCommand,
-  openBspState,
   settle,
   snapshot as readSnapshot,
 } from './support';
+import {
+  TEST_SEED_URL,
+  detectionState,
+  loadState,
+  openGame,
+} from './perception-fixtures';
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -26,7 +30,8 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
   });
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
-  const initial = await openBspState(page, 279837264);
+  await openGame(page, TEST_SEED_URL);
+  const initial = await loadState(page, detectionState());
 
   // Sin F1 no hay radios ni overlay de percepción.
   await expect(page.getByTestId('perception-overlay')).toBeHidden();
@@ -51,22 +56,13 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
     expect(enemy.lastKnown === null || typeof enemy.lastKnown === 'object').toBe(true);
   }
 
-  // Ruta determinista: acercarse al bruto (16,6) y terminar el turno. En el
-  // segundo MoveTo la vista cruza al enemigo en el paso correcto.
-  await dispatchCommand(page, {
-    type: 'MoveTo',
-    unitId: 'player-1',
-    target: { x: 16, y: 6 },
-  });
-  await settle(page);
-  await dispatchCommand(page, { type: 'EndTurn' });
-  await settle(page);
-
+  // Ruta determinista del fixture: el `MoveTo` a (4,2) cruza la visión del bruto
+  // en el paso (3,2) y termina fuera de su línea de visión.
   const detection = await page.evaluate(() => {
     const result = window.__game!.dispatch({
       type: 'MoveTo',
       unitId: 'player-1',
-      target: { x: 16, y: 6 },
+      target: { x: 4, y: 2 },
     });
     const message = document.querySelector<HTMLElement>('[data-testid="hud-message"]');
     return {
@@ -151,7 +147,7 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
       afterLastKnown: after.lastKnown,
     };
   });
-  expect(readonly.keys).toEqual(['advance', 'dispatch', 'snapshot']);
+  expect(readonly.keys).toEqual(['advance', 'dispatch', 'setup', 'snapshot']);
   expect(readonly.afterHome).toEqual(readonly.home);
   expect(readonly.afterLastKnown).toEqual(readonly.lastKnown);
 

@@ -1130,14 +1130,20 @@ test('misma semilla idéntica y otra semilla cambia decals manteniendo el damero
 
   await openGame(page);
   const reference = await snapshot(page);
-  const firstShot = await page.screenshot({ fullPage: true });
+  const firstShot = await page.screenshot({
+    fullPage: true,
+    animations: 'disabled',
+  });
   const firstCanvas = await page.locator('#game-canvas').evaluate(
     (element) => (element as HTMLCanvasElement).toDataURL('image/png'),
   );
 
   await openGame(page);
   const repeated = await snapshot(page);
-  const secondShot = await page.screenshot({ fullPage: true });
+  const secondShot = await page.screenshot({
+    fullPage: true,
+    animations: 'disabled',
+  });
   const secondCanvas = await page.locator('#game-canvas').evaluate(
     (element) => (element as HTMLCanvasElement).toDataURL('image/png'),
   );

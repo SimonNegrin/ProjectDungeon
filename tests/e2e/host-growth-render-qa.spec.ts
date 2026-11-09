@@ -1,16 +1,19 @@
 import { mkdir } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { GrowthMapGenerator } from '../../src/game/chambers/variants/growth';
 import { createInitialState } from '../../src/game/engine';
 import type { GameState } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { artifactPath } from './artifacts';
+import { endTurn } from './support';
 
 const SEED = 1;
 const CAVERN_SEED = 6;
 const WIDE_SEED = 4;
 const DOOR_EXIT_SEED = 3;
+/** Semilla del playtest registrado en TASK-0049. */
+const PLAYTEST_SEED = 2738263054;
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -50,10 +53,7 @@ async function settleLayout(page: Page): Promise<void> {
 }
 
 async function save(page: Page, testInfo: TestInfo, name: string): Promise<string> {
-  const root = process.env.E2E_ARTIFACTS_DIR;
-  const path = root
-    ? resolve(process.cwd(), root, 'screenshots', `${name}.png`)
-    : artifactPath(testInfo, 'screenshots', `${name}.png`);
+  const path = artifactPath(testInfo, 'screenshots', `${name}.png`);
   await mkdir(dirname(path), { recursive: true });
   await page.screenshot({ path });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -195,4 +195,98 @@ test('entrada y salida: escalera y puerta de borde con F1', async ({ page }, tes
   await page.keyboard.press('F1');
   await settleLayout(page);
   await save(page, testInfo, 'growth-exit-door-debug');
+});
+
+test('playtest 2738263054: estructura, determinismo, render y salida sin transición', async ({
+  page,
+}, testInfo) => {
+  const first = await open(page, PLAYTEST_SEED);
+  assertGrowthSnapshot(first);
+  expect(first.grid.width).toBe(22);
+  expect(first.grid.height).toBe(18);
+  expect(first.rooms).toHaveLength(5);
+  expect(first.spawns?.party).toHaveLength(6);
+  expect(first.entrance).not.toBeNull();
+  expect(first.entrance).toEqual({
+    roomId: first.spawns!.roomId,
+    position: first.spawns!.player,
+  });
+  expect(first.exit).not.toBeNull();
+  expect(first.exit!.kind).toBe('door');
+  expect(first.mapEnemies).toHaveLength(11);
+
+  // Puertas válidas: suelo, estilo conocido, dos salas distintas y corredor.
+  for (const door of first.doors) {
+    expect(first.grid.tiles[door.y * first.grid.width + door.x]).toBe('floor');
+    expect(['wood', 'metal', 'grated']).toContain(door.style);
+    expect(door.roomA).not.toBeUndefined();
+    expect(door.roomB).not.toBeUndefined();
+    expect(door.roomA).not.toBe(door.roomB);
+    expect(first.rooms.some((room) => room.id === door.roomA)).toBe(true);
+    expect(first.rooms.some((room) => room.id === door.roomB)).toBe(true);
+  }
+  // Enemigos: suelo, origen estable, sala válida y fuera de la sala de spawn.
+  for (const enemy of first.mapEnemies) {
+    expect(first.grid.tiles[enemy.y * first.grid.width + enemy.x]).toBe('floor');
+    expect(enemy.home).toEqual({ x: enemy.x, y: enemy.y });
+    expect(enemy.roomId).not.toBe(first.spawns!.roomId);
+    expect(first.rooms.some((room) => room.id === enemy.roomId)).toBe(true);
+  }
+  // Bocas abiertas: suelo y sin una puerta superpuesta.
+  for (const mouth of first.openMouths) {
+    expect(first.grid.tiles[mouth.y * first.grid.width + mouth.x]).toBe('floor');
+    expect(first.doors.some((door) => door.x === mouth.x && door.y === mouth.y)).toBe(
+      false,
+    );
+  }
+
+  await settleLayout(page);
+  const normal = await canvasData(page);
+  await save(page, testInfo, 'growth-playtest-normal');
+
+  // Dos cargas idénticas: misma estructura y mismo canvas.
+  const second = await open(page, PLAYTEST_SEED);
+  expect(second.grid.tiles).toEqual(first.grid.tiles);
+  expect(second.rooms).toEqual(first.rooms);
+  expect(second.doors).toEqual(first.doors);
+  expect(second.mapEnemies).toEqual(first.mapEnemies);
+  expect(second.exit).toEqual(first.exit);
+  await settleLayout(page);
+  expect(await canvasData(page)).toBe(normal);
+
+  // F1 on/off: render distinto con debug, texto con todas las capas y mismo
+  // canvas al apagarlo.
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const debugText = await page.getByTestId('debug-content').innerText();
+  expect(debugText).toContain('Spawn: sala');
+  expect(debugText).toContain('Salida: door');
+  expect(debugText).toContain('Bocas sin puerta:');
+  expect(debugText).toContain('Enemigos del generador:');
+  expect(debugText).toContain('Puntos calientes:');
+  for (const enemy of first.mapEnemies) {
+    expect(debugText).toContain(enemy.id);
+  }
+  await settleLayout(page);
+  const debugCanvas = await canvasData(page);
+  expect(debugCanvas).not.toBe(normal);
+  await save(page, testInfo, 'growth-playtest-debug');
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
+  await settleLayout(page);
+  expect(await canvasData(page)).toBe(normal);
+
+  // La salida se dibuja con su acceso, pero no inicia ninguna transición.
+  const exit = first.exit!;
+  const atExit = await loadAt(page, PLAYTEST_SEED, exit.access);
+  expect(atExit.status).toBe('playing');
+  expect(atExit.exit).toEqual(first.exit);
+  await save(page, testInfo, 'growth-playtest-exit');
+  await endTurn(page);
+  const afterTurn = await page.evaluate(() => window.__game!.snapshot());
+  expect(afterTurn.status).toBe('playing');
+  expect(afterTurn.seed).toBe(PLAYTEST_SEED);
+  expect(afterTurn.exit).toEqual(first.exit);
+  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
 });

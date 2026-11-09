@@ -1,10 +1,14 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import type { GameEvent } from '../../src/game/types';
 import {
   approachEnemy,
+  defeatAllEnemies,
+  findVisibleTile,
   moveCursorTo,
   openBspState,
+  reachableVisibleTiles,
   restart,
   settle,
   snapshot,
@@ -71,7 +75,12 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await screenshot(page, 'cursor-player', testInfo);
 
   // Camino verde: coste 2 dentro del MP; dos puntos fuertes y ninguno atenuado.
-  await moveCursorTo(page, start.players[0].x + 2, start.players[0].y);
+  const greenTarget = reachableVisibleTiles(start, {
+    minDistance: 2,
+    maxDistance: 2,
+  })[0];
+  expect(greenTarget, 'Debe existir un destino verde visible').toBeDefined();
+  await moveCursorTo(page, greenTarget.x, greenTarget.y);
   const green = await snapshot(page);
   expect(green.camera).toEqual(start.camera);
   expect(green.cursor).toMatchObject({ state: 'reachable', kind: 'floor' });
@@ -81,8 +90,12 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await expect(page.locator('[data-testid="cursor-path-point"].is-faded')).toHaveCount(0);
   await screenshot(page, 'cursor-path-green', testInfo);
 
-  // Camino ámbar: destino alcanzable con coste 13 > MP 6.
-  await moveCursorTo(page, 11, 7);
+  // Camino ámbar: destino visible con coste mayor que el MP.
+  const amberTarget = reachableVisibleTiles(start, {
+    minDistance: start.players[0].mp + 1,
+  })[0];
+  expect(amberTarget, 'Debe existir un destino ámbar visible').toBeDefined();
+  await moveCursorTo(page, amberTarget.x, amberTarget.y);
   const amber = await snapshot(page);
   expect(amber.cursor).toMatchObject({ state: 'too-far', kind: 'floor' });
   expect(amber.cursor.path.length).toBeGreaterThan(amber.players[0].mp);
@@ -100,7 +113,8 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await page.keyboard.press('r');
   const afterRestart = await snapshot(page);
   expect(afterRestart.cursor).toMatchObject({ state: 'player', visible: true });
-  await moveCursorTo(page, 3, 3);
+  const wall = findVisibleTile(afterRestart, 'wall');
+  await moveCursorTo(page, wall.x, wall.y);
   const blocked = await snapshot(page);
   expect(blocked.cursor).toMatchObject({ state: 'invalid', kind: 'blocked', path: [] });
   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'invalid');
@@ -113,7 +127,7 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await settle(page);
   const afterReject = await snapshot(page);
   expect(afterReject.players).toEqual(beforeReject.players);
-  expect(afterReject.cursor).toMatchObject({ x: 3, y: 3, state: 'invalid' });
+  expect(afterReject.cursor).toMatchObject({ x: wall.x, y: wall.y, state: 'invalid' });
   expect(afterReject.lastEvents).toEqual([
     { type: 'CommandRejected', commandType: 'MoveTo', reason: 'wall' },
   ]);
@@ -151,7 +165,10 @@ test('el cursor se recoloca al viewport cuando la cámara se desplaza', async ({
 
   await openGame(page);
   const start = await snapshot(page);
-  expect(start.cursor).toMatchObject({ x: 6, y: 8 });
+  expect(start.cursor).toMatchObject({
+    x: start.players[0].x,
+    y: start.players[0].y,
+  });
 
   // El jugador recorre el mapa con comandos reales (sin tocar el cursor).
   await walkTo(page, 3, 27);
@@ -192,6 +209,7 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
   page.on('pageerror', (error) => consoleErrors.push(error.message));
 
   await openGame(page);
+  await defeatAllEnemies(page, 400, 'enemy-1');
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   expect(
@@ -215,10 +233,17 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
 
   await page.keyboard.press('f');
   await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
-  await expect(page.getByTestId('damage-feedback')).toHaveText('-1');
-  await expect(page.getByTestId('damage-feedback')).toBeVisible();
   const afterAttack = await snapshot(page);
-  expect(afterAttack.enemies[0].hp).toBe(8);
+  const playerAttack = afterAttack.lastEvents.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'player-1',
+  );
+  expect(playerAttack).toBeDefined();
+  await expect(page.getByTestId('damage-feedback')).toHaveText(
+    `-${playerAttack!.damage}`,
+  );
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
+  expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
   expect(afterAttack.players[0].actionAvailable).toBe(false);
   expect(afterAttack.cursor).toMatchObject({
     x: enemyTile.cursor.x,

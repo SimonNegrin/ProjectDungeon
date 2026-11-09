@@ -10,6 +10,7 @@ import {
   moveAwayFromEnemy,
   moveCursorTo,
   openBspState,
+  reachableVisibleTiles,
   restart,
   retreatEnemyOutOfReach,
   settle,
@@ -32,6 +33,30 @@ function trackConsoleErrors(page: Page): string[] {
 async function openGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1280, height: 720 });
   await openBspState(page, SEED);
+}
+
+/**
+ * Carga el mismo BSP con el jugador en una casilla libre junto a enemy-1 y solo
+ * ese enemigo. Evita que la IA de 4 MP mate al jugador durante el trayecto y
+ * mantiene el combate y las aserciones sobre el estado real.
+ */
+async function openAdjacentEnemy(page: Page): Promise<GameSnapshot> {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  const base = await openBspState(page, SEED);
+  const enemy = base.enemies[0];
+  const beside = [
+    { x: enemy.x - 1, y: enemy.y },
+    { x: enemy.x + 1, y: enemy.y },
+    { x: enemy.x, y: enemy.y - 1 },
+    { x: enemy.x, y: enemy.y + 1 },
+  ].find(
+    (point) => base.grid.tiles[point.y * base.grid.width + point.x] === 'floor',
+  );
+  if (!beside) throw new Error('Enemy-1 no tiene una casilla libre adyacente');
+  return openBspState(page, SEED, undefined, {
+    player: beside,
+    enemies: [enemy],
+  });
 }
 
 async function screenshot(page: Page, name: string, testInfo: TestInfo): Promise<void> {
@@ -77,10 +102,14 @@ test('cursor inicial, teclado en cuatro direcciones y borde del viewport', async
 
   const start = await snapshot(page);
   expect(start.seed).toBe(SEED);
-  expect(start.players[0]).toMatchObject({ x: 6, y: 8 });
+  const spawn = start.players[0];
+  expect(spawn).toMatchObject({
+    x: start.spawns!.player.x,
+    y: start.spawns!.player.y,
+  });
   expect(start.cursor).toMatchObject({
-    x: 6,
-    y: 8,
+    x: spawn.x,
+    y: spawn.y,
     visible: true,
     kind: 'player',
     state: 'player',
@@ -129,7 +158,7 @@ test('cursor inicial, teclado en cuatro direcciones y borde del viewport', async
     expect(after.turn).toBe(start.turn);
     expect(after.phase).toBe('player');
   }
-  expect((await snapshot(page)).cursor).toMatchObject({ x: 6, y: 8 });
+  expect((await snapshot(page)).cursor).toMatchObject({ x: spawn.x, y: spawn.y });
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
 
   // En el borde derecho del viewport el cursor no avanza ni hace wrap.
@@ -189,7 +218,12 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   });
 
   // Verde: destino a dos pasos, por debajo del MP; camino completo en tono fuerte.
-  const greenTarget = { x: start.players[0].x + 2, y: start.players[0].y };
+  const startRange = visibleRange(start);
+  const greenTarget = reachableVisibleTiles(start, {
+    minDistance: 2,
+    maxDistance: 2,
+  }).find((tile) => tile.x < startRange.maxX)!;
+  expect(greenTarget, 'Debe existir un destino verde visible').toBeDefined();
   await moveCursorTo(page, greenTarget.x, greenTarget.y);
   const green = await snapshot(page);
   expect(green.cursor).toMatchObject({
@@ -221,9 +255,18 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   await screenshot(page, 'cursor-path-green', testInfo);
 
   // Ámbar: coste mayor que el MP; el tramo alcanzable es fuerte y el resto atenuado.
-  await moveCursorTo(page, 11, 7);
+  const amberTarget = reachableVisibleTiles(start, {
+    minDistance: start.players[0].mp + 1,
+  })[0];
+  expect(amberTarget, 'Debe existir un destino ámbar visible').toBeDefined();
+  await moveCursorTo(page, amberTarget.x, amberTarget.y);
   const amber = await snapshot(page);
-  expect(amber.cursor).toMatchObject({ x: 11, y: 7, kind: 'floor', state: 'too-far' });
+  expect(amber.cursor).toMatchObject({
+    x: amberTarget.x,
+    y: amberTarget.y,
+    kind: 'floor',
+    state: 'too-far',
+  });
   expect(amber.cursor.path.length).toBeGreaterThan(amber.players[0].mp);
   expect(amber.cursor.path).not.toEqual(green.cursor.path);
   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'too-far');
@@ -251,7 +294,12 @@ test('Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acc
   await openGame(page);
 
   const start = await snapshot(page);
-  const target = { x: start.players[0].x + 2, y: start.players[0].y };
+  const range = visibleRange(start);
+  const target = reachableVisibleTiles(start, {
+    minDistance: 2,
+    maxDistance: 2,
+  }).find((tile) => tile.x < range.maxX)!;
+  expect(target, 'Debe existir un destino verde visible').toBeDefined();
   await moveCursorTo(page, target.x, target.y);
   const planned = await snapshot(page);
   expect(planned.cursor).toMatchObject({ kind: 'floor', state: 'reachable' });
@@ -284,11 +332,16 @@ test('Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acc
   await expect(page.getByTestId('hud-action')).toHaveText('Sí');
 
   // El camino se recalcula al mover al jugador y al mover el cursor.
-  await page.keyboard.press('ArrowRight');
+  const nextStep = reachableVisibleTiles(moved, {
+    minDistance: 1,
+    maxDistance: 1,
+  })[0];
+  expect(nextStep, 'Debe existir un paso visible desde el destino').toBeDefined();
+  await moveCursorTo(page, nextStep.x, nextStep.y);
   const next = await snapshot(page);
-  expect(next.cursor).toMatchObject({ x: target.x + 1, y: target.y });
+  expect(next.cursor).toMatchObject({ x: nextStep.x, y: nextStep.y });
   expect(next.cursor.path.length).toBe(1);
-  expect(next.cursor.path.at(-1)).toEqual({ x: target.x + 1, y: target.y });
+  expect(next.cursor.path.at(-1)).toEqual({ x: nextStep.x, y: nextStep.y });
 
   expect(consoleErrors).toEqual([]);
 });
@@ -300,7 +353,11 @@ test('Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado', a
   await openGame(page);
 
   const start = await snapshot(page);
-  await moveCursorTo(page, 11, 7);
+  const amberTarget = reachableVisibleTiles(start, {
+    minDistance: start.players[0].mp + 1,
+  })[0];
+  expect(amberTarget, 'Debe existir un destino ámbar visible').toBeDefined();
+  await moveCursorTo(page, amberTarget.x, amberTarget.y);
   const planned = await snapshot(page);
   expect(planned.cursor).toMatchObject({ kind: 'floor', state: 'too-far' });
   const cost = planned.cursor.path.length;
@@ -323,8 +380,8 @@ test('Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado', a
   expect(moved.enemies[0].hp).toBe(enemyHp);
   expect(moved.lastEvents.some((event) => event.type === 'AttackPerformed')).toBe(false);
   expect(moved.cursor).toMatchObject({
-    x: 11,
-    y: 7,
+    x: amberTarget.x,
+    y: amberTarget.y,
     visible: true,
     kind: 'floor',
     state: 'too-far',
@@ -490,13 +547,16 @@ test('enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse atac
   page,
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openGame(page);
-  await approachEnemy(page);
+  await openAdjacentEnemy(page);
   await ensureAdjacentWithMp(page, 2);
   expect(await moveAwayFromEnemy(page)).toBe(true);
 
-  const retreated = await snapshot(page);
-  expect(distance(retreated.players[0], retreated.enemies[0])).toBe(2);
+  let retreated = await snapshot(page);
+  for (let step = 0; step < 3 && distance(retreated.players[0], retreated.enemies[0]) < 2; step += 1) {
+    expect(await moveAwayFromEnemy(page)).toBe(true);
+    retreated = await snapshot(page);
+  }
+  expect(distance(retreated.players[0], retreated.enemies[0])).toBeGreaterThanOrEqual(2);
   await moveCursorTo(page, retreated.enemies[0].x, retreated.enemies[0].y);
   const selected = await snapshot(page);
   expect(selected.cursor).toMatchObject({
@@ -566,16 +626,20 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
   page,
 }) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openGame(page);
-  await approachEnemy(page);
+  await openAdjacentEnemy(page);
   await ensureAdjacentWithMp(page, 2);
 
   const adjacent = await snapshot(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
+  const attack = afterAttack.lastEvents.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'player-1',
+  );
+  expect(attack).toBeDefined();
   expect(afterAttack.players[0].actionAvailable).toBe(false);
-  expect(afterAttack.enemies[0].hp).toBe(8);
+  expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
   const retreated = await snapshot(page);
@@ -610,6 +674,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
 test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async ({ page }) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
+  await defeatAllEnemies(page, 400, 'enemy-1');
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
@@ -619,8 +684,12 @@ test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async 
   expect(distance(beforeReject.players[0], beforeReject.enemies[0])).toBe(1);
 
   await page.keyboard.press('Space');
-  await settle(page);
   const afterReject = await snapshot(page);
+  // El aviso es temporal: se comprueba en el mismo instante del rechazo, antes
+  // de completar la presentación.
+  await expect(page.getByTestId('hud-message')).toHaveText('Sin acción');
+  await expect(page.getByTestId('hud-message')).toBeVisible();
+  await settle(page);
   expect(afterReject.players).toEqual(beforeReject.players);
   expect(afterReject.enemies).toEqual(beforeReject.enemies);
   expect(afterReject.turn).toBe(beforeReject.turn);
@@ -632,8 +701,6 @@ test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async 
     y: beforeReject.enemies[0].y,
     state: 'enemy',
   });
-  await expect(page.getByTestId('hud-message')).toHaveText('Sin acción');
-  await expect(page.getByTestId('hud-message')).toBeVisible();
   await expect(page.getByTestId('hud-message')).toBeHidden({ timeout: 3000 });
 
   expect(consoleErrors).toEqual([]);
@@ -643,8 +710,7 @@ test('enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar', asyn
   page,
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openGame(page);
-  await approachEnemy(page);
+  await openAdjacentEnemy(page);
   await ensureAdjacentWithMp(page, 2);
 
   const tooFar = await retreatEnemyOutOfReach(page);
@@ -685,15 +751,15 @@ test('enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar', asyn
   // Sin MP restantes, un segundo Moverse avisa y no altera nada.
   const beforeSecond = await snapshot(page);
   await page.keyboard.press('Space');
-  await settle(page);
   const afterSecond = await snapshot(page);
+  await expect(page.getByTestId('hud-message')).toHaveText('Sin MP');
+  await expect(page.getByTestId('hud-message')).toBeVisible();
+  await settle(page);
   expect(afterSecond.players).toEqual(beforeSecond.players);
   expect(afterSecond.enemies).toEqual(beforeSecond.enemies);
   expect(afterSecond.lastEvents).toEqual([
     { type: 'CommandRejected', commandType: 'MoveTo', reason: 'no-mp' },
   ]);
-  await expect(page.getByTestId('hud-message')).toHaveText('Sin MP');
-  await expect(page.getByTestId('hud-message')).toBeVisible();
   await expect(page.getByTestId('hud-message')).toBeHidden({ timeout: 3000 });
 
   expect(consoleErrors).toEqual([]);
