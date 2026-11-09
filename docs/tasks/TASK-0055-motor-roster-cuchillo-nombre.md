@@ -4,7 +4,7 @@ id: TASK-0055
 title: "Motor: catálogo de roster, Cuchillo y nombre de personaje"
 description: "Catálogo de nueve arquetipos con stats, equipo, variantes y magia; Cuchillo +4/1; campo nombre por instancia; un arquetipo sin arma no ataca."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-015
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, T-001, T-002, T-004]
