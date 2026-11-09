@@ -108,8 +108,8 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   await expect(page.getByTestId('hud-armor')).toHaveText(
     armorLabel(initial.players[0]),
   );
-  await expect(page.getByTestId('hud-modifiers')).toHaveText(
-    '+1 acierto · +1 daño · +1 defensa',
+  await expect(page.getByTestId('hud-stats')).toHaveText(
+    '+1 habilidad · +1 fuerza · +1 defensa · +0 resistencia',
   );
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
 

@@ -85,8 +85,17 @@ playtest, pero no se cambian sin una nueva decisión.
 # Combate
 
 Valores aceptados en [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
-y registrados en [ADR-012](../decisions/ADR-012-combate-equipo-rng.md). Son
-revisables en playtest, pero no se cambian sin una nueva decisión.
+y registrados en [ADR-012](../decisions/ADR-012-combate-equipo-rng.md); el
+esquema de atributos y la absorción vigente están en
+[REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md) y
+[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md). Son revisables
+en playtest, pero no se cambian sin una nueva decisión.
+
+Todo personaje comparte ocho atributos inherentes, independientes del equipo:
+**habilidad**, **fuerza**, **defensa**, **resistencia**, **puntería**, **magia**,
+**PV** y **MP**. El equipo no define ninguno; solo aporta bonus. Habilidad y
+fuerza sustituyen a los antiguos modificadores de acierto y daño; defensa se
+mantiene. Puntería y magia existen como slots sin efecto en este corte.
 
 | Regla | Valor |
 |---|---|
@@ -94,11 +103,12 @@ revisables en playtest, pero no se cambian sin una nueva decisión.
 | Alcance a distancia | 4 casillas, con línea de visión; futuro, no implementado. |
 | Línea de visión | Bresenham sobre la rejilla; diagonales permitidas. |
 | Cobertura | No existe en el primer prototipo. |
-| Impacto | `mod. acierto + acierto del arma + 1d6 > mod. defensa + escudo + 1d6`; el empate falla. |
-| Daño | `max(1, (mod. daño + daño del arma + 1d6) − (armadura + 1d6))`. |
+| Impacto | `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el empate falla. |
+| Daño | `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`. |
+| Resistencia | Absorción de daño; se suma a la armadura del equipo en una sola capa. |
 | Escudo | Suma a la defensa; no reduce el daño de un impacto. |
-| Armadura | Resta al daño de un impacto; no evita el impacto. |
-| Orden de tiradas | Ataque y escudo; si impacta, daño y armadura. |
+| Armadura | Bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
+| Orden de tiradas | Ataque y escudo; si impacta, golpe y absorción. |
 | Azar | RNG sembrado y serializable; misma semilla y comandos, misma secuencia. |
 | Muerte | Al llegar a 0 PV. |
 
@@ -112,16 +122,18 @@ revisables en playtest, pero no se cambian sin una nueva decisión.
 
 ## Equipo y bestiario
 
-| Unidad | Acierto | Daño | Defensa | Arma | Escudo | Armadura | PV |
-|---|---:|---:|---:|---|---:|---:|---:|
-| Jugador | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
-| Centinela | +0 | +0 | +0 | Espada | 1 | 0 | 6 |
-| Bruto | +0 | +1 | +0 | Hacha | 0 | 2 | 8 |
-| Cobarde | +1 | +0 | +1 | Daga | 1 | 0 | 5 |
+| Unidad | Habilidad | Fuerza | Defensa | Resistencia | Arma | Escudo | Armadura | PV |
+|---|---:|---:|---:|---:|---|---:|---:|---:|
+| Jugador | +1 | +1 | +1 | +0 | Espada | 1 | 1 | 20 |
+| Centinela | +0 | +0 | +0 | +0 | Espada | 1 | 0 | 6 |
+| Bruto | +0 | +1 | +0 | +0 | Hacha | 0 | 2 | 8 |
+| Cobarde | +1 | +0 | +1 | +0 | Daga | 1 | 0 | 5 |
 
-MP enemigo: Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance
-provisional v1** de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
-y [REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); se reajustarán.
+Todos los personajes tienen puntería 0 y magia vacía en este corte. MP enemigo:
+Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance provisional v1**
+de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
+[REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); con resistencia
+0 el resultado es idéntico al de ADR-012.
 
 El jugador empieza con la espada, el escudo y la armadura. El hacha y la daga
 están en el mapa: `G` recoge la del tile por 1 MP sin gastar acción y la equipa;

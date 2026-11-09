@@ -1,0 +1,6 @@
+Añadir como última línea de docs/decisions/index.md:
+
+* [ADR-015: atributos inherentes y resistencia en la absorción](ADR-015-atributos-inherentes-absorcion.md) - Ocho atributos por personaje, habilidad/fuerza como modificadores y resistencia en la capa de absorción con la armadura como bonus.
+
+Crear el archivo como docs/decisions/ADR-015-atributos-inherentes-absorcion.md
+copiando docs-proposal/ADR-015-atributos-inherentes-absorcion.md.txt.

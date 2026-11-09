@@ -32,8 +32,8 @@ export interface HudModel {
   readonly weapon: string;
   readonly shield: string;
   readonly armor: string;
-  /** Modificadores propios del jugador, en el orden acierto/daño/defensa. */
-  readonly modifiers: string;
+  /** Atributos inherentes del jugador (REQ-014): habilidad, fuerza, defensa y resistencia. */
+  readonly stats: string;
   /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyHp: string;
   /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
@@ -96,10 +96,10 @@ function armorLabel(unit: Unit | undefined): string {
   return `${armor.name} ${signed(armorValue(unit.equipment.armorId))}`;
 }
 
-function modifiersLabel(unit: Unit | undefined): string {
+function statsLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
-  const { habilidad, fuerza, defensa } = unit.stats;
-  return `${signed(habilidad)} acierto · ${signed(fuerza)} daño · ${signed(defensa)} defensa`;
+  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
 }
 
 function enemyAt(state: GameState, position: Position | undefined): Unit | undefined {
@@ -132,7 +132,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     weapon: weaponLabel(player),
     shield: shieldLabel(player),
     armor: armorLabel(player),
-    modifiers: modifiersLabel(player),
+    stats: statsLabel(player),
     cursorEnemyHp: formatHp(cursorEnemy),
     weaponHint: mapWeapon
       ? `G recoger ${weaponFor(mapWeapon.weaponId).name}`
@@ -320,7 +320,7 @@ function mapDebugLines(state: GameState): readonly string[] {
 }
 
 function equipmentDebugLine(unit: Unit | undefined): string {
-  return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Modificadores ${modifiersLabel(unit)}`;
+  return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
 function enemyEquipmentLines(state: GameState): readonly string[] {
@@ -328,7 +328,7 @@ function enemyEquipmentLines(state: GameState): readonly string[] {
   if (alive.length === 0) return ['Equipo enemigo: ninguno'];
   return alive.map(
     (enemy) =>
-      `Equipo enemigo ${enemy.id}: ${weaponLabel(enemy)} · ${shieldLabel(enemy)} · ${armorLabel(enemy)} · Modificadores ${modifiersLabel(enemy)}`,
+      `Equipo enemigo ${enemy.id}: ${weaponLabel(enemy)} · ${shieldLabel(enemy)} · ${armorLabel(enemy)} · Atributos ${statsLabel(enemy)}`,
   );
 }
 
@@ -363,8 +363,8 @@ function lastAttackLine(events: readonly GameEvent[]): string {
     : 'fallo';
   const rolls = attack.rolls;
   const parts = [`ataque ${rolls.attack}`, `escudo ${rolls.shield}`];
-  if (rolls.damage !== null) parts.push(`daño ${rolls.damage}`);
-  if (rolls.armor !== null) parts.push(`armadura ${rolls.armor}`);
+  if (rolls.damage !== null) parts.push(`golpe ${rolls.damage}`);
+  if (rolls.armor !== null) parts.push(`absorción ${rolls.armor}`);
   return `Último ataque: ${attack.attackerId}→${attack.targetId} ${outcome} · tiradas ${parts.join(' ')}`;
 }
 
@@ -485,7 +485,7 @@ export function createHudView(root: ParentNode): HudView {
   const weapon = ensureHudStat(root, equipmentGroup, 'hud-weapon', 'Arma');
   const shield = ensureHudStat(root, equipmentGroup, 'hud-shield', 'Escudo');
   const armor = ensureHudStat(root, equipmentGroup, 'hud-armor', 'Armadura');
-  const modifiers = ensureHudStat(root, equipmentGroup, 'hud-modifiers', 'Mods');
+  const stats = ensureHudStat(root, equipmentGroup, 'hud-stats', 'Atributos');
   const cursorEnemyHp = ensureHudStat(
     root,
     equipmentGroup,
@@ -508,7 +508,7 @@ export function createHudView(root: ParentNode): HudView {
       weapon.textContent = model.weapon;
       shield.textContent = model.shield;
       armor.textContent = model.armor;
-      modifiers.textContent = model.modifiers;
+      stats.textContent = model.stats;
       cursorEnemyHp.textContent = model.cursorEnemyHp;
       weaponHint.textContent = model.weaponHint ?? '';
       weaponHint.hidden = model.weaponHint === null;

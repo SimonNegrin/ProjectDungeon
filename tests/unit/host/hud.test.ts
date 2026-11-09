@@ -63,7 +63,7 @@ describe('modelo del HUD', () => {
     );
     expect(model.shield).toBe(`${SHIELDS.shield.name} +${SHIELDS.shield.defense}`);
     expect(model.armor).toBe(`${ARMORS.armor.name} +${ARMORS.armor.armor}`);
-    expect(model.modifiers).toBe('+1 acierto · +1 daño · +1 defensa');
+    expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa · +0 resistencia');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
   });
@@ -90,7 +90,7 @@ describe('modelo del HUD', () => {
     );
     expect(model.shield).toBe('Sin escudo');
     expect(model.armor).toBe('Sin armadura');
-    expect(model.modifiers).toBe('+2 acierto · +0 daño · +1 defensa');
+    expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa · +0 resistencia');
   });
 
   it('muestra la vida del enemigo vivo bajo el cursor y nada si no hay enemigo', () => {
@@ -310,7 +310,9 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain(
       `Equipo: ${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${WEAPONS.sword.damage} · ${SHIELDS.shield.name} +${SHIELDS.shield.defense} · ${ARMORS.armor.name} +${ARMORS.armor.armor}`,
     );
-    expect(text).toContain('Modificadores +1 acierto · +1 daño · +1 defensa');
+    expect(text).toContain(
+      'Atributos +1 habilidad · +1 fuerza · +1 defensa · +0 resistencia',
+    );
     expect(text).toContain(
       `Vida: player-1 ${result.state.players[0].hp}/${result.state.players[0].maxHp} · enemy-1 ${result.state.enemies[0].hp}/${result.state.enemies[0].maxHp}`,
     );
@@ -321,7 +323,7 @@ describe('modelo del overlay de debug', () => {
       `Último ataque: player-1→enemy-1 impacto ${attackEvent.damage} (PV ${attackEvent.targetHp})`,
     );
     expect(text).toContain(
-      `tiradas ataque ${attackEvent.rolls.attack} escudo ${attackEvent.rolls.shield} daño ${attackEvent.rolls.damage} armadura ${attackEvent.rolls.armor}`,
+      `tiradas ataque ${attackEvent.rolls.attack} escudo ${attackEvent.rolls.shield} golpe ${attackEvent.rolls.damage} absorción ${attackEvent.rolls.armor}`,
     );
     expect(text).toContain(
       `Últimos eventos: player-1→enemy-1 -${attackEvent.damage} (HP ${attackEvent.targetHp})`,
@@ -369,7 +371,7 @@ describe('modelo del overlay de debug', () => {
         : `${ARMORS[BESTIARY.sentinel.equipment.armorId].name} +${ARMORS[BESTIARY.sentinel.equipment.armorId].armor}`;
     const equipment = lines.filter((line) => line.startsWith('Equipo enemigo'));
     expect(equipment).toEqual([
-      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Modificadores +0 acierto · +0 daño · +0 defensa`,
+      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Atributos +0 habilidad · +0 fuerza · +0 defensa · +0 resistencia`,
     ]);
   });
 
@@ -435,7 +437,7 @@ describe('modelo del overlay de debug', () => {
 
     expect(text).toContain('Último ataque: player-1→enemy-1 fallo');
     expect(text).toContain('tiradas ataque 1 escudo 6');
-    expect(text).not.toContain('tiradas ataque 1 escudo 6 daño');
+    expect(text).not.toContain('tiradas ataque 1 escudo 6 golpe');
     expect(text).toContain('Últimos eventos: player-1→enemy-1 fallo (HP 10)');
     expect(text).not.toContain('player-1→enemy-1 -0');
     expect(text).toContain('Enemigo bajo cursor: ninguno');
