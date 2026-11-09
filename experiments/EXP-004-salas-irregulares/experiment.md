@@ -30,7 +30,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T11:15:00Z
+updated_at: 2026-11-09T11:33:41Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -123,13 +123,13 @@ con la misma semilla, tileset real, puertas, spawn, enemigos, métricas y vista
 13×13. El intento 2 corrige las puertas de la vista 13×13, hace funcional el
 grosor de muro y mantiene el contrato.
 
-La v2 se implementó en `TASK-0041` (intento 1). Las tres variantes validan cada
-puerta sobre la geometría final: soporte de dos muros en la línea, suelo a ambos
-lados, conexión entre salas distintas, separación global Chebyshev ≥3 y como
-máximo una puerta por pasillo. Los pasillos anchos no llevan puertas. Los accesos
-descartados quedan como bocas abiertas con motivo (`sin-soporte`, `sin-suelo`,
-`misma-sala`, `separacion`, `una-por-pasillo`, `pasillo-ancho`) y se dibujan en
-debug.
+La v2 se implementó en `TASK-0041` (intentos 1 y 2); el intento 2 corrigió el
+spawn. Las tres variantes validan cada puerta sobre la geometría final: soporte
+de dos muros en la línea, suelo a ambos lados, conexión entre salas distintas,
+separación global Chebyshev ≥3 y como máximo una puerta por pasillo. Los
+pasillos anchos no llevan puertas. Los accesos descartados quedan como bocas
+abiertas con motivo (`sin-soporte`, `sin-suelo`, `misma-sala`, `separacion`,
+`una-por-pasillo`, `pasillo-ancho`) y se dibujan en debug.
 
 El spawn elige el suelo interior junto a la puerta más cercana al centro (o la
 boca si no hay puerta), con `party[0]` en el acceso. El resto se busca con una
