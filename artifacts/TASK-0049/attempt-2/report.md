@@ -57,7 +57,7 @@ la esquina del HUD (rects y canvas idénticos). La capa dio 0/150.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief ordena editar `experiment.md` y el permiso lo deniega | `task-runner.md:21-23` | Texto al lead | Cualquier QA que toque un experimento choca igual | Alinear brief/permisos | Bajo | `pending` |
+| El brief ordena editar `experiment.md` y el permiso lo deniega | `task-runner.md:21-23` | Texto al lead | Cualquier QA que toque un experimento choca igual | Alinear brief/permisos | Bajo | `deferred` (requirements-writer) |
 
 # Métricas de handoff
 

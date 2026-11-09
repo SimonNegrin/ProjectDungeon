@@ -71,7 +71,7 @@ debilitar tests; la suite pasa de 74 a 76 casos.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `pnpm run test:e2e -- --repeat-each=3` ejecuta 76 tests, no 228 | `e2e-repeat-output.txt` (versión previa en historial) | `pnpm run test:e2e --repeat-each=3` | Toda tarea que pida `--` para Playwright repetirá el fallo | Documentar la forma correcta o un script `test:e2e:repeat` | Bajo | `pending` |
+| `pnpm run test:e2e -- --repeat-each=3` ejecuta 76 tests, no 228 | `e2e-repeat-output.txt` (versión previa en historial) | `pnpm run test:e2e --repeat-each=3` | Toda tarea que pida `--` para Playwright repetirá el fallo | Documentar la forma correcta o un script `test:e2e:repeat` | Bajo | `deferred` (requirements-writer) |
 
 # Métricas de handoff
 

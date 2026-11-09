@@ -4,7 +4,7 @@ id: TASK-0049
 title: "E2E, QA visual y playtest de growth por defecto"
 description: Cubrir con Playwright la partida growth y su debug, verificar la guarda de bundle y preparar el playtest con la semilla 2738263054 y la configuración registrada.
 status: stable
-task_status: ready
+task_status: review
 task_type: qa
 requirement: REQ-011
 requirement_ids: [R-001, R-002, R-008, R-010, R-011, R-012, R-013, T-007, T-009, T-015, T-016]
@@ -13,13 +13,27 @@ unlocks: []
 created_at: 2026-11-09T15:30:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0049/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T20:00:00Z
+    note: >-
+      Pendiente del playtest del usuario. Intentos 1 y 2 verificados en
+      `task/TASK-0049` (commits 666a358, 2b11c45, 5fa4fcf, 798295f y a173e8a;
+      fusión `64ce30c`). El lead re-ejecutó `pnpm run verify` (732 unitarias,
+      build 52 módulos y guarda de bundle OK), `pnpm run test:e2e` (76/76) y
+      `pnpm run test:e2e --repeat-each=3` (228/228), más 30/30 dirigidos al
+      determinismo de `floor-qa`. Los 36 fallos BSP heredados quedaron verdes
+      sin borrar, saltar ni debilitar tests (74 → 76). Capturas 1280×720
+      revisadas; `EXP-004` reproduce la decisión y el JSON de parámetros del
+      playtest coincide con `decision-2026-11-09T14-59-21Z.json`. Sin cambios
+      en `src/`, dependencias ni arte. Queda para el usuario el playtest de
+      sensación (legibilidad, densidad, puertas, spawn, salida y 13×13).
 ---
 
 # Objetivo

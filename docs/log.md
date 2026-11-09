@@ -2,6 +2,8 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0049 — review: E2E de growth y playtest 2738263054, 36 fallos BSP heredados verdes sin debilitar tests (74→76), capturas 1280×720, guarda OK y EXP-004 reproducible; verify 732, E2E 76/76 y repeat-each 228/228; fusión `64ce30c`; pendiente playtest del usuario — [informe](../artifacts/TASK-0049/attempt-2/report.md)
+
 * 2026-11-09 — Task — TASK-0048 — cerrada: render growth con máscaras, puertas por estilo, bocas sin puerta, salida `door`/escaleras, spawn de 6, enemigos y capa `F1`; BSP intacto; verify 732/732, build 52 módulos y guarda OK; E2E 38 pasan / 36 fallan stale (0 regresiones vs 50 de `main`) asignados a TASK-0049; fusión `9f3f95f` — [informe](../artifacts/TASK-0048/attempt-2/report.md)
 
 * 2026-11-09 — Task — TASK-0047 — cerrada: build de producción solo con el juego, experimentos en `dist-experiments/` y guarda `check:bundle` en `verify`; negativa real con BSP en bundle detectada por grafo; verify 721/721; E2E rojo preexistente de TASK-0046 diferido a TASK-0048/0049; fusión `08e97e3` — [informe](../artifacts/TASK-0047/attempt-1/report.md)

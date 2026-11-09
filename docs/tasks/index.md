@@ -48,13 +48,13 @@ Total: **49**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0046](TASK-0046-motor-variante-growth-defecto.md) | Motor: variante growth y generador por defecto | `done` | REQ-011 | TASK-0045 | P1 |
 | [TASK-0047](TASK-0047-arnes-build-produccion-guarda-bundle.md) | Arnés: build de producción separado y guarda de bundle | `done` | REQ-011 | TASK-0046 | P1 |
 | [TASK-0048](TASK-0048-host-render-spawn-puertas-salida.md) | Host: render de máscaras, puertas, spawn, entrada/salida y enemigos | `done` | REQ-011 | TASK-0046 | P1 |
-| [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `backlog` | REQ-011 | TASK-0047, TASK-0048 | P1 |
+| [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `review` | REQ-011 | TASK-0047, TASK-0048 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
 
-# backlog
+# review
 
 * [TASK-0049 — E2E, QA visual y playtest de growth por defecto](TASK-0049-e2e-qa-playtest-growth.md)
 
