@@ -35,6 +35,9 @@ function optionsFromParams(params: ParameterValues) {
     wallThickness: Number(params.wallThickness),
     megaRoomChance: Number(params.megaRoomChance),
     spawnMinTiles: Number(params.spawnMinTiles),
+    enemySurfaceFactor: Number(params.enemySurfaceFactor),
+    enemyPlayersFactor: Number(params.enemyPlayersFactor),
+    numPlayers: Number(params.numPlayers),
   };
 }
 
@@ -102,6 +105,26 @@ const definition: ExperimentDefinition = {
     { id: 'wallThickness', label: 'Grosor de muro', type: 'range', min: 1, max: 2, step: 1, default: 1, unit: 'tiles' },
     { id: 'megaRoomChance', label: 'Caverna', type: 'range', min: 0, max: 100, step: 1, default: 17, unit: '%' },
     { id: 'spawnMinTiles', label: 'Huecos de spawn', type: 'range', min: 4, max: 10, step: 1, default: 6 },
+    { id: 'numPlayers', label: 'Jugadores (P)', type: 'range', min: 1, max: 6, step: 1, default: 3 },
+    {
+      id: 'enemySurfaceFactor',
+      label: 'Enemigos por superficie',
+      type: 'range',
+      min: 0,
+      max: 0.1,
+      step: 0.01,
+      default: 0.02,
+      unit: '×tile',
+    },
+    {
+      id: 'enemyPlayersFactor',
+      label: 'Enemigos por jugador',
+      type: 'range',
+      min: 0,
+      max: 3,
+      step: 0.05,
+      default: 1.35,
+    },
     {
       id: 'variant',
       label: 'Variante de la vista 13×13',
@@ -131,6 +154,10 @@ type MapSnapshot = {
   fingerprint: string | null;
   warnings: readonly string[];
   metrics: ReturnType<typeof computeMetrics>;
+  doors: GeneratedMap['doors'];
+  openMouths: GeneratedMap['openMouths'];
+  spawns: GeneratedMap['spawns'] | null;
+  enemies: GeneratedMap['enemies'];
 };
 
 type ExtendedTestApi = ExperimentTestApi & {
@@ -148,6 +175,10 @@ function mapSnapshots(): MapSnapshot[] {
       fingerprint: state ? fingerprint(state.map) : null,
       warnings: state?.map.warnings ?? [],
       metrics: state ? computeMetrics(state.map, state.generationMs) : [],
+      doors: state?.map.doors ?? [],
+      openMouths: state?.map.openMouths ?? [],
+      spawns: state?.map.spawns ?? null,
+      enemies: state?.map.enemies ?? [],
     };
   });
 }

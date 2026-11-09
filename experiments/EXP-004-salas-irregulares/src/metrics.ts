@@ -7,13 +7,14 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
   const { stats } = map;
   const roles = `${stats.largeRooms}G · ${stats.mediumRooms}M · ${stats.smallRooms}P`;
   const lengths = stats.corridorLengths;
-  const enemyTypes = ['sentinel', 'brute', 'coward']
-    .map((type) => {
-      const count = map.enemies.filter((enemy) => enemy.type === type).length;
-      return count > 0 ? `${count} ${type}` : null;
-    })
-    .filter((value): value is string => value !== null)
-    .join(' · ');
+  const enemy = stats.enemy;
+  const doorHint =
+    stats.openMouths === 0
+      ? 'todos los accesos con puerta'
+      : `${stats.openMouths} boca${stats.openMouths === 1 ? '' : 's'} sin puerta`;
+  const access = stats.spawnAccess
+    ? `${stats.spawnAccess.x},${stats.spawnAccess.y}`
+    : '—';
 
   return [
     {
@@ -41,14 +42,30 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
       value: stats.cavernRooms > 0 ? `${(stats.cavernShare * 100).toFixed(0)} %` : 'no',
       hint: stats.cavernRooms > 0 ? `${stats.roomCount} salas en total` : undefined,
     },
-    { label: 'Accesos spawn', value: stats.spawnAccesses },
-    { label: 'Huecos spawn', value: stats.spawnHoles },
     {
-      label: 'Enemigos/sala',
-      value: map.rooms
-        .map((room) => map.enemies.filter((enemy) => enemy.roomId === room.id).length)
-        .join('·'),
-      hint: `${stats.enemyCount} fichas · ${stats.emptyRooms} vacía${stats.emptyRooms === 1 ? '' : 's'}${enemyTypes ? ` · ${enemyTypes}` : ''}`,
+      label: 'Puertas',
+      value: `${stats.validDoors} válidas`,
+      hint: `${doorHint} · separación mín. ${stats.doorMinDistance ?? '—'}`,
+    },
+    {
+      label: 'Acceso spawn',
+      value: access,
+      hint: `${stats.spawnAccesses} accesos · ${stats.spawnHoles} huecos a ≤${stats.spawnHoleMaxDistance}`,
+    },
+    {
+      label: 'Enemigos T',
+      value: enemy.total,
+      hint: `N ${enemy.surfaceN} × ${enemy.surfaceFactor} → ${enemy.surfaceTerm} · P ${enemy.playersP} × ${enemy.playersFactor} → ${enemy.playersTerm}${enemy.planned === enemy.total ? '' : ` · plan ${enemy.planned}`}`,
+    },
+    {
+      label: 'Reparto',
+      value: enemy.perRoom.join('·'),
+      hint: `colocado ${enemy.placedPerRoom.join('·')}`,
+    },
+    {
+      label: 'Tipos',
+      value: `${enemy.sentinels}S · ${enemy.brutes}B · ${enemy.cowards}C`,
+      hint: `${stats.enemyCount} fichas · ${stats.emptyRooms} salas vacías`,
     },
     { label: 'Generación', value: `${generationMs.toFixed(1)} ms` },
   ];

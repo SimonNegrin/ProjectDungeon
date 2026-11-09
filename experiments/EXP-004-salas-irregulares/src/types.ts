@@ -23,6 +23,15 @@ export type CorridorKind = 'door' | 'short' | 'wide';
 
 export type EnemyType = 'sentinel' | 'brute' | 'coward';
 
+/** Motivo por el que un acceso no puede dibujarse como puerta válida. */
+export type OpenMouthReason =
+  | 'sin-soporte'
+  | 'sin-suelo'
+  | 'misma-sala'
+  | 'separacion'
+  | 'una-por-pasillo'
+  | 'pasillo-ancho';
+
 export type FloorAmbient = 'humid' | 'death' | 'ruin' | 'vegetation' | 'mixed';
 
 export type FloorPaletteId = 'neutral' | 'humid' | 'death' | 'ruin' | 'vegetation';
@@ -84,6 +93,18 @@ export interface Corridor {
   readonly width: 1 | 2;
 }
 
+/** Acceso abierto sin puerta válida, con el motivo para métricas y debug. */
+export interface OpenMouth {
+  readonly id: number;
+  readonly x: number;
+  readonly y: number;
+  readonly orientation: DoorOrientation;
+  readonly roomA: number;
+  readonly roomB: number;
+  readonly corridorId: number;
+  readonly reason: OpenMouthReason;
+}
+
 export interface Spawns {
   readonly roomId: number;
   /** Seis huecos distintos, fuera de puertas y de fichas. */
@@ -116,6 +137,29 @@ export interface CorridorLengthCounts {
   readonly 3: number;
 }
 
+/** Desglose serializable del presupuesto de enemigos de REQ-012 R-006/R-007/R-008. */
+export interface EnemyBreakdown {
+  /** N: tiles de suelo de las salas, sin pasillos. */
+  readonly surfaceN: number;
+  /** P: jugadores configurados (1-6). */
+  readonly playersP: number;
+  readonly surfaceFactor: number;
+  readonly playersFactor: number;
+  readonly surfaceTerm: number;
+  readonly playersTerm: number;
+  /** T = ceil(surfaceFactor × N) + ceil(playersFactor × P). */
+  readonly total: number;
+  /** Fichas que caben con separación ≥2; puede ser menor que `total`. */
+  readonly planned: number;
+  /** Presupuesto por sala, indexado por `roomId`. */
+  readonly perRoom: readonly number[];
+  /** Fichas realmente colocadas por sala, indexado por `roomId`. */
+  readonly placedPerRoom: readonly number[];
+  readonly sentinels: number;
+  readonly brutes: number;
+  readonly cowards: number;
+}
+
 export interface MapStats {
   readonly roomCount: number;
   readonly largeRooms: number;
@@ -130,7 +174,10 @@ export interface MapStats {
   readonly alcoveCount: number;
   readonly sharedWalls: number;
   readonly doorCount: number;
+  readonly validDoors: number;
   readonly directDoors: number;
+  readonly openMouths: number;
+  readonly doorMinDistance: number | null;
   readonly corridorCount: number;
   readonly corridorLengths: CorridorLengthCounts;
   readonly loops: number;
@@ -140,10 +187,13 @@ export interface MapStats {
   readonly cavernShare: number;
   readonly spawnHoles: number;
   readonly spawnAccesses: number;
+  readonly spawnAccess: Point | null;
+  readonly spawnHoleMaxDistance: number;
   readonly enemyCount: number;
   readonly emptyRooms: number;
   readonly maxEnemiesPerRoom: number;
   readonly generationAttempts: number;
+  readonly enemy: EnemyBreakdown;
 }
 
 export interface ResolvedMapOptions {
@@ -157,6 +207,9 @@ export interface ResolvedMapOptions {
   readonly wallThickness: number;
   readonly megaRoomChance: number;
   readonly spawnMinTiles: number;
+  readonly enemySurfaceFactor: number;
+  readonly enemyPlayersFactor: number;
+  readonly numPlayers: number;
 }
 
 export interface MapOptions {
@@ -170,6 +223,9 @@ export interface MapOptions {
   readonly wallThickness?: number;
   readonly megaRoomChance?: number;
   readonly spawnMinTiles?: number;
+  readonly enemySurfaceFactor?: number;
+  readonly enemyPlayersFactor?: number;
+  readonly numPlayers?: number;
 }
 
 export interface GeneratedMap {
@@ -180,6 +236,7 @@ export interface GeneratedMap {
   readonly tiles: readonly Tile[];
   readonly rooms: readonly Room[];
   readonly doors: readonly Door[];
+  readonly openMouths: readonly OpenMouth[];
   readonly corridors: readonly Corridor[];
   /** Conexiones extra sobre el árbol de salas (0-3). */
   readonly loops: number;

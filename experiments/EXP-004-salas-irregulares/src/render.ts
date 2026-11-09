@@ -225,6 +225,46 @@ function drawDoor(
   ctx.restore();
 }
 
+function drawOpenMouths(
+  ctx: CanvasRenderingContext2D,
+  map: GeneratedMap,
+  tile: number,
+  offsetX: number,
+  offsetY: number,
+  view: { x: number; y: number; width: number; height: number },
+  debug: boolean,
+): void {
+  for (const mouth of map.openMouths) {
+    if (
+      mouth.x < view.x ||
+      mouth.y < view.y ||
+      mouth.x >= view.x + view.width ||
+      mouth.y >= view.y + view.height
+    ) {
+      continue;
+    }
+    const x = offsetX + (mouth.x - view.x) * tile;
+    const y = offsetY + (mouth.y - view.y) * tile;
+    const wide = mouth.reason === 'pasillo-ancho';
+    ctx.save();
+    ctx.strokeStyle = wide ? 'rgba(232, 184, 109, 0.95)' : 'rgba(224, 122, 122, 0.95)';
+    ctx.lineWidth = Math.max(1, tile * 0.1);
+    ctx.setLineDash([Math.max(2, tile * 0.2), Math.max(1, tile * 0.14)]);
+    ctx.strokeRect(x + 1.5, y + 1.5, tile - 3, tile - 3);
+    ctx.setLineDash([]);
+    if (debug) {
+      ctx.fillStyle = 'rgba(8, 11, 16, 0.78)';
+      ctx.fillRect(x, y - Math.max(7, tile * 0.28), tile + 4, Math.max(7, tile * 0.26));
+      ctx.fillStyle = '#fecaca';
+      ctx.font = `700 ${Math.max(5, Math.round(tile * 0.18))}px ui-monospace, monospace`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(mouth.reason, x + tile / 2, y - Math.max(3, tile * 0.14));
+    }
+    ctx.restore();
+  }
+}
+
 function drawSpawnRoom(
   ctx: CanvasRenderingContext2D,
   room: Room,
@@ -496,6 +536,7 @@ function drawMap(
 
   if (showDoors) {
     for (const door of map.doors) drawDoor(ctx, door, tile, offsetX, offsetY, view, debug);
+    drawOpenMouths(ctx, map, tile, offsetX, offsetY, view, debug);
   }
 
   if (debug) drawDebug(ctx, map, tile, offsetX, offsetY, view);
@@ -576,8 +617,13 @@ export function renderExperiment(
   canvas.dataset.seed = String(map.seed);
   canvas.dataset.fingerprint = fingerprint(map);
   canvas.dataset.doors = String(map.doors.length);
+  canvas.dataset.openMouths = String(map.openMouths.length);
   canvas.dataset.spawnHoles = String(map.spawns.party.length);
+  canvas.dataset.spawnAccess = `${map.spawns.player.x},${map.spawns.player.y}`;
   canvas.dataset.enemies = String(map.enemies.length);
+  canvas.dataset.enemyTotal = String(map.stats.enemy.total);
+  canvas.dataset.enemySurface = String(map.stats.enemy.surfaceN);
+  canvas.dataset.enemyPlayers = String(map.stats.enemy.playersP);
   canvas.dataset.debug = flag(params, 'showDebug', false) ? 'true' : 'false';
   canvas.dataset.rendered = 'true';
 }
