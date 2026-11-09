@@ -30,6 +30,8 @@ import {
   type ChamberContentsOptions,
   type ChamberOptions,
 } from '../core';
+import type { OpenMouth } from '../core/doors';
+import type { Hotspot } from '../core/enemies';
 
 /** Opciones aceptadas por la variante: las del motor más las del núcleo. */
 export interface GrowthMapOptions
@@ -100,6 +102,14 @@ function cloneEnemies(enemies: readonly MapEnemy[]): MapEnemy[] {
   }));
 }
 
+function cloneOpenMouths(mouths: readonly OpenMouth[]): OpenMouth[] {
+  return mouths.map((mouth) => ({ ...mouth }));
+}
+
+function cloneHotspots(hotspots: readonly Hotspot[]): Hotspot[] {
+  return hotspots.map((hotspot) => ({ ...hotspot }));
+}
+
 function spawnsFor(
   plan: ReturnType<typeof generateChamberPlan>,
   contents: ReturnType<typeof placeChamberContents>,
@@ -148,6 +158,9 @@ function mapFor(
     },
     exit,
     enemies,
+    openMouths: cloneOpenMouths(plan.openMouths),
+    hotspots: cloneHotspots(contents.hotspots),
+    cavernRoomId: plan.cavernRoomId,
     warnings: [...new Set([...plan.warnings, ...contents.warnings])],
     options: resolvedOptionsFor(plan),
   };

@@ -1,5 +1,10 @@
 import { createInitialState, reduce, type CreateInitialStateConfig } from '../game/engine';
-import { DEFAULT_MAP_SEED, normalizeSeed, type MapGenerator, type MapOptions } from '../game/map';
+import {
+  DEFAULT_MAP_SEED,
+  normalizeSeed,
+  type MapGenerator,
+  type MapOptions,
+} from '../game/map';
 import type { Command, GameEvent, GameState } from '../game/types';
 
 export interface StepResult {
@@ -68,12 +73,14 @@ export class GameSession {
   /**
    * Sustituye el estado vivo por uno serializable construido por un test. Solo
    * lo expone el host con `test=1`; no es un mutador del estado de juego normal.
+   * El generador opcional permite que `Restart` reconstruya el mismo tipo de
+   * mundo (BSP inyectado) sin meter BSP en el bundle de producción.
    */
-  load(state: GameState): void {
+  load(state: GameState, generator?: MapGenerator): void {
     this.current = state;
     this.seedValue = state.map?.seed ?? DEFAULT_MAP_SEED;
-    this.options = undefined;
-    this.generator = undefined;
+    this.options = state.map?.options;
+    this.generator = generator;
   }
 
   /** Reconstruye la partida con una semilla nueva manteniendo opciones y generador. */

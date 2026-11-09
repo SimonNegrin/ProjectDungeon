@@ -1,4 +1,5 @@
 import type { Command, GameEvent, GameState, Position } from '../game/types';
+import type { MapGenerator } from '../game/map';
 import { loadAssets } from './assets';
 import { cameraBounds, centerCameraOnTile } from './camera';
 import {
@@ -303,7 +304,10 @@ async function boot(): Promise<void> {
       camera = cameraAt(animation.timeline, elapsed, world, viewport);
       const positions = visualPositions(animation.timeline, elapsed);
       if (assets) {
-        renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, { positions });
+        renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, {
+          positions,
+          debug: debugView.isOpen(),
+        });
       }
       const displayCursor = presentationCursor(animation);
       hudView.update(display, displayCursor);
@@ -324,7 +328,9 @@ async function boot(): Promise<void> {
     cursorStatus = deriveCursorStatus(state, cursor);
 
     if (assets) {
-      renderScene(ctx, state, assets, camera, viewport, TILE_SIZE);
+      renderScene(ctx, state, assets, camera, viewport, TILE_SIZE, {
+        debug: debugView.isOpen(),
+      });
     }
     hudView.update(state, cursorStatus);
     cursorView.update(cursorStatus, camera);
@@ -469,9 +475,9 @@ async function boot(): Promise<void> {
    * limpia la presentación pendiente. No cambia reglas ni expone mutadores del
    * estado vivo; el test lo usa una vez al montar un escenario.
    */
-  const setupState = (state: GameState): void => {
+  const setupState = (state: GameState, generator?: MapGenerator): void => {
     cancelAnimation();
-    session.load(state);
+    session.load(state, generator);
     lastEvents = [];
     feedbackView.clear();
     noticeView.clear();
@@ -566,8 +572,8 @@ async function boot(): Promise<void> {
   );
 
   if (testSetupEnabled) {
-    debugApi.setup = (state: GameState) => {
-      setupState(state);
+    debugApi.setup = (state: GameState, generator?: MapGenerator) => {
+      setupState(state, generator);
       return debugApi.snapshot();
     };
   }
