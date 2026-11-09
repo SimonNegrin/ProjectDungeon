@@ -99,10 +99,12 @@ function buildInitialState(
   const map: GeneratedMap = generator.generate(seed, options);
   const placement = placeMapEnemies(map);
 
+  const playerPosition = map.spawns.party?.[0] ?? map.spawns.player;
+
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
-    players: [createPlayer('player-1', map.spawns.player)],
+    players: [createPlayer('player-1', playerPosition)],
     // Los mapas generados por BSP siempre colocan 4. Un generador inyectado sin
     // datos de salas conserva la compatibilidad con un único enemigo histórico.
     enemies: placement

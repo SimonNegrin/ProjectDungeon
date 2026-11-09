@@ -11,6 +11,7 @@ import {
   countPathCorners,
   DEFAULT_MAP_OPTIONS,
   dedupePath,
+  DOOR_STYLES,
   isLargeRoom,
   isSmallRoom,
   longestStraight,
@@ -27,6 +28,7 @@ import {
   type Corridor,
   type CorridorKind,
   type Door,
+  type DoorStyle,
   type GeneratedMap,
   type MapGenerator,
   type MapOptions,
@@ -1618,11 +1620,18 @@ function widenCorridors(
   return widened;
 }
 
+/** Estilo determinista entre los tres de `DOOR_STYLES`; no consume RNG. */
+function doorStyleFor(x: number, y: number, roomId: number, corridorId: number): DoorStyle {
+  const index = (x * 31 + y * 17 + roomId * 13 + corridorId * 7) % DOOR_STYLES.length;
+  return DOOR_STYLES[(index + DOOR_STYLES.length) % DOOR_STYLES.length];
+}
+
 function buildDoors(context: GenerationContext): Door[] {
   const doors: Door[] = [];
   const seen = new Set<string>();
 
-  for (const corridor of context.connections) {
+  for (let corridorIndex = 0; corridorIndex < context.connections.length; corridorIndex += 1) {
+    const corridor = context.connections[corridorIndex];
     if (corridor.width !== 1) continue;
     const path = dedupePath(corridor.path);
     if (path.length < 2) continue;
@@ -1634,10 +1643,26 @@ function buildDoors(context: GenerationContext): Door[] {
 
     const startOutY = Math.sign(second.y - start.y);
     const endOutY = Math.sign(beforeEnd.y - end.y);
+    const direct = path.length <= 2;
 
-    const entries: Array<{ point: Position; roomId: number; outY: number }> = [
-      { point: start, roomId: corridor.fromRoomId, outY: startOutY },
-      { point: end, roomId: corridor.toRoomId, outY: endOutY },
+    const entries: Array<{
+      point: Position;
+      roomId: number;
+      otherRoomId: number;
+      outY: number;
+    }> = [
+      {
+        point: start,
+        roomId: corridor.fromRoomId,
+        otherRoomId: corridor.toRoomId,
+        outY: startOutY,
+      },
+      {
+        point: end,
+        roomId: corridor.toRoomId,
+        otherRoomId: corridor.fromRoomId,
+        outY: endOutY,
+      },
     ];
 
     for (const entry of entries) {
@@ -1649,12 +1674,17 @@ function buildDoors(context: GenerationContext): Door[] {
         y: entry.point.y,
         orientation: entry.outY !== 0 ? 'horizontal' : 'vertical',
         roomId: entry.roomId,
+        style: doorStyleFor(entry.point.x, entry.point.y, entry.roomId, corridorIndex),
+        roomA: entry.roomId,
+        roomB: entry.otherRoomId,
+        corridorId: corridorIndex,
+        direct,
       });
     }
   }
 
   doors.sort((a, b) => a.roomId - b.roomId || a.y - b.y || a.x - b.x);
-  return doors;
+  return doors.map((door, index) => ({ ...door, id: index }));
 }
 
 // ---------------------------------------------------------------------------
@@ -1709,6 +1739,26 @@ interface SpawnResult {
   readonly issues: readonly string[];
 }
 
+/**
+ * Seis celdas de suelo distintas de la sala de spawn, en orden determinista.
+ * `party[0]` es el jugador; no es el spawn protegido de REQ-012.
+ */
+function spawnParty(
+  context: GenerationContext,
+  room: MutableRoom,
+  player: Position,
+): Position[] {
+  const party: Position[] = [{ x: player.x, y: player.y }];
+  for (let y = room.y; y < room.y + room.height && party.length < 6; y += 1) {
+    for (let x = room.x; x < room.x + room.width && party.length < 6; x += 1) {
+      if (x === player.x && y === player.y) continue;
+      if (!context.tiles[indexOf(context.width, x, y)]) continue;
+      party.push({ x, y });
+    }
+  }
+  return party;
+}
+
 function chooseSpawns(context: GenerationContext): SpawnResult {
   const playerRoom =
     context.rooms.find((room) => roomHasExit(context, room.id)) ?? context.rooms[0];
@@ -1720,6 +1770,7 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
   }
 
   const player = roomCenter(playerRoom);
+  const party = spawnParty(context, playerRoom, player);
   const distances = distancesFrom(context, player);
 
   let enemyRoom: MutableRoom | null = null;
@@ -1788,7 +1839,13 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
 
   if (!enemyRoom) {
     return {
-      spawns: { player, enemy: player, distance: 0 },
+      spawns: {
+        roomId: playerRoom.id,
+        party,
+        player,
+        enemy: player,
+        distance: 0,
+      },
       issues: ['No hay una segunda sala alcanzable para el enemigo.'],
     };
   }
@@ -1801,7 +1858,13 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
   }
   if (!picked.point) {
     return {
-      spawns: { player, enemy: player, distance: 0 },
+      spawns: {
+        roomId: playerRoom.id,
+        party,
+        player,
+        enemy: player,
+        distance: 0,
+      },
       issues: ['La sala más lejana no tiene celdas alcanzables.'],
     };
   }
@@ -1813,6 +1876,8 @@ function chooseSpawns(context: GenerationContext): SpawnResult {
 
   return {
     spawns: {
+      roomId: playerRoom.id,
+      party,
       player,
       enemy: picked.point,
       distance: picked.distance,
@@ -1843,19 +1908,38 @@ function buildMap(
     height: context.height,
     tiles,
     rooms: context.rooms.map(
-      (room): Room => ({
-        id: room.id,
-        x: room.x,
-        y: room.y,
-        width: room.width,
-        height: room.height,
-        role: room.role,
-      }),
+      (room): Room => {
+        const cells: Position[] = [];
+        for (let y = room.y; y < room.y + room.height; y += 1) {
+          for (let x = room.x; x < room.x + room.width; x += 1) {
+            if (context.tiles[indexOf(context.width, x, y)]) cells.push({ x, y });
+          }
+        }
+        return {
+          id: room.id,
+          x: room.x,
+          y: room.y,
+          width: room.width,
+          height: room.height,
+          role: room.role,
+          cells,
+          area: cells.length,
+        };
+      },
     ),
-    corridors: context.connections.map((corridor) => ({
-      ...corridor,
-      path: corridor.path.map((point) => ({ x: point.x, y: point.y })),
-    })),
+    corridors: context.connections.map((corridor, index) => {
+      const path = corridor.path.map((point) => ({ x: point.x, y: point.y }));
+      const cells = dedupePath(path);
+      return {
+        ...corridor,
+        id: index,
+        roomA: corridor.fromRoomId,
+        roomB: corridor.toRoomId,
+        path,
+        cells,
+        length: pathLength(cells),
+      };
+    }),
     doors: buildDoors(context),
     spawns,
     warnings,
