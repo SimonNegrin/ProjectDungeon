@@ -8,12 +8,22 @@ import {
   reduce,
   resolveMapOptions,
   validateGeneratedMap,
+  type GameEvent,
   type GeneratedMap,
   type MapGenerator,
   type MapOptions,
 } from '../../../src/game/index';
 import { GrowthMapGenerator } from '../../../src/game/chambers/variants/growth';
 import { makeState, makeUnit, rngForDice } from './helpers';
+
+function attackDamage(events: readonly GameEvent[]): number {
+  const attack = events.find(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed',
+  );
+  if (!attack) throw new Error('se esperaba un ataque');
+  return attack.damage;
+}
 
 function stubMap(seed: number, options: MapOptions = {}): GeneratedMap {
   const grid = createRoomGrid(20, 20);
@@ -188,7 +198,9 @@ describe('createInitialState con un MapGenerator inyectado', () => {
       unitId: player.id,
       targetId: enemy.id,
     });
-    expect(attack.state.enemies[0]).toMatchObject({ hp: 4 });
+    expect(attack.state.enemies[0].hp).toBe(
+      enemy.maxHp - attackDamage(attack.events),
+    );
     expect(attack.state.players[0].actionAvailable).toBe(false);
 
     const endTurn = reduce(
@@ -197,7 +209,10 @@ describe('createInitialState con un MapGenerator inyectado', () => {
     );
     expect(endTurn.events.map((event) => event.type)).toContain('EnemyPhaseStarted');
     expect(endTurn.state.turn).toBe(2);
-    expect(endTurn.state.players[0]).toMatchObject({ hp: 17, mp: 6 });
+    expect(endTurn.state.players[0]).toMatchObject({
+      hp: state.players[0].hp - attackDamage(endTurn.events),
+      mp: state.players[0].maxMp,
+    });
 
     const move = reduce(endTurn.state, {
       type: 'Move',

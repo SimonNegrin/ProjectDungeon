@@ -1,19 +1,46 @@
 import { describe, expect, it } from 'vitest';
-import { createRng, reduce } from '../../../src/game/index';
+import {
+  WEAPONS,
+  armorValue,
+  createRng,
+  reduce,
+  resolveDamage,
+  type Unit,
+} from '../../../src/game/index';
 import { makeState, makeUnit, rngForDice } from './helpers';
+
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 describe('turn phase', () => {
   it('EndTurn ejecuta la fase enemiga y restaura MP y acción del jugador', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, mp: 0, actionAvailable: false })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 10, y: 5 })],
+      rng: rngForDice([6, 1, 3, 3]),
     });
+    const damage = expectedDamage(state.enemies[0], state.players[0], 3, 3);
 
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(result.state.phase).toBe('player');
     expect(result.state.turn).toBe(2);
-    expect(result.state.players[0]).toMatchObject({ mp: 6, actionAvailable: true, hp: 18 });
+    expect(result.state.players[0]).toMatchObject({
+      mp: 6,
+      actionAvailable: true,
+      hp: state.players[0].hp - damage,
+    });
     expect(result.state.enemies[0]).toMatchObject({
       x: 6,
       y: 5,
@@ -112,9 +139,13 @@ describe('turn phase', () => {
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 5, y: 6 }),
       ],
-      // Semilla fijada: ambos enemigos impactan y hacen exactamente 3.
+      // Semilla fijada: ambos enemigos impactan.
       rng: createRng(102),
     });
+    const firstDamage = expectedDamage(state.enemies[0], state.players[0], 5, 5);
+    const secondDamage = expectedDamage(state.enemies[1], state.players[0], 1, 1);
+    const firstHp = state.players[0].hp - firstDamage;
+    const secondHp = firstHp - secondDamage;
 
     const result = reduce(state, { type: 'EndTurn' });
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
@@ -126,8 +157,8 @@ describe('turn phase', () => {
         attackerId: 'enemy-1',
         targetId: 'player-1',
         hit: true,
-        damage: 3,
-        targetHp: 17,
+        damage: firstDamage,
+        targetHp: firstHp,
         rolls: { attack: 6, shield: 5, damage: 5, armor: 5 },
       },
       {
@@ -135,17 +166,17 @@ describe('turn phase', () => {
         attackerId: 'enemy-2',
         targetId: 'player-1',
         hit: true,
-        damage: 3,
-        targetHp: 14,
+        damage: secondDamage,
+        targetHp: secondHp,
         rolls: { attack: 5, shield: 2, damage: 1, armor: 1 },
       },
     ]);
-    expect(result.state.players[0].hp).toBe(14);
+    expect(result.state.players[0].hp).toBe(secondHp);
   });
 
   it('detiene la fase enemiga en cuanto muere el último jugador', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 })],
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 })],
       enemies: [
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 5, y: 6 }),

@@ -4,7 +4,7 @@ id: TASK-0050
 title: "Motor: balance provisional v1 (bestiario y armas)"
 description: Aplicar PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura y armas 3/5/2 desde los catálogos; motor y tests unitarios en verde.
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-010
 requirement_ids: [R-003, R-007, R-008, R-009, T-003, T-005, T-008]
@@ -13,7 +13,7 @@ unlocks: [TASK-0051, TASK-0052]
 created_at: 2026-11-09T12:00:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0050/
 priority: P1
 risk: medium

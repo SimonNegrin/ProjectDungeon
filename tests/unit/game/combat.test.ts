@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   ARMORS,
+  BESTIARY,
   PLAYER_MAX_MP,
   SHIELDS,
   WEAPONS,
+  armorValue,
   createRng,
   reduce,
   resolveAttack,
@@ -11,27 +13,45 @@ import {
   resolveHit,
   rollDie,
   type RngState,
+  type Unit,
 } from '../../../src/game/index';
 import { advanceRng, makeState, makeUnit, rngForDice } from './helpers';
 
-const PLAYER_HIT_5 = [6, 1, 2, 1] as const;
-const ENEMY_HIT_3 = [6, 1, 3, 3] as const;
+const PLAYER_HIT = [6, 1, 2, 1] as const;
+const ENEMY_HIT = [6, 1, 3, 3] as const;
+
+/** Daño esperado según catálogo y equipo, sin fijar el valor de balance. */
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 describe('combat', () => {
   it('ataca en adyacencia ortogonal e impacta con las tiradas del RNG', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
 
+    const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
+    const targetHp = state.enemies[0].maxHp - damage;
     const result = reduce(state, {
       type: 'Attack',
       unitId: 'player-1',
       targetId: 'enemy-1',
     });
 
-    expect(result.state.enemies[0].hp).toBe(5);
+    expect(result.state.enemies[0].hp).toBe(targetHp);
     expect(result.state.players[0].actionAvailable).toBe(false);
     expect(result.state.phase).toBe('player');
     expect(result.events).toEqual([
@@ -40,19 +60,20 @@ describe('combat', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
-        targetHp: 5,
+        damage,
+        targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },
     ]);
   });
 
-  it('ataca en diagonal y hace 5 al enemigo', () => {
+  it('ataca en diagonal y aplica el daño del catálogo', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 6 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
+    const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
 
     const result = reduce(state, {
       type: 'Attack',
@@ -60,14 +81,14 @@ describe('combat', () => {
       targetId: 'enemy-1',
     });
 
-    expect(result.state.enemies[0].hp).toBe(5);
+    expect(result.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage);
   });
 
   it('rechaza atacar fuera de rango sin consumir tiradas', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
     const rngBefore = state.rng;
 
@@ -77,7 +98,7 @@ describe('combat', () => {
       targetId: 'enemy-1',
     });
 
-    expect(result.state.enemies[0].hp).toBe(10);
+    expect(result.state.enemies[0].hp).toBe(state.enemies[0].maxHp);
     expect(result.state.players[0].actionAvailable).toBe(true);
     expect(result.state.rng).toBe(rngBefore);
     expect(result.events).toEqual([
@@ -89,9 +110,10 @@ describe('combat', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
 
+    const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
     const first = reduce(state, {
       type: 'Attack',
       unitId: 'player-1',
@@ -103,8 +125,8 @@ describe('combat', () => {
       targetId: 'enemy-1',
     });
 
-    expect(first.state.enemies[0].hp).toBe(5);
-    expect(second.state.enemies[0].hp).toBe(5);
+    expect(first.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage);
+    expect(second.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage);
     expect(second.events).toEqual([
       { type: 'CommandRejected', commandType: 'Attack', reason: 'no-action' },
     ]);
@@ -186,9 +208,10 @@ describe('combat', () => {
   it('emite muerte y victoria cuando el enemigo llega a 0', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 })],
+      rng: rngForDice(PLAYER_HIT),
     });
+    const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
 
     const result = reduce(state, {
       type: 'Attack',
@@ -204,7 +227,7 @@ describe('combat', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
+        damage,
         targetHp: 0,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },
@@ -217,10 +240,10 @@ describe('combat', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [
-        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 }),
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 18, y: 18 }),
       ],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
 
     const result = reduce(state, {
@@ -230,7 +253,7 @@ describe('combat', () => {
     });
 
     expect(result.state.enemies[0].hp).toBe(0);
-    expect(result.state.enemies[1].hp).toBe(10);
+    expect(result.state.enemies[1].hp).toBe(state.enemies[1].maxHp);
     expect(result.state.status).toBe('playing');
     expect(result.events.map((event) => event.type)).toEqual([
       'AttackPerformed',
@@ -241,17 +264,17 @@ describe('combat', () => {
   it('no declara derrota mientras quede otro jugador vivo', () => {
     const state = makeState({
       players: [
-        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 }),
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
         makeUnit({ id: 'player-2', faction: 'player', x: 18, y: 18 }),
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(ENEMY_HIT_3),
+      rng: rngForDice(ENEMY_HIT),
     });
 
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(result.state.players[0].hp).toBe(0);
-    expect(result.state.players[1].hp).toBe(20);
+    expect(result.state.players[1].hp).toBe(state.players[1].maxHp);
     expect(result.state.status).toBe('playing');
     expect(result.events.map((event) => event.type)).toEqual([
       'TurnEnded',
@@ -262,24 +285,25 @@ describe('combat', () => {
     ]);
   });
 
-  it('el enemigo hace 3 al jugador con el mismo resolvedor', () => {
+  it('el enemigo hace el daño que marca el mismo resolvedor', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(ENEMY_HIT_3),
+      rng: rngForDice(ENEMY_HIT),
     });
+    const damage = expectedDamage(state.enemies[0], state.players[0], 3, 3);
 
     const result = reduce(state, { type: 'EndTurn' });
 
-    expect(result.state.players[0].hp).toBe(17);
+    expect(result.state.players[0].hp).toBe(state.players[0].hp - damage);
     expect(result.state.enemies[0].actionAvailable).toBe(false);
     expect(result.events).toContainEqual({
       type: 'AttackPerformed',
       attackerId: 'enemy-1',
       targetId: 'player-1',
       hit: true,
-      damage: 3,
-      targetHp: 17,
+      damage,
+      targetHp: state.players[0].hp - damage,
       rolls: { attack: 6, shield: 1, damage: 3, armor: 3 },
     });
   });
@@ -288,7 +312,7 @@ describe('combat', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(ENEMY_HIT_3),
+      rng: rngForDice(ENEMY_HIT),
     });
 
     const result = reduce(state, { type: 'EndTurn' });
@@ -301,13 +325,8 @@ describe('combat', () => {
 });
 
 describe('huida del cobarde por daño', () => {
-  /** Golpe de 5 con la espada: 6 de ataque, 1 de escudo, 1 de daño y 1 de armadura. */
+  /** Golpe fuerte: 6 de ataque, 1 de escudo, 1 de daño y 1 de armadura. */
   const STRONG_HIT = [6, 1, 1, 1] as const;
-  const cowardEquipment = {
-    weaponId: 'dagger',
-    armorId: null,
-    shieldId: 'shield',
-  } as const;
 
   function coward(overrides: Partial<Parameters<typeof makeUnit>[0]> = {}) {
     return makeUnit({
@@ -316,19 +335,19 @@ describe('huida del cobarde por daño', () => {
       enemyType: 'coward',
       x: 6,
       y: 5,
-      hp: 8,
-      maxHp: 8,
       awareness: 'alert',
-      equipment: cowardEquipment,
       ...overrides,
     });
   }
 
-  function hitResult(enemy: ReturnType<typeof makeUnit>) {
+  function hitResult(
+    enemy: ReturnType<typeof makeUnit>,
+    dice: readonly number[] = STRONG_HIT,
+  ) {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [enemy],
-      rng: rngForDice(STRONG_HIT),
+      rng: rngForDice(dice),
     });
     return reduce(state, {
       type: 'Attack',
@@ -338,9 +357,19 @@ describe('huida del cobarde por daño', () => {
   }
 
   it('un golpe del 40 % de la vida máxima que sobrevive inicia la huida', () => {
-    const result = hitResult(coward());
+    const enemy = coward();
+    const damage = expectedDamage(
+      makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+      enemy,
+      1,
+      1,
+    );
+    const result = hitResult(enemy);
 
-    expect(result.state.enemies[0]).toMatchObject({ hp: 3, fleeing: true });
+    expect(result.state.enemies[0]).toMatchObject({
+      hp: enemy.maxHp - damage,
+      fleeing: true,
+    });
     expect(result.events).toContainEqual({
       type: 'EnemyFled',
       unitId: 'enemy-1',
@@ -348,45 +377,74 @@ describe('huida del cobarde por daño', () => {
   });
 
   it('un golpe por debajo del umbral no hace huir al cobarde', () => {
-    const result = hitResult(
-      coward({
-        equipment: { weaponId: 'dagger', armorId: 'plate', shieldId: 'shield' },
-      }),
+    const enemy = coward({
+      equipment: { weaponId: 'dagger', armorId: 'plate', shieldId: 'shield' },
+    });
+    const damage = expectedDamage(
+      makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+      enemy,
+      1,
+      6,
     );
+    expect(damage * 5).toBeLessThan(enemy.maxHp * 2);
 
-    expect(result.state.enemies[0]).toMatchObject({ hp: 5, fleeing: false });
+    const result = hitResult(enemy, [6, 1, 1, 6]);
+
+    expect(result.state.enemies[0]).toMatchObject({
+      hp: enemy.maxHp - damage,
+      fleeing: false,
+    });
     expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
   });
 
   it('el valiente no huye aunque cruce el umbral', () => {
-    const result = hitResult(
-      makeUnit({
-        id: 'enemy-1',
-        faction: 'enemy',
-        enemyType: 'sentinel',
-        x: 6,
-        y: 5,
-        hp: 9,
-        maxHp: 9,
-        awareness: 'alert',
-      }),
+    const enemy = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      enemyType: 'sentinel',
+      x: 6,
+      y: 5,
+      awareness: 'alert',
+    });
+    const damage = expectedDamage(
+      makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+      enemy,
+      1,
+      1,
     );
+    expect(damage * 5).toBeGreaterThanOrEqual(enemy.maxHp * 2);
 
-    expect(result.state.enemies[0]).toMatchObject({ hp: 5, fleeing: false });
+    const result = hitResult(enemy);
+
+    expect(result.state.enemies[0]).toMatchObject({
+      hp: enemy.maxHp - damage,
+      fleeing: false,
+    });
     expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
   });
 
   it('un golpe letal no inicia la huida', () => {
-    const result = hitResult(coward({ hp: 4 }));
+    const enemy = coward({ hp: 1 });
+    const result = hitResult(enemy);
 
     expect(result.state.enemies[0].hp).toBe(0);
     expect(result.events.filter((event) => event.type === 'EnemyFled')).toEqual([]);
   });
 
   it('un nuevo golpe fuerte renueva la huida y vuelve a emitir EnemyFled', () => {
-    const result = hitResult(coward({ fleeing: true }));
+    const enemy = coward({ fleeing: true });
+    const damage = expectedDamage(
+      makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+      enemy,
+      1,
+      1,
+    );
+    const result = hitResult(enemy);
 
-    expect(result.state.enemies[0]).toMatchObject({ hp: 3, fleeing: true });
+    expect(result.state.enemies[0]).toMatchObject({
+      hp: enemy.maxHp - damage,
+      fleeing: true,
+    });
     expect(result.events).toContainEqual({
       type: 'EnemyFled',
       unitId: 'enemy-1',
@@ -495,19 +553,26 @@ describe('fórmulas de impacto y daño', () => {
 });
 
 describe('equipo y modificadores', () => {
-  it('el catálogo tiene IDs estables y los valores aceptados', () => {
-    expect(WEAPONS).toEqual({
-      sword: { id: 'sword', name: 'Espada', accuracy: 3, damage: 4 },
-      axe: { id: 'axe', name: 'Hacha', accuracy: 2, damage: 6 },
-      dagger: { id: 'dagger', name: 'Daga', accuracy: 4, damage: 3 },
-    });
-    expect(ARMORS).toEqual({
-      armor: { id: 'armor', name: 'Armadura', armor: 1 },
-      plate: { id: 'plate', name: 'Coraza', armor: 2 },
-    });
-    expect(SHIELDS).toEqual({
-      shield: { id: 'shield', name: 'Escudo', defense: 1 },
-    });
+  it('el catálogo tiene IDs estables y relaciones de diseño', () => {
+    for (const [id, weapon] of Object.entries(WEAPONS)) {
+      expect(weapon.id).toBe(id);
+      expect(weapon.name.length).toBeGreaterThan(0);
+      expect(weapon.accuracy).toBeGreaterThan(0);
+      expect(weapon.damage).toBeGreaterThan(0);
+    }
+    // La daga es la más fiable y el hacha la que más daño hace (REQ-010).
+    expect(WEAPONS.dagger.accuracy).toBeGreaterThan(WEAPONS.sword.accuracy);
+    expect(WEAPONS.sword.accuracy).toBeGreaterThan(WEAPONS.axe.accuracy);
+    expect(WEAPONS.axe.damage).toBeGreaterThan(WEAPONS.sword.damage);
+    expect(WEAPONS.sword.damage).toBeGreaterThan(WEAPONS.dagger.damage);
+
+    for (const [id, armor] of Object.entries(ARMORS)) {
+      expect(armor.id).toBe(id);
+      expect(armor.armor).toBeGreaterThan(0);
+    }
+    expect(ARMORS.plate.armor).toBeGreaterThan(ARMORS.armor.armor);
+    expect(SHIELDS.shield.id).toBe('shield');
+    expect(SHIELDS.shield.defense).toBeGreaterThan(0);
   });
 
   it('el arma equipada cambia acierto y daño sin tocar la fórmula', () => {
@@ -525,9 +590,17 @@ describe('equipo y modificadores', () => {
       return result.damage;
     }
 
-    expect(damageWith('sword')).toBe(6);
-    expect(damageWith('axe')).toBe(8);
-    expect(damageWith('dagger')).toBe(5);
+    for (const weaponId of ['sword', 'axe', 'dagger'] as const) {
+      const state = makeState({
+        players: [{ ...base, equipment: { ...base.equipment, weaponId } }],
+        enemies: [enemy],
+      });
+      expect(damageWith(weaponId)).toBe(
+        expectedDamage(state.players[0], state.enemies[0], 3, 1),
+      );
+    }
+    expect(damageWith('axe')).toBeGreaterThan(damageWith('sword'));
+    expect(damageWith('sword')).toBeGreaterThan(damageWith('dagger'));
   });
 
   it('la armadura reduce daño y el escudo no', () => {
@@ -556,8 +629,11 @@ describe('equipo y modificadores', () => {
     const withoutArmour = attack(unarmoured);
     if (!withArmour.ok || !withoutArmour.ok) throw new Error('ataque rechazado');
 
-    expect(withArmour.damage).toBe(6);
-    expect(withoutArmour.damage).toBe(7);
+    expect(withArmour.damage).toBe(expectedDamage(attacker, armoured, 3, 1));
+    expect(withoutArmour.damage).toBe(expectedDamage(attacker, unarmoured, 3, 1));
+    expect(withoutArmour.damage - withArmour.damage).toBe(
+      armorValue(armoured.equipment.armorId),
+    );
     expect(withArmour.hit).toBe(true);
     expect(withoutArmour.hit).toBe(true);
   });
@@ -618,8 +694,23 @@ describe('equipo y modificadores', () => {
     const lowDamage = playerAttack({ accuracy: 1, damage: 0, defense: 1 }, enemy, [6, 1, 3, 1]);
     const highDamage = playerAttack({ accuracy: 1, damage: 5, defense: 1 }, enemy, [6, 1, 3, 1]);
     if (!lowDamage.ok || !highDamage.ok) throw new Error('ataque rechazado');
-    expect(lowDamage.damage).toBe(5);
-    expect(highDamage.damage).toBe(10);
+    expect(lowDamage.damage).toBe(
+      expectedDamage(
+        { ...base, modifiers: { accuracy: 1, damage: 0, defense: 1 } },
+        enemy,
+        3,
+        1,
+      ),
+    );
+    expect(highDamage.damage).toBe(
+      expectedDamage(
+        { ...base, modifiers: { accuracy: 1, damage: 5, defense: 1 } },
+        enemy,
+        3,
+        1,
+      ),
+    );
+    expect(highDamage.damage).toBeGreaterThan(lowDamage.damage);
 
     const softTarget = { ...enemy, modifiers: { accuracy: 0, damage: 0, defense: 0 } };
     const toughTarget = { ...enemy, modifiers: { accuracy: 0, damage: 0, defense: 5 } };
@@ -657,12 +748,12 @@ describe('daño como despertador y alarma', () => {
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'sentinel',
-          x: 12,
+          x: 6 + BESTIARY.sentinel.alarm,
           y: 5,
           awareness: 'dormant',
         }),
       ],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
 
     const result = reduce(state, {
@@ -697,8 +788,8 @@ describe('daño como despertador y alarma', () => {
   it('si el golpe mata, no hay alarma', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [dormantSentinel(6, 5, { hp: 5 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      enemies: [dormantSentinel(6, 5, { hp: 1 })],
+      rng: rngForDice(PLAYER_HIT),
     });
 
     const result = resolveAttack(state, 'player-1', 'enemy-1');
@@ -739,7 +830,7 @@ describe('daño como despertador y alarma', () => {
           hasShouted: true,
         }),
       ],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
 
     const result = reduce(state, {
@@ -834,7 +925,7 @@ describe('secuencia del RNG', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 9, y: 9 })],
-      rng: rngForDice(PLAYER_HIT_5),
+      rng: rngForDice(PLAYER_HIT),
     });
     const before = state.rng;
 

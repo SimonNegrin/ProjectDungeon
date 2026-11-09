@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BESTIARY,
   detectEnemiesAfterStep,
   reduce,
   type GameEvent,
@@ -151,7 +152,7 @@ describe('feedback "!" de detección', () => {
           id: 'enemy-2',
           faction: 'enemy',
           enemyType: 'sentinel',
-          x: 10,
+          x: 2 + BESTIARY.sentinel.alarm,
           y: 2,
           awareness: 'dormant',
         }),

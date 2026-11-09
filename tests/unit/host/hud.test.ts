@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { WEAPONS } from '../../../src/game/equipment';
+import { ARMORS, SHIELDS, WEAPONS } from '../../../src/game/equipment';
 import {
   BESTIARY,
   BspMapGenerator,
   createInitialState,
   reduce,
+  type GameEvent,
 } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
@@ -37,14 +38,15 @@ function endTurn(state: GameState): GameState {
 
 describe('modelo del HUD', () => {
   it('refleja el estado inicial con vida, MP, acción, fase, enemigo y ayuda', () => {
-    const model = buildHudModel(makeState());
+    const state = makeState();
+    const model = buildHudModel(state);
 
     expect(model).toMatchObject({
-      playerHp: '20/20',
-      playerMp: '6/6',
+      playerHp: `${state.players[0].hp}/${state.players[0].maxHp}`,
+      playerMp: `${state.players[0].mp}/${state.players[0].maxMp}`,
       action: 'Sí',
       phase: 'Jugador',
-      enemyHp: '10/10',
+      enemyHp: `${state.enemies[0].hp}/${state.enemies[0].maxHp}`,
       turn: 'Turno 1',
       status: 'En juego',
     });
@@ -56,9 +58,11 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
     expect(model.overlays).toEqual({ victory: false, defeat: false });
-    expect(model.weapon).toBe('Espada +3/+4');
-    expect(model.shield).toBe('Escudo +1');
-    expect(model.armor).toBe('Armadura +1');
+    expect(model.weapon).toBe(
+      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${WEAPONS.sword.damage}`,
+    );
+    expect(model.shield).toBe(`${SHIELDS.shield.name} +${SHIELDS.shield.defense}`);
+    expect(model.armor).toBe(`${ARMORS.armor.name} +${ARMORS.armor.armor}`);
     expect(model.modifiers).toBe('+1 acierto · +1 daño · +1 defensa');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
@@ -81,7 +85,9 @@ describe('modelo del HUD', () => {
 
     const model = buildHudModel(state);
 
-    expect(model.weapon).toBe('Hacha +2/+6');
+    expect(model.weapon).toBe(
+      `${WEAPONS.axe.name} +${WEAPONS.axe.accuracy}/+${WEAPONS.axe.damage}`,
+    );
     expect(model.shield).toBe('Sin escudo');
     expect(model.armor).toBe('Sin armadura');
     expect(model.modifiers).toBe('+2 acierto · +0 daño · +1 defensa');
@@ -130,11 +136,12 @@ describe('modelo del HUD', () => {
       rng: rngForDice([6, 1, 2, 1]),
     });
 
-    const model = buildHudModel(attack(state));
+    const next = attack(state);
+    const model = buildHudModel(next);
 
-    expect(model.enemyHp).toBe('5/10');
+    expect(model.enemyHp).toBe(`${next.enemies[0].hp}/${next.enemies[0].maxHp}`);
     expect(model.action).toBe('No');
-    expect(model.playerHp).toBe('20/20');
+    expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
   });
 
   it('refleja la fase de jugador, el turno y la restauración tras fin de turno', () => {
@@ -144,12 +151,13 @@ describe('modelo del HUD', () => {
       rng: rngForDice([6, 1, 3, 3]),
     });
 
-    const model = buildHudModel(endTurn(state));
+    const next = endTurn(state);
+    const model = buildHudModel(next);
 
     expect(model.phase).toBe('Jugador');
     expect(model.turn).toBe('Turno 2');
-    expect(model.playerHp).toBe('17/20');
-    expect(model.playerMp).toBe('6/6');
+    expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
+    expect(model.playerMp).toBe(`${next.players[0].mp}/${next.players[0].maxMp}`);
     expect(model.action).toBe('Sí');
     expect(model.status).toBe('En juego');
   });
@@ -157,27 +165,29 @@ describe('modelo del HUD', () => {
   it('muestra el overlay de victoria cuando el enemigo muere', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 })],
       rng: rngForDice([6, 1, 2, 1]),
     });
 
-    const model = buildHudModel(attack(state));
+    const next = attack(state);
+    const model = buildHudModel(next);
 
-    expect(model.enemyHp).toBe('0/10');
+    expect(model.enemyHp).toBe(`0/${next.enemies[0].maxHp}`);
     expect(model.status).toBe('Victoria');
     expect(model.overlays).toEqual({ victory: true, defeat: false });
   });
 
   it('muestra el overlay de derrota cuando el jugador muere', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 3 })],
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
       rng: rngForDice([6, 1, 3, 3]),
     });
 
-    const model = buildHudModel(endTurn(state));
+    const next = endTurn(state);
+    const model = buildHudModel(next);
 
-    expect(model.playerHp).toBe('0/20');
+    expect(model.playerHp).toBe(`0/${next.players[0].maxHp}`);
     expect(model.status).toBe('Derrota');
     expect(model.overlays).toEqual({ victory: false, defeat: true });
   });
@@ -291,13 +301,31 @@ describe('modelo del overlay de debug', () => {
       { ...PLAYER_CURSOR, x: 6, y: 5, state: 'enemy', kind: 'enemy' },
     ).lines.join('\n');
 
-    expect(text).toContain('Equipo: Espada +3/+4 · Escudo +1 · Armadura +1');
+    const attackEvent = result.events.find(
+      (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+        event.type === 'AttackPerformed',
+    );
+    if (!attackEvent) throw new Error('se esperaba un ataque');
+
+    expect(text).toContain(
+      `Equipo: ${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${WEAPONS.sword.damage} · ${SHIELDS.shield.name} +${SHIELDS.shield.defense} · ${ARMORS.armor.name} +${ARMORS.armor.armor}`,
+    );
     expect(text).toContain('Modificadores +1 acierto · +1 daño · +1 defensa');
-    expect(text).toContain('Vida: player-1 20/20 · enemy-1 5/10');
-    expect(text).toContain('Enemigo bajo cursor: enemy-1 5/10');
-    expect(text).toContain('Último ataque: player-1→enemy-1 impacto 5 (PV 5)');
-    expect(text).toContain('tiradas ataque 6 escudo 1 daño 2 armadura 1');
-    expect(text).toContain('Últimos eventos: player-1→enemy-1 -5 (HP 5)');
+    expect(text).toContain(
+      `Vida: player-1 ${result.state.players[0].hp}/${result.state.players[0].maxHp} · enemy-1 ${result.state.enemies[0].hp}/${result.state.enemies[0].maxHp}`,
+    );
+    expect(text).toContain(
+      `Enemigo bajo cursor: enemy-1 ${result.state.enemies[0].hp}/${result.state.enemies[0].maxHp}`,
+    );
+    expect(text).toContain(
+      `Último ataque: player-1→enemy-1 impacto ${attackEvent.damage} (PV ${attackEvent.targetHp})`,
+    );
+    expect(text).toContain(
+      `tiradas ataque ${attackEvent.rolls.attack} escudo ${attackEvent.rolls.shield} daño ${attackEvent.rolls.damage} armadura ${attackEvent.rolls.armor}`,
+    );
+    expect(text).toContain(
+      `Últimos eventos: player-1→enemy-1 -${attackEvent.damage} (HP ${attackEvent.targetHp})`,
+    );
   });
 
   it('muestra equipo y modificadores de cada enemigo vivo, con el centinela', () => {
@@ -330,9 +358,18 @@ describe('modelo del overlay de debug', () => {
       PLAYER_CURSOR,
     ).lines;
 
+    const weapon = WEAPONS[BESTIARY.sentinel.equipment.weaponId];
+    const shield =
+      BESTIARY.sentinel.equipment.shieldId === null
+        ? 'Sin escudo'
+        : `${SHIELDS[BESTIARY.sentinel.equipment.shieldId].name} +${SHIELDS[BESTIARY.sentinel.equipment.shieldId].defense}`;
+    const armor =
+      BESTIARY.sentinel.equipment.armorId === null
+        ? 'Sin armadura'
+        : `${ARMORS[BESTIARY.sentinel.equipment.armorId].name} +${ARMORS[BESTIARY.sentinel.equipment.armorId].armor}`;
     const equipment = lines.filter((line) => line.startsWith('Equipo enemigo'));
     expect(equipment).toEqual([
-      'Equipo enemigo enemy-1: Espada +3/+4 · Escudo +1 · Armadura +1 · Modificadores +0 acierto · +0 daño · +0 defensa',
+      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Modificadores +0 acierto · +0 daño · +0 defensa`,
     ]);
   });
 
@@ -366,9 +403,9 @@ describe('modelo del overlay de debug', () => {
     for (const id of ['enemy-1', 'enemy-2', 'enemy-3', 'enemy-4']) {
       expect(text).toContain(`Percepción ${id}`);
     }
-    expect(text).toContain('visión 6 · alarma 8');
-    expect(text).toContain('visión 4 · alarma 8');
-    expect(text).toContain('visión 5 · alarma 8');
+    for (const definition of Object.values(BESTIARY)) {
+      expect(text).toContain(`visión ${definition.vision} · alarma ${definition.alarm}`);
+    }
     expect(text).toContain('enemy-1 ve a player-1 en (22,27)');
     expect(text).toContain('alarma de enemy-1 en (23,28)');
     expect(text).toContain('enemy-4 huye');

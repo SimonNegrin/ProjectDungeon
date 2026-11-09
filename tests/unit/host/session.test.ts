@@ -1,11 +1,32 @@
 import { describe, expect, it } from 'vitest';
-import { BspMapGenerator, createInitialState } from '../../../src/game/index';
+import {
+  BspMapGenerator,
+  WEAPONS,
+  armorValue,
+  createInitialState,
+  resolveDamage,
+  type Unit,
+} from '../../../src/game/index';
 import type { Position } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
 import type { RngState } from '../../../src/game/index';
+
+function expectedDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  armorDie: number,
+): number {
+  return resolveDamage(
+    attacker.modifiers.damage + WEAPONS[attacker.equipment.weaponId].damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
 
 function adjacentState(rng?: RngState) {
   return makeState({
@@ -49,7 +70,9 @@ describe('sesión de juego', () => {
   });
 
   it('EndTurn emite la fase enemiga y devuelve el control al jugador', () => {
-    const session = new GameSession(adjacentState(rngForDice([6, 1, 3, 3])));
+    const initial = adjacentState(rngForDice([6, 1, 3, 3]));
+    const session = new GameSession(initial);
+    const damage = expectedDamage(initial.enemies[0], initial.players[0], 3, 3);
 
     const result = session.dispatch(commandFromKey('e', session, { x: 5, y: 5 }));
     const types = result.events.map((event) => event.type);
@@ -58,11 +81,18 @@ describe('sesión de juego', () => {
     expect(types).toContain('PlayerTurnStarted');
     expect(session.state.phase).toBe('player');
     expect(session.state.turn).toBe(2);
-    expect(session.state.players[0]).toMatchObject({ hp: 17, mp: 6, actionAvailable: true });
+    expect(session.state.players[0]).toMatchObject({
+      hp: initial.players[0].hp - damage,
+      mp: initial.players[0].maxMp,
+      actionAvailable: true,
+    });
   });
 
   it('un ataque con F actualiza la vida y emite AttackPerformed', () => {
-    const session = new GameSession(adjacentState(rngForDice([6, 1, 2, 1])));
+    const initial = adjacentState(rngForDice([6, 1, 2, 1]));
+    const session = new GameSession(initial);
+    const damage = expectedDamage(initial.players[0], initial.enemies[0], 2, 1);
+    const targetHp = initial.enemies[0].hp - damage;
 
     const result = session.dispatch(commandFromKey('f', session, { x: 6, y: 5 }));
 
@@ -72,24 +102,26 @@ describe('sesión de juego', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
-        targetHp: 5,
+        damage,
+        targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },
     ]);
-    expect(session.state.enemies[0]).toMatchObject({ hp: 5 });
+    expect(session.state.enemies[0]).toMatchObject({ hp: targetHp });
     expect(session.state.players[0].actionAvailable).toBe(false);
-    expect(buildHudModel(session.state).enemyHp).toBe('5/10');
+    expect(buildHudModel(session.state).enemyHp).toBe(
+      `${targetHp}/${initial.enemies[0].maxHp}`,
+    );
   });
 
   it('la muerte del enemigo emite UnitDied y GameEnded con victoria', () => {
-    const session = new GameSession(
-      makeState({
-        players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 5 })],
-        rng: rngForDice([6, 1, 2, 1]),
-      }),
-    );
+    const initial = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 })],
+      rng: rngForDice([6, 1, 2, 1]),
+    });
+    const session = new GameSession(initial);
+    const damage = expectedDamage(initial.players[0], initial.enemies[0], 2, 1);
 
     const result = session.dispatch(commandFromKey('Enter', session, { x: 6, y: 5 }));
 
@@ -99,7 +131,7 @@ describe('sesión de juego', () => {
         attackerId: 'player-1',
         targetId: 'enemy-1',
         hit: true,
-        damage: 5,
+        damage,
         targetHp: 0,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
       },

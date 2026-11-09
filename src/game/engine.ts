@@ -10,7 +10,6 @@ import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import {
-  ENEMY_MAX_MP,
   MAX_WEAPONS,
   MOVE_COST,
   PICKUP_COST,
@@ -72,8 +71,8 @@ function createEnemy(
     y: position.y,
     hp: definition.maxHp,
     maxHp: definition.maxHp,
-    mp: ENEMY_MAX_MP,
-    maxMp: ENEMY_MAX_MP,
+    mp: definition.maxMp,
+    maxMp: definition.maxMp,
     actionAvailable: true,
     modifiers: definition.modifiers,
     equipment: definition.equipment,

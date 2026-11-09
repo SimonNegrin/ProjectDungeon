@@ -6,7 +6,6 @@ import {
   canSee,
   createInitialState,
   DEFAULT_MAP_SEED,
-  ENEMY_MAX_MP,
   ENEMY_PLACEMENT_SPECS,
   MIN_ENEMY_DISTANCE,
   MIN_PLAYER_DISTANCE,
@@ -64,10 +63,19 @@ function assertValidPlacement(state: GameState): void {
   }
 
   expect(pairInsideAlarm, 'falta una pareja dentro del radio de alarma').toBe(true);
-  expect(isolated, 'falta un enemigo a más de 8 de los demás').toBe(true);
+  expect(
+    isolated,
+    `falta un enemigo a más de ${ALARM_RADIUS} de los demás`,
+  ).toBe(true);
 }
 
 describe('colocación inicial de los cuatro enemigos', () => {
+  it('deriva el radio de alarma del bestiario', () => {
+    expect(ALARM_RADIUS).toBe(
+      Math.max(...Object.values(BESTIARY).map((definition) => definition.alarm)),
+    );
+  });
+
   it('coloca exactamente 2 centinelas, 1 bruto y 1 cobarde con el bestiario', () => {
     const state = createInitialState({ generator: new BspMapGenerator() });
 
@@ -89,8 +97,8 @@ describe('colocación inicial de los cuatro enemigos', () => {
         faction: 'enemy',
         hp: definition.maxHp,
         maxHp: definition.maxHp,
-        mp: ENEMY_MAX_MP,
-        maxMp: ENEMY_MAX_MP,
+        mp: definition.maxMp,
+        maxMp: definition.maxMp,
         actionAvailable: true,
         modifiers: definition.modifiers,
         equipment: definition.equipment,

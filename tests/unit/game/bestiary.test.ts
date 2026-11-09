@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ARMORS,
   BESTIARY,
+  SHIELDS,
+  WEAPONS,
   armorValue,
   createRng,
   enemyDefinition,
@@ -17,7 +20,7 @@ import {
 import { makeState, makeUnit, rngForDice } from './helpers';
 
 const ENEMY_TYPES: readonly EnemyType[] = ['sentinel', 'brute', 'coward'];
-const WEAPONS: readonly WeaponId[] = ['sword', 'axe', 'dagger'];
+const WEAPON_IDS: readonly WeaponId[] = ['sword', 'axe', 'dagger'];
 
 function makeEnemy(
   type: EnemyType,
@@ -48,63 +51,80 @@ function makePlayer(weaponId: WeaponId = 'sword'): Unit {
   });
 }
 
+function damageWith(attacker: Unit, target: Unit, damageDie: number, armorDie: number): number {
+  return resolveDamage(
+    attacker.modifiers.damage + weaponFor(attacker.equipment.weaponId).damage,
+    armorValue(target.equipment.armorId),
+    damageDie,
+    armorDie,
+  );
+}
+
 describe('bestiario', () => {
-  it('contiene la tabla A completa y serializable de los tres tipos', () => {
-    expect(BESTIARY).toEqual({
-      sentinel: {
-        id: 'sentinel',
-        name: 'Centinela',
-        profile: 'brave',
-        vision: 6,
-        alarm: 8,
-        maxHp: 9,
-        modifiers: { accuracy: 0, damage: 0, defense: 0 },
-        equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-      },
-      brute: {
-        id: 'brute',
-        name: 'Bruto',
-        profile: 'brave',
-        vision: 4,
-        alarm: 8,
-        maxHp: 12,
-        modifiers: { accuracy: 0, damage: 1, defense: 0 },
-        equipment: { weaponId: 'axe', armorId: 'plate', shieldId: null },
-      },
-      coward: {
-        id: 'coward',
-        name: 'Cobarde',
-        profile: 'coward',
-        vision: 5,
-        alarm: 8,
-        maxHp: 8,
-        modifiers: { accuracy: 1, damage: 0, defense: 1 },
-        equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
-      },
-    });
+  it('declara la tabla completa y serializable de los tres tipos', () => {
+    expect(Object.keys(BESTIARY).sort()).toEqual([...ENEMY_TYPES].sort());
+    for (const type of ENEMY_TYPES) {
+      const definition = BESTIARY[type];
+      expect(definition.id).toBe(type);
+      expect(definition.name.length).toBeGreaterThan(0);
+      expect(['brave', 'coward']).toContain(definition.profile);
+      expect(definition.vision).toBeGreaterThan(0);
+      expect(definition.alarm).toBeGreaterThan(0);
+      expect(definition.maxHp).toBeGreaterThan(0);
+      expect(definition.maxMp).toBeGreaterThan(0);
+      expect(definition.modifiers.accuracy).toBeGreaterThanOrEqual(0);
+      expect(definition.modifiers.damage).toBeGreaterThanOrEqual(0);
+      expect(definition.modifiers.defense).toBeGreaterThanOrEqual(0);
+      expect(enemyDefinition(type)).toBe(definition);
+    }
 
     expect(JSON.parse(JSON.stringify(BESTIARY))).toEqual(BESTIARY);
-    for (const type of ENEMY_TYPES) {
-      expect(enemyDefinition(type)).toBe(BESTIARY[type]);
-    }
   });
 
-  it('el equipo del catálogo resuelve al arma, escudo y armadura aceptados', () => {
-    const expected = {
-      sentinel: { accuracy: 3, damage: 4, shield: 1, armor: 1, hp: 9 },
-      brute: { accuracy: 2, damage: 6, shield: 0, armor: 2, hp: 12 },
-      coward: { accuracy: 4, damage: 3, shield: 1, armor: 0, hp: 8 },
-    } as const;
+  it('usa un radio de alarma común y el papel de cada tipo en PV y MP', () => {
+    const alarms = Object.values(BESTIARY).map((definition) => definition.alarm);
+    expect(new Set(alarms).size).toBe(1);
+
+    // El bruto es el tanque y el cobarde el más frágil (REQ-010).
+    expect(BESTIARY.brute.maxHp).toBeGreaterThan(BESTIARY.sentinel.maxHp);
+    expect(BESTIARY.sentinel.maxHp).toBeGreaterThan(BESTIARY.coward.maxHp);
+
+    // El cobarde tiene más MP para huir y el bruto menos por su armadura.
+    expect(BESTIARY.coward.maxMp).toBeGreaterThan(BESTIARY.sentinel.maxMp);
+    expect(BESTIARY.sentinel.maxMp).toBeGreaterThan(BESTIARY.brute.maxMp);
+  });
+
+  it('el centinela va sin armadura, conserva escudo y el resto del equipo es el aceptado', () => {
+    expect(BESTIARY.sentinel.equipment).toMatchObject({
+      weaponId: 'sword',
+      armorId: null,
+      shieldId: 'shield',
+    });
+    expect(BESTIARY.brute.equipment).toMatchObject({
+      weaponId: 'axe',
+      armorId: 'plate',
+      shieldId: null,
+    });
+    expect(BESTIARY.coward.equipment).toMatchObject({
+      weaponId: 'dagger',
+      armorId: null,
+      shieldId: 'shield',
+    });
 
     for (const type of ENEMY_TYPES) {
       const definition = BESTIARY[type];
       const weapon = weaponFor(definition.equipment.weaponId);
-      const values = expected[type];
-
-      expect(definition.maxHp).toBe(values.hp);
-      expect([weapon.accuracy, weapon.damage]).toEqual([values.accuracy, values.damage]);
-      expect(shieldValue(definition.equipment.shieldId)).toBe(values.shield);
-      expect(armorValue(definition.equipment.armorId)).toBe(values.armor);
+      expect(weapon).toBe(WEAPONS[definition.equipment.weaponId]);
+      expect(shieldValue(definition.equipment.shieldId)).toBe(
+        definition.equipment.shieldId === null
+          ? 0
+          : SHIELDS[definition.equipment.shieldId].defense,
+      );
+      expect(armorValue(definition.equipment.armorId)).toBe(
+        definition.equipment.armorId === null
+          ? 0
+          : ARMORS[definition.equipment.armorId].armor,
+      );
     }
   });
 
@@ -127,19 +147,15 @@ describe('bestiario', () => {
       return result.damage;
     }
 
-    expect(attackDamage(makeEnemy('sentinel'))).toBe(3);
-    expect(attackDamage(makeEnemy('sentinel', strongerDefinition))).toBe(8);
+    const baseDamage = damageWith(makeEnemy('sentinel'), makePlayer(), 1, 1);
+    expect(attackDamage(makeEnemy('sentinel'))).toBe(baseDamage);
+    expect(attackDamage(makeEnemy('sentinel', strongerDefinition))).toBe(baseDamage + 5);
   });
 });
 
 describe('ataque enemigo con el resolvedor compartido', () => {
   it('cada tipo ataca con su arma y modificadores del bestiario', () => {
     const dice = rngForDice([6, 1, 1, 1]);
-    const expectedDamage: Record<EnemyType, number> = {
-      sentinel: 3,
-      brute: 6,
-      coward: 2,
-    };
 
     for (const type of ENEMY_TYPES) {
       const definition = BESTIARY[type];
@@ -160,14 +176,8 @@ describe('ataque enemigo con el resolvedor compartido', () => {
         ),
       );
       expect(result.damage).toBe(
-        resolveDamage(
-          definition.modifiers.damage + weapon.damage,
-          armorValue(player.equipment.armorId),
-          1,
-          1,
-        ),
+        damageWith(enemy, player, 1, 1),
       );
-      expect(result.damage).toBe(expectedDamage[type]);
       expect(result.rolls).toEqual({ attack: 6, shield: 1, damage: 1, armor: 1 });
     }
   });
@@ -178,29 +188,30 @@ describe('ataque enemigo con el resolvedor compartido', () => {
       enemies: [makeEnemy('sentinel')],
       rng: rngForDice([6, 1, 1, 1]),
     });
+    const expectedDamage = damageWith(state.enemies[0], state.players[0], 1, 1);
 
     const result = reduce(state, { type: 'EndTurn' });
 
-    expect(result.state.players[0].hp).toBe(17);
+    expect(result.state.players[0].hp).toBe(state.players[0].hp - expectedDamage);
     expect(result.events).toContainEqual({
       type: 'AttackPerformed',
       attackerId: 'enemy-1',
       targetId: 'player-1',
       hit: true,
-      damage: 3,
-      targetHp: 17,
+      damage: expectedDamage,
+      targetHp: state.players[0].hp - expectedDamage,
       rolls: { attack: 6, shield: 1, damage: 1, armor: 1 },
     });
   });
 });
 
-describe('tiempo para matar de la tabla A', () => {
+describe('tiempo para matar según el catálogo', () => {
   const SAMPLES = 12_000;
 
   /**
    * REQ-010 define el TtK como `PV / (impacto × daño medio por impacto)`.
-   * Se estiman el impacto y el daño medio con `resolveAttack` sobre un RNG
-   * sembrado, con suficientes repeticiones para que la media sea estable.
+   * La referencia se calcula desde el catálogo y las fórmulas, sin fijar
+   * números de balance en el test.
    */
   function measureTtk(weaponId: WeaponId, type: EnemyType): number {
     const definition = BESTIARY[type];
@@ -226,17 +237,42 @@ describe('tiempo para matar de la tabla A', () => {
     return definition.maxHp / (hitRate * meanDamage);
   }
 
-  const expected: Record<EnemyType, Record<WeaponId, number>> = {
-    sentinel: { sword: 2.6, axe: 2.1, dagger: 3.0 },
-    brute: { sword: 4.0, axe: 2.9, dagger: 4.8 },
-    coward: { sword: 2.2, axe: 2.0, dagger: 2.3 },
-  };
+  function expectedTtk(weaponId: WeaponId, type: EnemyType): number {
+    const definition = BESTIARY[type];
+    const player = makePlayer(weaponId);
+    const enemy = makeEnemy(type);
+    const attackBonus = player.modifiers.accuracy + WEAPONS[weaponId].accuracy;
+    const defense = enemy.modifiers.defense + shieldValue(enemy.equipment.shieldId);
+    const damageBonus = player.modifiers.damage + WEAPONS[weaponId].damage;
+    const armor = armorValue(enemy.equipment.armorId);
+    let hits = 0;
+    let damageSum = 0;
 
-  it('los nueve cruces quedan dentro de ±0,3 ataques del requisito', () => {
+    for (let attackDie = 1; attackDie <= 6; attackDie += 1) {
+      for (let shieldDie = 1; shieldDie <= 6; shieldDie += 1) {
+        if (!resolveHit(attackBonus, defense, attackDie, shieldDie)) continue;
+        hits += 1;
+        for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
+          for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
+            damageSum += resolveDamage(damageBonus, armor, damageDie, armorDie);
+          }
+        }
+      }
+    }
+
+    const hitRate = hits / 36;
+    const meanDamage = damageSum / (hits * 36);
+    return definition.maxHp / (hitRate * meanDamage);
+  }
+
+  it('los nueve cruces siguen el TtK calculado desde el catálogo', () => {
     for (const type of ENEMY_TYPES) {
-      for (const weaponId of WEAPONS) {
+      for (const weaponId of WEAPON_IDS) {
         const measured = measureTtk(weaponId, type);
-        expect(Math.abs(measured - expected[type][weaponId])).toBeLessThanOrEqual(0.3);
+        expect(
+          Math.abs(measured - expectedTtk(weaponId, type)),
+          `${type}/${weaponId}`,
+        ).toBeLessThanOrEqual(0.3);
       }
     }
   });

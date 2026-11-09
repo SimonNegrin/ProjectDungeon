@@ -34,9 +34,9 @@ export interface ShieldDefinition {
 }
 
 export const WEAPONS: Readonly<Record<WeaponId, WeaponDefinition>> = {
-  sword: { id: 'sword', name: 'Espada', accuracy: 3, damage: 4 },
-  axe: { id: 'axe', name: 'Hacha', accuracy: 2, damage: 6 },
-  dagger: { id: 'dagger', name: 'Daga', accuracy: 4, damage: 3 },
+  sword: { id: 'sword', name: 'Espada', accuracy: 3, damage: 3 },
+  axe: { id: 'axe', name: 'Hacha', accuracy: 2, damage: 5 },
+  dagger: { id: 'dagger', name: 'Daga', accuracy: 4, damage: 2 },
 };
 
 export const ARMORS: Readonly<Record<ArmorId, ArmorDefinition>> = {

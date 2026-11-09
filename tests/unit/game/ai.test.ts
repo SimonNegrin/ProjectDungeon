@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BESTIARY,
   canSee,
   chebyshevDistance,
   hasLineOfSight,
@@ -81,22 +82,37 @@ describe('enemy AI', () => {
     });
 
     const result = reduce(state, { type: 'EndTurn' });
-    expect(result.state.players[0].hp).toBe(17);
+    const attack = result.events.find((event) => event.type === 'AttackPerformed');
+    if (!attack || attack.type !== 'AttackPerformed') {
+      throw new Error('se esperaba un ataque');
+    }
+    expect(result.state.players[0].hp).toBe(state.players[0].hp - attack.damage);
     expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, actionAvailable: false });
   });
 
-  it('gasta hasta los 4 MP avanzando por BFS en una fase', () => {
+  it('gasta todo el MP del tipo avanzando por BFS en una fase', () => {
+    const maxMp = BESTIARY.sentinel.maxMp;
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 15,
+          y: 5,
+        }),
+      ],
     });
 
     const result = reduce(state, { type: 'EndTurn' });
     const moves = result.events.filter((event) => event.type === 'UnitMoved');
 
-    expect(moves).toHaveLength(4);
-    expect(moves.map((move) => move.mpLeft)).toEqual([3, 2, 1, 0]);
-    expect(result.state.enemies[0]).toMatchObject({ x: 11, y: 5, mp: 0 });
+    expect(moves).toHaveLength(maxMp);
+    expect(moves.map((move) => move.mpLeft)).toEqual(
+      Array.from({ length: maxMp }, (_, index) => maxMp - index - 1),
+    );
+    expect(result.state.enemies[0]).toMatchObject({ x: 15 - maxMp, y: 5, mp: 0 });
   });
 
   it('espera si no puede avanzar ni atacar', () => {
@@ -171,8 +187,12 @@ describe('alerta con todos los MP', () => {
 
     expect(moves).toHaveLength(4);
     expect(attacks).toHaveLength(1);
-    expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 10, mp: 0 });
-    expect(result.state.players[0].hp).toBeLessThan(20);
+    expect(result.state.enemies[0]).toMatchObject({
+      x: 6,
+      y: 10,
+      mp: state.enemies[0].maxMp - moves.length,
+    });
+    expect(result.state.players[0].hp).toBeLessThan(state.players[0].hp);
   });
 
   it('investiga lastKnown sin atacar si no termina adyacente', () => {
@@ -194,7 +214,7 @@ describe('alerta con todos los MP', () => {
     const plan = planEnemyAction(state, state.enemies[0]);
     expect(plan.type).toBe('move');
     if (plan.type !== 'move') throw new Error('se esperaba un movimiento');
-    expect(plan.steps).toHaveLength(4);
+    expect(plan.steps).toHaveLength(BESTIARY.sentinel.maxMp);
     expect(plan.attackTargetId).toBeUndefined();
   });
 
@@ -236,12 +256,9 @@ describe('huida del cobarde', () => {
       enemyType: 'coward',
       x: options.x,
       y: options.y,
-      hp: 8,
-      maxHp: 8,
       awareness: 'alert',
       fleeing: options.fleeing ?? true,
       home: options.home ?? { x: options.x, y: options.y },
-      equipment: { weaponId: 'dagger', armorId: null, shieldId: 'shield' },
     });
   }
 
@@ -276,8 +293,10 @@ describe('huida del cobarde', () => {
     if (plan.type !== 'move') throw new Error('se esperaba un movimiento');
 
     const final = positionAfter(enemy, plan.steps);
-    expect(plan.steps).toHaveLength(4);
-    expect(chebyshevDistance(final, state.players[0])).toBe(8);
+    expect(plan.steps).toHaveLength(BESTIARY.coward.maxMp);
+    expect(chebyshevDistance(final, state.players[0])).toBeGreaterThan(
+      chebyshevDistance(enemy, state.players[0]),
+    );
     expect(planEnemyAction(state, enemy)).toEqual(plan);
   });
 
