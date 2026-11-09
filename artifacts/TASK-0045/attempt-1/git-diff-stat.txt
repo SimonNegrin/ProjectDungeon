@@ -1,0 +1,32 @@
+$ git diff --stat
+ src/game/bsp.ts                  | 300 +++++++++++++++++++++++----------------
+ src/game/chambers/core/index.ts  |  72 +++++++++-
+ src/game/enemy-placement.ts      |  29 +++-
+ src/game/map.ts                  |   1 +
+ tests/unit/game/map.test.ts      |   4 +-
+ tests/unit/host/debug.test.ts    |  38 +++--
+ tests/unit/host/hud.test.ts      |  14 +-
+ tests/unit/host/renderer.test.ts |  23 +--
+ tests/unit/host/session.test.ts  |  19 ++-
+ 9 files changed, 342 insertions(+), 158 deletions(-)
+
+$ git status --short
+ M src/game/bsp.ts
+ M src/game/chambers/core/index.ts
+ M src/game/enemy-placement.ts
+ M src/game/map.ts
+ M tests/unit/game/map.test.ts
+ M tests/unit/host/debug.test.ts
+ M tests/unit/host/hud.test.ts
+ M tests/unit/host/renderer.test.ts
+ M tests/unit/host/session.test.ts
+?? artifacts/TASK-0045/
+?? src/game/chambers/core/contents.ts
+?? src/game/chambers/core/enemies.ts
+?? src/game/chambers/core/exit.ts
+?? src/game/chambers/core/spawn.ts
+?? tests/unit/game/bsp-spawn-contract.test.ts
+?? tests/unit/game/chambers-contents.test.ts
+?? tests/unit/game/chambers-enemies.test.ts
+?? tests/unit/game/chambers-exit.test.ts
+?? tests/unit/game/chambers-spawn.test.ts
