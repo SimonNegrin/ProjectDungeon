@@ -1,0 +1,1025 @@
+{
+  "experiment": "EXP-004",
+  "question": "¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?",
+  "seed": 7,
+  "variant": "templates",
+  "parameters": {
+    "mapWidth": 22,
+    "mapHeight": 18,
+    "roomCount": 5,
+    "roomMin": 3,
+    "roomMax": 9,
+    "corridorMaxLength": 3,
+    "wideCorridorChance": 33,
+    "wallThickness": 1,
+    "megaRoomChance": 17,
+    "spawnMinTiles": 6,
+    "numPlayers": 3,
+    "enemySurfaceFactor": 0.02,
+    "enemyPlayersFactor": 1.35,
+    "variant": "templates",
+    "showDebug": true,
+    "showDoors": true,
+    "showSpawn": true,
+    "showEnemies": true
+  },
+  "variants": [
+    {
+      "variant": "growth",
+      "seed": 7,
+      "stats": {
+        "roomCount": 5,
+        "largeRooms": 1,
+        "mediumRooms": 0,
+        "smallRooms": 4,
+        "cavernRooms": 0,
+        "totalFloor": 111,
+        "roomFloor": 106,
+        "corridorFloor": 5,
+        "averageAreaRatio": 0.685,
+        "notchCount": 36,
+        "alcoveCount": 2,
+        "sharedWalls": 4,
+        "doorCount": 4,
+        "validDoors": 4,
+        "directDoors": 3,
+        "openMouths": 1,
+        "doorMinDistance": 3,
+        "corridorCount": 4,
+        "corridorLengths": {
+          "0": 3,
+          "1": 1,
+          "2": 0,
+          "3": 0
+        },
+        "loops": 0,
+        "wideCount": 0,
+        "wideLength": 0,
+        "cavernArea": 0,
+        "cavernShare": 0,
+        "spawnHoles": 6,
+        "spawnAccesses": 1,
+        "spawnAccess": {
+          "x": 17,
+          "y": 9
+        },
+        "spawnHoleMaxDistance": 3,
+        "enemyCount": 8,
+        "emptyRooms": 0,
+        "maxEnemiesPerRoom": 4,
+        "generationAttempts": 305,
+        "enemy": {
+          "surfaceN": 106,
+          "playersP": 3,
+          "surfaceFactor": 0.02,
+          "playersFactor": 1.35,
+          "surfaceTerm": 3,
+          "playersTerm": 5,
+          "total": 8,
+          "planned": 8,
+          "perRoom": [
+            1,
+            4,
+            0,
+            2,
+            1
+          ],
+          "placedPerRoom": [
+            1,
+            4,
+            0,
+            2,
+            1
+          ],
+          "sentinels": 4,
+          "brutes": 2,
+          "cowards": 2
+        }
+      },
+      "fingerprint": "ab89da88",
+      "warnings": [
+        "Se abrieron 1 bocas sin puerta (una-por-pasillo: 1).",
+        "La sala de spawn no reunió los huecos pedidos con separación; se abrió a la sala completa y se relajó la separación."
+      ],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 5,
+          "hint": "1 grandes · 4 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "1G · 0M · 4P"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.69",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 36
+        },
+        {
+          "label": "Hornacinas",
+          "value": 2
+        },
+        {
+          "label": "Pared compartida",
+          "value": 4,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:3 1:1 2:0 3:0"
+        },
+        {
+          "label": "Bucles",
+          "value": "0 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "no"
+        },
+        {
+          "label": "Caverna",
+          "value": "no"
+        },
+        {
+          "label": "Puertas",
+          "value": "4 válidas",
+          "hint": "1 boca sin puerta · separación mín. 3"
+        },
+        {
+          "label": "Acceso spawn",
+          "value": "17,9",
+          "hint": "1 accesos · 6 huecos a ≤3"
+        },
+        {
+          "label": "Enemigos T",
+          "value": 8,
+          "hint": "N 106 × 0.02 → 3 · P 3 × 1.35 → 5"
+        },
+        {
+          "label": "Reparto",
+          "value": "1·4·0·2·1",
+          "hint": "colocado 1·4·0·2·1"
+        },
+        {
+          "label": "Tipos",
+          "value": "4S · 2B · 2C",
+          "hint": "8 fichas · 0 salas vacías"
+        },
+        {
+          "label": "Generación",
+          "value": "3.4 ms"
+        }
+      ],
+      "doors": [
+        {
+          "id": 0,
+          "x": 16,
+          "y": 9,
+          "orientation": "vertical",
+          "style": "wood",
+          "roomA": 1,
+          "roomB": 2,
+          "direct": true,
+          "corridorId": 0
+        },
+        {
+          "id": 1,
+          "x": 6,
+          "y": 9,
+          "orientation": "vertical",
+          "style": "wood",
+          "roomA": 1,
+          "roomB": 3,
+          "direct": true,
+          "corridorId": 1
+        },
+        {
+          "id": 2,
+          "x": 4,
+          "y": 12,
+          "orientation": "horizontal",
+          "style": "grated",
+          "roomA": 3,
+          "roomB": 4,
+          "direct": true,
+          "corridorId": 2
+        },
+        {
+          "id": 3,
+          "x": 3,
+          "y": 6,
+          "orientation": "horizontal",
+          "style": "metal",
+          "roomA": 0,
+          "roomB": 3,
+          "direct": false,
+          "corridorId": 3
+        }
+      ],
+      "openMouths": [
+        {
+          "id": 0,
+          "x": 3,
+          "y": 7,
+          "orientation": "horizontal",
+          "roomA": 0,
+          "roomB": 3,
+          "corridorId": 3,
+          "reason": "una-por-pasillo"
+        }
+      ],
+      "spawns": {
+        "roomId": 2,
+        "party": [
+          {
+            "x": 17,
+            "y": 9
+          },
+          {
+            "x": 17,
+            "y": 11
+          },
+          {
+            "x": 19,
+            "y": 9
+          },
+          {
+            "x": 19,
+            "y": 11
+          },
+          {
+            "x": 20,
+            "y": 11
+          },
+          {
+            "x": 17,
+            "y": 10
+          }
+        ],
+        "player": {
+          "x": 17,
+          "y": 9
+        }
+      },
+      "enemies": [
+        {
+          "id": "enemy-4-0",
+          "type": "coward",
+          "x": 2,
+          "y": 16,
+          "roomId": 4,
+          "home": {
+            "x": 2,
+            "y": 16
+          }
+        },
+        {
+          "id": "enemy-0-0",
+          "type": "coward",
+          "x": 5,
+          "y": 3,
+          "roomId": 0,
+          "home": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "id": "enemy-1-0",
+          "type": "brute",
+          "x": 9,
+          "y": 13,
+          "roomId": 1,
+          "home": {
+            "x": 9,
+            "y": 13
+          }
+        },
+        {
+          "id": "enemy-3-0",
+          "type": "brute",
+          "x": 3,
+          "y": 11,
+          "roomId": 3,
+          "home": {
+            "x": 3,
+            "y": 11
+          }
+        },
+        {
+          "id": "enemy-1-1",
+          "type": "sentinel",
+          "x": 8,
+          "y": 7,
+          "roomId": 1,
+          "home": {
+            "x": 8,
+            "y": 7
+          }
+        },
+        {
+          "id": "enemy-3-1",
+          "type": "sentinel",
+          "x": 3,
+          "y": 8,
+          "roomId": 3,
+          "home": {
+            "x": 3,
+            "y": 8
+          }
+        },
+        {
+          "id": "enemy-1-2",
+          "type": "sentinel",
+          "x": 11,
+          "y": 13,
+          "roomId": 1,
+          "home": {
+            "x": 11,
+            "y": 13
+          }
+        },
+        {
+          "id": "enemy-1-3",
+          "type": "sentinel",
+          "x": 10,
+          "y": 7,
+          "roomId": 1,
+          "home": {
+            "x": 10,
+            "y": 7
+          }
+        }
+      ]
+    },
+    {
+      "variant": "bsp",
+      "seed": 7,
+      "stats": {
+        "roomCount": 5,
+        "largeRooms": 2,
+        "mediumRooms": 1,
+        "smallRooms": 2,
+        "cavernRooms": 0,
+        "totalFloor": 171,
+        "roomFloor": 162,
+        "corridorFloor": 9,
+        "averageAreaRatio": 0.743,
+        "notchCount": 36,
+        "alcoveCount": 0,
+        "sharedWalls": 4,
+        "doorCount": 5,
+        "validDoors": 5,
+        "directDoors": 3,
+        "openMouths": 2,
+        "doorMinDistance": 3,
+        "corridorCount": 5,
+        "corridorLengths": {
+          "0": 3,
+          "1": 1,
+          "2": 0,
+          "3": 1
+        },
+        "loops": 1,
+        "wideCount": 0,
+        "wideLength": 0,
+        "cavernArea": 0,
+        "cavernShare": 0,
+        "spawnHoles": 6,
+        "spawnAccesses": 1,
+        "spawnAccess": {
+          "x": 9,
+          "y": 5
+        },
+        "spawnHoleMaxDistance": 7,
+        "enemyCount": 9,
+        "emptyRooms": 0,
+        "maxEnemiesPerRoom": 3,
+        "generationAttempts": 4,
+        "enemy": {
+          "surfaceN": 162,
+          "playersP": 3,
+          "surfaceFactor": 0.02,
+          "playersFactor": 1.35,
+          "surfaceTerm": 4,
+          "playersTerm": 5,
+          "total": 9,
+          "planned": 9,
+          "perRoom": [
+            3,
+            0,
+            2,
+            3,
+            1
+          ],
+          "placedPerRoom": [
+            3,
+            0,
+            2,
+            3,
+            1
+          ],
+          "sentinels": 5,
+          "brutes": 2,
+          "cowards": 2
+        }
+      },
+      "fingerprint": "27648e0d",
+      "warnings": [
+        "Se abrieron 2 bocas sin puerta (una-por-pasillo: 2).",
+        "No cabían los huecos pedidos a radio 2 ni 3; se amplió a la sala completa."
+      ],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 5,
+          "hint": "2 grandes · 2 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "2G · 1M · 2P"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.74",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 36
+        },
+        {
+          "label": "Hornacinas",
+          "value": 0
+        },
+        {
+          "label": "Pared compartida",
+          "value": 4,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:3 1:1 2:0 3:1"
+        },
+        {
+          "label": "Bucles",
+          "value": "1 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "no"
+        },
+        {
+          "label": "Caverna",
+          "value": "no"
+        },
+        {
+          "label": "Puertas",
+          "value": "5 válidas",
+          "hint": "2 bocas sin puerta · separación mín. 3"
+        },
+        {
+          "label": "Acceso spawn",
+          "value": "9,5",
+          "hint": "1 accesos · 6 huecos a ≤7"
+        },
+        {
+          "label": "Enemigos T",
+          "value": 9,
+          "hint": "N 162 × 0.02 → 4 · P 3 × 1.35 → 5"
+        },
+        {
+          "label": "Reparto",
+          "value": "3·0·2·3·1",
+          "hint": "colocado 3·0·2·3·1"
+        },
+        {
+          "label": "Tipos",
+          "value": "5S · 2B · 2C",
+          "hint": "9 fichas · 0 salas vacías"
+        },
+        {
+          "label": "Generación",
+          "value": "7.4 ms"
+        }
+      ],
+      "doors": [
+        {
+          "id": 0,
+          "x": 10,
+          "y": 5,
+          "orientation": "vertical",
+          "style": "metal",
+          "roomA": 0,
+          "roomB": 1,
+          "direct": true,
+          "corridorId": 0
+        },
+        {
+          "id": 1,
+          "x": 12,
+          "y": 9,
+          "orientation": "horizontal",
+          "style": "metal",
+          "roomA": 0,
+          "roomB": 3,
+          "direct": true,
+          "corridorId": 1
+        },
+        {
+          "id": 2,
+          "x": 10,
+          "y": 14,
+          "orientation": "vertical",
+          "style": "wood",
+          "roomA": 2,
+          "roomB": 3,
+          "direct": true,
+          "corridorId": 2
+        },
+        {
+          "id": 3,
+          "x": 6,
+          "y": 11,
+          "orientation": "vertical",
+          "style": "metal",
+          "roomA": 2,
+          "roomB": 4,
+          "direct": false,
+          "corridorId": 3
+        },
+        {
+          "id": 4,
+          "x": 9,
+          "y": 10,
+          "orientation": "horizontal",
+          "style": "metal",
+          "roomA": 0,
+          "roomB": 2,
+          "direct": false,
+          "corridorId": 4
+        }
+      ],
+      "openMouths": [
+        {
+          "id": 0,
+          "x": 5,
+          "y": 11,
+          "orientation": "vertical",
+          "roomA": 2,
+          "roomB": 4,
+          "corridorId": 3,
+          "reason": "una-por-pasillo"
+        },
+        {
+          "id": 1,
+          "x": 10,
+          "y": 8,
+          "orientation": "vertical",
+          "roomA": 0,
+          "roomB": 2,
+          "corridorId": 4,
+          "reason": "una-por-pasillo"
+        }
+      ],
+      "spawns": {
+        "roomId": 1,
+        "party": [
+          {
+            "x": 9,
+            "y": 5
+          },
+          {
+            "x": 8,
+            "y": 3
+          },
+          {
+            "x": 7,
+            "y": 6
+          },
+          {
+            "x": 6,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 6
+          },
+          {
+            "x": 2,
+            "y": 5
+          }
+        ],
+        "player": {
+          "x": 9,
+          "y": 5
+        }
+      },
+      "enemies": [
+        {
+          "id": "enemy-3-0",
+          "type": "coward",
+          "x": 19,
+          "y": 16,
+          "roomId": 3,
+          "home": {
+            "x": 19,
+            "y": 16
+          }
+        },
+        {
+          "id": "enemy-4-0",
+          "type": "coward",
+          "x": 2,
+          "y": 13,
+          "roomId": 4,
+          "home": {
+            "x": 2,
+            "y": 13
+          }
+        },
+        {
+          "id": "enemy-0-0",
+          "type": "brute",
+          "x": 19,
+          "y": 1,
+          "roomId": 0,
+          "home": {
+            "x": 19,
+            "y": 1
+          }
+        },
+        {
+          "id": "enemy-3-1",
+          "type": "brute",
+          "x": 19,
+          "y": 14,
+          "roomId": 3,
+          "home": {
+            "x": 19,
+            "y": 14
+          }
+        },
+        {
+          "id": "enemy-0-1",
+          "type": "sentinel",
+          "x": 19,
+          "y": 3,
+          "roomId": 0,
+          "home": {
+            "x": 19,
+            "y": 3
+          }
+        },
+        {
+          "id": "enemy-2-0",
+          "type": "sentinel",
+          "x": 7,
+          "y": 15,
+          "roomId": 2,
+          "home": {
+            "x": 7,
+            "y": 15
+          }
+        },
+        {
+          "id": "enemy-3-2",
+          "type": "sentinel",
+          "x": 17,
+          "y": 16,
+          "roomId": 3,
+          "home": {
+            "x": 17,
+            "y": 16
+          }
+        },
+        {
+          "id": "enemy-0-2",
+          "type": "sentinel",
+          "x": 17,
+          "y": 1,
+          "roomId": 0,
+          "home": {
+            "x": 17,
+            "y": 1
+          }
+        },
+        {
+          "id": "enemy-2-1",
+          "type": "sentinel",
+          "x": 7,
+          "y": 13,
+          "roomId": 2,
+          "home": {
+            "x": 7,
+            "y": 13
+          }
+        }
+      ]
+    },
+    {
+      "variant": "templates",
+      "seed": 7,
+      "stats": {
+        "roomCount": 3,
+        "largeRooms": 0,
+        "mediumRooms": 0,
+        "smallRooms": 2,
+        "cavernRooms": 1,
+        "totalFloor": 90,
+        "roomFloor": 85,
+        "corridorFloor": 5,
+        "averageAreaRatio": 0.748,
+        "notchCount": 26,
+        "alcoveCount": 4,
+        "sharedWalls": 2,
+        "doorCount": 2,
+        "validDoors": 2,
+        "directDoors": 1,
+        "openMouths": 1,
+        "doorMinDistance": 8,
+        "corridorCount": 2,
+        "corridorLengths": {
+          "0": 1,
+          "1": 0,
+          "2": 0,
+          "3": 1
+        },
+        "loops": 0,
+        "wideCount": 0,
+        "wideLength": 0,
+        "cavernArea": 67,
+        "cavernShare": 0.788,
+        "spawnHoles": 6,
+        "spawnAccesses": 1,
+        "spawnAccess": {
+          "x": 13,
+          "y": 4
+        },
+        "spawnHoleMaxDistance": 2,
+        "enemyCount": 7,
+        "emptyRooms": 0,
+        "maxEnemiesPerRoom": 5,
+        "generationAttempts": 21,
+        "enemy": {
+          "surfaceN": 85,
+          "playersP": 3,
+          "surfaceFactor": 0.02,
+          "playersFactor": 1.35,
+          "surfaceTerm": 2,
+          "playersTerm": 5,
+          "total": 7,
+          "planned": 7,
+          "perRoom": [
+            5,
+            0,
+            2
+          ],
+          "placedPerRoom": [
+            5,
+            0,
+            2
+          ],
+          "sentinels": 5,
+          "brutes": 1,
+          "cowards": 1
+        }
+      },
+      "fingerprint": "53441d95",
+      "warnings": [
+        "Se abrieron 1 bocas sin puerta (sin-soporte: 1).",
+        "La sala de spawn no reunió los huecos pedidos con separación; se abrió a la sala completa y se relajó la separación."
+      ],
+      "metrics": [
+        {
+          "label": "Salas",
+          "value": 3,
+          "hint": "0 grandes · 2 pequeñas"
+        },
+        {
+          "label": "Roles",
+          "value": "0G · 0M · 2P",
+          "hint": "incluye caverna"
+        },
+        {
+          "label": "Área/caja",
+          "value": "0.75",
+          "hint": "media de salas"
+        },
+        {
+          "label": "Muescas",
+          "value": 26
+        },
+        {
+          "label": "Hornacinas",
+          "value": 4
+        },
+        {
+          "label": "Pared compartida",
+          "value": 2,
+          "hint": "pares 1-2 tiles"
+        },
+        {
+          "label": "Pasillos",
+          "value": "0:1 1:0 2:0 3:1"
+        },
+        {
+          "label": "Bucles",
+          "value": "0 / 3"
+        },
+        {
+          "label": "Ancho",
+          "value": "no"
+        },
+        {
+          "label": "Caverna",
+          "value": "79 %",
+          "hint": "3 salas en total"
+        },
+        {
+          "label": "Puertas",
+          "value": "2 válidas",
+          "hint": "1 boca sin puerta · separación mín. 8"
+        },
+        {
+          "label": "Acceso spawn",
+          "value": "13,4",
+          "hint": "1 accesos · 6 huecos a ≤2"
+        },
+        {
+          "label": "Enemigos T",
+          "value": 7,
+          "hint": "N 85 × 0.02 → 2 · P 3 × 1.35 → 5"
+        },
+        {
+          "label": "Reparto",
+          "value": "5·0·2",
+          "hint": "colocado 5·0·2"
+        },
+        {
+          "label": "Tipos",
+          "value": "5S · 1B · 1C",
+          "hint": "7 fichas · 0 salas vacías"
+        },
+        {
+          "label": "Generación",
+          "value": "2.5 ms"
+        }
+      ],
+      "doors": [
+        {
+          "id": 0,
+          "x": 12,
+          "y": 4,
+          "orientation": "vertical",
+          "style": "wood",
+          "roomA": 0,
+          "roomB": 1,
+          "direct": true,
+          "corridorId": 0
+        },
+        {
+          "id": 1,
+          "x": 8,
+          "y": 12,
+          "orientation": "horizontal",
+          "style": "grated",
+          "roomA": 0,
+          "roomB": 2,
+          "direct": false,
+          "corridorId": 1
+        }
+      ],
+      "openMouths": [
+        {
+          "id": 0,
+          "x": 8,
+          "y": 9,
+          "orientation": "vertical",
+          "roomA": 0,
+          "roomB": 2,
+          "corridorId": 1,
+          "reason": "sin-soporte"
+        }
+      ],
+      "spawns": {
+        "roomId": 1,
+        "party": [
+          {
+            "x": 13,
+            "y": 4
+          },
+          {
+            "x": 15,
+            "y": 5
+          },
+          {
+            "x": 13,
+            "y": 6
+          },
+          {
+            "x": 14,
+            "y": 5
+          },
+          {
+            "x": 13,
+            "y": 5
+          },
+          {
+            "x": 14,
+            "y": 4
+          }
+        ],
+        "player": {
+          "x": 13,
+          "y": 4
+        }
+      },
+      "enemies": [
+        {
+          "id": "enemy-2-0",
+          "type": "coward",
+          "x": 8,
+          "y": 15,
+          "roomId": 2,
+          "home": {
+            "x": 8,
+            "y": 15
+          }
+        },
+        {
+          "id": "enemy-0-0",
+          "type": "brute",
+          "x": 3,
+          "y": 9,
+          "roomId": 0,
+          "home": {
+            "x": 3,
+            "y": 9
+          }
+        },
+        {
+          "id": "enemy-0-1",
+          "type": "sentinel",
+          "x": 3,
+          "y": 7,
+          "roomId": 0,
+          "home": {
+            "x": 3,
+            "y": 7
+          }
+        },
+        {
+          "id": "enemy-2-1",
+          "type": "sentinel",
+          "x": 10,
+          "y": 15,
+          "roomId": 2,
+          "home": {
+            "x": 10,
+            "y": 15
+          }
+        },
+        {
+          "id": "enemy-0-2",
+          "type": "sentinel",
+          "x": 5,
+          "y": 8,
+          "roomId": 0,
+          "home": {
+            "x": 5,
+            "y": 8
+          }
+        },
+        {
+          "id": "enemy-0-3",
+          "type": "sentinel",
+          "x": 7,
+          "y": 9,
+          "roomId": 0,
+          "home": {
+            "x": 7,
+            "y": 9
+          }
+        },
+        {
+          "id": "enemy-0-4",
+          "type": "sentinel",
+          "x": 7,
+          "y": 7,
+          "roomId": 0,
+          "home": {
+            "x": 7,
+            "y": 7
+          }
+        }
+      ]
+    }
+  ],
+  "decidedAt": "2026-11-09T11:14:26.090Z"
+}
