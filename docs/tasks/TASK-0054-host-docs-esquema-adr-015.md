@@ -4,7 +4,7 @@ id: TASK-0054
 title: "Host y docs: nombres nuevos del esquema y ADR-015"
 description: "HUD/F1 con habilidad, fuerza, defensa y resistencia; turn-economy, glosario y arquitectura actualizados; ADR-015 registrado."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-014
 requirement_ids: [T-005]

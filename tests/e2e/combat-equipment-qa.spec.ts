@@ -139,9 +139,9 @@ function armorLabel(unit: Unit): string {
   return `${armor.name} ${signed(armor.armor)}`;
 }
 
-function modifiersLabel(unit: Unit): string {
-  const { habilidad, fuerza, defensa } = unit.stats;
-  return `${signed(habilidad)} acierto · ${signed(fuerza)} daño · ${signed(defensa)} defensa`;
+function statsLabel(unit: Unit): string {
+  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
 }
 
 function equipmentBody(unit: Unit): string {
@@ -149,7 +149,7 @@ function equipmentBody(unit: Unit): string {
 }
 
 function debugEquipmentLine(unit: Unit): string {
-  return `Equipo: ${equipmentBody(unit)} · Modificadores ${modifiersLabel(unit)}`;
+  return `Equipo: ${equipmentBody(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
 function roomAt(snap: GameSnapshot, x: number, y: number) {
@@ -177,7 +177,7 @@ async function expectHudEquipment(page: Page, snap: GameSnapshot): Promise<void>
   await expect(page.getByTestId('hud-weapon')).toHaveText(weaponLabel(player));
   await expect(page.getByTestId('hud-shield')).toHaveText(shieldLabel(player));
   await expect(page.getByTestId('hud-armor')).toHaveText(armorLabel(player));
-  await expect(page.getByTestId('hud-modifiers')).toHaveText(modifiersLabel(player));
+  await expect(page.getByTestId('hud-stats')).toHaveText(statsLabel(player));
 }
 
 async function expectHudOutsideMap(page: Page): Promise<void> {
@@ -467,7 +467,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(debugText).toContain('Vida: player-1');
   expect(debugText).toContain(`Último ataque: player-1→enemy-1 impacto ${attack!.damage}`);
   expect(debugText).toContain(
-    `tiradas ataque ${attack!.rolls.attack} escudo ${attack!.rolls.shield} daño ${attack!.rolls.damage} armadura ${attack!.rolls.armor}`,
+    `tiradas ataque ${attack!.rolls.attack} escudo ${attack!.rolls.shield} golpe ${attack!.rolls.damage} absorción ${attack!.rolls.armor}`,
   );
   expect(debugText).toContain(
     `Enemigo bajo cursor: enemy-1 ${attack!.targetHp}/${enemy.maxHp}`,
