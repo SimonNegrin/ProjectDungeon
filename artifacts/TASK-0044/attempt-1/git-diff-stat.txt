@@ -1,0 +1,12 @@
+ src/game/chambers/core/corridors.ts    | 365 +++++++++++++++++
+ src/game/chambers/core/doors.ts        | 365 +++++++++++++++++
+ src/game/chambers/core/grid.ts         | 155 ++++++++
+ src/game/chambers/core/index.ts        | 103 +++++
+ src/game/chambers/core/options.ts      | 227 +++++++++++
+ src/game/chambers/core/palettes.ts     |  71 ++++
+ src/game/chambers/core/plan.ts         | 280 +++++++++++++
+ src/game/chambers/core/rng.ts          |  67 ++++
+ src/game/chambers/core/shapes.ts       | 657 ++++++++++++++++++++++++++++++
+ tests/unit/game/chambers-core.test.ts  | 701 +++++++++++++++++++++++++++++++++
+ tests/unit/game/chambers-sweep.test.ts |  73 ++++
+ 11 files changed, 3064 insertions(+)
