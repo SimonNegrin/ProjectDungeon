@@ -3,8 +3,8 @@ type: Task
 id: TASK-0048
 title: "Host: render de máscaras, puertas, spawn, entrada/salida y enemigos"
 description: Consumir en el host el mapa growth con máscaras de sala, puertas con estilo, party de 6, entrada y salida y enemigos del generador; debug F1 sin cambiar el HUD normal.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: feature
 requirement: REQ-011
 requirement_ids: [R-010, R-011, R-012, R-013, T-006, T-007]
