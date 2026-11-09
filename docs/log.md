@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0051 — review: E2E y QA visual del balance v1 (HP 6/8/5, alarma 5, MP 5/4/6, armas 3/5/2 y centinela sin armadura), 16 fallos stale corregidos sin debilitar tests; E2E 76/76, repeat-each 18/18, verify 734/734, capturas 1280×720; fusión `8e39d6e`; pendiente playtest del usuario — [informe](../artifacts/TASK-0051/attempt-1/report.md)
 * 2026-11-09 — Task — TASK-0050 — cerrada: balance provisional v1 en catálogos (PV 6/8/5, alarma 5, MP 5/4/6, centinela sin armadura, armas 3/5/2), colocación derivada del bestiario y tests migrados sin duplicar valores; verify 734/734 y fusión `7949443` — [informe](../artifacts/TASK-0050/attempt-1/report.md)
 * 2026-11-09 — Requirement — REQ-010 — v5 stable: balance provisional v1 (PV 6/8/5, armas 3/5/2, centinela sin armadura), tablas recalculadas y guía de ajuste; ADR-014 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
 * 2026-11-09 — Requirement — REQ-009 — v4 stable: alarma 5, MP por tipo (5/4/6), cobarde 5 PV y probabilidad de huida real — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)

@@ -3,8 +3,8 @@ type: Task
 id: TASK-0051
 title: "Host, E2E y QA visual del balance provisional v1"
 description: Actualizar expectativas E2E y QA visual (HP, alarma 5, MP 5/4/6 y armas 3/5/2), verificar el host y dejar capturas y playtest.
-status: draft
-task_status: in_progress
+status: stable
+task_status: review
 task_type: qa
 requirement: REQ-010
 requirement_ids: [R-007, R-008, R-009, T-008]
@@ -20,6 +20,23 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T12:00:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T22:30:00Z
+    note: >-
+      Pendiente del playtest del usuario. Intento 1 verificado en
+      `task/TASK-0051` (tests `9c19081`, evidencia `85bfaab`, verificación
+      `b76990c`; fusión `8e39d6e`). El lead re-ejecutó `pnpm run test:e2e`
+      (76/76), `perception-alarm-qa` y `flee-behavior-qa` con
+      `--repeat-each=3` (18/18) y `pnpm run verify` (734/734; docs, config,
+      build y bundle OK). Diff completo revisado: solo `tests/e2e/**`,
+      documentación de la tarea y artefactos; sin cambios en `src/`,
+      dependencias, arte ni `experiments/`. Los 76 tests E2E se conservan sin
+      borrar, saltar ni debilitar; la preparación con un solo enemigo y las
+      semillas de RNG están documentadas y mantienen las aserciones de
+      criterio. Capturas 1280×720 revisadas: debug muestra HP 6/8/5, alarma 5,
+      armas 3/5/2 y centinela «Sin armadura»; MP 5/4/6 se verifica en
+      catálogo/unitarias y en la huida con 6 MP. Queda para el usuario el
+      playtest de sensación y sus notas, por eso la tarea sigue en `review`.
 ---
 
 # Objetivo
