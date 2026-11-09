@@ -1,0 +1,79 @@
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build
+$ node scripts/validate-docs.mjs
+Avisos (26):
+- docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
+- artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
+- artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/brief.md: handoff de 2968 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/report.md: handoff de 3028 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/brief.md: handoff de 2573 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/report.md: handoff de 3350 B; objetivo ≤2560 B
+- artifacts/TASK-0032/attempt-1/report.md: handoff de 2677 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/brief.md: handoff de 3067 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/report.md: handoff de 3827 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/brief.md: handoff de 2868 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/report.md: handoff de 3330 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/brief.md: handoff de 2732 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/report.md: handoff de 3062 B; objetivo ≤2560 B
+- artifacts/TASK-0036/attempt-1/brief.md: handoff de 2717 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/brief.md: handoff de 2723 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/report.md: handoff de 3573 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/brief.md: handoff de 3280 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/report.md: handoff de 3521 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/brief.md: handoff de 2607 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/report.md: handoff de 3037 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/brief.md: handoff de 3111 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/report.md: handoff de 2844 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/brief.md: handoff de 3092 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/report.md: handoff de 3783 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-2/brief.md: handoff de 3384 B; objetivo ≤2560 B
+OK: 195 documentos, 41 tareas, 5 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 3 agentes, 3 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  43 passed (43)
+      Tests  605 passed (605)
+   Start at  11:30:01
+   Duration  7.74s (tests 93%, import 4%, transform 2%, worker 1%)
+
+    Isolate  43 workers spawned · ~131ms startup each (spawn + environment, per file)
+             at least ~672ms faster with isolate: false — reuses workers across files instead of one per file
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 76 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/experiments/EXP-000-shell-demo/index.html           0.76 kB │ gzip:  0.37 kB
+dist/experiments/EXP-003-mesa-combate/index.html         0.77 kB │ gzip:  0.37 kB
+dist/experiments/EXP-002-ritmo-movimiento/index.html     0.86 kB │ gzip:  0.38 kB
+dist/experiments/EXP-001-generador-mazmorra/index.html   0.95 kB │ gzip:  0.41 kB
+dist/experiments/EXP-004-salas-irregulares/index.html    1.02 kB │ gzip:  0.42 kB
+dist/experiments/index.html                              1.18 kB │ gzip:  0.60 kB
+dist/index.html                                         13.77 kB │ gzip:  3.31 kB
+dist/assets/EXP-001-generador-mazmorra-BIqpy-dR.css      0.24 kB │ gzip:  0.17 kB
+dist/assets/EXP-002-ritmo-movimiento-DIFd4f4F.css        0.53 kB │ gzip:  0.33 kB
+dist/assets/EXP-004-salas-irregulares-BikIq8DR.css       1.62 kB │ gzip:  0.64 kB
+dist/assets/experiments-C5qb_O5-.css                     1.97 kB │ gzip:  0.88 kB
+dist/assets/EXP-003-mesa-combate-Dhfgijva.css            3.04 kB │ gzip:  1.09 kB
+dist/assets/export-C55J7gHv.css                          4.28 kB │ gzip:  1.50 kB
+dist/assets/wall-B_kAkA3j.js                             0.15 kB │ gzip:  0.14 kB
+dist/assets/rng-DpVly3Z_.js                              0.33 kB │ gzip:  0.23 kB
+dist/assets/modulepreload-polyfill-B5Qt9EMX.js           0.71 kB │ gzip:  0.40 kB
+dist/assets/export-Cw5DYUzj.js                           0.74 kB │ gzip:  0.47 kB
+dist/assets/assets-VjVoypAj.js                           2.04 kB │ gzip:  0.64 kB
+dist/assets/experiments-CYrT6w_y.js                      2.71 kB │ gzip:  1.14 kB
+dist/assets/EXP-000-shell-demo-CN6iNtsd.js               3.13 kB │ gzip:  1.60 kB
+dist/assets/experiment-BMOKo2gM.js                       9.02 kB │ gzip:  3.38 kB
+dist/assets/EXP-002-ritmo-movimiento-sHFwvDm1.js        16.09 kB │ gzip:  6.35 kB
+dist/assets/floor-HIAuA4Wt.js                           19.82 kB │ gzip:  7.33 kB
+dist/assets/EXP-003-mesa-combate-DJVBk1Q0.js            21.94 kB │ gzip:  7.93 kB
+dist/assets/EXP-001-generador-mazmorra-DKZ2A8Wf.js      28.03 kB │ gzip: 10.35 kB
+dist/assets/EXP-004-salas-irregulares-C-wI0gAQ.js       69.15 kB │ gzip: 22.47 kB
+dist/assets/main-Cvx7os_H.js                            76.22 kB │ gzip: 26.70 kB
+✓ built in 505ms
