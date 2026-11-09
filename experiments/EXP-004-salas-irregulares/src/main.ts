@@ -38,6 +38,8 @@ function optionsFromParams(params: ParameterValues) {
     enemySurfaceFactor: Number(params.enemySurfaceFactor),
     enemyPlayersFactor: Number(params.enemyPlayersFactor),
     numPlayers: Number(params.numPlayers),
+    hiddenEnemyChance: Number(params.hiddenEnemyChance),
+    exitMode: String(params.exitMode),
   };
 }
 
@@ -126,6 +128,27 @@ const definition: ExperimentDefinition = {
       default: 1.35,
     },
     {
+      id: 'hiddenEnemyChance',
+      label: 'Probabilidad de emboscada',
+      type: 'range',
+      min: 0,
+      max: 1,
+      step: 0.05,
+      default: 0.5,
+    },
+    {
+      id: 'exitMode',
+      label: 'Salida de nivel',
+      type: 'select',
+      options: [
+        { value: 'door', label: 'Puerta en el borde' },
+        { value: 'stairs-down', label: 'Escalera abajo' },
+        { value: 'stairs-up', label: 'Escalera arriba' },
+        { value: 'random', label: 'Aleatoria por semilla' },
+      ],
+      default: 'random',
+    },
+    {
       id: 'variant',
       label: 'Variante de la vista 13×13',
       type: 'select',
@@ -157,6 +180,9 @@ type MapSnapshot = {
   doors: GeneratedMap['doors'];
   openMouths: GeneratedMap['openMouths'];
   spawns: GeneratedMap['spawns'] | null;
+  entrance: GeneratedMap['entrance'] | null;
+  exit: GeneratedMap['exit'];
+  hotspots: GeneratedMap['hotspots'];
   enemies: GeneratedMap['enemies'];
 };
 
@@ -178,6 +204,9 @@ function mapSnapshots(): MapSnapshot[] {
       doors: state?.map.doors ?? [],
       openMouths: state?.map.openMouths ?? [],
       spawns: state?.map.spawns ?? null,
+      entrance: state?.map.entrance ?? null,
+      exit: state?.map.exit ?? null,
+      hotspots: state?.map.hotspots ?? [],
       enemies: state?.map.enemies ?? [],
     };
   });

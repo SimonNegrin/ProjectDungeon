@@ -1,27 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { generateMap, validateMap } from './generate';
 import {
-  ENEMY_SEPARATION,
+  ENEMY_MAX_COMPONENT,
   SPAWN_FALLBACK_RADIUS,
+  SPAWN_MAX_COMPONENT,
   SPAWN_MIN_TILES,
   SPAWN_RADIUS,
-  SPAWN_SEPARATION,
   assignEnemyTypes,
+  componentSizeWith,
   distributeEnemyBudget,
   enemyTotalFor,
   enemyTypeCounts,
   hasLineOfSight,
+  interiorCell,
+  maxComponentSize,
+  partyCapacity,
   placeSpawns,
 } from './spawn';
 import type { GeneratedMap, Point, Room, Tile, VariantId } from './types';
 
 const VARIANTS: VariantId[] = ['growth', 'bsp', 'templates'];
 const SEEDS = Array.from({ length: 20 }, (_, index) => index + 1);
-
-function freeCells(map: GeneratedMap, room: Room): Point[] {
-  const doors = new Set(map.doors.map((door) => `${door.x},${door.y}`));
-  return room.cells.filter((cell) => !doors.has(`${cell.x},${cell.y}`));
-}
 
 function chebyshev(a: Point, b: Point): number {
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
@@ -101,17 +100,6 @@ function hasSpawnShortfallWarning(source: {
   return source.warnings.some((warning) => /huecos libres/i.test(warning));
 }
 
-function minPairDistance(points: readonly Point[]): number {
-  if (points.length < 2) return Number.POSITIVE_INFINITY;
-  let minimum = Number.POSITIVE_INFINITY;
-  for (let first = 0; first < points.length; first += 1) {
-    for (let second = first + 1; second < points.length; second += 1) {
-      minimum = Math.min(minimum, chebyshev(points[first], points[second]));
-    }
-  }
-  return minimum;
-}
-
 function syntheticRoom(id: number, cells: readonly Point[]): Room {
   const xs = cells.map((cell) => cell.x);
   const ys = cells.map((cell) => cell.y);
@@ -162,8 +150,8 @@ function placeSyntheticParty(cells: readonly Point[], width: number, height: num
   });
 }
 
-describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () => {
-  it('la sala de spawn es la más protegida entre las que tienen ≥6 huecos', () => {
+describe('spawn alrededor del acceso y enemigos de la v3', () => {
+  it('la sala de spawn es la más protegida; en empate evita la mayor si otra admite 6', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
@@ -171,18 +159,32 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
         expect(spawnRoom, `${variant} · ${seed}`).toBeDefined();
         if (!spawnRoom) continue;
 
-        const viable = map.rooms
-          .filter((room) => freeCells(map, room).length >= SPAWN_MIN_TILES)
-          .sort(
-            (a, b) =>
-              a.accesses - b.accesses ||
-              freeCells(map, b).length - freeCells(map, a).length ||
-              b.area - a.area ||
-              a.id - b.id,
+        const viable = map.rooms.filter((room) => {
+          const access = expectedAccess(map, room);
+          return (
+            partyCapacity(
+              room,
+              map.doors,
+              access,
+              map.tiles,
+              map.width,
+              map.height,
+              map.seed,
+            ) >= SPAWN_MIN_TILES
           );
-        if (viable.length > 0) {
-          expect(spawnRoom.id, `${variant} · ${seed}`).toBe(viable[0].id);
-          expect(spawnRoom.accesses).toBe(viable[0].accesses);
+        });
+        if (viable.length === 0) continue;
+        const minimumAccesses = Math.min(...viable.map((room) => room.accesses));
+        expect(spawnRoom.accesses, `${variant} · ${seed} · accesos`).toBe(
+          minimumAccesses,
+        );
+
+        const tied = viable.filter((room) => room.accesses === minimumAccesses);
+        const largestArea = Math.max(...map.rooms.map((room) => room.area));
+        if (tied.some((room) => room.area !== largestArea)) {
+          expect(spawnRoom.area, `${variant} · ${seed} · no mayor`).not.toBe(
+            largestArea,
+          );
         }
       }
     }
@@ -209,7 +211,7 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('los huecos son distintos, de suelo, dentro de la sala y fuera de puertas/enemigos', () => {
+  it('los huecos son distintos, de suelo, dentro de la sala y fuera de puertas/enemigos/salida', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
@@ -233,19 +235,24 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
           expect(
             map.enemies.some((enemy) => enemy.x === hole.x && enemy.y === hole.y),
           ).toBe(false);
+          if (map.exit) {
+            expect(
+              map.exit.access.x === hole.x && map.exit.access.y === hole.y,
+            ).toBe(false);
+          }
         }
       }
     }
   });
 
-  it('sin fallback, el grupo queda a radio 2; con o sin fallback, siempre separado 2', () => {
+  it('sin fallback el grupo queda a radio 2; en todos los casos la componente es ≤2', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
         expect(
-          minPairDistance(map.spawns.party),
-          `${variant} · ${seed} · separación`,
-        ).toBeGreaterThanOrEqual(SPAWN_SEPARATION);
+          maxComponentSize(map.spawns.party),
+          `${variant} · ${seed} · componente`,
+        ).toBeLessThanOrEqual(SPAWN_MAX_COMPONENT);
         if (hasSpawnRelaxWarning(map)) continue;
         for (const hole of map.spawns.party.slice(1)) {
           expect(
@@ -257,7 +264,7 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('el barrido A/B/C × 20 semillas mantiene separación ≥2, acceso y avisos de fallback', () => {
+  it('el barrido A/B/C × 20 semillas mantiene acceso, componentes ≤2 y avisos de fallback', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
@@ -272,9 +279,13 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
           expectedAccess(map, spawnRoom),
         );
         expect(
-          minPairDistance(map.spawns.party),
-          `${variant} · ${seed} · separación`,
-        ).toBeGreaterThanOrEqual(SPAWN_SEPARATION);
+          map.spawns.party.length,
+          `${variant} · ${seed} · seis huecos`,
+        ).toBeGreaterThanOrEqual(SPAWN_MIN_TILES);
+        expect(
+          maxComponentSize(map.spawns.party),
+          `${variant} · ${seed} · componente`,
+        ).toBeLessThanOrEqual(SPAWN_MAX_COMPONENT);
 
         const farthest = Math.max(
           0,
@@ -299,7 +310,7 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('6 huecos separados en radio 2 no usan fallback', () => {
+  it('6 huecos a radio 2 no usan fallback y admiten parejas', () => {
     const cells: Point[] = [];
     for (let y = 0; y < 5; y += 1) {
       for (let x = 0; x < 5; x += 1) cells.push({ x, y });
@@ -308,8 +319,8 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     expect(result.warnings).toEqual([]);
     expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
     expect(result.spawns.player).toEqual({ x: 2, y: 2 });
-    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
-      SPAWN_SEPARATION,
+    expect(maxComponentSize(result.spawns.party)).toBeLessThanOrEqual(
+      SPAWN_MAX_COMPONENT,
     );
     for (const hole of result.spawns.party.slice(1)) {
       expect(chebyshev(hole, result.spawns.player)).toBeLessThanOrEqual(
@@ -318,41 +329,24 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('si solo caben 6 separados en radio 3, avisa y no relaja la separación', () => {
+  it('si radio 2 no llega a 6, amplía a radio 3 y avisa sin romper componentes', () => {
     const access = { x: 10, y: 10 };
-    const diagonals = [
+    const cells: Point[] = [
+      access,
       { x: 8, y: 8 },
-      { x: 8, y: 12 },
       { x: 12, y: 8 },
+      { x: 8, y: 12 },
       { x: 12, y: 12 },
-    ];
-    const neighbors: Point[] = [];
-    for (let dy = -1; dy <= 1; dy += 1) {
-      for (let dx = -1; dx <= 1; dx += 1) {
-        if (dx === 0 && dy === 0) continue;
-        neighbors.push({ x: access.x + dx, y: access.y + dy });
-      }
-    }
-    const connectors = [
-      { x: 8, y: 9 },
-      { x: 8, y: 11 },
-      { x: 12, y: 9 },
-      { x: 12, y: 11 },
-    ];
-    const outer = [
-      { x: 7, y: 9 },
       { x: 7, y: 10 },
-      { x: 7, y: 11 },
-      { x: 13, y: 9 },
+      { x: 10, y: 7 },
       { x: 13, y: 10 },
-      { x: 13, y: 11 },
+      { x: 10, y: 13 },
     ];
-    const cells = [access, ...neighbors, ...diagonals, ...connectors, ...outer];
     const result = placeSyntheticParty(cells, 15, 15);
     expect(result.spawns.party).toHaveLength(SPAWN_MIN_TILES);
     expect(result.spawns.player).toEqual(access);
-    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
-      SPAWN_SEPARATION,
+    expect(maxComponentSize(result.spawns.party)).toBeLessThanOrEqual(
+      SPAWN_MAX_COMPONENT,
     );
     const farthest = Math.max(
       ...result.spawns.party.map((hole) => chebyshev(hole, access)),
@@ -363,7 +357,7 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     ).toBe(true);
   });
 
-  it('si no caben 6 separados, devuelve los que caben con aviso y separación ≥2', () => {
+  it('si no caben 6, devuelve los que caben con aviso y componentes ≤2', () => {
     const cells: Point[] = [];
     for (let y = 0; y < 3; y += 1) {
       for (let x = 0; x < 3; x += 1) cells.push({ x, y });
@@ -371,8 +365,8 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     const result = placeSyntheticParty(cells, 3, 3);
     expect(result.spawns.party.length).toBeLessThan(SPAWN_MIN_TILES);
     expect(result.spawns.party.length).toBeGreaterThanOrEqual(1);
-    expect(minPairDistance(result.spawns.party)).toBeGreaterThanOrEqual(
-      SPAWN_SEPARATION,
+    expect(maxComponentSize(result.spawns.party)).toBeLessThanOrEqual(
+      SPAWN_MAX_COMPONENT,
     );
     expect(result.spawns.player).toEqual(result.spawns.party[0]);
     expect(hasSpawnShortfallWarning(result)).toBe(true);
@@ -534,30 +528,38 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     expect(assignments.filter((assignment) => assignment.type === 'sentinel')).toHaveLength(4);
   });
 
-  it('los enemigos caen en su sala, separados 2 y sin visión salvo aviso de relajación', () => {
+  it('los enemigos caen en su sala, sin duplicados y con componentes ≤2', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
         const visionRelaxed = map.warnings.some((warning) =>
           /relajó la línea de visión/i.test(warning),
         );
+        const keys = new Set<string>();
         for (const enemy of map.enemies) {
           expect(enemy.roomId).not.toBe(map.spawns.roomId);
           expect(map.tiles[enemy.y * map.width + enemy.x]).toBe(1);
           expect(enemy.home).toEqual({ x: enemy.x, y: enemy.y });
+          const key = `${enemy.x},${enemy.y}`;
+          expect(keys.has(key), `${variant} · ${seed} · duplicado`).toBe(false);
+          keys.add(key);
           const room = map.rooms.find((item) => item.id === enemy.roomId);
           expect(
             room?.cells.some((cell) => cell.x === enemy.x && cell.y === enemy.y),
           ).toBe(true);
-        }
-        for (let first = 0; first < map.enemies.length; first += 1) {
-          for (let second = first + 1; second < map.enemies.length; second += 1) {
+          if (map.exit) {
             expect(
-              chebyshev(map.enemies[first], map.enemies[second]),
-              `${variant} · ${seed} · separación`,
-            ).toBeGreaterThanOrEqual(ENEMY_SEPARATION);
+              enemy.x === map.exit.position.x && enemy.y === map.exit.position.y,
+            ).toBe(false);
+            expect(
+              enemy.x === map.exit.access.x && enemy.y === map.exit.access.y,
+            ).toBe(false);
           }
         }
+        expect(
+          maxComponentSize(map.enemies),
+          `${variant} · ${seed} · componentes`,
+        ).toBeLessThanOrEqual(ENEMY_MAX_COMPONENT);
         if (!visionRelaxed) {
           for (const enemy of map.enemies) {
             for (const hole of map.spawns.party) {
@@ -573,38 +575,102 @@ describe('spawn alrededor del acceso y enemigos por superficie/jugadores', () =>
     }
   });
 
-  it('los mapas por defecto no relajan la separación y solo relajan visión si es imposible, con aviso', () => {
+  it('los no emboscados prefieren interior cuando hay sitio compatible', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
-        expect(
-          map.warnings.filter((warning) => /no pudo colocar|separación de enemigos/i.test(warning)),
-          `${variant} · ${seed} · separación`,
-        ).toEqual([]);
-        const visionRelaxed = map.warnings.some((warning) =>
-          /relajó la línea de visión/i.test(warning),
-        );
-        for (let first = 0; first < map.enemies.length; first += 1) {
-          for (let second = first + 1; second < map.enemies.length; second += 1) {
-            expect(
-              chebyshev(map.enemies[first], map.enemies[second]),
-              `${variant} · ${seed} · separación`,
-            ).toBeGreaterThanOrEqual(ENEMY_SEPARATION);
-          }
+        const occupied = new Set(map.enemies.map((enemy) => `${enemy.x},${enemy.y}`));
+        const exitKeys = new Set<string>();
+        if (map.exit) {
+          exitKeys.add(`${map.exit.position.x},${map.exit.position.y}`);
+          exitKeys.add(`${map.exit.access.x},${map.exit.access.y}`);
         }
-        if (!visionRelaxed) {
-          for (const enemy of map.enemies) {
-            for (const hole of map.spawns.party) {
-              expect(
-                hasLineOfSight(map.tiles, map.width, map.height, enemy, hole),
-                `${variant} · ${seed} · enemigo ${enemy.id}`,
-              ).toBe(false);
+        const doorKeys = new Set(map.doors.map((door) => `${door.x},${door.y}`));
+        const holeKeys = new Set(map.spawns.party.map((hole) => `${hole.x},${hole.y}`));
+
+        for (const room of map.rooms) {
+          if (room.id === map.spawns.roomId) continue;
+          const nonHiddenBorder = map.enemies.filter(
+            (enemy) => enemy.roomId === room.id && !enemy.interior && !enemy.hidden,
+          );
+          if (nonHiddenBorder.length === 0) continue;
+          const interiorCandidates = room.cells.filter((cell) => {
+            const key = `${cell.x},${cell.y}`;
+            if (occupied.has(key) || doorKeys.has(key) || holeKeys.has(key) || exitKeys.has(key)) {
+              return false;
             }
+            if (!interiorCell(room, cell)) return false;
+            return !map.spawns.party.some((hole) =>
+              hasLineOfSight(map.tiles, map.width, map.height, cell, hole),
+            );
+          });
+          if (interiorCandidates.length < nonHiddenBorder.length) continue;
+          for (const enemy of nonHiddenBorder) {
+            const others = map.enemies
+              .filter((item) => item !== enemy)
+              .map((item) => ({ x: item.x, y: item.y }));
+            const replacement = interiorCandidates.find(
+              (cell) =>
+                componentSizeWith(others, cell) <= ENEMY_MAX_COMPONENT,
+            );
+            expect(
+              replacement,
+              `${variant} · ${seed} · borde sustituible en sala ${room.id}`,
+            ).toBeUndefined();
           }
         }
-        expect(validateMap(map), `${variant} · ${seed}`).toEqual([]);
       }
     }
+  });
+
+  it('hiddenEnemyChance 0/1 y 0,5 controla emboscadas sin cambiar T', () => {
+    for (const variant of VARIANTS) {
+      const zero = generateMap(variant, 11, { hiddenEnemyChance: 0 });
+      expect(zero.stats.hiddenEnemies).toBe(0);
+      expect(zero.stats.enemy.hidden).toBe(0);
+
+      const one = generateMap(variant, 11, { hiddenEnemyChance: 1 });
+      expect(one.stats.enemy.total).toBe(zero.stats.enemy.total);
+      if (one.stats.hotspotsEligible > 0) {
+        expect(one.stats.hiddenEnemies).toBeGreaterThan(0);
+        expect(one.stats.hiddenEnemies).toBeLessThanOrEqual(one.enemies.length);
+      }
+    }
+
+    let totalEligible = 0;
+    let totalOccupied = 0;
+    for (const variant of VARIANTS) {
+      for (const seed of SEEDS) {
+        const map = generateMap(variant, seed, { hiddenEnemyChance: 0.5 });
+        totalEligible += map.stats.hotspotsEligible;
+        totalOccupied += map.stats.hiddenEnemies;
+      }
+    }
+    expect(totalEligible).toBeGreaterThan(0);
+    expect(totalOccupied).toBeGreaterThan(0);
+    expect(totalOccupied).toBeLessThan(totalEligible);
+  });
+
+  it('una pareja se acepta, pero tres en línea o en triángulo se rechazan', () => {
+    expect(componentSizeWith([], { x: 4, y: 4 })).toBe(1);
+    expect(
+      componentSizeWith([{ x: 4, y: 4 }], { x: 5, y: 4 }),
+    ).toBe(2);
+    expect(
+      componentSizeWith(
+        [
+          { x: 4, y: 4 },
+          { x: 5, y: 4 },
+        ],
+        { x: 6, y: 4 },
+      ),
+    ).toBe(3);
+    expect(maxComponentSize([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 5, y: 5 },
+      { x: 6, y: 5 },
+    ])).toBe(2);
   });
 
   it('la línea de visión se bloquea con un muro y atraviesa una puerta abierta', () => {

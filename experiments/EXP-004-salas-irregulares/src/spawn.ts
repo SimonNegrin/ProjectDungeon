@@ -1,17 +1,21 @@
 /**
- * Spawn alrededor del acceso y reparto de enemigos de REQ-012 v2 (EXP-004).
+ * Spawn alrededor del acceso y reparto orgánico de enemigos de REQ-012 v3.
  *
  * Todo es puro y determinista: sin DOM, relojes ni `Math.random`. Las funciones
- * exportadas permiten que los tests validen fórmula, reparto y prioridades sin
- * generar un mapa completo.
+ * exportadas permiten validar fórmula, reparto, componentes de adyacencia,
+ * preferencia por interior, emboscadas en puntos calientes y reserva de salida.
  */
 
 import { inBounds, neighbors4, pointKey } from './grid';
 import { hashSeed } from './rng';
+import { reservedExitCells } from './exit';
 import type {
   Door,
   Enemy,
   EnemyType,
+  Exit,
+  Hotspot,
+  HotspotReason,
   OpenMouth,
   Point,
   Room,
@@ -22,11 +26,13 @@ import type {
 export const SPAWN_MIN_TILES = 6;
 export const SPAWN_RADIUS = 2;
 export const SPAWN_FALLBACK_RADIUS = 3;
-export const SPAWN_SEPARATION = 2;
-export const ENEMY_SEPARATION = 2;
+/** Adyacencia de 8 direcciones: ninguna componente puede superar 2 fichas. */
+export const SPAWN_MAX_COMPONENT = 2;
+export const ENEMY_MAX_COMPONENT = 2;
 export const ENEMY_SURFACE_FACTOR = 0.02;
 export const ENEMY_PLAYERS_FACTOR = 1.35;
 export const DEFAULT_PLAYERS = 3;
+export const DEFAULT_HIDDEN_ENEMY_CHANCE = 0.5;
 export const ENEMY_BRUTE_SHARE = 0.2;
 export const ENEMY_COWARD_SHARE = 0.2;
 
@@ -49,6 +55,9 @@ interface SpawnResult {
 interface EnemyInput {
   readonly rooms: readonly Room[];
   readonly doors: readonly Door[];
+  readonly openMouths: readonly OpenMouth[];
+  readonly corridors?: readonly import('./types').Corridor[];
+  readonly exit?: Exit | null;
   readonly tiles: readonly Tile[];
   readonly width: number;
   readonly height: number;
@@ -57,6 +66,7 @@ interface EnemyInput {
   readonly enemySurfaceFactor: number;
   readonly enemyPlayersFactor: number;
   readonly numPlayers: number;
+  readonly hiddenEnemyChance: number;
 }
 
 export interface EnemyBreakdownResult {
@@ -73,10 +83,19 @@ export interface EnemyBreakdownResult {
   readonly sentinels: number;
   readonly brutes: number;
   readonly cowards: number;
+  readonly interior: number;
+  readonly border: number;
+  readonly hidden: number;
+  readonly hotspotsTotal: number;
+  readonly hotspotsEligible: number;
+  readonly hotspotRolls: number;
+  readonly hotspotsOccupied: number;
+  readonly componentsMax: number;
 }
 
 interface EnemyResult {
   readonly enemies: readonly Enemy[];
+  readonly hotspots: readonly Hotspot[];
   readonly warnings: readonly string[];
   readonly breakdown: EnemyBreakdownResult;
 }
@@ -96,6 +115,57 @@ function chebyshev(a: Point, b: Point): number {
 
 function samePoint(a: Point, b: Point): boolean {
   return a.x === b.x && a.y === b.y;
+}
+
+/** Adyacencia de 8 direcciones (incluye diagonales). */
+export function adjacent8(a: Point, b: Point): boolean {
+  return chebyshev(a, b) === 1;
+}
+
+/**
+ * Tamaño de la componente que formaría `cell` al añadirse a `chosen`, contando
+ * solo la adyacencia de 8 direcciones. `chosen` debe cumplir ya el límite.
+ */
+export function componentSizeWith(chosen: readonly Point[], cell: Point): number {
+  const points = [...chosen, cell];
+  const seen = new Set<string>([pointKey(cell.x, cell.y)]);
+  const queue: Point[] = [cell];
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    const current = queue[cursor];
+    for (const candidate of points) {
+      if (seen.has(pointKey(candidate.x, candidate.y))) continue;
+      if (!adjacent8(current, candidate)) continue;
+      seen.add(pointKey(candidate.x, candidate.y));
+      queue.push(candidate);
+    }
+  }
+  return seen.size;
+}
+
+/** Componente máxima de adyacencia de 8 direcciones de un conjunto. */
+export function maxComponentSize(points: readonly Point[]): number {
+  const seen = new Set<string>();
+  let maximum = 0;
+  for (const point of points) {
+    const key = pointKey(point.x, point.y);
+    if (seen.has(key)) continue;
+    const queue: Point[] = [point];
+    seen.add(key);
+    let size = 0;
+    for (let cursor = 0; cursor < queue.length; cursor += 1) {
+      const current = queue[cursor];
+      size += 1;
+      for (const candidate of points) {
+        const candidateKey = pointKey(candidate.x, candidate.y);
+        if (seen.has(candidateKey)) continue;
+        if (!adjacent8(current, candidate)) continue;
+        seen.add(candidateKey);
+        queue.push(candidate);
+      }
+    }
+    maximum = Math.max(maximum, size);
+  }
+  return maximum;
 }
 
 function deterministicOrder(seed: number, cell: Point, salt: number): number {
@@ -220,7 +290,6 @@ function orderPartyCandidates(input: PartySearchInput): Point[] {
     .filter(
       (cell) =>
         !samePoint(cell, input.access) &&
-        chebyshev(cell, input.access) >= SPAWN_SEPARATION &&
         (input.radius === Number.POSITIVE_INFINITY ||
           chebyshev(cell, input.access) <= input.radius),
     )
@@ -245,27 +314,25 @@ function orderPartyCandidates(input: PartySearchInput): Point[] {
 
 /**
  * Búsqueda determinista del mayor conjunto de huecos dentro de `radius`,
- * incluyendo el acceso y con separación Chebyshev ≥2 entre todos. Devuelve el
- * conjunto máximo encontrado; si no llega a `minTiles`, el llamador avisa y no
- * relaja la separación. Nunca inventa huecos adyacentes.
+ * incluyendo el acceso. Permite parejas adyacentes en 8 direcciones, pero
+ * ninguna componente puede superar 2 fichas. No relaja esa regla.
  */
 function searchParty(input: PartySearchInput): Point[] {
   const ordered = orderPartyCandidates(input);
-  const target = Math.max(0, input.minTiles - 1);
-  const chosen: Point[] = [];
-  let best: Point[] = [];
+  const chosen: Point[] = [input.access];
+  let best: Point[] = [...chosen];
   let nodes = 0;
   const maxNodes = 500_000;
 
   function search(start: number): boolean {
     if (chosen.length > best.length) best = [...chosen];
-    if (chosen.length >= target) return true;
+    if (chosen.length >= input.minTiles) return true;
     nodes += 1;
     if (nodes > maxNodes) return false;
     for (let index = start; index < ordered.length; index += 1) {
       if (chosen.length + (ordered.length - index) <= best.length) break;
       const cell = ordered[index];
-      if (chosen.some((other) => chebyshev(other, cell) < SPAWN_SEPARATION)) continue;
+      if (componentSizeWith(chosen, cell) > SPAWN_MAX_COMPONENT) continue;
       chosen.push(cell);
       if (search(index + 1)) return true;
       chosen.pop();
@@ -274,7 +341,44 @@ function searchParty(input: PartySearchInput): Point[] {
   }
 
   search(0);
-  return [input.access, ...best];
+  return best;
+}
+
+/**
+ * Huecos que la sala puede ofrecer como máximo con componentes ≤2, contando
+ * también los fallbacks de radio. Se usa para no elegir como spawn una sala
+ * que no admite los 6 huecos de REQ-012 R-001.
+ */
+export function partyCapacity(
+  room: Room,
+  doors: readonly Door[],
+  access: Point,
+  tiles: readonly Tile[],
+  width: number,
+  height: number,
+  seed: number,
+): number {
+  const doorsAt = doorKeySet(doors);
+  const candidates = room.cells.filter((cell) => !doorsAt.has(pointKey(cell.x, cell.y)));
+  if (candidates.length === 0) return 0;
+  const accessCell =
+    candidates.find((cell) => samePoint(cell, access)) ??
+    [...candidates].sort(
+      (a, b) =>
+        chebyshev(a, access) - chebyshev(b, access) ||
+        deterministicOrder(seed, a, 0x9e3779b9) - deterministicOrder(seed, b, 0x9e3779b9),
+    )[0];
+  return searchParty({
+    candidates,
+    access: accessCell,
+    radius: Number.POSITIVE_INFINITY,
+    minTiles: SPAWN_MIN_TILES,
+    tiles,
+    width,
+    height,
+    doorsAt,
+    seed,
+  }).length;
 }
 
 function chooseParty(
@@ -332,7 +436,7 @@ function chooseParty(
 
   if (selected.length < minTiles) {
     warnings.push(
-      `La sala de spawn solo ofreció ${selected.length} de ${minTiles} huecos libres con separación ≥2.`,
+      `La sala de spawn solo ofreció ${selected.length} de ${minTiles} huecos libres con componentes ≤2.`,
     );
   }
 
@@ -341,13 +445,32 @@ function chooseParty(
 
 export function placeSpawns(input: SpawnInput): SpawnResult {
   const warnings: string[] = [];
+  const largestArea = Math.max(0, ...input.rooms.map((room) => room.area));
+  const capacities = new Map<number, number>();
+  for (const room of input.rooms) {
+    const roomAccess = chooseSpawnAccess(room, input.doors, input.openMouths);
+    capacities.set(
+      room.id,
+      partyCapacity(
+        room,
+        input.doors,
+        roomAccess,
+        input.tiles,
+        input.width,
+        input.height,
+        input.seed,
+      ),
+    );
+  }
+  const capacityOf = (room: Room): number => capacities.get(room.id) ?? 0;
+
   const viable = input.rooms
-    .filter((room) => freeCells(room, input.doors).length >= input.minTiles)
+    .filter((room) => capacityOf(room) >= input.minTiles)
     .sort(
       (a, b) =>
         a.accesses - b.accesses ||
+        Number(a.area === largestArea) - Number(b.area === largestArea) ||
         freeCells(b, input.doors).length - freeCells(a, input.doors).length ||
-        b.area - a.area ||
         a.id - b.id,
     );
 
@@ -355,7 +478,10 @@ export function placeSpawns(input: SpawnInput): SpawnResult {
   if (!spawnRoom) {
     const fallback = [...input.rooms].sort(
       (a, b) =>
+        capacityOf(b) - capacityOf(a) ||
+        a.accesses - b.accesses ||
         freeCells(b, input.doors).length - freeCells(a, input.doors).length ||
+        Number(a.area === largestArea) - Number(b.area === largestArea) ||
         b.area - a.area ||
         a.id - b.id,
     )[0];
@@ -491,8 +617,8 @@ export function distributeEnemyBudget(
 }
 
 /**
- * Recorta presupuestos que no caben con separación ≥2 y reparte el exceso por
- * área entre las salas con capacidad. Es determinista y no muta la entrada.
+ * Recorta presupuestos que no caben con separación ≥2 y reparte el exceso.
+ * Se conserva como utilidad histórica; la v3 usa componentes ≤2 y no la necesita.
  */
 export function fitBudgetsToCapacity(
   rooms: readonly Room[],
@@ -535,79 +661,6 @@ export function fitBudgetsToCapacity(
     );
   }
   return { budgets: next, warnings };
-}
-
-function enemyCandidates(
-  room: Room,
-  doorsAt: ReadonlySet<string>,
-  spawnHoles: ReadonlySet<string>,
-  spawns: Spawns,
-  seed: number,
-): Point[] {
-  return room.cells
-    .filter((cell) => !doorsAt.has(pointKey(cell.x, cell.y)))
-    .filter((cell) => !spawnHoles.has(pointKey(cell.x, cell.y)))
-    .sort(
-      (a, b) =>
-        Math.abs(b.x - spawns.player.x) +
-          Math.abs(b.y - spawns.player.y) -
-          (Math.abs(a.x - spawns.player.x) + Math.abs(a.y - spawns.player.y)) ||
-        deterministicOrder(seed, a, 0x1b873593) -
-          deterministicOrder(seed, b, 0x1b873593) ||
-        a.y - b.y ||
-        a.x - b.x,
-    );
-}
-
-/** Máximo de fichas separadas ≥2 que caben en una sala, en orden determinista. */
-export function separationCapacity(
-  room: Room,
-  doors: readonly Door[],
-  spawns: Spawns,
-  seed: number,
-): number {
-  const doorsAt = doorKeySet(doors);
-  const spawnHoles = new Set(spawns.party.map((hole) => pointKey(hole.x, hole.y)));
-  const cells = enemyCandidates(room, doorsAt, spawnHoles, spawns, seed);
-  const chosen: Point[] = [];
-  for (const cell of cells) {
-    if (chosen.every((other) => chebyshev(other, cell) >= ENEMY_SEPARATION)) {
-      chosen.push(cell);
-    }
-  }
-  return chosen.length;
-}
-
-/**
- * Busca `budget` posiciones separadas ≥2 y no bloqueadas por visión. Devuelve
- * menos si no existe combinación; el llamador avisa y no relaja la regla.
- */
-export function selectEnemyPositions(
-  candidates: readonly Point[],
-  budget: number,
-  blocked: (cell: Point) => boolean = () => false,
-): Point[] {
-  if (budget <= 0) return [];
-  const allowed = candidates.filter((cell) => !blocked(cell));
-  const chosen: Point[] = [];
-  let nodes = 0;
-  const maxNodes = 200_000;
-
-  function search(start: number): boolean {
-    if (chosen.length >= budget) return true;
-    nodes += 1;
-    if (nodes > maxNodes) return false;
-    for (let index = start; index < allowed.length; index += 1) {
-      const cell = allowed[index];
-      if (chosen.some((other) => chebyshev(other, cell) < ENEMY_SEPARATION)) continue;
-      chosen.push(cell);
-      if (search(index + 1)) return true;
-      chosen.pop();
-    }
-    return false;
-  }
-
-  return search(0) ? [...chosen] : [];
 }
 
 export interface EnemyRoomPriority {
@@ -688,12 +741,260 @@ function hasLineOfSightToSpawn(
   );
 }
 
+function roomMask(room: Room): Set<string> {
+  return new Set(room.cells.map((cell) => pointKey(cell.x, cell.y)));
+}
+
+/** Celda interior: sus 4 vecinos ortogonales son suelo de la misma sala. */
+export function interiorCell(room: Room, cell: Point, mask?: ReadonlySet<string>): boolean {
+  const roomCells = mask ?? roomMask(room);
+  return neighbors4(cell.x, cell.y).every((next) =>
+    roomCells.has(pointKey(next.x, next.y)),
+  );
+}
+
+function wallNeighborCount(
+  tiles: readonly Tile[],
+  width: number,
+  height: number,
+  cell: Point,
+): number {
+  return neighbors4(cell.x, cell.y).filter(
+    (next) =>
+      !inBounds(next.x, next.y, width, height) ||
+      tiles[next.y * width + next.x] === 0,
+  ).length;
+}
+
+function roomAccessCells(
+  room: Room,
+  doors: readonly Door[],
+  openMouths: readonly OpenMouth[],
+): Point[] {
+  const cells: Point[] = [];
+  for (const door of doors) {
+    if (door.roomA === room.id || door.roomB === room.id) {
+      cells.push({ x: door.x, y: door.y });
+    }
+  }
+  for (const mouth of openMouths) {
+    if (mouth.roomA === room.id || mouth.roomB === room.id) {
+      cells.push({ x: mouth.x, y: mouth.y });
+    }
+  }
+  return cells;
+}
+
+interface EnemyCandidate {
+  readonly point: Point;
+  readonly interior: boolean;
+  readonly hotspotReason: HotspotReason | null;
+  readonly roll: number;
+  readonly eligibleHotspot: boolean;
+  readonly hiddenHit: boolean;
+  readonly noLosToSpawn: boolean;
+}
+
+function hotspotRoll(seed: number, cell: Point): number {
+  const hash = hashSeed(
+    seed ^ Math.imul(cell.x + 1, 0x9e3779b1) ^ Math.imul(cell.y + 7, 0x85ebca77),
+    0x5bd1e995,
+  );
+  return hash / 0x1_0000_0000;
+}
+
+function roomCandidates(
+  room: Room,
+  input: EnemyInput,
+  hiddenEnemyChance: number,
+  doorsAt: ReadonlySet<string>,
+  spawnHoles: ReadonlySet<string>,
+): { candidates: EnemyCandidate[]; hotspots: Hotspot[] } {
+  const mask = roomMask(room);
+  const access = roomAccessCells(room, input.doors, input.openMouths);
+  const reserved = reservedExitCells(input.exit ?? null);
+  const candidates: EnemyCandidate[] = [];
+  const hotspots: Hotspot[] = [];
+
+  for (const cell of room.cells) {
+    const key = pointKey(cell.x, cell.y);
+    if (doorsAt.has(key) || spawnHoles.has(key) || reserved.has(key)) continue;
+    if (input.tiles[cell.y * input.width + cell.x] !== 1) continue;
+
+    const interior = interiorCell(room, cell, mask);
+    const wallCount = wallNeighborCount(input.tiles, input.width, input.height, cell);
+    const noLosToSpawn = !hasLineOfSightToSpawn(
+      input.tiles,
+      input.width,
+      input.height,
+      cell,
+      input.spawns,
+    );
+    const noLosToAccess =
+      access.length === 0 ||
+      !access.some((target) =>
+        hasLineOfSight(input.tiles, input.width, input.height, cell, target),
+      );
+    const corner = wallCount >= 3;
+    const noLos = noLosToSpawn && noLosToAccess;
+    const reason: HotspotReason | null =
+      corner && noLos ? 'ambos' : corner ? 'rincon' : noLos ? 'sin-LOS' : null;
+    const roll = hotspotRoll(input.seed, cell);
+    const eligibleHotspot = reason !== null && noLosToSpawn;
+    const hiddenHit = eligibleHotspot && roll < hiddenEnemyChance;
+
+    const candidate: EnemyCandidate = {
+      point: { x: cell.x, y: cell.y },
+      interior,
+      hotspotReason: reason,
+      roll,
+      eligibleHotspot,
+      hiddenHit,
+      noLosToSpawn,
+    };
+    candidates.push(candidate);
+    if (reason) {
+      hotspots.push({
+        x: cell.x,
+        y: cell.y,
+        roomId: room.id,
+        reason,
+        roll,
+        eligible: eligibleHotspot,
+        occupied: false,
+      });
+    }
+  }
+
+  return { candidates, hotspots };
+}
+
+function candidateOrder(a: EnemyCandidate, b: EnemyCandidate, seed: number): number {
+  return (
+    Number(b.hiddenHit) - Number(a.hiddenHit) ||
+    Number(b.interior) - Number(a.interior) ||
+    deterministicOrder(seed, a.point, 0x7feb352d) -
+      deterministicOrder(seed, b.point, 0x7feb352d) ||
+    a.point.y - b.point.y ||
+    a.point.x - b.point.x
+  );
+}
+
+/**
+ * Selecciona hasta `budget` fichas respetando componentes ≤2. El orden decide
+ * la prioridad: emboscadas elegibles, interior, borde.
+ */
+function selectCandidates(
+  ordered: readonly EnemyCandidate[],
+  budget: number,
+): EnemyCandidate[] {
+  if (budget <= 0 || ordered.length === 0) return [];
+  const chosen: EnemyCandidate[] = [];
+  let best: EnemyCandidate[] = [];
+  let nodes = 0;
+  const maxNodes = 200_000;
+
+  function search(start: number): boolean {
+    if (chosen.length > best.length) best = [...chosen];
+    if (chosen.length >= budget) return true;
+    nodes += 1;
+    if (nodes > maxNodes) return false;
+    for (let index = start; index < ordered.length; index += 1) {
+      if (chosen.length + (ordered.length - index) <= best.length) break;
+      const candidate = ordered[index];
+      const points = chosen.map((item) => item.point);
+      if (componentSizeWith(points, candidate.point) > ENEMY_MAX_COMPONENT) continue;
+      chosen.push(candidate);
+      if (search(index + 1)) return true;
+      chosen.pop();
+    }
+    return false;
+  }
+
+  search(0);
+  return best;
+}
+
+interface RoomPlacement {
+  readonly selected: readonly EnemyCandidate[];
+  readonly hotspots: readonly Hotspot[];
+  readonly relaxed: number;
+}
+
+function placeRoomEnemies(
+  room: Room,
+  budget: number,
+  input: EnemyInput,
+  hiddenEnemyChance: number,
+  doorsAt: ReadonlySet<string>,
+  spawnHoles: ReadonlySet<string>,
+): RoomPlacement {
+  const { candidates, hotspots } = roomCandidates(
+    room,
+    input,
+    hiddenEnemyChance,
+    doorsAt,
+    spawnHoles,
+  );
+  const strict = candidates
+    .filter((candidate) => candidate.noLosToSpawn)
+    .sort((a, b) => candidateOrder(a, b, input.seed));
+  let selected = selectCandidates(strict, budget);
+  let relaxed = 0;
+
+  if (selected.length < budget) {
+    const all = [...candidates].sort((a, b) => candidateOrder(a, b, input.seed));
+    const withLos = selectCandidates(all, budget);
+    if (withLos.length > selected.length) {
+      relaxed = withLos.length - selected.length;
+      selected = withLos;
+    }
+  }
+
+  // Preferencia estricta por interior: si un borde no emboscado puede sustituirse
+  // por un interior libre sin romper componentes, se sustituye.
+  for (let index = 0; index < selected.length; index += 1) {
+    const current = selected[index];
+    if (current.interior || current.hiddenHit) continue;
+    const others = selected.filter((_, otherIndex) => otherIndex !== index);
+    const pool = strict.filter(
+      (candidate) =>
+        candidate.interior &&
+        candidate.noLosToSpawn &&
+        !selected.some((item) => item.point.x === candidate.point.x && item.point.y === candidate.point.y),
+    );
+    const replacement = pool.find(
+      (candidate) =>
+        componentSizeWith(
+          others.map((item) => item.point),
+          candidate.point,
+        ) <= ENEMY_MAX_COMPONENT,
+    );
+    if (replacement) selected[index] = replacement;
+  }
+
+  const selectedKeys = new Set(selected.map((candidate) => pointKey(candidate.point.x, candidate.point.y)));
+  const finalHotspots = hotspots.map((hotspot) => {
+    const candidate = selected.find(
+      (item) => item.point.x === hotspot.x && item.point.y === hotspot.y,
+    );
+    return {
+      ...hotspot,
+      eligible: hotspot.eligible,
+      occupied: Boolean(candidate?.hiddenHit && selectedKeys.has(pointKey(hotspot.x, hotspot.y))),
+    };
+  });
+
+  return { selected, hotspots: finalHotspots, relaxed };
+}
+
 export function placeEnemies(input: EnemyInput): EnemyResult {
   const warnings: string[] = [];
   const surfaceN = input.rooms.reduce((sum, room) => sum + room.area, 0);
   const surfaceTerm = Math.ceil(input.enemySurfaceFactor * surfaceN);
   const playersTerm = Math.ceil(input.enemyPlayersFactor * input.numPlayers);
   const total = surfaceTerm + playersTerm;
+  const hiddenEnemyChance = Math.min(1, Math.max(0, input.hiddenEnemyChance));
 
   const { budgets, warnings: budgetWarnings } = distributeEnemyBudget(
     input.rooms,
@@ -702,22 +1003,7 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
   );
   warnings.push(...budgetWarnings);
 
-  const capacities = new Map(
-    input.rooms.map((room) => [
-      room.id,
-      separationCapacity(room, input.doors, input.spawns, input.seed),
-    ]),
-  );
-  const fitted = fitBudgetsToCapacity(
-    input.rooms,
-    budgets,
-    capacities,
-    input.spawns.roomId,
-    total,
-  );
-  warnings.push(...fitted.warnings);
-
-  const finalBudgets = fitted.budgets;
+  const finalBudgets = budgets;
   const planned = input.rooms.reduce(
     (sum, room) => sum + (finalBudgets.get(room.id) ?? 0),
     0,
@@ -739,56 +1025,51 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
     assignmentsByRoom.set(assignment.roomId, list);
   }
 
-  const positionsByRoom = new Map<number, Point[]>();
-  const visionRelaxedByRoom = new Map<number, number>();
-  for (const room of input.rooms) {
-    const budget = assignmentsByRoom.get(room.id)?.length ?? 0;
-    if (budget === 0) continue;
-    const candidates = enemyCandidates(room, doorsAt, spawnHoles, input.spawns, input.seed);
-    const blocked = (cell: Point) =>
-      hasLineOfSightToSpawn(input.tiles, input.width, input.height, cell, input.spawns);
-    const strict = selectEnemyPositions(candidates, budget, blocked);
-    if (strict.length >= budget) {
-      positionsByRoom.set(room.id, strict);
-      continue;
-    }
-    const relaxed = selectEnemyPositions(candidates, budget);
-    if (relaxed.length > strict.length) {
-      positionsByRoom.set(room.id, relaxed);
-      visionRelaxedByRoom.set(room.id, relaxed.length - strict.length);
-    } else {
-      positionsByRoom.set(room.id, strict);
-    }
-  }
-
   const enemies: Enemy[] = [];
+  const hotspots: Hotspot[] = [];
   const missingByRoom = new Map<number, number>();
+  const relaxedByRoom = new Map<number, number>();
 
-  for (const assignment of assignments) {
-    const room = input.rooms.find((item) => item.id === assignment.roomId);
-    if (!room) continue;
-    const positions = positionsByRoom.get(room.id);
-    const chosen = positions?.shift();
-    if (!chosen) {
-      missingByRoom.set(room.id, (missingByRoom.get(room.id) ?? 0) + 1);
-      continue;
+  for (const room of input.rooms) {
+    const types = assignmentsByRoom.get(room.id) ?? [];
+    if (types.length === 0) continue;
+    const placement = placeRoomEnemies(
+      room,
+      types.length,
+      input,
+      hiddenEnemyChance,
+      doorsAt,
+      spawnHoles,
+    );
+    hotspots.push(...placement.hotspots);
+    if (placement.relaxed > 0) {
+      relaxedByRoom.set(room.id, placement.relaxed);
     }
-    enemies.push({
-      id: `enemy-${room.id}-${enemies.filter((enemy) => enemy.roomId === room.id).length}`,
-      type: assignment.type,
-      x: chosen.x,
-      y: chosen.y,
-      roomId: room.id,
-      home: { x: chosen.x, y: chosen.y },
-    });
+    for (let index = 0; index < types.length; index += 1) {
+      const chosen = placement.selected[index];
+      if (!chosen) {
+        missingByRoom.set(room.id, (missingByRoom.get(room.id) ?? 0) + 1);
+        continue;
+      }
+      enemies.push({
+        id: `enemy-${room.id}-${enemies.filter((enemy) => enemy.roomId === room.id).length}`,
+        type: types[index],
+        x: chosen.point.x,
+        y: chosen.point.y,
+        roomId: room.id,
+        home: { x: chosen.point.x, y: chosen.point.y },
+        hidden: chosen.hiddenHit,
+        interior: chosen.interior,
+      });
+    }
   }
 
   for (const [roomId, missing] of missingByRoom) {
     warnings.push(
-      `La sala ${roomId} no pudo colocar ${missing} enemigo${missing === 1 ? '' : 's'} con separación ≥2 y sin visión al spawn.`,
+      `La sala ${roomId} no pudo colocar ${missing} enemigo${missing === 1 ? '' : 's'} con componentes ≤2 y sin visión al spawn.`,
     );
   }
-  for (const [roomId, relaxed] of visionRelaxedByRoom) {
+  for (const [roomId, relaxed] of relaxedByRoom) {
     warnings.push(
       `Se relajó la línea de visión al spawn en la sala ${roomId} (${relaxed} enemigo${relaxed === 1 ? '' : 's'}).`,
     );
@@ -803,9 +1084,14 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
   const placedPerRoom = input.rooms.map(
     (room) => enemies.filter((enemy) => enemy.roomId === room.id).length,
   );
+  const points = enemies.map((enemy) => ({ x: enemy.x, y: enemy.y }));
+  const hidden = enemies.filter((enemy) => enemy.hidden).length;
+  const interior = enemies.filter((enemy) => enemy.interior).length;
+  const eligibleHotspots = hotspots.filter((hotspot) => hotspot.eligible).length;
 
   return {
     enemies,
+    hotspots,
     warnings,
     breakdown: {
       surfaceN,
@@ -821,6 +1107,14 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
       sentinels: enemies.filter((enemy) => enemy.type === 'sentinel').length,
       brutes: enemies.filter((enemy) => enemy.type === 'brute').length,
       cowards: enemies.filter((enemy) => enemy.type === 'coward').length,
+      interior,
+      border: enemies.length - interior,
+      hidden,
+      hotspotsTotal: hotspots.length,
+      hotspotsEligible: eligibleHotspots,
+      hotspotRolls: eligibleHotspots,
+      hotspotsOccupied: hidden,
+      componentsMax: maxComponentSize(points),
     },
   };
 }
