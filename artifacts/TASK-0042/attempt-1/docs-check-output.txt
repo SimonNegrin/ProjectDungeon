@@ -1,5 +1,5 @@
 $ node scripts/validate-docs.mjs
-Avisos (29):
+Avisos (30):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 722 palabras; objetivo ≤600
 - artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
@@ -29,4 +29,5 @@ Avisos (29):
 - artifacts/TASK-0041/attempt-2/brief.md: handoff de 3384 B; objetivo ≤2560 B
 - artifacts/TASK-0041/attempt-2/report.md: handoff de 2840 B; objetivo ≤2560 B
 - artifacts/TASK-0042/attempt-1/brief.md: handoff de 3269 B; objetivo ≤2560 B
-OK: 199 documentos, 42 tareas, 5 experimentos.
+- artifacts/TASK-0042/attempt-1/report.md: handoff de 3553 B; objetivo ≤2560 B
+OK: 201 documentos, 42 tareas, 5 experimentos.

@@ -1,3 +1,13 @@
+---
+type: Task Report Detail
+title: "TASK-0042: observaciones v3 propuestas para EXP-004"
+description: Texto listo para la sección Observaciones de experiment.md; no aplicado por límites de rol.
+task: TASK-0042
+attempt: 1
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-09T13:00:00Z }
+---
+
 # Propuesta de observaciones v3 para `experiments/EXP-004-salas-irregulares/experiment.md`
 
 > No aplicado por `task-runner`: la edición de `experiment.md` está reservada al
