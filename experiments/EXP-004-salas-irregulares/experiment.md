@@ -2,9 +2,9 @@
 type: Experiment
 id: EXP-004
 title: Comparador de generadores de salas irregulares
-description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla.
+description: Compara tres formas de generar mazmorras densas con salas poligonales, pared con pared y pasillos cortos usando el tileset real y la misma semilla; incluye puertas validadas, spawn alrededor del acceso y enemigos por superficie y jugadores.
 status: draft
-experiment_status: ready
+experiment_status: building
 question: ¿Qué algoritmo y qué parámetros producen salas caprichosas, pegadas y con pasillos cortos, manteniendo la mazmorra legible y jugable?
 related_requirements: [REQ-011, REQ-012]
 seed: 279837264
@@ -19,14 +19,18 @@ parameters:
   wallThickness: "1-2"
   megaRoomChance: 17
   spawnMinTiles: 6
+  numPlayers: 3
+  enemySurfaceFactor: 0.02
+  enemyPlayersFactor: 1.35
   showDebug: false
   showDoors: true
   showSpawn: true
+  showEnemies: true
 decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T00:48:00Z
+updated_at: 2026-11-09T10:50:25Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -42,6 +46,11 @@ El experimento usa el tileset real de 32rogues, la regla de muro por borde y las
 paletas de suelo de `REQ-008`. No es una maqueta abstracta: las salas, los muros,
 las puertas y el spawn deben leerse como en el juego.
 
+La v2 aplica las reglas aprobadas de puertas (soporte de muro, conexión entre dos
+salas, separación Chebyshev ≥3 y máximo una por pasillo), coloca al grupo
+alrededor del acceso de la sala de spawn y calcula los enemigos por superficie y
+jugadores con factores configurables.
+
 # Hipótesis
 
 - **A · Crecimiento sobre roca** dará las siluetas más orgánicas y los rincones
@@ -54,6 +63,12 @@ las puertas y el spawn deben leerse como en el juego.
 La decisión no es solo estética: la variante elegida debe cumplir las
 restricciones de forma, pared compartida, pasillos cortos, spawn protegido y
 reparto de enemigos sin relajar la jugabilidad.
+
+La v2 añade tres hipótesis de lectura: una puerta con dos muros en la línea y
+separación suficiente deja de parecer un agujero accidental; un grupo alrededor
+del acceso se lee como una llegada y no como fichas pegadas a la pared; y un
+presupuesto de enemigos por superficie y jugadores hace que las salas grandes se
+sientan más habitadas sin multiplicar fichas en las pequeñas.
 
 # Opciones
 
@@ -70,14 +85,17 @@ reparto de enemigos sin relajar la jugabilidad.
    parámetros.
 3. Ajustar tamaño, número de salas, longitud máxima de pasillo, probabilidad de
    pasillo ancho, grosor de muro y probabilidad de caverna.
-4. Activar y desactivar la capa de debug: máscaras de sala, puertas, anchura de
-   pasillo, sala de spawn, huecos y enemigos.
-5. Alternar la vista de mapa completo y la vista de juego 13×13 para comprobar
+4. Ajustar `numPlayers` (1-6), `enemySurfaceFactor` (0-0,10) y
+   `enemyPlayersFactor` (0-3,00) para comparar densidades; por defecto 3
+   jugadores, 0,02 y 1,35.
+5. Activar y desactivar la capa de debug: máscaras de sala, puertas válidas,
+   bocas abiertas, anchura de pasillo, acceso y huecos de spawn, y enemigos.
+6. Alternar la vista de mapa completo y la vista de juego 13×13 para comprobar
    que la cámara y la lectura funcionan a escala real.
-6. Probar al menos 8 semillas, incluidas varias que activen caverna y pasillo
+7. Probar al menos 8 semillas, incluidas varias que activen caverna y pasillo
    ancho; no decidir con una sola.
-7. Comparar con las tres capturas de referencia del usuario.
-8. Elegir una variante, añadir notas y exportar el JSON de decisión.
+8. Comparar con las tres capturas de referencia del usuario.
+9. Elegir una variante, añadir notas y exportar el JSON de decisión.
 
 # Métricas
 
@@ -85,11 +103,16 @@ reparto de enemigos sin relajar la jugabilidad.
 - Relación área/caja de límites y número de muescas por sala.
 - Hornacinas de 1-2 tiles y callejones.
 - Parejas de salas con pared compartida y puertas directas.
+- Puertas válidas, bocas abiertas y motivo; distancia Chebyshev entre puertas;
+  puertas por pasillo y soporte de muro.
 - Longitud de cada pasillo (0-3) y número de bucles.
 - Pasillos anchos de 2 tiles, longitud y ausencia de puertas.
 - Caverna: área de la sala principal y número de anexas.
-- Sala de spawn: accesos, huecos libres y distancia a enemigos.
-- Enemigos por sala, salas vacías y tipos.
+- Sala de spawn: accesos, tile de acceso, huecos libres, distancia al acceso y
+  separación entre personajes.
+- Enemigos: `N`, `P`, factores, término por superficie, término por jugadores,
+  total `T`, presupuesto por sala, tipos y salas vacías.
+- Enemigos por sala, separación y ausencia de línea de visión al spawn.
 - Conectividad (debe ser 100 %) y ausencia de pasos diagonales.
 - Tiempo de generación y número de intentos internos.
 
@@ -98,12 +121,16 @@ reparto de enemigos sin relajar la jugabilidad.
 Construido y probado en `TASK-0040` (intentos 1 y 2). La página compara A/B/C
 con la misma semilla, tileset real, puertas, spawn, enemigos, métricas y vista
 13×13. El intento 2 corrige las puertas de la vista 13×13, hace funcional el
-grosor de muro y mantiene el contrato. Queda pendiente el playtest para elegir
-variante; la decisión no se cierra aquí.
+grosor de muro y mantiene el contrato.
 
-- Informe: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
-- Capturas: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
-- Tests: `pnpm run test`, `pnpm run docs:check` y `pnpm run build` en verde.
+La v2 está pendiente de `TASK-0041`: puertas validadas (soporte, dos salas,
+Chebyshev ≥3, una por pasillo), spawn alrededor del acceso y presupuesto de
+enemigos por superficie y jugadores con factores configurables. Queda pendiente
+el playtest para elegir variante; la decisión no se cierra aquí.
+
+- Informe de la v1: [attempt-2/report.md](../../artifacts/TASK-0040/attempt-2/report.md).
+- Capturas de la v1: [attempt-2/screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
+- Tests de la v1: `pnpm run test`, `pnpm run docs:check` y `pnpm run build` en verde.
 
 # Decisión
 
@@ -115,14 +142,17 @@ variante; la decisión no se cierra aquí.
 
 # Evidencia
 
-- Informe del intento 2: [report.md](../../artifacts/TASK-0040/attempt-2/report.md).
-- Capturas A/B/C normal y debug: [screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
-- Export de ejemplo: [decision-example.json](../../artifacts/TASK-0040/attempt-2/decision-example.json).
-- Salidas de test, docs y build en `artifacts/TASK-0040/attempt-2/`.
+- Informe de la v1: [report.md](../../artifacts/TASK-0040/attempt-2/report.md).
+- Capturas A/B/C normal y debug de la v1: [screenshots/](../../artifacts/TASK-0040/attempt-2/screenshots/).
+- Export de ejemplo de la v1: [decision-example.json](../../artifacts/TASK-0040/attempt-2/decision-example.json).
+- Salidas de test, docs y build de la v1 en `artifacts/TASK-0040/attempt-2/`.
+- v2: pendiente en `artifacts/TASK-0041/`.
 
 # Siguientes pasos
 
-- Actualizar `REQ-011` a v2 con el algoritmo y los parámetros elegidos.
+- Ejecutar `TASK-0041` y revisar las capturas de la v2 con el usuario.
+- Actualizar `REQ-011` a v2 con el algoritmo y los parámetros elegidos tras el
+  playtest.
 - Crear las tareas de implementación del generador, el modelo de sala, el render
   de puertas y el reparto de enemigos.
 - Promocionar la variante elegida a `src/game/` con tests de producción.
