@@ -5,7 +5,7 @@ description: Corregir el cómputo de accesos del spawn y reforzar las aserciones
 task: TASK-0045
 attempt: 2
 status: stable
-brief_bytes: 3390
+brief_bytes: 3393
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T16:35:00Z }
 ---

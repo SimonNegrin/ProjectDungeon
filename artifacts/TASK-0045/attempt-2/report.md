@@ -69,7 +69,7 @@ arnés.
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 3390 |
+| `brief_bytes` | 3393 |
 | `report_bytes` | 2839 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
