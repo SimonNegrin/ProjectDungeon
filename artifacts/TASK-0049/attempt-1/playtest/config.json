@@ -1,0 +1,39 @@
+{
+  "task": "TASK-0049",
+  "generator": "growth",
+  "seed": 2738263054,
+  "url": "http://127.0.0.1:5173/?seed=2738263054",
+  "start_command": "pnpm run dev",
+  "expected": {
+    "mapWidth": 22,
+    "mapHeight": 18,
+    "rooms": 5,
+    "party": 6,
+    "enemies": 11,
+    "exit": "door",
+    "viewportTiles": 13
+  },
+  "parameters": {
+    "mapWidth": 22,
+    "mapHeight": 18,
+    "roomCount": 5,
+    "roomMin": 3,
+    "roomMax": 8,
+    "corridorMaxLength": 3,
+    "wideCorridorChance": 33,
+    "wallThickness": 1,
+    "megaRoomChance": 15,
+    "spawnMinTiles": 6,
+    "numPlayers": 6,
+    "enemySurfaceFactor": 0.02,
+    "enemyPlayersFactor": 1.2,
+    "hiddenEnemyChance": 0.25,
+    "exitMode": "random",
+    "variant": "growth",
+    "showDebug": false,
+    "showDoors": true,
+    "showSpawn": true,
+    "showEnemies": true
+  },
+  "decision_record": "experiments/EXP-004-salas-irregulares/results/decision-2026-11-09T14-59-21Z.json"
+}
