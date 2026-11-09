@@ -1,0 +1,2 @@
+$ node scripts/validate-opencode.mjs
+OK: 3 agentes, 3 skills.

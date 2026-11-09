@@ -16,5 +16,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "node"]
   },
-  "include": ["src", "experiments", "tests", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"]
+  "include": ["src", "experiments", "tests", "vite.config.ts", "vite.config.experiments.ts", "vitest.config.ts", "playwright.config.ts"]
 }

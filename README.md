@@ -49,7 +49,9 @@ en `/experiments/`.
 | Comando | Uso |
 |---|---|
 | `pnpm run dev` | Servidor de desarrollo. |
-| `pnpm run build` | Typecheck y build de producción. |
+| `pnpm run build` | Typecheck y build de producción (solo el juego). |
+| `pnpm run build:experiments` | Build de experimentos en `dist-experiments/`, separado de `dist/`. |
+| `pnpm run check:bundle` | Comprueba que `dist/` no contiene BSP, plantillas ni experimentos. |
 | `pnpm test` | Tests unitarios con Vitest. |
 | `pnpm run test:e2e` | Tests de navegador con Playwright. |
 | `pnpm run docs:check` | Valida OKF, enlaces, grafo y topes de handoff. |

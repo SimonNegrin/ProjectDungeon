@@ -1,0 +1,1517 @@
+$ playwright test
+
+Running 70 tests using 4 workers
+
+  ✘   2 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:493:1 › feedback de daño en un ataque normal desde el lado (1.1s)
+  ✘   1 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:308:1 › impacto, vida bajo cursor, F1, economía de turno y victoria (1.3s)
+  ✘   3 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:543:1 › fallo con texto y sin destello (semilla suplementaria) (1.4s)
+  ✘   7 [chromium] › tests/e2e/cursor-qa.spec.ts:75:1 › cursor inicial, teclado en cuatro direcciones y borde del viewport (570ms)
+  ✓   6 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:700:1 › derrota determinista sin cambiar la economía de turno (1.0s)
+  ✘   5 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:613:1 › determinismo: dos cargas con la misma semilla y comandos (1.3s)
+  ✘   8 [chromium] › tests/e2e/cursor-qa.spec.ts:250:1 › Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acción (394ms)
+  ✘  10 [chromium] › tests/e2e/cursor-qa.spec.ts:299:1 › Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado (620ms)
+  ✘   9 [chromium] › tests/e2e/cursor-qa.spec.ts:161:1 › estados, patrones de borde y caminos verde y ámbar en dos tonos (1.1s)
+  ✘  11 [chromium] › tests/e2e/cursor-qa.spec.ts:366:1 › enemigo adyacente: marca, ataque directo con F, fin de turno y victoria (607ms)
+  ✘   4 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:175:1 › HUD con espada, armas en el mapa, recogida con G y cambio 1-3 (6.1s)
+  ✘  12 [chromium] › tests/e2e/cursor-qa.spec.ts:492:1 › enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse ataca (803ms)
+  ✘  13 [chromium] › tests/e2e/cursor-qa.spec.ts:568:1 › enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin dañar (787ms)
+  ✘  14 [chromium] › tests/e2e/cursor-qa.spec.ts:613:1 › enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa (683ms)
+  ✘  17 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:35:1 › arma en el mapa, pista de G y HUD de equipo (780ms)
+  ✘  15 [chromium] › tests/e2e/cursor-qa.spec.ts:645:1 › enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar (924ms)
+  ✓  16 [chromium] › tests/e2e/cursor-qa.spec.ts:705:1 › ciclo de vida, snapshot, debug y HUD sin botones nuevos (1.0s)
+  ✘  18 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:85:1 › impacto, fallo y F1 con tiradas y vida (468ms)
+  ✓  19 [chromium] › tests/e2e/experiment-combat.spec.ts:213:1 › calcula un ataque y simula el duelo de forma determinista (760ms)
+  ✓  21 [chromium] › tests/e2e/experiment-combat.spec.ts:160:1 › el roster permite añadir, duplicar, editar y eliminar sin recargar (1.1s)
+  ✓  20 [chromium] › tests/e2e/experiment-combat.spec.ts:84:1 › el índice lista EXP-003 y los presets A/B/C/D cambian roster y métricas (1.6s)
+  ✓  23 [chromium] › tests/e2e/experiment-combat.spec.ts:279:1 › exporta el JSON descargado y una tabla personalizada (1.2s)
+  ✓  25 [chromium] › tests/e2e/experiment-motion.spec.ts:175:1 › escenario corto: 3 pasos, MP progresivo, cámara centrada e input ignorado (716ms)
+  ✓  24 [chromium] › tests/e2e/experiment-motion.spec.ts:93:1 › el índice lista EXP-002 y los presets A/B/C cambian el ritmo (1.2s)
+  ✓  27 [chromium] › tests/e2e/experiment-shell.spec.ts:6:1 › el shell renderiza, ajusta parámetros y exporta una decisión (544ms)
+  ✘  28 [chromium] › tests/e2e/flee-behavior-qa.spec.ts:37:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja (574ms)
+  ✓  26 [chromium] › tests/e2e/experiment-motion.spec.ts:244:1 › escenario largo: diagonal, cámara clampada y decisión exportada (956ms)
+  ✘  29 [chromium] › tests/e2e/flee-behavior-qa.spec.ts:77:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida (649ms)
+  ✘  30 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:408:1 › snapshot y canvas: base común, una paleta por sala y puertas/pasillos neutros (567ms)
+  ✘  31 [chromium] › tests/e2e/flee-behavior-qa.spec.ts:116:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar (520ms)
+  ✘  32 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:491:1 › ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla (939ms)
+  ✘  33 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:652:1 › ruina o vegetación: paleta y mezcla distintas del neutro (694ms)
+TASK-0024 familias decals=49 seen=blood,blueBrick,bones,corpse,dirt,grass,mushroom,pebbles,plant,redBrick
+  ✓  34 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:708:1 › lista blanca y familias 9 tierra, 10 ladrillo azul y 11 huesos (586ms)
+  ✘  36 [chromium] › tests/e2e/floor-qa.spec.ts:611:1 › snapshot: densidades, exclusiones, lista blanca y un decal por tile (803ms)
+  ✘  37 [chromium] › tests/e2e/floor-qa.spec.ts:709:1 › damero en sala y pasillo: tonos alternos y muros sin tinte (806ms)
+  ✓  22 [chromium] › tests/e2e/experiment-generator.spec.ts:30:1 › EXP-001 compara A/B/C, cambia semilla, alterna huecos y exporta decisión (7.6s)
+TASK-0024 determinismo ambiente ref=mixed,humid,death,ruin,vegetation alt=humid,death,ruin,vegetation,mixed same_canvas=true
+  ✓  35 [chromium] › tests/e2e/floor-qa-ambient.spec.ts:835:1 › otra semilla cambia decal y ambiente manteniendo base y damero (1.3s)
+TASK-0022 MoveTo target=(4,7) approach=(3,7) player_after=(4,7)
+  ✓  38 [chromium] › tests/e2e/floor-qa.spec.ts:1038:1 › MoveTo a un tile decorado termina y conserva la decoración (504ms)
+  ✘  40 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1280×720 (460ms)
+TASK-0022 determinismo identical=true alternate_seed=279837265 alternate_delta=14.01
+  ✓  39 [chromium] › tests/e2e/floor-qa.spec.ts:1127:1 › misma semilla idéntica y otra semilla cambia decals manteniendo el damero (1.1s)
+TASK-0022 grises a=19.59 b=33.60 delta=14.01
+  ✓  41 [chromium] › tests/e2e/floor-qa.spec.ts:837:1 › escala de grises: el damero se conserva por luminancia (591ms)
+TASK-0022 camino decal=(3,4) steps=3 green=4/4 bright=true
+  ✘  43 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 900×700 (estrecha) (362ms)
+  ✓  42 [chromium] › tests/e2e/floor-qa.spec.ts:880:1 › camino y cursor se dibujan por encima de un tile decorado (832ms)
+  ✓  44 [chromium] › tests/e2e/frame-qa.spec.ts:480:1 › el canvas interno 2218×1248 no cambia al redimensionar (416ms)
+  ✘  45 [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport (291ms)
+  ✘  46 [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1920×1080 (400ms)
+  ✘  48 [chromium] › tests/e2e/frame-qa.spec.ts:512:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa (344ms)
+  ✘  50 [chromium] › tests/e2e/game-cursor.spec.ts:140:1 › el cursor se recoloca al viewport cuando la cámara se desplaza (359ms)
+  ✘  49 [chromium] › tests/e2e/game-cursor.spec.ts:26:1 › humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD (795ms)
+  ✘  51 [chromium] › tests/e2e/game-cursor.spec.ts:180:1 › humo del cursor sobre enemigo: marca de objetivo y ataque con F (663ms)
+  ✘  53 [chromium] › tests/e2e/game-map.spec.ts:93:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 (370ms)
+  ✘  52 [chromium] › tests/e2e/game-input-hud.spec.ts:46:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (420ms)
+  ✘  54 [chromium] › tests/e2e/game-render.spec.ts:32:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara (366ms)
+  ✘  55 [chromium] › tests/e2e/generated-map-qa.spec.ts:525:1 › carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara (392ms)
+  ✘  56 [chromium] › tests/e2e/generated-map-qa.spec.ts:706:1 › muros por borde: muestra estructural, píxel y capturas (447ms)
+  ✘  47 [chromium] › tests/e2e/frame-qa.spec.ts:636:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño (5.4s)
+  ✘  59 [chromium] › tests/e2e/motion-qa.spec.ts:169:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo (421ms)
+  ✓  58 [chromium] › tests/e2e/generated-map-qa.spec.ts:944:1 › generación 32×32 por debajo de 100 ms y ventana de frames sin tirones (1.4s)
+  ✘  61 [chromium] › tests/e2e/motion-qa.spec.ts:370:1 › la cámara sigue al personaje y no se mueve con el cursor (399ms)
+  ✘  60 [chromium] › tests/e2e/motion-qa.spec.ts:269:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada (654ms)
+  ✘  62 [chromium] › tests/e2e/motion-qa.spec.ts:444:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela (467ms)
+  ✘  63 [chromium] › tests/e2e/motion-qa.spec.ts:573:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar (746ms)
+  ✘  64 [chromium] › tests/e2e/motion-qa.spec.ts:730:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador (876ms)
+  ✓  65 [chromium] › tests/e2e/motion-qa.spec.ts:811:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (893ms)
+  ✘  68 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:238:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena (454ms)
+  ✘  67 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:44:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento (554ms)
+  ✘  57 [chromium] › tests/e2e/generated-map-qa.spec.ts:801:1 › F1, R, F2, HUD y encuadre 16:9 (5.4s)
+  ✘  66 [chromium] › tests/e2e/motion-qa.spec.ts:856:1 › dos ejecuciones producen el mismo resultado con reloj determinista (1.3s)
+  ✘  69 [chromium] › tests/e2e/perception-alarm-qa.spec.ts:315:1 › TASK-0039: semilla de referencia, R-010 y determinismo (276ms)
+  ✘  70 [chromium] › tests/e2e/perception-host-qa.spec.ts:15:1 › TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción (268ms)
+
+
+  1) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:175:1 › HUD con espada, armas en el mapa, recogida con G y cambio 1-3 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('hud-enemy-hp')
+    Expected: "9/9"
+    Received: "8/8"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('hud-enemy-hp') with timeout 5000ms
+      - waiting for getByTestId('hud-enemy-hp')
+        14 × locator resolved to <strong data-testid="hud-enemy-hp">8/8</strong>
+           - unexpected value "8/8"
+
+
+      212 |   await expectHudEquipment(page, initial);
+      213 |   await expect(page.getByTestId('hud-cursor-enemy-hp')).toHaveText('—/—');
+    > 214 |   await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+          |                                                  ^
+      215 |   await expect(page.getByTestId('weapon-hint')).toBeHidden();
+      216 |   await expectHudOutsideMap(page);
+      217 |   await screenshot(page, 'hud-sword', testInfo);
+        at /Users/simon/proyectdungeon/tests/e2e/combat-equipment-qa.spec.ts:214:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-HUD-co-7c6bb-recogida-con-G-y-cambio-1-3-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-HUD-co-7c6bb-recogida-con-G-y-cambio-1-3-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:308:1 › impacto, vida bajo cursor, F1, economía de turno y victoria 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 12
+
+      315 |   const adjacent = await snapshot(page);
+      316 |   const enemy = adjacent.enemies[0];
+    > 317 |   expect(distance(adjacent.players[0], enemy)).toBe(1);
+          |                                                ^
+      318 |   // La semilla de referencia llega desde arriba: es el pasillo de una casilla
+      319 |   // que provocaba el solape del `-1` con el jugador.
+      320 |   expect(adjacent.players[0]).toMatchObject({ x: enemy.x, y: enemy.y - 1 });
+        at /Users/simon/proyectdungeon/tests/e2e/combat-equipment-qa.spec.ts:317:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-impact-d74d5-conomía-de-turno-y-victoria-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-impact-d74d5-conomía-de-turno-y-victoria-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:493:1 › feedback de daño en un ataque normal desde el lado 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "x": 5,
+    +   "x": 3,
+        "y": 5,
+      }
+
+      502 |   // El jugador ataca desde la derecha en una sala abierta: el texto debe quedar
+      503 |   // a la izquierda del objetivo.
+    > 504 |   expect(player).toMatchObject({ x: enemy.x + 1, y: enemy.y });
+          |                  ^
+      505 |
+      506 |   await moveCursorTo(page, enemy.x, enemy.y);
+      507 |   const beforeAttack = await snapshot(page);
+        at /Users/simon/proyectdungeon/tests/e2e/combat-equipment-qa.spec.ts:504:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-feedba-70d05-ataque-normal-desde-el-lado-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-feedba-70d05-ataque-normal-desde-el-lado-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:543:1 › fallo con texto y sin destello (semilla suplementaria) 
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      564 |   await settle(page);
+      565 |   const miss = attackEvent(missResult.events);
+    > 566 |   expect(miss).toBeDefined();
+          |                ^
+      567 |   expect(miss!.hit).toBe(false);
+      568 |   await expect(page.getByTestId('damage-feedback')).toHaveText('Fallo');
+      569 |   await expect(page.getByTestId('damage-feedback')).toHaveAttribute(
+        at /Users/simon/proyectdungeon/tests/e2e/combat-equipment-qa.spec.ts:566:16
+
+    attachment #1: attack-miss (image/png) ─────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-fallo--23b34-ello-semilla-suplementaria--chromium/attachments/attack-miss-2a02d633fe3b072e3a5a345f6efc44712db9c0c5.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-fallo--23b34-ello-semilla-suplementaria--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-fallo--23b34-ello-semilla-suplementaria--chromium/error-context.md
+
+  5) [chromium] › tests/e2e/combat-equipment-qa.spec.ts:613:1 › determinismo: dos cargas con la misma semilla y comandos 
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 2
+    Received:    0
+
+      692 |   expect(second).toEqual(first);
+      693 |   expect(first.seed).toBe(REFERENCE_SEED);
+    > 694 |   expect(first.attacks.length).toBeGreaterThanOrEqual(2);
+          |                                ^
+      695 |   expect(first.attacks.some((event) => event.attackerId === 'player-1')).toBe(true);
+      696 |   expect(first.attacks.some((event) => event.attackerId === 'enemy-1')).toBe(true);
+      697 |   expect(first.status).toBe('victory');
+        at /Users/simon/proyectdungeon/tests/e2e/combat-equipment-qa.spec.ts:694:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/combat-equipment-qa-determ-82183-la-misma-semilla-y-comandos-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/combat-equipment-qa-determ-82183-la-misma-semilla-y-comandos-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/cursor-qa.spec.ts:75:1 › cursor inicial, teclado en cuatro direcciones y borde del viewport 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "x": 6,
+    -   "y": 8,
+    +   "x": 3,
+    +   "y": 7,
+      }
+
+      81 |   const start = await snapshot(page);
+      82 |   expect(start.seed).toBe(SEED);
+    > 83 |   expect(start.players[0]).toMatchObject({ x: 6, y: 8 });
+         |                            ^
+      84 |   expect(start.cursor).toMatchObject({
+      85 |     x: 6,
+      86 |     y: 8,
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:83:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-cursor-inicial-t-2c93f-ciones-y-borde-del-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-cursor-inicial-t-2c93f-ciones-y-borde-del-viewport-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/cursor-qa.spec.ts:161:1 › estados, patrones de borde y caminos verde y ámbar en dos tonos 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "kind": "floor",
+    -   "state": "too-far",
+    +   "kind": "blocked",
+    +   "state": "invalid",
+        "x": 11,
+        "y": 7,
+      }
+
+      227 |   await moveCursorTo(page, 11, 7);
+      228 |   const amber = await snapshot(page);
+    > 229 |   expect(amber.cursor).toMatchObject({ x: 11, y: 7, kind: 'floor', state: 'too-far' });
+          |                        ^
+      230 |   expect(amber.cursor.path.length).toBeGreaterThan(amber.players[0].mp);
+      231 |   expect(amber.cursor.path).not.toEqual(green.cursor.path);
+      232 |   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'too-far');
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:229:24
+
+    attachment #1: cursor-path-green (image/png) ───────────────────────────────────────────────────
+    test-results/cursor-qa-estados-patrones-f9ef8--verde-y-ámbar-en-dos-tonos-chromium/attachments/cursor-path-green-3d7a0a8437448ed75bf217bac36a85f0e7d0fd0f.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-estados-patrones-f9ef8--verde-y-ámbar-en-dos-tonos-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-estados-patrones-f9ef8--verde-y-ámbar-en-dos-tonos-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/cursor-qa.spec.ts:250:1 › Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acción 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+      291 |   const next = await snapshot(page);
+      292 |   expect(next.cursor).toMatchObject({ x: target.x + 1, y: target.y });
+    > 293 |   expect(next.cursor.path.length).toBe(1);
+          |                                   ^
+      294 |   expect(next.cursor.path.at(-1)).toEqual({ x: target.x + 1, y: target.y });
+      295 |
+      296 |   expect(consoleErrors).toEqual([]);
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:293:35
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-Moverse-en-verde-06d23--exacto-sin-consumir-acción-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-Moverse-en-verde-06d23--exacto-sin-consumir-acción-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/cursor-qa.spec.ts:299:1 › Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "kind": "floor",
+    -   "state": "too-far",
+    +   "kind": "blocked",
+    +   "state": "invalid",
+      }
+
+      306 |   await moveCursorTo(page, 11, 7);
+      307 |   const planned = await snapshot(page);
+    > 308 |   expect(planned.cursor).toMatchObject({ kind: 'floor', state: 'too-far' });
+          |                          ^
+      309 |   const cost = planned.cursor.path.length;
+      310 |   const mp = planned.players[0].mp;
+      311 |   expect(cost).toBeGreaterThan(mp);
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:308:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-Moverse-en-ámbar-2f968-en-rojo-no-altera-el-estado-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-Moverse-en-ámbar-2f968-en-rojo-no-altera-el-estado-chromium/error-context.md
+
+  10) [chromium] › tests/e2e/cursor-qa.spec.ts:366:1 › enemigo adyacente: marca, ataque directo con F, fin de turno y victoria 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 14
+
+      375 |
+      376 |   const adjacent = await snapshot(page);
+    > 377 |   expect(distance(adjacent.players[0], adjacent.enemies[0])).toBe(1);
+          |                                                              ^
+      378 |   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
+      379 |   const selected = await snapshot(page);
+      380 |   expect(selected.cursor).toMatchObject({
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:377:62
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-enemigo-adyacent-66445-n-F-fin-de-turno-y-victoria-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-enemigo-adyacent-66445-n-F-fin-de-turno-y-victoria-chromium/error-context.md
+
+  11) [chromium] › tests/e2e/cursor-qa.spec.ts:492:1 › enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse ataca 
+
+    Error: El jugador no está adyacente al enemigo (distancia 12).
+
+       at support.ts:811
+
+      809 |     );
+      810 |     if (distance !== 1) {
+    > 811 |       throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
+          |             ^
+      812 |     }
+      813 |     if (player.mp >= minimumMp && player.actionAvailable) return snap;
+      814 |     await endTurn(page);
+        at ensureAdjacentWithMp (/Users/simon/proyectdungeon/tests/e2e/support.ts:811:13)
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:498:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-enemigo-no-adyac-c5ebf-F-rechazado-y-Moverse-ataca-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-enemigo-no-adyac-c5ebf-F-rechazado-y-Moverse-ataca-chromium/error-context.md
+
+  12) [chromium] › tests/e2e/cursor-qa.spec.ts:568:1 › enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin dañar 
+
+    Error: El jugador no está adyacente al enemigo (distancia 12).
+
+       at support.ts:811
+
+      809 |     );
+      810 |     if (distance !== 1) {
+    > 811 |       throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
+          |             ^
+      812 |     }
+      813 |     if (player.mp >= minimumMp && player.actionAvailable) return snap;
+      814 |     await endTurn(page);
+        at ensureAdjacentWithMp (/Users/simon/proyectdungeon/tests/e2e/support.ts:811:13)
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:574:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-enemigo-alcanzab-cbedd-al-tile-de-ataque-sin-dañar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-enemigo-alcanzab-cbedd-al-tile-de-ataque-sin-dañar-chromium/error-context.md
+
+  13) [chromium] › tests/e2e/cursor-qa.spec.ts:613:1 › enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa 
+
+    Error: El cursor está oculto y no puede ir a (19,5)
+
+       at support.ts:21
+
+      19 |     if (cursor.x === x && cursor.y === y) return;
+      20 |     if (!cursor.visible) {
+    > 21 |       throw new Error(`El cursor está oculto y no puede ir a (${x},${y})`);
+         |             ^
+      22 |     }
+      23 |
+      24 |     const key =
+        at moveCursorTo (/Users/simon/proyectdungeon/tests/e2e/support.ts:21:13)
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:618:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-enemigo-adyacent-8c8a7-o-no-mueve-no-ataca-y-avisa-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-enemigo-adyacent-8c8a7-o-no-mueve-no-ataca-y-avisa-chromium/error-context.md
+
+  14) [chromium] › tests/e2e/cursor-qa.spec.ts:645:1 › enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar 
+
+    Error: El jugador no está adyacente al enemigo (distancia 12).
+
+       at support.ts:811
+
+      809 |     );
+      810 |     if (distance !== 1) {
+    > 811 |       throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
+          |             ^
+      812 |     }
+      813 |     if (player.mp >= minimumMp && player.actionAvailable) return snap;
+      814 |     await endTurn(page);
+        at ensureAdjacentWithMp (/Users/simon/proyectdungeon/tests/e2e/support.ts:811:13)
+        at /Users/simon/proyectdungeon/tests/e2e/cursor-qa.spec.ts:651:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/cursor-qa-enemigo-demasiad-800db--hasta-agotar-MP-sin-atacar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/cursor-qa-enemigo-demasiad-800db--hasta-agotar-MP-sin-atacar-chromium/error-context.md
+
+  15) [chromium] › tests/e2e/equipment-hud-qa.spec.ts:35:1 › arma en el mapa, pista de G y HUD de equipo 
+
+    Error: page.evaluate: Error: La partida terminó (defeat) antes de llegar a (15,4)
+        at eval (eval at evaluate (:370:30), <anonymous>:61:15)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:61:15)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at walkTo (/Users/simon/proyectdungeon/tests/e2e/support.ts:114:14)
+        at /Users/simon/proyectdungeon/tests/e2e/equipment-hud-qa.spec.ts:63:11
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/equipment-hud-qa-arma-en-el-mapa-pista-de-G-y-HUD-de-equipo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/equipment-hud-qa-arma-en-el-mapa-pista-de-G-y-HUD-de-equipo-chromium/error-context.md
+
+  16) [chromium] › tests/e2e/equipment-hud-qa.spec.ts:85:1 › impacto, fallo y F1 con tiradas y vida 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      154 |   }
+      155 |
+    > 156 |   expect(hitCaptured).toBe(true);
+          |                       ^
+      157 |   expect(missCaptured).toBe(true);
+      158 |   expect(debugCaptured).toBe(true);
+      159 |   expect(consoleErrors).toEqual([]);
+        at /Users/simon/proyectdungeon/tests/e2e/equipment-hud-qa.spec.ts:156:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/equipment-hud-qa-impacto-fallo-y-F1-con-tiradas-y-vida-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/equipment-hud-qa-impacto-fallo-y-F1-con-tiradas-y-vida-chromium/error-context.md
+
+  17) [chromium] › tests/e2e/flee-behavior-qa.spec.ts:37:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja 
+
+    Error: Falta enemy-4 en el snapshot
+
+      20 | function enemyOf(snap: GameSnapshot, id: string) {
+      21 |   const enemy = snap.enemies.find((candidate) => candidate.id === id);
+    > 22 |   if (!enemy) throw new Error(`Falta ${id} en el snapshot`);
+         |                     ^
+      23 |   return enemy;
+      24 | }
+      25 |
+        at enemyOf (/Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:22:21)
+        at /Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:43:10
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flee-behavior-qa-TASK-0039-e29cb--rompe-la-visión-y-se-aleja-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flee-behavior-qa-TASK-0039-e29cb--rompe-la-visión-y-se-aleja-chromium/error-context.md
+
+  18) [chromium] › tests/e2e/flee-behavior-qa.spec.ts:77:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida 
+
+    Error: Falta enemy-1 en el snapshot
+
+      20 | function enemyOf(snap: GameSnapshot, id: string) {
+      21 |   const enemy = snap.enemies.find((candidate) => candidate.id === id);
+    > 22 |   if (!enemy) throw new Error(`Falta ${id} en el snapshot`);
+         |                     ^
+      23 |   return enemy;
+      24 | }
+      25 |
+        at enemyOf (/Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:22:21)
+        at /Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:83:10
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flee-behavior-qa-TASK-0039-1488e-lpe-fuerte-renueva-la-huida-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flee-behavior-qa-TASK-0039-1488e-lpe-fuerte-renueva-la-huida-chromium/error-context.md
+
+  19) [chromium] › tests/e2e/flee-behavior-qa.spec.ts:116:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar 
+
+    Error: Falta enemy-4 en el snapshot
+
+      20 | function enemyOf(snap: GameSnapshot, id: string) {
+      21 |   const enemy = snap.enemies.find((candidate) => candidate.id === id);
+    > 22 |   if (!enemy) throw new Error(`Falta ${id} en el snapshot`);
+         |                     ^
+      23 |   return enemy;
+      24 | }
+      25 |
+        at enemyOf (/Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:22:21)
+        at /Users/simon/proyectdungeon/tests/e2e/flee-behavior-qa.spec.ts:122:10
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/flee-behavior-qa-TASK-0039-ac1ac-ado-ataca-en-vez-de-esperar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/flee-behavior-qa-TASK-0039-ac1ac-ado-ataca-en-vez-de-esperar-chromium/error-context.md
+
+  20) [chromium] › tests/e2e/floor-qa-ambient.spec.ts:408:1 › snapshot y canvas: base común, una paleta por sala y puertas/pasillos neutros 
+
+    Error: No hay tiles de ambas paridades
+
+      172 |   const base = tiles.find((tile) => tile.parity === 0);
+      173 |   const second = tiles.find((tile) => tile.parity === 1);
+    > 174 |   if (!base || !second) throw new Error('No hay tiles de ambas paridades');
+          |                               ^
+      175 |   return { base, second };
+      176 | }
+      177 |
+        at palettePair (/Users/simon/proyectdungeon/tests/e2e/floor-qa-ambient.spec.ts:174:31)
+        at verifyPalette (/Users/simon/proyectdungeon/tests/e2e/floor-qa-ambient.spec.ts:396:16)
+        at /Users/simon/proyectdungeon/tests/e2e/floor-qa-ambient.spec.ts:432:37
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/floor-qa-ambient-snapshot--5e4ee--y-puertas-pasillos-neutros-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/floor-qa-ambient-snapshot--5e4ee--y-puertas-pasillos-neutros-chromium/error-context.md
+
+  21) [chromium] › tests/e2e/floor-qa-ambient.spec.ts:491:1 › ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla 
+
+    Error: Sala 1 (humid) mezcla
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.3
+    Received:    0.3333333333333333
+
+      520 |     const ratio = mixed.length / decals.length;
+      521 |     expect(ratio, `Sala ${room.id} (${entry.ambient}) mezcla`).toBeGreaterThanOrEqual(0.2);
+    > 522 |     expect(ratio, `Sala ${room.id} (${entry.ambient}) mezcla`).toBeLessThanOrEqual(0.3);
+          |                                                                ^
+      523 |     mixedRoomsChecked += 1;
+      524 |     mixture.push(
+      525 |       `room${room.id}:${entry.ambient} decals=${decals.length} mix=${mixed.length} ratio=${ratio.toFixed(3)}`,
+        at /Users/simon/proyectdungeon/tests/e2e/floor-qa-ambient.spec.ts:522:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/floor-qa-ambient-ambientes-d88c1--humedad-con-focos-y-mezcla-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/floor-qa-ambient-ambientes-d88c1--humedad-con-focos-y-mezcla-chromium/error-context.md
+
+  22) [chromium] › tests/e2e/floor-qa-ambient.spec.ts:652:1 › ruina o vegetación: paleta y mezcla distintas del neutro 
+
+    Error: page.evaluate: Error: La partida terminó (defeat) antes de llegar a (10,13)
+        at eval (eval at evaluate (:370:30), <anonymous>:61:15)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at eval (eval at evaluate (:370:30), <anonymous>:61:15)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+        at walkTo (/Users/simon/proyectdungeon/tests/e2e/support.ts:114:14)
+        at /Users/simon/proyectdungeon/tests/e2e/floor-qa-ambient.spec.ts:664:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/floor-qa-ambient-ruina-o-v-53061-mezcla-distintas-del-neutro-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/floor-qa-ambient-ruina-o-v-53061-mezcla-distintas-del-neutro-chromium/error-context.md
+
+  23) [chromium] › tests/e2e/floor-qa.spec.ts:611:1 › snapshot: densidades, exclusiones, lista blanca y un decal por tile 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "corridor"
+    Received: "room"
+
+      647 |     expect(doors.has(key), `Decal ${key} sobre umbral`).toBe(false);
+      648 |     expect(spawns.has(key), `Decal ${key} sobre aparición`).toBe(false);
+    > 649 |     expect(roomAt(snap.rooms, decal.x, decal.y) ? 'room' : 'corridor').toBe(decal.area);
+          |                                                                        ^
+      650 |
+      651 |     const family = decal.type.split('-')[0];
+      652 |     expect(
+        at /Users/simon/proyectdungeon/tests/e2e/floor-qa.spec.ts:649:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/floor-qa-snapshot-densidad-c0f98--blanca-y-un-decal-por-tile-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/floor-qa-snapshot-densidad-c0f98--blanca-y-un-decal-por-tile-chromium/error-context.md
+
+  24) [chromium] › tests/e2e/floor-qa.spec.ts:709:1 › damero en sala y pasillo: tonos alternos y muros sin tinte 
+
+    Error: No hay par adyacente de paridad opuesta en el pasillo
+
+      766 |   const corridorTiles = measurableTiles(corridorSnap, 'corridor');
+      767 |   const corridorPair = findAdjacentParityPair(corridorTiles);
+    > 768 |   if (!corridorPair) throw new Error('No hay par adyacente de paridad opuesta en el pasillo');
+          |                            ^
+      769 |   expect(
+      770 |     roomAt(corridorSnap.rooms, corridorPair.a.x, corridorPair.a.y),
+      771 |     'El par del pasillo no debe caer dentro de una sala',
+        at /Users/simon/proyectdungeon/tests/e2e/floor-qa.spec.ts:768:28
+
+    attachment #1: damero-sala (image/png) ─────────────────────────────────────────────────────────
+    test-results/floor-qa-damero-en-sala-y--c25bd--alternos-y-muros-sin-tinte-chromium/attachments/damero-sala-fc321fd3edda48ea2aa0bb414f6b5e90699d2871.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/floor-qa-damero-en-sala-y--c25bd--alternos-y-muros-sin-tinte-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/floor-qa-damero-en-sala-y--c25bd--alternos-y-muros-sin-tinte-chromium/error-context.md
+
+  25) [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1280×720 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "maxX": 608,
+    -   "maxY": 608,
+    +   "maxX": 288,
+    +   "maxY": 160,
+        "x": 0,
+    -   "y": 64,
+    +   "y": 32,
+      }
+
+      411 |       // cae alineada a la rejilla, sin fragmentos parciales en los bordes.
+      412 |       const range = visibleTileRange(snap);
+    > 413 |       expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+          |                           ^
+      414 |       expect(range).toEqual({ minX: 0, minY: 2, maxX: 12, maxY: 14 });
+      415 |       expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
+      416 |       expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:413:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-encuadre-16-9-map-790f2--las-invariantes-a-1280×720-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-encuadre-16-9-map-790f2--las-invariantes-a-1280×720-chromium/error-context.md
+
+  26) [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1920×1080 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "maxX": 608,
+    -   "maxY": 608,
+    +   "maxX": 288,
+    +   "maxY": 160,
+        "x": 0,
+    -   "y": 64,
+    +   "y": 32,
+      }
+
+      411 |       // cae alineada a la rejilla, sin fragmentos parciales en los bordes.
+      412 |       const range = visibleTileRange(snap);
+    > 413 |       expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+          |                           ^
+      414 |       expect(range).toEqual({ minX: 0, minY: 2, maxX: 12, maxY: 14 });
+      415 |       expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
+      416 |       expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:413:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-encuadre-16-9-map-dc7cb-las-invariantes-a-1920×1080-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-encuadre-16-9-map-dc7cb-las-invariantes-a-1920×1080-chromium/error-context.md
+
+  27) [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 900×700 (estrecha) 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "maxX": 608,
+    -   "maxY": 608,
+    +   "maxX": 288,
+    +   "maxY": 160,
+        "x": 0,
+    -   "y": 64,
+    +   "y": 32,
+      }
+
+      411 |       // cae alineada a la rejilla, sin fragmentos parciales en los bordes.
+      412 |       const range = visibleTileRange(snap);
+    > 413 |       expect(snap.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+          |                           ^
+      414 |       expect(range).toEqual({ minX: 0, minY: 2, maxX: 12, maxY: 14 });
+      415 |       expect(range.maxX - range.minX + 1).toBe(TILES_PER_AXIS);
+      416 |       expect(range.maxY - range.minY + 1).toBe(TILES_PER_AXIS);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:413:27
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-encuadre-16-9-map-c7783-riantes-a-900×700-estrecha--chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-encuadre-16-9-map-c7783-riantes-a-900×700-estrecha--chromium/error-context.md
+
+  28) [chromium] › tests/e2e/frame-qa.spec.ts:512:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 3
+
+      Object {
+    -   "maxX": 608,
+    -   "maxY": 608,
+    +   "maxX": 288,
+    +   "maxY": 160,
+        "x": 0,
+    -   "y": 64,
+    +   "y": 32,
+      }
+
+      518 |   // Arranque: spawn (6,8) del mapa generado y cámara centrada en él.
+      519 |   const initial = await snapshot(page);
+    > 520 |   expect(initial.camera).toEqual({ x: 0, y: 64, maxX: 608, maxY: 608 });
+          |                          ^
+      521 |   expect(initial.players[0]).toMatchObject({ x: 6, y: 8, mp: 6, hp: 20 });
+      522 |   expect(initial.camera.x).toBe(expectedCamera(initial).x);
+      523 |   expect(initial.camera.y).toBe(expectedCamera(initial).y);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:520:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-la-cámara-centra--51484--los-cuatro-bordes-del-mapa-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-la-cámara-centra--51484--los-cuatro-bordes-del-mapa-chromium/error-context.md
+
+  29) [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "x": 23,
+    -   "y": 28,
+    +   "x": 19,
+    +   "y": 5,
+      }
+
+      599 |
+      600 |   const initial = await snapshot(page);
+    > 601 |   expect(initial.enemies[0]).toMatchObject({ x: 23, y: 28 });
+          |                              ^
+      602 |   expect(initial.spawns?.distance).toBe(59);
+      603 |   expect(initial.spawns?.distance).toBeGreaterThanOrEqual(12);
+      604 |   expect(enemyVisible(initial), 'El enemigo no debe verse al arrancar').toBe(false);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:601:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-el-enemigo-empiez-76da9-istancia-supera-el-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-el-enemigo-empiez-76da9-istancia-supera-el-viewport-chromium/error-context.md
+
+  30) [chromium] › tests/e2e/frame-qa.spec.ts:636:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('hud-enemy-hp')
+    Expected: "9/9"
+    Received: "8/8"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('hud-enemy-hp') with timeout 5000ms
+      - waiting for getByTestId('hud-enemy-hp')
+        14 × locator resolved to <strong data-testid="hud-enemy-hp">8/8</strong>
+           - unexpected value "8/8"
+
+
+      645 |   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
+      646 |   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
+    > 647 |   await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+          |                                                  ^
+      648 |
+      649 |   await approachEnemy(page);
+      650 |   const adjacent = await snapshot(page);
+        at /Users/simon/proyectdungeon/tests/e2e/frame-qa.spec.ts:647:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/frame-qa-el-HUD-muestra-vi-0eeb5-taque-conserva-flash-y-daño-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/frame-qa-el-HUD-muestra-vi-0eeb5-taque-conserva-flash-y-daño-chromium/error-context.md
+
+  31) [chromium] › tests/e2e/game-cursor.spec.ts:26:1 › humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "kind": "floor",
+    -   "state": "too-far",
+    +   "kind": "blocked",
+    +   "state": "invalid",
+      }
+
+      80 |   await moveCursorTo(page, 11, 7);
+      81 |   const amber = await snapshot(page);
+    > 82 |   expect(amber.cursor).toMatchObject({ state: 'too-far', kind: 'floor' });
+         |                        ^
+      83 |   expect(amber.cursor.path.length).toBeGreaterThan(amber.players[0].mp);
+      84 |   const amberCost = amber.cursor.path.length;
+      85 |   await expect(page.getByTestId('cursor')).toHaveAttribute('data-cursor-state', 'too-far');
+        at /Users/simon/proyectdungeon/tests/e2e/game-cursor.spec.ts:82:24
+
+    attachment #1: cursor-player (image/png) ───────────────────────────────────────────────────────
+    test-results/game-cursor-humo-del-curso-7d051-e-ámbar-bloqueo-y-aviso-HUD-chromium/attachments/cursor-player-c4bbff0a1a1feeb2c0a4768b63392f80297cc0ef.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: cursor-path-green (image/png) ───────────────────────────────────────────────────
+    test-results/game-cursor-humo-del-curso-7d051-e-ámbar-bloqueo-y-aviso-HUD-chromium/attachments/cursor-path-green-f805adee9954ccee1a711044ff7ca66c9cab666a.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-cursor-humo-del-curso-7d051-e-ámbar-bloqueo-y-aviso-HUD-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-cursor-humo-del-curso-7d051-e-ámbar-bloqueo-y-aviso-HUD-chromium/error-context.md
+
+  32) [chromium] › tests/e2e/game-cursor.spec.ts:140:1 › el cursor se recoloca al viewport cuando la cámara se desplaza 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "x": 6,
+    -   "y": 8,
+    +   "x": 3,
+    +   "y": 7,
+      }
+
+      147 |   await openGame(page);
+      148 |   const start = await snapshot(page);
+    > 149 |   expect(start.cursor).toMatchObject({ x: 6, y: 8 });
+          |                        ^
+      150 |
+      151 |   // El jugador recorre el mapa con comandos reales (sin tocar el cursor).
+      152 |   await walkTo(page, 3, 27);
+        at /Users/simon/proyectdungeon/tests/e2e/game-cursor.spec.ts:149:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-cursor-el-cursor-se-r-c8f92-uando-la-cámara-se-desplaza-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-cursor-el-cursor-se-r-c8f92-uando-la-cámara-se-desplaza-chromium/error-context.md
+
+  33) [chromium] › tests/e2e/game-cursor.spec.ts:180:1 › humo del cursor sobre enemigo: marca de objetivo y ataque con F 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 12
+
+      195 |       Math.abs(adjacent.players[0].y - adjacent.enemies[0].y),
+      196 |     ),
+    > 197 |   ).toBe(1);
+          |     ^
+      198 |
+      199 |   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
+      200 |   const enemyTile = await snapshot(page);
+        at /Users/simon/proyectdungeon/tests/e2e/game-cursor.spec.ts:197:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-cursor-humo-del-curso-c0858--de-objetivo-y-ataque-con-F-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-cursor-humo-del-curso-c0858--de-objetivo-y-ataque-con-F-chromium/error-context.md
+
+  34) [chromium] › tests/e2e/game-input-hud.spec.ts:46:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "x": 6,
+    -   "y": 8,
+    +   "x": 3,
+    +   "y": 7,
+      }
+
+      61 |   const start = await snapshot(page);
+      62 |   expect(start.seed).toBe(279837264);
+    > 63 |   expect(start.players[0]).toMatchObject({ x: 6, y: 8 });
+         |                            ^
+      64 |
+      65 |   // HUD inicial y ayuda de teclas.
+      66 |   await expect(page.getByTestId('hud')).toBeVisible();
+        at /Users/simon/proyectdungeon/tests/e2e/game-input-hud.spec.ts:63:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-input-hud-loop-comple-18f5b-s-feedback-debug-y-reinicio-chromium/error-context.md
+
+  35) [chromium] › tests/e2e/game-map.spec.ts:93:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 32
+    Received: 22
+
+      101 |   const initial = await snapshot(page);
+      102 |
+    > 103 |   expect(initial.grid.width).toBe(32);
+          |                              ^
+      104 |   expect(initial.grid.height).toBe(32);
+      105 |   expect(initial.grid.tiles).toHaveLength(1024);
+      106 |   expect(initial.seed).toBe(279837264);
+        at /Users/simon/proyectdungeon/tests/e2e/game-map.spec.ts:103:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-map-mapa-generado-por-b370d-napshot-cámara-debug-R-y-F2-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-map-mapa-generado-por-b370d-napshot-cámara-debug-R-y-F2-chromium/error-context.md
+
+  36) [chromium] › tests/e2e/game-render.spec.ts:32:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 32
+    Received: 22
+
+      44 |   const snapshot = await page.evaluate(() => window.__game!.snapshot());
+      45 |
+    > 46 |   expect(snapshot.grid.width).toBe(32);
+         |                               ^
+      47 |   expect(snapshot.grid.height).toBe(32);
+      48 |   expect(snapshot.grid.tiles).toHaveLength(32 * 32);
+      49 |   expect(snapshot.seed).toBe(279837264);
+        at /Users/simon/proyectdungeon/tests/e2e/game-render.spec.ts:46:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/game-render-la-página-de-j-3c829-snapshot-y-limita-la-cámara-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/game-render-la-página-de-j-3c829-snapshot-y-limita-la-cámara-chromium/error-context.md
+
+  37) [chromium] › tests/e2e/generated-map-qa.spec.ts:525:1 › carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 32
+    Received: 22
+
+      531 |   const first = await snapshot(page);
+      532 |
+    > 533 |   expect(first.grid.width).toBe(32);
+          |                            ^
+      534 |   expect(first.grid.height).toBe(32);
+      535 |   expect(first.grid.tiles).toHaveLength(1024);
+      536 |   expect(first.seed).toBe(REFERENCE_SEED);
+        at /Users/simon/proyectdungeon/tests/e2e/generated-map-qa.spec.ts:533:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/generated-map-qa-carga-det-668f8-os-pasillos-spawns-y-cámara-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/generated-map-qa-carga-det-668f8-os-pasillos-spawns-y-cámara-chromium/error-context.md
+
+  38) [chromium] › tests/e2e/generated-map-qa.spec.ts:706:1 › muros por borde: muestra estructural, píxel y capturas 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"expected": "wallSide1", "x": 3, "y": 3}
+    Received: undefined
+
+      721 |     expected: 'wallTop',
+      722 |   });
+    > 723 |   expect(samples.find((sample) => sample.x === 3 && sample.y === 3)).toEqual({
+          |                                                                      ^
+      724 |     x: 3,
+      725 |     y: 3,
+      726 |     expected: 'wallSide1',
+        at /Users/simon/proyectdungeon/tests/e2e/generated-map-qa.spec.ts:723:70
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/generated-map-qa-muros-por-34d5a-structural-píxel-y-capturas-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/generated-map-qa-muros-por-34d5a-structural-píxel-y-capturas-chromium/error-context.md
+
+  39) [chromium] › tests/e2e/generated-map-qa.spec.ts:801:1 › F1, R, F2, HUD y encuadre 16:9 ───────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('hud-enemy-hp')
+    Expected: "9/9"
+    Received: "8/8"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('hud-enemy-hp') with timeout 5000ms
+      - waiting for getByTestId('hud-enemy-hp')
+        14 × locator resolved to <strong data-testid="hud-enemy-hp">8/8</strong>
+           - unexpected value "8/8"
+
+
+      821 |   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
+      822 |   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
+    > 823 |   await expect(page.getByTestId('hud-enemy-hp')).toHaveText('9/9');
+          |                                                  ^
+      824 |
+      825 |   // F1: overlay visible con semilla, salas, huecos, spawns y pasillos anchos.
+      826 |   const overlay = page.getByTestId('debug-overlay');
+        at /Users/simon/proyectdungeon/tests/e2e/generated-map-qa.spec.ts:823:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/generated-map-qa-F1-R-F2-HUD-y-encuadre-16-9-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/generated-map-qa-F1-R-F2-HUD-y-encuadre-16-9-chromium/error-context.md
+
+  40) [chromium] › tests/e2e/motion-qa.spec.ts:169:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+        "mp": 6,
+    -   "x": 6,
+    -   "y": 8,
+    +   "x": 3,
+    +   "y": 7,
+      }
+
+      175 |   const start = await snapshot(page);
+      176 |   expect(start.seed).toBe(SEED);
+    > 177 |   expect(start.players[0]).toMatchObject({ x: 6, y: 8, mp: 6 });
+          |                            ^
+      178 |   expect(start.camera).toMatchObject({ x: 0, y: 64 });
+      179 |   const tileSize = start.tileSize;
+      180 |
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:177:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-paso-intermedio--9e866-ulto-puntos-y-MP-progresivo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-paso-intermedio--9e866-ulto-puntos-y-MP-progresivo-chromium/error-context.md
+
+  41) [chromium] › tests/e2e/motion-qa.spec.ts:269:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 26
+    + Received  +  1
+
+    - Array [
+    -   Object {
+    -     "x": 6,
+    -     "y": 7,
+    -   },
+    -   Object {
+    -     "x": 6,
+    -     "y": 6,
+    -   },
+    -   Object {
+    -     "x": 5,
+    -     "y": 5,
+    -   },
+    -   Object {
+    -     "x": 4,
+    -     "y": 4,
+    -   },
+    -   Object {
+    -     "x": 4,
+    -     "y": 3,
+    -   },
+    -   Object {
+    -     "x": 4,
+    -     "y": 2,
+    -   },
+    - ]
+    + Array []
+
+      280 |   await moveCursorTo(page, 4, 2);
+      281 |   const planned = await snapshot(page);
+    > 282 |   expect(planned.cursor.path).toEqual([
+          |                               ^
+      283 |     { x: 6, y: 7 },
+      284 |     { x: 6, y: 6 },
+      285 |     { x: 5, y: 5 },
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:282:31
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-camino-largo-rec-d53fc-rogresivo-y-cámara-limitada-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-camino-largo-rec-d53fc-rogresivo-y-cámara-limitada-chromium/error-context.md
+
+  42) [chromium] › tests/e2e/motion-qa.spec.ts:370:1 › la cámara sigue al personaje y no se mueve con el cursor 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "x": 0,
+    -   "y": 64,
+    +   "y": 32,
+      }
+
+      376 |   const start = await snapshot(page);
+      377 |   const tileSize = start.tileSize;
+    > 378 |   expect(start.camera).toMatchObject({ x: 0, y: 64 });
+          |                        ^
+      379 |
+      380 |   // El cursor nunca desplaza la cámara, ni siquiera hasta el borde del viewport.
+      381 |   await moveCursorTo(page, 11, 7);
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:378:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-la-cámara-sigue--2223a-y-no-se-mueve-con-el-cursor-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-la-cámara-sigue--2223a-y-no-se-mueve-con-el-cursor-chromium/error-context.md
+
+  43) [chromium] › tests/e2e/motion-qa.spec.ts:444:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "animating": true,
+    +   "animating": false,
+        "step": 0,
+    -   "totalSteps": 2,
+    +   "totalSteps": 0,
+      }
+
+      451 |   await page.keyboard.press('Space');
+      452 |   const baseline = await snapshot(page);
+    > 453 |   expect(baseline.animation).toMatchObject({ animating: true, step: 0, totalSteps: 2 });
+          |                              ^
+      454 |   const baselineEvents = JSON.stringify(baseline.lastEvents);
+      455 |   const baselinePosition = JSON.stringify(baseline.animation.position);
+      456 |   const baselineHud = {
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:453:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-input-de-juego-i-8f2cd--F1-y-R-responden-R-cancela-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-input-de-juego-i-8f2cd--F1-y-R-responden-R-cancela-chromium/error-context.md
+
+  44) [chromium] › tests/e2e/motion-qa.spec.ts:573:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar 
+
+    Error: El jugador no está adyacente al enemigo (distancia 14).
+
+       at support.ts:811
+
+      809 |     );
+      810 |     if (distance !== 1) {
+    > 811 |       throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
+          |             ^
+      812 |     }
+      813 |     if (player.mp >= minimumMp && player.actionAvailable) return snap;
+      814 |     await endTurn(page);
+        at ensureAdjacentWithMp (/Users/simon/proyectdungeon/tests/e2e/support.ts:811:13)
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:582:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-moverse-sobre-un-ed3b6--daño-y-overlay-al-terminar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-moverse-sobre-un-ed3b6--daño-y-overlay-al-terminar-chromium/error-context.md
+
+  45) [chromium] › tests/e2e/motion-qa.spec.ts:730:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      736 |   // dormido no se mueve y la fase enemiga no tendría animación que probar.
+      737 |   await approachEnemy(page);
+    > 738 |   expect(await moveAwayFromEnemy(page)).toBe(true);
+          |                                         ^
+      739 |   const afterRetreat = await snapshot(page);
+      740 |   await moveCursorTo(
+      741 |     page,
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:738:41
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-fase-enemiga-cad-f723f-vuelve-el-turno-del-jugador-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-fase-enemiga-cad-f723f-vuelve-el-turno-del-jugador-chromium/error-context.md
+
+  46) [chromium] › tests/e2e/motion-qa.spec.ts:856:1 › dos ejecuciones producen el mismo resultado con reloj determinista 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 24
+    + Received  +  4
+
+      Array [
+    -   Object {
+    -     "tileX": 6,
+    -     "tileY": 8,
+    -     "x": 208,
+    -     "y": 272,
+    -   },
+    -   Object {
+    -     "tileX": 7,
+    -     "tileY": 8,
+    -     "x": 224,
+    -     "y": 272,
+    -   },
+    -   Object {
+    -     "tileX": 7,
+    -     "tileY": 8,
+    -     "x": 240,
+    -     "y": 272,
+    -   },
+    -   Object {
+    -     "tileX": 8,
+    -     "tileY": 8,
+    -     "x": 256,
+    -     "y": 272,
+    -   },
+    +   null,
+    +   null,
+    +   null,
+    +   null,
+        null,
+      ]
+
+      895 |
+      896 |   expect(second).toEqual(first);
+    > 897 |   expect(first.samples.map((sample) => sample.position)).toEqual([
+          |                                                          ^
+      898 |     { x: 208, y: 272, tileX: 6, tileY: 8 },
+      899 |     { x: 224, y: 272, tileX: 7, tileY: 8 },
+      900 |     { x: 240, y: 272, tileX: 7, tileY: 8 },
+        at /Users/simon/proyectdungeon/tests/e2e/motion-qa.spec.ts:897:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/motion-qa-dos-ejecuciones--ddeca-tado-con-reloj-determinista-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/motion-qa-dos-ejecuciones--ddeca-tado-con-reloj-determinista-chromium/error-context.md
+
+  47) [chromium] › tests/e2e/perception-alarm-qa.spec.ts:44:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 4
+    Received length: 11
+    Received array:  [{"type": "EnemyWaited", "unitId": "enemy-0-0"}, {"type": "EnemyWaited", "unitId": "enemy-0-1"}, {"type": "EnemyWaited", "unitId": "enemy-0-2"}, {"type": "EnemyWaited", "unitId": "enemy-2-0"}, {"type": "EnemyWaited", "unitId": "enemy-2-1"}, {"type": "EnemyWaited", "unitId": "enemy-3-0"}, {"type": "EnemyWaited", "unitId": "enemy-3-1"}, {"type": "EnemyWaited", "unitId": "enemy-3-2"}, {"type": "EnemyWaited", "unitId": "enemy-4-0"}, {"type": "EnemyWaited", "unitId": "enemy-4-1"}, …]
+
+      79 |   expect(
+      80 |     idle.lastEvents.filter((event) => event.type === 'EnemyWaited'),
+    > 81 |   ).toHaveLength(4);
+         |     ^
+      82 |   expect(idle.lastEvents.some((event) => event.type === 'UnitMoved')).toBe(false);
+      83 |
+      84 |   // R-004/R-011: el `MoveTo` cruza la vista en (3,2) y termina en (4,2), fuera
+        at /Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:81:5
+
+    attachment #1: normal (image/png) ──────────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/attachments/normal-9e9515dd00162a082db41eb71fa5e304098c523e.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-alarm-qa-TASK-0-b5cf7-aso-aviso-F1-y-enfriamiento-chromium/error-context.md
+
+  48) [chromium] › tests/e2e/perception-alarm-qa.spec.ts:238:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena 
+
+    Error: Falta enemy-3 en el snapshot
+
+      25 | function enemyOf(snap: GameSnapshot, id: string) {
+      26 |   const enemy = snap.enemies.find((candidate) => candidate.id === id);
+    > 27 |   if (!enemy) throw new Error(`Falta ${id} en el snapshot`);
+         |                     ^
+      28 |   return enemy;
+      29 | }
+      30 |
+        at enemyOf (/Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:27:21)
+        at /Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:244:23
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-0e6a2-cante-y-alarma-8-sin-cadena-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-alarm-qa-TASK-0-0e6a2-cante-y-alarma-8-sin-cadena-chromium/error-context.md
+
+  49) [chromium] › tests/e2e/perception-alarm-qa.spec.ts:315:1 › TASK-0039: semilla de referencia, R-010 y determinismo 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  5
+    + Received  + 33
+
+      Array [
+        Object {
+    -     "id": "enemy-1",
+    +     "id": "enemy-0-0",
+    +     "type": "coward",
+    +   },
+    +   Object {
+    +     "id": "enemy-0-1",
+    +     "type": "brute",
+    +   },
+    +   Object {
+    +     "id": "enemy-0-2",
+          "type": "sentinel",
+        },
+        Object {
+    -     "id": "enemy-2",
+    +     "id": "enemy-2-0",
+          "type": "sentinel",
+        },
+        Object {
+    -     "id": "enemy-3",
+    -     "type": "brute",
+    +     "id": "enemy-2-1",
+    +     "type": "sentinel",
+        },
+        Object {
+    -     "id": "enemy-4",
+    +     "id": "enemy-3-0",
+    +     "type": "sentinel",
+    +   },
+    +   Object {
+    +     "id": "enemy-3-1",
+    +     "type": "sentinel",
+    +   },
+    +   Object {
+    +     "id": "enemy-3-2",
+    +     "type": "sentinel",
+    +   },
+    +   Object {
+    +     "id": "enemy-4-0",
+          "type": "coward",
+    +   },
+    +   Object {
+    +     "id": "enemy-4-1",
+    +     "type": "brute",
+    +   },
+    +   Object {
+    +     "id": "enemy-4-2",
+    +     "type": "sentinel",
+        },
+      ]
+
+      323 |   expect(
+      324 |     initial.enemies.map((enemy) => ({ id: enemy.id, type: enemy.enemyType })),
+    > 325 |   ).toEqual([
+          |     ^
+      326 |     { id: 'enemy-1', type: 'sentinel' },
+      327 |     { id: 'enemy-2', type: 'sentinel' },
+      328 |     { id: 'enemy-3', type: 'brute' },
+        at /Users/simon/proyectdungeon/tests/e2e/perception-alarm-qa.spec.ts:325:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-alarm-qa-TASK-0-8cd53-rencia-R-010-y-determinismo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-alarm-qa-TASK-0-8cd53-rencia-R-010-y-determinismo-chromium/error-context.md
+
+  50) [chromium] › tests/e2e/perception-host-qa.spec.ts:15:1 › TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  4
+    + Received  + 11
+
+      Array [
+    -   "enemy-1",
+    -   "enemy-2",
+    -   "enemy-3",
+    -   "enemy-4",
+    +   "enemy-0-0",
+    +   "enemy-0-1",
+    +   "enemy-0-2",
+    +   "enemy-2-0",
+    +   "enemy-2-1",
+    +   "enemy-3-0",
+    +   "enemy-3-1",
+    +   "enemy-3-2",
+    +   "enemy-4-0",
+    +   "enemy-4-1",
+    +   "enemy-4-2",
+      ]
+
+      31 |
+      32 |   const initial = await readSnapshot(page);
+    > 33 |   expect(initial.enemies.map((enemy) => enemy.id)).toEqual([
+         |                                                    ^
+      34 |     'enemy-1',
+      35 |     'enemy-2',
+      36 |     'enemy-3',
+        at /Users/simon/proyectdungeon/tests/e2e/perception-host-qa.spec.ts:33:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/perception-host-qa-TASK-00-6b362-F1-y-snapshot-de-percepción-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/perception-host-qa-TASK-00-6b362-F1-y-snapshot-de-percepción-chromium/error-context.md
+
+  50 failed
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:175:1 › HUD con espada, armas en el mapa, recogida con G y cambio 1-3 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:308:1 › impacto, vida bajo cursor, F1, economía de turno y victoria 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:493:1 › feedback de daño en un ataque normal desde el lado 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:543:1 › fallo con texto y sin destello (semilla suplementaria) 
+    [chromium] › tests/e2e/combat-equipment-qa.spec.ts:613:1 › determinismo: dos cargas con la misma semilla y comandos 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:75:1 › cursor inicial, teclado en cuatro direcciones y borde del viewport 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:161:1 › estados, patrones de borde y caminos verde y ámbar en dos tonos 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:250:1 › Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acción 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:299:1 › Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:366:1 › enemigo adyacente: marca, ataque directo con F, fin de turno y victoria 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:492:1 › enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse ataca 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:568:1 › enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin dañar 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:613:1 › enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa 
+    [chromium] › tests/e2e/cursor-qa.spec.ts:645:1 › enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar 
+    [chromium] › tests/e2e/equipment-hud-qa.spec.ts:35:1 › arma en el mapa, pista de G y HUD de equipo 
+    [chromium] › tests/e2e/equipment-hud-qa.spec.ts:85:1 › impacto, fallo y F1 con tiradas y vida ──
+    [chromium] › tests/e2e/flee-behavior-qa.spec.ts:37:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja 
+    [chromium] › tests/e2e/flee-behavior-qa.spec.ts:77:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida 
+    [chromium] › tests/e2e/flee-behavior-qa.spec.ts:116:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar 
+    [chromium] › tests/e2e/floor-qa-ambient.spec.ts:408:1 › snapshot y canvas: base común, una paleta por sala y puertas/pasillos neutros 
+    [chromium] › tests/e2e/floor-qa-ambient.spec.ts:491:1 › ambientes: sala neutra, pasillo, muerte y humedad con focos y mezcla 
+    [chromium] › tests/e2e/floor-qa-ambient.spec.ts:652:1 › ruina o vegetación: paleta y mezcla distintas del neutro 
+    [chromium] › tests/e2e/floor-qa.spec.ts:611:1 › snapshot: densidades, exclusiones, lista blanca y un decal por tile 
+    [chromium] › tests/e2e/floor-qa.spec.ts:709:1 › damero en sala y pasillo: tonos alternos y muros sin tinte 
+    [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1280×720 
+    [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 1920×1080 
+    [chromium] › tests/e2e/frame-qa.spec.ts:370:5 › encuadre 16:9, mapa 13×13 y HUD › mantiene las invariantes a 900×700 (estrecha) 
+    [chromium] › tests/e2e/frame-qa.spec.ts:512:1 › la cámara centra al jugador y se detiene en los cuatro bordes del mapa 
+    [chromium] › tests/e2e/frame-qa.spec.ts:594:1 › el enemigo empieza fuera del viewport y sigue fuera mientras la distancia supera el viewport 
+    [chromium] › tests/e2e/frame-qa.spec.ts:636:1 › el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño 
+    [chromium] › tests/e2e/game-cursor.spec.ts:26:1 › humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD 
+    [chromium] › tests/e2e/game-cursor.spec.ts:140:1 › el cursor se recoloca al viewport cuando la cámara se desplaza 
+    [chromium] › tests/e2e/game-cursor.spec.ts:180:1 › humo del cursor sobre enemigo: marca de objetivo y ataque con F 
+    [chromium] › tests/e2e/game-input-hud.spec.ts:46:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio 
+    [chromium] › tests/e2e/game-map.spec.ts:93:1 › mapa generado por semilla: snapshot, cámara, debug, R y F2 
+    [chromium] › tests/e2e/game-render.spec.ts:32:1 › la página de juego renderiza el mapa generado, expone el snapshot y limita la cámara 
+    [chromium] › tests/e2e/generated-map-qa.spec.ts:525:1 › carga determinista, snapshot, salas, huecos, pasillos, spawns y cámara 
+    [chromium] › tests/e2e/generated-map-qa.spec.ts:706:1 › muros por borde: muestra estructural, píxel y capturas 
+    [chromium] › tests/e2e/generated-map-qa.spec.ts:801:1 › F1, R, F2, HUD y encuadre 16:9 ─────────
+    [chromium] › tests/e2e/motion-qa.spec.ts:169:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo 
+    [chromium] › tests/e2e/motion-qa.spec.ts:269:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada 
+    [chromium] › tests/e2e/motion-qa.spec.ts:370:1 › la cámara sigue al personaje y no se mueve con el cursor 
+    [chromium] › tests/e2e/motion-qa.spec.ts:444:1 › input de juego ignorado durante la animación; F1 y R responden; R cancela 
+    [chromium] › tests/e2e/motion-qa.spec.ts:573:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar 
+    [chromium] › tests/e2e/motion-qa.spec.ts:730:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador 
+    [chromium] › tests/e2e/motion-qa.spec.ts:856:1 › dos ejecuciones producen el mismo resultado con reloj determinista 
+    [chromium] › tests/e2e/perception-alarm-qa.spec.ts:44:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento 
+    [chromium] › tests/e2e/perception-alarm-qa.spec.ts:238:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 8 sin cadena 
+    [chromium] › tests/e2e/perception-alarm-qa.spec.ts:315:1 › TASK-0039: semilla de referencia, R-010 y determinismo 
+    [chromium] › tests/e2e/perception-host-qa.spec.ts:15:1 › TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción 
+  20 passed (32.2s)
+[ELIFECYCLE] Command failed with exit code 1.
