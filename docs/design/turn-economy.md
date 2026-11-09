@@ -23,7 +23,7 @@ playtests.
 | Direcciones | 8 direcciones, incluida la diagonal. |
 | Coste de movimiento | 1 MP por casilla, también en diagonal. |
 | MP de jugador | 6. |
-| MP de enemigo | 4. |
+| MP de enemigo | Por tipo: Centinela 5, Bruto 4, Cobarde 6 (provisional). |
 | Ocupación | Jugadores y enemigos bloquean la casilla. |
 | Corte de esquina | No permitido: para moverse en diagonal, las dos casillas ortogonales adyacentes deben estar libres. |
 | Cámara | Viewport de 13×13 tiles; sigue al jugador activo y se limita a los bordes del mapa. |
@@ -106,18 +106,22 @@ revisables en playtest, pero no se cambian sin una nueva decisión.
 
 | Arma | Acierto | Daño | Perfil |
 |---|---:|---:|---|
-| Espada | +3 | 4 | Equilibrada; arma inicial del jugador. |
-| Hacha | +2 | 6 | Mucho daño; rompe armadura, pero falla más. |
-| Daga | +4 | 3 | Muy fiable; supera escudos, pero sufre contra armadura. |
+| Espada | +3 | 3 | Equilibrada; arma inicial del jugador. |
+| Hacha | +2 | 5 | Mucho daño; rompe armadura, pero falla más. |
+| Daga | +4 | 2 | Muy fiable; supera escudos, pero sufre contra armadura. |
 
 ## Equipo y bestiario
 
 | Unidad | Acierto | Daño | Defensa | Arma | Escudo | Armadura | PV |
 |---|---:|---:|---:|---|---:|---:|---:|
 | Jugador | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
-| Centinela | +0 | +0 | +0 | Espada | 1 | 1 | 9 |
-| Bruto | +0 | +1 | +0 | Hacha | 0 | 2 | 12 |
-| Cobarde | +1 | +0 | +1 | Daga | 1 | 0 | 8 |
+| Centinela | +0 | +0 | +0 | Espada | 1 | 0 | 6 |
+| Bruto | +0 | +1 | +0 | Hacha | 0 | 2 | 8 |
+| Cobarde | +1 | +0 | +1 | Daga | 1 | 0 | 5 |
+
+MP enemigo: Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance
+provisional v1** de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
+y [REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); se reajustarán.
 
 El jugador empieza con la espada, el escudo y la armadura. El hacha y la daga
 están en el mapa: `G` recoge la del tile por 1 MP sin gastar acción y la equipa;
@@ -143,11 +147,11 @@ la IA es determinista y testeable y no usa `Math.random`.
 |---|---|
 | Visión | 360° con línea de Bresenham; los muros bloquean y las unidades no. |
 | Radio de visión por tipo | Centinela 6, Bruto 4, Cobarde 5. |
-| Radio de alarma | 8 para todos; no requiere línea de visión y no se propaga en cadena. |
+| Radio de alarma | 5 para todos; no requiere línea de visión y no se propaga en cadena. |
 | Estado inicial | `dormant`: no se mueve, no ataca y no patrulla. |
 | Detección | Tras cada paso aceptado de `Move`/`MoveTo`; no consume MP ni acción. |
 | Memoria | `lastKnown`; 2 fases enemigas investigando y la tercera volviendo. |
-| Alerta | Ataca si es adyacente; si no, gasta hasta 4 MP por BFS hacia `lastKnown` y ataca si termina adyacente con acción. Sin ruta, espera. |
+| Alerta | Ataca si es adyacente; si no, gasta hasta su MP (5/4/6 según tipo) por BFS hacia `lastKnown` y ataca si termina adyacente con acción. Sin ruta, espera. |
 | Regreso | Vuelve a `home` sin atacar y se duerme al llegar. |
 | Daño | Despierta y alerta; guarda la posición del atacante y, si sobrevive, da la alarma. |
 | Huida | Solo el perfil cobarde, con un golpe de ≥40 % de sus PV máximos sobreviviendo; rompe la línea de visión y maximiza la distancia. Acorralado, ataca. |
@@ -187,7 +191,7 @@ En la fase remota, el móvil enviará comandos equivalentes.
 Estos valores se podrán comparar en experimentos interactivos:
 
 - coste diagonal 1 frente a 1,5;
-- 4, 6 u 8 MP;
+- 4, 6 u 8 MP por tipo;
 - atacar antes o después de mover;
 - una acción frente a puntos de acción;
 - velocidad y claridad de la cámara;

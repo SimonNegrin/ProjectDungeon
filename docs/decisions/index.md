@@ -13,3 +13,4 @@
 * [ADR-011: suelo programático por sala y decoración ambiental](ADR-011-suelo-programatico-ambientes.md) - Dos colores planos por sala, cinco paletas por contraste y 33 decals agrupados por ambientes; el motor sigue sin cambiar.
 * [ADR-012: combate con equipo, modificadores y RNG sembrado](ADR-012-combate-equipo-rng.md) - Impacto y daño con dos tiradas, equipo y modificadores como datos, resolvedor compartido y azar reproducible por semilla.
 * [ADR-013: generador de producción por variante](ADR-013-generador-produccion-por-variante.md) - Core compartido, `growth` por defecto, import estático, BSP alternativo y build de producción sin experimentos ni variantes descartadas.
+* [ADR-014: balance provisional y fuente única de datos](ADR-014-balance-provisional-fuente-unica.md) - Los valores de combate y bestiario viven en catálogos, el MP y la alarma salen del bestiario y los tests de balance comprueban propiedades.

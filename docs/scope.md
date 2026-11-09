@@ -26,10 +26,10 @@ con paleta por sala y decoración ambiental, sin cambiar reglas.
 
 Dos cortes de juego quedan implementados y pendientes de playtest. `REQ-010`
 está `stable` y cerrado con `TASK-0026` a `TASK-0030`: define el combate con
-equipo (acierto, defensa y daño variable) con la tabla A decidida en `EXP-003`.
-`REQ-009` también está `stable` e implementado con `TASK-0034` a `TASK-0039`
-cerradas: fija el bestiario (Centinela/Bruto/Cobarde), la percepción por pasos,
-la alarma de una onda y la huida determinista del cobarde.
+equipo (acierto, defensa y daño variable) con el balance provisional v1 de
+`REQ-010` v5. `REQ-009` también está `stable` e implementado con `TASK-0034` a
+`TASK-0039` cerradas: fija el bestiario (Centinela/Bruto/Cobarde), la percepción
+por pasos, la alarma de una onda y la huida determinista del cobarde.
 
 El siguiente corte está planificado. `REQ-011` añade un segundo `MapGenerator`
 de mazmorra densa con salas poligonales, pasillos cortos y puertas validadas;
@@ -53,7 +53,7 @@ generador y el host. Después, la fase 2: multijugador local hotseat.
 | 1.8 | Legibilidad del suelo: damero y decoración no bloqueante (REQ-007) | Completada tras playtest; damero global y decals no bloqueantes; TASK-0021 y TASK-0022 cerradas |
 | 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
-| 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 8, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
+| 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
 | 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Decidido: `growth` por defecto; EXP-004 cerrado en TASK-0042; producción planificada en TASK-0043 a TASK-0049 |
 | 2 | Multijugador local hotseat en el mismo teclado | Pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
@@ -101,11 +101,13 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - El combate usa acierto de arma + 1d6 contra escudo + 1d6; el daño es arma +
   1d6 menos armadura + 1d6, con mínimo 1. El escudo evita impactos y la armadura
   reduce daño; cada personaje aporta modificadores de acierto, daño y defensa.
-  La tabla A de `EXP-003` fija modificadores, armas, PV, escudo y armadura.
+  La tabla A de `EXP-003` queda sustituida por el balance provisional v1 de
+  `REQ-010` v5; los números se reajustarán.
 - Los enemigos tienen visión de 360° con línea de visión (los muros bloquean y
-  las unidades no), detección en cada paso y alarma de una onda de radio 8 sin
+  las unidades no), detección en cada paso y alarma de una onda de radio 5 sin
   cadena. El perfil cobarde huye de forma determinista al recibir un golpe de al
-  menos el 40 % de su vida máxima; la alerta y la huida usan los 4 MP.
+  menos el 40 % de su vida máxima; la alerta y la huida usan el MP por tipo
+  (Centinela 5, Bruto 4, Cobarde 6).
 - El generador de mazmorra densa `growth` es el defecto de producción: mapas
   pequeños (~22×18), mínimo de 3 salas (4-6 normales y 3 en caverna), salas
   poligonales pared con pared, pasillos de 0-3 tiles, pasillos anchos ocasionales

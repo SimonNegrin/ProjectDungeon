@@ -181,6 +181,33 @@ completo y lectura en
 - Decidido por: `human:simon`.
 - Semilla y número de duelos: `1017`, 1.000.
 
+# Re-ejecución 2026-11-09 (balance provisional v1)
+
+La decisión anterior queda como histórica. Para el **balance provisional v1** de
+`REQ-010` v5 se recalculó el roster con el mismo modelo de asignación del
+experimento (enumeración exacta de los 36 pares de impacto y de los 36 pares de
+daño):
+
+| Unidad | Arma | PV | Acierto/Daño | Escudo | Armadura |
+|---|---|---:|---:|---:|---:|
+| Jugador | Espada | 20 | +3/3 | 1 | 1 |
+| Centinela | Espada | 6 | +3/3 | 1 | 0 |
+| Bruto | Hacha | 8 | +2/5 | 0 | 2 |
+| Cobarde | Daga | 5 | +4/2 | 1 | 0 |
+
+Resultados del jugador contra cada enemigo (impacto · daño medio · ataques
+esperados):
+
+| Objetivo | Espada | Hacha | Daga |
+|---|---|---|---|
+| Centinela | 83,3 % · 4,11 · ~1,75 | 72,2 % · 6,00 · ~1,38 | 91,7 % · 3,28 · ~2,00 |
+| Bruto | 91,7 % · 2,56 · ~3,42 | 83,3 % · 4,11 · ~2,34 | 97,2 % · 1,97 · ~4,17 |
+| Cobarde | 72,2 % · 4,11 · ~1,68 | 58,3 % · 6,00 · ~1,43 | 83,3 % · 3,28 · ~1,83 |
+
+Huida real del cobarde (sobrevive al golpe): espada 41,7 %, hacha 25,0 % y daga
+44,4 %. El preset A del experimento sigue mostrando la tabla histórica; el
+roster nuevo se carga con la edición de roster o `setRoster`.
+
 # Evidencia
 
 - [JSON de decisión](results/decision-2026-11-08T17-18-00Z.json).

@@ -42,6 +42,12 @@ eligiera entre asegurar el golpe o pegar fuerte. `REQ-010` y la mesa
 Ver [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y la
 economía de turno en [turn-economy](../design/turn-economy.md#combate).
 
+> **Nota 2026-11-09:** los valores concretos cambian en
+> [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md):
+> espada +3/3, hacha +2/5, daga +4/2, PV de enemigos 6/8/5 y centinela sin
+> armadura. El modelo, las fórmulas y el RNG de este ADR no cambian; el balance
+> es provisional y se reajustará.
+
 # Consecuencias
 
 - El combate es determinista y testeable con semillas y tiradas fijas.

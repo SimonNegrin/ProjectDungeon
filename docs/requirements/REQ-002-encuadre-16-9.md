@@ -51,6 +51,10 @@ generar las tareas del milestone.
 | R-010 | El HUD, el ataque y el feedback actual se mantienen sin cambios en este corte. | El HUD sigue mostrando vida, MP, acción, fase y vida del enemigo; el ataque conserva flash y número de daño. |
 | R-011 | Posiciones iniciales: jugador en (4,4) y enemigo en (15,15). | Al arrancar no se ve al enemigo; a 6 MP entra en el viewport en unos 2 turnos. |
 
+> **Revisión 2026-11-09:** el MP enemigo ya no es único. [REQ-009](REQ-009-percepcion-alarma-huida.md)
+> v4 fija MP por tipo (Centinela 5, Bruto 4, Cobarde 6). La R-009 y la decisión
+> del 2026-11-07 describen el corte histórico de 20×20.
+
 # Requisitos técnicos
 
 | ID | Requisito | Aceptación |

@@ -74,10 +74,11 @@ La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas
 red ni relojes:
 
 - `visionRadius` y `canSee` aplican visión 360° con Bresenham; los muros
-  bloquean y las unidades no. El bestiario es la única tabla de radios (6/4/5).
+  bloquean y las unidades no. El bestiario es la única tabla de radios (visión
+  6/4/5, alarma 5) y de MP por tipo (5/4/6).
 - La detección se evalúa tras cada paso aceptado de `Move`/`MoveTo` y emite
   `EnemySpotted` con el paso; no consume MP ni acción.
-- `raiseAlarm` resuelve una onda de radio 8 desde el detector, sin línea de
+- `raiseAlarm` resuelve una onda de radio 5 desde el detector, sin línea de
   visión y sin cadena; los receptores comparten `lastKnown` y `hasShouted`.
 - El estado de cada enemigo añade `awareness` (`dormant`/`alert`/`returning`),
   `fleeing`, `home`, `lastKnown`, `alertTurns` y `hasShouted`; todo es

@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-010
 title: "Combate con equipo: acierto, escudo y armadura"
-description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida.
+description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1 en REQ-010 v5.
 status: stable
-version: 4
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T16:18:04Z
-updated_at: 2026-11-08T17:31:45Z
+updated_at: 2026-11-09T12:00:00Z
 related_tasks: [TASK-0025, TASK-0026, TASK-0027, TASK-0028, TASK-0029, TASK-0030]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
@@ -18,6 +18,14 @@ verified:
       Acepta la tabla A de EXP-003 (semilla 1017, 1.000 duelos): modificadores
       del jugador y de los enemigos, armas, PV, escudo y armadura. La facilidad
       en duelos 1 contra 1 se asume para este corte.
+  - by: human:simon
+    at: 2026-11-09T12:00:00Z
+    note: >-
+      Aprueba la pasada de balance provisional v1: −30 % de PV redondeando hacia
+      arriba (Centinela 6, Bruto 8, Cobarde 5), −1 de daño a todas las armas
+      (Espada 3, Hacha 5, Daga 2) y Centinela sin armadura. Acepta que el
+      Cobarde sea frágil y que estos números se reajusten en la futura
+      ampliación de bestiario y armas.
 ---
 
 # Contexto
@@ -39,13 +47,15 @@ Este corte introduce un combate roguelike con equipo y dos capas de azar:
 - **Equipo:** arma, armadura y escudo. El jugador empieza con una espada, una
   armadura y un escudo; puede recoger un hacha y una daga.
 
-La hoja queda en **stable**: el modelo y los valores de la tabla A están
-decididos en `EXP-003` (semilla 1017, 1.000 duelos). La facilidad observada en
-duelos 1 contra 1 es esperada para este corte; el peligro se busca con varios
-enemigos y la alarma. No incluye críticos, ataques a distancia, inventario
-completo, intercambio de objetos ni loot de enemigos. La huida del perfil
-cobarde depende de esta hoja; la tabla A fija su probabilidad y `REQ-009`
-conserva el resto de su alcance.
+La hoja queda en **stable**: el modelo está decidido y los valores vigentes son
+el **balance provisional v1** de esta v5 (PV 6/8/5, armas 3/5/2 y centinela sin
+armadura), que sustituye a la tabla A de `EXP-003` (semilla 1017, 1.000 duelos).
+La facilidad observada en duelos 1 contra 1 es esperada para este corte; el
+peligro se busca con varios enemigos y la alarma. No incluye críticos, ataques a
+distancia, inventario completo, intercambio de objetos ni loot de enemigos. La
+huida del perfil cobarde depende de esta hoja; el balance provisional fija su
+probabilidad y `REQ-009` conserva el resto de su alcance. Los números se
+reajustarán cuando se amplíe el bestiario y el catálogo de armas.
 
 # Objetivos de experiencia
 
@@ -64,13 +74,13 @@ conserva el resto de su alcance.
 |---|---|---|
 | R-001 | El impacto se resuelve con `mod. acierto + acierto del arma + 1d6 > mod. defensa + escudo + 1d6`. Si son iguales, falla. | Tests de las 36 combinaciones; con modificadores iguales el impacto es 15/36 (41,7 %); un +1 lo sube a 21/36 (58,3 %). |
 | R-002 | El daño se resuelve con `max(1, (mod. daño + daño del arma + 1d6) − (armadura + 1d6))`. El escudo no reduce daño; la armadura no evita impactos. | Un impacto del jugador con espada contra armadura 0 hace 1-10 (media 5,03); contra armadura 2 hace 1-8 (media 3,28). El escudo del objetivo no cambia el daño. |
-| R-003 | Hay tres armas melee con acierto y daño propios: espada +3/4, hacha +2/6 y daga +4/3. No hay críticos en este corte. | La tabla es la única fuente de valores; el hacha hace más daño y acierta menos; la daga acierta más y hace menos daño. |
+| R-003 | Hay tres armas melee con acierto y daño propios: espada +3/3, hacha +2/5 y daga +4/2. No hay críticos en este corte. | La tabla es la única fuente de valores; el hacha hace más daño y acierta menos; la daga acierta más y hace menos daño. |
 | R-004 | La armadura y el escudo son equipo separado. El escudo suma a la defensa; la armadura resta al daño recibido. El jugador empieza con armadura 1 y escudo 1; no los cambia en este corte. | La defensa del jugador es `+1 + 1 + 1d6`; su armadura es 1 + 1d6 contra daño. Quitar el escudo sube el impacto recibido; quitar la armadura sube el daño recibido. |
 | R-005 | El jugador empieza con la espada. En el mapa hay un hacha y una daga, fijas por semilla, en salas distintas, alcanzables y fuera de la sala inicial. | La semilla de referencia coloca las dos armas en salas distintas; ninguna está en la sala de aparición, en una puerta o en un muro; se pueden recoger. |
 | R-006 | La recogida es con `G` si el jugador está sobre el arma; cuesta 1 MP, no la acción. El arma se equipa sola. El cambio entre las armas llevadas es gratis con `1`-`3`; hay tres huecos. | `G` recoge, gasta 1 MP y equipa; con 0 MP se rechaza; `1`-`3` cambia sin gastar acción ni MP; no se puede llevar una cuarta. |
-| R-007 | Los enemigos usan la misma fórmula y las mismas categorías de equipo. Cada tipo tiene arma, escudo, armadura, vida, modificadores, visión y perfil. | El centinela, el bruto y el cobarde usan la tabla de bestiario; el bruto es el tanque y el cobarde huye según `REQ-009`. |
-| R-008 | Un enemigo básico (centinela) muere en 2-3 impactos con la espada; el hacha es más rápida pero menos fiable y la daga es fiable pero sufre contra armadura. El bruto es el tanque. | Con la tabla A, el centinela cae en ~2,6 ataques de espada, ~2,1 de hacha y ~3,0 de daga; el bruto en ~4,0, ~2,9 y ~4,8. |
-| R-009 | El cobarde huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece ni se rinde. | Con 8 PV, el umbral es 4 de daño; la probabilidad depende del arma y del daño (espada 72 %, hacha 92 %, daga 58 % contra armadura 0). Acorralado, ataca. |
+| R-007 | Los enemigos usan la misma fórmula y las mismas categorías de equipo. Cada tipo tiene arma, escudo, armadura, vida, modificadores, visión, alarma, MP y perfil. | El centinela, el bruto y el cobarde usan la tabla de bestiario; el bruto es el tanque y el cobarde huye según `REQ-009`. |
+| R-008 | Un enemigo básico (centinela) muere en 1-2 impactos con la espada; el hacha es más rápida pero menos fiable y la daga es fiable pero sufre contra armadura. El bruto es el tanque. | Con el balance provisional v1, el centinela cae en ~1,75 ataques de espada, ~1,38 de hacha y ~2,00 de daga; el bruto en ~3,42, ~2,34 y ~4,17. |
+| R-009 | El cobarde huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece ni se rinde. | Con 5 PV, el umbral es 2 de daño. La probabilidad de huida real (sobreviviendo al golpe) es espada 41,7 %, hacha 25,0 % y daga 44,4 % contra armadura 0; el cobarde a menudo muere antes de poder huir. Acorralado, ataca. |
 | R-010 | El feedback distingue impacto y fallo, y muestra el daño resultante. El HUD muestra el arma equipada, el escudo y la armadura; la vida del enemigo bajo el cursor y el resto en `F1`. | Un ataque produce "Fallo" o "−N" sobre el objetivo; el HUD refleja el equipo; en juego normal no se muestran los dados. |
 | R-011 | El azar es reproducible: misma semilla y mismas acciones producen las mismas tiradas. | Dos partidas con la misma semilla y los mismos comandos dan los mismos impactos y daños; no se usa `Math.random`. |
 | R-012 | La condición de victoria y derrota no cambia: no quedan enemigos vivos o no quedan jugadores vivos. | El combate nuevo no altera `evaluateStatus`; un enemigo huido sigue contando como vivo. |
@@ -80,9 +90,9 @@ conserva el resto de su alcance.
 
 | Arma | Acierto | Daño | Perfil |
 |---|---:|---:|---|
-| Espada | +3 | 4 | Equilibrada; arma inicial del jugador. |
-| Hacha | +2 | 6 | Mucho daño; rompe armadura, pero falla más. |
-| Daga | +4 | 3 | Muy fiable; supera escudos, pero sufre contra armadura. |
+| Espada | +3 | 3 | Equilibrada; arma inicial del jugador. |
+| Hacha | +2 | 5 | Mucho daño; rompe armadura, pero falla más. |
+| Daga | +4 | 2 | Muy fiable; supera escudos, pero sufre contra armadura. |
 
 ## Curva de impacto
 
@@ -104,41 +114,69 @@ La probabilidad depende de `mod. acierto + acierto del arma − (mod. defensa + 
 
 | Unidad | Acierto | Daño | Defensa | Arma | Acierto/Daño | Escudo | Armadura | PV |
 |---|---:|---:|---:|---|---:|---:|---:|---:|
-| Jugador | +1 | +1 | +1 | Espada | +3/4 | 1 | 1 | 20 |
-| Centinela | +0 | +0 | +0 | Espada | +3/4 | 1 | 1 | 9 |
-| Bruto | +0 | +1 | +0 | Hacha | +2/6 | 0 | 2 | 12 |
-| Cobarde | +1 | +0 | +1 | Daga | +4/3 | 1 | 0 | 8 |
+| Jugador | +1 | +1 | +1 | Espada | +3/3 | 1 | 1 | 20 |
+| Centinela | +0 | +0 | +0 | Espada | +3/3 | 1 | 0 | 6 |
+| Bruto | +0 | +1 | +0 | Hacha | +2/5 | 0 | 2 | 8 |
+| Cobarde | +1 | +0 | +1 | Daga | +4/2 | 1 | 0 | 5 |
 
-Totales para leer la tabla: el jugador ataca con +4 y hace +5; su defensa es +2
-y su armadura 1. El centinela ataca con +3, hace +4, defiende +1 y lleva armadura
-1. El bruto ataca con +2, hace +7, defiende +0 y lleva armadura 2. El cobarde
-ataca con +5, hace +3, defiende +2 y no lleva armadura.
+Totales para leer la tabla: el jugador ataca con +4 y hace +4; su defensa es +2
+y su armadura 1. El centinela ataca con +3, hace +3, defiende +1 y no lleva
+armadura. El bruto ataca con +2, hace +6, defiende +0 y lleva armadura 2. El
+cobarde ataca con +5, hace +2, defiende +2 y no lleva armadura.
 
 ## Daño esperado por impacto
 
 | Arma | Base de daño | vs armadura 0 | vs armadura 1 | vs armadura 2 | Rango típico |
 |---|---:|---:|---:|---:|---|
-| Espada (jugador) | 5 | 5,03 | 4,11 | 3,28 | 1-9 contra armadura 1 |
-| Hacha (jugador) | 7 | 7,00 | 6,00 | 5,03 | 1-10 contra armadura 2 |
-| Daga (jugador) | 4 | 4,11 | 3,28 | 2,56 | 1-7 contra armadura 2 |
+| Espada (jugador) | 4 | 4,11 | 3,28 | 2,56 | 1-8 contra armadura 1 |
+| Hacha (jugador) | 6 | 6,00 | 5,03 | 4,11 | 1-9 contra armadura 2 |
+| Daga (jugador) | 3 | 3,28 | 2,56 | 1,97 | 1-6 contra armadura 2 |
 
 La armadura no anula el golpe: un impacto hace siempre al menos 1. El hacha es
 la mejor contra armadura; la daga es la peor. El escudo no entra en esta tabla.
 
-## Tiempo para matar de la tabla A
+## Tiempo para matar del balance provisional v1
 
 Cada celda es `impacto · daño medio por impacto · ataques esperados`:
 
-| Objetivo | PV | Escudo | Armadura | Espada (+4/+5) | Hacha (+3/+7) | Daga (+5/+4) |
+| Objetivo | PV | Escudo | Armadura | Espada (+4/+4) | Hacha (+3/+6) | Daga (+5/+3) |
 |---|---:|---:|---:|---|---|---|
-| Centinela | 9 | 1 | 1 | 83,3 % · 4,11 · ~2,6 | 72,2 % · 6,00 · ~2,1 | 91,7 % · 3,28 · ~3,0 |
-| Bruto | 12 | 0 | 2 | 91,7 % · 3,28 · ~4,0 | 83,3 % · 5,03 · ~2,9 | 97,2 % · 2,56 · ~4,8 |
-| Cobarde | 8 | 1 | 0 | 72,2 % · 5,03 · ~2,2 | 58,3 % · 7,00 · ~2,0 | 83,3 % · 4,11 · ~2,3 |
+| Centinela | 6 | 1 | 0 | 83,3 % · 4,11 · ~1,75 | 72,2 % · 6,00 · ~1,38 | 91,7 % · 3,28 · ~2,00 |
+| Bruto | 8 | 0 | 2 | 91,7 % · 2,56 · ~3,42 | 83,3 % · 4,11 · ~2,34 | 97,2 % · 1,97 · ~4,17 |
+| Cobarde | 5 | 1 | 0 | 72,2 % · 4,11 · ~1,68 | 58,3 % · 6,00 · ~1,43 | 83,3 % · 3,28 · ~1,83 |
 
 Los ataques esperados incluyen los fallos; los impactos son los que hacen daño.
-Un enemigo aislado no mata al jugador: el bruto es el más peligroso (~8,0 ataques
-para quitarle 20 PV), el cobarde ~9,4 y el centinela ~10,5. El peligro aparece
+Un enemigo aislado no mata al jugador: el bruto es el más peligroso (~9,5 ataques
+para quitarle 20 PV), el cobarde ~12,2 y el centinela ~13,4. El peligro aparece
 cuando la alarma junta a varios.
+
+## Balance provisional v1
+
+Estos números son una **pasada provisional**, no el balance definitivo. Se
+reajustarán con total seguridad y, en particular, cuando llegue el requisito que
+amplíe bestiario y armas. Cambiar un valor no exige una versión nueva de las
+mecánicas: basta actualizar la tabla de balance y volver a medir.
+
+Decisiones de esta pasada:
+
+- PV: −30 % redondeando hacia arriba → Centinela 6, Bruto 8, Cobarde 5.
+- Armas: −1 de daño a todas (Espada 3, Hacha 5, Daga 2), también para el jugador.
+- Centinela: sin armadura; conserva el escudo. Su daño recibido no cambia
+  respecto a la tabla A porque el −1 de arma y el −1 de armadura se compensan.
+- El Cobarde queda muy frágil: a menudo muere antes de huir. Se acepta como
+  consecuencia provisional.
+
+### Cómo ajustar el balance
+
+1. Los valores viven en dos catálogos y en ningún otro sitio: `bestiary.ts`
+   (PV, visión, alarma, MP, modificadores y equipo por tipo) y `equipment.ts`
+   (acierto y daño de armas, armadura y escudo).
+2. Tras cambiar un valor, re-ejecutar `EXP-003` con el roster nuevo para leer
+   impacto, daño medio y ataques esperados. La huida se mide con la fórmula de
+   `combat.ts` (`daño × 5 ≥ PV máximos × 2`) exigiendo que el objetivo sobreviva.
+3. Los tests de balance comprueban **propiedades** (rangos de TTK y de huida),
+   no números exactos; así un retune no obliga a reescribir tests.
+4. No duplicar valores en motor, IA, host ni tests: todos leen del catálogo.
 
 # Requisitos técnicos
 
@@ -146,12 +184,12 @@ cuando la alarma junta a varios.
 |---|---|---|
 | T-001 | El combate vive en un módulo puro de `src/game/` que resuelve el impacto y el daño con dados. Orden de tiradas: ataque, escudo; si impacta, daño y armadura. No conoce DOM, Canvas, red ni relojes. | Tests unitarios importan el módulo sin DOM; un fallo consume dos tiradas y un impacto cuatro; el resultado incluye tiradas, impacto, daño y eventos. |
 | T-002 | El estado guarda un RNG sembrado y serializable. La semilla de combate se deriva de la semilla de la partida; `window.__game.snapshot()` lo expone en solo lectura. | Misma semilla y comandos dan la misma secuencia; el snapshot no permite mutar el RNG; no se usa `Math.random`. |
-| T-003 | El equipo y los modificadores son datos, no código: catálogo de armas, armaduras y escudos con IDs; cada unidad tiene equipo equipado, inventario de armas y modificadores de acierto, daño y defensa. El modelo admite futuras habilidades. | Cambiar una estadística en el catálogo cambia el combate sin tocar la fórmula; los IDs son estables; el inventario y los modificadores son serializables. |
+| T-003 | El equipo y los modificadores son datos, no código: catálogo de armas, armaduras y escudos con IDs; el bestiario declara por tipo PV, visión, alarma, MP máximo, modificadores y equipo; cada unidad tiene equipo equipado, inventario de armas y modificadores. El modelo admite futuras habilidades y tipos nuevos. | Cambiar una estadística en el catálogo o en el bestiario cambia el combate sin tocar la fórmula; los IDs son estables; el inventario, los modificadores y el MP máximo son serializables; no hay valores de balance duplicados fuera de los catálogos. |
 | T-004 | Las armas del mapa son entidades con posición e ID; `G` recoge la del tile del jugador, gasta 1 MP, la equipa y la elimina del mapa. `1`-`3` cambia de arma sin coste de acción ni MP. | Recoger dos veces la misma arma no duplica; el inventario no pasa de tres; con 0 MP se rechaza; el cambio no consume MP ni acción. |
 | T-005 | La IA y los enemigos usan el mismo cálculo y el mismo catálogo. Los enemigos no cambian de arma ni recogen objetos en este corte. | El daño y el impacto de un enemigo salen de su equipo y sus modificadores; la IA no tiene una fórmula paralela. |
 | T-006 | El host presenta el arma equipada, el escudo, la armadura y los modificadores en el HUD, dibuja las armas del mapa, muestra la pista de `G`, y produce feedback de impacto/fallo y daño. `F1` muestra las tiradas, el equipo y la vida de todos. | El HUD coincide con el estado; la pista aparece solo sobre un arma; el feedback no tapa el mapa; `F1` muestra los dados. |
 | T-007 | La colocación de las dos armas es determinista por semilla y se deriva del mapa: salas distintas, alcanzables, fuera de la sala inicial y sin caer en muros, puertas ni apariciones. | La semilla de referencia cumple las restricciones; otra semilla también; no se usa `Math.random`. |
-| T-008 | Tests nuevos: 36 combinaciones de impacto, distribución de daño con mínimo 1, secuencia condicional de tiradas, modificadores de personaje, equipo, recogida y cambio, huida del cobarde, IA, determinismo del RNG, distribución de impacto y no regresión. No se borran ni debilitan tests existentes. | `pnpm run verify` pasa; los tests existentes conservan su intención; la distribución medida queda dentro de ±2 puntos de la teórica. |
+| T-008 | Tests nuevos: 36 combinaciones de impacto, distribución de daño con mínimo 1, secuencia condicional de tiradas, modificadores de personaje, equipo, recogida y cambio, huida del cobarde, IA, determinismo del RNG, distribución de impacto y no regresión. Los tests de balance comprueban propiedades (rangos) y leen del catálogo, no números exactos frágiles. No se borran ni debilitan tests existentes. | `pnpm run verify` pasa; los tests existentes conservan su intención; la distribución medida queda dentro de ±2 puntos de la teórica; un cambio de valor en el catálogo no obliga a reescribir los tests de propiedades. |
 | T-009 | Se actualizan la sección de combate de `docs/design/turn-economy.md`, el glosario y la arquitectura; se registra `ADR-012` para el combate con equipo, modificadores y RNG sembrado. | `pnpm run docs:check` pasa; el ADR existe y está enlazado; no quedan valores fijos contradictorios. |
 | T-010 | Sin dependencias nuevas, sin red y sin cambios en el arte final; el motor sigue sin DOM y el host sigue siendo presentación. | `package.json` y `pnpm-lock.yaml` no cambian; no hay imports de `src/host/` en `src/game/`. |
 
@@ -209,17 +247,19 @@ cuando la alarma junta a varios.
 - Más piezas de armadura (casco, guantes, botas) y escudos de varias categorías.
 - Clases, progresión por niveles y crecimiento de los modificadores; el jugador
   empieza con +1/+1/+1 y no sube en este corte.
-- Cambios en la economía de turno (MP, acción, orden de turnos) y en la
-  generación del mapa más allá de las posiciones de las armas.
+- Cambios en la economía de turno del jugador (MP, acción, orden de turnos); el
+  MP enemigo por tipo vive en `REQ-009`.
+- Generación del mapa más allá de las posiciones de las armas.
 - Arte final de armas, armaduras y escudos.
 - Hotseat, red, persistencia y guardado.
 
 # Preguntas abiertas
 
-No quedan preguntas abiertas de valores. La tabla A de `EXP-003` (semilla 1017,
-1.000 duelos) fija modificadores, armas, PV, escudo y armadura, y el orden de
-ajustar los números antes de implementar se cumplió. El HUD de enemigos se
-mantiene: vida bajo el cursor y el resto en `F1`.
+No quedan preguntas abiertas de valores para el balance provisional v1. La tabla
+A de `EXP-003` (semilla 1017, 1.000 duelos) queda sustituida por esta pasada; los
+números se recalcularon con la misma fórmula y se volverán a ajustar cuando se
+amplíe el bestiario y el catálogo de armas. El HUD de enemigos se mantiene: vida
+bajo el cursor y el resto en `F1`.
 
 # Decisiones
 
@@ -241,6 +281,10 @@ mantiene: vida bajo el cursor y el resto en `F1`.
 | 2026-11-08 | Valores concretos de modificadores, armas, PV y equipo: tabla A de `EXP-003` (semilla 1017, 1.000 duelos). | human:simon | aceptada |
 | 2026-11-08 | La tabla A se acepta para el combate singular de este corte; la facilidad en duelos 1 contra 1 es esperada. | human:simon | aceptada |
 | 2026-11-08 | La fórmula anterior de daño fijo y defensa única queda sustituida. | deepseek/v4.1-flash | aceptada |
+| 2026-11-09 | Pasada de balance provisional v1: −30 % de PV redondeando hacia arriba (Centinela 6, Bruto 8, Cobarde 5). | human:simon | aceptada (provisional) |
+| 2026-11-09 | −1 de daño a todas las armas (Espada 3, Hacha 5, Daga 2); afecta también al jugador. | human:simon | aceptada (provisional) |
+| 2026-11-09 | Centinela sin armadura; conserva el escudo. | human:simon | aceptada (provisional) |
+| 2026-11-09 | El balance es provisional, se reajustará y debe ser barato de cambiar: valores solo en los catálogos y tests por propiedades. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -259,4 +303,8 @@ mantiene: vida bajo el cursor y el resto en `F1`.
 - [x] El usuario ha aprobado ajustar los números con `EXP-003`.
 - [x] Los valores de la tabla están aprobados tras `EXP-003`.
 - [x] `EXP-003` está construido y el usuario ha decidido.
+- [x] El usuario ha aprobado la pasada de balance provisional v1 (PV, armas y
+      armadura del centinela).
+- [x] El usuario ha aceptado que el cobarde sea frágil y que estos números se
+      reajusten en la futura ampliación de bestiario y armas.
 - [x] Los requisitos son verificables en su totalidad.

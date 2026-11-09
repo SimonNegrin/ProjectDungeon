@@ -2,6 +2,14 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Requirement — REQ-010 — v5 stable: balance provisional v1 (PV 6/8/5, armas 3/5/2, centinela sin armadura), tablas recalculadas y guía de ajuste; ADR-014 — [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
+* 2026-11-09 — Requirement — REQ-009 — v4 stable: alarma 5, MP por tipo (5/4/6), cobarde 5 PV y probabilidad de huida real — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
+* 2026-11-09 — Decision — ADR-014 — fuente única de valores y balance provisional: MP y alarma desde el bestiario, tests por propiedades — [ADR-014](decisions/ADR-014-balance-provisional-fuente-unica.md)
+* 2026-11-09 — Experiment — EXP-003 — balance provisional v1 recalculado con el roster 6/8/5 y armas 3/5/2; TTK y huida real — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
+* 2026-11-09 — Task — TASK-0050 — creada ready: motor con balance provisional v1 (bestiario y armas) y tests unitarios — [TASK-0050](tasks/TASK-0050-motor-balance-provisional-v1.md)
+* 2026-11-09 — Task — TASK-0051 — creada backlog: host, E2E y QA visual del balance v1; depende de TASK-0050 — [TASK-0051](tasks/TASK-0051-host-e2e-qa-balance-v1.md)
+* 2026-11-09 — Task — TASK-0052 — creada backlog P2: preset de EXP-003 con el balance v1; depende de TASK-0050 — [TASK-0052](tasks/TASK-0052-exp-003-preset-balance-v1.md)
+
 * 2026-11-09 — Task — TASK-0049 — review: E2E de growth y playtest 2738263054, 36 fallos BSP heredados verdes sin debilitar tests (74→76), capturas 1280×720, guarda OK y EXP-004 reproducible; verify 732, E2E 76/76 y repeat-each 228/228; fusión `64ce30c`; pendiente playtest del usuario — [informe](../artifacts/TASK-0049/attempt-2/report.md)
 
 * 2026-11-09 — Task — TASK-0048 — cerrada: render growth con máscaras, puertas por estilo, bocas sin puerta, salida `door`/escaleras, spawn de 6, enemigos y capa `F1`; BSP intacto; verify 732/732, build 52 módulos y guarda OK; E2E 38 pasan / 36 fallan stale (0 regresiones vs 50 de `main`) asignados a TASK-0049; fusión `9f3f95f` — [informe](../artifacts/TASK-0048/attempt-2/report.md)
