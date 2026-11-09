@@ -69,7 +69,7 @@ armas intactas.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Los tests de armas inyectaban BSP y ocultaron que el default growth perdió las 2 armas | Intento 1: `createInitialState()` sin `weapons`; tests de armas con `BspMapGenerator` | Test explícito de `createInitialState()` sin generador | Cualquier cambio de generador por defecto puede quedar sin cobertura si los tests inyectan el anterior | Regla de verificación: todo default debe tener al menos un test que no inyecte generador | Bajo | `pending` |
+| Los tests de armas inyectaban BSP y ocultaron que el default growth perdió las 2 armas | Intento 1: `createInitialState()` sin `weapons`; tests de armas con `BspMapGenerator` | Test explícito de `createInitialState()` sin generador | Cualquier cambio de generador por defecto puede quedar sin cobertura si los tests inyectan el anterior | Regla de verificación: todo default debe tener al menos un test que no inyecte generador | Bajo | `deferred` a requirements-writer (arnés/documental; cubierto por test nuevo) |
 
 # Métricas de handoff
 

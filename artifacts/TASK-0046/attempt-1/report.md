@@ -73,7 +73,7 @@ rendimiento < 50 ms.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| REQ-011 T-005 pide opciones de forma en `MapOptions`, pero `map.ts` solo modela las de BSP | `MapOptions`/`ResolvedMapOptions` frente a `GrowthMapOptions` | Intersección y adaptador local | Toda variante nueva repetirá el mapeo y el desajuste de `options` | Contrato de opciones de variante o ampliar el modelo | Medio | `pending` |
+| REQ-011 T-005 pide opciones de forma en `MapOptions`, pero `map.ts` solo modela las de BSP | `MapOptions`/`ResolvedMapOptions` frente a `GrowthMapOptions` | Intersección y adaptador local | Toda variante nueva repetirá el mapeo y el desajuste de `options` | Contrato de opciones de variante o ampliar el modelo | Medio | `deferred` a requirements-writer (documental; no bloquea) |
 
 # Métricas de handoff
 
