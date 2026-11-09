@@ -5,7 +5,7 @@ description: Corregir la vista 13×13, hacer funcional el grosor de muro y cerra
 task: TASK-0040
 attempt: 2
 status: stable
-brief_bytes: 3112
+brief_bytes: 3111
 read_detail: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T00:40:19Z }
 ---

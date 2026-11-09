@@ -4,22 +4,35 @@ id: TASK-0040
 title: "EXP-004: comparador de generadores de salas irregulares"
 description: Construir el experimento interactivo que compara tres algoritmos de mazmorra densa con el tileset real, métricas, spawn, enemigos y export de decisión.
 status: stable
-task_status: ready
+task_status: done
 task_type: experiment
 requirement: REQ-011
 requirement_ids: [R-002, R-003, R-005, R-006, R-007, T-001, T-005, T-008]
 depends_on: []
 unlocks: []
 created_at: 2026-11-08T23:55:54Z
-completed_at:
+completed_at: 2026-11-09T00:53:51Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0040/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T00:53:51Z
+    note: >-
+      Intento 2 verificado en task/TASK-0040 (commits 55313d2 y 446b1b7).
+      Diff completo revisado: solo EXP-004, manifest y artefactos; src/,
+      tests/, index.html raíz y public/ intactos. Lead re-ejecutó
+      `pnpm run verify` (588 tests, docs/config y build OK) y
+      `pnpm run test:e2e` (70/70). Grosor 1/2 cambia huellas en A/B/C y
+      conserva puertas directas; las puertas del 13×13 ya restan el origen y
+      no invaden el margen. Capturas 1280×720 revisadas: mapa completo,
+      debug, caverna, pasillo ancho, spawn y 13×13. C queda en 20 % de
+      pasillo ancho por variante (agregado 25,6 %); desviación documentada,
+      no criterio fallido.
 ---
 
 # Objetivo

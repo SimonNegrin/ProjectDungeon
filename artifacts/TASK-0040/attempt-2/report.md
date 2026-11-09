@@ -8,6 +8,12 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T00:52:00Z }
 artifacts: artifacts/TASK-0040/attempt-2/
 verified:
+  - by: task-lead
+    at: 2026-11-09T00:53:51Z
+    note: >-
+      Intento 2 verificado: verify con 588 tests y build OK; E2E 70/70;
+      grosor 1/2 cambia huellas y conserva puertas directas; puertas del
+      13×13 alineadas. Ver nota completa en la tarea.
 ---
 
 # Estado
@@ -59,13 +65,13 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Script bajo `artifacts/` que importa `playwright` falla por pnpm. | `logs/capture.log` | Importar `@playwright/test`. | Se repite en capturas fuera de `tests/e2e`. | Documentarlo. | Bajo. | `pending` |
+| Script bajo `artifacts/` que importa `playwright` falla por pnpm. | `logs/capture.log` | Importar `@playwright/test`. | Se repite en capturas fuera de `tests/e2e`. | Documentarlo en `docs/harness/visual-qa.md`. | Bajo. | `deferred` — dueño `requirements-writer` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 3112 |
-| `report_bytes` | 2519 |
+| `brief_bytes` | 3111 |
+| `report_bytes` | 2844 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
