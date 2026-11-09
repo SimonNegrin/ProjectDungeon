@@ -32,7 +32,7 @@ decision:
 decided_by:
 decided_at:
 created_at: 2026-11-08T23:55:54Z
-updated_at: 2026-11-09T12:21:36Z
+updated_at: 2026-11-09T13:15:55Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T23:55:54Z }
 verified:
 ---
@@ -179,12 +179,47 @@ con esa separación. En mapas de dos salas o con una sala pequeña junto al
 spawn, la línea de visión inicial se relaja con un aviso honesto (R-011); en el
 resto no hay visión al spawn.
 
-La **v3** se aprobó el 2026-11-09 y **todavía no está implementada**. Sustituye
-la separación ≥2 por componentes adyacentes ≤2 en 8 direcciones, permite parejas
-de jugadores, añade preferencia por interior y emboscadas en puntos calientes con
-`hiddenEnemyChance` (0,5 por defecto), evita la sala mayor en el desempate de
-spawn, fija el mínimo de 3 salas y añade la salida con `exitMode`. Las capturas y
-métricas de la v2 no validan estos cambios; hace falta una tarea nueva.
+La **v3** se implementó en `TASK-0042` (intentos 1 y 2). Sustituye la separación
+≥2 por **componentes adyacentes ≤2 en 8 direcciones**, permite parejas de
+jugadores y enemigos, prefiere celdas interiores, añade emboscadas en puntos
+calientes con `hiddenEnemyChance` (0,5 por defecto), evita la sala mayor en el
+desempate de spawn, fija el mínimo de 3 salas y añade la salida con `exitMode`.
+La reserva del tile y del acceso de salida se aplica antes de colocar enemigos.
+
+El intento 2 corrigió la componente global de enemigos: las fichas ya colocadas
+se usan como restricción al elegir cada sala, con reubicación determinista si una
+sala se queda corta. `stats.hotspotRolls` y `enemy.hotspotRolls` cuentan todos
+los puntos calientes. El barrido A/B/C × 200 semillas (600 mapas) deja 0
+incidencias de `validateMap`, 0 componentes >2, 0 salas no-spawn vacías y 0 mapas
+por debajo de `T`; la verificación independiente del lead amplió el barrido a
+1.200 mapas con el mismo resultado.
+
+| Variante | Salas 3/4/5/6 | Caverna | Pasillo ancho | Spawn = mayor | Huecos | Salidas door/down/up | Distancia 1/2/3/4 | Fallback door |
+|---|---|---|---|---|---|---|---|---|
+| A · crecimiento | 46/19/135/0 | 46 | 39 | 5 | 6 en 200/200 | 48/85/67 | 0/127/51/22 | 18 |
+| B · BSP | 39/0/161/0 | 39 | 26 | 20 | 6 en 200/200 | 28/105/67 | 0/160/22/18 | 38 |
+| C · plantillas | 36/15/148/1 | 36 | 40 | 1 | 6 en 200/200 | 56/77/67 | 2/114/70/14 | 10 |
+
+La caverna tiene siempre exactamente 3 salas (caverna + 2 anexas de 4-5 tiles);
+en mapas de 3 salas no se añaden bucles ni pasillos anchos extra. Las 2 salidas a
+distancia 1 de C llevan el aviso «No hay una sala no-spawn a distancia ≥2» y se
+aceptan por el fallback documentado. Con `hiddenEnemyChance` 0 no hay emboscados;
+con 0,5 el barrido deja 828/2589, 770/2536 y 831/2884 puntos elegibles ocupados
+(29-32 %), nunca 0 % ni 100 %. Los no emboscados prefieren interior; el borde
+solo aparece cuando no hay interior compatible o la ficha es una emboscada. El
+spawn no queda en la sala mayor en A (5/200) y C (1/200); en B ocurre 20/200
+cuando la caverna es la única más protegida.
+
+**Cajas a gap 0 (decisión documentada):** 33/200 mapas de BSP tienen cajas de sala
+que se tocan sin muro. No se cambió la generación ni la aceptación; se añadió un
+aviso no fatal y la componente global ≤2 resuelve el cruce de fichas.
+
+**Escaleras (desviación documentada):** el tileset real incluye `staircase down`
+y `staircase up` en `tiles.txt` 17.h/17.i, pero `src/host/assets.ts` no expone su
+recorte y producción no se toca. El experimento define el recorte local
+`STAIR_RECTS` en `src/render.ts` (`sx` 224/256, `sy` 512, 32×32) y superpone
+huellas doradas y una flecha para que la escalera se lea a 32 px y en 13×13. El
+render de `door` dibuja un marco dorado sobre el muro del borde; no abre paso.
 
 Queda pendiente el playtest para elegir variante y representación de salida; la
 decisión no se cierra aquí.
@@ -211,14 +246,14 @@ decisión no se cierra aquí.
 - Salidas de test, docs y build de la v1 en `artifacts/TASK-0040/attempt-2/`.
 - Informe de la v2: [artifacts/TASK-0041/attempt-2/report.md](../../artifacts/TASK-0041/attempt-2/report.md).
 - Capturas y JSON de la v2: [artifacts/TASK-0041/attempt-2/](../../artifacts/TASK-0041/attempt-2/).
+- Informe de la v3: [artifacts/TASK-0042/attempt-2/report.md](../../artifacts/TASK-0042/attempt-2/report.md).
+- Capturas, JSON y barrido de la v3: [artifacts/TASK-0042/attempt-2/](../../artifacts/TASK-0042/attempt-2/).
 - Requisitos de la v3: [REQ-011 v3](../../docs/requirements/REQ-011-generador-densa-salas-irregulares.md),
   [REQ-012 v3](../../docs/requirements/REQ-012-spawn-sala-protegida.md) y
   [REQ-013](../../docs/requirements/REQ-013-entrada-salida-exploracion.md).
 
 # Siguientes pasos
 
-- Crear y ejecutar la tarea de `EXP-004` v3: distribución orgánica, emboscadas,
-  spawn no-mayor, mínimo de 3 salas y salida.
 - Revisar las capturas de la v3 con el usuario y comparar `exitMode`.
 - Elegir variante y representación de salida; registrar la decisión.
 - Actualizar `REQ-011`, `REQ-012` y `REQ-013` con el algoritmo, los parámetros y

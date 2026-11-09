@@ -1,0 +1,3 @@
+growth: issues=0 components=0 empty=0 metric=0 worst=2 shortfall=0 gap0=0
+bsp: issues=0 components=0 empty=0 metric=0 worst=2 shortfall=0 gap0=157
+templates: issues=0 components=0 empty=0 metric=0 worst=2 shortfall=0 gap0=0

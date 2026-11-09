@@ -10,7 +10,17 @@ import { TILE_RECTS } from '../../../src/host/assets';
 import { FLOOR_PALETTES } from '../../../src/host/floor';
 import { fingerprint } from './generate';
 import { wallTileKind } from './grid';
-import type { Door, Enemy, FloorPaletteId, GeneratedMap, Room, VariantId } from './types';
+import type {
+  Door,
+  Enemy,
+  Exit,
+  FloorPaletteId,
+  GeneratedMap,
+  Hotspot,
+  Point,
+  Room,
+  VariantId,
+} from './types';
 
 export interface ExperimentAssets {
   readonly tiles: HTMLImageElement | null;
@@ -57,6 +67,17 @@ const ENEMY_COLORS: Readonly<Record<Enemy['type'], string>> = {
   brute: '#e07a7a',
   coward: '#e8b86d',
 };
+
+/**
+ * Recorte local de las escaleras de 32rogues (`tiles.txt` 17.h y 17.i).
+ * No se añade a `src/host/assets.ts` porque producción no cambia en este corte.
+ */
+const STAIR_RECTS = {
+  'stairs-down': { sx: 224, sy: 512, sw: 32, sh: 32 },
+  'stairs-up': { sx: 256, sy: 512, sw: 32, sh: 32 },
+} as const;
+
+const EXIT_GOLD = '#f2c14e';
 
 const VARIANT_LABEL: Readonly<Record<VariantId, string>> = {
   growth: 'A · crecimiento',
@@ -346,6 +367,218 @@ function drawSpawnHoles(
   });
 }
 
+function inView(
+  point: Point,
+  view: { x: number; y: number; width: number; height: number },
+): boolean {
+  return (
+    point.x >= view.x &&
+    point.y >= view.y &&
+    point.x < view.x + view.width &&
+    point.y < view.y + view.height
+  );
+}
+
+function drawEntrance(
+  ctx: CanvasRenderingContext2D,
+  map: GeneratedMap,
+  tile: number,
+  offsetX: number,
+  offsetY: number,
+  view: { x: number; y: number; width: number; height: number },
+  debug: boolean,
+): void {
+  const point = map.entrance.position;
+  if (!inView(point, view)) return;
+  const centerX = offsetX + (point.x - view.x + 0.5) * tile;
+  const centerY = offsetY + (point.y - view.y + 0.5) * tile;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, Math.max(4, tile * 0.44), 0, Math.PI * 2);
+  ctx.lineWidth = Math.max(1, tile * 0.09);
+  ctx.strokeStyle = '#7dd3fc';
+  ctx.stroke();
+  ctx.fillStyle = '#0c4a6e';
+  ctx.beginPath();
+  ctx.arc(centerX - tile * 0.34, centerY - tile * 0.34, Math.max(3, tile * 0.2), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#e0f2fe';
+  ctx.lineWidth = Math.max(1, tile * 0.05);
+  ctx.stroke();
+  ctx.fillStyle = '#e0f2fe';
+  ctx.font = `800 ${Math.max(5, Math.round(tile * 0.26))}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('E', centerX - tile * 0.34, centerY - tile * 0.34 + 0.5);
+  if (debug) {
+    ctx.fillStyle = '#dbeafe';
+    ctx.font = `600 ${Math.max(6, Math.round(tile * 0.22))}px ui-monospace, monospace`;
+    ctx.fillText('entrada', centerX, centerY - tile * 0.55);
+  }
+  ctx.restore();
+}
+
+function drawStairs(
+  ctx: CanvasRenderingContext2D,
+  exit: Exit,
+  tile: number,
+  offsetX: number,
+  offsetY: number,
+  view: { x: number; y: number; width: number; height: number },
+  assets: ExperimentAssets,
+): void {
+  const x = offsetX + (exit.position.x - view.x) * tile;
+  const y = offsetY + (exit.position.y - view.y) * tile;
+  const rect = STAIR_RECTS[exit.kind === 'stairs-up' ? 'stairs-up' : 'stairs-down'];
+  ctx.save();
+  if (assets.tiles) {
+    ctx.drawImage(assets.tiles, rect.sx, rect.sy, rect.sw, rect.sh, x, y, tile, tile);
+  } else {
+    ctx.fillStyle = 'rgba(8, 11, 16, 0.72)';
+    ctx.fillRect(x + 1, y + 1, tile - 2, tile - 2);
+  }
+  // Refuerzo programático: el recorte de escalera del tileset es muy oscuro a
+  // 32 px; unas huellas doradas hacen legible el sentido de la escalera.
+  const steps = 4;
+  for (let step = 0; step < steps; step += 1) {
+    const width = tile * (0.68 - step * 0.13);
+    const height = Math.max(1.5, tile * 0.065);
+    const stepX = x + (tile - width) / 2;
+    const stepY =
+      exit.kind === 'stairs-down'
+        ? y + tile * (0.2 + step * 0.16)
+        : y + tile * (0.7 - step * 0.16);
+    ctx.fillStyle = step % 2 === 0 ? 'rgba(254, 243, 199, 0.92)' : 'rgba(242, 193, 78, 0.92)';
+    ctx.fillRect(stepX, stepY, width, height);
+  }
+  ctx.strokeStyle = EXIT_GOLD;
+  ctx.lineWidth = Math.max(1, tile * 0.08);
+  ctx.strokeRect(x + 1, y + 1, tile - 2, tile - 2);
+  ctx.fillStyle = EXIT_GOLD;
+  ctx.font = `800 ${Math.max(6, Math.round(tile * 0.3))}px ui-sans-serif, system-ui, sans-serif`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'top';
+  ctx.fillText(exit.kind === 'stairs-down' ? '▼' : '▲', x + tile - 2, y + 1);
+  ctx.restore();
+}
+
+function drawExit(
+  ctx: CanvasRenderingContext2D,
+  map: GeneratedMap,
+  tile: number,
+  offsetX: number,
+  offsetY: number,
+  view: { x: number; y: number; width: number; height: number },
+  assets: ExperimentAssets,
+  debug: boolean,
+): void {
+  const exit = map.exit;
+  if (!exit) return;
+
+  if (debug) {
+    for (const roomId of exit.path) {
+      const room = map.rooms.find((item) => item.id === roomId);
+      if (!room) continue;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(242, 193, 78, 0.85)';
+      ctx.lineWidth = Math.max(1, tile * 0.09);
+      ctx.setLineDash([Math.max(2, tile * 0.28), Math.max(1, tile * 0.2)]);
+      ctx.strokeRect(
+        offsetX + (room.x - view.x) * tile + 2,
+        offsetY + (room.y - view.y) * tile + 2,
+        room.width * tile - 4,
+        room.height * tile - 4,
+      );
+      ctx.restore();
+    }
+  }
+
+  if (!inView(exit.position, view)) return;
+
+  if (exit.kind === 'door') {
+    const x = offsetX + (exit.position.x - view.x) * tile;
+    const y = offsetY + (exit.position.y - view.y) * tile;
+    const pad = Math.max(1, tile * 0.1);
+    ctx.save();
+    ctx.fillStyle = EXIT_GOLD;
+    ctx.fillRect(x + pad, y + pad, tile - pad * 2, tile - pad * 2);
+    ctx.fillStyle = '#3b2a12';
+    ctx.fillRect(x + pad * 2, y + pad * 2, tile - pad * 4, tile - pad * 4);
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(x + tile * 0.5, y + tile * 0.5, Math.max(1, tile * 0.09), 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#fef3c7';
+    ctx.lineWidth = Math.max(1, tile * 0.06);
+    ctx.strokeRect(x + 1, y + 1, tile - 2, tile - 2);
+    ctx.restore();
+  } else {
+    drawStairs(ctx, exit, tile, offsetX, offsetY, view, assets);
+  }
+
+  if (debug) {
+    const x = offsetX + (exit.position.x - view.x) * tile;
+    const y = offsetY + (exit.position.y - view.y) * tile;
+    ctx.save();
+    ctx.fillStyle = 'rgba(8, 11, 16, 0.82)';
+    const text = `salida ${exit.kind} · R${exit.roomId} · d${exit.distance}`;
+    ctx.font = `700 ${Math.max(6, Math.round(tile * 0.2))}px ui-monospace, monospace`;
+    const width = ctx.measureText(text).width + 6;
+    ctx.fillRect(x - width / 2 + tile / 2, y - Math.max(8, tile * 0.32), width, Math.max(8, tile * 0.26));
+    ctx.fillStyle = EXIT_GOLD;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, x + tile / 2, y - Math.max(4, tile * 0.19));
+    ctx.restore();
+  }
+}
+
+function drawHotspots(
+  ctx: CanvasRenderingContext2D,
+  hotspots: readonly Hotspot[],
+  tile: number,
+  offsetX: number,
+  offsetY: number,
+  view: { x: number; y: number; width: number; height: number },
+): void {
+  for (const hotspot of hotspots) {
+    const point = { x: hotspot.x, y: hotspot.y };
+    if (!inView(point, view)) continue;
+    const centerX = offsetX + (hotspot.x - view.x + 0.5) * tile;
+    const centerY = offsetY + (hotspot.y - view.y + 0.5) * tile;
+    const radius = Math.max(2, tile * 0.18);
+    const color =
+      hotspot.reason === 'ambos'
+        ? '#fb7185'
+        : hotspot.reason === 'sin-LOS'
+          ? '#c084fc'
+          : '#f2c14e';
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - radius);
+    ctx.lineTo(centerX + radius, centerY);
+    ctx.lineTo(centerX, centerY + radius);
+    ctx.lineTo(centerX - radius, centerY);
+    ctx.closePath();
+    if (hotspot.eligible) {
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+    ctx.lineWidth = Math.max(1, tile * 0.06);
+    ctx.strokeStyle = color;
+    ctx.stroke();
+    if (hotspot.occupied) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius * 1.55, 0, Math.PI * 2);
+      ctx.strokeStyle = '#f8fafc';
+      ctx.setLineDash([Math.max(1, tile * 0.08), Math.max(1, tile * 0.06)]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.restore();
+  }
+}
+
 function drawEnemies(
   ctx: CanvasRenderingContext2D,
   map: GeneratedMap,
@@ -374,15 +607,28 @@ function drawEnemies(
     ctx.lineWidth = Math.max(1, tile * 0.08);
     ctx.strokeStyle = 'rgba(8, 11, 16, 0.9)';
     ctx.stroke();
+    if (enemy.hidden) {
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, Math.max(3, tile * 0.46), 0, Math.PI * 2);
+      ctx.strokeStyle = '#f472b6';
+      ctx.lineWidth = Math.max(1, tile * 0.07);
+      ctx.setLineDash([Math.max(1, tile * 0.1), Math.max(1, tile * 0.07)]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
     ctx.fillStyle = '#0d1117';
     ctx.font = `800 ${Math.max(6, Math.round(tile * 0.42))}px ui-sans-serif, system-ui, sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(enemy.type.slice(0, 1).toUpperCase(), centerX, centerY + 0.5);
     if (debug) {
-      ctx.fillStyle = '#f8fafc';
+      ctx.fillStyle = enemy.hidden ? '#f9a8d4' : '#f8fafc';
       ctx.font = `600 ${Math.max(6, Math.round(tile * 0.22))}px ui-monospace, monospace`;
-      ctx.fillText(`s${enemy.roomId} · ${enemy.type}`, centerX, centerY - tile * 0.45);
+      ctx.fillText(
+        `s${enemy.roomId} · ${enemy.type}${enemy.hidden ? ' · H' : ''}`,
+        centerX,
+        centerY - tile * 0.45,
+      );
     }
     ctx.restore();
   }
@@ -540,7 +786,10 @@ function drawMap(
   }
 
   if (debug) drawDebug(ctx, map, tile, offsetX, offsetY, view);
+  drawExit(ctx, map, tile, offsetX, offsetY, view, assets, debug);
+  if (debug) drawHotspots(ctx, map.hotspots, tile, offsetX, offsetY, view);
   if (showSpawn) drawSpawnHoles(ctx, map, tile, offsetX, offsetY, view, debug);
+  drawEntrance(ctx, map, tile, offsetX, offsetY, view, debug);
   if (showEnemies) drawEnemies(ctx, map, tile, offsetX, offsetY, view, debug);
   ctx.restore();
 
@@ -624,6 +873,28 @@ export function renderExperiment(
   canvas.dataset.enemyTotal = String(map.stats.enemy.total);
   canvas.dataset.enemySurface = String(map.stats.enemy.surfaceN);
   canvas.dataset.enemyPlayers = String(map.stats.enemy.playersP);
+  canvas.dataset.rooms = String(map.rooms.length);
+  canvas.dataset.cavern = String(map.stats.cavernRooms > 0);
+  canvas.dataset.wide = String(map.stats.wideCount);
+  canvas.dataset.spawnIsLargest = String(map.stats.spawnIsLargest);
+  canvas.dataset.spawnComponents = String(map.stats.spawnComponentsMax);
+  canvas.dataset.enemyComponents = String(map.stats.enemyComponentsMax);
+  canvas.dataset.interiorEnemies = String(map.stats.interiorEnemies);
+  canvas.dataset.borderEnemies = String(map.stats.borderEnemies);
+  canvas.dataset.hiddenEnemies = String(map.stats.hiddenEnemies);
+  canvas.dataset.hotspots = String(map.stats.hotspotsTotal);
+  canvas.dataset.hotspotsEligible = String(map.stats.hotspotsEligible);
+  canvas.dataset.hotspotsOccupied = String(map.stats.hotspotOccupied);
+  canvas.dataset.entrance = `${map.entrance.position.x},${map.entrance.position.y}`;
+  canvas.dataset.exitKind = map.exit?.kind ?? 'none';
+  canvas.dataset.exitRoom = map.exit ? String(map.exit.roomId) : 'none';
+  canvas.dataset.exitDistance = map.exit ? String(map.exit.distance) : 'none';
+  canvas.dataset.exitPosition = map.exit
+    ? `${map.exit.position.x},${map.exit.position.y}`
+    : 'none';
+  canvas.dataset.exitAccess = map.exit
+    ? `${map.exit.access.x},${map.exit.access.y}`
+    : 'none';
   canvas.dataset.debug = flag(params, 'showDebug', false) ? 'true' : 'false';
   canvas.dataset.rendered = 'true';
 }

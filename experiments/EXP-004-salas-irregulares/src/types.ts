@@ -23,6 +23,16 @@ export type CorridorKind = 'door' | 'short' | 'wide';
 
 export type EnemyType = 'sentinel' | 'brute' | 'coward';
 
+/** Representación de la salida de nivel de REQ-013. */
+export type ExitKind = 'door' | 'stairs-down' | 'stairs-up';
+
+export type ExitMode = ExitKind | 'random';
+
+/** Tile lógico que dibuja el render; las escaleras usan el recorte del tileset. */
+export type ExitTile = 'exit-door' | 'staircase-down' | 'staircase-up';
+
+export type HotspotReason = 'rincon' | 'sin-LOS' | 'ambos';
+
 /** Motivo por el que un acceso no puede dibujarse como puerta válida. */
 export type OpenMouthReason =
   | 'sin-soporte'
@@ -120,6 +130,44 @@ export interface Enemy {
   readonly y: number;
   readonly roomId: number;
   readonly home: Point;
+  /** Emboscado en un punto caliente (REQ-012 R-015). */
+  readonly hidden: boolean;
+  /** Celda interior: sus 4 vecinos ortogonales son suelo de la misma sala. */
+  readonly interior: boolean;
+}
+
+/** Entrada de nivel: el acceso de spawn (REQ-013 R-001). */
+export interface Entrance {
+  readonly roomId: number;
+  readonly position: Point;
+}
+
+/** Salida única de nivel (REQ-013 R-001–R-004). */
+export interface Exit {
+  readonly roomId: number;
+  readonly kind: ExitKind;
+  readonly position: Point;
+  readonly access: Point;
+  readonly tile: ExitTile;
+  /** Distancia de grafo desde la sala de spawn. */
+  readonly distance: number;
+  /** Camino de salas desde spawn hasta la salida. */
+  readonly path: readonly number[];
+  /** `true` si `door` cayó a escalera por falta de sala de borde. */
+  readonly fallback: boolean;
+}
+
+/** Punto caliente candidato para emboscada, con su tirada determinista. */
+export interface Hotspot {
+  readonly x: number;
+  readonly y: number;
+  readonly roomId: number;
+  readonly reason: HotspotReason;
+  /** Tirada independiente en [0,1). */
+  readonly roll: number;
+  /** Elegible para colocar una ficha (sin exclusión ni LOS al spawn). */
+  readonly eligible: boolean;
+  readonly occupied: boolean;
 }
 
 export interface RoomPalette {
@@ -158,6 +206,17 @@ export interface EnemyBreakdown {
   readonly sentinels: number;
   readonly brutes: number;
   readonly cowards: number;
+  /** Fichas en celdas interiores (incluye emboscadas interiores). */
+  readonly interior: number;
+  /** Fichas en el borde de su sala. */
+  readonly border: number;
+  readonly hidden: number;
+  readonly hotspotsTotal: number;
+  readonly hotspotsEligible: number;
+  readonly hotspotRolls: number;
+  readonly hotspotsOccupied: number;
+  /** Componente máxima de adyacencia de 8 direcciones entre fichas. */
+  readonly componentsMax: number;
 }
 
 export interface MapStats {
@@ -194,6 +253,24 @@ export interface MapStats {
   readonly maxEnemiesPerRoom: number;
   readonly generationAttempts: number;
   readonly enemy: EnemyBreakdown;
+  /** La sala de spawn coincide con la de mayor área. */
+  readonly spawnIsLargest: boolean;
+  /** Componente máxima de adyacencia de 8 direcciones del grupo. */
+  readonly spawnComponentsMax: number;
+  readonly entranceRoomId: number;
+  readonly exitRoomId: number | null;
+  readonly exitKind: ExitKind | null;
+  readonly exitDistance: number | null;
+  readonly exitPath: readonly number[];
+  readonly exitFallback: boolean;
+  readonly enemyComponentsMax: number;
+  readonly interiorEnemies: number;
+  readonly borderEnemies: number;
+  readonly hiddenEnemies: number;
+  readonly hotspotsTotal: number;
+  readonly hotspotsEligible: number;
+  readonly hotspotRolls: number;
+  readonly hotspotOccupied: number;
 }
 
 export interface ResolvedMapOptions {
@@ -210,6 +287,8 @@ export interface ResolvedMapOptions {
   readonly enemySurfaceFactor: number;
   readonly enemyPlayersFactor: number;
   readonly numPlayers: number;
+  readonly hiddenEnemyChance: number;
+  readonly exitMode: ExitMode;
 }
 
 export interface MapOptions {
@@ -226,6 +305,8 @@ export interface MapOptions {
   readonly enemySurfaceFactor?: number;
   readonly enemyPlayersFactor?: number;
   readonly numPlayers?: number;
+  readonly hiddenEnemyChance?: number;
+  readonly exitMode?: ExitMode | string;
 }
 
 export interface GeneratedMap {
@@ -241,7 +322,12 @@ export interface GeneratedMap {
   /** Conexiones extra sobre el árbol de salas (0-3). */
   readonly loops: number;
   readonly spawns: Spawns;
+  readonly entrance: Entrance;
+  /** `null` solo si no existe ninguna sala no-spawn alcanzable (aviso). */
+  readonly exit: Exit | null;
   readonly enemies: readonly Enemy[];
+  /** Puntos calientes evaluados por la colocación de enemigos. */
+  readonly hotspots: readonly Hotspot[];
   readonly palettes: readonly RoomPalette[];
   readonly warnings: readonly string[];
   readonly stats: MapStats;

@@ -15,6 +15,17 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
   const access = stats.spawnAccess
     ? `${stats.spawnAccess.x},${stats.spawnAccess.y}`
     : '—';
+  const exit = map.exit;
+  const exitValue = exit
+    ? `${exit.kind} · R${exit.roomId} · d${exit.distance}`
+    : 'sin salida';
+  const exitHint = exit
+    ? `${exit.position.x},${exit.position.y} → ${exit.access.x},${exit.access.y}${exit.fallback ? ' · fallback' : ''}`
+    : 'aviso de fallback';
+  const hiddenHint =
+    stats.hotspotsEligible === 0
+      ? 'sin puntos calientes elegibles'
+      : `${stats.hotspotOccupied}/${stats.hotspotsEligible} ocupados`;
 
   return [
     {
@@ -53,6 +64,11 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
       hint: `${stats.spawnAccesses} accesos · ${stats.spawnHoles} huecos a ≤${stats.spawnHoleMaxDistance}`,
     },
     {
+      label: 'Spawn mayor',
+      value: stats.spawnIsLargest ? 'sí' : 'no',
+      hint: `componente ${stats.spawnComponentsMax} · ${stats.spawnHoles} huecos`,
+    },
+    {
       label: 'Enemigos T',
       value: enemy.total,
       hint: `N ${enemy.surfaceN} × ${enemy.surfaceFactor} → ${enemy.surfaceTerm} · P ${enemy.playersP} × ${enemy.playersFactor} → ${enemy.playersTerm}${enemy.planned === enemy.total ? '' : ` · plan ${enemy.planned}`}`,
@@ -66,6 +82,21 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
       label: 'Tipos',
       value: `${enemy.sentinels}S · ${enemy.brutes}B · ${enemy.cowards}C`,
       hint: `${stats.enemyCount} fichas · ${stats.emptyRooms} salas vacías`,
+    },
+    {
+      label: 'Interior/borde',
+      value: `${enemy.interior} / ${enemy.border}`,
+      hint: `componente ${enemy.componentsMax}`,
+    },
+    {
+      label: 'Emboscadas',
+      value: `${enemy.hidden} (${stats.hotspotsEligible} elegibles)`,
+      hint: hiddenHint,
+    },
+    {
+      label: 'Salida',
+      value: exitValue,
+      hint: exitHint,
     },
     { label: 'Generación', value: `${generationMs.toFixed(1)} ms` },
   ];

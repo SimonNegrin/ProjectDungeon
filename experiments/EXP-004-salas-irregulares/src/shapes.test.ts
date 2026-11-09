@@ -201,8 +201,7 @@ describe('formas, muros y conexiones', () => {
         const map = generateMap(variant, seed);
         if (map.stats.cavernRooms === 0) continue;
         cavernMaps += 1;
-        expect(map.rooms.length).toBeGreaterThanOrEqual(2);
-        expect(map.rooms.length).toBeLessThanOrEqual(3);
+        expect(map.rooms.length).toBe(3);
         expect(map.stats.cavernShare).toBeGreaterThanOrEqual(0.55);
         const cavern = map.rooms.find((room) => room.sizeRole === 'cavern');
         expect(cavern?.notches).toBeGreaterThanOrEqual(4);

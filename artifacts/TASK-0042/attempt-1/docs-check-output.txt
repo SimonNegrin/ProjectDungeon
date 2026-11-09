@@ -1,0 +1,33 @@
+$ node scripts/validate-docs.mjs
+Avisos (30):
+- docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
+- docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 722 palabras; objetivo ≤600
+- artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
+- artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/brief.md: handoff de 2968 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/report.md: handoff de 3028 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/brief.md: handoff de 2573 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/report.md: handoff de 3350 B; objetivo ≤2560 B
+- artifacts/TASK-0032/attempt-1/report.md: handoff de 2677 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/brief.md: handoff de 3067 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/report.md: handoff de 3827 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/brief.md: handoff de 2868 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/report.md: handoff de 3330 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/brief.md: handoff de 2732 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/report.md: handoff de 3062 B; objetivo ≤2560 B
+- artifacts/TASK-0036/attempt-1/brief.md: handoff de 2717 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/brief.md: handoff de 2723 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/report.md: handoff de 3573 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/brief.md: handoff de 3280 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/report.md: handoff de 3521 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/brief.md: handoff de 2607 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/report.md: handoff de 3037 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/brief.md: handoff de 3111 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/report.md: handoff de 2844 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/brief.md: handoff de 3092 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/report.md: handoff de 3817 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-2/brief.md: handoff de 3384 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-2/report.md: handoff de 2840 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-1/brief.md: handoff de 3269 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-1/report.md: handoff de 3553 B; objetivo ≤2560 B
+OK: 201 documentos, 42 tareas, 5 experimentos.

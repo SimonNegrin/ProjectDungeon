@@ -26,15 +26,26 @@ import {
 } from './grid';
 import { createRng, hashSeed, type Rng } from './rng';
 import { placeDoors, validateDoorCandidate } from './doors';
-import { SPAWN_SEPARATION, hasLineOfSight, placeEnemies, placeSpawns } from './spawn';
+import { selectExit } from './exit';
+import {
+  ENEMY_MAX_COMPONENT,
+  SPAWN_MAX_COMPONENT,
+  hasLineOfSight,
+  maxComponentSize,
+  placeEnemies,
+  placeSpawns,
+} from './spawn';
 import type {
   Corridor,
   CorridorKind,
   Door,
   Enemy,
+  Exit,
+  ExitMode,
   FloorAmbient,
   FloorPaletteId,
   GeneratedMap,
+  Hotspot,
   MapOptions,
   MapStats,
   OpenMouth,
@@ -240,6 +251,24 @@ export function resolveOptions(input: MapOptions = {}): {
     'factor de enemigos por jugador',
   );
   const numPlayers = clampInt(input.numPlayers, 3, 1, 6, 'número de jugadores');
+  const hiddenEnemyChance = clampFloat(
+    input.hiddenEnemyChance,
+    0.5,
+    0,
+    1,
+    'probabilidad de emboscada',
+  );
+  const exitModes: readonly ExitMode[] = ['door', 'stairs-down', 'stairs-up', 'random'];
+  let exitMode: ExitMode = 'random';
+  if (input.exitMode !== undefined) {
+    if (exitModes.includes(input.exitMode as ExitMode)) {
+      exitMode = input.exitMode as ExitMode;
+    } else {
+      warnings.push(
+        `El modo de salida "${String(input.exitMode)}" no es válido; se usó random.`,
+      );
+    }
+  }
 
   return {
     options: {
@@ -256,6 +285,8 @@ export function resolveOptions(input: MapOptions = {}): {
       enemySurfaceFactor,
       enemyPlayersFactor,
       numPlayers,
+      hiddenEnemyChance,
+      exitMode,
     },
     warnings,
   };
@@ -299,6 +330,18 @@ export function generateMap(
       height: Math.max(3, Math.min(options.mapHeight - 4, 7)),
     };
     rawRooms.push({ box, cells: allBoxCells(box) });
+  }
+
+  // REQ-011 v3: ningún mapa puede quedar por debajo de 3 salas.
+  let roomGuard = 0;
+  while (rawRooms.length < 3 && roomGuard < 8) {
+    roomGuard += 1;
+    const before = rawRooms.length;
+    placeFallbackRoom(rawRooms, rng, options, 'small');
+    if (rawRooms.length === before) break;
+  }
+  if (rawRooms.length < 3) {
+    warnings.push('No se pudo garantizar el mínimo de 3 salas.');
   }
 
   ensureShape(rawRooms, rng, warnings, options);
@@ -936,14 +979,59 @@ function buildCavern(
   counter: Counter,
   warnings: string[],
 ): RawRoom[] {
+  // REQ-011 v3: una caverna tiene exactamente 3 salas (caverna + 2 anexas).
+  for (let layout = 0; layout < 32; layout += 1) {
+    const cavern = makeCavern(rng, options, counter, layout);
+    if (!cavern) break;
+    const rooms: RawRoom[] = [cavern];
+    for (let annex = 0; annex < 2; annex += 1) {
+      if (!placeCavernAnnex(rooms, cavern, rng, options, counter, annex)) break;
+    }
+    if (rooms.length === 3) return rooms;
+  }
+
+  warnings.push(
+    'La caverna no pudo colocar dos anexos en el primer intento; se completó con salas de emergencia.',
+  );
+  const box: Box = {
+    x: 1,
+    y: 1,
+    width: Math.min(options.mapWidth - 2, 9),
+    height: Math.min(options.mapHeight - 2, 8),
+  };
+  const rooms: RawRoom[] = [{ box, cells: growMask(box, 'large', rng) }];
+  let guard = 0;
+  while (rooms.length < 3 && guard < 12) {
+    guard += 1;
+    const before = rooms.length;
+    placeFallbackRoom(rooms, rng, options, 'small');
+    if (rooms.length === before) break;
+  }
+  if (rooms.length < 3) {
+    warnings.push('No se pudo garantizar el mínimo de 3 salas en la caverna.');
+  }
+  return rooms;
+}
+
+function makeCavern(
+  rng: Rng,
+  options: ResolvedMapOptions,
+  counter: Counter,
+  layout: number,
+): RawRoom | null {
   const cavernWidth = Math.max(9, Math.min(options.mapWidth - 4, Math.round(options.mapWidth * 0.56)));
   const cavernHeight = Math.max(8, Math.min(options.mapHeight - 4, Math.round(options.mapHeight * 0.56)));
-
-  let cavern: RawRoom | null = null;
-  for (let attempt = 0; attempt < 80 && !cavern; attempt += 1) {
+  const shrink = Math.min(2, Math.floor(layout / 8));
+  for (let attempt = 0; attempt < 80; attempt += 1) {
     counter.value += 1;
-    const width = Math.max(options.roomMin, cavernWidth - rng.int(3));
-    const height = Math.max(options.roomMin, cavernHeight - rng.int(2));
+    const width = Math.max(
+      options.roomMin,
+      cavernWidth - rng.int(3) - shrink,
+    );
+    const height = Math.max(
+      options.roomMin,
+      cavernHeight - rng.int(2) - shrink,
+    );
     const box: Box = {
       x: 1 + rng.int(Math.max(1, options.mapWidth - width - 2)),
       y: 1 + rng.int(Math.max(1, options.mapHeight - height - 2)),
@@ -953,47 +1041,44 @@ function buildCavern(
     if (!boxInside(box, options.mapWidth, options.mapHeight, 1)) continue;
     const cells = growMask(box, 'large', rng);
     if (cells.length < 50) continue;
-    cavern = { box, cells };
+    return { box, cells };
   }
+  return null;
+}
 
-  if (!cavern) {
-    warnings.push('La caverna no encontró una caja válida; se usó una sala grande.');
+function placeCavernAnnex(
+  rooms: RawRoom[],
+  cavern: RawRoom,
+  rng: Rng,
+  options: ResolvedMapOptions,
+  counter: Counter,
+  annex: number,
+): boolean {
+  for (let attempt = 0; attempt < 600; attempt += 1) {
+    counter.value += 1;
+    // Las anexas necesitan al menos 4×4 para admitir 6 huecos de spawn y que
+    // el spawn pueda quedar en un extremo de la cadena (REQ-013 R-002).
+    const width = 4 + rng.int(2);
+    const height = 4 + rng.int(2);
     const box: Box = {
-      x: 1,
-      y: 1,
-      width: Math.min(options.mapWidth - 2, 9),
-      height: Math.min(options.mapHeight - 2, 8),
+      x: 1 + rng.int(Math.max(1, options.mapWidth - width - 2)),
+      y: 1 + rng.int(Math.max(1, options.mapHeight - height - 2)),
+      width,
+      height,
     };
-    cavern = { box, cells: growMask(box, 'large', rng) };
-  }
-
-  const rooms: RawRoom[] = [cavern];
-  const annexCount = rng.chance(0.55) ? 2 : 1;
-  for (let annex = 0; annex < annexCount; annex += 1) {
-    let placed = false;
-    for (let attempt = 0; attempt < 300 && !placed; attempt += 1) {
-      counter.value += 1;
-      const width = 3 + rng.int(2);
-      const height = 3 + rng.int(2);
-      const box: Box = {
-        x: 1 + rng.int(Math.max(1, options.mapWidth - width - 2)),
-        y: 1 + rng.int(Math.max(1, options.mapHeight - height - 2)),
-        width,
-        height,
-      };
-      if (!boxInside(box, options.mapWidth, options.mapHeight, 1)) continue;
-      if (rooms.some((room) => boxGap(box, room.box) < 1)) continue;
-      if (boxGap(box, cavern.box) > 2) continue;
-      if (rooms.length > 1 && boxGap(box, cavern.box) < 1) continue;
-      const cells = annex === 0 ? allBoxCells(box) : carveNotches(allBoxCells(box), box, rng, 1);
-      if (cells.length < 6) continue;
-      rooms.push({ box, cells });
-      placed = true;
+    if (!boxInside(box, options.mapWidth, options.mapHeight, 1)) continue;
+    if (rooms.some((room) => boxGap(box, room.box) < 1)) continue;
+    if (boxGap(box, cavern.box) > 3) continue;
+    if (rooms.length > 1 && rooms.slice(1).some((room) => boxGap(box, room.box) < 1)) {
+      continue;
     }
-    if (!placed) warnings.push('La caverna no pudo colocar todas las salas anexas.');
+    const cells = annex === 0 ? allBoxCells(box) : carveNotches(allBoxCells(box), box, rng, 1);
+    if (cells.length < 6) continue;
+    if (!canConnectToExisting(box, cells, rooms, options)) continue;
+    rooms.push({ box, cells });
+    return true;
   }
-
-  return rooms;
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -2166,7 +2251,9 @@ function selectLinks(
   }
 
   const available = sorted.filter((link) => !used.has(linkKey(link)));
-  const loopBudget = Math.min(3, rng.int(4));
+  // Con 3 salas, un bucle convierte el grafo en triángulo y toda distancia pasa
+  // a 1; REQ-013 exige una sala intermedia entre spawn y salida.
+  const loopBudget = roomCount <= 3 ? 0 : Math.min(3, rng.int(4));
   const extras: Link[] = [];
   for (const link of available) {
     if (extras.length >= loopBudget) break;
@@ -2180,6 +2267,10 @@ function selectLinks(
     const treeWide = tree.find((link) => link.length >= 3);
     if (treeWide) {
       wide = treeWide;
+    } else if (roomCount <= 3) {
+      warnings.push(
+        'No hubo un par de salas para abrir el pasillo ancho sin crear un bucle en 3 salas.',
+      );
     } else {
       const candidate = available.find(
         (link) =>
@@ -2512,9 +2603,44 @@ function finalizeMap(
       : room,
   );
 
+  // Defensa documentada: las cajas que se tocan a gap 0 no se rechazan (la
+  // aceptación no cambia), pero se avisa porque dos salas pueden quedar unidas
+  // sin muro y la componente global de enemigos debe validarse entre ellas.
+  for (let first = 0; first < rooms.length; first += 1) {
+    for (let second = first + 1; second < rooms.length; second += 1) {
+      if (boxesTouch(rooms[first], rooms[second])) {
+        warnings.push(
+          `Las salas ${rooms[first].id} y ${rooms[second].id} tienen cajas a gap 0; comparten borde sin muro.`,
+        );
+      }
+    }
+  }
+
+  // REQ-013: la salida se elige después de puertas y spawn, antes de enemigos.
+  const exitResult = selectExit({
+    rooms,
+    doors,
+    corridors,
+    tiles,
+    width: options.mapWidth,
+    height: options.mapHeight,
+    spawns: spawnResult.spawns,
+    seed,
+    mode: options.exitMode,
+  });
+  warnings.push(...exitResult.warnings);
+  const exit = exitResult.exit;
+  const entrance = {
+    roomId: spawnResult.spawns.roomId,
+    position: spawnResult.spawns.player,
+  };
+
   const enemyResult = placeEnemies({
     rooms,
     doors,
+    openMouths,
+    corridors,
+    exit,
     tiles,
     width: options.mapWidth,
     height: options.mapHeight,
@@ -2523,6 +2649,7 @@ function finalizeMap(
     enemySurfaceFactor: options.enemySurfaceFactor,
     enemyPlayersFactor: options.enemyPlayersFactor,
     numPlayers: options.numPlayers,
+    hiddenEnemyChance: options.hiddenEnemyChance,
   });
   warnings.push(...enemyResult.warnings);
 
@@ -2549,6 +2676,9 @@ function finalizeMap(
     enemies: enemyResult.enemies,
     spawns: finalSpawns,
     enemy: enemyResult.breakdown,
+    entrance,
+    exit,
+    hotspots: enemyResult.hotspots,
   });
 
   return {
@@ -2563,7 +2693,10 @@ function finalizeMap(
     corridors,
     loops: selection.extras.length,
     spawns: finalSpawns,
+    entrance,
+    exit,
     enemies: enemyResult.enemies,
+    hotspots: enemyResult.hotspots,
     palettes,
     warnings,
     stats,
@@ -2632,9 +2765,25 @@ function buildStats(input: {
   enemies: readonly Enemy[];
   spawns: Spawns;
   enemy: MapStats['enemy'];
+  entrance: { readonly roomId: number; readonly position: import('./types').Point };
+  exit: Exit | null;
+  hotspots: readonly Hotspot[];
 }): MapStats {
-  const { rooms, doors, openMouths, corridors, tiles, loops, counter, enemies, spawns, enemy } =
-    input;
+  const {
+    rooms,
+    doors,
+    openMouths,
+    corridors,
+    tiles,
+    loops,
+    counter,
+    enemies,
+    spawns,
+    enemy,
+    entrance,
+    exit,
+    hotspots,
+  } = input;
   const roomFloor = rooms.reduce((sum, room) => sum + room.area, 0);
   const totalFloor = tiles.reduce<number>((sum, tile) => sum + (tile === 1 ? 1 : 0), 0);
   const corridorFloor = Math.max(0, totalFloor - roomFloor);
@@ -2675,6 +2824,15 @@ function buildStats(input: {
       ),
     0,
   );
+  const largestArea = Math.max(0, ...rooms.map((room) => room.area));
+  const spawnRoomArea = spawnRoom?.area ?? 0;
+  const spawnComponentsMax = maxComponentSize(spawns.party);
+  const enemyComponentsMax = maxComponentSize(
+    enemies.map((enemyItem) => ({ x: enemyItem.x, y: enemyItem.y })),
+  );
+  const interiorEnemies = enemies.filter((enemyItem) => enemyItem.interior).length;
+  const hiddenEnemies = enemies.filter((enemyItem) => enemyItem.hidden).length;
+  const eligibleHotspots = hotspots.filter((hotspot) => hotspot.eligible).length;
 
   return {
     roomCount: rooms.length,
@@ -2720,7 +2878,34 @@ function buildStats(input: {
     maxEnemiesPerRoom: maxEnemies,
     generationAttempts: counter.value,
     enemy,
+    spawnIsLargest: spawnRoomArea > 0 && spawnRoomArea === largestArea,
+    spawnComponentsMax,
+    entranceRoomId: entrance.roomId,
+    exitRoomId: exit?.roomId ?? null,
+    exitKind: exit?.kind ?? null,
+    exitDistance: exit?.distance ?? null,
+    exitPath: exit?.path ?? [],
+    exitFallback: exit?.fallback ?? false,
+    enemyComponentsMax,
+    interiorEnemies,
+    borderEnemies: enemies.length - interiorEnemies,
+    hiddenEnemies,
+    hotspotsTotal: hotspots.length,
+    hotspotsEligible: eligibleHotspots,
+    hotspotRolls: hotspots.length,
+    hotspotOccupied: hiddenEnemies,
   };
+}
+
+function boxesTouch(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+): boolean {
+  return (
+    !boxesOverlap(a, b) &&
+    Math.max(0, Math.max(a.x, b.x) - Math.min(a.x + a.width, b.x + b.width)) === 0 &&
+    Math.max(0, Math.max(a.y, b.y) - Math.min(a.y + a.height, b.y + b.height)) === 0
+  );
 }
 
 function countSharedWalls(rooms: readonly Room[]): number {
@@ -2868,18 +3053,10 @@ export function validateMap(map: GeneratedMap): string[] {
   if (new Set(map.spawns.party.map((point) => pointKey(point.x, point.y))).size !== map.spawns.party.length) {
     issues.push('hay huecos de spawn repetidos');
   }
-  for (let first = 0; first < map.spawns.party.length; first += 1) {
-    for (let second = first + 1; second < map.spawns.party.length; second += 1) {
-      const distance = Math.max(
-        Math.abs(map.spawns.party[first].x - map.spawns.party[second].x),
-        Math.abs(map.spawns.party[first].y - map.spawns.party[second].y),
-      );
-      if (distance < SPAWN_SEPARATION) {
-        issues.push(
-          `huecos de spawn ${first} y ${second} a distancia ${distance}`,
-        );
-      }
-    }
+  if (maxComponentSize(map.spawns.party) > SPAWN_MAX_COMPONENT) {
+    issues.push(
+      `el grupo tiene una componente de adyacencia mayor que ${SPAWN_MAX_COMPONENT}`,
+    );
   }
   for (const hole of map.spawns.party) {
     if (map.tiles[hole.y * map.width + hole.x] !== 1) issues.push(`hueco de spawn en muro (${hole.x},${hole.y})`);
@@ -2889,9 +3066,97 @@ export function validateMap(map: GeneratedMap): string[] {
     if (map.enemies.some((enemy) => enemy.x === hole.x && enemy.y === hole.y)) {
       issues.push(`hueco de spawn ocupado por enemigo (${hole.x},${hole.y})`);
     }
+    if (map.exit && map.exit.access.x === hole.x && map.exit.access.y === hole.y) {
+      issues.push(`hueco de spawn ocupado por el acceso de salida (${hole.x},${hole.y})`);
+    }
+  }
+
+  // REQ-011 v3: mínimo global de 3 salas; caverna exactamente 3.
+  if (map.rooms.length < 3) issues.push(`menos de 3 salas: ${map.rooms.length}`);
+  if (map.stats.cavernRooms > 0) {
+    if (map.rooms.length !== 3) issues.push(`caverna con ${map.rooms.length} salas en lugar de 3`);
+  } else if (map.rooms.length < 4 || map.rooms.length > 6) {
+    issues.push(`mapa normal con ${map.rooms.length} salas fuera de 4-6`);
+  }
+
+  if (map.entrance.roomId !== map.spawns.roomId) {
+    issues.push('la entrada no cae en la sala de spawn');
+  }
+  if (
+    map.entrance.position.x !== map.spawns.player.x ||
+    map.entrance.position.y !== map.spawns.player.y
+  ) {
+    issues.push('la entrada no coincide con party[0]');
+  }
+
+  const enemyKeys = new Set<string>();
+  for (const enemy of map.enemies) {
+    const key = pointKey(enemy.x, enemy.y);
+    if (enemyKeys.has(key)) issues.push(`dos enemigos en (${enemy.x},${enemy.y})`);
+    enemyKeys.add(key);
+    if (enemy.roomId === map.spawns.roomId) {
+      issues.push(`enemigo ${enemy.id} dentro de la sala de spawn`);
+    }
+    if (map.exit) {
+      const exitKey = pointKey(map.exit.position.x, map.exit.position.y);
+      const accessKey = pointKey(map.exit.access.x, map.exit.access.y);
+      if (key === exitKey || key === accessKey) {
+        issues.push(`enemigo ${enemy.id} sobre la salida o su acceso`);
+      }
+    }
+  }
+  if (maxComponentSize(map.enemies) > ENEMY_MAX_COMPONENT) {
+    issues.push(
+      `hay una componente de enemigos mayor que ${ENEMY_MAX_COMPONENT}`,
+    );
+  }
+
+  if (map.exit) {
+    const exitRoom = map.rooms.find((room) => room.id === map.exit?.roomId);
+    if (!exitRoom) {
+      issues.push('la sala de salida no existe');
+    } else if (exitRoom.id === map.spawns.roomId) {
+      issues.push('la salida está en la sala de spawn');
+    }
+    if (map.exit.distance < 2 && !map.exit.fallback && !map.warnings.some((warning) => /distancia ≥2/i.test(warning))) {
+      issues.push(`la salida está a distancia ${map.exit.distance}`);
+    }
+    if (map.exit.kind === 'door') {
+      if (!isBorderWall(map.exit.position.x, map.exit.position.y, map.width, map.height)) {
+        issues.push('la puerta de salida no está en el borde del mapa');
+      }
+      if (map.tiles[map.exit.position.y * map.width + map.exit.position.x] !== 0) {
+        issues.push('la puerta de salida no es muro');
+      }
+      const adjacent =
+        Math.abs(map.exit.position.x - map.exit.access.x) +
+          Math.abs(map.exit.position.y - map.exit.access.y) ===
+        1;
+      if (!adjacent) issues.push('el acceso de la puerta de salida no es adyacente');
+      if (map.tiles[map.exit.access.y * map.width + map.exit.access.x] !== 1) {
+        issues.push('el acceso de la puerta de salida no es suelo');
+      }
+      if (map.doors.some((door) => door.x === map.exit?.position.x && door.y === map.exit?.position.y)) {
+        issues.push('la puerta de salida se dibuja sobre una puerta decorativa');
+      }
+    } else {
+      if (map.tiles[map.exit.position.y * map.width + map.exit.position.x] !== 1) {
+        issues.push('la escalera de salida no está sobre suelo');
+      }
+      if (
+        map.exit.access.x !== map.exit.position.x ||
+        map.exit.access.y !== map.exit.position.y
+      ) {
+        issues.push('el acceso de la escalera no coincide con su tile');
+      }
+    }
   }
 
   return issues;
+}
+
+function isBorderWall(x: number, y: number, width: number, height: number): boolean {
+  return (x === 0 || y === 0 || x === width - 1 || y === height - 1) && inBounds(x, y, width, height);
 }
 
 export function fingerprint(map: GeneratedMap): string {
@@ -2909,7 +3174,20 @@ export function fingerprint(map: GeneratedMap): string {
     hash = Math.imul(hash ^ (mouth.x * 17 + mouth.y), 0x85ebca6b) >>> 0;
   }
   for (const enemy of map.enemies) {
-    hash = Math.imul(hash ^ (enemy.x * 7 + enemy.y * 13 + enemy.roomId), 0xc2b2ae35) >>> 0;
+    hash = Math.imul(
+      hash ^ (enemy.x * 7 + enemy.y * 13 + enemy.roomId + (enemy.hidden ? 31 : 0)),
+      0xc2b2ae35,
+    ) >>> 0;
+  }
+  if (map.exit) {
+    hash = Math.imul(
+      hash ^
+        (map.exit.position.x * 19 +
+          map.exit.position.y * 23 +
+          map.exit.roomId * 29 +
+          map.exit.kind.length),
+      0x27d4eb2f,
+    ) >>> 0;
   }
   return hash.toString(16).padStart(8, '0');
 }

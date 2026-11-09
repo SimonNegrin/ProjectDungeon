@@ -69,6 +69,16 @@ describe('contrato y determinismo de A/B/C', () => {
       expect(map.corridors.length).toBeGreaterThan(0);
       expect(map.spawns.party.length).toBeGreaterThanOrEqual(6);
       expect(map.spawns.player).toEqual(map.spawns.party[0]);
+      expect(map.entrance.roomId).toBe(map.spawns.roomId);
+      expect(map.entrance.position).toEqual(map.spawns.party[0]);
+      expect(map.exit).not.toBeNull();
+      if (map.exit) {
+        expect(['door', 'stairs-down', 'stairs-up']).toContain(map.exit.kind);
+        expect(map.exit.roomId).not.toBe(map.spawns.roomId);
+        expect(['exit-door', 'staircase-down', 'staircase-up']).toContain(map.exit.tile);
+      }
+      expect(Array.isArray(map.hotspots)).toBe(true);
+      expect(map.enemies.every((enemy) => typeof enemy.hidden === 'boolean')).toBe(true);
       expect(map.enemies.length).toBeGreaterThan(0);
       expect(map.palettes.length).toBe(map.rooms.length);
       expect(map.stats.roomCount).toBe(map.rooms.length);
@@ -84,6 +94,21 @@ describe('contrato y determinismo de A/B/C', () => {
       expect(map.options.numPlayers).toBe(3);
       expect(Array.isArray(map.warnings)).toBe(true);
       expect(JSON.parse(JSON.stringify(map))).toEqual(map);
+    }
+  });
+
+  it('cumple el recuento de salas: normales 4-6, caverna 3 y mínimo global 3', () => {
+    for (const variant of VARIANTS) {
+      for (const seed of [REFERENCE_SEED, ...SEEDS]) {
+        const map = generateMap(variant, seed);
+        expect(map.rooms.length, `${variant} · ${seed}`).toBeGreaterThanOrEqual(3);
+        if (map.stats.cavernRooms > 0) {
+          expect(map.rooms.length, `${variant} · ${seed} · caverna`).toBe(3);
+        } else {
+          expect(map.rooms.length, `${variant} · ${seed} · normal`).toBeGreaterThanOrEqual(4);
+          expect(map.rooms.length, `${variant} · ${seed} · normal`).toBeLessThanOrEqual(6);
+        }
+      }
     }
   });
 
@@ -117,6 +142,18 @@ describe('contrato y determinismo de A/B/C', () => {
     expect(options.enemySurfaceFactor).toBe(0.1);
     expect(options.enemyPlayersFactor).toBe(0);
     expect(options.numPlayers).toBe(6);
+
+    const v3 = resolveOptions({
+      hiddenEnemyChance: 5,
+      exitMode: 'inventado',
+    });
+    expect(v3.options.hiddenEnemyChance).toBe(1);
+    expect(v3.options.exitMode).toBe('random');
+    expect(v3.warnings.length).toBeGreaterThan(0);
+
+    for (const mode of ['door', 'stairs-down', 'stairs-up', 'random'] as const) {
+      expect(resolveOptions({ exitMode: mode }).options.exitMode).toBe(mode);
+    }
 
     for (const variant of VARIANTS) {
       const map = generateMap(variant, 42, {
