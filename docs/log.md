@@ -2,6 +2,8 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0047 — cerrada: build de producción solo con el juego, experimentos en `dist-experiments/` y guarda `check:bundle` en `verify`; negativa real con BSP en bundle detectada por grafo; verify 721/721; E2E rojo preexistente de TASK-0046 diferido a TASK-0048/0049; fusión `08e97e3` — [informe](../artifacts/TASK-0047/attempt-1/report.md)
+
 * 2026-11-09 — Task — TASK-0046 — cerrada: growth compone el core, es el generador por defecto y BSP sigue inyectable con 4 enemigos; incluye 2 armas deterministas; verify 711/711, barrido 200 y 1,93 ms; fusión `be5022a` — [informe](../artifacts/TASK-0046/attempt-2/report.md)
 * 2026-11-09 — Task — TASK-0045 — cerrada: core de spawn protegido, enemigos y salida; BSP conserva 4 sin salida; intento 1 corregido en el 2 (0/200 fallos); verify 689/689 y barrido de 200; fusión `55cb174` — [informe](../artifacts/TASK-0045/attempt-2/report.md)
 * 2026-11-09 — Task — TASK-0044 — cerrada: núcleo puro de chambers (opciones, formas, pasillos, puertas, paletas) con plan geométrico sin spawn/salida; verify 657/657, suites dirigidas 22/22 y barrido de 200 semillas (100 % conectividad, 3 caverna/4-6 normal, ~19,5 % caverna, ~25 % ancho); fusión `a8ff8c5` — [informe](../artifacts/TASK-0044/attempt-1/report.md)
