@@ -40,15 +40,11 @@ Total: **41**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0038](TASK-0038-host-feedback-percepcion-alarma.md) | Host: feedback de percepción, alarma y debug | `done` | REQ-009 | TASK-0037 | P1 |
 | [TASK-0039](TASK-0039-e2e-qa-percepcion-alarma-huida.md) | E2E y QA visual de percepción, alarma y huida | `done` | REQ-009 | TASK-0037, TASK-0038 | P1 |
 | [TASK-0040](TASK-0040-exp-004-salas-irregulares.md) | EXP-004: comparador de generadores de salas irregulares | `done` | REQ-011 | — | P1 |
-| [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `ready` | REQ-011 | — | P1 |
+| [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `done` | REQ-011 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
-
-# ready
-
-* [TASK-0041 — EXP-004: puertas, acceso de spawn y presupuesto de enemigos](TASK-0041-exp-004-puertas-spawn-enemigos.md)
 
 # done
 
@@ -88,6 +84,7 @@ Total: **41**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0038 — Host: feedback de percepción, alarma y debug](TASK-0038-host-feedback-percepcion-alarma.md)
 * [TASK-0039 — E2E y QA visual de percepción, alarma y huida](TASK-0039-e2e-qa-percepcion-alarma-huida.md)
 * [TASK-0040 — EXP-004: comparador de generadores de salas irregulares](TASK-0040-exp-004-salas-irregulares.md)
+* [TASK-0041 — EXP-004: puertas, acceso de spawn y presupuesto de enemigos](TASK-0041-exp-004-puertas-spawn-enemigos.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

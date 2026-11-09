@@ -2,6 +2,7 @@
 
 ## 2026-11-09
 
+* 2026-11-09 — Task — TASK-0041 — cerrada: EXP-004 v2 con puertas validadas, spawn con separación ≥2 (30/60 devuelven <6 con aviso, 0 pares adyacentes) y enemigos por superficie/jugadores; verify 605, E2E 70/70 — [informe](../artifacts/TASK-0041/attempt-2/report.md)
 * 2026-11-09 — Requirement — REQ-011/REQ-012 — v2 aprobadas: puertas con soporte de muro, conexión entre dos salas, Chebyshev ≥3 y una por pasillo; spawn alrededor del acceso; enemigos por superficie y jugadores con factores 0,02/1,35 configurables — [REQ-011](requirements/REQ-011-generador-densa-salas-irregulares.md)
 * 2026-11-09 — Experiment — EXP-004 — actualizado a v2: reglas de puertas, acceso de spawn y presupuesto de enemigos; TASK-0041 pendiente — [EXP-004](../experiments/EXP-004-salas-irregulares/experiment.md)
 * 2026-11-09 — Planning — TASK-0041 — ready: rehacer EXP-004 con puertas validadas, spawn alrededor del acceso y enemigos por superficie/jugadores — [TASK-0041](tasks/TASK-0041-exp-004-puertas-spawn-enemigos.md)

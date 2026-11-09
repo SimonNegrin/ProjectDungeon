@@ -4,14 +4,14 @@ id: TASK-0041
 title: "EXP-004: puertas, acceso de spawn y presupuesto de enemigos"
 description: Actualizar el experimento con puertas validadas por geometría, spawn alrededor del acceso y enemigos calculados por superficie y jugadores con factores configurables.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-011
 requirement_ids: [R-004, R-009, T-007, T-014, R-002, R-006, R-007, R-008, T-004, T-006, T-012]
 depends_on: []
 unlocks: []
 created_at: 2026-11-09T10:50:25Z
-completed_at:
+completed_at: 2026-11-09T11:34:04Z
 assignee: task-runner
 attempts: 2
 artifacts: artifacts/TASK-0041/
@@ -20,6 +20,23 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T10:50:25Z }
 verified:
+  - by: task-lead
+    at: 2026-11-09T11:34:04Z
+    note: >-
+      Intento 2 verificado en task/TASK-0041 (commits 5440795, 68dd610,
+      6ba2bbe, a5f30bd, cab3723, 6751558 y 2846ee9; fusión b7d18a1). Diff
+      completo revisado: solo EXP-004, manifest, tarea y artefactos; src/,
+      tests/, index.html raíz y public/ intactos, sin dependencias nuevas.
+      Lead re-ejecutó `pnpm run verify` (605 tests, docs/config y build OK) y
+      `pnpm run test:e2e` (70/70). Verificación independiente de 60 mapas:
+      separación de spawn ≥2 en 60/60, `party[0]` es el acceso, puertas válidas
+      con Chebyshev ≥3 y una por pasillo, bocas con motivo, T por fórmula y
+      reparto sin salas vacías. 30/60 mapas devuelven <6 huecos con aviso porque
+      no caben con separación ≥2 ni en la sala completa; no se relajan huecos
+      adyacentes. 45 capturas 1280×720 revisadas (A/B/C, 5 semillas, caverna,
+      pasillo ancho, debug y 13×13). Desviación documentada: T 7-9 frente al
+      ejemplo 9-11 de REQ-012; la fórmula se cumple. Decisión A/B/C abierta al
+      playtest.
 ---
 
 # Objetivo
