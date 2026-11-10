@@ -56,7 +56,7 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0055](TASK-0055-motor-roster-cuchillo-nombre.md) | Motor: catálogo de roster, Cuchillo y nombre de personaje | `done` | REQ-015 | TASK-0053 | P1 |
 | [TASK-0056](TASK-0056-guerrero-defecto-host-docs.md) | Guerrero por defecto, host, tests y docs del roster | `done` | REQ-015 | TASK-0054, TASK-0055 | P1 |
 | [TASK-0057](TASK-0057-nucleo-feedback-timeline-estado.md) | Núcleo del feedback visual: configuración, timeline y estado intermedio | `done` | REQ-017 | — | P1 |
-| [TASK-0058](TASK-0058-feedback-combate-muerte.md) | Feedback de combate y muerte: impacto, fallo, daño y cadáver | `backlog` | REQ-017 | TASK-0057 | P1 |
+| [TASK-0058](TASK-0058-feedback-combate-muerte.md) | Feedback de combate y muerte: impacto, fallo, daño y cadáver | `done` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0059](TASK-0059-feedback-inventario-percepcion-turno.md) | Feedback de inventario, percepción y turno | `backlog` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
@@ -73,7 +73,6 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0058 — Feedback de combate y muerte: impacto, fallo, daño y cadáver](TASK-0058-feedback-combate-muerte.md)
 * [TASK-0059 — Feedback de inventario, percepción y turno](TASK-0059-feedback-inventario-percepcion-turno.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 * [TASK-0060 — Fase enemiga fuera de pantalla y movimiento reducido](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md)
@@ -131,6 +130,7 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0055 — Motor: catálogo de roster, Cuchillo y nombre de personaje](TASK-0055-motor-roster-cuchillo-nombre.md)
 * [TASK-0056 — Guerrero por defecto, host, tests y docs del roster](TASK-0056-guerrero-defecto-host-docs.md)
 * [TASK-0057 — Núcleo del feedback visual: configuración, timeline y estado intermedio](TASK-0057-nucleo-feedback-timeline-estado.md)
+* [TASK-0058 — Feedback de combate y muerte: impacto, fallo, daño y cadáver](TASK-0058-feedback-combate-muerte.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

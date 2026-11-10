@@ -1,0 +1,26 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ❯ tests/unit/host/tmp-direction.test.ts (1 test | 1 failed) 4ms
+   × el retroceso del impacto debe alejar al objetivo del atacante 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/host/tmp-direction.test.ts > el retroceso del impacto debe alejar al objetivo del atacante
+AssertionError: expected -1 to be greater than 0
+ ❯ tests/unit/host/tmp-direction.test.ts:19:22
+     17|   const timeline = buildMotionTimeline([attack], { finalState: state }…
+     18|   const target = worldEffectsAt(timeline, 90).get('enemy-1');
+     19|   expect(target?.dx).toBeGreaterThan(0);
+       |                      ^
+     20| });
+     21|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:52:24
+   Duration  196ms (transform 64%, import 30%, tests 3%, worker 3%)
+

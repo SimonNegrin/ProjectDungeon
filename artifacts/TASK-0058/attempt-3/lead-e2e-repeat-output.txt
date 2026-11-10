@@ -1,0 +1,14 @@
+
+Running 9 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:49:1 › impacto: cue con destello, embestida, -N y tick de PV (1.6s)
+  ✓  4 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:90:1 › fallo: cuerda opuesta, Fallo gris y sin destello de impacto (1.6s)
+  ✓  2 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:49:1 › impacto: cue con destello, embestida, -N y tick de PV (1.6s)
+  ✓  1 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:127:1 › muerte y cadáver: 900 ms de secuencia y persistencia sin tocar la rejilla (1.7s)
+  ✓  5 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:90:1 › fallo: cuerda opuesta, Fallo gris y sin destello de impacto (660ms)
+  ✓  8 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:49:1 › impacto: cue con destello, embestida, -N y tick de PV (1.5s)
+  ✓  6 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:90:1 › fallo: cuerda opuesta, Fallo gris y sin destello de impacto (1.6s)
+  ✓  7 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:127:1 › muerte y cadáver: 900 ms de secuencia y persistencia sin tocar la rejilla (1.7s)
+  ✓  9 [chromium] › tests/e2e/feedback-combat-qa.spec.ts:127:1 › muerte y cadáver: 900 ms de secuencia y persistencia sin tocar la rejilla (1.3s)
+
+  9 passed (6.1s)

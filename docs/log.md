@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Task — TASK-0058 — done: impacto, fallo y muerte con efectos en Canvas, cadáver persistente desde la unidad muerta y textos DOM deterministas; `corpse-22a/b` fuera del ambiente (31); `verify` 790/790, E2E 80/80 y suite nueva 9/9 ×3; persistencia de textos con `advance` diferida a TASK-0061 — [informe](artifacts/TASK-0058/attempt-3/report.md)
 * 2026-11-10 — Task — TASK-0057 — done: FEEDBACK_CONFIG, cues deterministas, estado intermedio, beat/input y debug; `verify` 776/776 y E2E 77/77 en pasadas limpias, con la flaqueza de `attack-flash` diferida a TASK-0061 — [informe](artifacts/TASK-0057/attempt-3/report.md)
 * 2026-11-10 — Requirement — REQ-017 — creada: feedback visual de eventos con beat pausado, cobertura exhaustiva, cadáver persistente de presentación y atajo enemigo fuera de pantalla; enmienda REQ-006 y REQ-008 — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
 * 2026-11-10 — Decision — ADR-017 — feedback dirigido por eventos sobre la timeline de presentación, estado visible retrasado, capas Canvas/DOM y cadáver de presentación — [ADR-017](decisions/ADR-017-feedback-visual-eventos.md)

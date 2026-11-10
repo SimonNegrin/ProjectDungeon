@@ -4,22 +4,35 @@ id: TASK-0058
 title: "Feedback de combate y muerte: impacto, fallo, daño y cadáver"
 description: "Presentar ataque, defensa, texto de daño y muerte con el beat de REQ-017; el cadáver persiste como presentación y los cadáveres ambientales se reservan."
 status: draft
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-017
 requirement_ids: [R-005, R-006, R-007, R-008, R-009, R-010, R-020, R-021, T-006, T-007, T-008, T-012]
 depends_on: [TASK-0057]
 unlocks: [TASK-0060, TASK-0061]
 created_at: 2026-11-10T01:00:00Z
-completed_at:
+completed_at: 2026-11-10T19:10:00Z
 assignee: task-runner
-attempts: 0
+attempts: 3
 artifacts: artifacts/TASK-0058/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T01:00:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-10T19:10:00Z
+    note: >-
+      Intentos 1-3 verificados en `task/TASK-0058`. Efectos de mundo en Canvas
+      (embestida 3 px, destello 120 ms, retroceso 2 px, sacudida 1 px; muerte
+      900 ms con tres parpadeos y disolución de 300 ms), cadáver de presentación
+      desde la unidad muerta, `corpse-22a/b` fuera de la decoración ambiental
+      (31), textos DOM anclados con hasta tres nodos y sin `setTimeout`, y E2E
+      deterministas con `dispatchFrozen`/`advance(0)`. `pnpm run verify` OK
+      790/790; `pnpm run test:e2e` OK 80/80 y suite nueva 9/9 con
+      `--repeat-each=3`. Sin cambios en `src/game/`, dependencias ni tests
+      debilitados. La persistencia de textos ya creados cuando `advance(ms)` se
+      llama sin animación queda diferida a TASK-0061.
 ---
 
 # Objetivo
@@ -43,23 +56,23 @@ un cadáver persistente. Todo sobre la timeline de
 
 # Criterios de aceptación
 
-- [ ] Impacto: embestida de 2-4 px del atacante, destello blanco de 80-120 ms,
+- [x] Impacto: embestida de 2-4 px del atacante, destello blanco de 80-120 ms,
       retroceso de 2 px, `-N`, tick de PV y sacudida de sprite de 1 px; el daño y
       la vida no cambian antes del cue.
-- [ ] Fallo: embestida, gesto de esquiva o escudo del defensor y `Fallo` gris;
+- [x] Fallo: embestida, gesto de esquiva o escudo del defensor y `Fallo` gris;
       sin destello de impacto. Impacto y fallo se distinguen en escala de grises.
-- [ ] Muerte: destello, tres parpadeos, disolución de 300 ms y sacudida; el
+- [x] Muerte: destello, tres parpadeos, disolución de 300 ms y sacudida; el
       cadáver aparece al final y persiste hasta reiniciar, regenerar o cambiar de
       nivel.
-- [ ] El cadáver se dibuja bajo las unidades y sobre los decals; no bloquea, no
+- [x] El cadáver se dibuja bajo las unidades y sobre los decals; no bloquea, no
       se interactúa y no se escribe en la rejilla.
-- [ ] `corpse-22a/b` deja de elegirse como decoración ambiental; huesos, sangre y
+- [x] `corpse-22a/b` deja de elegirse como decoración ambiental; huesos, sangre y
       manchas siguen disponibles. La lista ambiental baja a 31 decals.
-- [ ] El texto de daño está anclado al mundo, se recoloca con la cámara y admite
+- [x] El texto de daño está anclado al mundo, se recoloca con la cámara y admite
       hasta tres simultáneos sin pisarse; no usa `setTimeout`.
-- [ ] Los efectos de mundo van en Canvas y los textos en DOM, en el orden de
+- [x] Los efectos de mundo van en Canvas y los textos en DOM, en el orden de
       capas de ADR-017; la rejilla, el cursor y el camino siguen visibles.
-- [ ] `src/game/` no cambia; `pnpm run verify` pasa y no se debilitan tests.
+- [x] `src/game/` no cambia; `pnpm run verify` pasa y no se debilitan tests.
 
 # Plan de test
 
@@ -72,10 +85,10 @@ un cadáver persistente. Todo sobre la timeline de
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0058/attempt-1/report.md`.
-- [ ] Salidas de `verify` y tests nuevos.
-- [ ] Capturas en `attempt-1/screenshots/` con impacto, fallo, muerte y cadáver.
-- [ ] Commit SHA en la rama `task/TASK-0058`.
+- [x] Informe en `artifacts/TASK-0058/attempt-1/report.md`.
+- [x] Salidas de `verify` y tests nuevos.
+- [x] Capturas en `attempt-1/screenshots/` con impacto, fallo, muerte y cadáver.
+- [x] Commit SHA en la rama `task/TASK-0058`.
 
 # Comandos
 
