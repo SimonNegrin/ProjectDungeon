@@ -197,6 +197,14 @@ describe('API de debug window.__game', () => {
       unitId: 'player-1',
       position: { x: 80, y: 96, tileX: 2, tileY: 3 },
       camera: { x: 16, y: 32 },
+      cues: [
+        {
+          kind: 'move',
+          unitId: 'player-1',
+          startMs: 70,
+          durationMs: 125,
+        },
+      ],
     } as const;
     const api = createDebugApi(
       () => ({
@@ -234,6 +242,7 @@ describe('API de debug window.__game', () => {
       unitId: null,
       position: null,
       camera: { x: 0, y: 0 },
+      cues: [],
     });
   });
 

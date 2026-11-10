@@ -14,6 +14,7 @@ import {
 import { createCursorView } from './cursor-view';
 import { createDebugApi, type AnimationSnapshot } from './debug';
 import { collectAttackFeedbacks, damageFeedbackAnchor } from './feedback';
+import { ATTACK_FLASH_MS, DAMAGE_FEEDBACK_MS } from './feedback-config';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
@@ -29,9 +30,11 @@ import {
 } from './layout';
 import {
   advanceTimeline,
+  activeCues,
   buildMotionTimeline,
   cameraAt,
   completedSteps,
+  dyingUnitIds,
   focusUnitId,
   presentationState,
   visualPosition,
@@ -40,13 +43,13 @@ import {
 } from './motion';
 import { noticeForRejection } from './notices';
 import { createPerceptionOverlayView } from './perception-overlay';
+import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
 import { trackSpottedUnits, reconcileSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
 
-const DAMAGE_FEEDBACK_MS = 1200;
 /** Delta máximo por frame: una pestaña en segundo plano no adelanta pasos. */
 const MAX_FRAME_DELTA_MS = 50;
 const EPSILON = 1e-9;
@@ -129,7 +132,7 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
         if (flashTimer !== undefined) window.clearTimeout(flashTimer);
         flashTimer = window.setTimeout(() => {
           flash.classList.remove('is-active');
-        }, 400);
+        }, ATTACK_FLASH_MS);
       }
 
       if (timer !== undefined) window.clearTimeout(timer);
@@ -158,7 +161,7 @@ interface ActiveAnimation {
   readonly initialState: GameState;
   readonly cursorBefore: CursorStatus;
   readonly cursorPosition: Position;
-  readonly firedAttacks: Set<number>;
+  readonly firedCues: Set<number>;
   readonly resetCursorAtEnd: boolean;
   elapsed: number;
 }
@@ -265,6 +268,7 @@ async function boot(): Promise<void> {
         unitId: null,
         position: null,
         camera: { x: camera.x, y: camera.y },
+        cues: [],
       };
     }
 
@@ -272,7 +276,19 @@ async function boot(): Promise<void> {
     const position = unitId
       ? visualPosition(animation.timeline, animation.elapsed, unitId)
       : null;
-    const displayCamera = cameraAt(animation.timeline, animation.elapsed, world, viewport);
+    const displayCamera = cameraAt(
+      animation.timeline,
+      animation.elapsed,
+      world,
+      viewport,
+      camera,
+    );
+    const cues = activeCues(animation.timeline, animation.elapsed).map((cue) => ({
+      kind: cue.kind,
+      unitId: cue.anchor.unitId,
+      startMs: cue.atMs,
+      durationMs: cue.durationMs,
+    }));
     return {
       animating: true,
       step: completedSteps(animation.timeline, animation.elapsed),
@@ -280,6 +296,7 @@ async function boot(): Promise<void> {
       unitId,
       position: position ? { ...position } : null,
       camera: { x: displayCamera.x, y: displayCamera.y },
+      cues,
     };
   };
 
@@ -301,11 +318,12 @@ async function boot(): Promise<void> {
         elapsed,
         animation.initialState,
       );
-      camera = cameraAt(animation.timeline, elapsed, world, viewport);
+      camera = cameraAt(animation.timeline, elapsed, world, viewport, camera);
       const positions = visualPositions(animation.timeline, elapsed);
       if (assets) {
         renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, {
           positions,
+          dyingUnitIds: dyingUnitIds(animation.timeline, elapsed),
           debug: debugView.isOpen(),
         });
       }
@@ -340,29 +358,41 @@ async function boot(): Promise<void> {
   };
 
   const fireFeedbacks = (active: ActiveAnimation, fromMs: number, toMs: number): void => {
-    let index = 0;
-    for (const entry of active.timeline.events) {
+    for (let index = 0; index < active.timeline.events.length; index += 1) {
+      const entry = active.timeline.events[index];
+      if (active.firedCues.has(index)) continue;
       const inWindow =
         entry.atMs > fromMs + EPSILON && entry.atMs <= toMs + EPSILON;
-      if (inWindow && entry.event.type === 'EnemySpotted') {
-        spottedUnits = trackSpottedUnits(spottedUnits, [entry.event]);
+      if (!inWindow) continue;
+
+      active.firedCues.add(index);
+      switch (entry.event.type) {
+        case 'EnemySpotted':
+          spottedUnits = trackSpottedUnits(spottedUnits, [entry.event]);
+          break;
+        case 'AttackPerformed': {
+          const display = presentationState(
+            session.state,
+            active.timeline,
+            entry.atMs,
+            active.initialState,
+          );
+          const displayCamera = cameraAt(
+            active.timeline,
+            entry.atMs,
+            world,
+            viewport,
+            camera,
+          );
+          feedbackView.update(display, displayCamera, [entry.event]);
+          break;
+        }
+        case 'AlarmRaised':
+          noticeView.show('alarm-raised');
+          break;
+        default:
+          break;
       }
-      if (
-        entry.event.type === 'AttackPerformed' &&
-        !active.firedAttacks.has(index) &&
-        inWindow
-      ) {
-        active.firedAttacks.add(index);
-        const display = presentationState(
-          session.state,
-          active.timeline,
-          entry.atMs,
-          active.initialState,
-        );
-        const displayCamera = cameraAt(active.timeline, entry.atMs, world, viewport);
-        feedbackView.update(display, displayCamera, [entry.event]);
-      }
-      index += 1;
     }
   };
 
@@ -431,7 +461,7 @@ async function boot(): Promise<void> {
       initialState,
       cursorBefore,
       cursorPosition,
-      firedAttacks: new Set<number>(),
+      firedCues: new Set<number>(),
       resetCursorAtEnd,
       elapsed: 0,
     };
@@ -514,14 +544,22 @@ async function boot(): Promise<void> {
     let resetCursorAtEnd = false;
     for (const event of result.events) {
       if (event.type === 'PlayerTurnStarted') resetCursorAtEnd = true;
-      if (event.type === 'AlarmRaised') noticeView.show('alarm-raised');
       if (event.type === 'CommandRejected') {
         const notice = noticeForRejection(event.reason);
         if (notice) noticeView.show(notice);
       }
     }
 
-    const timeline = buildMotionTimeline(result.events);
+    const presentationEvents = buildPresentationEvents(
+      command,
+      initialState,
+      session.state,
+      result.events,
+    );
+    const timeline = buildMotionTimeline(presentationEvents, {
+      initialState,
+      finalState: session.state,
+    });
 
     if (timeline.totalMs <= 0) {
       if (resetCursorAtEnd) resetCursorToPlayer();

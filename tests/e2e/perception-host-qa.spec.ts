@@ -4,6 +4,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { BESTIARY } from '../../src/game/bestiary';
 import { artifactPath } from './artifacts';
 import {
+  advanceToCue,
   settle,
   snapshot as readSnapshot,
 } from './support';
@@ -68,18 +69,29 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
     const message = document.querySelector<HTMLElement>('[data-testid="hud-message"]');
     return {
       events: result.events.map((event) => event.type),
+      markersBeforeSettle: document.querySelectorAll('[data-testid="spot-marker"]').length,
       message: message?.textContent ?? '',
       messageHidden: message?.hidden ?? true,
-      markersBeforeSettle: document.querySelectorAll('[data-testid="spot-marker"]').length,
     };
   });
 
   expect(detection.events).toContain('EnemySpotted');
   expect(detection.events).toContain('AlarmRaised');
-  expect(detection.message).toBe('¡Alarma! Te han visto');
-  expect(detection.messageHidden).toBe(false);
   // El "!" no se adelanta al paso: aparece al llegar el evento en la animación.
   expect(detection.markersBeforeSettle).toBe(0);
+  // El aviso de alarma se muestra al llegar su cue, no al despachar.
+  expect(detection.message).toBe('');
+  expect(detection.messageHidden).toBe(true);
+  await advanceToCue(page, 'alarm');
+  const alarmNotice = await page.evaluate(() => {
+    const message = document.querySelector<HTMLElement>('[data-testid="hud-message"]');
+    return {
+      message: message?.textContent ?? '',
+      messageHidden: message?.hidden ?? true,
+    };
+  });
+  expect(alarmNotice.message).toBe('¡Alarma! Te han visto');
+  expect(alarmNotice.messageHidden).toBe(false);
 
   await settle(page);
 

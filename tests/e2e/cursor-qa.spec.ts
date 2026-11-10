@@ -484,6 +484,8 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
     ]),
   );
   await screenshot(page, 'cursor-attack', testInfo);
+  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  await settle(page);
 
   // E ejecuta la fase enemiga y devuelve el cursor al jugador.
   const beforeEndTurn = await snapshot(page);
@@ -676,6 +678,8 @@ test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async 
   const beforeReject = await snapshot(page);
   expect(beforeReject.players[0].actionAvailable).toBe(false);
   expect(distance(beforeReject.players[0], beforeReject.enemies[0])).toBe(1);
+  // El ataque anterior sigue en su beat: se completa antes de probar el rechazo.
+  await settle(page);
 
   await page.keyboard.press('Space');
   const afterReject = await snapshot(page);

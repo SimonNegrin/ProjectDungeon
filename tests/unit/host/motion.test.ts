@@ -135,7 +135,7 @@ describe('configuración y construcción de la timeline', () => {
     expect(timeline.phases.filter((phase) => phase.kind === 'pause')).toHaveLength(4);
   });
 
-  it('los eventos que no son UnitMoved se sitúan tras la última pausa', () => {
+  it('los eventos que no son UnitMoved se secuencian al acabar el beat anterior', () => {
     const attack: GameEvent = {
       type: 'AttackPerformed',
       attackerId: 'player-1',
@@ -149,16 +149,15 @@ describe('configuración y construcción de la timeline', () => {
     const ended: GameEvent = { type: 'GameEnded', status: 'victory' };
     const timeline = buildMotionTimeline([...THREE_STRAIGHT, attack, died, ended]);
 
-    expect(timeline.events.map((entry) => entry.atMs)).toEqual([
-      timeline.totalMs,
-      timeline.totalMs,
-      timeline.totalMs,
-    ]);
+    // Movimiento 655 ms; impacto 320; muerte 900; fin 800.
+    expect(timeline.events.map((entry) => entry.atMs)).toEqual([655, 975, 1875]);
     expect(timeline.events.map((entry) => entry.event.type)).toEqual([
       'AttackPerformed',
       'UnitDied',
       'GameEnded',
     ]);
+    expect(timeline.totalMs).toBe(655 + 320 + 900 + 800);
+    expect(timeline.blockingUntilMs).toBe(timeline.totalMs);
   });
 
   it('sin UnitMoved la duración es 0 y los eventos quedan a tiempo 0', () => {
@@ -239,6 +238,49 @@ describe('reloj de presentación y cámara', () => {
     expect(clampCamera({ x: 999, y: -5 }, world, viewport)).toEqual({ x: 224, y: 0 });
   });
 
+  it('sin movimiento activo conserva la cámara y no enfoca el centro del mapa', () => {
+    const attack: GameEvent = {
+      type: 'AttackPerformed',
+      attackerId: 'player-1',
+      targetId: 'enemy-1',
+      hit: true,
+      damage: 4,
+      targetHp: 2,
+      rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+    };
+    const timeline = buildMotionTimeline([attack]);
+    const world = { width: 20 * TILE_SIZE, height: 20 * TILE_SIZE };
+    const viewport = { width: 13 * TILE_SIZE, height: 13 * TILE_SIZE };
+    const current = { x: 96, y: 32 };
+
+    expect(timeline.phases).toHaveLength(0);
+    expect(focusUnitId(timeline, 0)).toBeNull();
+    expect(cameraAt(timeline, 0, world, viewport, current)).toEqual(current);
+    // Sin cámara previa mantiene el comportamiento histórico: centro del mapa.
+    expect(cameraAt(timeline, 0, world, viewport)).toEqual({ x: 112, y: 112 });
+  });
+
+  it('el pre-beat de fase conserva la cámara hasta que arranca el primer movedor', () => {
+    const timeline = buildMotionTimeline([
+      { type: 'EnemyPhaseStarted', turn: 2 },
+      moved('enemy-1', { x: 6, y: 6 }, { x: 5, y: 6 }, 3),
+      moved('enemy-2', { x: 9, y: 9 }, { x: 8, y: 9 }, 3),
+    ]);
+    const world = { width: 20 * TILE_SIZE, height: 20 * TILE_SIZE };
+    const viewport = { width: 13 * TILE_SIZE, height: 13 * TILE_SIZE };
+    const current = { x: 32, y: 96 };
+
+    // Antes del primer paso no se enfoca a la última unidad de la timeline.
+    expect(focusUnitId(timeline, 0)).toBe('enemy-1');
+    expect(focusUnitId(timeline, 399)).toBe('enemy-1');
+    expect(cameraAt(timeline, 0, world, viewport, current)).toEqual(current);
+    expect(cameraAt(timeline, 399, world, viewport, current)).toEqual(current);
+
+    // Al empezar la pausa del primer movedor la cámara ya lo sigue.
+    expect(cameraAt(timeline, 400, world, viewport, current)).toEqual({ x: 0, y: 0 });
+    expect(focusUnitId(timeline, 400)).toBe('enemy-1');
+  });
+
   it('visualPositions incluye a todas las unidades animadas', () => {
     const timeline = buildMotionTimeline([
       moved('player-1', { x: 2, y: 2 }, { x: 3, y: 2 }, 5),
@@ -296,8 +338,12 @@ describe('estado derivado para HUD y render', () => {
 
   it('el enemigo no pierde vida antes del ataque; después sí', () => {
     const timeline = buildMotionTimeline(events);
-    const before = presentationState(finalState, timeline, timeline.totalMs - 1);
-    const after = presentationState(finalState, timeline, timeline.totalMs);
+    const attack = timeline.events.find(
+      (entry) => entry.event.type === 'AttackPerformed',
+    );
+    if (!attack) throw new Error('La timeline debe contener el ataque');
+    const before = presentationState(finalState, timeline, attack.atMs - 1);
+    const after = presentationState(finalState, timeline, attack.atMs);
 
     expect(before.enemies[0].hp).toBe(5);
     expect(before.status).toBe('playing');
@@ -306,8 +352,12 @@ describe('estado derivado para HUD y render', () => {
 
   it('la acción del atacante se consume al ocurrir su ataque', () => {
     const timeline = buildMotionTimeline(events);
-    const before = presentationState(finalState, timeline, timeline.totalMs - 1);
-    const after = presentationState(finalState, timeline, timeline.totalMs);
+    const attack = timeline.events.find(
+      (entry) => entry.event.type === 'AttackPerformed',
+    );
+    if (!attack) throw new Error('La timeline debe contener el ataque');
+    const before = presentationState(finalState, timeline, attack.atMs - 1);
+    const after = presentationState(finalState, timeline, attack.atMs);
 
     expect(before.players[0].actionAvailable).toBe(true);
     expect(after.players[0].actionAvailable).toBe(false);

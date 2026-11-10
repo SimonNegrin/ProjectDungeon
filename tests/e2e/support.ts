@@ -224,6 +224,26 @@ export async function settle(page: Page): Promise<GameSnapshot> {
 }
 
 /**
+ * Avanza el reloj de presentación hasta que el cue pedido esté activo. No
+ * completa la animación: los tests pueden comprobar el aviso o el marcador en
+ * el instante de su cue sin adelantar el resto de la timeline.
+ */
+export async function advanceToCue(page: Page, kind: string): Promise<GameSnapshot> {
+  return page.evaluate((wanted) => {
+    const game = window.__game!;
+    for (let guard = 0; guard < 800; guard += 1) {
+      const snap = game.snapshot();
+      if (snap.animation.cues.some((cue) => cue.kind === wanted)) return snap;
+      if (!snap.animation.animating) {
+        throw new Error(`La animación terminó antes del cue ${wanted}`);
+      }
+      game.advance(25);
+    }
+    throw new Error(`No se alcanzó el cue ${wanted} en 20 s de presentación`);
+  }, kind);
+}
+
+/**
  * Espera a que el canvas y las fuentes estén estables antes de capturar.
  *
  * Compara dos `toDataURL('image/png')` consecutivos separados por un frame y

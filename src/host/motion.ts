@@ -1,6 +1,17 @@
-import type { GameEvent, GameState, Position } from '../game/types';
+import type {
+  AttackRolls,
+  CommandType,
+  GameEndStatus,
+  GameEvent,
+  GameState,
+  Position,
+  RejectionReason,
+} from '../game/types';
+import type { WeaponId } from '../game/equipment';
 import { clampCamera, type Camera } from './camera';
+import { FEEDBACK_CONFIG } from './feedback-config';
 import { TILE_SIZE, type Viewport, type WorldSize } from './geometry';
+import type { PresentationEvent } from './presentation';
 
 /**
  * Configuración única de la presentación del movimiento. Los valores vienen de
@@ -61,7 +72,77 @@ export type MotionPhase = MotionPausePhase | MotionTransitionPhase;
 
 export interface MotionTimelineEvent {
   readonly atMs: number;
-  readonly event: GameEvent;
+  readonly event: PresentationEvent;
+}
+
+/** Tipo de cue de presentación; uno por evento visible de la matriz REQ-017. */
+export type FeedbackCueKind =
+  | 'move'
+  | 'attack'
+  | 'death'
+  | 'pickup'
+  | 'select-weapon'
+  | 'spotted'
+  | 'alarm'
+  | 'fled'
+  | 'returned'
+  | 'waited'
+  | 'enemy-phase'
+  | 'player-turn'
+  | 'turn-ended'
+  | 'game-ended'
+  | 'game-restarted'
+  | 'rejected';
+
+/** Ancla de un cue: unidad y/o tile de mundo. Puede faltar en eventos globales. */
+export interface FeedbackAnchor {
+  readonly unitId: string | null;
+  readonly tile: Position | null;
+}
+
+/** Datos de presentación de un cue. Siempre serializables. */
+export interface FeedbackCueData {
+  readonly unitId?: string;
+  readonly targetId?: string;
+  readonly attackerId?: string;
+  readonly playerId?: string;
+  readonly weaponId?: WeaponId;
+  readonly slot?: number;
+  readonly hit?: boolean;
+  readonly damage?: number;
+  readonly targetHp?: number;
+  readonly text?: string;
+  readonly rolls?: AttackRolls;
+  readonly turn?: number;
+  readonly status?: GameEndStatus;
+  readonly commandType?: CommandType;
+  readonly reason?: RejectionReason;
+  readonly mpAfter?: number;
+  readonly from?: Position;
+  readonly to?: Position;
+}
+
+export interface FeedbackCue {
+  readonly kind: FeedbackCueKind;
+  readonly eventType: PresentationEvent['type'];
+  readonly atMs: number;
+  readonly durationMs: number;
+  /** Beat del evento; puede ser mayor que la duración visual. */
+  readonly beatMs: number;
+  readonly anchor: FeedbackAnchor;
+  readonly data: FeedbackCueData;
+}
+
+export interface FeedbackBeat {
+  readonly eventType: PresentationEvent['type'];
+  readonly atMs: number;
+  readonly beatMs: number;
+  readonly endMs: number;
+}
+
+export interface BuildTimelineOptions {
+  readonly initialState?: GameState;
+  readonly finalState?: GameState;
 }
 
 export interface MotionTimeline {
@@ -69,7 +150,13 @@ export interface MotionTimeline {
   readonly phases: readonly MotionPhase[];
   /** Eventos que no son `UnitMoved`, situados en el reloj en que ocurren. */
   readonly events: readonly MotionTimelineEvent[];
+  /** Cues deterministas de feedback, alineados con el mismo reloj. */
+  readonly cues: readonly FeedbackCue[];
+  /** Beat por evento, en orden de presentación. */
+  readonly beats: readonly FeedbackBeat[];
   readonly totalMs: number;
+  /** Fin del último beat; gobierna cuándo vuelve el input. */
+  readonly blockingUntilMs: number;
   readonly focusUnitIds: readonly string[];
   readonly stepCount: number;
 }
@@ -110,26 +197,271 @@ function toVisualPosition(centerX: number, centerY: number): VisualPosition {
   };
 }
 
+function unitTile(state: GameState | undefined, unitId: string | null | undefined): Position | null {
+  if (!state || !unitId) return null;
+  const unit =
+    state.players.find((candidate) => candidate.id === unitId) ??
+    state.enemies.find((candidate) => candidate.id === unitId);
+  return unit ? { x: unit.x, y: unit.y } : null;
+}
+
+function anchorFor(
+  unitId: string | null,
+  state: GameState | undefined,
+  tile?: Position,
+): FeedbackAnchor {
+  return {
+    unitId,
+    tile: tile ? { ...tile } : unitTile(state, unitId),
+  };
+}
+
+/** Beat mínimo de cada evento visible de la matriz REQ-017. */
+function beatForEvent(
+  event: PresentationEvent,
+  next: PresentationEvent | undefined,
+): number {
+  switch (event.type) {
+    case 'AttackPerformed':
+      return event.hit
+        ? FEEDBACK_CONFIG.beats.attackHit
+        : FEEDBACK_CONFIG.beats.attackMiss;
+    case 'UnitDied':
+      return FEEDBACK_CONFIG.beats.death;
+    case 'TurnEnded':
+      return next?.type === 'EnemyPhaseStarted'
+        ? 0
+        : FEEDBACK_CONFIG.beats.turnEnded;
+    case 'EnemyPhaseStarted':
+      return FEEDBACK_CONFIG.beats.enemyPhase;
+    case 'PlayerTurnStarted':
+      return FEEDBACK_CONFIG.beats.playerTurn;
+    case 'EnemyWaited':
+      return FEEDBACK_CONFIG.beats.waited;
+    case 'GameEnded':
+      return FEEDBACK_CONFIG.beats.gameEnded;
+    case 'GameRestarted':
+      return FEEDBACK_CONFIG.beats.gameRestarted;
+    case 'EnemySpotted':
+      return FEEDBACK_CONFIG.beats.spotted;
+    case 'EnemyReturned':
+      return FEEDBACK_CONFIG.beats.returned;
+    case 'EnemyFled':
+      return FEEDBACK_CONFIG.beats.fled;
+    case 'AlarmRaised':
+      return FEEDBACK_CONFIG.beats.alarm;
+    case 'CommandRejected':
+      return FEEDBACK_CONFIG.beats.rejected;
+    case 'PickUp':
+      return FEEDBACK_CONFIG.beats.pickup;
+    case 'SelectWeapon':
+      return FEEDBACK_CONFIG.beats.selectWeapon;
+    case 'UnitMoved':
+      return MOTION_CONFIG.stepMs + MOTION_CONFIG.pauseMs;
+  }
+}
+
+/** Duración visual del cue; el beat puede ser mayor. */
+function cueDurationMs(event: PresentationEvent, beatMs: number): number {
+  if (event.type === 'CommandRejected') {
+    return FEEDBACK_CONFIG.durations.rejectedShakeMs;
+  }
+  return beatMs;
+}
+
+/**
+ * `TurnEnded` es la única excepción silenciosa aprobada: calla cuando le sigue
+ * `EnemyPhaseStarted` para no duplicar el banner de fase.
+ */
+function hasCue(event: PresentationEvent, next: PresentationEvent | undefined): boolean {
+  return !(event.type === 'TurnEnded' && next?.type === 'EnemyPhaseStarted');
+}
+
+function cueForEvent(
+  event: PresentationEvent,
+  atMs: number,
+  beatMs: number,
+  options: BuildTimelineOptions,
+): FeedbackCue {
+  const finalState = options.finalState;
+  const initialState = options.initialState;
+  const base = {
+    eventType: event.type,
+    atMs,
+    durationMs: cueDurationMs(event, beatMs),
+    beatMs,
+  } as const;
+
+  switch (event.type) {
+    case 'AttackPerformed': {
+      const anchor = anchorFor(event.targetId, finalState ?? initialState);
+      return {
+        ...base,
+        kind: 'attack',
+        anchor,
+        data: {
+          attackerId: event.attackerId,
+          targetId: event.targetId,
+          hit: event.hit,
+          damage: event.damage,
+          targetHp: event.targetHp,
+          text: event.hit ? `-${event.damage}` : 'Fallo',
+          rolls: { ...event.rolls },
+        },
+      };
+    }
+    case 'UnitDied':
+      return {
+        ...base,
+        kind: 'death',
+        anchor: anchorFor(event.unitId, finalState ?? initialState),
+        data: { unitId: event.unitId },
+      };
+    case 'PickUp':
+      return {
+        ...base,
+        kind: 'pickup',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId, weaponId: event.weaponId, slot: event.slot },
+      };
+    case 'SelectWeapon':
+      return {
+        ...base,
+        kind: 'select-weapon',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId, weaponId: event.weaponId, slot: event.slot },
+      };
+    case 'EnemySpotted':
+      return {
+        ...base,
+        kind: 'spotted',
+        anchor: anchorFor(event.unitId, finalState, event.position),
+        data: { unitId: event.unitId, playerId: event.playerId },
+      };
+    case 'AlarmRaised':
+      return {
+        ...base,
+        kind: 'alarm',
+        anchor: anchorFor(event.unitId, finalState, event.position),
+        data: { unitId: event.unitId },
+      };
+    case 'EnemyFled':
+      return {
+        ...base,
+        kind: 'fled',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId },
+      };
+    case 'EnemyReturned':
+      return {
+        ...base,
+        kind: 'returned',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId },
+      };
+    case 'EnemyWaited':
+      return {
+        ...base,
+        kind: 'waited',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId },
+      };
+    case 'EnemyPhaseStarted':
+      return {
+        ...base,
+        kind: 'enemy-phase',
+        anchor: { unitId: null, tile: null },
+        data: { turn: event.turn },
+      };
+    case 'PlayerTurnStarted':
+      return {
+        ...base,
+        kind: 'player-turn',
+        anchor: { unitId: null, tile: null },
+        data: { turn: event.turn },
+      };
+    case 'TurnEnded':
+      return {
+        ...base,
+        kind: 'turn-ended',
+        anchor: { unitId: null, tile: null },
+        data: { turn: event.turn },
+      };
+    case 'GameEnded':
+      return {
+        ...base,
+        kind: 'game-ended',
+        anchor: { unitId: null, tile: null },
+        data: { status: event.status },
+      };
+    case 'GameRestarted':
+      return {
+        ...base,
+        kind: 'game-restarted',
+        anchor: { unitId: null, tile: null },
+        data: {},
+      };
+    case 'CommandRejected':
+      return {
+        ...base,
+        kind: 'rejected',
+        anchor: { unitId: null, tile: null },
+        data: { commandType: event.commandType, reason: event.reason },
+      };
+    case 'UnitMoved':
+      // El builder trata el movimiento por separado para conservar sus fases.
+      return {
+        ...base,
+        kind: 'move',
+        anchor: anchorFor(event.unitId, finalState, event.to),
+        data: { unitId: event.unitId, mpAfter: event.mpLeft, from: event.from, to: event.to },
+      };
+  }
+}
+
 /**
  * Construye la timeline de presentación a partir de los eventos ordenados de la
  * acción. Es pura: no muta los eventos y no conoce reloj real ni DOM.
  *
  * Un `UnitMoved` contiguo de la misma unidad continúa el grupo: pausa inicial,
  * transición y pausa en el destino por cada paso, de modo que `n` pasos dejan
- * `n + 1` pausas. Los demás eventos se sitúan al final de la pausa vigente.
+ * `n + 1` pausas. Los eventos que no son `UnitMoved` se secuencian: cada uno
+ * empieza al acabar el beat del anterior. `CommandRejected` no bloquea y
+ * `TurnEnded` calla si le sigue `EnemyPhaseStarted`.
  */
-export function buildMotionTimeline(events: readonly GameEvent[]): MotionTimeline {
+export function buildMotionTimeline(
+  events: readonly PresentationEvent[],
+  options: BuildTimelineOptions = {},
+): MotionTimeline {
   const steps: MotionStep[] = [];
   const phases: MotionPhase[] = [];
   const timedEvents: MotionTimelineEvent[] = [];
+  const cues: FeedbackCue[] = [];
+  const beats: FeedbackBeat[] = [];
   const focusUnitIds: string[] = [];
   let clock = 0;
   let lastUnitId: string | undefined;
   let lastTo: Position | undefined;
 
-  for (const event of events) {
+  for (let index = 0; index < events.length; index += 1) {
+    const event = events[index];
+
     if (event.type !== 'UnitMoved') {
-      timedEvents.push({ atMs: clock, event });
+      const atMs = clock;
+      const next = events[index + 1];
+      const beatMs = beatForEvent(event, next);
+
+      timedEvents.push({ atMs, event });
+      if (hasCue(event, next)) {
+        cues.push(cueForEvent(event, atMs, beatMs, options));
+      }
+      beats.push({
+        eventType: event.type,
+        atMs,
+        beatMs,
+        endMs: atMs + beatMs,
+      });
+      clock = atMs + beatMs;
       continue;
     }
 
@@ -185,6 +517,27 @@ export function buildMotionTimeline(events: readonly GameEvent[]): MotionTimelin
       unitId: event.unitId,
     });
 
+    cues.push({
+      kind: 'move',
+      eventType: event.type,
+      atMs: startMs,
+      durationMs,
+      beatMs: durationMs + MOTION_CONFIG.pauseMs,
+      anchor: anchorFor(event.unitId, options.finalState, event.to),
+      data: {
+        unitId: event.unitId,
+        mpAfter: event.mpLeft,
+        from: { ...event.from },
+        to: { ...event.to },
+      },
+    });
+    beats.push({
+      eventType: event.type,
+      atMs: startMs,
+      beatMs: durationMs + MOTION_CONFIG.pauseMs,
+      endMs: endMs + MOTION_CONFIG.pauseMs,
+    });
+
     clock = endMs;
     phases.push({
       kind: 'pause',
@@ -205,7 +558,10 @@ export function buildMotionTimeline(events: readonly GameEvent[]): MotionTimelin
     steps,
     phases,
     events: timedEvents,
+    cues,
+    beats,
     totalMs: clock,
+    blockingUntilMs: clock,
     focusUnitIds,
     stepCount: steps.length,
   };
@@ -231,17 +587,36 @@ export function currentStep(
   return null;
 }
 
-/** Unidad enfocada por la cámara: la del grupo activo o la última animada. */
+/**
+ * Última unidad que ya ha empezado a presentarse a `elapsed`. Antes del primer
+ * paso no hay ninguna: la cámara debe conservarse hasta que el grupo arranque.
+ */
+function startedFocusUnitId(
+  timeline: MotionTimeline,
+  elapsed: number,
+): { readonly unitId: string | null; readonly started: boolean } {
+  let unitId: string | null = null;
+  let started = false;
+  for (const phase of timeline.phases) {
+    if (elapsed + EPSILON < phase.startMs) break;
+    unitId = phase.unitId;
+    started = true;
+  }
+  return { unitId, started };
+}
+
+/**
+ * Unidad enfocada por la cámara: la del grupo activo o la última que ya empezó.
+ * Antes del primer paso devuelve la primera unidad que se moverá, pero
+ * `cameraAt` conserva la cámara actual hasta que esa fase arranca.
+ */
 export function focusUnitId(
   timeline: MotionTimeline,
   elapsed: number,
 ): string | null {
-  for (const phase of timeline.phases) {
-    if (elapsed + EPSILON >= phase.startMs && elapsed < phase.endMs) {
-      return phase.unitId;
-    }
-  }
-  return timeline.steps.at(-1)?.unitId ?? null;
+  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
+  if (started) return unitId;
+  return timeline.steps[0]?.unitId ?? null;
 }
 
 /**
@@ -294,22 +669,35 @@ export function visualPositions(
 
 /**
  * Cámara de presentación: centra el sprite enfocado menos medio viewport,
- * redondea a píxel entero y limita a los bordes del mapa.
+ * redondea a píxel entero y limita a los bordes del mapa. Antes de que arranque
+ * la primera fase (beat de ataque, recogida, cambio de arma o pre-beat de fase)
+ * no hay movimiento activo y se conserva la cámara actual.
  */
 export function cameraAt(
   timeline: MotionTimeline,
   elapsed: number,
   world: WorldSize,
   viewport: Viewport,
+  current?: Camera,
 ): Camera {
-  const unitId = focusUnitId(timeline, elapsed);
-  const position = unitId ? visualPosition(timeline, elapsed, unitId) : null;
-  const targetX = position ? position.x : world.width / 2;
-  const targetY = position ? position.y : world.height / 2;
+  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
+  const position =
+    started && unitId ? visualPosition(timeline, elapsed, unitId) : null;
+  if (!position) {
+    if (current) return clampCamera(current, world, viewport);
+    return clampCamera(
+      {
+        x: Math.round(world.width / 2 - viewport.width / 2),
+        y: Math.round(world.height / 2 - viewport.height / 2),
+      },
+      world,
+      viewport,
+    );
+  }
   return clampCamera(
     {
-      x: Math.round(targetX - viewport.width / 2),
-      y: Math.round(targetY - viewport.height / 2),
+      x: Math.round(position.x - viewport.width / 2),
+      y: Math.round(position.y - viewport.height / 2),
     },
     world,
     viewport,
@@ -335,6 +723,35 @@ export function advanceTimeline(
   }
 
   return next;
+}
+
+/** Cues activos en el reloj de presentación. Intervalo `[atMs, atMs + duración)`. */
+export function activeCues(
+  timeline: MotionTimeline,
+  elapsed: number,
+): readonly FeedbackCue[] {
+  return timeline.cues.filter(
+    (cue) =>
+      elapsed + EPSILON >= cue.atMs &&
+      elapsed + EPSILON < cue.atMs + cue.durationMs,
+  );
+}
+
+/**
+ * Unidades cuya muerte aún no se ha presentado. El render las dibuja como vivas
+ * hasta su cue de `UnitDied` sin inventar PV ni tocar la rejilla.
+ */
+export function dyingUnitIds(
+  timeline: MotionTimeline,
+  elapsed: number,
+): ReadonlySet<string> {
+  const ids = new Set<string>();
+  for (const entry of timeline.events) {
+    if (entry.event.type === 'UnitDied' && entry.atMs > elapsed + EPSILON) {
+      ids.add(entry.event.unitId);
+    }
+  }
+  return ids;
 }
 
 function lastEventOfType<K extends GameEvent['type']>(
@@ -365,6 +782,7 @@ export function presentationState(
 ): GameState {
   let players = state.players;
   let enemies = state.enemies;
+  let map = state.map;
 
   // Deshacer en orden inverso los ataques que aún no han ocurrido restaura la
   // vida previa de cada objetivo, incluso con varios ataques encadenados.
@@ -382,11 +800,75 @@ export function presentationState(
     );
   }
 
+  // La recogida y el cambio de arma se aplican en su cue. Hasta entonces se
+  // conserva el inventario, el arma equipada, el MP y el arma del suelo
+  // iniciales. Se deshace en orden inverso para encadenar varios cambios.
+  for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
+    const entry = timeline.events[index];
+    if (entry.atMs <= elapsed + EPSILON) continue;
+    const event = entry.event;
+
+    if (event.type === 'PickUp') {
+      const initialPlayer = initialState?.players.find(
+        (unit) => unit.id === event.unitId,
+      );
+      if (initialPlayer) {
+        players = players.map((unit) =>
+          unit.id === initialPlayer.id
+            ? {
+                ...unit,
+                mp: initialPlayer.mp,
+                weapons: initialPlayer.weapons,
+                equipment: initialPlayer.equipment,
+              }
+            : unit,
+        );
+      }
+
+      const initialWeapon = initialState?.map?.weapons?.find(
+        (weapon) => weapon.weaponId === event.weaponId,
+      );
+      if (initialWeapon && map) {
+        const weapons = map.weapons ?? [];
+        if (!weapons.some((weapon) => weapon.id === initialWeapon.id)) {
+          const initialOrder = initialState?.map?.weapons ?? [];
+          const insertAt = initialOrder.findIndex(
+            (weapon) => weapon.id === initialWeapon.id,
+          );
+          const nextWeapons = [...weapons];
+          nextWeapons.splice(
+            insertAt < 0 ? nextWeapons.length : Math.min(insertAt, nextWeapons.length),
+            0,
+            initialWeapon,
+          );
+          map = { ...map, weapons: nextWeapons };
+        }
+      }
+    } else if (event.type === 'SelectWeapon') {
+      const initialPlayer = initialState?.players.find(
+        (unit) => unit.id === event.unitId,
+      );
+      if (initialPlayer) {
+        players = players.map((unit) =>
+          unit.id === initialPlayer.id
+            ? { ...unit, equipment: initialPlayer.equipment }
+            : unit,
+        );
+      }
+    }
+  }
+
   const player = players[0];
   if (player) {
     const initialPlayer = initialState?.players.find((unit) => unit.id === player.id);
     const playerTurn = lastEventOfType(timeline, 'PlayerTurnStarted', elapsed);
     const playerSteps = timeline.steps.filter((step) => step.unitId === player.id);
+    const pickupOccurred = timeline.events.some(
+      (entry) =>
+        entry.event.type === 'PickUp' &&
+        entry.event.unitId === player.id &&
+        entry.atMs <= elapsed + EPSILON,
+    );
     if (playerTurn) {
       players = players.map((unit) =>
         unit.id === player.id ? { ...unit, mp: player.mp } : unit,
@@ -401,7 +883,7 @@ export function presentationState(
           ? (initialPlayer?.mp ?? initialMp)
           : playerSteps[completed - 1].mpAfter;
       players = players.map((unit) => (unit.id === player.id ? { ...unit, mp } : unit));
-    } else if (initialPlayer) {
+    } else if (initialPlayer && !pickupOccurred) {
       players = players.map((unit) =>
         unit.id === player.id ? { ...unit, mp: initialPlayer.mp } : unit,
       );
@@ -440,5 +922,5 @@ export function presentationState(
   const gameEnded = lastEventOfType(timeline, 'GameEnded', elapsed);
   const status = gameEnded ? gameEnded.status : 'playing';
 
-  return { ...state, players, enemies, phase, turn, status };
+  return { ...state, map, players, enemies, phase, turn, status };
 }

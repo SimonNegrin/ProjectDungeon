@@ -40,6 +40,10 @@ suites existentes.
   `perception-alarm-qa.spec.ts`, `flee-behavior-qa.spec.ts` y `support.ts`.
 - La evidencia visual se guarda en `artifacts/TASK-0061/attempt-1/screenshots/`
   con `E2E_ARTIFACTS_DIR`.
+- Riesgo heredado de TASK-0057: las aserciones `toHaveClass(/is-active/)` de
+  `attack-flash` dependen de la ventana real de 120 ms y pueden fallar bajo
+  carga. Esta tarea debe muestrear el cue con `advance(ms)` o congelar el reloj,
+  no alargar la duración del efecto.
 
 # Criterios de aceptación
 

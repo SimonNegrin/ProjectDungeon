@@ -56,9 +56,10 @@ describe('feedback "!" de detección', () => {
       playerId: 'player-1',
       step: { x: 5, y: 5 },
     });
-    // El aviso se sitúa al terminar el primer paso y antes de empezar el segundo.
+    // El aviso se sitúa al terminar el primer paso; el siguiente movimiento
+    // espera al beat de detección y alarma (secuenciación de REQ-017).
     expect(spot!.atMs).toBe(timeline.steps[0].pauseEndMs);
-    expect(spot!.atMs).toBe(timeline.steps[1].startMs);
+    expect(spot!.atMs).toBeLessThan(timeline.steps[1].startMs);
 
     const spotted = trackSpottedUnits(new Set<string>(), result.events);
     expect([...spotted]).toEqual(['enemy-1']);

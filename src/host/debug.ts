@@ -45,6 +45,13 @@ export interface CursorSnapshot {
   readonly attackTile?: Position;
 }
 
+export interface ActiveCueSnapshot {
+  readonly kind: string;
+  readonly unitId: string | null;
+  readonly startMs: number;
+  readonly durationMs: number;
+}
+
 export interface AnimationSnapshot {
   readonly animating: boolean;
   readonly step: number;
@@ -60,6 +67,8 @@ export interface AnimationSnapshot {
     readonly x: number;
     readonly y: number;
   };
+  /** Cues activos del reloj de presentación; vacío sin animación. */
+  readonly cues: readonly ActiveCueSnapshot[];
 }
 
 export interface GameSnapshot {
@@ -228,6 +237,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     unitId: null,
     position: null,
     camera: { x: source.camera.x, y: source.camera.y },
+    cues: [],
   };
 
   return {
@@ -271,6 +281,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
       ...animation,
       position: animation.position ? { ...animation.position } : null,
       camera: { ...animation.camera },
+      cues: animation.cues.map((cue) => ({ ...cue })),
     },
   };
 }
