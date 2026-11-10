@@ -18,7 +18,7 @@ playtests.
 | Regla | Valor provisional |
 |---|---|
 | Rejilla | Cuadrada; 32×32 tiles en el mapa generado de `REQ-003`, con el tamaño como parámetro interno. |
-| Posición inicial del jugador | Definida por `map.spawns.player`; con la semilla de referencia, (6,8). |
+| Posición inicial del jugador | La del spawn del grupo (`map.spawns.party[0] ?? map.spawns.player`); el jugador por defecto es el Guerrero del roster. |
 | Posiciones iniciales enemigas | Derivadas del mapa y la semilla: 4 enemigos (2 centinelas, 1 bruto y 1 cobarde) en salas distintas, fuera de la visión inicial; `map.spawns.enemy` es el ancla. |
 | Direcciones | 8 direcciones, incluida la diagonal. |
 | Coste de movimiento | 1 MP por casilla, también en diagonal. |
@@ -116,15 +116,16 @@ mantiene. Puntería y magia existen como slots sin efecto en este corte.
 
 | Arma | Acierto | Daño | Perfil |
 |---|---:|---:|---|
-| Espada | +3 | 3 | Equilibrada; arma inicial del jugador. |
+| Espada | +3 | 3 | Equilibrada; arma inicial del Guerrero. |
 | Hacha | +2 | 5 | Mucho daño; rompe armadura, pero falla más. |
 | Daga | +4 | 2 | Muy fiable; supera escudos, pero sufre contra armadura. |
+| Cuchillo | +4 | 1 | Muy fiable; menos dañino que la daga. Arma inicial del Cocinero. |
 
 ## Equipo y bestiario
 
 | Unidad | Habilidad | Fuerza | Defensa | Resistencia | Arma | Escudo | Armadura | PV |
 |---|---:|---:|---:|---:|---|---:|---:|---:|
-| Jugador | +1 | +1 | +1 | +0 | Espada | 1 | 1 | 20 |
+| Guerrero (jugador por defecto) | +1 | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
 | Centinela | +0 | +0 | +0 | +0 | Espada | 1 | 0 | 6 |
 | Bruto | +0 | +1 | +0 | +0 | Hacha | 0 | 2 | 8 |
 | Cobarde | +1 | +0 | +1 | +0 | Daga | 1 | 0 | 5 |
@@ -132,10 +133,13 @@ mantiene. Puntería y magia existen como slots sin efecto en este corte.
 Todos los personajes tienen puntería 0 y magia vacía en este corte. MP enemigo:
 Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance provisional v1**
 de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
-[REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); con resistencia
-0 el resultado es idéntico al de ADR-012.
+[REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); el balance v1
+de enemigos y armas no cambia. El Guerrero sustituye al jugador provisional y
+añade +1 de resistencia (0 → 1). El roster de
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md) es la fuente única de
+stats y equipo de los héroes.
 
-El jugador empieza con la espada, el escudo y la armadura. El hacha y la daga
+El Guerrero empieza con la espada, el escudo y la armadura. El hacha y la daga
 están en el mapa: `G` recoge la del tile por 1 MP sin gastar acción y la equipa;
 `1`-`3` cambia de arma sin coste. En este corte solo existe ataque cuerpo a
 cuerpo; el alcance a distancia queda como valor futuro.

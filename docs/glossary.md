@@ -67,3 +67,5 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Huida** | Movimiento determinista del perfil cobarde tras un golpe de ≥40 % de sus PV máximos: rompe la línea de visión y maximiza la distancia; acorralado, lucha. |
 | **Debug hook** | API de desarrollo que expone estado o permite avanzar el juego en tests. |
 | **Playtest** | Sesión en la que el usuario prueba una build y evalúa sensaciones. |
+| **Arquetipo** | Personaje jugable del roster con stats inherentes, equipo inicial, dos variantes de sprite e identidad (rol y magia). El nombre de instancia es editable y, por defecto, el del arquetipo. |
+| **Roster** | Catálogo de los nueve arquetipos jugables de [REQ-015](requirements/REQ-015-roster-arquetipos.md) en `src/game/roster.ts`; fuente única de sus stats, equipo, variantes e identidad. |

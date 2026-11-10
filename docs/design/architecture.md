@@ -60,6 +60,12 @@ El combate vive en `src/game/` y es puro y determinista:
   estables; `bestiary.ts` guarda por tipo los ocho atributos (habilidad, fuerza,
   defensa, resistencia, puntería, magia, PV y MP), arma, escudo, armadura, visión
   y perfil.
+- `roster.ts` es la fuente única de los nueve arquetipos jugables de REQ-015:
+  stats, equipo inicial, variantes, rol y magia de identidad. El jugador por
+  defecto se crea con `createPlayerFromArchetype('warrior', ...)` en el spawn del
+  mapa; `Unit.archetypeId` guarda la identidad serializable y es `null` en
+  enemigos y unidades sintéticas. El HUD deriva el nombre del arquetipo del
+  roster y no duplica valores.
 - `rng.ts` implementa un d6 serializable. El estado guarda la semilla y el
   contador; la misma semilla y los mismos comandos dan la misma secuencia.
 - Los eventos `AttackPerformed` incluyen impacto, daño, PV resultante y tiradas;
@@ -67,11 +73,12 @@ El combate vive en `src/game/` y es puro y determinista:
 - El jugador y los enemigos comparten el mismo resolvedor. La recogida (`G`,
   1 MP) y el cambio de arma (`1`-`3`, gratis) son comandos del motor.
 
-Ver [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md) y
+Ver [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md),
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md) y
 [ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md). El combate con
 equipo y RNG de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
 y [ADR-012](../decisions/ADR-012-combate-equipo-rng.md) queda como historia; el
-balance v1 se conserva con resistencia 0.
+balance v1 de enemigos y armas se conserva y el Guerrero usa resistencia 1.
 
 # Percepción, alarma y huida
 
