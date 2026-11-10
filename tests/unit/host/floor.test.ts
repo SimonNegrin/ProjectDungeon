@@ -271,7 +271,7 @@ describe('lista blanca y recuadros de decals', () => {
     [23, ['a', 'b', 'c', 'd']],
   ];
 
-  it('contiene exactamente los 33 recuadros aprobados de tiles.png', () => {
+  it('mantiene los 33 recuadros de tiles.png y 31 decals ambientales', () => {
     const expected = new Set<string>();
     for (const [row, cols] of rows) {
       for (const column of cols) {
@@ -289,8 +289,13 @@ describe('lista blanca y recuadros de decals', () => {
     }
 
     expect(actual).toEqual(expected);
-    expect(DECAL_WHITELIST).toHaveLength(33);
-    expect(new Set(DECAL_WHITELIST.map((decal) => decal.id)).size).toBe(33);
+    expect(DECAL_WHITELIST).toHaveLength(31);
+    expect(new Set(DECAL_WHITELIST.map((decal) => decal.id)).size).toBe(31);
+    // Los cadáveres siguen disponibles para la presentación de muerte, pero no
+    // se eligen como decoración ambiental.
+    expect(DECAL_WHITELIST.some((decal) => decal.family === 'corpse')).toBe(false);
+    expect(DECAL_RECTS.corpse22a).toMatchObject({ sx: 0, sy: 672 });
+    expect(DECAL_RECTS.corpse22b).toMatchObject({ sx: 32, sy: 672 });
   });
 
   it('mapea las familias por la fila correcta: 9 tierra, 10 ladrillo azul, 11 huesos', () => {
@@ -307,7 +312,7 @@ describe('lista blanca y recuadros de decals', () => {
     expect(byRow(12 * 32 - 32)).toEqual(new Set(['redBrick']));
   });
 
-  it('reparte las 33 entradas en familias planas sin props ni cultivos altos', () => {
+  it('reparte las 31 entradas en familias planas sin props ni cultivos altos', () => {
     const byFamily = new Map<string, number>();
     for (const decal of DECAL_WHITELIST) {
       byFamily.set(decal.family, (byFamily.get(decal.family) ?? 0) + 1);
@@ -322,7 +327,6 @@ describe('lista blanca y recuadros de decals', () => {
       redBrick: 3,
       plant: 7,
       mushroom: 2,
-      corpse: 2,
       blood: 4,
     });
   });

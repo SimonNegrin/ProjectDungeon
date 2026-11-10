@@ -50,6 +50,8 @@ export interface ActiveCueSnapshot {
   readonly unitId: string | null;
   readonly startMs: number;
   readonly durationMs: number;
+  /** Presente en los cues de ataque: impacto o fallo. */
+  readonly hit?: boolean;
 }
 
 export interface AnimationSnapshot {

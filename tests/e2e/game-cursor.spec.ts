@@ -232,8 +232,9 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
   await screenshot(page, 'cursor-enemy', testInfo);
 
   await page.keyboard.press('f');
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   const afterAttack = await snapshot(page);
+  const attackCue = afterAttack.animation.cues.find((cue) => cue.kind === 'attack');
+  expect(attackCue).toMatchObject({ kind: 'attack', hit: true });
   const playerAttack = afterAttack.lastEvents.find(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'player-1',

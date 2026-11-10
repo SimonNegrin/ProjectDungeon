@@ -120,6 +120,9 @@ export interface FeedbackCueData {
   readonly mpAfter?: number;
   readonly from?: Position;
   readonly to?: Position;
+  /** Posición del atacante y del objetivo en el momento del impacto/fallo. */
+  readonly attacker?: Position;
+  readonly target?: Position;
 }
 
 export interface FeedbackCue {
@@ -294,7 +297,9 @@ function cueForEvent(
 
   switch (event.type) {
     case 'AttackPerformed': {
-      const anchor = anchorFor(event.targetId, finalState ?? initialState);
+      const state = finalState ?? initialState;
+      const anchor = anchorFor(event.targetId, state);
+      const attacker = unitTile(state, event.attackerId);
       return {
         ...base,
         kind: 'attack',
@@ -307,6 +312,8 @@ function cueForEvent(
           targetHp: event.targetHp,
           text: event.hit ? `-${event.damage}` : 'Fallo',
           rolls: { ...event.rolls },
+          ...(attacker ? { attacker } : {}),
+          ...(anchor.tile ? { target: anchor.tile } : {}),
         },
       };
     }

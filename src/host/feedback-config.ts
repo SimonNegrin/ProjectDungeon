@@ -75,6 +75,33 @@ export const FEEDBACK_CONFIG = {
     /** Banner `TU TURNO`; persiste después de su beat de 350 ms (R-016). */
     playerTurnBannerMs: 700,
   },
+  /**
+   * Medidas de los efectos de mundo de combate y muerte. Se expresan en píxeles
+   * de tile porque se dibujan en Canvas; el texto vive en DOM y usa las anclas
+   * de `feedback.ts`.
+   */
+  effects: {
+    /** Embestida del atacante: 2-4 px hacia el objetivo y vuelta. */
+    attackLungePx: 3,
+    attackLungeMs: 90,
+    attackLungeReturnMs: 150,
+    /** Retroceso del objetivo en sentido opuesto al atacante. */
+    attackKnockbackPx: 2,
+    attackKnockbackMs: 120,
+    /** Sacudida de sprite de 1 px en el impacto. */
+    spriteShakePx: 1,
+    spriteShakeMs: 140,
+    /** Gesto de esquiva/escudo del defensor cuando el ataque falla. */
+    missDodgePx: 2,
+    missDodgeMs: 120,
+    defenseGestureMs: 220,
+    /** Muerte: destello, tres parpadeos, disolución y sacudida. */
+    deathFlashMs: 120,
+    deathBlinkCount: 3,
+    deathBlinkMs: 80,
+    deathShakePx: 1,
+    deathShakeMs: 300,
+  },
   limits: {
     maxDamageTexts: 3,
   },

@@ -4,6 +4,7 @@ import {
   GOBLIN_RECT,
   KNIGHT_RECT,
   TILE_RECTS,
+  corpseRectFor,
   type SpriteRect,
 } from './assets';
 import {
@@ -20,6 +21,7 @@ import {
   RENDER_SCALE,
 } from './layout';
 import { wallTileFor } from './wall';
+import type { UnitWorldEffect, WorldEffects } from './world-effects';
 
 /** Subconjunto de assets que necesita el render; permite dobles en tests. */
 export interface SceneAssets {
@@ -37,6 +39,8 @@ export interface RenderOptions {
    * inventar PV ni tocar la rejilla.
    */
   readonly dyingUnitIds?: ReadonlySet<string>;
+  /** Efectos de mundo de impacto, fallo y muerte, en píxeles de tile. */
+  readonly effects?: WorldEffects;
   /** Capa de `F1`: máscaras, límites, spawn, salida, pasillos y puntos calientes. */
   readonly debug?: boolean;
 }
@@ -160,15 +164,77 @@ function isUnitVisible(
   );
 }
 
-function drawUnit(
+/**
+ * Dibuja el sprite con el efecto de presentación: desplazamiento, alfa y
+ * destello blanco. El estado del motor no se toca.
+ */
+function drawUnitWithEffect(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
   rect: SpriteRect,
   center: PixelPosition,
+  effect: UnitWorldEffect | undefined,
 ): void {
-  const dx = Math.round(center.x - SPRITE_SIZE / 2);
-  const dy = Math.round(center.y - SPRITE_SIZE / 2);
+  if (effect && (!effect.visible || effect.alpha <= 0)) return;
+  const dx = Math.round(center.x - SPRITE_SIZE / 2 + (effect?.dx ?? 0));
+  const dy = Math.round(center.y - SPRITE_SIZE / 2 + (effect?.dy ?? 0));
+  const previousAlpha = ctx.globalAlpha ?? 1;
+  if (effect && effect.alpha < 1) ctx.globalAlpha = previousAlpha * effect.alpha;
   drawRect(ctx, image, rect, dx, dy, SPRITE_SIZE);
+  ctx.globalAlpha = previousAlpha;
+
+  if (effect && effect.flash > 0) {
+    ctx.globalAlpha = previousAlpha * effect.flash;
+    ctx.fillStyle = effect.flashColor;
+    ctx.fillRect(dx, dy, SPRITE_SIZE, SPRITE_SIZE);
+    ctx.globalAlpha = previousAlpha;
+  }
+
+  if (effect?.defense) {
+    drawDefenseGesture(ctx, dx, dy, effect.defense, previousAlpha);
+  }
+}
+
+/** Escudo/esquiva en gris claro: legible en escala de grises, sin destello. */
+function drawDefenseGesture(
+  ctx: CanvasRenderingContext2D,
+  dx: number,
+  dy: number,
+  gesture: UnitEffectDefense,
+  previousAlpha: number,
+): void {
+  const thickness = 2;
+  const margin = 5;
+  const length = SPRITE_SIZE - margin * 2;
+  ctx.globalAlpha = previousAlpha * 0.92;
+  ctx.fillStyle = '#e2e8f0';
+  if (gesture.side === 'left' || gesture.side === 'right') {
+    const x = gesture.side === 'left' ? dx - 1 : dx + SPRITE_SIZE - thickness + 1;
+    ctx.fillRect(x, dy + margin, thickness, length);
+  } else {
+    const y = gesture.side === 'up' ? dy - 1 : dy + SPRITE_SIZE - thickness + 1;
+    ctx.fillRect(dx + margin, y, length, thickness);
+  }
+  ctx.globalAlpha = previousAlpha;
+}
+
+type UnitEffectDefense = NonNullable<UnitWorldEffect['defense']>;
+
+/** Cadáver de presentación: decal sobre el suelo, bajo las unidades. */
+function drawCorpse(
+  ctx: CanvasRenderingContext2D,
+  assets: SceneAssets,
+  unit: Unit,
+  tileSize: number,
+): void {
+  drawRect(
+    ctx,
+    assets.tiles,
+    corpseRectFor(unit),
+    unit.x * tileSize,
+    unit.y * tileSize,
+    tileSize,
+  );
 }
 
 function tileVisible(x: number, y: number, range: ReturnType<typeof visibleTileRange>): boolean {
@@ -664,6 +730,21 @@ export function renderScene(
     );
   }
 
+  const positions = options.positions;
+  const dyingUnitIds = options.dyingUnitIds;
+  const effects = options.effects;
+
+  // Cadáveres de presentación: sobre los decals y bajo muros/unidades. Se
+  // dibujan desde la unidad muerta que conserva el motor, sin escribir en la
+  // rejilla. Durante el cue de muerte aún no hay cadáver: manda el efecto.
+  for (const unit of [...state.enemies, ...state.players]) {
+    if (unit.hp > 0) continue;
+    if (dyingUnitIds?.has(unit.id)) continue;
+    if (effects?.has(unit.id)) continue;
+    if (!tileVisible(unit.x, unit.y, range)) continue;
+    drawCorpse(ctx, assets, unit, tileSize);
+  }
+
   const debug = options.debug ?? false;
   if (debug) drawDebugUnderlay(ctx, state, range, tileSize);
 
@@ -696,21 +777,20 @@ export function renderScene(
     drawWeaponShape(ctx, weapon.weaponId, weapon.x * tileSize, weapon.y * tileSize, tileSize);
   }
 
-  const positions = options.positions;
-  const dyingUnitIds = options.dyingUnitIds;
-
   for (const enemy of state.enemies) {
-    if (enemy.hp <= 0 && !dyingUnitIds?.has(enemy.id)) continue;
+    const effect = effects?.get(enemy.id);
+    if (enemy.hp <= 0 && !dyingUnitIds?.has(enemy.id) && !effect) continue;
     const center = unitCenter(enemy, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
-    drawUnit(ctx, assets.monsters, GOBLIN_RECT, center);
+    drawUnitWithEffect(ctx, assets.monsters, GOBLIN_RECT, center, effect);
   }
 
   for (const player of state.players) {
-    if (player.hp <= 0 && !dyingUnitIds?.has(player.id)) continue;
+    const effect = effects?.get(player.id);
+    if (player.hp <= 0 && !dyingUnitIds?.has(player.id) && !effect) continue;
     const center = unitCenter(player, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
-    drawUnit(ctx, assets.rogues, KNIGHT_RECT, center);
+    drawUnitWithEffect(ctx, assets.rogues, KNIGHT_RECT, center, effect);
   }
 
   if (debug) drawDebugOverlay(ctx, state, range, tileSize);

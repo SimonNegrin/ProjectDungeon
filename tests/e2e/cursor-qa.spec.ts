@@ -449,8 +449,10 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
 
   // F ataca sin moverse ni gastar MP.
   await page.keyboard.press('f');
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   const afterF = await snapshot(page);
+  expect(
+    afterF.animation.cues.find((cue) => cue.kind === 'attack'),
+  ).toMatchObject({ kind: 'attack', hit: true });
   const playerAttack = afterF.lastEvents.find(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'player-1',

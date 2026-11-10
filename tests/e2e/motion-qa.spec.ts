@@ -729,14 +729,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   const nextTurn = await settle(page);
   expect(nextTurn.turn).toBe(adjacent.turn + 1);
   expect(nextTurn.players[0].actionAvailable).toBe(true);
-  // Espera semántica a que el feedback real del turno anterior se apague para
-  // que la captura del recorrido no muestre daño ajeno a la animación.
-  await expect(page.getByTestId('damage-feedback')).not.toHaveClass(/is-active/, {
-    timeout: 3000,
-  });
-  await expect(page.getByTestId('attack-flash')).not.toHaveClass(/is-active/, {
-    timeout: 3000,
-  });
+  // La presentación del turno anterior ya está completa: no queda cue de
+  // ataque ni destello activo que pueda contaminar la captura del recorrido.
+  expect((await snapshot(page)).animation.cues).toEqual([]);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
   let retreated = await snapshot(page);
@@ -799,45 +794,30 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
 
-  // El último tramo dispara flash y daño en el mismo instante del reloj; se
-  // completa el beat de impacto (320 ms) además de la pausa de destino.
-  const finished = await page.evaluate(() => {
-    const snap = window.__game!.advance(1_000_000);
-    const flash = document.querySelector('[data-testid="attack-flash"]');
-    const damage = document.querySelector('[data-testid="damage-feedback"]');
-    return {
-      animating: snap.animation.animating,
-      status: snap.status,
-      enemyHp: snap.enemies[0].hp,
-      flashActive: flash?.classList.contains('is-active') ?? false,
-      damage: damage?.textContent ?? '',
-    };
+  // El último tramo dispara embestida, destello y daño en el mismo cue. Se
+  // muestrea de forma determinista su pico (60 ms) antes de completar el beat.
+  const impact = await page.evaluate(() => {
+    const game = window.__game!;
+    let snap = game.snapshot();
+    for (let guard = 0; guard < 200; guard += 1) {
+      if (snap.animation.cues.some((cue) => cue.kind === 'attack')) {
+        return game.advance(60);
+      }
+      if (!snap.animation.animating) {
+        throw new Error('La animación terminó antes del cue de ataque');
+      }
+      snap = game.advance(25);
+    }
+    throw new Error('No se alcanzó el cue de ataque');
   });
   const attackDamage = frozen.lastEvents.find(
     (event) => event.type === 'AttackPerformed',
   );
   expect(attackDamage).toBeDefined();
   const expectedDamage = `-${attackDamage!.damage}`;
-
-  expect(finished).toMatchObject({
-    animating: false,
-    status: 'playing',
-    enemyHp: Math.max(0, retreated.enemies[0].hp - attackDamage!.damage),
-    flashActive: true,
-    damage: expectedDamage,
-  });
-  // El daño se dibuja mientras la partida sigue y su animación CSS lo desvanece
-  // en 900 ms. Se espera al pico de opacidad y se pausan las animaciones.
-  await page.waitForFunction(
-    () => {
-      const damage = document.querySelector('[data-testid="damage-feedback"]');
-      return damage !== null && Number(getComputedStyle(damage).opacity) > 0.9;
-    },
-    undefined,
-    { timeout: 1000 },
-  );
-  await page.evaluate(() => {
-    for (const animation of document.getAnimations()) animation.pause();
+  expect(impact.animation.cues.find((cue) => cue.kind === 'attack')).toMatchObject({
+    kind: 'attack',
+    hit: true,
   });
   const damageBox = await page.getByTestId('damage-feedback').boundingBox();
   if (!damageBox || damageBox.width === 0 || damageBox.height === 0) {
@@ -850,6 +830,15 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     width: 180,
     height: 150,
   });
+  await expect(page.getByTestId('damage-feedback')).toHaveText(expectedDamage);
+  await expect(page.getByTestId('damage-feedback')).toBeVisible();
+
+  const finished = await advance(page, 1_000_000);
+  expect(finished.animation.animating).toBe(false);
+  expect(finished.status).toBe('playing');
+  expect(finished.enemies[0].hp).toBe(
+    Math.max(0, retreated.enemies[0].hp - attackDamage!.damage),
+  );
   await expect(page.getByTestId('damage-feedback')).toHaveText(expectedDamage);
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
 

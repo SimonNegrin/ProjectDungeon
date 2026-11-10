@@ -252,8 +252,10 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   // Ataque directo con F: daño, acción usada, feedback y cursor estable.
   await page.keyboard.press('f');
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
   const afterAttack = await snapshot(page);
+  expect(
+    afterAttack.animation.cues.find((cue) => cue.kind === 'attack'),
+  ).toMatchObject({ kind: 'attack', hit: true });
   const playerAttack = afterAttack.lastEvents.find(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'player-1',

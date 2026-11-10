@@ -12,6 +12,8 @@ import {
   damageFeedbackAnchor,
   DAMAGE_FEEDBACK_HALF_WIDTH,
   DAMAGE_FEEDBACK_HEIGHT,
+  layoutDamageTexts,
+  MAX_DAMAGE_TEXTS,
   type DamageFeedbackAnchor,
 } from '../../../src/host/feedback';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
@@ -240,6 +242,29 @@ describe('anclaje del feedback de daño', () => {
       expect(text.right).toBeLessThanOrEqual(MAP.width);
       expect(text.top).toBeGreaterThanOrEqual(0);
       expect(text.bottom).toBeLessThanOrEqual(MAP.height);
+    }
+  });
+
+  it('coloca hasta tres textos simultáneos del mismo tile sin pisarse', () => {
+    expect(MAX_DAMAGE_TEXTS).toBe(3);
+    const layouts = layoutDamageTexts(
+      [
+        { target: TARGET, attacker: { x: 9, y: 10 } },
+        { target: TARGET, attacker: { x: 9, y: 10 } },
+        { target: TARGET, attacker: { x: 9, y: 10 } },
+      ],
+      MAP,
+    );
+
+    const boxes = layouts.map(textBox);
+    for (let a = 0; a < boxes.length; a += 1) {
+      for (let b = a + 1; b < boxes.length; b += 1) {
+        expect(intersects(boxes[a], boxes[b]), `textos ${a}/${b}`).toBe(false);
+      }
+      expect(boxes[a].left).toBeGreaterThanOrEqual(0);
+      expect(boxes[a].right).toBeLessThanOrEqual(MAP.width);
+      expect(boxes[a].top).toBeGreaterThanOrEqual(0);
+      expect(boxes[a].bottom).toBeLessThanOrEqual(MAP.height);
     }
   });
 });

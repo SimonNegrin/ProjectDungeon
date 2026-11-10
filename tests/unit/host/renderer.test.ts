@@ -549,6 +549,77 @@ describe('render del mapa generado', () => {
     }
   });
 
+  it('dibuja el cadáver sobre el suelo y bajo las unidades sin tocar la rejilla', () => {
+    const base = generatedState();
+    const enemy = base.enemies[0];
+    const player = {
+      ...base.players[0],
+      x: enemy.x + 1,
+      y: enemy.y,
+      home: { x: enemy.x + 1, y: enemy.y },
+    };
+    const state: GameState = {
+      ...base,
+      players: [player],
+      enemies: [{ ...enemy, hp: 0 }],
+    };
+    const gridBefore = [...state.grid.tiles];
+    const camera = centerCameraOnTile(player, VIEWPORT, gridPixelSize(state.grid));
+    const fake = draw(state, camera);
+
+    const corpseIndex = fake.ops.findIndex(
+      (op) =>
+        op.kind === 'draw' &&
+        op.image === assets.tiles &&
+        op.sy === 672,
+    );
+    const knightIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.rogues,
+    );
+
+    expect(corpseIndex).toBeGreaterThanOrEqual(0);
+    expect(knightIndex).toBeGreaterThan(corpseIndex);
+    expect(fake.draws.filter((call) => call.image === assets.monsters)).toEqual([]);
+    expect(state.grid.tiles).toEqual(gridBefore);
+  });
+
+  it('aplica el destello blanco del impacto sobre el sprite', () => {
+    const state = generatedState();
+    const enemy = state.enemies[0];
+    const player = {
+      ...state.players[0],
+      x: enemy.x - 1,
+      y: enemy.y,
+      home: { x: enemy.x - 1, y: enemy.y },
+    };
+    const camera = centerCameraOnTile(player, VIEWPORT, gridPixelSize(state.grid));
+    const fake = createFakeContext();
+    const effects = new Map([
+      [
+        enemy.id,
+        {
+          dx: 0,
+          dy: 0,
+          alpha: 1,
+          visible: true,
+          flash: 0.8,
+          flashColor: '#ffffff',
+          defense: null,
+        },
+      ],
+    ]);
+
+    renderScene(fake.ctx, { ...state, players: [player] }, assets, camera, VIEWPORT, 32, {
+      effects,
+    });
+
+    expect(
+      fake.ops.some(
+        (op) => op.kind === 'fill' && op.style === '#ffffff' && op.width === 32,
+      ),
+    ).toBe(true);
+  });
+
   it('no muta el estado generado', () => {
     const state = deepFreeze(generatedState());
     const before = JSON.stringify(state);

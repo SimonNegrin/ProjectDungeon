@@ -72,6 +72,29 @@ export const DECAL_RECTS = {
 export const KNIGHT_RECT: SpriteRect = { sx: 0, sy: 32, sw: 32, sh: 32 };
 export const GOBLIN_RECT: SpriteRect = { sx: 64, sy: 0, sw: 32, sh: 32 };
 
+/**
+ * Recortes reservados para el cadáver de presentación de REQ-017. No forman
+ * parte de la decoración ambiental; solo se dibujan donde murió una unidad.
+ */
+export const CORPSE_RECTS: readonly SpriteRect[] = [
+  DECAL_RECTS.corpse22a,
+  DECAL_RECTS.corpse22b,
+];
+
+/** Elige `corpse-22a/b` de forma determinista a partir de la unidad. */
+export function corpseRectFor(unit: {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+}): SpriteRect {
+  let hash = unit.x * 73856093 + unit.y * 19349663;
+  for (let index = 0; index < unit.id.length; index += 1) {
+    hash = (Math.imul(hash, 31) + unit.id.charCodeAt(index)) | 0;
+  }
+  const index = Math.abs(hash) % CORPSE_RECTS.length;
+  return CORPSE_RECTS[index];
+}
+
 export interface GameAssets {
   readonly tiles: HTMLImageElement;
   readonly rogues: HTMLImageElement;

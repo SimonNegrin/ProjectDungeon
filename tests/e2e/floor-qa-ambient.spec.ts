@@ -35,7 +35,7 @@ const AMBIENT_PALETTE: Readonly<Record<string, string>> = {
 };
 const AMBIENT_FAMILIES: Readonly<Record<string, readonly string[]>> = {
   humid: ['mushroom', 'blood', 'grass', 'plant', 'dirt'],
-  death: ['blood', 'bones', 'corpse', 'redBrick', 'dirt'],
+  death: ['blood', 'bones', 'redBrick', 'dirt'],
   ruin: ['pebbles', 'blueBrick', 'dirt', 'bones'],
   vegetation: ['grass', 'plant', 'mushroom', 'pebbles'],
   mixed: [
@@ -47,7 +47,6 @@ const AMBIENT_FAMILIES: Readonly<Record<string, readonly string[]>> = {
     'redBrick',
     'plant',
     'mushroom',
-    'corpse',
     'blood',
   ],
 };

@@ -119,13 +119,15 @@ export const FLOOR_DENSITY: Readonly<Record<FloorArea, DensityRange>> = {
 };
 
 /**
- * Lista blanca de 33 decals planos aprobados en `REQ-008`.
+ * Lista blanca de 31 decals planos aprobados en `REQ-008` y revisados por
+ * `REQ-017`.
  *
  * Piedritas 7.e-g, hierba 8.e-g, tierra 9.e-g, ladrillo azul 10.e-g, huesos
  * 11.e-g, ladrillo rojo 12.e-g, siete plantas pequeñas 20.a/b/e/l/n/o/p,
- * setas 21.a-b, cadáveres 22.a-b y sangre/slime 23.a-d. Quedan fuera cofres,
- * barriles, rocas, escaleras, fosos, cultivos altos o cualquier prop que pueda
- * parecer sólido o interactivo.
+ * setas 21.a-b y sangre/slime 23.a-d. Los cadáveres 22.a-b se reservan para
+ * muertes reales y no son decoración ambiental. Quedan fuera cofres, barriles,
+ * rocas, escaleras, fosos, cultivos altos o cualquier prop que pueda parecer
+ * sólido o interactivo.
  */
 export const DECAL_WHITELIST: readonly DecalDefinition[] = [
   { id: 'pebbles-7e', family: 'pebbles', rect: DECAL_RECTS.pebbles7e },
@@ -155,8 +157,6 @@ export const DECAL_WHITELIST: readonly DecalDefinition[] = [
   { id: 'plant-20p', family: 'plant', rect: DECAL_RECTS.plant20p },
   { id: 'mushroom-21a', family: 'mushroom', rect: DECAL_RECTS.mushroom21a },
   { id: 'mushroom-21b', family: 'mushroom', rect: DECAL_RECTS.mushroom21b },
-  { id: 'corpse-22a', family: 'corpse', rect: DECAL_RECTS.corpse22a },
-  { id: 'corpse-22b', family: 'corpse', rect: DECAL_RECTS.corpse22b },
   { id: 'blood-23a', family: 'blood', rect: DECAL_RECTS.blood23a },
   { id: 'blood-23b', family: 'blood', rect: DECAL_RECTS.blood23b },
   { id: 'blood-23c', family: 'blood', rect: DECAL_RECTS.blood23c },
@@ -175,7 +175,8 @@ export const DECAL_FAMILIES: Readonly<
   redBrick: DECAL_WHITELIST.filter((decal) => decal.family === 'redBrick'),
   plant: DECAL_WHITELIST.filter((decal) => decal.family === 'plant'),
   mushroom: DECAL_WHITELIST.filter((decal) => decal.family === 'mushroom'),
-  corpse: DECAL_WHITELIST.filter((decal) => decal.family === 'corpse'),
+  // Reservado para la presentación de muerte; nunca se elige como decoración.
+  corpse: [],
   blood: DECAL_WHITELIST.filter((decal) => decal.family === 'blood'),
 };
 
@@ -188,7 +189,6 @@ const ALL_FAMILIES: readonly DecalFamily[] = [
   'redBrick',
   'plant',
   'mushroom',
-  'corpse',
   'blood',
 ];
 
@@ -200,7 +200,7 @@ export const AMBIENT_FAMILIES: Readonly<
   Record<FloorAmbient, readonly DecalFamily[]>
 > = {
   humid: ['mushroom', 'blood', 'grass', 'plant', 'dirt'],
-  death: ['blood', 'bones', 'corpse', 'redBrick', 'dirt'],
+  death: ['blood', 'bones', 'redBrick', 'dirt'],
   ruin: ['pebbles', 'blueBrick', 'dirt', 'bones'],
   vegetation: ['grass', 'plant', 'mushroom', 'pebbles'],
   mixed: ALL_FAMILIES,

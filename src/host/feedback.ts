@@ -1,4 +1,5 @@
 import type { AttackRolls, GameEvent, GameState, Position, Unit } from '../game/types';
+import { FEEDBACK_CONFIG } from './feedback-config';
 
 export interface DamageFeedback {
   readonly targetId: string;
@@ -101,6 +102,89 @@ export function damageFeedbackAnchor(
     y: clamp(rawY, DAMAGE_FEEDBACK_HEIGHT, map.height),
     side,
   };
+}
+
+/** Máximo de textos de daño simultáneos; el cuarto sustituye al más antiguo. */
+export const MAX_DAMAGE_TEXTS = FEEDBACK_CONFIG.limits.maxDamageTexts;
+
+/** Datos mínimos para colocar un texto de daño anclado al mundo. */
+export interface DamageTextSource {
+  readonly target: Position;
+  readonly attacker: Position;
+}
+
+export interface DamageTextLayout extends DamageFeedbackAnchor {
+  /** Posición en la pila vertical; 0 es el ancla base. */
+  readonly stackIndex: number;
+}
+
+interface TextBox {
+  readonly left: number;
+  readonly right: number;
+  readonly top: number;
+  readonly bottom: number;
+}
+
+function textBoxAt(x: number, y: number): TextBox {
+  return {
+    left: x - DAMAGE_FEEDBACK_HALF_WIDTH,
+    right: x + DAMAGE_FEEDBACK_HALF_WIDTH,
+    top: y - DAMAGE_FEEDBACK_HEIGHT,
+    bottom: y,
+  };
+}
+
+function boxesOverlap(a: TextBox, b: TextBox): boolean {
+  return a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+}
+
+/**
+ * Coloca hasta varios textos de daño sin que se pisen. Parte del ancla
+ * determinista de `damageFeedbackAnchor` y prueba desplazamientos verticales en
+ * pasos de una caja de texto: primero hacia arriba, luego hacia abajo y
+ * alternando. Es puro: el host solo pinta el resultado.
+ */
+export function layoutDamageTexts(
+  sources: readonly DamageTextSource[],
+  map: { readonly width: number; readonly height: number },
+): DamageTextLayout[] {
+  const placed: DamageTextLayout[] = [];
+  const boxes: TextBox[] = [];
+
+  for (const source of sources) {
+    const base = damageFeedbackAnchor(source.target, source.attacker, map);
+    const candidates: number[] = [0];
+    for (let step = 1; step <= sources.length + 1; step += 1) {
+      candidates.push(-step, step);
+    }
+
+    let chosen = base;
+    let stackIndex = 0;
+    for (const direction of candidates) {
+      const y = clamp(
+        base.y + direction * DAMAGE_FEEDBACK_HEIGHT,
+        DAMAGE_FEEDBACK_HEIGHT,
+        map.height,
+      );
+      const box = textBoxAt(base.x, y);
+      if (!boxes.some((existing) => boxesOverlap(box, existing))) {
+        chosen = { ...base, y };
+        stackIndex = Math.abs(direction);
+        boxes.push(box);
+        break;
+      }
+    }
+
+    if (boxes.length < placed.length + 1) {
+      // El mapa es demasiado pequeño para una caja libre: se conserva el ancla
+      // base y se apila igualmente para no perder el texto.
+      const box = textBoxAt(chosen.x, chosen.y);
+      boxes.push(box);
+    }
+    placed.push({ ...chosen, stackIndex });
+  }
+
+  return placed;
 }
 
 function findUnit(state: GameState, id: string): Unit | undefined {

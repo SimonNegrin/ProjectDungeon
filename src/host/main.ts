@@ -13,8 +13,8 @@ import {
 } from './cursor';
 import { createCursorView } from './cursor-view';
 import { createDebugApi, type AnimationSnapshot } from './debug';
-import { collectAttackFeedbacks, damageFeedbackAnchor } from './feedback';
-import { ATTACK_FLASH_MS, DAMAGE_FEEDBACK_MS } from './feedback-config';
+import { MAX_DAMAGE_TEXTS, layoutDamageTexts } from './feedback';
+import { FEEDBACK_CONFIG } from './feedback-config';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
@@ -23,8 +23,6 @@ import {
   CANVAS_WIDTH,
   MAP_VIEWPORT,
   computeFrameLayout,
-  mapHeightToFramePercent,
-  mapWidthToFramePercent,
   mapXToFramePercent,
   mapYToFramePercent,
 } from './layout';
@@ -49,6 +47,7 @@ import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
 import { trackSpottedUnits, reconcileSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
+import { worldEffectsAt } from './world-effects';
 
 /** Delta máximo por frame: una pestaña en segundo plano no adelanta pasos. */
 const MAX_FRAME_DELTA_MS = 50;
@@ -70,8 +69,21 @@ function isEditableTarget(target: EventTarget | null): boolean {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
 }
 
+/** Instancia de texto de daño anclada al mundo y gobernada por el reloj. */
+interface DamageTextInstance {
+  readonly text: string;
+  readonly hit: boolean;
+  readonly target: Position;
+  readonly attacker: Position;
+  remainingMs: number;
+}
+
 interface DamageFeedbackView {
-  update(state: GameState, camera: { x: number; y: number }, events: readonly GameEvent[]): void;
+  update(
+    texts: readonly DamageTextInstance[],
+    camera: { x: number; y: number },
+    map: { readonly width: number; readonly height: number },
+  ): void;
   clear(): void;
 }
 
@@ -79,79 +91,71 @@ function cssPercent(value: number): string {
   return `${value}%`;
 }
 
+/** Cuántos píxeles de pantalla sube el texto durante su vida. */
+const DAMAGE_TEXT_RISE_PX = 4;
+/** Ventana final de desvanecido, dentro del reloj de presentación. */
+const DAMAGE_TEXT_FADE_MS = 220;
+
 /**
- * El feedback se posiciona en porcentajes del marco completo, pero partiendo
- * del sub-rectángulo del mapa: el mapa empieza en el 21,875 % del ancho y una
- * casilla ocupa el 4,6875 % horizontal y el 8,333… % vertical. El ancla es el
- * borde inferior-centro del texto, que crece hacia arriba con `damage-pop`.
+ * Los textos viven en DOM y se anclan al mundo: cada frame se recolocan con la
+ * cámara. Hay hasta tres nodos estables (no se recrean) y `layoutDamageTexts`
+ * evita que se pisen. El texto más reciente ocupa el nodo primario.
  */
 function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
-  const feedback = frame.querySelector<HTMLElement>('[data-testid="damage-feedback"]');
-  const flash = frame.querySelector<HTMLElement>('[data-testid="attack-flash"]');
-  if (!feedback || !flash) {
-    throw new Error('Faltan los elementos de feedback de ataque.');
+  const nodes = [
+    ...frame.querySelectorAll<HTMLElement>('[data-damage-text]'),
+  ];
+  if (nodes.length === 0) {
+    throw new Error('Faltan los elementos de texto de daño.');
   }
 
-  let timer: number | undefined;
-  let flashTimer: number | undefined;
+  const hide = (node: HTMLElement): void => {
+    node.hidden = true;
+    node.textContent = '';
+    delete node.dataset.result;
+    node.style.opacity = '0';
+  };
 
   return {
-    update(state, camera, events): void {
-      const feedbacks = collectAttackFeedbacks(events, state);
-      const last = feedbacks.at(-1);
-      if (!last) return;
-
-      const anchor = damageFeedbackAnchor(
-        { x: last.x, y: last.y },
-        last.attacker,
-        { width: state.grid.width, height: state.grid.height },
+    update(texts, camera, map): void {
+      const layouts = layoutDamageTexts(
+        texts.map((text) => ({ target: text.target, attacker: text.attacker })),
+        map,
       );
-      const left = cssPercent(mapXToFramePercent(anchor.x * TILE_SIZE - camera.x));
-      const top = cssPercent(mapYToFramePercent(anchor.y * TILE_SIZE - camera.y));
 
-      feedback.textContent = last.text;
-      feedback.dataset.result = last.hit ? 'hit' : 'miss';
-      feedback.style.color = last.hit ? '' : '#9aa7b8';
-      feedback.style.left = left;
-      feedback.style.top = top;
+      nodes.forEach((node, index) => {
+        const text = texts[index];
+        const layout = layouts[index];
+        if (!text || !layout) {
+          hide(node);
+          return;
+        }
 
-      feedback.classList.remove('is-active');
-      void feedback.offsetWidth;
-      feedback.classList.add('is-active');
-
-      // El destello acompaña al impacto; un fallo se comunica solo con texto.
-      if (last.hit) {
-        flash.style.left = cssPercent(mapXToFramePercent(last.x * TILE_SIZE - camera.x));
-        flash.style.top = cssPercent(mapYToFramePercent(last.y * TILE_SIZE - camera.y));
-        flash.style.width = cssPercent(mapWidthToFramePercent(TILE_SIZE));
-        flash.style.height = cssPercent(mapHeightToFramePercent(TILE_SIZE));
-        flash.classList.remove('is-active');
-        void flash.offsetWidth;
-        flash.classList.add('is-active');
-
-        if (flashTimer !== undefined) window.clearTimeout(flashTimer);
-        flashTimer = window.setTimeout(() => {
-          flash.classList.remove('is-active');
-        }, ATTACK_FLASH_MS);
-      }
-
-      if (timer !== undefined) window.clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        feedback.textContent = '';
-        feedback.classList.remove('is-active');
-        delete feedback.dataset.result;
-      }, DAMAGE_FEEDBACK_MS);
+        const progress =
+          1 -
+          Math.min(
+            1,
+            Math.max(0, text.remainingMs / FEEDBACK_CONFIG.texts.damageMs),
+          );
+        const rise = Math.round(progress * DAMAGE_TEXT_RISE_PX);
+        node.hidden = false;
+        node.textContent = text.text;
+        node.dataset.result = text.hit ? 'hit' : 'miss';
+        node.style.left = cssPercent(
+          mapXToFramePercent(layout.x * TILE_SIZE - camera.x),
+        );
+        node.style.top = cssPercent(
+          mapYToFramePercent(layout.y * TILE_SIZE - camera.y),
+        );
+        node.style.opacity = `${Math.min(
+          1,
+          Math.max(0, text.remainingMs / DAMAGE_TEXT_FADE_MS),
+        )}`;
+        node.style.transform = `translate(-50%, calc(-100% - ${rise}px))`;
+      });
     },
     clear(): void {
-      if (timer !== undefined) window.clearTimeout(timer);
-      if (flashTimer !== undefined) window.clearTimeout(flashTimer);
-      timer = undefined;
-      flashTimer = undefined;
-      feedback.textContent = '';
-      feedback.style.color = '';
-      feedback.classList.remove('is-active');
-      delete feedback.dataset.result;
-      flash.classList.remove('is-active');
+      for (const node of nodes) hide(node);
     },
   };
 }
@@ -227,6 +231,11 @@ async function boot(): Promise<void> {
   /** `advance()` de debug detiene el reloj automático para ser determinista. */
   let manualClock = false;
 
+  /** Textos de daño vivos, el más reciente primero; máximo tres. */
+  let damageTexts: DamageTextInstance[] = [];
+  let textFrameHandle: number | undefined;
+  let textLastFrameTime: number | undefined;
+
   const hudView = createHudView(gameRoot);
   const debugView = createDebugView(gameRoot);
   const feedbackView = createDamageFeedbackView(frame);
@@ -288,6 +297,7 @@ async function boot(): Promise<void> {
       unitId: cue.anchor.unitId,
       startMs: cue.atMs,
       durationMs: cue.durationMs,
+      ...(cue.kind === 'attack' ? { hit: cue.data.hit === true } : {}),
     }));
     return {
       animating: true,
@@ -324,6 +334,7 @@ async function boot(): Promise<void> {
         renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, {
           positions,
           dyingUnitIds: dyingUnitIds(animation.timeline, elapsed),
+          effects: worldEffectsAt(animation.timeline, elapsed),
           debug: debugView.isOpen(),
         });
       }
@@ -333,6 +344,7 @@ async function boot(): Promise<void> {
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
       spotView.update(state, camera, viewport, spottedUnits);
       perceptionView.update(state, camera, viewport, debugView.isOpen());
+      feedbackView.update(damageTexts, camera, display.grid);
       return;
     }
 
@@ -355,6 +367,68 @@ async function boot(): Promise<void> {
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
     spotView.update(state, camera, viewport, spottedUnits);
     perceptionView.update(state, camera, viewport, debugView.isOpen());
+    feedbackView.update(damageTexts, camera, state.grid);
+  };
+
+  const cancelTextFrame = (): void => {
+    if (textFrameHandle !== undefined) {
+      window.cancelAnimationFrame(textFrameHandle);
+      textFrameHandle = undefined;
+    }
+    textLastFrameTime = undefined;
+  };
+
+  const advanceDamageTexts = (deltaMs: number): void => {
+    if (damageTexts.length === 0 || deltaMs <= 0) return;
+    for (const text of damageTexts) text.remainingMs -= deltaMs;
+    damageTexts = damageTexts.filter((text) => text.remainingMs > 0);
+  };
+
+  const scheduleTextFrame = (): void => {
+    if (
+      damageTexts.length === 0 ||
+      animation !== null ||
+      manualClock ||
+      textFrameHandle !== undefined
+    ) {
+      return;
+    }
+    textLastFrameTime = undefined;
+    textFrameHandle = window.requestAnimationFrame(textTick);
+  };
+
+  const textTick = (now: number): void => {
+    textFrameHandle = undefined;
+    if (animation !== null || manualClock || damageTexts.length === 0) return;
+    const raw = textLastFrameTime === undefined ? 0 : now - textLastFrameTime;
+    textLastFrameTime = now;
+    advanceDamageTexts(Math.min(MAX_FRAME_DELTA_MS, Math.max(0, raw)));
+    render();
+    if (damageTexts.length > 0) scheduleTextFrame();
+  };
+
+  const addDamageText = (
+    text: string,
+    hit: boolean,
+    target: Position,
+    attacker: Position,
+  ): void => {
+    damageTexts = [
+      {
+        text,
+        hit,
+        target: { ...target },
+        attacker: { ...attacker },
+        remainingMs: FEEDBACK_CONFIG.texts.damageMs,
+      },
+      ...damageTexts,
+    ].slice(0, MAX_DAMAGE_TEXTS);
+  };
+
+  const clearDamageTexts = (): void => {
+    damageTexts = [];
+    cancelTextFrame();
+    feedbackView.clear();
   };
 
   const fireFeedbacks = (active: ActiveAnimation, fromMs: number, toMs: number): void => {
@@ -371,20 +445,21 @@ async function boot(): Promise<void> {
           spottedUnits = trackSpottedUnits(spottedUnits, [entry.event]);
           break;
         case 'AttackPerformed': {
-          const display = presentationState(
-            session.state,
-            active.timeline,
-            entry.atMs,
-            active.initialState,
+          const attackEvent = entry.event;
+          const cue = active.timeline.cues.find(
+            (candidate) =>
+              candidate.kind === 'attack' &&
+              candidate.atMs === entry.atMs &&
+              candidate.data.targetId === attackEvent.targetId,
           );
-          const displayCamera = cameraAt(
-            active.timeline,
-            entry.atMs,
-            world,
-            viewport,
-            camera,
-          );
-          feedbackView.update(display, displayCamera, [entry.event]);
+          if (cue?.data.target && cue.data.attacker) {
+            addDamageText(
+              cue.data.text ?? (attackEvent.hit ? `-${attackEvent.damage}` : 'Fallo'),
+              attackEvent.hit,
+              cue.data.target,
+              cue.data.attacker,
+            );
+          }
           break;
         }
         case 'AlarmRaised':
@@ -400,6 +475,7 @@ async function boot(): Promise<void> {
     const active = animation;
     if (!active) return;
 
+    const wasManual = manualClock;
     animation = null;
     cancelFrame();
     manualClock = false;
@@ -417,6 +493,7 @@ async function boot(): Promise<void> {
 
     cursorStatus = deriveCursorStatus(state, cursor);
     render();
+    if (!wasManual) scheduleTextFrame();
   };
 
   const advanceAnimation = (deltaMs: number): void => {
@@ -425,6 +502,7 @@ async function boot(): Promise<void> {
 
     const from = active.elapsed;
     active.elapsed = advanceTimeline(active.timeline, from, deltaMs);
+    advanceDamageTexts(active.elapsed - from);
     fireFeedbacks(active, from, active.elapsed);
 
     if (active.elapsed + EPSILON >= active.timeline.totalMs) {
@@ -455,6 +533,7 @@ async function boot(): Promise<void> {
     cursorPosition: Position,
   ): void => {
     cancelFrame();
+    cancelTextFrame();
     manualClock = false;
     animation = {
       timeline,
@@ -494,7 +573,13 @@ async function boot(): Promise<void> {
   };
 
   const advanceForTest = (ms: number): void => {
-    if (!animation) return;
+    if (!animation) {
+      // `advance` completa la presentación pendiente; no consume la
+      // persistencia de los textos, que ya viven en su propio reloj.
+      cancelTextFrame();
+      render();
+      return;
+    }
     manualClock = true;
     cancelFrame();
     advanceAnimation(ms);
@@ -507,9 +592,9 @@ async function boot(): Promise<void> {
    */
   const setupState = (state: GameState, generator?: MapGenerator): void => {
     cancelAnimation();
+    clearDamageTexts();
     session.load(state, generator);
     lastEvents = [];
-    feedbackView.clear();
     noticeView.clear();
     debugView.close();
     spottedUnits = new Set<string>();
@@ -532,7 +617,7 @@ async function boot(): Promise<void> {
 
     if (command.type === 'Restart' || result.events.some((event) => event.type === 'GameRestarted')) {
       cancelAnimation();
-      feedbackView.clear();
+      clearDamageTexts();
       debugView.close();
       noticeView.clear();
       spottedUnits = new Set<string>();
@@ -564,7 +649,6 @@ async function boot(): Promise<void> {
     if (timeline.totalMs <= 0) {
       if (resetCursorAtEnd) resetCursorToPlayer();
       render();
-      feedbackView.update(session.state, camera, result.events);
       return result;
     }
 
@@ -575,9 +659,9 @@ async function boot(): Promise<void> {
   /** `F2`: semilla nueva en el host, sin tocar el motor ni cerrar el debug. */
   const regenerate = (): void => {
     cancelAnimation();
+    clearDamageTexts();
     session.regenerate(nextSeed(session.seed));
     lastEvents = [];
-    feedbackView.clear();
     noticeView.clear();
     spottedUnits = new Set<string>();
     resetCursorToPlayer();

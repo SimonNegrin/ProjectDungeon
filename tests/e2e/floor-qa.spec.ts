@@ -55,7 +55,6 @@ const DECAL_FAMILIES = [
   'redBrick',
   'plant',
   'mushroom',
-  'corpse',
   'blood',
 ] as const;
 const DIRECTIONS = [
@@ -656,7 +655,7 @@ test('snapshot: densidades, exclusiones, lista blanca y un decal por tile', asyn
       `Decal ${decal.type} debe ser plano de la lista blanca`,
     ).toBe(true);
     expect(decal.type, `Decal ${decal.type} no debe ser un prop sólido`).toMatch(
-      /^(pebbles|grass|dirt|blueBrick|bones|redBrick|plant|mushroom|corpse|blood)-[a-z0-9]+$/,
+      /^(pebbles|grass|dirt|blueBrick|bones|redBrick|plant|mushroom|blood)-[a-z0-9]+$/,
     );
 
     decalKeys.add(key);

@@ -376,9 +376,11 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
     unitId: 'player-1',
     targetId: enemy.id,
   });
-  // El ataque no tiene desplazamiento: el feedback ya está activo al volver
-  // `dispatch`. Se deja entrar el pico de la animación (900 ms) y se captura.
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  // El ataque no tiene desplazamiento: el cue de impacto ya está activo al
+  // volver `dispatch`. Se muestrea el pico de su beat determinista.
+  expect(
+    attackResult.snapshot.animation.cues.find((cue) => cue.kind === 'attack'),
+  ).toMatchObject({ kind: 'attack', hit: true });
   await page.waitForTimeout(150);
   const hitBox = await feedbackBox(page);
   const playerTile = await mapTileBox(
@@ -586,7 +588,9 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
   const attack = attackEvent(result.events);
   expect(attack).toBeDefined();
   expect(attack!.hit).toBe(true);
-  await expect(page.getByTestId('attack-flash')).toHaveClass(/is-active/);
+  expect(
+    result.snapshot.animation.cues.find((cue) => cue.kind === 'attack'),
+  ).toMatchObject({ kind: 'attack', hit: true });
 
   await page.waitForTimeout(150);
   const box = await feedbackBox(page);
@@ -648,7 +652,9 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
     'miss',
   );
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
-  await expect(page.getByTestId('attack-flash')).not.toHaveClass(/is-active/);
+  expect(
+    missResult.snapshot.animation.cues.find((cue) => cue.kind === 'attack'),
+  ).toMatchObject({ kind: 'attack', hit: false });
 
   expect(miss!.damage).toBe(0);
   expect(miss!.targetHp).toBe(enemy.hp);
