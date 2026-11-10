@@ -59,10 +59,9 @@ nombre y arquetipo y el ataque distingue arma de `unarmed`.
 
 # Problemas conocidos y preguntas abiertas
 
-- `pnpm run verify` avisa de que el brief mide 2564 B (objetivo ≤2560 B) tras
-  corregir el enlace; no bloquea.
-- El criterio documental sigue pendiente de la propuesta del lead; `docs:check`
-  pasa con el estado actual.
+- El brief se recortó a 2558 B; sin aviso de tamaño.
+- La documentación pendiente la aplicó `requirements-writer` (commit `e8392da`);
+  el lead la verificó y re-ejecutó la suite final.
 
 # Fricción reutilizable
 
@@ -74,7 +73,7 @@ nombre y arquetipo y el ataque distingue arma de `unarmed`.
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 2564 |
-| `report_bytes` | 3888 |
+| `brief_bytes` | 2558 |
+| `report_bytes` | 3805 |
 | `overflow` | `none` |
-| `criteria_failed` | ninguno del runner; glosario/docs pendiente del lead |
+| `criteria_failed` | 0 |
