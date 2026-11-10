@@ -21,7 +21,12 @@ import {
   RENDER_SCALE,
 } from './layout';
 import { wallTileFor } from './wall';
-import type { UnitWorldEffect, WorldEffects } from './world-effects';
+import type {
+  AlarmWaveEffect,
+  PickupWeaponEffect,
+  UnitWorldEffect,
+  WorldEffects,
+} from './world-effects';
 
 /** Subconjunto de assets que necesita el render; permite dobles en tests. */
 export interface SceneAssets {
@@ -41,6 +46,10 @@ export interface RenderOptions {
   readonly dyingUnitIds?: ReadonlySet<string>;
   /** Efectos de mundo de impacto, fallo y muerte, en píxeles de tile. */
   readonly effects?: WorldEffects;
+  /** Onda expansiva de alarma desde el emisor. */
+  readonly alarm?: AlarmWaveEffect | null;
+  /** Arma recogida: el frame apagado conserva el arma pero no la dibuja. */
+  readonly pickupWeapon?: PickupWeaponEffect | null;
   /** Capa de `F1`: máscaras, límites, spawn, salida, pasillos y puntos calientes. */
   readonly debug?: boolean;
 }
@@ -65,6 +74,8 @@ const STAIR_RECTS = {
 } as const satisfies Record<'stairs-down' | 'stairs-up', SpriteRect>;
 
 const EXIT_GOLD = '#f2c14e';
+/** Ámbar de la paleta para la onda de alarma. */
+export const ALARM_COLOR = '#e8b86d';
 const ROOM_TINTS: readonly string[] = [
   'rgba(127, 179, 213, 0.13)',
   'rgba(232, 184, 109, 0.13)',
@@ -374,6 +385,34 @@ function drawExit(
     ctx.fillStyle = EXIT_GOLD;
     ctx.fillRect(x + 1, y + 1, tileSize - 2, Math.max(1, tileSize * 0.06));
   }
+}
+
+/**
+ * Onda de alarma: anillo cuadrado de dos tiles que sale del emisor. Se dibuja
+ * con cuatro rectángulos planos, sin degradados ni partículas.
+ */
+function drawAlarmWave(
+  ctx: CanvasRenderingContext2D,
+  wave: AlarmWaveEffect,
+  tileSize: number,
+): void {
+  if (wave.radiusTiles <= 0) return;
+  const centerX = (wave.tileX + 0.5) * tileSize;
+  const centerY = (wave.tileY + 0.5) * tileSize;
+  const half = wave.radiusTiles * tileSize;
+  const thickness = Math.max(1, Math.round(tileSize * 0.08));
+  const left = Math.round(centerX - half);
+  const top = Math.round(centerY - half);
+  const size = Math.round(half * 2);
+  const previousAlpha = ctx.globalAlpha ?? 1;
+
+  ctx.globalAlpha = previousAlpha * Math.max(0.2, 1 - wave.progress);
+  ctx.fillStyle = ALARM_COLOR;
+  ctx.fillRect(left, top, size, thickness);
+  ctx.fillRect(left, top + size - thickness, size, thickness);
+  ctx.fillRect(left, top, thickness, size);
+  ctx.fillRect(left + size - thickness, top, thickness, size);
+  ctx.globalAlpha = previousAlpha;
 }
 
 function drawBorder(
@@ -782,9 +821,19 @@ export function renderScene(
   }
 
   // Armas del mapa: formas planas provisionales entre decals/muros y unidades.
+  // Durante la recogida el arma sigue en el suelo y parpadea: el frame apagado
+  // no la dibuja, pero el estado conserva su tile hasta el final del beat.
   for (const weapon of state.map?.weapons ?? []) {
     if (weapon.x < range.minX || weapon.x > range.maxX) continue;
     if (weapon.y < range.minY || weapon.y > range.maxY) continue;
+    if (
+      options.pickupWeapon?.weaponId === weapon.weaponId &&
+      options.pickupWeapon.tileX === weapon.x &&
+      options.pickupWeapon.tileY === weapon.y &&
+      !options.pickupWeapon.visible
+    ) {
+      continue;
+    }
     drawWeaponShape(ctx, weapon.weaponId, weapon.x * tileSize, weapon.y * tileSize, tileSize);
   }
 
@@ -816,6 +865,8 @@ export function renderScene(
     const { x, y } = spriteOrigin(center, effect);
     drawDefenseGesture(ctx, x, y, effect.defense, ctx.globalAlpha ?? 1);
   }
+
+  if (options.alarm) drawAlarmWave(ctx, options.alarm, tileSize);
 
   if (debug) drawDebugOverlay(ctx, state, range, tileSize);
 

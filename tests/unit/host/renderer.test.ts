@@ -15,6 +15,7 @@ import {
 } from '../../../src/host/layout';
 import {
   renderScene,
+  ALARM_COLOR,
   DEFENSE_GESTURE_COLOR,
   WEAPON_SHAPE_COLORS,
   type SceneAssets,
@@ -764,6 +765,34 @@ describe('render de armas del mapa', () => {
     expect(() => draw(frozen, { x: 0, y: 64 })).not.toThrow();
     expect(JSON.stringify(state)).toBe(before);
   });
+
+  it('el frame apagado de la recogida conserva el arma en el estado pero no la pinta', () => {
+    const { state, x, y, camera } = stateWithWeapon('dagger');
+    const hidden = createFakeContext();
+    renderScene(hidden.ctx, state, assets, camera, VIEWPORT, 32, {
+      pickupWeapon: { weaponId: 'dagger', tileX: x, tileY: y, visible: false },
+    });
+    expect(
+      hidden.ops.some(
+        (op) =>
+          op.kind === 'fill' &&
+          (op.style === WEAPON_SHAPE_COLORS.handle ||
+            op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
+            op.style === WEAPON_SHAPE_COLORS.guard),
+      ),
+    ).toBe(false);
+    expect(state.map?.weapons?.[0]).toMatchObject({ x, y, weaponId: 'dagger' });
+
+    const visible = createFakeContext();
+    renderScene(visible.ctx, state, assets, camera, VIEWPORT, 32, {
+      pickupWeapon: { weaponId: 'dagger', tileX: x, tileY: y, visible: true },
+    });
+    expect(
+      visible.ops.some(
+        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.daggerBlade,
+      ),
+    ).toBe(true);
+  });
 });
 
 describe('gesto de defensa', () => {
@@ -843,3 +872,28 @@ function deepFreeze<T>(value: T): T {
   }
   return value;
 }
+
+describe('onda de alarma', () => {
+  it('dibuja cuatro lados planos desde el emisor y no toca el estado', () => {
+    const state = makeState();
+    const before = JSON.stringify(state);
+    const fake = createFakeContext();
+
+    renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, {
+      alarm: {
+        tileX: state.players[0].x,
+        tileY: state.players[0].y,
+        radiusTiles: 1,
+        progress: 0.5,
+        borderFlash: true,
+      },
+    });
+
+    const ring = fake.ops.filter(
+      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+        op.kind === 'fill' && op.style === ALARM_COLOR,
+    );
+    expect(ring).toHaveLength(4);
+    expect(JSON.stringify(state)).toBe(before);
+  });
+});

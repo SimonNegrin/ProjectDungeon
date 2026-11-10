@@ -428,8 +428,14 @@ function requireElement<T extends HTMLElement>(root: ParentNode, testId: string)
   return element;
 }
 
+/** Feedback de presentación que el HUD refleja sin tocar el estado del motor. */
+export interface HudFeedback {
+  /** Duración del pulso de la ranura del arma, o `null` si no hay cue. */
+  readonly weaponPulseMs: number | null;
+}
+
 export interface HudView {
-  update(state: GameState, cursor?: Position): void;
+  update(state: GameState, cursor?: Position, feedback?: HudFeedback): void;
 }
 
 /**
@@ -522,7 +528,7 @@ export function createHudView(root: ParentNode): HudView {
   const weaponHint = ensureWeaponHint(root, keys);
 
   return {
-    update(state: GameState, cursor?: Position): void {
+    update(state: GameState, cursor?: Position, feedback?: HudFeedback): void {
       const model = buildHudModel(state, cursor);
       playerName.textContent = model.playerName;
       archetype.textContent = model.archetype;
@@ -543,6 +549,19 @@ export function createHudView(root: ParentNode): HudView {
       weaponHint.hidden = model.weaponHint === null;
       victory.hidden = !model.overlays.victory;
       defeat.hidden = !model.overlays.defeat;
+
+      // El pulso se dispara al empezar el cue; reutiliza el nodo y no reinicia
+      // la animación en cada frame mientras el cue siga activo.
+      const pulseMs = feedback?.weaponPulseMs ?? null;
+      if (pulseMs !== null) {
+        if (!weapon.classList.contains('is-pulsing')) {
+          weapon.style.setProperty('--hud-pulse-ms', `${pulseMs}ms`);
+          weapon.classList.add('is-pulsing');
+        }
+      } else if (weapon.classList.contains('is-pulsing')) {
+        weapon.classList.remove('is-pulsing');
+        weapon.style.removeProperty('--hud-pulse-ms');
+      }
     },
   };
 }

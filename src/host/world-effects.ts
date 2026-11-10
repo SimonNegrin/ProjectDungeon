@@ -1,3 +1,4 @@
+import type { WeaponId } from '../game/equipment';
 import type { Position } from '../game/types';
 import { FEEDBACK_CONFIG } from './feedback-config';
 import { activeCues, type FeedbackCue, type MotionTimeline } from './motion';
@@ -153,6 +154,20 @@ function applyAttack(
   }
 }
 
+/** Parpadeo de avistamiento: el enemigo alterna visible en su cue. */
+function applySpotted(
+  map: Map<string, MutableEffect>,
+  cue: FeedbackCue,
+  t: number,
+): void {
+  const unitId = cue.data.unitId ?? cue.anchor.unitId;
+  if (!unitId || cue.durationMs <= 0) return;
+  const unit = ensure(map, unitId);
+  const frames = FEEDBACK_CONFIG.effects.spottedBlinkFrames * 2;
+  const frame = Math.floor(t / (cue.durationMs / frames));
+  unit.visible = frame % 2 === 0;
+}
+
 function applyDeath(
   map: Map<string, MutableEffect>,
   cue: FeedbackCue,
@@ -204,6 +219,7 @@ export function worldEffectsAt(
     const t = elapsed - cue.atMs;
     if (cue.kind === 'attack') applyAttack(map, cue, t);
     else if (cue.kind === 'death') applyDeath(map, cue, t);
+    else if (cue.kind === 'spotted') applySpotted(map, cue, t);
   }
 
   const result = new Map<string, UnitWorldEffect>();
@@ -224,4 +240,74 @@ export function worldEffectsAt(
 /** Unidades con una muerte en curso (destello/parpadeo/disolución). */
 export function deathEffectUnitIds(effects: WorldEffects): ReadonlySet<string> {
   return new Set(effects.keys());
+}
+
+/** Onda expansiva de alarma: anillo de dos tiles que sale del emisor. */
+export interface AlarmWaveEffect {
+  readonly tileX: number;
+  readonly tileY: number;
+  /** Radio actual en tiles; 0 al empezar y 2 al terminar el beat. */
+  readonly radiusTiles: number;
+  /** 0-1 dentro del cue; gobierna la intensidad del anillo. */
+  readonly progress: number;
+  /** Destello de borde activo en este frame del cue. */
+  readonly borderFlash: boolean;
+}
+
+/**
+ * Onda de `AlarmRaised` en el reloj de presentación. Empieza en la casilla del
+ * emisor y crece hasta dos tiles durante los 500 ms del beat. No insinúa una
+ * cadena: solo dibuja la onda del evento que el motor ya emitió.
+ */
+export function alarmEffectAt(
+  timeline: MotionTimeline,
+  elapsed: number,
+): AlarmWaveEffect | null {
+  for (const cue of activeCues(timeline, elapsed)) {
+    if (cue.kind !== 'alarm') continue;
+    const tile = cue.anchor.tile;
+    if (!tile) return null;
+    const t = elapsed - cue.atMs;
+    const progress = clamp01(cue.durationMs > 0 ? t / cue.durationMs : 1);
+    const frames = FEEDBACK_CONFIG.effects.alarmBorderFlashCount * 2;
+    const frame = Math.floor(t / (cue.durationMs / frames));
+    return {
+      tileX: tile.x,
+      tileY: tile.y,
+      radiusTiles: progress * FEEDBACK_CONFIG.effects.alarmRadiusTiles,
+      progress,
+      borderFlash: frame % 2 === 0,
+    };
+  }
+  return null;
+}
+
+/** Parpadeo del arma recogida: tres frames encendidos y tres apagados. */
+export interface PickupWeaponEffect {
+  readonly weaponId: WeaponId;
+  readonly tileX: number;
+  readonly tileY: number;
+  /** `false` en los frames apagados; el arma sigue en la rejilla. */
+  readonly visible: boolean;
+}
+
+export function pickupWeaponEffectAt(
+  timeline: MotionTimeline,
+  elapsed: number,
+): PickupWeaponEffect | null {
+  for (const cue of activeCues(timeline, elapsed)) {
+    if (cue.kind !== 'pickup' || !cue.data.weaponId) continue;
+    const tile = cue.anchor.tile;
+    if (!tile) return null;
+    const frames = FEEDBACK_CONFIG.effects.pickupBlinkFrames * 2;
+    const t = elapsed - cue.atMs;
+    const frame = Math.floor(t / (cue.durationMs / frames));
+    return {
+      weaponId: cue.data.weaponId,
+      tileX: tile.x,
+      tileY: tile.y,
+      visible: frame % 2 === 0,
+    };
+  }
+  return null;
 }

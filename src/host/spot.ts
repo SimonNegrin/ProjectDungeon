@@ -28,6 +28,20 @@ export function trackSpottedUnits(
 }
 
 /**
+ * Quita una unidad del rastro en su cue de muerte, huida o regreso. Conserva la
+ * misma referencia si el ID no estaba marcado para no forzar renders.
+ */
+export function untrackSpottedUnits(
+  current: ReadonlySet<string>,
+  unitId: string,
+): ReadonlySet<string> {
+  if (!current.has(unitId)) return current;
+  const next = new Set(current);
+  next.delete(unitId);
+  return next;
+}
+
+/**
  * Poda determinista del rastro de "!": un ID solo sobrevive mientras su
  * enemigo siga vivo y en `alert`. Al pasar a `returning`/`dormant` o morir se
  * elimina, de modo que una alerta posterior por onda sin `EnemySpotted` no

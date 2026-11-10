@@ -11,6 +11,7 @@ import {
   activeSpotMarkers,
   reconcileSpottedUnits,
   trackSpottedUnits,
+  untrackSpottedUnits,
 } from '../../../src/host/spot';
 import { makeGridWithWalls, makeState, makeUnit } from '../game/helpers';
 
@@ -175,5 +176,14 @@ describe('feedback "!" de detección', () => {
     expect(activeSpotMarkers(result.state, spotted)).toEqual([
       { unitId: 'enemy-1', x: 2, y: 2 },
     ]);
+  });
+});
+
+describe('retirada del "!" en su cue de muerte, huida o regreso', () => {
+  it('quita solo la unidad indicada y conserva la referencia si no estaba', () => {
+    const spotted = new Set(['enemy-1', 'enemy-2']);
+
+    expect([...untrackSpottedUnits(spotted, 'enemy-1')]).toEqual(['enemy-2']);
+    expect(untrackSpottedUnits(spotted, 'enemy-3')).toBe(spotted);
   });
 });

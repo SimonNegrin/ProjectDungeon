@@ -50,6 +50,8 @@ export const FEEDBACK_CONFIG = {
     playerTurnMs: 350,
     turnEndedMs: 250,
     gameEndedMs: 800,
+    /** Destello de borde al abrirse el cue de fin de partida. */
+    gameEndedFlashMs: 120,
     gameRestartedMs: 250,
     rejectedShakeMs: 120,
   },
@@ -101,6 +103,13 @@ export const FEEDBACK_CONFIG = {
     deathBlinkMs: 80,
     deathShakePx: 1,
     deathShakeMs: 300,
+    /** Onda de alarma: radio máximo en tiles y destellos de borde. */
+    alarmRadiusTiles: 2,
+    alarmBorderFlashCount: 2,
+    /** Parpadeo del arma del suelo en la recogida (frames encendidos). */
+    pickupBlinkFrames: 3,
+    /** Parpadeo del enemigo al iniciar la alerta (frames encendidos). */
+    spottedBlinkFrames: 2,
   },
   limits: {
     maxDamageTexts: 3,

@@ -258,12 +258,24 @@ describe('estado visible retrasado hasta su cue', () => {
     if (!cue) throw new Error('La recogida debe producir un cue');
 
     const before = presentationState(result.state, timeline, cue.atMs - 1, initialState);
-    const after = presentationState(result.state, timeline, cue.atMs, initialState);
+    const duringCue = presentationState(result.state, timeline, cue.atMs, initialState);
+    const after = presentationState(
+      result.state,
+      timeline,
+      cue.atMs + cue.durationMs,
+      initialState,
+    );
 
+    // R-011: el arma sigue en el suelo y el inventario no cambia al empezar el
+    // cue; el cambio se ve al acabar el beat.
     expect(before.players[0].weapons).toEqual(initialState.players[0].weapons);
     expect(before.players[0].equipment).toEqual(initialState.players[0].equipment);
     expect(before.players[0].mp).toBe(initialState.players[0].mp);
     expect(before.map?.weapons).toEqual(initialState.map?.weapons);
+    expect(duringCue.players[0].weapons).toEqual(initialState.players[0].weapons);
+    expect(duringCue.players[0].equipment).toEqual(initialState.players[0].equipment);
+    expect(duringCue.players[0].mp).toBe(initialState.players[0].mp);
+    expect(duringCue.map?.weapons).toEqual(initialState.map?.weapons);
 
     expect(after.players[0].weapons).toEqual(result.state.players[0].weapons);
     expect(after.players[0].equipment).toEqual(result.state.players[0].equipment);
@@ -304,9 +316,16 @@ describe('estado visible retrasado hasta su cue', () => {
     if (!cue) throw new Error('El cambio de arma debe producir un cue');
 
     const before = presentationState(result.state, timeline, cue.atMs - 1, initialState);
-    const after = presentationState(result.state, timeline, cue.atMs, initialState);
+    const duringCue = presentationState(result.state, timeline, cue.atMs, initialState);
+    const after = presentationState(
+      result.state,
+      timeline,
+      cue.atMs + cue.durationMs,
+      initialState,
+    );
 
     expect(before.players[0].equipment.weaponId).toBe('sword');
+    expect(duringCue.players[0].equipment.weaponId).toBe('sword');
     expect(after.players[0].equipment.weaponId).toBe('axe');
   });
 
@@ -423,5 +442,31 @@ describe('eventos de presentación del host', () => {
     );
     expect(rejectedEvents).toEqual(rejected.events);
     expect(rejectedEvents.every((event) => event.type === 'CommandRejected')).toBe(true);
+  });
+});
+
+describe('fin de partida y reinicio en su cue', () => {
+  it('el overlay espera el beat de 800 ms de GameEnded', () => {
+    const state = makeState({ status: 'victory' });
+    const timeline = buildMotionTimeline([{ type: 'GameEnded', status: 'victory' }], {
+      finalState: state,
+    });
+    const cue = timeline.cues.find((entry) => entry.kind === 'game-ended');
+    if (!cue) throw new Error('GameEnded debe producir un cue');
+
+    expect(presentationState(state, timeline, cue.atMs).status).toBe('playing');
+    expect(presentationState(state, timeline, cue.atMs + 799).status).toBe('playing');
+    expect(presentationState(state, timeline, cue.atMs + 800).status).toBe('victory');
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.beats.gameEnded);
+  });
+
+  it('el reinicio dura 250 ms y no añade estado intermedio', () => {
+    const state = makeState();
+    const timeline = buildMotionTimeline([{ type: 'GameRestarted' }], {
+      finalState: state,
+    });
+
+    expect(timeline.cues.map((cue) => cue.kind)).toEqual(['game-restarted']);
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.durations.gameRestartedMs);
   });
 });

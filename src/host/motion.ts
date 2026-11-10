@@ -807,13 +807,20 @@ export function presentationState(
     );
   }
 
-  // La recogida y el cambio de arma se aplican en su cue. Hasta entonces se
-  // conserva el inventario, el arma equipada, el MP y el arma del suelo
-  // iniciales. Se deshace en orden inverso para encadenar varios cambios.
+  // La recogida y el cambio de arma se aplican al acabar su beat, no al
+  // empezar el cue (R-011/R-012). Hasta entonces se conserva el inventario, el
+  // arma equipada, el MP y el arma del suelo iniciales. Se deshace en orden
+  // inverso para encadenar varios cambios.
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
-    if (entry.atMs <= elapsed + EPSILON) continue;
     const event = entry.event;
+    if (event.type !== 'PickUp' && event.type !== 'SelectWeapon') continue;
+    const cue = timeline.cues.find(
+      (candidate) =>
+        candidate.eventType === event.type && candidate.atMs === entry.atMs,
+    );
+    const appliedAt = cue ? cue.atMs + cue.durationMs : entry.atMs;
+    if (appliedAt <= elapsed + EPSILON) continue;
 
     if (event.type === 'PickUp') {
       const initialPlayer = initialState?.players.find(
@@ -870,12 +877,17 @@ export function presentationState(
     const initialPlayer = initialState?.players.find((unit) => unit.id === player.id);
     const playerTurn = lastEventOfType(timeline, 'PlayerTurnStarted', elapsed);
     const playerSteps = timeline.steps.filter((step) => step.unitId === player.id);
-    const pickupOccurred = timeline.events.some(
-      (entry) =>
-        entry.event.type === 'PickUp' &&
-        entry.event.unitId === player.id &&
-        entry.atMs <= elapsed + EPSILON,
-    );
+    const pickupOccurred = timeline.events.some((entry) => {
+      if (entry.event.type !== 'PickUp' || entry.event.unitId !== player.id) {
+        return false;
+      }
+      const cue = timeline.cues.find(
+        (candidate) =>
+          candidate.eventType === 'PickUp' && candidate.atMs === entry.atMs,
+      );
+      const appliedAt = cue ? cue.atMs + cue.durationMs : entry.atMs;
+      return appliedAt <= elapsed + EPSILON;
+    });
     if (playerTurn) {
       players = players.map((unit) =>
         unit.id === player.id ? { ...unit, mp: player.mp } : unit,
@@ -926,8 +938,14 @@ export function presentationState(
     turn = playerTurn.turn;
   }
 
-  const gameEnded = lastEventOfType(timeline, 'GameEnded', elapsed);
-  const status = gameEnded ? gameEnded.status : 'playing';
+  // El fin de partida se aplica al acabar su beat: el overlay espera 800 ms
+  // desde el evento, no aparece al inicio del cue (R-018).
+  const gameEnded = timeline.cues.find(
+    (cue) =>
+      cue.kind === 'game-ended' &&
+      cue.atMs + cue.durationMs <= elapsed + EPSILON,
+  );
+  const status = gameEnded?.data.status ?? 'playing';
 
   return { ...state, map, players, enemies, phase, turn, status };
 }

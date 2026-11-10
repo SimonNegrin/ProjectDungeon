@@ -1,10 +1,15 @@
 import type { Camera } from './camera';
 import type { CursorStatus } from './cursor';
+import { FEEDBACK_CONFIG } from './feedback-config';
 import { TILE_SIZE } from './geometry';
 import { MAP_VIEWPORT } from './layout';
 
 export interface CursorView {
   update(status: CursorStatus, camera: Camera): void;
+  /** Sacudida de rechazo; no bloquea ni cambia el estado. */
+  shake(): void;
+  /** Parpadeo de reaparición al empezar el turno del jugador. */
+  pulseAppear(): void;
 }
 
 function requireElement<T extends HTMLElement>(root: ParentNode, testId: string): T {
@@ -37,6 +42,25 @@ function positionTile(element: HTMLElement, x: number, y: number, camera: Camera
 export function createCursorView(frame: ParentNode): CursorView {
   const cursor = requireElement(frame, 'cursor');
   const path = requireElement(frame, 'cursor-path');
+
+  cursor.style.setProperty(
+    '--cursor-shake-ms',
+    `${FEEDBACK_CONFIG.durations.rejectedShakeMs}ms`,
+  );
+  cursor.style.setProperty(
+    '--cursor-return-ms',
+    `${FEEDBACK_CONFIG.durations.playerTurnMs}ms`,
+  );
+  cursor.addEventListener('animationend', () => {
+    cursor.classList.remove('is-shaking', 'is-returning');
+  });
+
+  const replay = (className: string): void => {
+    cursor.classList.remove(className);
+    // Fuerza un reflow para que una segunda pulsación reinicie la animación.
+    void cursor.offsetWidth;
+    cursor.classList.add(className);
+  };
 
   return {
     update(status: CursorStatus, camera: Camera): void {
@@ -73,6 +97,12 @@ export function createCursorView(frame: ParentNode): CursorView {
       });
 
       path.replaceChildren(...points);
+    },
+    shake(): void {
+      replay('is-shaking');
+    },
+    pulseAppear(): void {
+      replay('is-returning');
     },
   };
 }

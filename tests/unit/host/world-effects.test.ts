@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import type { GameEvent, GameState } from '../../../src/game/types';
 import { FEEDBACK_CONFIG } from '../../../src/host/feedback-config';
 import { buildMotionTimeline } from '../../../src/host/motion';
-import { worldEffectsAt } from '../../../src/host/world-effects';
+import {
+  alarmEffectAt,
+  pickupWeaponEffectAt,
+  worldEffectsAt,
+} from '../../../src/host/world-effects';
 import { makeState, makeUnit } from '../game/helpers';
 
 function attack(hit: boolean): GameEvent {
@@ -161,5 +165,66 @@ describe('efectos de mundo de muerte', () => {
     expect(
       worldEffectsAt(timeline, deathCue.atMs + FEEDBACK_CONFIG.beats.death),
     ).toEqual(new Map());
+  });
+});
+
+describe('efectos de percepción, alarma y recogida', () => {
+  it('el avistamiento hace parpadear al enemigo durante su cue de 200 ms', () => {
+    const timeline = buildMotionTimeline([
+      {
+        type: 'EnemySpotted',
+        unitId: 'enemy-1',
+        playerId: 'player-1',
+        position: { x: 6, y: 5 },
+        step: { x: 5, y: 5 },
+      },
+    ]);
+    const cue = timeline.cues.find((entry) => entry.kind === 'spotted')!;
+
+    expect(worldEffectsAt(timeline, cue.atMs).get('enemy-1')?.visible).toBe(true);
+    expect(worldEffectsAt(timeline, cue.atMs + 60).get('enemy-1')?.visible).toBe(false);
+    expect(worldEffectsAt(timeline, cue.atMs + 110).get('enemy-1')?.visible).toBe(true);
+    expect(worldEffectsAt(timeline, cue.atMs + 160).get('enemy-1')?.visible).toBe(false);
+    expect(worldEffectsAt(timeline, cue.atMs + 200).get('enemy-1')).toBeUndefined();
+  });
+
+  it('la alarma crece desde el emisor hasta dos tiles y destella el borde', () => {
+    const timeline = buildMotionTimeline([
+      { type: 'AlarmRaised', unitId: 'enemy-1', position: { x: 8, y: 6 } },
+    ]);
+    const start = alarmEffectAt(timeline, 0)!;
+    const half = alarmEffectAt(timeline, 250)!;
+    const almost = alarmEffectAt(timeline, 499)!;
+
+    expect(start).toMatchObject({ tileX: 8, tileY: 6, radiusTiles: 0, borderFlash: true });
+    expect(half.radiusTiles).toBeCloseTo(1, 5);
+    expect(almost.radiusTiles).toBeGreaterThan(1.9);
+    expect(almost.radiusTiles).toBeLessThanOrEqual(2);
+    expect(alarmEffectAt(timeline, 500)).toBeNull();
+  });
+
+  it('la recogida alterna tres frames visibles y tres apagados sin mover el arma', () => {
+    const timeline = buildMotionTimeline(
+      [
+        {
+          type: 'PickUp',
+          unitId: 'player-1',
+          weaponId: 'dagger',
+          slot: 2,
+        },
+      ],
+      { finalState: deadState() },
+    );
+    const cue = timeline.cues.find((entry) => entry.kind === 'pickup')!;
+    const segment = cue.durationMs / (FEEDBACK_CONFIG.effects.pickupBlinkFrames * 2);
+
+    const frames = [0, 1, 2, 3, 4, 5].map(
+      (index) => pickupWeaponEffectAt(timeline, cue.atMs + index * segment + 1)?.visible,
+    );
+    expect(frames).toEqual([true, false, true, false, true, false]);
+    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.weaponId).toBe('dagger');
+    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.tileX).toBe(5);
+    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.tileY).toBe(5);
+    expect(pickupWeaponEffectAt(timeline, cue.atMs + cue.durationMs)).toBeNull();
   });
 });

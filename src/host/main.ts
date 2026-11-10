@@ -15,6 +15,22 @@ import { createCursorView } from './cursor-view';
 import { createDebugApi, type AnimationSnapshot } from './debug';
 import { MAX_DAMAGE_TEXTS, layoutDamageTexts } from './feedback';
 import { FEEDBACK_CONFIG } from './feedback-config';
+import {
+  EMPTY_FRAME_EFFECTS,
+  bannerForCue,
+  frameEffectsAt,
+  unitMarkForEvent,
+  weaponSlotPulseAt,
+  type BannerFeedback,
+  type UnitMarkFeedback,
+} from './feedback-events';
+import {
+  createBannerView,
+  createFrameEffectView,
+  createScreenFadeView,
+  createUnitMarkerView,
+  type TimedUnitMark,
+} from './feedback-overlay-view';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
@@ -45,9 +61,13 @@ import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
-import { trackSpottedUnits, reconcileSpottedUnits } from './spot';
+import { trackSpottedUnits, reconcileSpottedUnits, untrackSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
-import { worldEffectsAt } from './world-effects';
+import {
+  alarmEffectAt,
+  pickupWeaponEffectAt,
+  worldEffectsAt,
+} from './world-effects';
 
 /** Delta máximo por frame: una pestaña en segundo plano no adelanta pasos. */
 const MAX_FRAME_DELTA_MS = 50;
@@ -85,6 +105,11 @@ interface DamageFeedbackView {
     map: { readonly width: number; readonly height: number },
   ): void;
   clear(): void;
+}
+
+/** Banner efímero gobernado por el reloj de presentación. */
+interface TimedBanner extends BannerFeedback {
+  remainingMs: number;
 }
 
 function cssPercent(value: number): string {
@@ -233,6 +258,9 @@ async function boot(): Promise<void> {
 
   /** Textos de daño vivos, el más reciente primero; máximo tres. */
   let damageTexts: DamageTextInstance[] = [];
+  /** Banner y marcas efímeras; viven en el reloj de presentación. */
+  let banner: TimedBanner | null = null;
+  let unitMarks: TimedUnitMark[] = [];
   let textFrameHandle: number | undefined;
   let textLastFrameTime: number | undefined;
 
@@ -243,6 +271,10 @@ async function boot(): Promise<void> {
   const noticeView = createNoticeView(gameRoot);
   const spotView = createSpotMarkerView(frame);
   const perceptionView = createPerceptionOverlayView(frame);
+  const bannerView = createBannerView(frame);
+  const markView = createUnitMarkerView(frame);
+  const frameEffectView = createFrameEffectView(frame);
+  const screenFadeView = createScreenFadeView(frame);
 
   const resetCursorToPlayer = (): void => {
     cursor = cursorAtPlayer(session.state.players[0]);
@@ -312,9 +344,6 @@ async function boot(): Promise<void> {
 
   const render = (): void => {
     const state = session.state;
-    // El "!" solo sobrevive mientras el detector siga vivo y en alerta. La poda
-    // usa el estado final: no adelanta el marcador del paso que lo activa.
-    spottedUnits = reconcileSpottedUnits(state, spottedUnits);
     // El mapa puede cambiar de tamaño o de semilla: se recalcula siempre para
     // que cámara y límites nunca queden obsoletos.
     world = gridPixelSize(state.grid, TILE_SIZE);
@@ -335,19 +364,30 @@ async function boot(): Promise<void> {
           positions,
           dyingUnitIds: dyingUnitIds(animation.timeline, elapsed),
           effects: worldEffectsAt(animation.timeline, elapsed),
+          alarm: alarmEffectAt(animation.timeline, elapsed),
+          pickupWeapon: pickupWeaponEffectAt(animation.timeline, elapsed),
           debug: debugView.isOpen(),
         });
       }
       const displayCursor = presentationCursor(animation);
-      hudView.update(display, displayCursor);
+      const slotPulse = weaponSlotPulseAt(animation.timeline, elapsed);
+      hudView.update(display, displayCursor, {
+        weaponPulseMs: slotPulse?.durationMs ?? null,
+      });
       cursorView.update(displayCursor, camera);
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
       spotView.update(state, camera, viewport, spottedUnits);
       perceptionView.update(state, camera, viewport, debugView.isOpen());
       feedbackView.update(damageTexts, camera, display.grid);
+      bannerView.update(banner);
+      markView.update(unitMarks, state, camera, viewport);
+      frameEffectView.update(frameEffectsAt(animation.timeline, elapsed));
       return;
     }
 
+    // Sin animación la poda usa el estado final: el "!" ya no se adelanta a su
+    // cue porque durante la animación solo se retira con sus eventos.
+    spottedUnits = reconcileSpottedUnits(state, spottedUnits);
     camera = centerCameraOnTile(state.players[0], viewport, world, TILE_SIZE);
 
     // El cursor nunca mueve la cámara; si la cámara se desplaza al mover al
@@ -362,12 +402,15 @@ async function boot(): Promise<void> {
         debug: debugView.isOpen(),
       });
     }
-    hudView.update(state, cursorStatus);
+    hudView.update(state, cursorStatus, { weaponPulseMs: null });
     cursorView.update(cursorStatus, camera);
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
     spotView.update(state, camera, viewport, spottedUnits);
     perceptionView.update(state, camera, viewport, debugView.isOpen());
     feedbackView.update(damageTexts, camera, state.grid);
+    bannerView.update(banner);
+    markView.update(unitMarks, state, camera, viewport);
+    frameEffectView.update(EMPTY_FRAME_EFFECTS);
   };
 
   const cancelTextFrame = (): void => {
@@ -378,15 +421,28 @@ async function boot(): Promise<void> {
     textLastFrameTime = undefined;
   };
 
-  const advanceDamageTexts = (deltaMs: number): void => {
-    if (damageTexts.length === 0 || deltaMs <= 0) return;
-    for (const text of damageTexts) text.remainingMs -= deltaMs;
-    damageTexts = damageTexts.filter((text) => text.remainingMs > 0);
+  const hasTransientFeedback = (): boolean =>
+    damageTexts.length > 0 || banner !== null || unitMarks.length > 0;
+
+  const advanceTransientFeedback = (deltaMs: number): void => {
+    if (deltaMs <= 0) return;
+    if (damageTexts.length > 0) {
+      for (const text of damageTexts) text.remainingMs -= deltaMs;
+      damageTexts = damageTexts.filter((text) => text.remainingMs > 0);
+    }
+    if (banner) {
+      banner.remainingMs -= deltaMs;
+      if (banner.remainingMs <= 0) banner = null;
+    }
+    if (unitMarks.length > 0) {
+      for (const mark of unitMarks) mark.remainingMs -= deltaMs;
+      unitMarks = unitMarks.filter((mark) => mark.remainingMs > 0);
+    }
   };
 
   const scheduleTextFrame = (): void => {
     if (
-      damageTexts.length === 0 ||
+      !hasTransientFeedback() ||
       animation !== null ||
       manualClock ||
       textFrameHandle !== undefined
@@ -399,12 +455,12 @@ async function boot(): Promise<void> {
 
   const textTick = (now: number): void => {
     textFrameHandle = undefined;
-    if (animation !== null || manualClock || damageTexts.length === 0) return;
+    if (animation !== null || manualClock || !hasTransientFeedback()) return;
     const raw = textLastFrameTime === undefined ? 0 : now - textLastFrameTime;
     textLastFrameTime = now;
-    advanceDamageTexts(Math.min(MAX_FRAME_DELTA_MS, Math.max(0, raw)));
+    advanceTransientFeedback(Math.min(MAX_FRAME_DELTA_MS, Math.max(0, raw)));
     render();
-    if (damageTexts.length > 0) scheduleTextFrame();
+    if (hasTransientFeedback()) scheduleTextFrame();
   };
 
   const addDamageText = (
@@ -425,11 +481,35 @@ async function boot(): Promise<void> {
     ].slice(0, MAX_DAMAGE_TEXTS);
   };
 
-  const clearDamageTexts = (): void => {
+  const showBanner = (feedback: BannerFeedback): void => {
+    banner = { ...feedback, remainingMs: feedback.durationMs };
+  };
+
+  const addUnitMark = (mark: UnitMarkFeedback): void => {
+    unitMarks = [
+      { ...mark, remainingMs: mark.durationMs },
+      ...unitMarks.filter((candidate) => candidate.unitId !== mark.unitId),
+    ];
+  };
+
+  const clearTransientFeedback = (): void => {
     damageTexts = [];
+    banner = null;
+    unitMarks = [];
     cancelTextFrame();
     feedbackView.clear();
+    bannerView.clear();
+    markView.clear();
   };
+
+  const cueFor = (
+    active: ActiveAnimation,
+    kind: string,
+    atMs: number,
+  ) =>
+    active.timeline.cues.find(
+      (candidate) => candidate.kind === kind && candidate.atMs === atMs,
+    );
 
   const fireFeedbacks = (active: ActiveAnimation, fromMs: number, toMs: number): void => {
     for (let index = 0; index < active.timeline.events.length; index += 1) {
@@ -444,6 +524,19 @@ async function boot(): Promise<void> {
         case 'EnemySpotted':
           spottedUnits = trackSpottedUnits(spottedUnits, [entry.event]);
           break;
+        case 'EnemyFled':
+        case 'EnemyReturned':
+        case 'UnitDied': {
+          spottedUnits = untrackSpottedUnits(spottedUnits, entry.event.unitId);
+          const mark = unitMarkForEvent(entry.event, session.state);
+          if (mark) addUnitMark(mark);
+          break;
+        }
+        case 'EnemyWaited': {
+          const mark = unitMarkForEvent(entry.event, session.state);
+          if (mark) addUnitMark(mark);
+          break;
+        }
         case 'AttackPerformed': {
           const attackEvent = entry.event;
           const cue = active.timeline.cues.find(
@@ -460,6 +553,27 @@ async function boot(): Promise<void> {
               cue.data.attacker,
             );
           }
+          break;
+        }
+        case 'PickUp':
+        case 'SelectWeapon':
+        case 'EnemyPhaseStarted':
+        case 'PlayerTurnStarted':
+        case 'TurnEnded': {
+          const kind =
+            entry.event.type === 'PickUp'
+              ? 'pickup'
+              : entry.event.type === 'SelectWeapon'
+                ? 'select-weapon'
+                : entry.event.type === 'EnemyPhaseStarted'
+                  ? 'enemy-phase'
+                  : entry.event.type === 'PlayerTurnStarted'
+                    ? 'player-turn'
+                    : 'turn-ended';
+          const cue = cueFor(active, kind, entry.atMs);
+          if (!cue) break;
+          const feedback = bannerForCue(cue);
+          if (feedback) showBanner(feedback);
           break;
         }
         case 'AlarmRaised':
@@ -487,6 +601,8 @@ async function boot(): Promise<void> {
 
     if (active.resetCursorAtEnd) {
       resetCursorToPlayer();
+      // El cursor reaparece con un parpadeo al acabar el beat de su turno.
+      cursorView.pulseAppear();
     } else if (isCursorInteractive(state)) {
       cursor = clampCursorToViewport(cursor, finalCamera, viewport, state.grid, TILE_SIZE);
     }
@@ -502,7 +618,7 @@ async function boot(): Promise<void> {
 
     const from = active.elapsed;
     active.elapsed = advanceTimeline(active.timeline, from, deltaMs);
-    advanceDamageTexts(active.elapsed - from);
+    advanceTransientFeedback(active.elapsed - from);
     fireFeedbacks(active, from, active.elapsed);
 
     if (active.elapsed + EPSILON >= active.timeline.totalMs) {
@@ -592,11 +708,14 @@ async function boot(): Promise<void> {
    */
   const setupState = (state: GameState, generator?: MapGenerator): void => {
     cancelAnimation();
-    clearDamageTexts();
+    clearTransientFeedback();
     session.load(state, generator);
     lastEvents = [];
     noticeView.clear();
     debugView.close();
+    spotView.clear();
+    frameEffectView.clear();
+    screenFadeView.clear();
     spottedUnits = new Set<string>();
     world = gridPixelSize(state.grid, TILE_SIZE);
     bounds = cameraBounds(world, viewport);
@@ -617,11 +736,15 @@ async function boot(): Promise<void> {
 
     if (command.type === 'Restart' || result.events.some((event) => event.type === 'GameRestarted')) {
       cancelAnimation();
-      clearDamageTexts();
+      // El reinicio limpia cualquier cue pendiente y funde 250 ms (R-018).
+      clearTransientFeedback();
       debugView.close();
       noticeView.clear();
+      spotView.clear();
+      frameEffectView.clear();
       spottedUnits = new Set<string>();
       resetCursorToPlayer();
+      screenFadeView.play();
       render();
       return result;
     }
@@ -632,6 +755,8 @@ async function boot(): Promise<void> {
       if (event.type === 'CommandRejected') {
         const notice = noticeForRejection(event.reason);
         if (notice) noticeView.show(notice);
+        // Sacudida de 120 ms sin beat: el input vuelve en el mismo instante.
+        cursorView.shake();
       }
     }
 
@@ -659,10 +784,12 @@ async function boot(): Promise<void> {
   /** `F2`: semilla nueva en el host, sin tocar el motor ni cerrar el debug. */
   const regenerate = (): void => {
     cancelAnimation();
-    clearDamageTexts();
+    clearTransientFeedback();
     session.regenerate(nextSeed(session.seed));
     lastEvents = [];
     noticeView.clear();
+    spotView.clear();
+    frameEffectView.clear();
     spottedUnits = new Set<string>();
     resetCursorToPlayer();
     cursorStatus = deriveCursorStatus(session.state, cursor);
