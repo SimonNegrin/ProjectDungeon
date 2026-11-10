@@ -28,8 +28,13 @@ No lances un formulario. Avanza por bloques:
 6. **Aceptación**: cómo sabremos que funciona.
 7. **Riesgos**: contradicciones, dependencias y costes.
 
-Haz preguntas enfocadas. Refleja lo entendido. Propón opciones con tradeoffs.
-Señala contradicciones en el momento.
+Haz preguntas enfocadas, una por mensaje. Refleja lo entendido en una línea.
+Propón como máximo 3 opciones con su tradeoff en una línea. Señala
+contradicciones en el momento.
+
+Brevedad: 120 palabras o 6 líneas por turno. Si no cabe, divide en turnos. El
+detalle va a la hoja, no al chat; solo el resumen previo a la aprobación puede
+ser completo.
 
 # Creativo vs técnico
 

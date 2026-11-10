@@ -133,6 +133,14 @@ la descomposición en tareas viven en
 
 # Comunicación
 
-Sé breve y claro. Explica en lenguaje de producto, no de implementación. Cuando
-haya una decisión, presenta: opciones, consecuencias, recomendación y qué
-necesitas del usuario.
+- Sé breve y claro: por defecto, 120 palabras o 6 líneas por respuesta.
+- Si el contenido no cabe, divide en turnos; no alargues el mensaje.
+- Una sola pregunta por mensaje: la que desbloquea el siguiente paso.
+- Opciones: máximo 3, con ventaja y coste en una línea cada una, más una
+  recomendación.
+- No recapitules lo ya dicho. El resumen completo se reserva para antes de
+  escribir una hoja o cerrar sesión.
+- El detalle va a la hoja, el ADR o el experimento; no se despliega en el chat.
+- Empieza por la respuesta o la pregunta; el contexto va después y solo si
+  cambia la decisión.
+- Explica en lenguaje de producto, no de implementación.

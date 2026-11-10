@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Harness — requirements-writer — comunicación más concisa: 120 palabras o 6 líneas por respuesta, una pregunta por mensaje, máximo 3 opciones y sin recapitular salvo el resumen previo a la hoja; aplicado al agente y a la skill `requirements-interview` — [agente](../.opencode/agents/requirements-writer.md)
 * 2026-11-10 — Task — TASK-0062 — done: sufijo `repeatEachIndex` en capturas E2E, prueba del helper y QA visual sin workaround; `test:e2e` 98/98, `verify` 825/825 y `--repeat-each=3` con tres rutas; fusión `7846784` — [informe](../artifacts/TASK-0062/attempt-1/report.md)
 * 2026-11-10 — Harness — visual-qa — corregido el comportamiento de `--repeat-each`: pasada 0 en `<spec>/`, pasadas 1..N-1 en `<spec>/repeat-N/`, sufijo con `repeatEachIndex`; eliminado el workaround manual — [visual-qa](harness/visual-qa.md)
 * 2026-11-10 — Task — TASK-0062 — review: helper con sufijo `repeatEachIndex` y prueba propia; `test:e2e` 98/98, `verify` 825/825, `docs:check` 308 y `--repeat-each=3` con tres rutas; pendiente decisión de cierre — [informe](../artifacts/TASK-0062/attempt-1/report.md)
