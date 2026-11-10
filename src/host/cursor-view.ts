@@ -12,6 +12,11 @@ export interface CursorView {
   pulseAppear(): void;
 }
 
+export interface CursorViewOptions {
+  /** Con movimiento reducido no hay sacudida ni parpadeo; el estado es estático. */
+  readonly reducedMotion?: boolean;
+}
+
 function requireElement<T extends HTMLElement>(root: ParentNode, testId: string): T {
   const element = root.querySelector<T>(`[data-testid="${testId}"]`);
   if (!element) {
@@ -39,9 +44,13 @@ function positionTile(element: HTMLElement, x: number, y: number, camera: Camera
  * Vista DOM del cursor y de los puntos del camino. Vive en `.map-overlay`, que
  * recorta al viewport 13×13 y no intercepta clics.
  */
-export function createCursorView(frame: ParentNode): CursorView {
+export function createCursorView(
+  frame: ParentNode,
+  options: CursorViewOptions = {},
+): CursorView {
   const cursor = requireElement(frame, 'cursor');
   const path = requireElement(frame, 'cursor-path');
+  const reducedMotion = options.reducedMotion === true;
 
   cursor.style.setProperty(
     '--cursor-shake-ms',
@@ -99,9 +108,11 @@ export function createCursorView(frame: ParentNode): CursorView {
       path.replaceChildren(...points);
     },
     shake(): void {
+      if (reducedMotion) return;
       replay('is-shaking');
     },
     pulseAppear(): void {
+      if (reducedMotion) return;
       replay('is-returning');
     },
   };

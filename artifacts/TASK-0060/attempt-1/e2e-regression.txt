@@ -1,0 +1,20 @@
+# motion-qa reduced motion
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/motion-qa.spec.ts:959:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos (1.2s)
+
+  1 passed (3.1s)
+
+# feedback-inventory-perception-qa
+
+Running 6 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:84:1 › TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final (1.7s)
+  ✓  2 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:121:1 › TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue (2.0s)
+  ✓  1 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:52:1 › TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final (2.4s)
+  ✓  5 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:226:1 › TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante (794ms)
+  ✓  6 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:251:1 › TASK-0059: el rechazo no crea beat y muestra aviso con sacudida (768ms)
+  ✓  4 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:165:1 › TASK-0059: huida con marca, banner de fase y fin de partida sin overlay prematuro (3.2s)
+
+  6 passed (4.9s)

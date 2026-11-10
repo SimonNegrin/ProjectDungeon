@@ -143,9 +143,25 @@ export interface FeedbackBeat {
   readonly endMs: number;
 }
 
+/**
+ * Política de visibilidad y foco decidida por el host con la cámara y el
+ * viewport. El constructor de la timeline no la deduce de un reloj ni del
+ * estado: la recibe y se limita a clasificar cada recorrido.
+ */
+export interface MotionVisibilityPolicy {
+  /** ¿El tile cae dentro del viewport en el instante de la acción? */
+  readonly isVisible: (tile: Position) => boolean;
+  /** ¿La unidad es el jugador y puede arrastrar la cámara al cruzar? */
+  readonly isPlayer: (unitId: string) => boolean;
+}
+
 export interface BuildTimelineOptions {
   readonly initialState?: GameState;
   readonly finalState?: GameState;
+  /** Sin política se conserva el comportamiento histórico (todo visible). */
+  readonly visibility?: MotionVisibilityPolicy;
+  /** Colapsa beats, pasos y pausas a 0 sin reordenar eventos ni cues. */
+  readonly reducedMotion?: boolean;
 }
 
 export interface MotionTimeline {
@@ -160,7 +176,10 @@ export interface MotionTimeline {
   readonly totalMs: number;
   /** Fin del último beat; gobierna cuándo vuelve el input. */
   readonly blockingUntilMs: number;
+  /** Unidades que la cámara puede seguir. */
   readonly focusUnitIds: readonly string[];
+  /** Unidades con pasos visuales, aunque no reciban foco de cámara. */
+  readonly animatedUnitIds: readonly string[];
   readonly stepCount: number;
 }
 
@@ -176,10 +195,16 @@ function isDiagonal(from: Position, to: Position): boolean {
   return from.x !== to.x && from.y !== to.y;
 }
 
-function stepDurationMs(diagonal: boolean): number {
+function stepDurationMs(diagonal: boolean, reducedMotion: boolean): number {
+  if (reducedMotion) return 0;
   if (!diagonal) return MOTION_CONFIG.stepMs;
   if (MOTION_CONFIG.diagonal === 'constant-duration') return MOTION_CONFIG.stepMs;
   return Math.round(MOTION_CONFIG.stepMs * Math.SQRT2);
+}
+
+/** Pausa de tile; el modo reducido la colapsa para no animar el recorrido. */
+function pauseDurationMs(reducedMotion: boolean): number {
+  return reducedMotion ? 0 : MOTION_CONFIG.pauseMs;
 }
 
 function tileCenter(tile: Position): { x: number; y: number } {
@@ -223,7 +248,9 @@ function anchorFor(
 function beatForEvent(
   event: PresentationEvent,
   next: PresentationEvent | undefined,
+  reducedMotion: boolean,
 ): number {
+  if (reducedMotion) return 0;
   switch (event.type) {
     case 'AttackPerformed':
       return event.hit
@@ -426,15 +453,36 @@ function cueForEvent(
   }
 }
 
+type MoveVisibility = 'inside' | 'outside' | 'crossing';
+
+/** Clasifica un recorrido completo por sus extremos; el host decide con la cámara. */
+function classifyMove(
+  from: Position,
+  to: Position,
+  visibility: MotionVisibilityPolicy | undefined,
+): MoveVisibility {
+  if (!visibility) return 'inside';
+  const fromVisible = visibility.isVisible(from);
+  const toVisible = visibility.isVisible(to);
+  if (!fromVisible && !toVisible) return 'outside';
+  if (fromVisible !== toVisible) return 'crossing';
+  return 'inside';
+}
+
 /**
  * Construye la timeline de presentación a partir de los eventos ordenados de la
  * acción. Es pura: no muta los eventos y no conoce reloj real ni DOM.
  *
- * Un `UnitMoved` contiguo de la misma unidad continúa el grupo: pausa inicial,
- * transición y pausa en el destino por cada paso, de modo que `n` pasos dejan
- * `n + 1` pausas. Los eventos que no son `UnitMoved` se secuencian: cada uno
- * empieza al acabar el beat del anterior. `CommandRejected` no bloquea y
- * `TurnEnded` calla si le sigue `EnemyPhaseStarted`.
+ * Los `UnitMoved` contiguos de la misma unidad forman un recorrido. Si la
+ * política de visibilidad dice que empieza y termina fuera del viewport, el
+ * grupo se colapsa en un beat de 150 ms sin pasos ni foco de cámara; si cruza el
+ * borde, conserva el recorrido completo y solo el jugador arrastra la cámara.
+ * Sin política se mantiene el comportamiento histórico: todo visible y seguido.
+ *
+ * Un grupo visible deja pausa inicial, transición y pausa en el destino por
+ * cada paso, de modo que `n` pasos dejan `n + 1` pausas. Los eventos que no son
+ * `UnitMoved` se secuencian al acabar el beat del anterior. `CommandRejected` no
+ * bloquea y `TurnEnded` calla si le sigue `EnemyPhaseStarted`.
  */
 export function buildMotionTimeline(
   events: readonly PresentationEvent[],
@@ -446,9 +494,10 @@ export function buildMotionTimeline(
   const cues: FeedbackCue[] = [];
   const beats: FeedbackBeat[] = [];
   const focusUnitIds: string[] = [];
+  const animatedUnitIds: string[] = [];
+  const reducedMotion = options.reducedMotion === true;
+  const pauseMs = pauseDurationMs(reducedMotion);
   let clock = 0;
-  let lastUnitId: string | undefined;
-  let lastTo: Position | undefined;
 
   for (let index = 0; index < events.length; index += 1) {
     const event = events[index];
@@ -456,7 +505,7 @@ export function buildMotionTimeline(
     if (event.type !== 'UnitMoved') {
       const atMs = clock;
       const next = events[index + 1];
-      const beatMs = beatForEvent(event, next);
+      const beatMs = beatForEvent(event, next, reducedMotion);
 
       timedEvents.push({ atMs, event });
       if (hasCue(event, next)) {
@@ -472,93 +521,149 @@ export function buildMotionTimeline(
       continue;
     }
 
-    const continuesGroup =
-      lastUnitId === event.unitId &&
-      lastTo !== undefined &&
-      event.from.x === lastTo.x &&
-      event.from.y === lastTo.y;
+    // Recorrido contiguo de una unidad: mismo id y cada paso arranca donde
+    // acabó el anterior. Un `UnitMoved` no contiguo abre un grupo nuevo.
+    const group: Extract<PresentationEvent, { type: 'UnitMoved' }>[] = [event];
+    let groupEnd = index;
+    while (groupEnd + 1 < events.length) {
+      const candidate = events[groupEnd + 1];
+      if (
+        candidate.type !== 'UnitMoved' ||
+        candidate.unitId !== event.unitId
+      ) {
+        break;
+      }
+      const last = group[group.length - 1];
+      if (candidate.from.x !== last.to.x || candidate.from.y !== last.to.y) {
+        break;
+      }
+      group.push(candidate);
+      groupEnd += 1;
+    }
+    index = groupEnd;
 
-    if (!continuesGroup) {
-      phases.push({
-        kind: 'pause',
-        startMs: clock,
-        endMs: clock + MOTION_CONFIG.pauseMs,
-        durationMs: MOTION_CONFIG.pauseMs,
-        stepIndex: steps.length,
-        tile: { ...event.from },
-        unitId: event.unitId,
+    const first = group[0];
+    const last = group[group.length - 1];
+    const visibility = classifyMove(first.from, last.to, options.visibility);
+
+    // Fuera de pantalla: un único beat, sin tween por tile ni foco. La posición
+    // final ya se dibuja en el estado de presentación al empezar el beat.
+    if (visibility === 'outside') {
+      const atMs = clock;
+      const beatMs = reducedMotion ? 0 : FEEDBACK_CONFIG.beats.enemyOffscreen;
+      cues.push({
+        kind: 'move',
+        eventType: event.type,
+        atMs,
+        durationMs: 0,
+        beatMs,
+        anchor: anchorFor(last.unitId, options.finalState, last.to),
+        data: {
+          unitId: last.unitId,
+          mpAfter: last.mpLeft,
+          from: { ...first.from },
+          to: { ...last.to },
+        },
       });
-      clock += MOTION_CONFIG.pauseMs;
+      beats.push({
+        eventType: event.type,
+        atMs,
+        beatMs,
+        endMs: atMs + beatMs,
+      });
+      clock = atMs + beatMs;
+      continue;
     }
 
-    if (!focusUnitIds.includes(event.unitId)) focusUnitIds.push(event.unitId);
+    // El cruce se anima completo, pero la cámara solo sigue al jugador. Una
+    // unidad visible dentro del viewport sí puede arrastrar la cámara.
+    const focus =
+      visibility === 'inside' ||
+      (visibility === 'crossing' &&
+        options.visibility?.isPlayer(last.unitId) === true);
+    if (focus && !focusUnitIds.includes(last.unitId)) {
+      focusUnitIds.push(last.unitId);
+    }
+    if (!animatedUnitIds.includes(last.unitId)) {
+      animatedUnitIds.push(last.unitId);
+    }
 
-    const diagonal = isDiagonal(event.from, event.to);
-    const durationMs = stepDurationMs(diagonal);
-    const startMs = clock;
-    const endMs = startMs + durationMs;
-
-    steps.push({
-      index: steps.length,
-      unitId: event.unitId,
-      from: { ...event.from },
-      to: { ...event.to },
-      dx: event.to.x - event.from.x,
-      dy: event.to.y - event.from.y,
-      diagonal,
-      durationMs,
-      startMs,
-      endMs,
-      pauseEndMs: endMs + MOTION_CONFIG.pauseMs,
-      mpAfter: event.mpLeft,
-    });
-
-    phases.push({
-      kind: 'transition',
-      startMs,
-      endMs,
-      durationMs,
-      stepIndex: steps.length - 1,
-      from: { ...event.from },
-      to: { ...event.to },
-      unitId: event.unitId,
-    });
-
-    cues.push({
-      kind: 'move',
-      eventType: event.type,
-      atMs: startMs,
-      durationMs,
-      beatMs: durationMs + MOTION_CONFIG.pauseMs,
-      anchor: anchorFor(event.unitId, options.finalState, event.to),
-      data: {
-        unitId: event.unitId,
-        mpAfter: event.mpLeft,
-        from: { ...event.from },
-        to: { ...event.to },
-      },
-    });
-    beats.push({
-      eventType: event.type,
-      atMs: startMs,
-      beatMs: durationMs + MOTION_CONFIG.pauseMs,
-      endMs: endMs + MOTION_CONFIG.pauseMs,
-    });
-
-    clock = endMs;
     phases.push({
       kind: 'pause',
       startMs: clock,
-      endMs: clock + MOTION_CONFIG.pauseMs,
-      durationMs: MOTION_CONFIG.pauseMs,
+      endMs: clock + pauseMs,
+      durationMs: pauseMs,
       stepIndex: steps.length,
-      tile: { ...event.to },
-      unitId: event.unitId,
+      tile: { ...first.from },
+      unitId: first.unitId,
     });
-    clock += MOTION_CONFIG.pauseMs;
+    clock += pauseMs;
 
-    lastUnitId = event.unitId;
-    lastTo = event.to;
+    for (const move of group) {
+      const diagonal = isDiagonal(move.from, move.to);
+      const durationMs = stepDurationMs(diagonal, reducedMotion);
+      const startMs = clock;
+      const endMs = startMs + durationMs;
+
+      steps.push({
+        index: steps.length,
+        unitId: move.unitId,
+        from: { ...move.from },
+        to: { ...move.to },
+        dx: move.to.x - move.from.x,
+        dy: move.to.y - move.from.y,
+        diagonal,
+        durationMs,
+        startMs,
+        endMs,
+        pauseEndMs: endMs + pauseMs,
+        mpAfter: move.mpLeft,
+      });
+
+      phases.push({
+        kind: 'transition',
+        startMs,
+        endMs,
+        durationMs,
+        stepIndex: steps.length - 1,
+        from: { ...move.from },
+        to: { ...move.to },
+        unitId: move.unitId,
+      });
+
+      cues.push({
+        kind: 'move',
+        eventType: move.type,
+        atMs: startMs,
+        durationMs,
+        beatMs: durationMs + pauseMs,
+        anchor: anchorFor(move.unitId, options.finalState, move.to),
+        data: {
+          unitId: move.unitId,
+          mpAfter: move.mpLeft,
+          from: { ...move.from },
+          to: { ...move.to },
+        },
+      });
+      beats.push({
+        eventType: move.type,
+        atMs: startMs,
+        beatMs: durationMs + pauseMs,
+        endMs: endMs + pauseMs,
+      });
+
+      clock = endMs;
+      phases.push({
+        kind: 'pause',
+        startMs: clock,
+        endMs: clock + pauseMs,
+        durationMs: pauseMs,
+        stepIndex: steps.length,
+        tile: { ...move.to },
+        unitId: move.unitId,
+      });
+      clock += pauseMs;
+    }
   }
 
   return {
@@ -570,6 +675,7 @@ export function buildMotionTimeline(
     totalMs: clock,
     blockingUntilMs: clock,
     focusUnitIds,
+    animatedUnitIds,
     stepCount: steps.length,
   };
 }
@@ -606,6 +712,8 @@ function startedFocusUnitId(
   let started = false;
   for (const phase of timeline.phases) {
     if (elapsed + EPSILON < phase.startMs) break;
+    // Los pasos de un cruce enemigo se animan, pero no mueven la cámara.
+    if (!timeline.focusUnitIds.includes(phase.unitId)) continue;
     unitId = phase.unitId;
     started = true;
   }
@@ -623,7 +731,10 @@ export function focusUnitId(
 ): string | null {
   const { unitId, started } = startedFocusUnitId(timeline, elapsed);
   if (started) return unitId;
-  return timeline.steps[0]?.unitId ?? null;
+  const first = timeline.steps.find((step) =>
+    timeline.focusUnitIds.includes(step.unitId),
+  );
+  return first?.unitId ?? null;
 }
 
 /**
@@ -667,7 +778,7 @@ export function visualPositions(
   elapsed: number,
 ): ReadonlyMap<string, VisualPosition> {
   const positions = new Map<string, VisualPosition>();
-  for (const unitId of timeline.focusUnitIds) {
+  for (const unitId of timeline.animatedUnitIds) {
     const position = visualPosition(timeline, elapsed, unitId);
     if (position) positions.set(unitId, position);
   }
