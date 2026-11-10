@@ -164,6 +164,16 @@ function isUnitVisible(
   );
 }
 
+function spriteOrigin(
+  center: PixelPosition,
+  effect: UnitWorldEffect | undefined,
+): PixelPosition {
+  return {
+    x: Math.round(center.x - SPRITE_SIZE / 2 + (effect?.dx ?? 0)),
+    y: Math.round(center.y - SPRITE_SIZE / 2 + (effect?.dy ?? 0)),
+  };
+}
+
 /**
  * Dibuja el sprite con el efecto de presentación: desplazamiento, alfa y
  * destello blanco. El estado del motor no se toca.
@@ -176,8 +186,7 @@ function drawUnitWithEffect(
   effect: UnitWorldEffect | undefined,
 ): void {
   if (effect && (!effect.visible || effect.alpha <= 0)) return;
-  const dx = Math.round(center.x - SPRITE_SIZE / 2 + (effect?.dx ?? 0));
-  const dy = Math.round(center.y - SPRITE_SIZE / 2 + (effect?.dy ?? 0));
+  const { x: dx, y: dy } = spriteOrigin(center, effect);
   const previousAlpha = ctx.globalAlpha ?? 1;
   if (effect && effect.alpha < 1) ctx.globalAlpha = previousAlpha * effect.alpha;
   drawRect(ctx, image, rect, dx, dy, SPRITE_SIZE);
@@ -189,13 +198,15 @@ function drawUnitWithEffect(
     ctx.fillRect(dx, dy, SPRITE_SIZE, SPRITE_SIZE);
     ctx.globalAlpha = previousAlpha;
   }
-
-  if (effect?.defense) {
-    drawDefenseGesture(ctx, dx, dy, effect.defense, previousAlpha);
-  }
 }
 
-/** Escudo/esquiva en gris claro: legible en escala de grises, sin destello. */
+/** Color único del gesto de defensa: gris claro, legible en escala de grises. */
+export const DEFENSE_GESTURE_COLOR = '#e2e8f0';
+
+/**
+ * Escudo/esquiva en gris claro: legible en escala de grises, sin destello. Se
+ * dibuja en el borde interior del tile del defensor, no fuera de él.
+ */
 function drawDefenseGesture(
   ctx: CanvasRenderingContext2D,
   dx: number,
@@ -207,12 +218,12 @@ function drawDefenseGesture(
   const margin = 5;
   const length = SPRITE_SIZE - margin * 2;
   ctx.globalAlpha = previousAlpha * 0.92;
-  ctx.fillStyle = '#e2e8f0';
+  ctx.fillStyle = DEFENSE_GESTURE_COLOR;
   if (gesture.side === 'left' || gesture.side === 'right') {
-    const x = gesture.side === 'left' ? dx - 1 : dx + SPRITE_SIZE - thickness + 1;
+    const x = gesture.side === 'left' ? dx : dx + SPRITE_SIZE - thickness;
     ctx.fillRect(x, dy + margin, thickness, length);
   } else {
-    const y = gesture.side === 'up' ? dy - 1 : dy + SPRITE_SIZE - thickness + 1;
+    const y = gesture.side === 'up' ? dy : dy + SPRITE_SIZE - thickness;
     ctx.fillRect(dx + margin, y, length, thickness);
   }
   ctx.globalAlpha = previousAlpha;
@@ -791,6 +802,19 @@ export function renderScene(
     const center = unitCenter(player, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
     drawUnitWithEffect(ctx, assets.rogues, KNIGHT_RECT, center, effect);
+  }
+
+  // Gesto de defensa en una pasada posterior a todas las unidades: el atacante
+  // se dibuja detrás o delante según el orden de las listas y podría tapar el
+  // borde del defensor. Aquí queda siempre por encima, dentro de su tile.
+  for (const unit of [...state.enemies, ...state.players]) {
+    const effect = effects?.get(unit.id);
+    if (!effect?.defense) continue;
+    if (!effect.visible || effect.alpha <= 0) continue;
+    const center = unitCenter(unit, tileSize, positions);
+    if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
+    const { x, y } = spriteOrigin(center, effect);
+    drawDefenseGesture(ctx, x, y, effect.defense, ctx.globalAlpha ?? 1);
   }
 
   if (debug) drawDebugOverlay(ctx, state, range, tileSize);

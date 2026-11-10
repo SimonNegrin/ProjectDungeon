@@ -15,6 +15,7 @@ import {
 } from '../../../src/host/layout';
 import {
   renderScene,
+  DEFENSE_GESTURE_COLOR,
   WEAPON_SHAPE_COLORS,
   type SceneAssets,
 } from '../../../src/host/renderer';
@@ -763,6 +764,74 @@ describe('render de armas del mapa', () => {
     expect(() => draw(frozen, { x: 0, y: 64 })).not.toThrow();
     expect(JSON.stringify(state)).toBe(before);
   });
+});
+
+describe('gesto de defensa', () => {
+  const SIDES = ['left', 'right', 'up', 'down'] as const;
+
+  function defenderState(): GameState {
+    const base = makeState();
+    return {
+      ...base,
+      players: [
+        { ...base.players[0], x: 5, y: 5, home: { x: 5, y: 5 } },
+      ],
+      enemies: [{ ...base.enemies[0], x: 6, y: 5, home: { x: 6, y: 5 } }],
+    };
+  }
+
+  it.each(SIDES)(
+    'dibuja la línea del gesto %s dentro del tile del defensor y tras el atacante',
+    (side) => {
+      const state = defenderState();
+      const enemy = state.enemies[0];
+      const fake = createFakeContext();
+      const effects = new Map([
+        [
+          enemy.id,
+          {
+            dx: 0,
+            dy: 0,
+            alpha: 1,
+            visible: true,
+            flash: 0,
+            flashColor: '#ffffff',
+            defense: { side, progress: 0.5 },
+          },
+        ],
+      ]);
+
+      renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, { effects });
+
+      const lines = fake.ops.filter(
+        (op): op is Extract<RenderOp, { kind: 'fill' }> =>
+          op.kind === 'fill' && op.style === DEFENSE_GESTURE_COLOR,
+      );
+      expect(lines).toHaveLength(1);
+      const line = lines[0];
+      const left = enemy.x * 32;
+      const top = enemy.y * 32;
+      const right = left + 32;
+      const bottom = top + 32;
+
+      // La línea cae dentro del tile del defensor, pegada al borde interior.
+      expect(line.x).toBeGreaterThanOrEqual(left);
+      expect(line.y).toBeGreaterThanOrEqual(top);
+      expect(line.x + line.width).toBeLessThanOrEqual(right);
+      expect(line.y + line.height).toBeLessThanOrEqual(bottom);
+      if (side === 'left') expect(line.x).toBe(left);
+      if (side === 'right') expect(line.x + line.width).toBe(right);
+      if (side === 'up') expect(line.y).toBe(top);
+      if (side === 'down') expect(line.y + line.height).toBe(bottom);
+
+      // Se pinta después del sprite del atacante: no puede quedar oculta.
+      const attackerIndex = fake.ops.findIndex(
+        (op) => op.kind === 'draw' && op.image === assets.rogues,
+      );
+      expect(attackerIndex).toBeGreaterThanOrEqual(0);
+      expect(fake.ops.indexOf(line)).toBeGreaterThan(attackerIndex);
+    },
+  );
 });
 
 function deepFreeze<T>(value: T): T {

@@ -66,6 +66,61 @@ describe('efectos de mundo de impacto y fallo', () => {
   });
 });
 
+describe('dirección del retroceso y de la esquiva', () => {
+  function directionState(
+    attacker: { x: number; y: number },
+    target: { x: number; y: number },
+  ): GameState {
+    return makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: attacker.x, y: attacker.y }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: target.x, y: target.y })],
+    });
+  }
+
+  function targetEffect(
+    hit: boolean,
+    attacker: { x: number; y: number },
+    target: { x: number; y: number },
+  ) {
+    const timeline = buildMotionTimeline([attack(hit)], {
+      finalState: directionState(attacker, target),
+    });
+    return worldEffectsAt(timeline, 90).get('enemy-1');
+  }
+
+  it('el impacto aleja al defensor en horizontal, vertical y diagonal', () => {
+    const east = targetEffect(true, { x: 5, y: 5 }, { x: 6, y: 5 });
+    expect(east?.dx).toBeGreaterThan(0);
+
+    const west = targetEffect(true, { x: 6, y: 5 }, { x: 5, y: 5 });
+    expect(west?.dx).toBeLessThan(0);
+
+    const south = targetEffect(true, { x: 5, y: 5 }, { x: 5, y: 6 });
+    expect(south?.dy).toBeGreaterThan(0);
+
+    const diagonal = targetEffect(true, { x: 5, y: 5 }, { x: 6, y: 6 });
+    expect(diagonal?.dx).toBeGreaterThan(0);
+    expect(diagonal?.dy).toBeGreaterThan(0);
+  });
+
+  it('la esquiva aleja al defensor en horizontal, vertical y diagonal', () => {
+    const east = targetEffect(false, { x: 5, y: 5 }, { x: 6, y: 5 });
+    expect(east?.dx).toBeGreaterThan(0);
+
+    const west = targetEffect(false, { x: 6, y: 5 }, { x: 5, y: 5 });
+    expect(west?.dx).toBeLessThan(0);
+
+    const south = targetEffect(false, { x: 5, y: 5 }, { x: 5, y: 6 });
+    expect(south?.dy).toBeGreaterThan(0);
+
+    const diagonal = targetEffect(false, { x: 5, y: 5 }, { x: 6, y: 6 });
+    expect(diagonal?.dx).toBeGreaterThan(0);
+    expect(diagonal?.dy).toBeGreaterThan(0);
+  });
+});
+
 describe('efectos de mundo de muerte', () => {
   function deathTimeline() {
     return buildMotionTimeline(

@@ -96,8 +96,11 @@ function applyAttack(
   const attackerId = cue.data.attackerId;
   if (!attackerTile || !targetTile) return;
 
+  // `unitDirection(from, to)` apunta de `from` hacia `to`: desde el atacante al
+  // objetivo es el sentido de la embestida y, a la vez, el del retroceso del
+  // defensor (alejarse del atacante).
   const towardTarget = unitDirection(attackerTile, targetTile);
-  const awayFromAttacker = unitDirection(targetTile, attackerTile);
+  const awayFromAttacker = towardTarget;
   const hit = cue.data.hit === true;
 
   if (attackerId) {
