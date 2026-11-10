@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Task — TASK-0061 — done: E2E completo y QA visual del feedback; regreso, espera y `TU TURNO`, reducido con texto/banner/marca y mismo orden, `advance(ms)` sin animación consume persistencia; suite 98/98, repetición alarma/huida/muerte 33/33, `verify` 818/818 y 26 capturas 1280×720 — [informe](artifacts/TASK-0061/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0060 — done: atajo enemigo fuera de pantalla de 150 ms sin cámara ni tween, cruce de borde completo con cámara estable y `prefers-reduced-motion` con beats 0 conservando texto, banner y marca; `verify` 818/818, E2E TASK-0060 3/3 y reducido 1/1 — [informe](artifacts/TASK-0060/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0059 — done: inventario, percepción y turno en su cue; recogida/cambio al final del beat, `!` estable, onda/borde/aviso de alarma, marcas de huida/regreso/espera, banners de fase, overlay tras 800 ms, fundido de reinicio y rechazo sin beat; `verify` 808/808 y E2E 86/86; banner superior a revisar en TASK-0061 — [informe](artifacts/TASK-0059/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0058 — done: impacto, fallo y muerte con efectos en Canvas, cadáver persistente desde la unidad muerta y textos DOM deterministas; `corpse-22a/b` fuera del ambiente (31); `verify` 790/790, E2E 80/80 y suite nueva 9/9 ×3; persistencia de textos con `advance` diferida a TASK-0061 — [informe](artifacts/TASK-0058/attempt-3/report.md)

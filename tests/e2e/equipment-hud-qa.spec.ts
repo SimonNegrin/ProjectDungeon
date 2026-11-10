@@ -5,8 +5,10 @@ import { ARMORS, SHIELDS, WEAPONS } from '../../src/game/equipment';
 import type { Unit } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
+  advanceToCue,
   approachEnemy,
   dispatchCommand,
+  dispatchFrozen,
   ensureMp,
   moveCursorTo,
   openBspState,
@@ -174,7 +176,7 @@ test('impacto, fallo y F1 con tiradas y vida', async ({ page }, testInfo) => {
       await approachEnemy(page);
     }
 
-    const result = await dispatchCommand(page, {
+    const result = await dispatchFrozen(page, {
       type: 'Attack',
       unitId: 'player-1',
       targetId: target.id,
@@ -182,7 +184,8 @@ test('impacto, fallo y F1 con tiradas y vida', async ({ page }, testInfo) => {
     const attack = result.events.find((event) => event.type === 'AttackPerformed');
     if (!attack || attack.type !== 'AttackPerformed') break;
 
-    await page.evaluate(() => window.__game!.advance(600));
+    await advanceToCue(page, 'attack');
+    await page.evaluate(() => window.__game!.advance(60));
     await expect(page.getByTestId('damage-feedback')).toHaveText(
       attack.hit ? `-${attack.damage}` : 'Fallo',
     );
@@ -191,7 +194,6 @@ test('impacto, fallo y F1 con tiradas y vida', async ({ page }, testInfo) => {
       attack.hit ? 'hit' : 'miss',
     );
     await expect(page.getByTestId('damage-feedback')).toBeVisible();
-    await page.waitForTimeout(80);
 
     if (attack.hit && !hitCaptured) {
       await screenshot(page, 'attack-hit', testInfo);
@@ -201,6 +203,9 @@ test('impacto, fallo y F1 con tiradas y vida', async ({ page }, testInfo) => {
       await screenshot(page, 'attack-miss', testInfo);
       missCaptured = true;
     }
+
+    // Completa la presentación antes de mover el cursor con teclado.
+    await page.evaluate(() => window.__game!.advance(1_000_000));
 
     if (attack.targetHp > 0 && !debugCaptured) {
       await moveCursorTo(page, target.x, target.y);

@@ -8,9 +8,11 @@ import type { GameSnapshot } from '../../src/host/debug';
 import { damageFeedbackAnchor } from '../../src/host/feedback';
 import { artifactPath } from './artifacts';
 import {
+  advanceToCue,
   approachEnemy,
   defeatAllEnemies,
   dispatchCommand,
+  dispatchFrozen,
   ensureMp,
   moveCursorTo,
   openBspState,
@@ -371,7 +373,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(`${enemy.hp}/${enemy.maxHp}`);
 
   const beforeAttack = await snapshot(page);
-  const attackResult = await dispatchCommand(page, {
+  const attackResult = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,
@@ -381,7 +383,8 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(
     attackResult.snapshot.animation.cues.find((cue) => cue.kind === 'attack'),
   ).toMatchObject({ kind: 'attack', hit: true });
-  await page.waitForTimeout(150);
+  await advanceToCue(page, 'attack');
+  await page.evaluate(() => window.__game!.advance(40));
   const hitBox = await feedbackBox(page);
   const playerTile = await mapTileBox(
     page,
@@ -476,14 +479,15 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   const beforeEndTurn = await snapshot(page);
-  const endTurn = await dispatchCommand(page, { type: 'EndTurn' });
+  const endTurn = await dispatchFrozen(page, { type: 'EndTurn' });
   const enemyAttack = endTurn.events.find(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
   );
   expect(enemyAttack, 'La fase enemiga debe atacar').toBeDefined();
   expect(enemyAttack!.hit).toBe(true);
-  await page.waitForTimeout(150);
+  await advanceToCue(page, 'attack');
+  await page.evaluate(() => window.__game!.advance(40));
   await expect(page.getByTestId('damage-feedback')).toHaveText(
     `-${enemyAttack!.damage}`,
   );
@@ -580,7 +584,7 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
 
   await moveCursorTo(page, enemy.x, enemy.y);
   const beforeAttack = await snapshot(page);
-  const result = await dispatchCommand(page, {
+  const result = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,
@@ -592,7 +596,8 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
     result.snapshot.animation.cues.find((cue) => cue.kind === 'attack'),
   ).toMatchObject({ kind: 'attack', hit: true });
 
-  await page.waitForTimeout(150);
+  await advanceToCue(page, 'attack');
+  await page.evaluate(() => window.__game!.advance(40));
   const box = await feedbackBox(page);
   const targetTile = await mapTileBox(page, adjacent, enemy.x, enemy.y);
   const attackerTile = await mapTileBox(page, adjacent, player.x, player.y);
@@ -634,13 +639,15 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   const enemy = adjacent.enemies[0];
   await moveCursorTo(page, enemy.x, enemy.y);
   const beforeMiss = await snapshot(page);
-  const missResult = await dispatchCommand(page, {
+  const missResult = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,
   });
-  // Igual que el impacto: capturar antes de que decaiga el feedback de 900 ms.
-  await page.waitForTimeout(150);
+  // Igual que el impacto: muestrear el pico con el reloj de presentación, sin
+  // esperas de reloj real que puedan agotar la persistencia antes del settle.
+  await advanceToCue(page, 'attack');
+  await page.evaluate(() => window.__game!.advance(40));
   await screenshot(page, 'attack-miss', testInfo);
   await settle(page);
   const miss = attackEvent(missResult.events);
