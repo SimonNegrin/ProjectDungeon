@@ -135,7 +135,7 @@ describe('configuración y construcción de la timeline', () => {
     expect(timeline.phases.filter((phase) => phase.kind === 'pause')).toHaveLength(4);
   });
 
-  it('los eventos que no son UnitMoved se sitúan tras la última pausa', () => {
+  it('los eventos que no son UnitMoved se secuencian al acabar el beat anterior', () => {
     const attack: GameEvent = {
       type: 'AttackPerformed',
       attackerId: 'player-1',
@@ -149,16 +149,15 @@ describe('configuración y construcción de la timeline', () => {
     const ended: GameEvent = { type: 'GameEnded', status: 'victory' };
     const timeline = buildMotionTimeline([...THREE_STRAIGHT, attack, died, ended]);
 
-    expect(timeline.events.map((entry) => entry.atMs)).toEqual([
-      timeline.totalMs,
-      timeline.totalMs,
-      timeline.totalMs,
-    ]);
+    // Movimiento 655 ms; impacto 320; muerte 900; fin 800.
+    expect(timeline.events.map((entry) => entry.atMs)).toEqual([655, 975, 1875]);
     expect(timeline.events.map((entry) => entry.event.type)).toEqual([
       'AttackPerformed',
       'UnitDied',
       'GameEnded',
     ]);
+    expect(timeline.totalMs).toBe(655 + 320 + 900 + 800);
+    expect(timeline.blockingUntilMs).toBe(timeline.totalMs);
   });
 
   it('sin UnitMoved la duración es 0 y los eventos quedan a tiempo 0', () => {
@@ -296,8 +295,12 @@ describe('estado derivado para HUD y render', () => {
 
   it('el enemigo no pierde vida antes del ataque; después sí', () => {
     const timeline = buildMotionTimeline(events);
-    const before = presentationState(finalState, timeline, timeline.totalMs - 1);
-    const after = presentationState(finalState, timeline, timeline.totalMs);
+    const attack = timeline.events.find(
+      (entry) => entry.event.type === 'AttackPerformed',
+    );
+    if (!attack) throw new Error('La timeline debe contener el ataque');
+    const before = presentationState(finalState, timeline, attack.atMs - 1);
+    const after = presentationState(finalState, timeline, attack.atMs);
 
     expect(before.enemies[0].hp).toBe(5);
     expect(before.status).toBe('playing');
@@ -306,8 +309,12 @@ describe('estado derivado para HUD y render', () => {
 
   it('la acción del atacante se consume al ocurrir su ataque', () => {
     const timeline = buildMotionTimeline(events);
-    const before = presentationState(finalState, timeline, timeline.totalMs - 1);
-    const after = presentationState(finalState, timeline, timeline.totalMs);
+    const attack = timeline.events.find(
+      (entry) => entry.event.type === 'AttackPerformed',
+    );
+    if (!attack) throw new Error('La timeline debe contener el ataque');
+    const before = presentationState(finalState, timeline, attack.atMs - 1);
+    const after = presentationState(finalState, timeline, attack.atMs);
 
     expect(before.players[0].actionAvailable).toBe(true);
     expect(after.players[0].actionAvailable).toBe(false);

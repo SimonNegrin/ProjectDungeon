@@ -1,4 +1,7 @@
 import type { RejectionReason } from '../game/types';
+import { NOTICE_DURATION_MS } from './feedback-config';
+
+export { NOTICE_DURATION_MS };
 
 /** Motivos de aviso aprobados en REQ-004 R-016. */
 export type NoticeCode =
@@ -16,11 +19,7 @@ export const NOTICE_MESSAGES: Readonly<Record<NoticeCode, string>> = {
   'alarm-raised': '¡Alarma! Te han visto',
 };
 
-/** Duración del aviso breve del HUD. */
-export const NOTICE_DURATION_MS = 1600;
-
-/**
- * Traduce un rechazo del motor al aviso del HUD. Devuelve `undefined` cuando no
+/** Traduce un rechazo del motor al aviso del HUD. Devuelve `undefined` cuando no
  * procede avisar (fase equivocada o partida terminada). Función pura.
  */
 export function noticeForRejection(reason: RejectionReason): NoticeCode | undefined {

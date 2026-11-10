@@ -32,6 +32,11 @@ export interface SceneAssets {
 export interface RenderOptions {
   /** Centro en píxeles enteros de cada unidad, por `unitId`. */
   readonly positions?: ReadonlyMap<string, PixelPosition>;
+  /**
+   * Unidades cuya muerte aún no se ha presentado: se dibujan como vivas sin
+   * inventar PV ni tocar la rejilla.
+   */
+  readonly dyingUnitIds?: ReadonlySet<string>;
   /** Capa de `F1`: máscaras, límites, spawn, salida, pasillos y puntos calientes. */
   readonly debug?: boolean;
 }
@@ -692,16 +697,17 @@ export function renderScene(
   }
 
   const positions = options.positions;
+  const dyingUnitIds = options.dyingUnitIds;
 
   for (const enemy of state.enemies) {
-    if (enemy.hp <= 0) continue;
+    if (enemy.hp <= 0 && !dyingUnitIds?.has(enemy.id)) continue;
     const center = unitCenter(enemy, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
     drawUnit(ctx, assets.monsters, GOBLIN_RECT, center);
   }
 
   for (const player of state.players) {
-    if (player.hp <= 0) continue;
+    if (player.hp <= 0 && !dyingUnitIds?.has(player.id)) continue;
     const center = unitCenter(player, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
     drawUnit(ctx, assets.rogues, KNIGHT_RECT, center);
