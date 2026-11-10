@@ -4,7 +4,7 @@ id: TASK-0057
 title: "Núcleo del feedback visual: configuración, timeline y estado intermedio"
 description: "Añadir FEEDBACK_CONFIG, cues deterministas sobre la timeline de presentación y estado visible retrasado; un ataque sin movimiento ya tiene beat y bloquea input."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-017
 requirement_ids: [R-001, R-002, R-003, R-004, R-023, T-001, T-002, T-003, T-004, T-005, T-009, T-011]

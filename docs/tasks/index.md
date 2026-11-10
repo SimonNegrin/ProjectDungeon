@@ -55,7 +55,7 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0054](TASK-0054-host-docs-esquema-adr-015.md) | Host y docs: nombres nuevos del esquema y ADR-015 | `done` | REQ-014 | TASK-0053 | P1 |
 | [TASK-0055](TASK-0055-motor-roster-cuchillo-nombre.md) | Motor: catálogo de roster, Cuchillo y nombre de personaje | `done` | REQ-015 | TASK-0053 | P1 |
 | [TASK-0056](TASK-0056-guerrero-defecto-host-docs.md) | Guerrero por defecto, host, tests y docs del roster | `done` | REQ-015 | TASK-0054, TASK-0055 | P1 |
-| [TASK-0057](TASK-0057-nucleo-feedback-timeline-estado.md) | Núcleo del feedback visual: configuración, timeline y estado intermedio | `ready` | REQ-017 | — | P1 |
+| [TASK-0057](TASK-0057-nucleo-feedback-timeline-estado.md) | Núcleo del feedback visual: configuración, timeline y estado intermedio | `in_progress` | REQ-017 | — | P1 |
 | [TASK-0058](TASK-0058-feedback-combate-muerte.md) | Feedback de combate y muerte: impacto, fallo, daño y cadáver | `backlog` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0059](TASK-0059-feedback-inventario-percepcion-turno.md) | Feedback de inventario, percepción y turno | `backlog` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
@@ -66,7 +66,7 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0060](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md) | Fase enemiga fuera de pantalla y movimiento reducido | `backlog` | REQ-017 | TASK-0057, TASK-0058, TASK-0059 | P2 |
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `backlog` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 
-# ready
+# in_progress
 
 * [TASK-0057 — Núcleo del feedback visual: configuración, timeline y estado intermedio](TASK-0057-nucleo-feedback-timeline-estado.md)
 
