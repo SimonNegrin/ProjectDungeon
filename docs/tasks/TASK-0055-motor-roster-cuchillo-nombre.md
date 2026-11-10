@@ -24,7 +24,8 @@ verified:
     at: 2026-11-10T00:06:00Z
     note: >-
       Intento 1 verificado en `task/TASK-0055` (brief `8961c09`, código y tests
-      `feb8c08`, evidencia `f0db856`). Diff revisado: `ROSTER` con los nueve
+      `feb8c08`, evidencia `f0db856`; cierre `2ce0fdd`; fusión `27899a6`). Diff
+      revisado: `ROSTER` con los nueve
       arquetipos de REQ-015 y sus valores, Cuchillo +4/1, `nombre` por instancia,
       `weaponId: null` y rechazo `unarmed` sin consumir RNG; guarda mínima en el
       HUD para el tipo nullable y narrowing mecánico en tests armados, sin tests
