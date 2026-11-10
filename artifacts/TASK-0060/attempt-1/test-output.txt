@@ -1,0 +1,23 @@
+# pnpm exec vitest run tests/unit/host
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  23 passed (23)
+      Tests  339 passed (339)
+   Start at  19:35:50
+   Duration  1.52s (tests 65%, import 20%, transform 10%, worker 4%)
+
+    Isolate  23 workers spawned · ~160ms startup each (spawn + environment, per file)
+             at least ~366ms faster with isolate: false — reuses workers across files instead of one per file
+
+
+# pnpm exec playwright test tests/e2e/enemy-phase-offscreen-qa.spec.ts
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:132:1 › TASK-0060: cruzar el borde anima el recorrido sin mover la cámara (1.3s)
+  ✓  2 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:94:1 › TASK-0060: enemigo fuera de pantalla usa un beat sin tween ni cámara (1.3s)
+  ✓  3 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:164:1 › TASK-0060: el input se bloquea en normal y no en reducido; F1 y R siguen activos (1.6s)
+
+  3 passed (3.7s)
