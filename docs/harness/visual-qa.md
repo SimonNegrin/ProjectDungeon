@@ -60,11 +60,14 @@ audio, tono y si el experimento resuelve la duda.
   E2E_ARTIFACTS_DIR=artifacts/TASK-XXXX/attempt-N pnpm run test:e2e <spec>
   ```
 
-  La suite escribe solo en esa carpeta, con subdirectorio por spec y por
-  repetición en `--repeat-each`. La ruta resultante es
-  `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`; briefs e informes deben
-  describir la captura con esa ruta, no con `screenshots/` en la raíz del
-  intento.
+  La suite escribe solo en esa carpeta, con subdirectorio por spec:
+  `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`. Briefs e informes deben
+  citar esa ruta real; si una captura se copia a la raíz del intento, se
+  registra la ruta final y el motivo. Con el helper actual, `--repeat-each` no
+  añade `repeat-N` porque `testInfo.project.repeatEach` no refleja el flag de
+  CLI: las repeticiones sobrescriben capturas. Para evidencia repetida, ejecutar
+  las pasadas por separado y copiar antes de repetir, o corregir el helper en
+  una tarea de arnés.
 - Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
   reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
   la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.
