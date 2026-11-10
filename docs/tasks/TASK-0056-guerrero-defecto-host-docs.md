@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-09T15:30:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0056/
 priority: P1
 risk: medium
