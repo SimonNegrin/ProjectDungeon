@@ -8,6 +8,11 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:20:00Z }
 artifacts: artifacts/TASK-0061/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-10T22:25:00Z
+    note: >-
+      Re-ejecutados `verify` 818/818, E2E 98/98 y repeticiones 33/33; diff y 26
+      capturas revisados. Ver `lead-verification.md`.
 ---
 
 # Estado

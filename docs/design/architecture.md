@@ -159,7 +159,8 @@ ha pasado y retrasa el estado visible hasta el cue correspondiente.
   motor; no bloquea ni se escribe en la rejilla. `corpse-22a/b` se reserva para
   muertes reales y deja de ser decoración ambiental.
 - **Debug**: `window.__game.animation` incluye los cues activos y `advance(ms)`
-  avanza el reloj de forma determinista.
+  avanza el reloj de forma determinista; sin animación activa consume también la
+  persistencia de textos, banners y marcas, y `advance(0)` solo congela y repinta.
 
 Ver [ADR-017](../decisions/ADR-017-feedback-visual-eventos.md) y
 [REQ-017](../requirements/REQ-017-feedback-visual-eventos.md).
