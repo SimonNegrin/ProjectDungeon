@@ -2,6 +2,8 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Harness — visual-qa — corregido el comportamiento de `--repeat-each`: pasada 0 en `<spec>/`, pasadas 1..N-1 en `<spec>/repeat-N/`, sufijo con `repeatEachIndex`; eliminado el workaround manual — [visual-qa](harness/visual-qa.md)
+* 2026-11-10 — Task — TASK-0062 — review: helper con sufijo `repeatEachIndex` y prueba propia; `test:e2e` 98/98, `verify` 825/825, `docs:check` 308 y `--repeat-each=3` con tres rutas; pendiente decisión de cierre — [informe](../artifacts/TASK-0062/attempt-1/report.md)
 * 2026-11-10 — Requirement — REQ-017 — playtest positivo: el feedback visual mejora la legibilidad y la jugabilidad; sin cambios de alcance — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
 * 2026-11-10 — Harness — visual-qa — corregida la ruta real de capturas E2E y documentada la limitación de `--repeat-each` con el helper actual; fricción de TASK-0060 y TASK-0061 — [visual-qa](harness/visual-qa.md)
 * 2026-11-10 — Planning — TASK-0062 — ready: sufijo de repetición en capturas E2E; corrige la fricción de TASK-0060 y TASK-0061 — [TASK-0062](tasks/TASK-0062-arnes-sufijo-repeticion-capturas.md)

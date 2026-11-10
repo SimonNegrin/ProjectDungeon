@@ -35,11 +35,10 @@ verified:
       experiment-shell/shell-smoke.png, repeat-1/ y repeat-2/). La pasada 0
       comparte ruta con una corrida única y las pasadas 1..N-1 añaden
       repeat-N; no hay sobrescritura entre pasadas de la misma ejecución.
-      PENDIENTE: docs/harness/visual-qa.md aún describe el workaround anterior
-      porque task-lead no tiene permiso de edición en docs/harness/**; el
-      reemplazo exacto está en artifacts/TASK-0062/attempt-1/lead-verification.md.
-      Hasta que requirements-writer lo aplique, el criterio de documentación no
-      se cumple y la tarea no se cierra.
+      Docs: requirements-writer aplicó el delta de visual-qa.md el 2026-11-10 y
+      pnpm run docs:check pasa con 308 documentos. Todos los criterios de la
+      ficha quedan cubiertos; la tarea espera decisión del usuario para cerrar y
+      fusionar.
 ---
 
 # Objetivo
@@ -64,19 +63,19 @@ juego.
 
 # Criterios de aceptación
 
-- [ ] `artifactPath` produce rutas distintas para cada pasada de
+- [x] `artifactPath` produce rutas distintas para cada pasada de
       `--repeat-each`; ninguna captura, JSON o log se sobrescribe.
-- [ ] Una corrida única conserva el esquema de rutas documentado, o el cambio se
+- [x] Una corrida única conserva el esquema de rutas documentado, o el cambio se
       documenta y se actualizan las referencias afectadas.
-- [ ] Con `--repeat-each=3` y `E2E_ARTIFACTS_DIR`, una prueba pequeña deja tres
+- [x] Con `--repeat-each=3` y `E2E_ARTIFACTS_DIR`, una prueba pequeña deja tres
       salidas verificables con `find`; la carpeta de cada pasada es estable.
-- [ ] Hay prueba del helper para corrida única, repetición y ausencia de
+- [x] Hay prueba del helper para corrida única, repetición y ausencia de
       `E2E_ARTIFACTS_DIR`; no se depende del reloj real ni de estado compartido.
-- [ ] `docs/harness/visual-qa.md` describe la ruta real y elimina el workaround
+- [x] `docs/harness/visual-qa.md` describe la ruta real y elimina el workaround
       manual; `pnpm run docs:check` pasa.
-- [ ] `pnpm run test:e2e` y `pnpm run verify` pasan; no se borran, saltan ni
+- [x] `pnpm run test:e2e` y `pnpm run verify` pasan; no se borran, saltan ni
       debilitan tests existentes.
-- [ ] Solo cambian el helper, sus pruebas y documentación; `src/`, `src/game/`,
+- [x] Solo cambian el helper, sus pruebas y documentación; `src/`, `src/game/`,
       `experiments/` y dependencias quedan intactos.
 
 # Plan de test
