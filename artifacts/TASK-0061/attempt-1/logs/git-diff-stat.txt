@@ -1,0 +1,14 @@
+--- code commit ---
+1117596 fix(TASK-0061): cierre E2E y persistencia determinista en advance
+ src/host/main.ts                                   |   8 +-
+ tests/e2e/combat-equipment-qa.spec.ts              |  25 +-
+ tests/e2e/equipment-hud-qa.spec.ts                 |  11 +-
+ tests/e2e/feedback-combat-qa.spec.ts               | 124 ++++++++++
+ tests/e2e/feedback-inventory-perception-qa.spec.ts |  10 +-
+ tests/e2e/feedback-reduced-motion-qa.spec.ts       | 267 +++++++++++++++++++++
+ tests/e2e/feedback-turns-marks-qa.spec.ts          | 210 ++++++++++++++++
+ 7 files changed, 638 insertions(+), 17 deletions(-)
+--- artifacts in this commit ---
+ artifacts/TASK-0061/attempt-1/test-output.txt      |  13 +++
+ artifacts/TASK-0061/attempt-1/verify-output.txt    |  93 +++++++++++++++++
+ 63 files changed, 529 insertions(+)
