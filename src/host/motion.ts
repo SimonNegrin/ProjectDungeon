@@ -587,17 +587,36 @@ export function currentStep(
   return null;
 }
 
-/** Unidad enfocada por la cámara: la del grupo activo o la última animada. */
+/**
+ * Última unidad que ya ha empezado a presentarse a `elapsed`. Antes del primer
+ * paso no hay ninguna: la cámara debe conservarse hasta que el grupo arranque.
+ */
+function startedFocusUnitId(
+  timeline: MotionTimeline,
+  elapsed: number,
+): { readonly unitId: string | null; readonly started: boolean } {
+  let unitId: string | null = null;
+  let started = false;
+  for (const phase of timeline.phases) {
+    if (elapsed + EPSILON < phase.startMs) break;
+    unitId = phase.unitId;
+    started = true;
+  }
+  return { unitId, started };
+}
+
+/**
+ * Unidad enfocada por la cámara: la del grupo activo o la última que ya empezó.
+ * Antes del primer paso devuelve la primera unidad que se moverá, pero
+ * `cameraAt` conserva la cámara actual hasta que esa fase arranca.
+ */
 export function focusUnitId(
   timeline: MotionTimeline,
   elapsed: number,
 ): string | null {
-  for (const phase of timeline.phases) {
-    if (elapsed + EPSILON >= phase.startMs && elapsed < phase.endMs) {
-      return phase.unitId;
-    }
-  }
-  return timeline.steps.at(-1)?.unitId ?? null;
+  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
+  if (started) return unitId;
+  return timeline.steps[0]?.unitId ?? null;
 }
 
 /**
@@ -650,22 +669,35 @@ export function visualPositions(
 
 /**
  * Cámara de presentación: centra el sprite enfocado menos medio viewport,
- * redondea a píxel entero y limita a los bordes del mapa.
+ * redondea a píxel entero y limita a los bordes del mapa. Antes de que arranque
+ * la primera fase (beat de ataque, recogida, cambio de arma o pre-beat de fase)
+ * no hay movimiento activo y se conserva la cámara actual.
  */
 export function cameraAt(
   timeline: MotionTimeline,
   elapsed: number,
   world: WorldSize,
   viewport: Viewport,
+  current?: Camera,
 ): Camera {
-  const unitId = focusUnitId(timeline, elapsed);
-  const position = unitId ? visualPosition(timeline, elapsed, unitId) : null;
-  const targetX = position ? position.x : world.width / 2;
-  const targetY = position ? position.y : world.height / 2;
+  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
+  const position =
+    started && unitId ? visualPosition(timeline, elapsed, unitId) : null;
+  if (!position) {
+    if (current) return clampCamera(current, world, viewport);
+    return clampCamera(
+      {
+        x: Math.round(world.width / 2 - viewport.width / 2),
+        y: Math.round(world.height / 2 - viewport.height / 2),
+      },
+      world,
+      viewport,
+    );
+  }
   return clampCamera(
     {
-      x: Math.round(targetX - viewport.width / 2),
-      y: Math.round(targetY - viewport.height / 2),
+      x: Math.round(position.x - viewport.width / 2),
+      y: Math.round(position.y - viewport.height / 2),
     },
     world,
     viewport,

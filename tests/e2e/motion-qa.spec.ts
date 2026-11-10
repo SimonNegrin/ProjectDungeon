@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
+import { FEEDBACK_CONFIG } from '../../src/host/feedback-config';
 import { MOTION_CONFIG } from '../../src/host/motion';
 import {
   defeatAllEnemies,
@@ -722,6 +723,8 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   );
   expect(afterAttack.players[0].actionAvailable).toBe(false);
 
+  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  await settle(page);
   await page.keyboard.press('e');
   const nextTurn = await settle(page);
   expect(nextTurn.turn).toBe(adjacent.turn + 1);
@@ -796,9 +799,10 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
 
-  // El último tramo dispara flash y daño en el mismo instante del reloj.
-  const finished = await page.evaluate((delta) => {
-    const snap = window.__game!.advance(delta);
+  // El último tramo dispara flash y daño en el mismo instante del reloj; se
+  // completa el beat de impacto (320 ms) además de la pausa de destino.
+  const finished = await page.evaluate(() => {
+    const snap = window.__game!.advance(1_000_000);
     const flash = document.querySelector('[data-testid="attack-flash"]');
     const damage = document.querySelector('[data-testid="damage-feedback"]');
     return {
@@ -808,7 +812,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
       flashActive: flash?.classList.contains('is-active') ?? false,
       damage: damage?.textContent ?? '',
     };
-  }, PAUSE);
+  });
   const attackDamage = frozen.lastEvents.find(
     (event) => event.type === 'AttackPerformed',
   );
@@ -915,15 +919,10 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
 
-  let mid = await advance(page, PAUSE + HALF_STEP);
-  // El primer grupo puede incluir una pausa de entrada: se avanza en tramos
-  // cortos hasta que el sprite haya abandonado el centro de origen.
+  const mid = await advance(page, FEEDBACK_CONFIG.beats.enemyPhase + PAUSE + HALF_STEP);
+  // El grupo empieza tras el pre-beat de fase; el sprite ya está en tránsito.
   const originCenter = tileCenter(moves[0].from, mid.tileSize);
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const position = positionOf(mid);
-    if (position.x !== originCenter.x || position.y !== originCenter.y) break;
-    mid = await advance(page, 20);
-  }
+  expect(positionOf(mid)).not.toEqual(originCenter);
   expectBetween(
     positionOf(mid),
     originCenter,

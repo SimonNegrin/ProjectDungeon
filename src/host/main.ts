@@ -276,7 +276,13 @@ async function boot(): Promise<void> {
     const position = unitId
       ? visualPosition(animation.timeline, animation.elapsed, unitId)
       : null;
-    const displayCamera = cameraAt(animation.timeline, animation.elapsed, world, viewport);
+    const displayCamera = cameraAt(
+      animation.timeline,
+      animation.elapsed,
+      world,
+      viewport,
+      camera,
+    );
     const cues = activeCues(animation.timeline, animation.elapsed).map((cue) => ({
       kind: cue.kind,
       unitId: cue.anchor.unitId,
@@ -312,7 +318,7 @@ async function boot(): Promise<void> {
         elapsed,
         animation.initialState,
       );
-      camera = cameraAt(animation.timeline, elapsed, world, viewport);
+      camera = cameraAt(animation.timeline, elapsed, world, viewport, camera);
       const positions = visualPositions(animation.timeline, elapsed);
       if (assets) {
         renderScene(ctx, display, assets, camera, viewport, TILE_SIZE, {
@@ -371,7 +377,13 @@ async function boot(): Promise<void> {
             entry.atMs,
             active.initialState,
           );
-          const displayCamera = cameraAt(active.timeline, entry.atMs, world, viewport);
+          const displayCamera = cameraAt(
+            active.timeline,
+            entry.atMs,
+            world,
+            viewport,
+            camera,
+          );
           feedbackView.update(display, displayCamera, [entry.event]);
           break;
         }

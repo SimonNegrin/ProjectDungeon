@@ -286,6 +286,8 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.
+  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  await settle(page);
   const beforeEndTurn = await snapshot(page);
   await page.keyboard.press('e');
   await settle(page);

@@ -15,7 +15,7 @@ import {
   screenshot,
   watchConsole,
 } from './perception-fixtures';
-import { moveCursorTo, settle, snapshot } from './support';
+import { advanceToCue, moveCursorTo, settle, snapshot } from './support';
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -105,8 +105,22 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
     'UnitMoved',
   ]);
   expect(immediate.markers).toBe(0);
-  expect(immediate.message).toBe('¡Alarma! Te han visto');
-  expect(immediate.messageHidden).toBe(false);
+  // El aviso de alarma nace en su cue, no al aplicar el comando.
+  expect(immediate.message).toBe('');
+  expect(immediate.messageHidden).toBe(true);
+
+  await advanceToCue(page, 'alarm');
+  const alarmNotice = await page.evaluate(() => {
+    const message = document.querySelector<HTMLElement>(
+      '[data-testid="hud-message"]',
+    );
+    return {
+      message: message?.textContent ?? '',
+      messageHidden: message?.hidden ?? true,
+    };
+  });
+  expect(alarmNotice.message).toBe('¡Alarma! Te han visto');
+  expect(alarmNotice.messageHidden).toBe(false);
 
   // R-011/R-012: el aviso vive dentro del HUD y no tapa el marco del mapa.
   const hudBox = await box(page, 'hud');

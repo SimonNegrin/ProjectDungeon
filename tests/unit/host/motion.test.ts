@@ -238,6 +238,49 @@ describe('reloj de presentación y cámara', () => {
     expect(clampCamera({ x: 999, y: -5 }, world, viewport)).toEqual({ x: 224, y: 0 });
   });
 
+  it('sin movimiento activo conserva la cámara y no enfoca el centro del mapa', () => {
+    const attack: GameEvent = {
+      type: 'AttackPerformed',
+      attackerId: 'player-1',
+      targetId: 'enemy-1',
+      hit: true,
+      damage: 4,
+      targetHp: 2,
+      rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+    };
+    const timeline = buildMotionTimeline([attack]);
+    const world = { width: 20 * TILE_SIZE, height: 20 * TILE_SIZE };
+    const viewport = { width: 13 * TILE_SIZE, height: 13 * TILE_SIZE };
+    const current = { x: 96, y: 32 };
+
+    expect(timeline.phases).toHaveLength(0);
+    expect(focusUnitId(timeline, 0)).toBeNull();
+    expect(cameraAt(timeline, 0, world, viewport, current)).toEqual(current);
+    // Sin cámara previa mantiene el comportamiento histórico: centro del mapa.
+    expect(cameraAt(timeline, 0, world, viewport)).toEqual({ x: 112, y: 112 });
+  });
+
+  it('el pre-beat de fase conserva la cámara hasta que arranca el primer movedor', () => {
+    const timeline = buildMotionTimeline([
+      { type: 'EnemyPhaseStarted', turn: 2 },
+      moved('enemy-1', { x: 6, y: 6 }, { x: 5, y: 6 }, 3),
+      moved('enemy-2', { x: 9, y: 9 }, { x: 8, y: 9 }, 3),
+    ]);
+    const world = { width: 20 * TILE_SIZE, height: 20 * TILE_SIZE };
+    const viewport = { width: 13 * TILE_SIZE, height: 13 * TILE_SIZE };
+    const current = { x: 32, y: 96 };
+
+    // Antes del primer paso no se enfoca a la última unidad de la timeline.
+    expect(focusUnitId(timeline, 0)).toBe('enemy-1');
+    expect(focusUnitId(timeline, 399)).toBe('enemy-1');
+    expect(cameraAt(timeline, 0, world, viewport, current)).toEqual(current);
+    expect(cameraAt(timeline, 399, world, viewport, current)).toEqual(current);
+
+    // Al empezar la pausa del primer movedor la cámara ya lo sigue.
+    expect(cameraAt(timeline, 400, world, viewport, current)).toEqual({ x: 0, y: 0 });
+    expect(focusUnitId(timeline, 400)).toBe('enemy-1');
+  });
+
   it('visualPositions incluye a todas las unidades animadas', () => {
     const timeline = buildMotionTimeline([
       moved('player-1', { x: 2, y: 2 }, { x: 3, y: 2 }, 5),
