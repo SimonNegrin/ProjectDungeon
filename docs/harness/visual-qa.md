@@ -63,11 +63,12 @@ audio, tono y si el experimento resuelve la duda.
   La suite escribe solo en esa carpeta, con subdirectorio por spec:
   `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`. Briefs e informes deben
   citar esa ruta real; si una captura se copia a la raíz del intento, se
-  registra la ruta final y el motivo. Con el helper actual, `--repeat-each` no
-  añade `repeat-N` porque `testInfo.project.repeatEach` no refleja el flag de
-  CLI: las repeticiones sobrescriben capturas. Para evidencia repetida, ejecutar
-  las pasadas por separado y copiar antes de repetir, o corregir el helper en
-  una tarea de arnés.
+  registra la ruta final y el motivo. Con `--repeat-each=N`, la pasada 0
+  conserva esa ruta y las pasadas 1..N-1 añaden `repeat-<índice>`:
+  `$E2E_ARTIFACTS_DIR/<spec>/repeat-1/screenshots/<nombre>.png`. El sufijo usa
+  `testInfo.repeatEachIndex`, no `testInfo.project.repeatEach`, que no refleja
+  el flag de CLI. No mezclar en la misma carpeta una corrida única y una
+  repetida: ambas usan la ruta de la pasada 0.
 - Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
   reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
   la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.

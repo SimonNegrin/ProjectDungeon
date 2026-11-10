@@ -1,0 +1,165 @@
+diff --git a/tests/e2e/artifacts.ts b/tests/e2e/artifacts.ts
+index e572eaf..0091532 100644
+--- a/tests/e2e/artifacts.ts
++++ b/tests/e2e/artifacts.ts
+@@ -1,13 +1,6 @@
+ import { basename, resolve } from 'node:path';
+ import type { TestInfo } from '@playwright/test';
+ 
+-/**
+- * Carpeta raíz de la evidencia de una corrida explícita, por ejemplo
+- * `artifacts/<TASK>/attempt-N`. Se interpreta desde la raíz del repo, que es
+- * el directorio de ejecución de Playwright.
+- */
+-const explicitRoot = process.env.E2E_ARTIFACTS_DIR;
+-
+ /** Convierte un título en un segmento de ruta estable y legible. */
+ function segment(value: string): string {
+   const normalized = value
+@@ -25,22 +18,32 @@ function segment(value: string): string {
+  * - Sin `E2E_ARTIFACTS_DIR`, escribe bajo `testInfo.outputPath(...)`
+  *   (`test-results/`), que Playwright limpia por ejecución.
+  * - Con `E2E_ARTIFACTS_DIR`, escribe solo bajo esa carpeta, con un
+- *   subdirectorio por spec y, cuando `--repeat-each` está activo, otro por
+- *   repetición. Así dos workers nunca comparten PNG/JSON/log.
++ *   subdirectorio por spec y, en las repeticiones posteriores a la primera,
++ *   otro `repeat-<índice>`. Así dos workers nunca comparten PNG/JSON/log.
++ *
++ * `testInfo.repeatEachIndex` es la única señal fiable de la pasada real:
++ * `testInfo.project.repeatEach` no refleja el flag `--repeat-each` de CLI. La
++ * pasada 0 comparte ruta con una corrida única (`<spec>/...`), así que el
++ * esquema de una corrida única no cambia; las pasadas 1..N-1 van a
++ * `<spec>/repeat-1/...`, `<spec>/repeat-2/...`.
++ *
++ * `E2E_ARTIFACTS_DIR` se lee en cada llamada para que el helper se pueda
++ * probar con y sin la variable sin depender del estado del módulo.
+  *
+  * No cambia el nombre del archivo: `screenshots/frame.png` sigue llamándose
+  * `frame.png`.
+  */
+ export function artifactPath(testInfo: TestInfo, ...parts: string[]): string {
++  const explicitRoot = process.env.E2E_ARTIFACTS_DIR;
+   if (!explicitRoot) return testInfo.outputPath(...parts);
+ 
+   const base = resolve(process.cwd(), explicitRoot);
+   const spec = segment(basename(testInfo.file, '.spec.ts'));
+-  const repeated = testInfo.project.repeatEach > 1;
++  const repeatEachIndex = testInfo.repeatEachIndex;
+   return resolve(
+     base,
+     spec,
+-    ...(repeated ? [`repeat-${testInfo.repeatEachIndex}`] : []),
++    ...(repeatEachIndex > 0 ? [`repeat-${repeatEachIndex}`] : []),
+     ...parts,
+   );
+ }
+diff --git a/tests/unit/artifacts-helper.test.ts b/tests/unit/artifacts-helper.test.ts
+new file mode 100644
+index 0000000..8c0e925
+--- /dev/null
++++ b/tests/unit/artifacts-helper.test.ts
+@@ -0,0 +1,104 @@
++import { resolve } from 'node:path';
++import type { TestInfo } from '@playwright/test';
++import { afterEach, beforeEach, describe, expect, it } from 'vitest';
++import { artifactPath } from '../e2e/artifacts';
++
++const originalRoot = process.env.E2E_ARTIFACTS_DIR;
++
++/** TestInfo mínimo: solo lo que el helper consulta. */
++function fakeTestInfo(
++  options: { repeatEachIndex?: number; repeatEach?: number; file?: string } = {},
++): TestInfo {
++  return {
++    file: options.file ?? '/repo/tests/e2e/demo-spec.spec.ts',
++    repeatEachIndex: options.repeatEachIndex ?? 0,
++    project: { repeatEach: options.repeatEach ?? 1 },
++    outputPath: (...parts: string[]) => resolve('/tmp/test-results', 'demo', ...parts),
++  } as unknown as TestInfo;
++}
++
++beforeEach(() => {
++  delete process.env.E2E_ARTIFACTS_DIR;
++});
++
++afterEach(() => {
++  if (originalRoot === undefined) delete process.env.E2E_ARTIFACTS_DIR;
++  else process.env.E2E_ARTIFACTS_DIR = originalRoot;
++});
++
++describe('artifactPath sin E2E_ARTIFACTS_DIR', () => {
++  it('usa outputPath y conserva el nombre del archivo', () => {
++    const path = artifactPath(fakeTestInfo(), 'screenshots', 'frame.png');
++
++    expect(path).toBe(resolve('/tmp/test-results', 'demo', 'screenshots', 'frame.png'));
++  });
++
++  it('ignora el índice de repetición cuando no hay carpeta explícita', () => {
++    const single = artifactPath(fakeTestInfo({ repeatEachIndex: 0 }), 'snapshot.json');
++    const repeated = artifactPath(fakeTestInfo({ repeatEachIndex: 2 }), 'snapshot.json');
++
++    expect(repeated).toBe(single);
++    expect(repeated).not.toContain('repeat-');
++  });
++});
++
++describe('artifactPath con E2E_ARTIFACTS_DIR', () => {
++  beforeEach(() => {
++    process.env.E2E_ARTIFACTS_DIR = 'artifacts/TASK-0062/attempt-1';
++  });
++
++  it('una corrida única conserva el esquema <spec>/<parts>', () => {
++    const path = artifactPath(fakeTestInfo({ repeatEachIndex: 0 }), 'screenshots', 'frame.png');
++
++    expect(path).toBe(
++      resolve(process.cwd(), 'artifacts/TASK-0062/attempt-1', 'demo-spec', 'screenshots', 'frame.png'),
++    );
++    expect(path).not.toContain('repeat-');
++  });
++
++  it('cada pasada de una repetición escribe en una carpeta distinta y estable', () => {
++    const paths = [0, 1, 2].map((index) =>
++      artifactPath(fakeTestInfo({ repeatEachIndex: index }), 'screenshots', 'frame.png'),
++    );
++
++    expect(new Set(paths).size).toBe(3);
++    expect(paths[0]).not.toContain('repeat-');
++    expect(paths[1]).toContain('/demo-spec/repeat-1/screenshots/frame.png');
++    expect(paths[2]).toContain('/demo-spec/repeat-2/screenshots/frame.png');
++    for (const path of paths) {
++      expect(path.endsWith('/frame.png')).toBe(true);
++    }
++
++    expect(
++      artifactPath(fakeTestInfo({ repeatEachIndex: 1 }), 'screenshots', 'frame.png'),
++    ).toBe(paths[1]);
++  });
++
++  it('señala la pasada con repeatEachIndex aunque project.repeatEach no refleje el flag', () => {
++    const path = artifactPath(
++      fakeTestInfo({ repeatEachIndex: 1, repeatEach: 1 }),
++      'screenshots',
++      'frame.png',
++    );
++
++    expect(path).toContain('/demo-spec/repeat-1/screenshots/frame.png');
++  });
++
++  it('no añade repeat en la pasada 0 aunque project.repeatEach sea mayor que 1', () => {
++    const path = artifactPath(fakeTestInfo({ repeatEachIndex: 0, repeatEach: 3 }), 'screenshots', 'frame.png');
++
++    expect(path).not.toContain('repeat-');
++    expect(path.endsWith('/demo-spec/screenshots/frame.png')).toBe(true);
++  });
++
++  it('deriva el subdirectorio del nombre del spec y evita rutas que escapan', () => {
++    const path = artifactPath(
++      fakeTestInfo({ file: '/repo/tests/e2e/Acción Ñandú_qa.spec.ts' }),
++      'logs',
++      'trace.log',
++    );
++
++    expect(path).toContain('/accion-nandu-qa/');
++    expect(path.startsWith(resolve(process.cwd(), 'artifacts/TASK-0062/attempt-1'))).toBe(true);
++  });
++});
