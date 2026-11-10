@@ -4,7 +4,7 @@ id: TASK-0062
 title: "Arnés: sufijo de repetición en capturas E2E"
 description: "Evitar que --repeat-each sobrescriba capturas, JSON y logs usando el índice real de repetición; prueba del helper y documentación actualizada."
 status: draft
-task_status: ready
+task_status: review
 task_type: harness
 requirement: HARNESS
 requirement_ids: []
@@ -13,13 +13,33 @@ unlocks: []
 created_at: 2026-11-10T21:37:55Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0062/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T21:37:55Z }
 verified:
+  - by: task-lead
+    at: 2026-11-10T21:48:00Z
+    note: >-
+      Verificación independiente en task/TASK-0062 (commits 2fd7e94 y 14520c2):
+      diff limitado a tests/e2e/artifacts.ts, tests/unit/artifacts-helper.test.ts,
+      artifacts/TASK-0062 y esta ficha; src/, src/game/, experiments/,
+      package.json, pnpm-lock.yaml y playwright.config.ts intactos; sin tests
+      borrados. Re-ejecutado por el lead: pnpm run test:e2e (98/98, 42.8 s),
+      pnpm run verify (docs 307, config OK, 825/825 en 62 archivos, build 59
+      módulos y bundle OK), pnpm run docs:check (307 documentos) y
+      E2E_ARTIFACTS_DIR=artifacts/TASK-0062/attempt-1/lead-repeat con
+      --repeat-each=3 sobre experiment-shell (3/3; find devuelve
+      experiment-shell/shell-smoke.png, repeat-1/ y repeat-2/). La pasada 0
+      comparte ruta con una corrida única y las pasadas 1..N-1 añaden
+      repeat-N; no hay sobrescritura entre pasadas de la misma ejecución.
+      PENDIENTE: docs/harness/visual-qa.md aún describe el workaround anterior
+      porque task-lead no tiene permiso de edición en docs/harness/**; el
+      reemplazo exacto está en artifacts/TASK-0062/attempt-1/lead-verification.md.
+      Hasta que requirements-writer lo aplique, el criterio de documentación no
+      se cumple y la tarea no se cierra.
 ---
 
 # Objetivo

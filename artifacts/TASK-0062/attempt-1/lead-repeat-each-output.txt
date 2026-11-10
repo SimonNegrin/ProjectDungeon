@@ -1,0 +1,8 @@
+
+Running 3 tests using 3 workers
+
+  ✓  3 [chromium] › tests/e2e/experiment-shell.spec.ts:6:1 › el shell renderiza, ajusta parámetros y exporta una decisión (644ms)
+  ✓  2 [chromium] › tests/e2e/experiment-shell.spec.ts:6:1 › el shell renderiza, ajusta parámetros y exporta una decisión (655ms)
+  ✓  1 [chromium] › tests/e2e/experiment-shell.spec.ts:6:1 › el shell renderiza, ajusta parámetros y exporta una decisión (666ms)
+
+  3 passed (2.0s)
