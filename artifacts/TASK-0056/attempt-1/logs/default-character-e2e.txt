@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/default-character-qa.spec.ts:19:1 › smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y arquetipo (767ms)
+
+  1 passed (2.4s)

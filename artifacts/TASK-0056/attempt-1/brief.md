@@ -47,7 +47,7 @@ Enlazar; no copiar.
   `buildDebugModel`.
 - Tests afectados: `roster.test.ts`, `hud.test.ts`, `equipment-hud-qa.spec.ts`,
   `combat-equipment-qa.spec.ts` y `game-input-hud.spec.ts`.
-- [REQ-015](../requirements/REQ-015-roster-arquetipos.md): «Stats inherentes»,
+- [REQ-015](../../../docs/requirements/REQ-015-roster-arquetipos.md): «Stats inherentes»,
   «Equipo inicial», T-003/T-005/T-006.
 
 # Artefactos
