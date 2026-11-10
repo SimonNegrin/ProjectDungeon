@@ -7,6 +7,7 @@ import { artifactPath } from './artifacts';
 import {
   advanceToCue,
   dispatchCommand,
+  dispatchFrozen,
   openBspState,
   settle,
 } from './support';
@@ -57,7 +58,7 @@ test('impacto: cue con destello, embestida, -N y tick de PV', async ({
     enemies: [enemy],
   });
 
-  const result = await dispatchCommand(page, {
+  const result = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,
@@ -99,7 +100,7 @@ test('fallo: cuerda opuesta, Fallo gris y sin destello de impacto', async ({
     rng: { seed: MISS_SEED, state: 0 },
   });
 
-  const result = await dispatchCommand(page, {
+  const result = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,
@@ -139,7 +140,7 @@ test('muerte y cadáver: 900 ms de secuencia y persistencia sin tocar la rejilla
   });
   const gridBefore = [...adjacent.grid.tiles];
 
-  const result = await dispatchCommand(page, {
+  const result = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: enemy.id,

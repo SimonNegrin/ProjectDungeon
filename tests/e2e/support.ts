@@ -215,6 +215,21 @@ export async function dispatchCommand(page: Page, command: Command) {
 }
 
 /**
+ * Despacha un comando y congela el reloj de presentación en la misma tarea del
+ * navegador. `dispatch` arranca la animación y programa el rAF real; si el
+ * siguiente `page.evaluate` llega tarde, ese rAF puede adelantar el reloj antes
+ * de muestrear los cues. Congelar con `advance(0)` dentro del mismo evaluate
+ * elimina la ventana: no hay frame real entre el dispatch y el muestreo.
+ */
+export async function dispatchFrozen(page: Page, command: Command) {
+  return page.evaluate((cmd) => {
+    const result = window.__game!.dispatch(cmd);
+    window.__game!.advance(0);
+    return result;
+  }, command);
+}
+
+/**
  * Completa de forma determinista cualquier animación de presentación pendiente.
  * El motor ya está en el estado final; esto solo adelanta HUD, cámara, cursor y
  * overlay para que las aserciones existentes sigan siendo sobre el resultado.
@@ -227,10 +242,15 @@ export async function settle(page: Page): Promise<GameSnapshot> {
  * Avanza el reloj de presentación hasta que el cue pedido esté activo. No
  * completa la animación: los tests pueden comprobar el aviso o el marcador en
  * el instante de su cue sin adelantar el resto de la timeline.
+ *
+ * El reloj se congela antes de leer los cues: el rAF real no debe seguir
+ * avanzando la animación mientras el test busca su ventana.
  */
 export async function advanceToCue(page: Page, kind: string): Promise<GameSnapshot> {
   return page.evaluate((wanted) => {
     const game = window.__game!;
+    // Modo manual desde el primer instante; conserva los cues ya activos en 0.
+    game.advance(0);
     for (let guard = 0; guard < 800; guard += 1) {
       const snap = game.snapshot();
       if (snap.animation.cues.some((cue) => cue.kind === wanted)) return snap;
