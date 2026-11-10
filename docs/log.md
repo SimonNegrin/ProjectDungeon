@@ -2,7 +2,9 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Requirement — REQ-017 — playtest positivo: el feedback visual mejora la legibilidad y la jugabilidad; sin cambios de alcance — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
 * 2026-11-10 — Harness — visual-qa — corregida la ruta real de capturas E2E y documentada la limitación de `--repeat-each` con el helper actual; fricción de TASK-0060 y TASK-0061 — [visual-qa](harness/visual-qa.md)
+* 2026-11-10 — Planning — TASK-0062 — ready: sufijo de repetición en capturas E2E; corrige la fricción de TASK-0060 y TASK-0061 — [TASK-0062](tasks/TASK-0062-arnes-sufijo-repeticion-capturas.md)
 * 2026-11-10 — Task — TASK-0061 — done: E2E completo y QA visual del feedback; regreso, espera y `TU TURNO`, reducido con texto/banner/marca y mismo orden, `advance(ms)` sin animación consume persistencia; suite 98/98, repetición alarma/huida/muerte 33/33, `verify` 818/818 y 26 capturas 1280×720 — [informe](artifacts/TASK-0061/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0060 — done: atajo enemigo fuera de pantalla de 150 ms sin cámara ni tween, cruce de borde completo con cámara estable y `prefers-reduced-motion` con beats 0 conservando texto, banner y marca; `verify` 818/818, E2E TASK-0060 3/3 y reducido 1/1 — [informe](artifacts/TASK-0060/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0059 — done: inventario, percepción y turno en su cue; recogida/cambio al final del beat, `!` estable, onda/borde/aviso de alarma, marcas de huida/regreso/espera, banners de fase, overlay tras 800 ms, fundido de reinicio y rechazo sin beat; `verify` 808/808 y E2E 86/86; banner superior a revisar en TASK-0061 — [informe](artifacts/TASK-0059/attempt-1/report.md)

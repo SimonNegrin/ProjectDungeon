@@ -8,7 +8,7 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T00:45:43Z
-updated_at: 2026-11-10T00:45:43Z
+updated_at: 2026-11-10T21:37:55Z
 related_tasks: [TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061]
 amends: [REQ-006, REQ-008]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:45:43Z }
@@ -20,6 +20,11 @@ verified:
       descartado, fase enemiga secuencial con atajo fuera de pantalla, silencios
       solo en transiciones redundantes, cadáver persistente de presentación y
       reserva del sprite de cadáver para muertes reales.
+  - by: human:simon
+    at: 2026-11-10T21:37:55Z
+    note: >-
+      Playtest positivo: el feedback visual mejora la legibilidad del combate,
+      la muerte y los cambios de estado, y la jugabilidad se siente mejor.
 ---
 
 # Contexto

@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **62**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -65,6 +65,11 @@ Total: **61**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0052](TASK-0052-exp-003-preset-balance-v1.md) | EXP-003: preset de balance provisional v1 | `backlog` | REQ-010 | TASK-0050 | P2 |
 | [TASK-0060](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md) | Fase enemiga fuera de pantalla y movimiento reducido | `done` | REQ-017 | TASK-0057, TASK-0058, TASK-0059 | P2 |
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
+| [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `ready` | HARNESS | — | P2 |
+
+# ready
+
+* [TASK-0062 — Arnés: sufijo de repetición en capturas E2E](TASK-0062-arnes-sufijo-repeticion-capturas.md)
 
 # review
 
