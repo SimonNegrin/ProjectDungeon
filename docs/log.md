@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Task — TASK-0057 — done: FEEDBACK_CONFIG, cues deterministas, estado intermedio, beat/input y debug; `verify` 776/776 y E2E 77/77 en pasadas limpias, con la flaqueza de `attack-flash` diferida a TASK-0061 — [informe](artifacts/TASK-0057/attempt-3/report.md)
 * 2026-11-10 — Requirement — REQ-017 — creada: feedback visual de eventos con beat pausado, cobertura exhaustiva, cadáver persistente de presentación y atajo enemigo fuera de pantalla; enmienda REQ-006 y REQ-008 — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
 * 2026-11-10 — Decision — ADR-017 — feedback dirigido por eventos sobre la timeline de presentación, estado visible retrasado, capas Canvas/DOM y cadáver de presentación — [ADR-017](decisions/ADR-017-feedback-visual-eventos.md)
 * 2026-11-10 — Docs — scope — añadida fase 1.13 de feedback visual y decisión de cobertura/ritmo; saqueo de cadáveres fuera de alcance — [scope](scope.md)
