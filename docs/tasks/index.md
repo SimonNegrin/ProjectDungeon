@@ -54,12 +54,16 @@ Total: **56**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0053](TASK-0053-motor-esquema-atributos-resistencia.md) | Motor: esquema de ocho atributos y resistencia en la absorción | `done` | REQ-014 | — | P1 |
 | [TASK-0054](TASK-0054-host-docs-esquema-adr-015.md) | Host y docs: nombres nuevos del esquema y ADR-015 | `done` | REQ-014 | TASK-0053 | P1 |
 | [TASK-0055](TASK-0055-motor-roster-cuchillo-nombre.md) | Motor: catálogo de roster, Cuchillo y nombre de personaje | `done` | REQ-015 | TASK-0053 | P1 |
-| [TASK-0056](TASK-0056-guerrero-defecto-host-docs.md) | Guerrero por defecto, host, tests y docs del roster | `backlog` | REQ-015 | TASK-0054, TASK-0055 | P1 |
+| [TASK-0056](TASK-0056-guerrero-defecto-host-docs.md) | Guerrero por defecto, host, tests y docs del roster | `in_progress` | REQ-015 | TASK-0054, TASK-0055 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
 | [TASK-0033](TASK-0033-host-snapshot-profundo-rng.md) | Host: snapshot profundo y RNG de solo lectura | `done` | REQ-010 | TASK-0026, TASK-0027 | P2 |
 | [TASK-0052](TASK-0052-exp-003-preset-balance-v1.md) | EXP-003: preset de balance provisional v1 | `backlog` | REQ-010 | TASK-0050 | P2 |
+
+# in_progress
+
+* [TASK-0056 — Guerrero por defecto, host, tests y docs del roster](TASK-0056-guerrero-defecto-host-docs.md)
 
 # review
 
@@ -68,7 +72,6 @@ Total: **56**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0056 — Guerrero por defecto, host, tests y docs del roster](TASK-0056-guerrero-defecto-host-docs.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
 # done

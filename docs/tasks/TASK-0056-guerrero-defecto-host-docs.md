@@ -4,7 +4,7 @@ id: TASK-0056
 title: "Guerrero por defecto, host, tests y docs del roster"
 description: "El personaje por defecto es el Guerrero (con +1 de resistencia); el host muestra nombre y arquetipo; docs y E2E del roster."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-015
 requirement_ids: [T-003, T-005, T-006]
