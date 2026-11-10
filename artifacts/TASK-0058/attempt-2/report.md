@@ -46,6 +46,8 @@ verified:
 
 # Desviaciones
 
+- La ficha traía cambios del lead (`task_status: in_progress`, `attempts: 2`);
+  no los edité ni entran en el commit.
 - Se conservan solo las capturas de `feedback-combat-qa`; el resto de PNG de la
   corrida E2E se descartó por no ser artefacto pedido. `e2e-output.txt` conserva
   el resultado completo.
@@ -65,6 +67,6 @@ Ninguna.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2535 |
-| `report_bytes` | 2343 |
+| `report_bytes` | 2463 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
