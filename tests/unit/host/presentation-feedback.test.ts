@@ -76,6 +76,40 @@ describe('FEEDBACK_CONFIG única de REQ-017', () => {
     });
   });
 
+  it('incluye las duraciones de efecto, disolución y persistencia de REQ-017', () => {
+    expect(FEEDBACK_CONFIG.durations).toMatchObject({
+      attackFlashMs: 120,
+      damageTextMs: 1000,
+      deathFlashMs: 900,
+      deathDissolveMs: 300,
+      pickupMs: 350,
+      selectWeaponMs: 250,
+      spottedMs: 200,
+      alarmMs: 500,
+      fledMs: 300,
+      returnedMs: 250,
+      waitedMs: 200,
+      enemyPhaseMs: 400,
+      playerTurnMs: 350,
+      turnEndedMs: 250,
+      gameEndedMs: 800,
+      gameRestartedMs: 250,
+      rejectedShakeMs: 120,
+    });
+    expect(FEEDBACK_CONFIG.texts).toMatchObject({
+      damageMs: 1000,
+      bannerMs: 800,
+      noticeMs: 1600,
+      alarmNoticeMs: 1600,
+      rejectedNoticeMs: 1600,
+      fledPersistMs: 600,
+      returnedPersistMs: 500,
+      waitedPersistMs: 400,
+      enemyPhaseBannerMs: 800,
+      playerTurnBannerMs: 700,
+    });
+  });
+
   it('deriva los temporizadores existentes de la configuración única', () => {
     expect(DAMAGE_FEEDBACK_MS).toBe(FEEDBACK_CONFIG.texts.damageMs);
     expect(ATTACK_FLASH_MS).toBe(FEEDBACK_CONFIG.durations.attackFlashMs);

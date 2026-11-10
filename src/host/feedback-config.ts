@@ -37,6 +37,8 @@ export const FEEDBACK_CONFIG = {
     attackFlashMs: 120,
     damageTextMs: 1000,
     deathFlashMs: 900,
+    /** Disolución de paleta al final de la muerte (R-008). */
+    deathDissolveMs: 300,
     pickupMs: 350,
     selectWeaponMs: 250,
     spottedMs: 200,
@@ -54,9 +56,24 @@ export const FEEDBACK_CONFIG = {
   texts: {
     /** Persistencia del texto `-N`/`Fallo`; puede superar el beat. */
     damageMs: 1000,
+    /** Banner `+ <Arma>` de recogida y nombre en el cambio de arma. */
     bannerMs: 800,
+    /** Aviso genérico del HUD; cubre rechazo y estado (1600 ms, R-019). */
     noticeMs: 1600,
+    /** Banner `¡Alarma!`; persiste después de su beat de 500 ms (R-014). */
     alarmNoticeMs: 1600,
+    /** Aviso de `CommandRejected`; no bloquea el input (R-019). */
+    rejectedNoticeMs: 1600,
+    /** Marca `!!` de huida; persiste después de su beat de 300 ms (R-015). */
+    fledPersistMs: 600,
+    /** Marca `zzz` de regreso; persiste después de su beat de 250 ms (R-015). */
+    returnedPersistMs: 500,
+    /** Marca `...` de espera; persiste después de su beat de 200 ms (R-015). */
+    waitedPersistMs: 400,
+    /** Banner `FASE ENEMIGA`; persiste después de su beat de 400 ms (R-016). */
+    enemyPhaseBannerMs: 800,
+    /** Banner `TU TURNO`; persiste después de su beat de 350 ms (R-016). */
+    playerTurnBannerMs: 700,
   },
   limits: {
     maxDamageTexts: 3,
