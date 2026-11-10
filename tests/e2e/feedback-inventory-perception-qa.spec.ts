@@ -83,7 +83,7 @@ test('TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final',
 
 test('TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final', async ({
   page,
-}) => {
+}, testInfo) => {
   await openGame(page, TEST_SEED_URL);
   const base = createInitialState({ seed: SEED, generator: new BspMapGenerator() });
   const state: GameState = {
@@ -113,6 +113,7 @@ test('TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final', asy
   );
   await expect(page.getByTestId('hud-weapon')).toContainText('Espada');
   await expect(page.getByTestId('hud-weapon')).toHaveClass(/is-pulsing/);
+  await screenshot(page, 'cambio-de-arma', testInfo);
 
   await settle(page);
   await expect(page.getByTestId('hud-weapon')).toContainText('Hacha');
@@ -215,6 +216,7 @@ test('TASK-0059: huida con marca, banner de fase y fin de partida sin overlay pr
     'data-effect',
     'game-ended',
   );
+  await screenshot(page, 'fin-de-partida', testInfo);
   await page.evaluate(() => window.__game!.advance(100));
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
 
@@ -225,7 +227,7 @@ test('TASK-0059: huida con marca, banner de fase y fin de partida sin overlay pr
 
 test('TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante', async ({
   page,
-}) => {
+}, testInfo) => {
   await openBspState(page, SEED);
   const restart = await page.evaluate(() => {
     window.__game!.dispatch({ type: 'Restart' });
@@ -246,11 +248,12 @@ test('TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante', async (
     animating: false,
     turn: 1,
   });
+  await screenshot(page, 'reinicio', testInfo);
 });
 
 test('TASK-0059: el rechazo no crea beat y muestra aviso con sacudida', async ({
   page,
-}) => {
+}, testInfo) => {
   await openBspState(page, SEED);
   const before = await snapshot(page);
   const rejected = await page.evaluate(() => {
@@ -274,4 +277,5 @@ test('TASK-0059: el rechazo no crea beat y muestra aviso con sacudida', async ({
   expect(rejected.shaking).toBe(true);
   expect(after.turn).toBe(before.turn);
   await expect(page.getByTestId('hud-message')).toBeVisible();
+  await screenshot(page, 'rechazo', testInfo);
 });

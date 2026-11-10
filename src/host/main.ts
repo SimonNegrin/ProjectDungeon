@@ -704,9 +704,13 @@ async function boot(): Promise<void> {
 
   const advanceForTest = (ms: number): void => {
     if (!animation) {
-      // `advance` completa la presentación pendiente; no consume la
-      // persistencia de los textos, que ya viven en su propio reloj.
+      // Sin animación, el reloj manual consume la persistencia ya creada
+      // (textos, banners y marcas) sin esperas de reloj real. `advance(0)` no
+      // consume: solo congela y repinta el estado intermedio.
+      manualClock = true;
+      cancelFrame();
       cancelTextFrame();
+      advanceTransientFeedback(ms);
       render();
       return;
     }
