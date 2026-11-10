@@ -422,6 +422,18 @@
         font-size: 0.9rem;
         line-height: 1.5;
       }
+      /* Movimiento reducido: los estados finales quedan estáticos. El host
+         también omite sacudida, retorno, fundido y tween; esta regla cubre las
+         animaciones CSS que viven en el DOM. */
+      @media (prefers-reduced-motion: reduce) {
+        .hud-stat strong.is-pulsing,
+        .cursor.is-shaking,
+        .cursor.is-returning,
+        .spot-marker,
+        .screen-fade.is-fading {
+          animation: none;
+        }
+      }
       footer {
         font-size: 0.78rem;
         color: var(--muted);

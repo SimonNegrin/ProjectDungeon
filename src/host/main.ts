@@ -63,6 +63,7 @@ import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
 import { trackSpottedUnits, reconcileSpottedUnits, untrackSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
+import { createViewportVisibility } from './visibility';
 import {
   alarmEffectAt,
   pickupWeaponEffectAt,
@@ -126,7 +127,11 @@ const DAMAGE_TEXT_FADE_MS = 220;
  * cámara. Hay hasta tres nodos estables (no se recrean) y `layoutDamageTexts`
  * evita que se pisen. El texto más reciente ocupa el nodo primario.
  */
-function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
+function createDamageFeedbackView(
+  frame: HTMLElement,
+  options: { readonly reducedMotion?: boolean } = {},
+): DamageFeedbackView {
+  const reducedMotion = options.reducedMotion === true;
   const nodes = [
     ...frame.querySelectorAll<HTMLElement>('[data-damage-text]'),
   ];
@@ -156,12 +161,13 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
           return;
         }
 
-        const progress =
-          1 -
-          Math.min(
-            1,
-            Math.max(0, text.remainingMs / FEEDBACK_CONFIG.texts.damageMs),
-          );
+        const progress = reducedMotion
+          ? 0
+          : 1 -
+            Math.min(
+              1,
+              Math.max(0, text.remainingMs / FEEDBACK_CONFIG.texts.damageMs),
+            );
         const rise = Math.round(progress * DAMAGE_TEXT_RISE_PX);
         node.hidden = false;
         node.textContent = text.text;
@@ -172,10 +178,12 @@ function createDamageFeedbackView(frame: HTMLElement): DamageFeedbackView {
         node.style.top = cssPercent(
           mapYToFramePercent(layout.y * TILE_SIZE - camera.y),
         );
-        node.style.opacity = `${Math.min(
-          1,
-          Math.max(0, text.remainingMs / DAMAGE_TEXT_FADE_MS),
-        )}`;
+        node.style.opacity = reducedMotion
+          ? '1'
+          : `${Math.min(
+              1,
+              Math.max(0, text.remainingMs / DAMAGE_TEXT_FADE_MS),
+            )}`;
         node.style.transform = `translate(-50%, calc(-100% - ${rise}px))`;
       });
     },
@@ -266,15 +274,21 @@ async function boot(): Promise<void> {
 
   const hudView = createHudView(gameRoot);
   const debugView = createDebugView(gameRoot);
-  const feedbackView = createDamageFeedbackView(frame);
-  const cursorView = createCursorView(frame);
+  const feedbackView = createDamageFeedbackView(frame, {
+    reducedMotion: prefersReducedMotion,
+  });
+  const cursorView = createCursorView(frame, {
+    reducedMotion: prefersReducedMotion,
+  });
   const noticeView = createNoticeView(gameRoot);
   const spotView = createSpotMarkerView(frame);
   const perceptionView = createPerceptionOverlayView(frame);
   const bannerView = createBannerView(frame);
   const markView = createUnitMarkerView(frame);
   const frameEffectView = createFrameEffectView(frame);
-  const screenFadeView = createScreenFadeView(frame);
+  const screenFadeView = createScreenFadeView(frame, {
+    reducedMotion: prefersReducedMotion,
+  });
 
   const resetCursorToPlayer = (): void => {
     cursor = cursorAtPlayer(session.state.players[0]);
@@ -766,16 +780,19 @@ async function boot(): Promise<void> {
       session.state,
       result.events,
     );
+    // La visibilidad se decide aquí, con la cámara y el viewport del instante
+    // de la acción; el builder de la timeline solo recibe la política.
+    const visibility = createViewportVisibility(
+      camera,
+      viewport,
+      new Set(initialState.players.map((player) => player.id)),
+    );
     const timeline = buildMotionTimeline(presentationEvents, {
       initialState,
       finalState: session.state,
+      visibility,
+      reducedMotion: prefersReducedMotion,
     });
-
-    if (timeline.totalMs <= 0) {
-      if (resetCursorAtEnd) resetCursorToPlayer();
-      render();
-      return result;
-    }
 
     startAnimation(timeline, initialState, resetCursorAtEnd, cursorBefore, cursorPosition);
     return result;

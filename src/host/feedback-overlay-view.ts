@@ -187,12 +187,22 @@ export interface ScreenFadeView {
   isFading(): boolean;
 }
 
+export interface ScreenFadeViewOptions {
+  /** En movimiento reducido el reinicio no funde: se cierra en el mismo evento. */
+  readonly reducedMotion?: boolean;
+}
+
 /**
  * Fundido a negro del reinicio. La duración sale de `FEEDBACK_CONFIG` y la
- * animación CSS se retira con `animationend`, sin `setTimeout`.
+ * animación CSS se retira con `animationend`, sin `setTimeout`. Con movimiento
+ * reducido el fundido se omite y el estado final queda visible al instante.
  */
-export function createScreenFadeView(frame: ParentNode): ScreenFadeView {
+export function createScreenFadeView(
+  frame: ParentNode,
+  options: ScreenFadeViewOptions = {},
+): ScreenFadeView {
   const element = requireElement(frame, 'screen-fade');
+  const reducedMotion = options.reducedMotion === true;
 
   element.style.animationDuration = `${FEEDBACK_CONFIG.durations.gameRestartedMs}ms`;
   element.addEventListener('animationend', () => {
@@ -200,18 +210,24 @@ export function createScreenFadeView(frame: ParentNode): ScreenFadeView {
     element.classList.remove('is-fading');
   });
 
+  const clear = (): void => {
+    element.hidden = true;
+    element.classList.remove('is-fading');
+  };
+
   return {
     play(): void {
+      if (reducedMotion) {
+        clear();
+        return;
+      }
       element.hidden = false;
       element.classList.remove('is-fading');
       // Reinicia la animación CSS al repetir el reinicio.
       void element.offsetWidth;
       element.classList.add('is-fading');
     },
-    clear(): void {
-      element.hidden = true;
-      element.classList.remove('is-fading');
-    },
+    clear,
     isFading(): boolean {
       return !element.hidden && element.classList.contains('is-fading');
     },
