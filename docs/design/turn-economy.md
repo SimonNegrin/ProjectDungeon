@@ -82,6 +82,36 @@ Valores decididos en [EXP-002](../../experiments/EXP-002-ritmo-movimiento/experi
 125 ms de paso, 70 ms de pausa y diagonal a duración constante. Son revisables en
 playtest, pero no se cambian sin una nueva decisión.
 
+# Feedback visual
+
+El detalle normativo está en [REQ-017](../requirements/REQ-017-feedback-visual-eventos.md)
+y [ADR-017](../decisions/ADR-017-feedback-visual-eventos.md). Todo evento del
+motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado:
+**más rápido que en 1986, más lento que en 2026**.
+
+| Regla | Valor |
+|---|---|
+| Beat normal | 250-350 ms. |
+| Impacto de ataque | 320 ms. |
+| Fallo de ataque | 300 ms. |
+| Recogida | 350 ms. |
+| Cambio de arma | 250 ms. |
+| Avistamiento (`!`) | 200 ms, luego persiste mientras hay alerta. |
+| Alarma | 500 ms. |
+| Fase enemiga / turno del jugador | 400 / 350 ms. |
+| Muerte | 900 ms; deja cadáver persistente. |
+| Fin de partida | 800 ms antes del overlay. |
+| Reinicio | 250 ms. |
+| Acción sin desplazamiento | ≤1,3 s, salvo secuencia terminal. |
+| Enemigo fuera de pantalla | 150 ms, sin cámara ni tween por tile. |
+| Movimiento | 125/70 sin cambios. |
+
+- El input se bloquea y se descarta durante el beat; `F1` y `R` siguen activos.
+- El cadáver es solo presentación: no bloquea, no se interactúa y no añade
+  reglas; el saqueo tendrá su propia hoja.
+- `prefers-reduced-motion` aplica el estado final y conserva texto, banner y
+  marca estática.
+
 # Combate
 
 Valores aceptados en [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)

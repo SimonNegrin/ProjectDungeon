@@ -2,6 +2,14 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Requirement — REQ-017 — creada: feedback visual de eventos con beat pausado, cobertura exhaustiva, cadáver persistente de presentación y atajo enemigo fuera de pantalla; enmienda REQ-006 y REQ-008 — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
+* 2026-11-10 — Decision — ADR-017 — feedback dirigido por eventos sobre la timeline de presentación, estado visible retrasado, capas Canvas/DOM y cadáver de presentación — [ADR-017](decisions/ADR-017-feedback-visual-eventos.md)
+* 2026-11-10 — Docs — scope — añadida fase 1.13 de feedback visual y decisión de cobertura/ritmo; saqueo de cadáveres fuera de alcance — [scope](scope.md)
+* 2026-11-10 — Planning — TASK-0057 — ready: núcleo de feedback (config, cues, estado intermedio e input); desbloquea TASK-0058, TASK-0059 y TASK-0060 — [TASK-0057](tasks/TASK-0057-nucleo-feedback-timeline-estado.md)
+* 2026-11-10 — Planning — TASK-0058 — backlog: combate y muerte con cadáver persistente; depende de TASK-0057 y desbloquea TASK-0060 y TASK-0061 — [TASK-0058](tasks/TASK-0058-feedback-combate-muerte.md)
+* 2026-11-10 — Planning — TASK-0059 — backlog: inventario, percepción y turno; depende de TASK-0057 y desbloquea TASK-0060 y TASK-0061 — [TASK-0059](tasks/TASK-0059-feedback-inventario-percepcion-turno.md)
+* 2026-11-10 — Planning — TASK-0060 — backlog: atajo fuera de pantalla y modo reducido; depende de TASK-0057 a TASK-0059 y desbloquea TASK-0061 — [TASK-0060](tasks/TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md)
+* 2026-11-10 — Planning — TASK-0061 — backlog: E2E y QA visual del feedback; depende de TASK-0058 a TASK-0060 — [TASK-0061](tasks/TASK-0061-e2e-qa-visual-feedback.md)
 * 2026-11-10 — Task — TASK-0056 — done: Guerrero por defecto con stats/equipo del roster y resistencia +1, `Unit.archetypeId` serializable, HUD con nombre y arquetipo, ataque sin arma rechazado y con arma resuelto; glosario, turn-economy y arquitectura actualizados; docs:check 271, verify 758/758 y E2E 77/77; fusión `540e307` — [informe](../artifacts/TASK-0056/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0055 — done: roster de nueve arquetipos con stats, equipo, variantes e identidad mágica; Cuchillo +4/1; `nombre` por instancia; ataque sin arma rechazado (`unarmed`) sin consumir RNG; verify 751/751 y E2E 76/76; fusión `27899a6` — [informe](../artifacts/TASK-0055/attempt-1/report.md)
 

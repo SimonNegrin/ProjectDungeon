@@ -51,6 +51,11 @@ editable, y el método de balance por porcentaje de victorias esperado. `REQ-016
 y nombre). Las tareas `TASK-0053` a `TASK-0056` implementan el esquema y el
 roster; la pantalla de inicio espera cerrar su borrador.
 
+`REQ-017` añade el feedback visual de eventos: todo evento tiene una respuesta
+visual o una excepción declarada, con un ritmo pausado, ataque/defensa/muerte
+legibles, cadáver persistente de presentación y atajo para enemigos fuera de
+pantalla. La hoja está aprobada y planificada en `TASK-0057` a `TASK-0061`.
+
 # Fases
 
 | Fase | Objetivo | Estado |
@@ -65,6 +70,7 @@ roster; la pantalla de inicio espera cerrar su borrador.
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
 | 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Decidido: `growth` por defecto; EXP-004 cerrado en TASK-0042; producción planificada en TASK-0043 a TASK-0049 |
+| 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Planificada: TASK-0057 a TASK-0061 |
 | 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
@@ -149,6 +155,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   género.
 - El balance se ajusta por porcentaje de victorias esperado en duelo 1v1 con el
   héroe atacando primero, equipo básico y 1.000 duelos, con tolerancia ±2 %.
+- Cada evento del motor tiene feedback visual o una excepción declarada, con un
+  beat pausado y un techo de tiempo. El ataque, la defensa y la muerte se leen
+  con secuencia; el cadáver es persistente pero solo presentación; la fase
+  enemiga es secuencial y usa un atajo fuera de pantalla.
 
 # Fuera de alcance ahora
 
@@ -157,6 +167,8 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Hotseat jugable (varios jugadores por turnos en un teclado); la pantalla de
   configuración (REQ-016, borrador) es preparación. Red y remoto siguen fuera.
 - Arte y audio finales.
+- Saqueo de cadáveres; el cadáver actual es solo presentación y no se interactúa
+  con él.
 - Encadenado funcional de múltiples niveles, objetivos, progresión de clase y
   habilidades (el roster de arquetipos ya está definido, sin progresión).
 

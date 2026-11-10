@@ -35,6 +35,8 @@ El motor debe exponer un modo de test:
 - animaciones desactivadas o esperadas;
 - estado accesible desde `window.__game` o equivalente;
 - sin `Math.random`, `Date.now` ni DOM dentro de reglas.
+- los cues de feedback se avanzan con `advance(ms)`; las capturas de QA se toman
+  en el pico de cada cue, no con esperas de reloj real.
 
 # Playwright
 

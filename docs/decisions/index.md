@@ -16,3 +16,4 @@
 * [ADR-014: balance provisional y fuente única de datos](ADR-014-balance-provisional-fuente-unica.md) - Los valores de combate y bestiario viven en catálogos, el MP y la alarma salen del bestiario y los tests de balance comprueban propiedades.
 * [ADR-015: atributos inherentes y resistencia en la absorción](ADR-015-atributos-inherentes-absorcion.md) - Ocho atributos por personaje, habilidad/fuerza como modificadores y resistencia en la capa de absorción con la armadura como bonus.
 * [ADR-016: permisos de task-lead para diseño y glosario](ADR-016-permisos-docs-diseno-glosario.md) - Tareas mixtas: el lead edita `docs/design` y glosario para reflejar requisitos aprobados; requisitos, arnés y plantillas siguen en `requirements-writer`.
+* [ADR-017: feedback visual dirigido por eventos](ADR-017-feedback-visual-eventos.md) - Cues deterministas en la timeline de presentación, estado visible retrasado hasta su evento, capas Canvas/DOM y cadáver de presentación.

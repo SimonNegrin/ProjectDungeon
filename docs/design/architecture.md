@@ -40,7 +40,7 @@ Teclado
   -> Command
   -> GameEngine.reduce(state, command)
   -> Events
-  -> MotionTimeline (host)
+  -> PresentationTimeline (host: movimiento + feedback)
   -> Renderer + HUD + Cursor
 ```
 
@@ -132,6 +132,38 @@ eventos de ataque, turno y fin de partida).
 Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 [REQ-006](../requirements/REQ-006-movimiento-animado.md).
 
+# Feedback visual
+
+Todo evento del motor se presenta con un **cue** determinista sobre el mismo
+reloj que el movimiento. El host no recalcula reglas: deriva de los eventos qué
+ha pasado y retrasa el estado visible hasta el cue correspondiente.
+
+- **Timeline**: movimiento y feedback comparten reloj y estructura. Un cue tiene
+  tipo, inicio, duración, ancla y datos de presentación; el beat es el máximo de
+  los cues bloqueantes de un evento.
+- **Estado intermedio**: la vida baja en el impacto, la unidad muerta se dibuja
+  como viva hasta `UnitDied`, el arma permanece en el suelo hasta `PickUp` y el
+  arma equipada cambia en `SelectWeapon`. La alarma y los avisos salen en su
+  evento, no al aplicar el comando.
+- **Capas**: Canvas para destellos, embestidas, retrocesos, ondas y cadáveres;
+  DOM para textos, `!`, banners y avisos. Orden: suelo → decals → cadáveres →
+  camino/cursor → unidades → efectos → texto/banners → HUD.
+- **Ritmo**: `FEEDBACK_CONFIG` centraliza las duraciones de `REQ-017`; el
+  movimiento conserva `MOTION_CONFIG` (125/70). La fase enemiga es secuencial y
+  usa un atajo de 150 ms para acciones que empiezan y terminan fuera de pantalla.
+- **Input**: se bloquea y se descarta mientras hay un beat; `F1` y `R` siguen
+  activos.
+- **Accesibilidad**: `prefers-reduced-motion` elimina tween, sacudida y parpadeo,
+  pero conserva texto, banner, marca estática y estado final.
+- **Cadáver**: solo presentación sobre la unidad muerta que ya conserva el
+  motor; no bloquea ni se escribe en la rejilla. `corpse-22a/b` se reserva para
+  muertes reales y deja de ser decoración ambiental.
+- **Debug**: `window.__game.animation` incluye los cues activos y `advance(ms)`
+  avanza el reloj de forma determinista.
+
+Ver [ADR-017](../decisions/ADR-017-feedback-visual-eventos.md) y
+[REQ-017](../requirements/REQ-017-feedback-visual-eventos.md).
+
 # Suelo y decoración
 
 El suelo transitable se pinta con un damero global de 1×1: paridad `(x + y) % 2`
@@ -141,9 +173,11 @@ común a toda la mazmorra y cada sala recibe un segundo tono de una paleta curad
 neutra, humedad, muerte/combate, ruina o vegetación. La paleta se asigna por
 contraste con el ambiente, no por imitación; pasillos y umbrales usan la neutra.
 
-Encima del damero se dibujan 33 decals planos del tileset: piedritas, hierba,
-tierra, ladrillos azules y rojos, huesos, siete plantas pequeñas, setas,
-cadáveres y sangre/slime. El planificador determinista asigna un ambiente
+Encima del damero se dibujan 31 decals planos ambientales del tileset:
+piedritas, hierba, tierra, ladrillos azules y rojos, huesos, siete plantas
+pequeñas, setas y sangre/slime. Los dos cadáveres de 32rogues se reservan para
+muertes reales desde `REQ-017`; no aparecen como decoración. El planificador
+determinista asigna un ambiente
 dominante por sala, con 1-3 focos locales y 20-30 % de mezcla; algunas salas son
 solo dispersas. La densidad objetivo es 35 % en salas y 16 % en pasillos; como
 máximo un decal por tile; nunca en apariciones ni umbrales. La decoración no se

@@ -23,6 +23,10 @@ verified:
     note: Playtest aprobado; el recorrido animado, las pausas, la cámara, el input bloqueado, el cursor y el ritmo 125/70 se sienten bien. REQ-006 completada.
 ---
 
+> **Nota (2026-11-10):** [REQ-017](REQ-017-feedback-visual-eventos.md) amplía la
+> presentación de ataque y muerte y sustituye el fuera de alcance sobre animar
+> ataques. El ritmo de movimiento 125/70 y el resto de esta hoja siguen vigentes.
+
 # Contexto
 
 Hoy **Moverse** es un teletransporte: el motor recorre el camino de golpe y el

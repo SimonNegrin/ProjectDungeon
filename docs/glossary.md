@@ -57,6 +57,9 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Paleta de sala** | Par de colores del damero: una base común para la mazmorra y un segundo tono curado por sala. Se asigna por contraste con el ambiente, no por imitación. |
 | **Ambiente decorativo** | Familia dominante de decoración de una sala: humedad, muerte/combate, ruina, vegetación o mixta. Se materializa en focos locales con mezcla. |
 | **Decoración** | Decal plano del tileset dibujado sobre el suelo; no bloquea, no se escribe en la rejilla y no cambia reglas. |
+| **Feedback visual** | Presentación de un evento del motor mediante un cue: destello, sacudida, parpadeo, texto, banner u onda. No cambia reglas ni estado. |
+| **Beat** | Tiempo mínimo en que el input sigue bloqueado para que el ojo registre un evento; los textos y marcas pueden persistir más allá. |
+| **Cadáver** | Marca persistente de presentación en el tile donde murió una unidad; no bloquea ni se interactúa y se reserva para muertes reales. |
 | **Percepción** | Regla que decide si un enemigo ve a un jugador: visión 360°, radio por tipo y línea de visión de Bresenham; los muros bloquean y las unidades no. |
 | **Dormido** | Estado `dormant`: el enemigo no se mueve, no ataca y no patrulla hasta ver a un jugador, recibir daño o una alarma. |
 | **Alerta** | Estado `alert`: el enemigo persigue la última posición conocida y ataca si llega a adyacencia con acción. |

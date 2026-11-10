@@ -21,6 +21,11 @@ verified:
       decal por tile, siete plantas pequeñas y REQ-008 como hoja nueva.
 ---
 
+> **Nota (2026-11-10):** [REQ-017](REQ-017-feedback-visual-eventos.md) reserva
+> `corpse-22a/b` para muertes reales. El catálogo ambiental baja de 33 a 31
+> decals; huesos, sangre y manchas siguen disponibles. El resto de esta hoja
+> sigue vigente.
+
 # Contexto
 
 `REQ-007` resolvió la legibilidad del suelo con un damero por tinte sobre los
