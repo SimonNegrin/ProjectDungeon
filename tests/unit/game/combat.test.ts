@@ -30,7 +30,7 @@ function expectedDamage(
   armorDie: number,
 ): number {
   return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId].damage,
+    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
     armorValue(target.equipment.armorId),
     damageDie,
     armorDie,
@@ -475,7 +475,7 @@ describe('fórmulas de impacto y daño', () => {
       y: 5,
     });
     const attackBonus =
-      player.stats.habilidad + WEAPONS[player.equipment.weaponId].accuracy;
+      player.stats.habilidad + WEAPONS[player.equipment.weaponId!].accuracy;
     const defense =
       enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
     let hits = 0;
@@ -607,7 +607,7 @@ describe('resistencia en la absorción', () => {
         x: 6,
         y: 5,
       });
-      const weapon = WEAPONS[player.equipment.weaponId];
+      const weapon = WEAPONS[player.equipment.weaponId!];
       const armor = armorValue(enemy.equipment.armorId);
 
       expect(enemy.stats.resistencia).toBe(0);

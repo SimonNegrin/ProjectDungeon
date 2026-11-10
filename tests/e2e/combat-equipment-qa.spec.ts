@@ -123,7 +123,7 @@ function signed(value: number): string {
 }
 
 function weaponLabel(unit: Unit): string {
-  const weapon = WEAPONS[unit.equipment.weaponId];
+  const weapon = WEAPONS[unit.equipment.weaponId!];
   return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
 }
 
@@ -426,7 +426,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(attack!.rolls.damage).not.toBeNull();
   expect(attack!.rolls.armor).not.toBeNull();
   const playerUnit = adjacent.players[0];
-  const playerWeapon = WEAPONS[playerUnit.equipment.weaponId];
+  const playerWeapon = WEAPONS[playerUnit.equipment.weaponId!];
   expect(
     playerUnit.stats.habilidad +
       playerWeapon.accuracy +
@@ -660,7 +660,7 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   const missAttacker = adjacent.players[0];
   expect(
     missAttacker.stats.habilidad +
-      WEAPONS[missAttacker.equipment.weaponId].accuracy +
+      WEAPONS[missAttacker.equipment.weaponId!].accuracy +
       miss!.rolls.attack,
   ).toBeLessThanOrEqual(
     enemy.stats.defensa +

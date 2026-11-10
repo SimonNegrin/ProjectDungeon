@@ -4,22 +4,33 @@ id: TASK-0055
 title: "Motor: catálogo de roster, Cuchillo y nombre de personaje"
 description: "Catálogo de nueve arquetipos con stats, equipo, variantes y magia; Cuchillo +4/1; campo nombre por instancia; un arquetipo sin arma no ataca."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-015
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, T-001, T-002, T-004]
 depends_on: [TASK-0053]
 unlocks: [TASK-0056]
 created_at: 2026-11-09T15:30:00Z
-completed_at:
+completed_at: 2026-11-10T00:06:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0055/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4-pro, at: 2026-11-09T15:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-10T00:06:00Z
+    note: >-
+      Intento 1 verificado en `task/TASK-0055` (brief `8961c09`, código y tests
+      `feb8c08`, evidencia `f0db856`). Diff revisado: `ROSTER` con los nueve
+      arquetipos de REQ-015 y sus valores, Cuchillo +4/1, `nombre` por instancia,
+      `weaponId: null` y rechazo `unarmed` sin consumir RNG; guarda mínima en el
+      HUD para el tipo nullable y narrowing mecánico en tests armados, sin tests
+      borrados, saltados ni debilitados. Lead re-ejecutó `pnpm run verify`
+      (751/751, docs/config, build y bundle OK) y `pnpm run test:e2e` (76/76).
+      Sin cambios de balance, fórmula, dependencias ni fuera de alcance.
 ---
 
 # Objetivo
@@ -40,12 +51,12 @@ del arquetipo. Una unidad sin arma no puede atacar.
 
 # Criterios de aceptación
 
-- [ ] `ROSTER` declara los nueve arquetipos con los valores de REQ-015: stats,
+- [x] `ROSTER` declara los nueve arquetipos con los valores de REQ-015: stats,
   arma, armadura, escudo, dos variantes y magia (identidad).
-- [ ] `WEAPONS` incluye el Cuchillo +4/1; la daga sigue +4/2.
-- [ ] Cada unidad tiene un `nombre` serializable, por defecto el del arquetipo.
-- [ ] Un ataque de una unidad sin arma se rechaza; el catálogo marca «sin arma».
-- [ ] Tests unitarios de roster, Cuchillo, nombre y ataque sin arma;
+- [x] `WEAPONS` incluye el Cuchillo +4/1; la daga sigue +4/2.
+- [x] Cada unidad tiene un `nombre` serializable, por defecto el del arquetipo.
+- [x] Un ataque de una unidad sin arma se rechaza; el catálogo marca «sin arma».
+- [x] Tests unitarios de roster, Cuchillo, nombre y ataque sin arma;
   `pnpm run verify` pasa.
 
 # Plan de test

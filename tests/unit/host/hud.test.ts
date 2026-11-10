@@ -93,6 +93,23 @@ describe('modelo del HUD', () => {
     expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa · +0 resistencia');
   });
 
+  it('muestra Sin arma cuando la unidad no tiene arma equipada', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: null, armorId: null, shieldId: null },
+          weapons: [],
+        }),
+      ],
+    });
+
+    expect(buildHudModel(state).weapon).toBe('Sin arma');
+  });
+
   it('muestra la vida del enemigo vivo bajo el cursor y nada si no hay enemigo', () => {
     const state = makeState({
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
@@ -360,7 +377,7 @@ describe('modelo del overlay de debug', () => {
       PLAYER_CURSOR,
     ).lines;
 
-    const weapon = WEAPONS[BESTIARY.sentinel.equipment.weaponId];
+    const weapon = WEAPONS[BESTIARY.sentinel.equipment.weaponId!];
     const shield =
       BESTIARY.sentinel.equipment.shieldId === null
         ? 'Sin escudo'

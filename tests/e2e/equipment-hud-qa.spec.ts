@@ -30,7 +30,7 @@ function signed(value: number): string {
 }
 
 function weaponLabel(unit: Unit): string {
-  const weapon = WEAPONS[unit.equipment.weaponId];
+  const weapon = WEAPONS[unit.equipment.weaponId!];
   return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
 }
 
