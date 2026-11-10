@@ -5,7 +5,7 @@ description: Guerrero por defecto, nombre y arquetipo en host, tests y smoke E2E
 task: TASK-0056
 attempt: 1
 status: stable
-brief_bytes: 2550
+brief_bytes: 2558
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:08:01Z }
 ---
@@ -13,8 +13,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:08:01Z }
 # Objetivo
 
 Sustituir el jugador provisional por el Guerrero del roster (REQ-015; resistencia
-0 → 1), mostrar nombre y arquetipo en HUD/debug y cubrirlo con unitarios y smoke
-E2E. Balance de enemigos/armas intacto.
+0 → 1), mostrar nombre y arquetipo en HUD/debug y cubrirlo con unitarios y E2E.
+Balance de enemigos/armas intacto.
 
 # No objetivos
 

@@ -1,0 +1,4 @@
+Añadir al final de la tabla de `docs/glossary.md`:
+
+| **Arquetipo** | Personaje jugable del roster con stats inherentes, equipo inicial, dos variantes de sprite e identidad (rol y magia). El nombre de instancia es editable y, por defecto, el del arquetipo. |
+| **Roster** | Catálogo de los nueve arquetipos jugables de [REQ-015](requirements/REQ-015-roster-arquetipos.md) en `src/game/roster.ts`; fuente única de sus stats, equipo, variantes e identidad. |
