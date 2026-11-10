@@ -62,7 +62,7 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `artifactPath` escribe en `<spec>/screenshots/` y la ficha pide `attempt-N/screenshots/` | PNG movidos a mano | Copiar tras el E2E | Afecta a capturas | Unificar ruta | Bajo | `pending` |
+| `artifactPath` escribe en `<spec>/screenshots/` y la ficha pide `attempt-N/screenshots/` | PNG movidos a mano | Copiar tras el E2E | Afecta a capturas | Unificar ruta | Bajo | `deferred` — dueño `requirements-writer` |
 
 # Métricas de handoff
 

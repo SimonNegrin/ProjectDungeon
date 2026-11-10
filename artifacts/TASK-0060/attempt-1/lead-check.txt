@@ -1,0 +1,33 @@
+# Verificación independiente de task-lead (TASK-0060)
+
+## Comandos re-ejecutados
+
+| Comando | Timeout | Resultado |
+|---|---:|---|
+| `pnpm run verify` | 300 s | OK: 61 archivos, 818 tests, tsc, build y bundle |
+| `pnpm exec vitest run tests/unit/host` | 180 s | OK: 23 archivos, 339 tests |
+| `pnpm exec playwright test tests/e2e/enemy-phase-offscreen-qa.spec.ts` | 300 s | OK: 3/3 |
+| `pnpm exec playwright test tests/e2e/motion-qa.spec.ts -g "reduced motion"` | 300 s | OK: 1/1 |
+| `pnpm exec playwright test tests/e2e/frame-qa.spec.ts -g "fuera del viewport"` | 300 s | OK: 1/1 |
+| `pnpm exec vitest run experiments/EXP-004-salas-irregulares/src/spawn.test.ts` | 180 s | OK: 20/20 (el fallo previo de `verify` fue el timeout conocido de 5 s, ajeno a la tarea; repetición verde) |
+
+## Comprobación de modo reducido (Playwright, `reducedMotion: reduce`)
+
+Estado: jugador en (1,2), enemigo dormido visible en (5,2); `EndTurn`.
+Resultado observable:
+
+- Eventos: `TurnEnded`, `EnemyPhaseStarted`, `EnemyWaited`, `PlayerTurnStarted`.
+- `animation.animating = false` (sin beat bloqueante).
+- Banner visible: `TU TURNO`.
+- Marca visible: `...` (estática, sin parpadeo).
+- Cursor sin clases `is-shaking` ni `is-returning`.
+- `screen-fade` oculto (el reinicio no funde).
+
+Estado: jugador en (1,2), enemigo en (2,2); `Attack`.
+
+- Texto visible: `-1`, `opacity: 1`, sin desplazamiento (`-0px`).
+- `animation.animating = false`; la vida del enemigo baja en el evento.
+
+## Alcance
+
+`git diff main...HEAD -- src/game package.json pnpm-lock.yaml docs/requirements docs/harness docs/templates` vacío. Solo tests nuevos; ningún test existente modificado, borrado o saltado.
