@@ -3,7 +3,9 @@ import { ARMORS, SHIELDS, WEAPONS } from '../../../src/game/equipment';
 import {
   BESTIARY,
   BspMapGenerator,
+  ROSTER,
   createInitialState,
+  createPlayerFromArchetype,
   reduce,
   type GameEvent,
 } from '../../../src/game/index';
@@ -66,6 +68,36 @@ describe('modelo del HUD', () => {
     expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa · +0 resistencia');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
+  });
+
+  it('muestra el nombre y el arquetipo del jugador por defecto', () => {
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+    const model = buildHudModel(makeState({ players: [warrior] }));
+
+    expect(model.playerName).toBe(ROSTER.warrior.name);
+    expect(model.archetype).toBe(ROSTER.warrior.name);
+    expect(model.stats).toBe(
+      '+1 habilidad · +1 fuerza · +1 defensa · +1 resistencia',
+    );
+  });
+
+  it('distingue el nombre editable del nombre del arquetipo', () => {
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    const model = buildHudModel(makeState({ players: [warrior] }));
+
+    expect(model.playerName).toBe('Ada');
+    expect(model.archetype).toBe(ROSTER.warrior.name);
+  });
+
+  it('sin arquetipo conocido deja el arquetipo como guion', () => {
+    expect(buildHudModel(makeState()).archetype).toBe('—');
   });
 
   it('refleja un cambio de arma y un equipo sin escudo ni armadura', () => {
@@ -223,6 +255,7 @@ describe('modelo del overlay de debug', () => {
     const text = model.lines.join('\n');
 
     expect(text).toContain('Jugador: (4, 4)');
+    expect(text).toContain('Identidad: player-1 · Arquetipo —');
     expect(text).toContain('MP 6/6');
     expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
@@ -230,6 +263,20 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Cámara: (0, 0) · Límites (224, 224) · Viewport 416×416');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
+  });
+
+  it('muestra nombre y arquetipo del Guerrero en el overlay de debug', () => {
+    const state = createInitialState({ generator: new BspMapGenerator() });
+    const text = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+    ).lines.join('\n');
+
+    expect(text).toContain(`Identidad: ${ROSTER.warrior.name} · Arquetipo ${ROSTER.warrior.name}`);
   });
 
   it('resume los últimos eventos', () => {

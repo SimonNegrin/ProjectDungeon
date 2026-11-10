@@ -9,12 +9,11 @@ import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
+import { createPlayerFromArchetype } from './roster';
 import {
   MAX_WEAPONS,
   MOVE_COST,
   PICKUP_COST,
-  PLAYER_MAX_HP,
-  PLAYER_MAX_MP,
   type Command,
   type GameEvent,
   type GameState,
@@ -28,38 +27,6 @@ export interface CreateInitialStateConfig {
   readonly seed?: number;
   readonly options?: MapOptions;
   readonly generator?: MapGenerator;
-}
-
-function createPlayer(id: string, position: Position): Unit {
-  return {
-    id,
-    nombre: 'Aventurero',
-    faction: 'player',
-    enemyType: null,
-    x: position.x,
-    y: position.y,
-    hp: PLAYER_MAX_HP,
-    maxHp: PLAYER_MAX_HP,
-    mp: PLAYER_MAX_MP,
-    maxMp: PLAYER_MAX_MP,
-    actionAvailable: true,
-    stats: {
-      habilidad: 1,
-      fuerza: 1,
-      defensa: 1,
-      resistencia: 0,
-      punteria: 0,
-      magia: [],
-    },
-    equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-    weapons: ['sword'],
-    awareness: 'alert',
-    fleeing: false,
-    home: { x: position.x, y: position.y },
-    lastKnown: null,
-    alertTurns: 0,
-    hasShouted: false,
-  };
 }
 
 /** Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario. */
@@ -76,6 +43,7 @@ function createEnemy(
     nombre: definition.name,
     faction: 'enemy',
     enemyType: type,
+    archetypeId: null,
     x: position.x,
     y: position.y,
     hp: definition.maxHp,
@@ -121,7 +89,12 @@ function buildInitialState(
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
-    players: [createPlayer('player-1', playerPosition)],
+    players: [
+      createPlayerFromArchetype('warrior', {
+        id: 'player-1',
+        position: playerPosition,
+      }),
+    ],
     enemies:
       mapEnemies !== undefined
         ? mapEnemies.map((enemy) =>

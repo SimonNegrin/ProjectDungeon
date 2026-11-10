@@ -132,11 +132,13 @@ describe('engine state', () => {
     expect(state.players[0]).toMatchObject({
       hp: 20,
       maxHp: 20,
+      nombre: 'Guerrero',
+      archetypeId: 'warrior',
       stats: {
         habilidad: 1,
         fuerza: 1,
         defensa: 1,
-        resistencia: 0,
+        resistencia: 1,
         punteria: 0,
         magia: [],
       },

@@ -1,6 +1,7 @@
 import type { EnemyType } from './bestiary';
 import type { ArmorId, ShieldId, WeaponId } from './equipment';
 import type { GeneratedMap } from './map';
+import type { ArchetypeId } from './roster';
 
 export type Tile = 'floor' | 'wall';
 export type Faction = 'player' | 'enemy';
@@ -66,6 +67,8 @@ export interface Unit {
   readonly faction: Faction;
   /** Tipo de enemigo del bestiario; `null` para jugadores. */
   readonly enemyType: EnemyType | null;
+  /** Arquetipo del roster; `null` en enemigos y unidades sintéticas. */
+  readonly archetypeId: ArchetypeId | null;
   readonly x: number;
   readonly y: number;
   readonly hp: number;
