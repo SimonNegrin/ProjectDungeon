@@ -45,7 +45,8 @@ export interface UnitStats {
 
 /** Equipo equipado, serializable y estable por ID de catálogo. */
 export interface UnitEquipment {
-  readonly weaponId: WeaponId;
+  /** `null` = sin arma; la unidad no puede atacar. */
+  readonly weaponId: WeaponId | null;
   /** `null` = sin armadura. */
   readonly armorId: ArmorId | null;
   /** `null` = sin escudo. */
@@ -60,6 +61,8 @@ export interface RngState {
 
 export interface Unit {
   readonly id: string;
+  /** Nombre de instancia; por defecto, el del arquetipo o tipo de enemigo. */
+  readonly nombre: string;
   readonly faction: Faction;
   /** Tipo de enemigo del bestiario; `null` para jugadores. */
   readonly enemyType: EnemyType | null;
@@ -155,7 +158,9 @@ export type RejectionReason =
   /** `PickUp`: el inventario ya tiene los tres huecos ocupados. */
   | 'inventory-full'
   /** `SelectWeapon`: el hueco no existe o no tiene arma. */
-  | 'invalid-slot';
+  | 'invalid-slot'
+  /** `Attack`: la unidad no tiene arma equipada. */
+  | 'unarmed';
 
 /** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
 export interface AttackRolls {

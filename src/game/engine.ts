@@ -33,6 +33,7 @@ export interface CreateInitialStateConfig {
 function createPlayer(id: string, position: Position): Unit {
   return {
     id,
+    nombre: 'Aventurero',
     faction: 'player',
     enemyType: null,
     x: position.x,
@@ -72,6 +73,7 @@ function createEnemy(
 
   return {
     id,
+    nombre: definition.name,
     faction: 'enemy',
     enemyType: type,
     x: position.x,
@@ -83,7 +85,8 @@ function createEnemy(
     actionAvailable: true,
     stats: definition.stats,
     equipment: definition.equipment,
-    weapons: [definition.equipment.weaponId],
+    weapons:
+      definition.equipment.weaponId === null ? [] : [definition.equipment.weaponId],
     awareness: 'dormant',
     fleeing: false,
     home: { x: home.x, y: home.y },

@@ -6,7 +6,7 @@
  * fuera de este catálogo.
  */
 
-export type WeaponId = 'sword' | 'axe' | 'dagger';
+export type WeaponId = 'sword' | 'axe' | 'dagger' | 'knife';
 export type ArmorId = 'armor' | 'plate';
 export type ShieldId = 'shield';
 
@@ -37,6 +37,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDefinition>> = {
   sword: { id: 'sword', name: 'Espada', accuracy: 3, damage: 3 },
   axe: { id: 'axe', name: 'Hacha', accuracy: 2, damage: 5 },
   dagger: { id: 'dagger', name: 'Daga', accuracy: 4, damage: 2 },
+  knife: { id: 'knife', name: 'Cuchillo', accuracy: 4, damage: 1 },
 };
 
 export const ARMORS: Readonly<Record<ArmorId, ArmorDefinition>> = {

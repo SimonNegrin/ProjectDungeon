@@ -43,6 +43,8 @@ const NEUTRAL_STATS: UnitStats = {
 
 export interface UnitOptions {
   readonly id: string;
+  /** Nombre de instancia; por defecto, el del `id`. */
+  readonly nombre?: string;
   readonly faction: Faction;
   readonly enemyType?: EnemyType | null;
   readonly x: number;
@@ -74,6 +76,7 @@ export function makeUnit(options: UnitOptions): Unit {
 
   return {
     id: options.id,
+    nombre: options.nombre ?? options.id,
     faction: options.faction,
     enemyType: options.enemyType ?? null,
     x: options.x,

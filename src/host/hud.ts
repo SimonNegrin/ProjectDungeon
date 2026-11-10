@@ -80,6 +80,7 @@ function signed(value: number): string {
 
 function weaponLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
+  if (unit.equipment.weaponId === null) return 'Sin arma';
   const weapon = weaponFor(unit.equipment.weaponId);
   return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
 }

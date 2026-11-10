@@ -21,7 +21,7 @@ function expectedDamage(
   armorDie: number,
 ): number {
   return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId].damage,
+    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
     armorValue(target.equipment.armorId),
     damageDie,
     armorDie,

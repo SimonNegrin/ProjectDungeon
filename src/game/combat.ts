@@ -88,6 +88,9 @@ export function resolveAttack(
   if (!isAdjacent(attacker, target)) {
     return { ok: false, reason: 'target-not-adjacent' };
   }
+  if (attacker.equipment.weaponId === null) {
+    return { ok: false, reason: 'unarmed' };
+  }
 
   const weapon = weaponFor(attacker.equipment.weaponId);
   const armor = armorValue(target.equipment.armorId);

@@ -37,7 +37,7 @@ function makeEnemy(
     maxHp: definition.maxHp,
     stats: definition.stats,
     equipment: definition.equipment,
-    weapons: [definition.equipment.weaponId],
+    weapons: [definition.equipment.weaponId!],
   });
 }
 
@@ -53,7 +53,7 @@ function makePlayer(weaponId: WeaponId = 'sword'): Unit {
 
 function damageWith(attacker: Unit, target: Unit, damageDie: number, armorDie: number): number {
   return resolveDamage(
-    attacker.stats.fuerza + weaponFor(attacker.equipment.weaponId).damage,
+    attacker.stats.fuerza + weaponFor(attacker.equipment.weaponId!).damage,
     armorValue(target.equipment.armorId),
     damageDie,
     armorDie,
@@ -139,8 +139,8 @@ describe('bestiario', () => {
 
     for (const type of ENEMY_TYPES) {
       const definition = BESTIARY[type];
-      const weapon = weaponFor(definition.equipment.weaponId);
-      expect(weapon).toBe(WEAPONS[definition.equipment.weaponId]);
+      const weapon = weaponFor(definition.equipment.weaponId!);
+      expect(weapon).toBe(WEAPONS[definition.equipment.weaponId!]);
       expect(shieldValue(definition.equipment.shieldId)).toBe(
         definition.equipment.shieldId === null
           ? 0
@@ -185,7 +185,7 @@ describe('ataque enemigo con el resolvedor compartido', () => {
 
     for (const type of ENEMY_TYPES) {
       const definition = BESTIARY[type];
-      const weapon = weaponFor(definition.equipment.weaponId);
+      const weapon = weaponFor(definition.equipment.weaponId!);
       const enemy = makeEnemy(type);
       const player = makePlayer();
       const state = makeState({ players: [player], enemies: [enemy], rng: dice });
