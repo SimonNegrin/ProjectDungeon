@@ -2,6 +2,7 @@
 
 ## 2026-11-10
 
+* 2026-11-10 — Task — TASK-0056 — done: Guerrero por defecto con stats/equipo del roster y resistencia +1, `Unit.archetypeId` serializable, HUD con nombre y arquetipo, ataque sin arma rechazado y con arma resuelto; glosario, turn-economy y arquitectura actualizados; docs:check 271, verify 758/758 y E2E 77/77; fusión `540e307` — [informe](../artifacts/TASK-0056/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0055 — done: roster de nueve arquetipos con stats, equipo, variantes e identidad mágica; Cuchillo +4/1; `nombre` por instancia; ataque sin arma rechazado (`unarmed`) sin consumir RNG; verify 751/751 y E2E 76/76; fusión `27899a6` — [informe](../artifacts/TASK-0055/attempt-1/report.md)
 
 ## 2026-11-09

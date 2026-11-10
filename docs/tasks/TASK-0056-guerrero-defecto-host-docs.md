@@ -24,7 +24,8 @@ verified:
     at: 2026-11-10T00:19:34Z
     note: >-
       Intento 1 verificado en `task/TASK-0056` (brief `8cf7de5`, código y tests
-      `81d45cf`, informe `cb9849c`, documentación `e8392da`). Diff revisado:
+      `81d45cf`, informe `cb9849c`, documentación `e8392da`; cierre `b59ed93`;
+      fusión `540e307`). Diff revisado:
       Guerrero por defecto con stats/equipo del roster y resistencia 1 en el
       spawn real, `Unit.archetypeId` serializable, HUD con nombre y arquetipo,
       rechazo `unarmed` y ataque armado; glosario, `turn-economy` y arquitectura
