@@ -5,6 +5,10 @@
 * 2026-11-10 — Task — TASK-0056 — done: Guerrero por defecto con stats/equipo del roster y resistencia +1, `Unit.archetypeId` serializable, HUD con nombre y arquetipo, ataque sin arma rechazado y con arma resuelto; glosario, turn-economy y arquitectura actualizados; docs:check 271, verify 758/758 y E2E 77/77; fusión `540e307` — [informe](../artifacts/TASK-0056/attempt-1/report.md)
 * 2026-11-10 — Task — TASK-0055 — done: roster de nueve arquetipos con stats, equipo, variantes e identidad mágica; Cuchillo +4/1; `nombre` por instancia; ataque sin arma rechazado (`unarmed`) sin consumir RNG; verify 751/751 y E2E 76/76; fusión `27899a6` — [informe](../artifacts/TASK-0055/attempt-1/report.md)
 
+## 2026-11-10
+
+* 2026-11-10 — Harness — ADR-016 — `task-lead` puede editar `docs/design/**` y `docs/glossary.md` para reflejar requisitos aprobados (guardarraíl: reglas y alcance siguen en `requirements-writer`); ataja el bloqueo de tareas mixtas — [ADR-016](decisions/ADR-016-permisos-docs-diseno-glosario.md)
+
 ## 2026-11-09
 
 * 2026-11-09 — Task — TASK-0054 — done: HUD y `F1` con habilidad, fuerza, defensa y resistencia sin etiquetas antiguas; turn-economy, glosario, arquitectura y ADR-015 actualizados; docs:check 265, verify 740/740 y E2E 76/76; fusión `658b475` — [informe](../artifacts/TASK-0054/attempt-1/report.md)

@@ -239,7 +239,9 @@ decide las reglas.
 - `task-runner` reporta fricción reutilizable con evidencia y disposición
   `pending`; no edita `docs/` ni la usa para desbloquear.
 - `task-lead` clasifica (local, documental, arnés o creativa), aplica lo que está
-  en su alcance y eleva el resto con evidencia.
+  en su alcance —incluidos `docs/design/**` y `docs/glossary.md` para reflejar
+  requisitos aprobados ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md))—
+  y eleva el resto con evidencia.
 - `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
   con log; consulta al usuario si cambia reglas, permisos, gates, coste o
   comportamiento de los agentes.

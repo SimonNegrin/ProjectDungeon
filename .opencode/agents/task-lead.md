@@ -16,6 +16,12 @@ permissions:
     resource: "docs/log.md"
     effect: allow
   - action: edit
+    resource: "docs/design/**"
+    effect: allow
+  - action: edit
+    resource: "docs/glossary.md"
+    effect: allow
+  - action: edit
     resource: "artifacts/**"
     effect: allow
   - action: subagent
@@ -99,7 +105,10 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 - Clasifica cada propuesta del informe: problema local de la tarea, corrección
   documental, cambio de arnés o decisión creativa.
 - Aplica solo lo que esté en tu alcance (`docs/tasks/**`, `docs/decisions/**`,
-  `docs/log.md` y artefactos).
+  `docs/log.md`, `docs/design/**`, `docs/glossary.md` y artefactos). En
+  `docs/design/**` y `docs/glossary.md` solo reflejas requisitos ya aprobados y lo
+  implementado; cualquier cambio de regla, decisión creativa o alcance lo elevas a
+  `requirements-writer`.
 - Eleva a `requirements-writer` lo documental o de arnés con la evidencia; no
   edites `docs/harness/**` ni las plantillas.
 - No crees ADRs de arnés por tu cuenta: las aclaraciones van a los documentos de
@@ -124,6 +133,8 @@ Si todo pasa:
 # Límites
 
 - No cambies requisitos, criterios ni alcance.
+- No edites `docs/requirements/**`, `docs/harness/**` ni `docs/templates/**`; quedan
+  en `requirements-writer`.
 - No tomes decisiones creativas.
 - No escribas código de producción.
 - No aceptes un informe sin verificar.
