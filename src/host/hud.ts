@@ -6,6 +6,7 @@ import {
   weaponFor,
 } from '../game/equipment';
 import type { GameEvent, GameState, Position, Unit } from '../game/types';
+import { rosterEntry } from '../game/roster';
 import { alarmRadius, visionRadius } from '../game/perception';
 import {
   pathLength,
@@ -23,6 +24,10 @@ export const KEYS_HELP =
   'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · E terminar turno · R reiniciar · F1 debug';
 
 export interface HudModel {
+  /** Nombre de instancia del jugador. */
+  readonly playerName: string;
+  /** Nombre del arquetipo del jugador; `—` si no tiene. */
+  readonly archetype: string;
   readonly playerHp: string;
   readonly playerMp: string;
   readonly action: string;
@@ -103,6 +108,10 @@ function statsLabel(unit: Unit | undefined): string {
   return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
 }
 
+function archetypeLabel(unit: Unit | undefined): string {
+  return unit?.archetypeId ? rosterEntry(unit.archetypeId).name : '—';
+}
+
 function enemyAt(state: GameState, position: Position | undefined): Unit | undefined {
   if (!position) return undefined;
   return state.enemies.find(
@@ -125,6 +134,8 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const cursorEnemy = enemyAt(state, cursor);
 
   return {
+    playerName: player?.nombre ?? '—',
+    archetype: archetypeLabel(player),
     playerHp: formatHp(player),
     playerMp: formatMp(player),
     action: boolLabel(player?.actionAvailable),
@@ -391,6 +402,7 @@ export function buildDebugModel(
   return {
     lines: [
       `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player?.actionAvailable)}`,
+      `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       equipmentDebugLine(player),
       ...enemyEquipmentLines(state),
@@ -456,6 +468,17 @@ function ensureEquipmentGroup(root: ParentNode, hud: HTMLElement): HTMLElement {
   return group;
 }
 
+function ensureIdentityGroup(root: ParentNode, hud: HTMLElement): HTMLElement {
+  const existing = root.querySelector<HTMLElement>('[data-testid="hud-identity"]');
+  if (existing) return existing;
+
+  const group = document.createElement('div');
+  group.className = 'hud-group';
+  group.dataset.testid = 'hud-identity';
+  hud.prepend(group);
+  return group;
+}
+
 function ensureWeaponHint(root: ParentNode, keys: HTMLElement): HTMLElement {
   const existing = root.querySelector<HTMLElement>('[data-testid="weapon-hint"]');
   if (existing) return existing;
@@ -483,6 +506,9 @@ export function createHudView(root: ParentNode): HudView {
   const defeat = requireElement(root, 'overlay-defeat');
 
   const equipmentGroup = ensureEquipmentGroup(root, hud);
+  const identityGroup = ensureIdentityGroup(root, hud);
+  const playerName = ensureHudStat(root, identityGroup, 'hud-player-name', 'Nombre');
+  const archetype = ensureHudStat(root, identityGroup, 'hud-archetype', 'Arquetipo');
   const weapon = ensureHudStat(root, equipmentGroup, 'hud-weapon', 'Arma');
   const shield = ensureHudStat(root, equipmentGroup, 'hud-shield', 'Escudo');
   const armor = ensureHudStat(root, equipmentGroup, 'hud-armor', 'Armadura');
@@ -498,6 +524,8 @@ export function createHudView(root: ParentNode): HudView {
   return {
     update(state: GameState, cursor?: Position): void {
       const model = buildHudModel(state, cursor);
+      playerName.textContent = model.playerName;
+      archetype.textContent = model.archetype;
       playerHp.textContent = model.playerHp;
       playerMp.textContent = model.playerMp;
       action.textContent = model.action;

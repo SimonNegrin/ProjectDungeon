@@ -1,0 +1,29 @@
+Reemplazos exactos en `docs/design/turn-economy.md`.
+
+1. Fila de «Posición inicial del jugador»:
+
+| Posición inicial del jugador | La del spawn del grupo (`map.spawns.party[0] ?? map.spawns.player`); el jugador por defecto es el Guerrero del roster. |
+
+2. Fila de la Espada en «## Armas» y fila nueva del Cuchillo:
+
+| Espada | +3 | 3 | Equilibrada; arma inicial del Guerrero. |
+| Cuchillo | +4 | 1 | Muy fiable; menos dañino que la daga. Arma inicial del Cocinero. |
+
+3. Fila del jugador en «## Equipo y bestiario»:
+
+| Guerrero (jugador por defecto) | +1 | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
+
+4. Párrafo posterior a la tabla:
+
+Todos los personajes tienen puntería 0 y magia vacía en este corte. MP enemigo:
+Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance provisional v1**
+de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
+[REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); el balance v1
+de enemigos y armas no cambia. El Guerrero sustituye al jugador provisional y
+añade +1 de resistencia (0 → 1). El roster de
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md) es la fuente única de
+stats y equipo de los héroes.
+
+5. Primera frase del párrafo siguiente:
+
+El Guerrero empieza con la espada, el escudo y la armadura.

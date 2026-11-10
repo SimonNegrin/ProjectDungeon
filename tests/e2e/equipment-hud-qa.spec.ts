@@ -46,6 +46,11 @@ function armorLabel(unit: Unit): string {
   return `${armor.name} ${signed(armor.armor)}`;
 }
 
+function statsLabel(unit: Unit): string {
+  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
+}
+
 function floorNeighbor(
   snap: { readonly grid: { readonly width: number; readonly height: number; readonly tiles: readonly string[] } },
   x: number,
@@ -109,7 +114,7 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
     armorLabel(initial.players[0]),
   );
   await expect(page.getByTestId('hud-stats')).toHaveText(
-    '+1 habilidad · +1 fuerza · +1 defensa · +0 resistencia',
+    statsLabel(initial.players[0]),
   );
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
 

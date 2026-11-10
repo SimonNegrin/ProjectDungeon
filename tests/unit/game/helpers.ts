@@ -6,6 +6,7 @@ import {
   PLAYER_MAX_MP,
   rollDie,
   type Awareness,
+  type ArchetypeId,
   type EnemyType,
   type Faction,
   type GameState,
@@ -47,6 +48,8 @@ export interface UnitOptions {
   readonly nombre?: string;
   readonly faction: Faction;
   readonly enemyType?: EnemyType | null;
+  /** Arquetipo del roster; `null` en unidades sintéticas. */
+  readonly archetypeId?: ArchetypeId | null;
   readonly x: number;
   readonly y: number;
   readonly hp?: number;
@@ -79,6 +82,7 @@ export function makeUnit(options: UnitOptions): Unit {
     nombre: options.nombre ?? options.id,
     faction: options.faction,
     enemyType: options.enemyType ?? null,
+    archetypeId: options.archetypeId ?? null,
     x: options.x,
     y: options.y,
     hp: options.hp ?? maxHp,

@@ -223,13 +223,74 @@ describe('personaje desde arquetipo', () => {
     expect(warrior.maxHp).toBe(ROSTER.warrior.maxHp);
   });
 
-  it('enemigos y jugador provisional llevan nombres estables', () => {
+  it('enemigos y jugador por defecto llevan nombres estables', () => {
     const state = createInitialState({ generator: new BspMapGenerator() });
     const enemyType = state.enemies[0].enemyType;
     if (enemyType === null) throw new Error('El enemigo inicial debe tener tipo');
 
-    expect(state.players[0].nombre).toBe('Aventurero');
+    expect(state.players[0].nombre).toBe(ROSTER.warrior.name);
+    expect(state.players[0].archetypeId).toBe('warrior');
     expect(state.enemies[0].nombre).toBe(BESTIARY[enemyType].name);
+    expect(state.enemies[0].archetypeId).toBeNull();
+  });
+});
+
+describe('jugador por defecto (REQ-015 T-003)', () => {
+  it('usa stats y equipo del Guerrero con +1 de resistencia y el spawn real', () => {
+    const state = createInitialState({ seed: 279837264 });
+    const player = state.players[0];
+    const spawn = state.map!.spawns.party?.[0] ?? state.map!.spawns.player;
+
+    expect(player.id).toBe('player-1');
+    expect(player.nombre).toBe(ROSTER.warrior.name);
+    expect(player.archetypeId).toBe('warrior');
+    expect(player.stats).toEqual(ROSTER.warrior.stats);
+    expect(player.stats.resistencia).toBe(1);
+    expect(player.equipment).toEqual(ROSTER.warrior.equipment);
+    expect(player.weapons).toEqual(['sword']);
+    expect(player.hp).toBe(ROSTER.warrior.maxHp);
+    expect(player.maxHp).toBe(ROSTER.warrior.maxHp);
+    expect(player.mp).toBe(ROSTER.warrior.maxMp);
+    expect(player.maxMp).toBe(ROSTER.warrior.maxMp);
+    expect({ x: player.x, y: player.y }).toEqual(spawn);
+    expect(player.x === 0 && player.y === 0).toBe(false);
+    expect(player.home).toEqual(spawn);
+  });
+
+  it('la identidad de arquetipo es serializable y null en enemigos', () => {
+    const state = createInitialState({ generator: new BspMapGenerator() });
+    const roundTrip = JSON.parse(JSON.stringify(state)) as typeof state;
+
+    expect(roundTrip.players[0].archetypeId).toBe('warrior');
+    expect(roundTrip).toEqual(state);
+    for (const enemy of state.enemies) {
+      expect(enemy.archetypeId).toBeNull();
+    }
+  });
+
+  it('el Guerrero por defecto ataca y consume RNG cuando lleva arma', () => {
+    const state = createInitialState({ generator: new BspMapGenerator() });
+    const player = state.players[0];
+    const adjacent = makeState({
+      players: [{ ...player, x: 5, y: 5, home: { x: 5, y: 5 } }],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([6, 1, 2, 1]),
+    });
+
+    const result = reduce(adjacent, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.events[0]).toMatchObject({
+      type: 'AttackPerformed',
+      attackerId: 'player-1',
+      targetId: 'enemy-1',
+      hit: true,
+    });
+    expect(result.state.rng).not.toBe(adjacent.rng);
+    expect(result.state.players[0].actionAvailable).toBe(false);
   });
 });
 

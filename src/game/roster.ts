@@ -237,6 +237,7 @@ export function createPlayerFromArchetype(
     nombre: options.name ?? entry.name,
     faction: 'player',
     enemyType: null,
+    archetypeId: id,
     x: position.x,
     y: position.y,
     hp: entry.maxHp,

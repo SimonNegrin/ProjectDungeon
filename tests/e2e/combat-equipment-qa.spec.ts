@@ -2,6 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { ARMORS, SHIELDS, WEAPONS, armorValue, shieldValue } from '../../src/game/equipment';
+import { ROSTER } from '../../src/game/roster';
 import type { GameEvent, Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { damageFeedbackAnchor } from '../../src/host/feedback';
@@ -207,20 +208,16 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   const player = initial.players[0];
   expect(initial.seed).toBe(REFERENCE_SEED);
   expect(initial.status).toBe('playing');
+  expect(player.nombre).toBe(ROSTER.warrior.name);
+  expect(player.archetypeId).toBe('warrior');
   expect(player.equipment).toEqual({
     weaponId: 'sword',
     armorId: 'armor',
     shieldId: 'shield',
   });
   expect(player.weapons).toEqual(['sword']);
-  expect(player.stats).toEqual({
-    habilidad: 1,
-    fuerza: 1,
-    defensa: 1,
-    resistencia: 0,
-    punteria: 0,
-    magia: [],
-  });
+  expect(player.stats).toEqual(ROSTER.warrior.stats);
+  expect(player.stats.resistencia).toBe(1);
   expect(initial.weapons).toHaveLength(2);
 
   const axe = initial.weapons.find((weapon) => weapon.weaponId === 'axe');
