@@ -4,14 +4,14 @@ id: TASK-0062
 title: "Arnés: sufijo de repetición en capturas E2E"
 description: "Evitar que --repeat-each sobrescriba capturas, JSON y logs usando el índice real de repetición; prueba del helper y documentación actualizada."
 status: draft
-task_status: review
+task_status: done
 task_type: harness
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
 unlocks: []
 created_at: 2026-11-10T21:37:55Z
-completed_at:
+completed_at: 2026-11-10T22:14:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0062/
@@ -39,6 +39,14 @@ verified:
       pnpm run docs:check pasa con 308 documentos. Todos los criterios de la
       ficha quedan cubiertos; la tarea espera decisión del usuario para cerrar y
       fusionar.
+  - by: task-lead
+    at: 2026-11-10T22:14:00Z
+    note: >-
+      Cierre autorizado por el usuario. Rama revisada sin cambios fuera de
+      alcance ni tests debilitados; docs/harness/visual-qa.md actualizado por
+      requirements-writer (pasada 0 en <spec>/, pasadas 1..N-1 en
+      <spec>/repeat-N/). Fusión --no-ff en main: 7846784. Un intento, artefactos
+      en artifacts/TASK-0062/attempt-1/.
 ---
 
 # Objetivo
