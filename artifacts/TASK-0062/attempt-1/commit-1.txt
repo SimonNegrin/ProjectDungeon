@@ -1,0 +1,3 @@
+[task/TASK-0062 2fd7e94] fix(TASK-0062): sufijo repeatEachIndex en artifactPath y prueba del helper
+ 2 files changed, 118 insertions(+), 11 deletions(-)
+ create mode 100644 tests/unit/artifacts-helper.test.ts
