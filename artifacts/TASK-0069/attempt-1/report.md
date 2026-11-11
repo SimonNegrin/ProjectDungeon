@@ -63,7 +63,7 @@ objetivo sin re-simular, diagnóstico con catálogo de trabajo, export con héro
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El validador avisa de handoffs por encima de 2.560 B mientras la plantilla fija 1,5–2 KB y el tope 4 KB; hay decenas de avisos previos. | `verify-output.txt`: 72 avisos, incluido `brief.md` de 2.712 B. | Ignorar avisos; el comando no falla. | Se repite en cada tarea y normaliza ignorar el chequeo. | Alinear el umbral del validador con el objetivo de la plantilla o documentar el margen. | Bajo; no cambia criterios ni tests. | `pending` |
+| El validador avisa de handoffs por encima de 2.560 B mientras la plantilla fija 1,5–2 KB y el tope 4 KB; hay decenas de avisos previos. | `verify-output.txt`: 72 avisos, incluido `brief.md` de 2.712 B. | Ignorar avisos; el comando no falla. | Se repite en cada tarea y normaliza ignorar el chequeo. | Alinear el umbral del validador con el objetivo de la plantilla o documentar el margen. | Bajo; no cambia criterios ni tests. | `deferred` |
 
 # Métricas de handoff
 
@@ -73,3 +73,8 @@ objetivo sin re-simular, diagnóstico con catálogo de trabajo, export con héro
 | `report_bytes` | 3263 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
+
+Disposición del lead: la fricción queda `deferred`. Es un desajuste del arnés
+entre el umbral de aviso del validador y el objetivo de la plantilla; se eleva a
+`requirements-writer` con evidencia para que el usuario decida si
+`harness-keeper` lo aplica. No bloquea ni desbloquea esta tarea.
