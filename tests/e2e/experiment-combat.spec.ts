@@ -88,11 +88,11 @@ test('el índice lista EXP-003 y la cabecera anuncia balance pendiente', async (
 
   await expect(page.getByTestId('seed-input')).toHaveValue(String(SEED));
   await expect(page.getByTestId('duel-count')).toHaveValue('1000');
-  await expect(page.getByTestId('matchup-rows').locator('tr')).toHaveCount(12);
-  await expect(
-    page.getByTestId('matchup-band-guerrero-centinela'),
-  ).toContainText('fuera +40,0 pp');
-  await expect(page.getByTestId('matchup-select-picaro-bruto')).toBeVisible();
+  await expect(page.getByTestId('combats-rows').locator('tr')).toHaveCount(12);
+  await expect(page.getByTestId('detail-result')).toContainText(
+    'fuera +40,0 pp',
+  );
+  await expect(page.getByTestId('combats-row-picaro-bruto')).toBeVisible();
 
   await screenshot(page, 'tabla-12-emparejamientos', testInfo);
   expect(errors).toEqual([]);
@@ -263,7 +263,11 @@ test('el detalle, el export y la descarga no llevan marca de tiempo', async ({
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
 
-  await page.getByTestId('matchup-select-picaro-bruto').click();
+  await page
+    .getByTestId('combats-row-picaro-bruto')
+    .locator('td')
+    .first()
+    .click();
   await expect(page.getByTestId('detail-title')).toHaveText('Pícaro vs Bruto');
   await expect(page.getByTestId('detail-actions')).toContainText('Atacar');
   await expect(page.getByTestId('detail-actions')).toContainText('Esperar');
