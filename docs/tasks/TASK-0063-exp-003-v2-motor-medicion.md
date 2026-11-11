@@ -4,7 +4,7 @@ id: TASK-0063
 title: "EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición"
 description: Construir el núcleo de la mesa de combate v2.0 con catálogos, pasillo 1D, acciones, magia, réplica, RNG sembrado y 1.000 duelos por emparejamiento con resultados reproducibles.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-027
 requirement_ids: [REQ-025, REQ-026, REQ-027]
