@@ -8,10 +8,12 @@
 import {
   benchExportFileName,
   isOverridesEmpty,
+  isTargetsGuide,
   overridesId,
 } from './v2/bench';
 import type {
   BenchOverrides,
+  BenchTargets,
   EnemyDiagnosis,
   EnemyOverride,
   HeroOverride,
@@ -660,17 +662,18 @@ export function weaponUsers(catalog: Catalog, weaponId: string): ReadonlyArray<s
 }
 
 /**
- * Nombre de descarga: el export base conserva el nombre v2.0 histórico; con
- * overrides usa `bench-overrides-<id>` para no sobrescribirlo.
+ * Nombre de descarga: sin overrides ni objetivos ajustados conserva el nombre
+ * v2.0 histórico; en cualquier otro caso delega en el nombre del banco.
  */
 export function benchFileName(
   payload: MeasurementPayload,
   overrides: BenchOverrides,
+  targets: BenchTargets,
 ): string {
-  if (isOverridesEmpty(overrides)) {
+  if (isOverridesEmpty(overrides) && isTargetsGuide(targets)) {
     return `${payload.experiment}-${payload.engine}-seed-${payload.seed}-duels-${payload.duels}.json`;
   }
-  return benchExportFileName(payload, overrides);
+  return benchExportFileName(payload, overrides, targets);
 }
 
 /* Columnas y agrupación de las tres tablas inline. */
@@ -837,7 +840,11 @@ export function formatBenchSummary(
     0,
   );
   const targetList = diagnosis
-    .map((entry) => `${unitName(catalog, entry.enemyId)} ${formatTarget(entry.target)}`)
+    .map(
+      (entry) =>
+        `${unitName(catalog, entry.enemyId)} ` +
+        `${entry.rows.map((row) => String(row.target)).join('/')} %`,
+    )
     .join(' · ');
   return (
     `experimento ${payload.experiment} · motor ${payload.engine} · catálogo ${payload.catalogVersion}\n` +

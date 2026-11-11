@@ -27,10 +27,23 @@ export const GUIDE_TARGETS: Readonly<Record<string, number>> = {
 /** Margen de referencia del diagnóstico 4-de-4, en puntos porcentuales. */
 export const MARGIN_PP = 5;
 
-/** Dispersión entre héroes que delata un bloque compartido incapaz de centrar. */
-export const DISPERSION_LIMIT_PP = 10;
+/** Objetivo inicial editable de un enemigo sin entrada en la guía. */
+export const DEFAULT_TARGET = 50;
+
+/** Versión del modelo de objetivos por par héroe–enemigo. */
+export const TARGETS_VERSION = 2;
 
 export type BenchTargets = Readonly<Record<string, number>>;
+
+/** Clave estable de un par héroe–enemigo. */
+export function targetKey(heroId: string, enemyId: string): string {
+  return `${heroId}:${enemyId}`;
+}
+
+/** Guía heredada por enemigo; 50 % si no tiene entrada. */
+export function guideTargetFor(enemyId: string): number {
+  return GUIDE_TARGETS[enemyId] ?? DEFAULT_TARGET;
+}
 
 export type TargetValidation =
   | { readonly ok: true; readonly value: number; readonly message: null }
@@ -62,35 +75,67 @@ export function validateTarget(value: unknown): TargetValidation {
   return { ok: true, value, message: null };
 }
 
-/** Copia editable de la guía inicial; la guía no se muta. */
-export function createTargets(): BenchTargets {
-  return { ...GUIDE_TARGETS };
+/** Mapa editable por par; guía heredada por enemigo y orden roster-major. */
+export function createTargets(catalog: Catalog = CATALOG): BenchTargets {
+  const targets: Record<string, number> = {};
+  for (const hero of catalog.roster) {
+    for (const enemy of catalog.bestiary) {
+      targets[targetKey(hero.id, enemy.id)] = guideTargetFor(enemy.id);
+    }
+  }
+  return targets;
 }
 
-/** Fija el objetivo de un enemigo; lanza `RangeError` si no es válido. */
+/** Fija el objetivo de un par; lanza `RangeError` si no es válido. */
 export function setTarget(
   targets: BenchTargets,
+  heroId: string,
   enemyId: string,
   value: unknown,
 ): BenchTargets {
   const validation = validateTarget(value);
   if (!validation.ok) throw new RangeError(validation.message);
-  return { ...targets, [enemyId]: validation.value };
+  return { ...targets, [targetKey(heroId, enemyId)]: validation.value };
 }
 
-/** Restaura el objetivo de un enemigo a la guía inicial. */
+/** Restaura el objetivo de un par a la guía de su enemigo. */
 export function resetTarget(
   targets: BenchTargets,
+  heroId: string,
   enemyId: string,
 ): BenchTargets {
-  const guide = GUIDE_TARGETS[enemyId];
-  if (guide === undefined) return targets;
-  return { ...targets, [enemyId]: guide };
+  return { ...targets, [targetKey(heroId, enemyId)]: guideTargetFor(enemyId) };
 }
 
-/** Restaura todos los objetivos a la guía inicial. */
-export function resetTargets(): BenchTargets {
-  return { ...GUIDE_TARGETS };
+/** Restaura los cuatro pares de un enemigo a la guía; no toca otros. */
+export function resetEnemyTargets(
+  targets: BenchTargets,
+  enemyId: string,
+  catalog: Catalog = CATALOG,
+): BenchTargets {
+  const next: Record<string, number> = { ...targets };
+  for (const hero of catalog.roster) {
+    next[targetKey(hero.id, enemyId)] = guideTargetFor(enemyId);
+  }
+  return next;
+}
+
+/** Restaura todos los objetivos a la guía heredada. */
+export function resetTargets(catalog: Catalog = CATALOG): BenchTargets {
+  return createTargets(catalog);
+}
+
+/** `true` si el mapa coincide exactamente con la guía por enemigo. */
+export function isTargetsGuide(targets: BenchTargets): boolean {
+  const guide = createTargets();
+  const keys = Object.keys(guide);
+  if (Object.keys(targets).length !== keys.length) return false;
+  return keys.every((key) => targets[key] === guide[key]);
+}
+
+/** Identificador determinista del mapa de objetivos: 8 hex, sin orden. */
+export function targetsId(targets: BenchTargets): string {
+  return hashString(canonicalJson(targets)).toString(16).padStart(8, '0');
 }
 
 export interface EnemyOverride {
@@ -442,12 +487,6 @@ export interface OutsideRow {
 
 export type DiagnoseProblem =
   | {
-      readonly kind: 'dispersion';
-      readonly message: string;
-      readonly dispersion: number;
-      readonly limit: number;
-    }
-  | {
       readonly kind: 'outside';
       readonly message: string;
       readonly rows: ReadonlyArray<OutsideRow>;
@@ -461,16 +500,12 @@ export type DiagnoseProblem =
 
 export interface EnemyDiagnosis {
   readonly enemyId: string;
-  readonly target: number;
   readonly margin: number;
   readonly rows: ReadonlyArray<DiagnosedRow>;
   readonly insideCount: number;
   readonly total: number;
   readonly fourOfFour: boolean;
   readonly outside: ReadonlyArray<OutsideRow>;
-  readonly min: number;
-  readonly max: number;
-  readonly dispersion: number;
   readonly problems: ReadonlyArray<DiagnoseProblem>;
 }
 
@@ -492,12 +527,13 @@ function nameFor(catalog: Catalog, id: string): string {
 /**
  * Diagnóstico 4-de-4 de un enemigo. Es informativo: no bloquea ni corrige.
  *
- * `matchups` debe contener las filas de un solo enemigo. `catalog` se usa para
- * detectar armas compartidas con los héroes y para nombrar filas.
+ * `matchups` debe contener las filas de un solo enemigo y `targets` el mapa por
+ * par. `catalog` se usa para detectar armas compartidas con los héroes y para
+ * nombrar filas.
  */
 export function diagnoseEnemy(
   matchups: ReadonlyArray<MatchupResult>,
-  target: number,
+  targets: BenchTargets,
   margin: number = MARGIN_PP,
   catalog: Catalog = CATALOG,
 ): EnemyDiagnosis {
@@ -510,10 +546,15 @@ export function diagnoseEnemy(
       'diagnoseEnemy necesita los emparejamientos de un solo enemigo.',
     );
   }
-  const validation = validateTarget(target);
-  if (!validation.ok) throw new RangeError(validation.message);
 
   const rows: DiagnosedRow[] = matchups.map((matchup) => {
+    const key = targetKey(matchup.heroId, matchup.enemyId);
+    const raw = targets[key];
+    if (raw === undefined) {
+      throw new Error(`Sin objetivo para el par ${key}.`);
+    }
+    const validation = validateTarget(raw);
+    if (!validation.ok) throw new RangeError(validation.message);
     const delta = roundTo(matchup.heroWinRate - validation.value);
     return {
       heroId: matchup.heroId,
@@ -526,23 +567,9 @@ export function diagnoseEnemy(
   const outside: OutsideRow[] = rows
     .filter((row) => !row.inside)
     .map((row) => ({ heroId: row.heroId, delta: row.delta }));
-  const rates = rows.map((row) => row.heroWinRate);
-  const min = Math.min(...rates);
-  const max = Math.max(...rates);
-  const dispersion = roundTo(max - min);
   const insideCount = rows.filter((row) => row.inside).length;
 
   const problems: DiagnoseProblem[] = [];
-  if (dispersion > DISPERSION_LIMIT_PP) {
-    problems.push({
-      kind: 'dispersion',
-      dispersion,
-      limit: DISPERSION_LIMIT_PP,
-      message:
-        `Dispersión de ${dispersion.toFixed(1).replace('.', ',')} pp entre héroes ` +
-        `(> ${DISPERSION_LIMIT_PP} pp): el bloque compartido no centra las cuatro filas.`,
-    });
-  }
   if (outside.length > 0) {
     const detail = outside
       .map((row) => `${nameFor(catalog, row.heroId)} ${formatSigned(row.delta)}`)
@@ -575,16 +602,12 @@ export function diagnoseEnemy(
 
   return {
     enemyId,
-    target: validation.value,
     margin,
     rows,
     insideCount,
     total: rows.length,
     fourOfFour: rows.length === 4 && insideCount === 4,
     outside,
-    min,
-    max,
-    dispersion,
     problems,
   };
 }
@@ -604,13 +627,9 @@ export function diagnoseBench(
     enemyIds.push(matchup.enemyId);
   }
   return enemyIds.map((enemyId) => {
-    const target = targets[enemyId];
-    if (target === undefined) {
-      throw new Error(`Sin objetivo para el enemigo ${enemyId}.`);
-    }
     return diagnoseEnemy(
       matchups.filter((matchup) => matchup.enemyId === enemyId),
-      target,
+      targets,
       margin,
       catalog,
     );
@@ -646,6 +665,8 @@ export function overridesId(overrides: BenchOverrides): string {
 export interface BenchExport extends MeasurementPayload {
   readonly catalog: Catalog;
   readonly targets: BenchTargets;
+  readonly targetsVersion: number;
+  readonly targetsId: string;
   readonly overrides: BenchOverrides;
   readonly overridesId: string;
   readonly diagnosis: ReadonlyArray<EnemyDiagnosis>;
@@ -663,6 +684,8 @@ export function buildBenchExport(
     catalogVersion: catalog.version,
     catalog,
     targets,
+    targetsVersion: TARGETS_VERSION,
+    targetsId: targetsId(targets),
     overrides,
     overridesId: overridesId(overrides),
     diagnosis: diagnoseBench(payload.matchups, targets, catalog),
@@ -674,16 +697,20 @@ export function benchExportJson(payload: BenchExport): string {
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
 
-/** Nombre que distingue la ejecución ajustada de la base y del export v2.0. */
+/** Nombre que distingue la ejecución ajustada de la base y de los objetivos. */
 export function benchExportFileName(
   payload: MeasurementPayload,
   overrides: BenchOverrides,
+  targets: BenchTargets,
 ): string {
   const suffix = isOverridesEmpty(overrides)
-    ? 'base'
-    : `overrides-${overridesId(overrides)}`;
+    ? 'bench-base'
+    : `bench-overrides-${overridesId(overrides)}`;
+  const targetSuffix = isTargetsGuide(targets)
+    ? ''
+    : `-targets-${targetsId(targets)}`;
   return (
     `${payload.experiment}-${payload.engine}-seed-${payload.seed}` +
-    `-duels-${payload.duels}-bench-${suffix}.json`
+    `-duels-${payload.duels}-${suffix}${targetSuffix}.json`
   );
 }

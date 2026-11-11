@@ -25,22 +25,25 @@ import {
 import type { EnemyField, HeroField } from './bench-ui';
 import {
   CATALOG,
-  GUIDE_TARGETS,
   createTargets,
   createWorkingCatalog,
   diagnoseBench,
   diagnoseEnemy,
   emptyOverrides,
+  isTargetsGuide,
   measureMatchups,
   overridesId,
   recalculateMatchups,
   resetEnemyOverride,
+  resetEnemyTargets,
   resetOverrides,
   resetTarget,
   resetWeaponOverride,
   rowKey,
   runMatchup,
   setTarget,
+  targetKey,
+  targetsId,
   withEnemyOverride,
   withHeroOverride,
   withWeaponOverride,
@@ -438,7 +441,7 @@ describe('formato de objetivo, delta y diagnóstico', () => {
     const centinela = rowsFor('centinela');
     const three = diagnoseEnemy(
       rated(centinela, [75, 75, 82.1, 75]),
-      75,
+      createTargets(),
       5,
       CATALOG,
     );
@@ -447,7 +450,12 @@ describe('formato de objetivo, delta y diagnóstico', () => {
       '3/4; Mago fuera por +7,1 pp',
     );
 
-    const all = diagnoseEnemy(rated(centinela, [75, 75, 75, 75]), 75, 5, CATALOG);
+    const all = diagnoseEnemy(
+      rated(centinela, [75, 75, 75, 75]),
+      createTargets(),
+      5,
+      CATALOG,
+    );
     expect(formatFourOfFour(all, CATALOG)).toBe('4/4 dentro');
   });
 
@@ -489,9 +497,10 @@ describe('formato de objetivo, delta y diagnóstico', () => {
 });
 
 describe('nombre y resumen del export', () => {
-  it('conserva el nombre base sin overrides y usa bench-overrides-<id> con ajustes', () => {
+  it('conserva el nombre base sin overrides ni objetivos y distingue los ajustes', () => {
     const base = measureMatchups({ seed: 42, duels: 10 });
-    expect(benchFileName(base, emptyOverrides())).toBe(
+    const guide = createTargets();
+    expect(benchFileName(base, emptyOverrides(), guide)).toBe(
       'EXP-003-v2.0-seed-42-duels-10.json',
     );
 
@@ -499,9 +508,17 @@ describe('nombre y resumen del export', () => {
       CATALOG,
       withWeaponOverride(emptyOverrides(), 'espada', { damage: 6 }),
     );
-    const adjusted = benchFileName(base, overrides);
+    const adjusted = benchFileName(base, overrides, guide);
     expect(adjusted).toContain(`bench-overrides-${overridesId(overrides)}`);
-    expect(adjusted).not.toBe(benchFileName(base, emptyOverrides()));
+    expect(adjusted).not.toBe(benchFileName(base, emptyOverrides(), guide));
+
+    const customTargets = setTarget(guide, 'guerrero', 'centinela', 60);
+    const custom = benchFileName(base, emptyOverrides(), customTargets);
+    expect(custom).toBe(
+      `EXP-003-v2.0-seed-42-duels-10-bench-base-targets-${targetsId(customTargets)}.json`,
+    );
+    expect(custom).not.toBe(benchFileName(base, emptyOverrides(), guide));
+    expect(isTargetsGuide(customTargets)).toBe(false);
   });
 
   it('resume catálogo, semilla, overridesId, objetivos y diagnóstico', () => {
@@ -522,11 +539,33 @@ describe('nombre y resumen del export', () => {
     expect(summary).toContain('catálogo EXP-003-v2.0.0');
     expect(summary).toContain('semilla 42');
     expect(summary).toContain(`overridesId ${overridesId(overrides)}`);
-    expect(summary).toContain('Centinela 75 %');
-    expect(summary).toContain('Bruto 30 %');
-    expect(summary).toContain('Cobarde 85 %');
+    expect(summary).toContain('Centinela 75/75/75/75 %');
+    expect(summary).toContain('Bruto 30/30/30/30 %');
+    expect(summary).toContain('Cobarde 85/85/85/85 %');
     expect(summary).toContain('diagnóstico:');
     expect(summary).toContain('1234 B');
+  });
+
+  it('agrupa por enemigo los objetivos distintos de cada par', () => {
+    const payload = measureMatchups({ seed: 42, duels: 10 });
+    const targets = setTarget(
+      setTarget(createTargets(), 'guerrero', 'centinela', 60),
+      'clerigo',
+      'centinela',
+      90,
+    );
+    const diagnosis = diagnoseBench(payload.matchups, targets, CATALOG);
+    const summary = formatBenchSummary(
+      payload,
+      emptyOverrides(),
+      diagnosis,
+      1234,
+      CATALOG,
+    );
+    expect(summary).toContain('Centinela 60/75/75/90 %');
+    expect(summary).not.toContain('Centinela 75 % ·');
+    expect(summary.split('\n').filter((line) => line.startsWith('objetivos:')))
+      .toHaveLength(1);
   });
 });
 
@@ -638,21 +677,30 @@ describe('integración sin DOM: filas afectadas y reset', () => {
     expect(resetOverrides()).toEqual(emptyOverrides());
   });
 
-  it('cambiar el objetivo mueve diagnóstico y filas, no los duelos', () => {
+  it('cambiar el objetivo de un par mueve solo su fila y no los duelos', () => {
     const before = diagnoseBench(BASE.matchups, createTargets(), CATALOG);
-    const targets: BenchTargets = setTarget(createTargets(), 'centinela', 60);
+    const targets: BenchTargets = setTarget(
+      createTargets(),
+      'guerrero',
+      'centinela',
+      60,
+    );
     const after = diagnoseBench(BASE.matchups, targets, CATALOG);
 
-    expect(before[0].target).toBe(GUIDE_TARGETS.centinela);
-    expect(after[0].target).toBe(60);
+    expect(before[0].rows[0].target).toBe(75);
     expect(after[0].rows[0].target).toBe(60);
+    expect(after[0].rows[1].target).toBe(75);
     expect(after[0].rows[0].delta).not.toBe(before[0].rows[0].delta);
+    expect(after[0].rows[1].delta).toBe(before[0].rows[1].delta);
     expect(after[0].rows.map((row) => row.heroWinRate)).toEqual(
       before[0].rows.map((row) => row.heroWinRate),
     );
-    expect(resetTarget(targets, 'centinela').centinela).toBe(
-      GUIDE_TARGETS.centinela,
-    );
+    expect(resetTarget(targets, 'guerrero', 'centinela')[
+      targetKey('guerrero', 'centinela')
+    ]).toBe(75);
+    expect(
+      resetEnemyTargets(targets, 'centinela')[targetKey('guerrero', 'centinela')],
+    ).toBe(75);
   });
 
   it('el mismo estado produce el mismo export y el mismo overridesId', () => {

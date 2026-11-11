@@ -20,7 +20,6 @@ import {
 } from './bench-ui';
 import {
   CATALOG,
-  GUIDE_TARGETS,
   affectedRows,
   benchExportJson,
   buildBenchExport,
@@ -32,6 +31,7 @@ import {
   overridesId,
   recalculateMatchups,
   resetEnemies,
+  resetEnemyTargets,
   resetHeroes,
   resetOverrides,
   resetTargets,
@@ -39,6 +39,7 @@ import {
   rowKey,
   runMatchup,
   setTarget,
+  targetKey,
   withEnemyOverride,
   withHeroOverride,
   withWeaponOverride,
@@ -351,18 +352,18 @@ describe('integración de estado sin DOM', () => {
     });
   });
 
-  it('un objetivo solo mueve el diagnóstico, no los duelos', () => {
+  it('un objetivo solo mueve la fila de su par, no los duelos', () => {
     const before = diagnoseBench(BASE.matchups, createTargets(), CATALOG);
-    const targets = setTarget(createTargets(), 'centinela', 60);
+    const targets = setTarget(createTargets(), 'guerrero', 'centinela', 60);
     const after = diagnoseBench(BASE.matchups, targets, CATALOG);
 
-    expect(after[0].target).toBe(60);
+    expect(after[0].rows[0].target).toBe(60);
+    expect(after[0].rows[1].target).toBe(75);
     expect(after[0].rows.map((row) => row.heroWinRate)).toEqual(
       before[0].rows.map((row) => row.heroWinRate),
     );
-    expect(after[0].rows.map((row) => row.delta)).not.toEqual(
-      before[0].rows.map((row) => row.delta),
-    );
+    expect(after[0].rows[0].delta).not.toBe(before[0].rows[0].delta);
+    expect(after[0].rows[1].delta).toBe(before[0].rows[1].delta);
     expect(BASE.matchups).toHaveLength(12);
   });
 });
@@ -398,6 +399,16 @@ describe('resets por tabla y global', () => {
 
   it('el reset global vacía overrides y objetivos vuelven a la guía', () => {
     expect(resetOverrides()).toEqual(emptyOverrides());
-    expect(resetTargets()).toEqual(GUIDE_TARGETS);
+    expect(resetTargets()).toEqual(createTargets());
+    const custom = setTarget(
+      setTarget(createTargets(), 'guerrero', 'centinela', 60),
+      'picaro',
+      'bruto',
+      10,
+    );
+    const enemyReset = resetEnemyTargets(custom, 'centinela');
+    expect(enemyReset[targetKey('guerrero', 'centinela')]).toBe(75);
+    expect(enemyReset[targetKey('picaro', 'bruto')]).toBe(10);
+    expect(Object.keys(resetTargets())).toHaveLength(12);
   });
 });

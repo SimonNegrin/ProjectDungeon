@@ -27,7 +27,12 @@ import {
   unitName,
 } from './ui';
 import type { BenchSnapshot, V2ExperimentApi } from './ui';
-import { emptyOverrides, overridesId, withHeroOverride } from './v2/bench';
+import {
+  createTargets,
+  emptyOverrides,
+  overridesId,
+  withHeroOverride,
+} from './v2/bench';
 
 function fakeMatchup(rate: number, insideBand: boolean, delta: number): MatchupResult {
   return {
@@ -194,7 +199,7 @@ describe('export reproducible', () => {
       duels: payload.duels,
       scenario: payload.scenario,
       catalog: CATALOG,
-      targets: { centinela: 75, bruto: 30, cobarde: 85 },
+      targets: createTargets(),
       overrides,
       overridesId: overridesId(overrides),
       diagnosis: [],

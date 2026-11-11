@@ -46,7 +46,6 @@ import {
 } from './v2/measure';
 import type { MatchupResult, MeasurementPayload } from './v2/measure';
 import {
-  GUIDE_TARGETS,
   MARGIN_PP,
   affectedRows,
   benchExportJson,
@@ -55,10 +54,12 @@ import {
   createWorkingCatalog,
   diagnoseBench,
   emptyOverrides,
+  guideTargetFor,
   overridesId,
   recalculateMatchups,
   resetEnemies as resetEnemyOverrides,
   resetEnemyOverride,
+  resetEnemyTargets,
   resetHeroes as resetHeroOverrides,
   resetHeroOverride,
   resetOverrides as resetAllOverrides,
@@ -68,6 +69,7 @@ import {
   resetWeapons as resetWeaponOverrides,
   rowKey,
   setTarget as setBenchTarget,
+  targetKey,
   withEnemyOverride,
   withHeroOverride,
   withWeaponOverride,
@@ -515,6 +517,8 @@ interface CombatRowRefs {
   readonly row: HTMLTableRowElement;
   readonly winsHero: HTMLElement;
   readonly winsEnemy: HTMLElement;
+  readonly targetInput: HTMLInputElement;
+  readonly targetError: HTMLElement;
   readonly real: HTMLElement;
 }
 
@@ -522,8 +526,6 @@ interface CombatBlockRefs {
   readonly enemyId: string;
   readonly four: HTMLElement;
   readonly problems: HTMLElement;
-  targetInput: HTMLInputElement;
-  targetError: HTMLElement;
   readonly fields: Map<EnemyField, FieldRefs>;
   readonly rows: CombatRowRefs[];
 }
@@ -767,26 +769,34 @@ function isInteractive(target: EventTarget | null): boolean {
 
 /* Construcción de la tabla de combates. */
 
-function buildTargetCell(enemyId: string): HTMLTableCellElement {
-  const cell = element('td', { className: 'shared-cell' });
+function buildTargetCell(
+  heroId: string,
+  enemyId: string,
+): {
+  readonly cell: HTMLTableCellElement;
+  readonly input: HTMLInputElement;
+  readonly error: HTMLElement;
+} {
+  const cell = element('td', { className: 'target-cell' });
   const input = element('input', {
     className: 'cell-input',
-    testId: `combats-target-${enemyId}`,
+    testId: `combats-target-${heroId}-${enemyId}`,
   });
   input.type = 'number';
   input.min = '0';
   input.max = '100';
   input.step = '1';
-  input.value = String(targets[enemyId] ?? GUIDE_TARGETS[enemyId] ?? 0);
-  input.title = `Guía ${formatTarget(GUIDE_TARGETS[enemyId] ?? targets[enemyId] ?? 0)}`;
+  const key = targetKey(heroId, enemyId);
+  input.value = String(targets[key] ?? guideTargetFor(enemyId));
+  input.title = `Guía ${formatTarget(guideTargetFor(enemyId))}`;
   input.setAttribute(
     'aria-label',
-    `Objetivo de ${unitName(workingCatalog, enemyId)} (compartido)`,
+    `Objetivo de ${unitName(workingCatalog, heroId)} vs ${unitName(workingCatalog, enemyId)}`,
   );
 
   const error = element('p', {
     className: 'field-error cell-error',
-    testId: `combats-target-error-${enemyId}`,
+    testId: `combats-target-error-${heroId}-${enemyId}`,
   });
   error.setAttribute('aria-live', 'polite');
 
@@ -799,20 +809,21 @@ function buildTargetCell(enemyId: string): HTMLTableCellElement {
     }
     input.removeAttribute('aria-invalid');
     error.textContent = '';
-    targets = setBenchTarget(targets, enemyId, validation.value);
+    targets = setBenchTarget(targets, heroId, enemyId, validation.value);
     refreshDiagnosisOnly();
     benchStatus.textContent =
-      `Objetivo de ${unitName(workingCatalog, enemyId)}: diagnóstico actualizado; ` +
+      `Objetivo de ${unitName(workingCatalog, heroId)} vs ` +
+      `${unitName(workingCatalog, enemyId)}: diagnóstico actualizado; ` +
       '0 filas medidas de nuevo.';
   });
   input.addEventListener('blur', () => {
-    input.value = String(targets[enemyId] ?? 0);
+    input.value = String(targets[key] ?? guideTargetFor(enemyId));
     input.removeAttribute('aria-invalid');
     error.textContent = '';
   });
 
   cell.append(input, error);
-  return cell;
+  return { cell, input, error };
 }
 
 function buildSharedFieldCell(
@@ -917,8 +928,6 @@ function renderCombats(): void {
         className: 'block-problems',
         testId: `combats-problems-${block.enemyId}`,
       }),
-      targetInput: document.createElement('input'),
-      targetError: element('p'),
       fields: new Map(),
       rows: [],
     };
@@ -932,12 +941,6 @@ function renderCombats(): void {
       blockRefs.four,
       blockRefs.problems,
     );
-
-    const targetCell = buildTargetCell(block.enemyId);
-    const targetInput = targetCell.querySelector<HTMLInputElement>('input');
-    if (targetInput) blockRefs.targetInput = targetInput;
-    const targetError = targetCell.querySelector<HTMLElement>('.field-error');
-    if (targetError) blockRefs.targetError = targetError;
 
     const statCells = ENEMY_TABLE_FIELDS.map(({ field, label }) =>
       buildSharedFieldCell(block.enemyId, field, label),
@@ -973,23 +976,38 @@ function renderCombats(): void {
         className: 'numeric-cell',
         testId: `combats-wins-enemy-${matchup.heroId}-${matchup.enemyId}`,
       });
+      const target = buildTargetCell(matchup.heroId, matchup.enemyId);
       const real = element('td', {
         className: 'real-cell',
         testId: `combats-real-${matchup.heroId}-${matchup.enemyId}`,
       });
 
-      row.append(heroCell);
       if (index === 0) {
         enemyCell.rowSpan = block.rows.length;
-        targetCell.rowSpan = block.rows.length;
         for (const cell of statCells) cell.rowSpan = block.rows.length;
-        row.append(enemyCell, winsHero, winsEnemy, targetCell, real, ...statCells);
+        row.append(
+          heroCell,
+          enemyCell,
+          winsHero,
+          winsEnemy,
+          target.cell,
+          real,
+          ...statCells,
+        );
       } else {
-        row.append(winsHero, winsEnemy, real);
+        row.append(heroCell, winsHero, winsEnemy, target.cell, real);
       }
       combatsBody.append(row);
 
-      const rowRefs: CombatRowRefs = { key, row, winsHero, winsEnemy, real };
+      const rowRefs: CombatRowRefs = {
+        key,
+        row,
+        winsHero,
+        winsEnemy,
+        targetInput: target.input,
+        targetError: target.error,
+        real,
+      };
       blockRefs.rows.push(rowRefs);
       combatRows.set(key, rowRefs);
     });
@@ -1003,8 +1021,7 @@ function renderBlockProblems(
   entry: EnemyDiagnosis,
 ): void {
   const problems = entry.problems.filter(
-    (problem) =>
-      problem.kind === 'dispersion' || problem.kind === 'global-weapon',
+    (problem) => problem.kind === 'global-weapon',
   );
   host.replaceChildren(
     ...problems.map((problem) =>
@@ -1034,12 +1051,6 @@ function syncCombats(): void {
       renderBlockProblems(block.problems, entry);
     }
 
-    if (document.activeElement !== block.targetInput) {
-      block.targetInput.value = String(
-        targets[block.enemyId] ?? entry?.target ?? 0,
-      );
-    }
-
     for (const [field, refs] of block.fields) {
       if (document.activeElement !== refs.input) {
         refs.input.value = displayEnemyField(block.enemyId, field);
@@ -1052,6 +1063,12 @@ function syncCombats(): void {
     for (const refs of block.rows) {
       const matchup = matchupsByKey.get(refs.key);
       if (!matchup) continue;
+      const key = targetKey(matchup.heroId, matchup.enemyId);
+      if (document.activeElement !== refs.targetInput) {
+        refs.targetInput.value = String(
+          targets[key] ?? guideTargetFor(matchup.enemyId),
+        );
+      }
       const diagnosed = entry?.rows.find(
         (row) => row.heroId === matchup.heroId,
       );
@@ -1373,7 +1390,7 @@ function detailTable(
 }
 
 function matchupDelta(matchup: MatchupResult): { delta: number; inside: boolean } {
-  const target = targets[matchup.enemyId] ?? 0;
+  const target = targets[targetKey(matchup.heroId, matchup.enemyId)] ?? 0;
   const delta =
     Math.round((matchup.heroWinRate - target + Number.EPSILON) * 10000) / 10000;
   return { delta, inside: Math.abs(delta) <= MARGIN_PP };
@@ -1393,7 +1410,7 @@ function renderDetail(): void {
         [
           '% real · objetivo · delta',
           `${formatPercent(matchup.heroWinRate)} · ${formatTarget(
-            targets[matchup.enemyId] ?? 0,
+            targets[targetKey(matchup.heroId, matchup.enemyId)] ?? 0,
           )} · ${formatDelta(delta)} · ${inside ? 'dentro' : 'fuera'}`,
         ],
         [
@@ -1590,8 +1607,10 @@ function renderExport(): void {
 function clearCombatErrors(): void {
   for (const block of combatBlocks.values()) {
     for (const refs of block.fields.values()) clearFieldError(refs);
-    block.targetInput.removeAttribute('aria-invalid');
-    block.targetError.textContent = '';
+    for (const refs of block.rows) {
+      refs.targetInput.removeAttribute('aria-invalid');
+      refs.targetError.textContent = '';
+    }
   }
   for (const refs of weaponRefs.values()) {
     clearFieldError({ input: refs.accuracy, error: refs.accuracyError });
@@ -1604,7 +1623,7 @@ function clearCombatErrors(): void {
 
 function resetAllState(): void {
   overrides = resetAllOverrides();
-  targets = createTargets();
+  targets = resetTargets();
   workingCatalog = createWorkingCatalog(CATALOG, overrides);
   selected = {
     heroId: HERO_ORDER[0] as string,
@@ -1647,6 +1666,12 @@ function resetHeroesState(): void {
 function assertHero(heroId: string): void {
   if (!CATALOG.roster.some((hero) => hero.id === heroId)) {
     throw new RangeError(`Héroe desconocido: ${heroId}.`);
+  }
+}
+
+function assertEnemy(enemyId: string): void {
+  if (!CATALOG.bestiary.some((enemy) => enemy.id === enemyId)) {
+    throw new RangeError(`Enemigo desconocido: ${enemyId}.`);
   }
 }
 
@@ -1722,7 +1747,7 @@ function resetEnemyApi(enemyId: string): void {
     throw new RangeError(`Enemigo desconocido: ${enemyId}.`);
   }
   setOverrides(resetEnemyOverride(overrides, enemyId));
-  targets = resetTarget(targets, enemyId);
+  targets = resetEnemyTargets(targets, enemyId);
   recalculateNow({ kind: 'enemy', enemyId });
 }
 
@@ -1805,7 +1830,7 @@ copyButton.addEventListener('click', async () => {
 downloadButton.addEventListener('click', () => {
   ensureRecalculated();
   const payload = currentExport();
-  const fileName = benchFileName(payload, overrides);
+  const fileName = benchFileName(payload, overrides, targets);
   downloadText(fileName, benchExportJson(payload));
   setStatus(exportStatus, `JSON exportado: ${fileName}.`);
 });
@@ -1825,8 +1850,14 @@ function currentSnapshot(): BenchSnapshot {
   };
 }
 
-function applyTarget(enemyId: string, value: unknown): void {
-  targets = setBenchTarget(targets, enemyId, value);
+function applyTarget(
+  heroId: string,
+  enemyId: string,
+  value: unknown,
+): void {
+  assertHero(heroId);
+  assertEnemy(enemyId);
+  targets = setBenchTarget(targets, heroId, enemyId, value);
   refreshDiagnosisOnly();
 }
 
@@ -1865,11 +1896,13 @@ const api: V2ExperimentApi = {
     recomputeAll();
   },
   getTargets: () => targets,
-  setTarget: (enemyId, value) => {
-    applyTarget(enemyId, value);
+  setTarget: (heroId, enemyId, value) => {
+    applyTarget(heroId, enemyId, value);
   },
-  resetTarget: (enemyId) => {
-    targets = resetTarget(targets, enemyId);
+  resetTarget: (heroId, enemyId) => {
+    assertHero(heroId);
+    assertEnemy(enemyId);
+    targets = resetTarget(targets, heroId, enemyId);
     refreshDiagnosisOnly();
   },
   getOverrides: () => overrides,
