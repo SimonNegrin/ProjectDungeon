@@ -54,7 +54,7 @@ Playwright manual (`?test=1&seed=1017`): escribir PV deja «Recalculando…» pe
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El nombre de descarga base choca entre brief/E2E y `benchExportFileName`. | Brief exige nombre v2.0; el helper de TASK-0066 devuelve `-bench-base`. | `benchFileName` ramifica overrides vacíos. | Todo consumidor futuro repetirá la bifurcación. | Unificar contrato en el motor o documentarlo. | Bajo; toca un test de TASK-0066. | `pending` |
+| El nombre de descarga base choca entre brief/E2E y `benchExportFileName`. | Brief exige nombre v2.0; el helper de TASK-0066 devuelve `-bench-base`. | `benchFileName` ramifica overrides vacíos. | Todo consumidor futuro repetirá la bifurcación. | Unificar contrato en el motor o documentarlo. | Bajo; toca un test de TASK-0066. | `accepted` (documentado en `benchFileName`, el informe y la verificación del lead; no se cambia el motor) |
 
 # Métricas de handoff
 
