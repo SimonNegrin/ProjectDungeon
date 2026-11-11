@@ -2,6 +2,10 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-028 — stable v1: mesa de ajuste con objetivos editables por enemigo, stats compartidos, armas globales, editor expandible, diagnóstico 4-de-4 y export; guía 75/85/30 no normativa y análisis posterior de problemas — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)
+* 2026-11-11 — Task — TASK-0066 — creada ready: motor y datos del banco de ajuste (overlay, objetivos, filas afectadas, diagnóstico y export) — [TASK-0066](tasks/TASK-0066-exp-003-banco-ajuste-motor.md)
+* 2026-11-11 — Task — TASK-0067 — creada backlog: UI del banco de ajuste (fila expandible, tabla de armas, diagnóstico, reset y export); depende de TASK-0066 — [TASK-0067](tasks/TASK-0067-exp-003-banco-ajuste-ui.md)
+* 2026-11-11 — Task — TASK-0068 — creada backlog: E2E y QA visual del banco de ajuste; depende de TASK-0067 — [TASK-0068](tasks/TASK-0068-exp-003-banco-ajuste-e2e.md)
 * 2026-11-11 — Experiment — EXP-003 v2.0 — resultados de 12×1.000 duelos: 96,3–100 % de victorias del héroe, 12/12 fuera de la banda 40–60; recomendación de retune pendiente de aprobación del usuario — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-11 — Experiment — EXP-003 v2.0 — brief cerrado: banda 40–60 %, resolvedor aislado con equivalencia, pasillo 1D de 8 casillas, IA alerta/huida/regreso con hechizos genéricos, v2.0 solo 1v1 y v2.1 sin estados ni resistencias — [brief](design/exp-003-v2-brief.md)
 * 2026-11-11 — Task — TASK-0065 — cerrada: entrada EXP-003 del manifiesto actualizada a la v2.0 (título, descripción, pregunta y `ready`); docs 333, 903/903 tests y verify OK; índice revisado; fusión `c8fbc99` — [informe](../artifacts/TASK-0065/attempt-1/report.md)
