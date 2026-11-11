@@ -68,7 +68,7 @@ Total: **74**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0071](TASK-0071-exp-003-tres-tablas-e2e.md) | EXP-003: E2E y QA visual de las tres tablas | `done` | REQ-028 | TASK-0070 | P1 |
 | [TASK-0072](TASK-0072-exp-003-objetivos-por-par.md) | EXP-003: objetivos por par, diagnóstico y export | `done` | REQ-028 | — | P1 |
 | [TASK-0073](TASK-0073-exp-003-filtros-tablas.md) | EXP-003: filtros de las tres tablas | `done` | REQ-028 | TASK-0072 | P1 |
-| [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `ready` | REQ-028 | TASK-0073 | P1 |
+| [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `done` | REQ-028 | TASK-0073 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -78,10 +78,6 @@ Total: **74**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
-
-# ready
-
-* [TASK-0074 — EXP-003: E2E y QA visual de objetivos por par y filtros](TASK-0074-exp-003-objetivos-filtros-e2e.md)
 
 # review
 
@@ -156,6 +152,7 @@ Total: **74**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0071 — EXP-003: E2E y QA visual de las tres tablas](TASK-0071-exp-003-tres-tablas-e2e.md)
 * [TASK-0072 — EXP-003: objetivos por par, diagnóstico y export](TASK-0072-exp-003-objetivos-por-par.md)
 * [TASK-0073 — EXP-003: filtros de las tres tablas](TASK-0073-exp-003-filtros-tablas.md)
+* [TASK-0074 — EXP-003: E2E y QA visual de objetivos por par y filtros](TASK-0074-exp-003-objetivos-filtros-e2e.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
