@@ -5,7 +5,7 @@ description: UI del banco de ajuste de EXP-003 sobre el motor de TASK-0066.
 task: TASK-0067
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:20:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:40:00Z }
 artifacts: artifacts/TASK-0067/attempt-1/
 verified:
 ---
@@ -18,8 +18,9 @@ verified:
 
 - `bench-ui.ts`/`bench-ui.test.ts`: validación, rangos, prune, formato, armas, descarga y resumen; `resetWeaponFieldOverride`; 20 tests.
 - `main.ts`: tabla con objetivo/real/delta/estado, editor compartido, diagnóstico, tabla de armas, recálculo diferido, resets y API. Campos numéricos, objetivo y acierto/daño usan `input` con debounce; selects usan `change`. Reset por campo de arma y `aria-label` con enemigo/arma.
-- `ui.ts`: tipos `BenchSnapshot`, API ampliada y `resetWeaponField`. `experiment.css`: estilos locales.
-- Commit SHA: `85c8991` (`fix(TASK-0067): ajuste al escribir, reset por campo de arma y etiquetas accesibles`).
+- `ensureRecalculated()` fuerza el flush pendiente en copiar/descargar y en `getDecision`, `snapshot`, `getResults` y `getDiagnosis`, sin colocarlo en `currentExport()`.
+- `ui.ts`: tipos `BenchSnapshot`, API ampliada y `resetWeaponField`. `experiment.css`: editor responsive, selects a ancho completo y mínimo de campo de 240 px.
+- Commit SHA: `d9e023a` (`fix(TASK-0067): fuerza el recálculo antes de exportar y ajusta los selects`).
 
 # Tests
 
@@ -29,13 +30,13 @@ verified:
 | `pnpm run verify` | docs, config, tests, build y bundle OK | `verify-output.txt` |
 | `pnpm exec playwright test tests/e2e/experiment-combat.spec.ts` | 4/4 OK | `e2e-output.txt` |
 
-Playwright manual (`?test=1&seed=1017`): al escribir PV se recalcula solo 4 filas y el foco sigue en el campo; arma recalcula 6; objetivo cambia diagnóstico sin duelos; inválido marca `aria-invalid` y se restaura; reset por campo de arma deja intacto el otro campo; resets globales vuelven a base; sin errores de consola. `aria-label` comprobados en objetivo, editor y armas.
+Playwright manual (`?test=1&seed=1017`): escribir PV deja «Recalculando…» pendiente y `getDecision()` devuelve 4 filas coherentes con catálogo/overrides; `getResults()` y `snapshot()` también fuerzan el flush; descargar justo tras editar acierto/daño incluye el catálogo ajustado; el foco sigue en el campo; inválido se restaura; sin errores de consola.
 
 # Evidencia visual
 
 - `screenshots/banco-ajuste-editor.png`: página completa con tabla, editor y armas.
 - `screenshots/banco-ajuste-armas.png`: panel de armas completo con reset por campo.
-- `screenshots/banco-ajuste-editor-campos.png`: campos del editor compartido completos.
+- `screenshots/banco-ajuste-editor-campos.png`: campos del editor completos; «Sin armadura» ya no se trunca.
 
 # Desviaciones
 
@@ -60,6 +61,6 @@ Playwright manual (`?test=1&seed=1017`): al escribir PV se recalcula solo 4 fila
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3005 |
-| `report_bytes` | 3504 |
+| `report_bytes` | 3732 |
 | `overflow` | `brief-detalle` |
 | `criteria_failed` | 0 |
