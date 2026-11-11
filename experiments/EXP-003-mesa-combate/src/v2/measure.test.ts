@@ -9,6 +9,7 @@ import {
   ENEMY_ORDER,
   HERO_ORDER,
   measureAll,
+  measureMatchups,
   serializeMeasurement,
 } from './measure';
 
@@ -22,6 +23,20 @@ const resultsFile = fileURLToPath(
 describe('medición de los 12 emparejamientos', () => {
   it('es determinista: la segunda ejecución produce el mismo JSON', () => {
     expect(serializeMeasurement(second)).toBe(serializeMeasurement(first));
+  });
+
+  it('parametriza semilla y duelos sin cambiar los valores por defecto', () => {
+    const custom = measureMatchups({ seed: 7, duels: 5 });
+    expect(custom.seed).toBe(7);
+    expect(custom.duels).toBe(5);
+    expect(custom.matchups).toHaveLength(12);
+    for (const matchup of custom.matchups) {
+      expect(matchup.duels).toBe(5);
+      expect(matchup.heroWins + matchup.enemyWins + matchup.draws).toBe(5);
+    }
+    expect(custom).toEqual(measureMatchups({ seed: 7, duels: 5 }));
+    expect(measureAll().seed).toBe(DEFAULT_SEED);
+    expect(measureAll().duels).toBe(DEFAULT_DUELS);
   });
 
   it('declara catálogo, escenario, semilla, duelos y banda', () => {

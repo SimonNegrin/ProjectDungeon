@@ -4,7 +4,7 @@ id: TASK-0064
 title: "EXP-003 v2.0: página, API y export de la mesa"
 description: Convertir el motor v2.0 en una página interactiva con semilla, 1.000 duelos, tabla de emparejamientos, detalle de métricas, export JSON y API de test.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: experiment
 requirement: REQ-027
 requirement_ids: [REQ-025, REQ-026, REQ-027]

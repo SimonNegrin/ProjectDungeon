@@ -2,12 +2,10 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type {
-  AttackSummary,
-  CombatExperimentApi,
-  Combatant,
-  DuelSummary,
-  RosterMode,
-} from '../../experiments/EXP-003-mesa-combate/src/combat';
+  MatchupResult,
+  MeasurementPayload,
+} from '../../experiments/EXP-003-mesa-combate/src/v2/measure';
+import type { V2ExperimentApi } from '../../experiments/EXP-003-mesa-combate/src/ui';
 import { artifactPath } from './artifacts';
 
 const SEED = 1017;
@@ -30,29 +28,10 @@ async function openExperiment(page: Page, extra = ''): Promise<void> {
   await page.waitForFunction(() => Boolean(window.__experiment));
 }
 
-type PageState = {
-  preset: RosterMode;
-  seed: number;
-  duels: number;
-  roster: Combatant[];
-  selection: { attackerId: string; defenderId: string };
-  attack: AttackSummary;
-  duel: DuelSummary;
-};
-
-async function readState(page: Page): Promise<PageState> {
+async function readResults(page: Page): Promise<MeasurementPayload> {
   return page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
-    const metrics = api.getMetrics();
-    return {
-      preset: api.getPreset(),
-      seed: api.getSeed(),
-      duels: api.getDuels(),
-      roster: api.getRoster(),
-      selection: api.getSelection(),
-      attack: metrics.attack,
-      duel: metrics.duel,
-    };
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.getResults();
   });
 }
 
@@ -75,13 +54,11 @@ async function screenshot(
   await testInfo.attach(name, { path, contentType: 'image/png' });
 }
 
-function combatant(state: PageState, id: string): Combatant {
-  const found = state.roster.find((unit) => unit.id === id);
-  if (!found) throw new Error(`No existe ${id} en el roster`);
-  return found;
+function rates(matchups: ReadonlyArray<MatchupResult>): number[] {
+  return matchups.map((matchup) => matchup.heroWinRate);
 }
 
-test('el índice lista EXP-003 y los presets A/B/C/D cambian roster y métricas', async ({
+test('el índice lista EXP-003 y la cabecera anuncia balance pendiente', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
@@ -91,280 +68,280 @@ test('el índice lista EXP-003 y los presets A/B/C/D cambian roster y métricas'
     page.locator('a[href="/experiments/EXP-003-mesa-combate/"]'),
   ).toBeVisible();
   await expect(
-    page.locator('.experiment-card').filter({ hasText: 'Mesa de combate configurable' }),
+    page.locator('.experiment-card').filter({ hasText: 'EXP-003' }),
   ).toBeVisible();
 
   await openExperiment(page);
+  await expect(page.getByTestId('experiment-id')).toContainText('EXP-003');
   await expect(page.getByTestId('experiment-title')).toHaveText(
-    'Mesa de combate configurable',
+    'Mesa de combate v2.0',
   );
-  await expect(page.getByTestId('preset-notes')).toContainText('C · Tanque');
-  await expect(page.getByTestId('preset-notes')).toContainText('D · Letal');
-  expect(await page.getByTestId('decision-select').inputValue()).toBe('');
-
-  const a = await readState(page);
-  expect(a.preset).toBe('A');
-  expect(a.seed).toBe(SEED);
-  expect(a.roster).toHaveLength(4);
-  expect(combatant(a, 'jugador')).toMatchObject({
-    hp: 20,
-    acc: 1,
-    dmg: 1,
-    def: 1,
-    weaponAcc: 3,
-    weaponDmg: 4,
-  });
-  expect(a.attack.impactHits).toBe(30);
-  expect(a.attack.expectedAttacksToKill).toBeCloseTo(2.63, 2);
-  await expect(page.getByTestId('attack-impact-chance')).toContainText('30/36');
-  await expect(page.getByTestId('attack-expected-attacks')).toHaveText('2,63');
-  await screenshot(page, 'preset-a', testInfo);
-
-  await page.getByTestId('param-preset').selectOption('B');
-  const b = await readState(page);
-  expect(b.preset).toBe('B');
-  expect(combatant(b, 'jugador')).toMatchObject({ hp: 20, acc: 0, dmg: 0, def: 0 });
-  expect(b.attack.impactHits).toBe(26);
-  expect(b.attack.impactHits).toBeLessThan(a.attack.impactHits);
-  expect(b.attack.expectedAttacksToKill).toBeGreaterThan(
-    a.attack.expectedAttacksToKill,
+  await expect(page.getByTestId('experiment-question')).toContainText(
+    'acciones, magia y réplica',
   );
-  await expect(page.getByTestId('preset-description')).toContainText('base a +0');
-  await screenshot(page, 'preset-b', testInfo);
 
-  await page.getByTestId('param-preset').selectOption('C');
-  const c = await readState(page);
-  expect(c.preset).toBe('C');
-  expect(combatant(c, 'jugador')).toMatchObject({ hp: 26, armor: 2, dmg: 0 });
-  expect(combatant(c, 'centinela')).toMatchObject({ hp: 15, armor: 2 });
-  expect(c.attack.expectedAttacksToKill).toBeGreaterThan(
-    a.attack.expectedAttacksToKill,
-  );
-  await expect(page.getByTestId('preset-description')).toContainText('+6 PV');
-  await screenshot(page, 'preset-c', testInfo);
+  const warning = page.getByTestId('balance-warning');
+  await expect(warning).toContainText('pendientes de aprobación del usuario');
+  await expect(warning).toContainText('96,3–100 %');
+  await expect(warning).toContainText('banda 40–60 %');
+  await expect(warning).toContainText('12 de 12');
 
-  await page.getByTestId('param-preset').selectOption('D');
-  const d = await readState(page);
-  expect(d.preset).toBe('D');
-  expect(combatant(d, 'jugador')).toMatchObject({ hp: 13, dmg: 3 });
-  expect(combatant(d, 'centinela')).toMatchObject({ hp: 6, dmg: 2 });
-  expect(d.attack.expectedAttacksToKill).toBeLessThan(
-    a.attack.expectedAttacksToKill,
-  );
-  await expect(page.getByTestId('preset-description')).toContainText('0,65');
-  await screenshot(page, 'preset-d', testInfo);
+  await expect(page.getByTestId('seed-input')).toHaveValue(String(SEED));
+  await expect(page.getByTestId('duel-count')).toHaveValue('1000');
+  await expect(page.getByTestId('matchup-rows').locator('tr')).toHaveCount(12);
+  await expect(
+    page.getByTestId('matchup-band-guerrero-centinela'),
+  ).toContainText('fuera +40,0 pp');
+  await expect(page.getByTestId('matchup-select-picaro-bruto')).toBeVisible();
 
+  await screenshot(page, 'tabla-12-emparejamientos', testInfo);
   expect(errors).toEqual([]);
 });
 
-test('el roster permite añadir, duplicar, editar y eliminar sin recargar', async ({
+test('cambiar semilla y duelos recalcula sin recargar', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
 
-  await page.getByTestId('roster-add').click();
-  await expect(page.getByTestId('roster-row-custom-1')).toBeVisible();
-  expect(await page.getByTestId('param-preset').inputValue()).toBe('personalizada');
-  expect((await readState(page)).roster).toHaveLength(5);
-
-  await page.getByTestId('roster-custom-1-name').fill('Explorador');
-  await page.getByTestId('roster-custom-1-side').selectOption('jugador');
-  await setNumber(page, 'roster-custom-1-hp', 14);
-  await setNumber(page, 'roster-custom-1-acc', 2);
-  await page.getByTestId('roster-custom-1-weapon').selectOption('hacha');
-  await expect(page.getByTestId('roster-custom-1-weaponAcc')).toHaveValue('2');
-  await expect(page.getByTestId('roster-custom-1-weaponDmg')).toHaveValue('6');
-
-  const edited = await readState(page);
-  expect(edited.preset).toBe('personalizada');
-  expect(combatant(edited, 'custom-1')).toMatchObject({
-    name: 'Explorador',
-    side: 'jugador',
-    hp: 14,
-    acc: 2,
-    weapon: 'hacha',
-    weaponAcc: 2,
-    weaponDmg: 6,
-  });
-  expect(edited.attack.impactHits).toBeGreaterThanOrEqual(0);
-  await expect(page.getByTestId('attack-impact-chance')).not.toHaveText('—');
-
-  await page.getByTestId('roster-custom-1-duplicate').click();
-  await expect(page.getByTestId('roster-row-custom-2')).toBeVisible();
-  expect(combatant(await readState(page), 'custom-2')).toMatchObject({
-    name: 'Explorador (copia)',
-    hp: 14,
-    weapon: 'hacha',
+  await page.evaluate(() => {
+    (window as Window & { __pageMarker?: string }).__pageMarker = 'vivo';
   });
 
-  await setNumber(page, 'roster-custom-2-hp', 11);
-  expect(combatant(await readState(page), 'custom-2').hp).toBe(11);
+  await setNumber(page, 'duel-count', 200);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__experiment as unknown as V2ExperimentApi).getDuels(),
+      ),
+    )
+    .toBe(200);
+  const afterDuels = await readResults(page);
+  expect(afterDuels.duels).toBe(200);
+  for (const matchup of afterDuels.matchups) {
+    expect(matchup.heroWins + matchup.enemyWins + matchup.draws).toBe(200);
+  }
+  expect(
+    await page.evaluate(
+      () => (window as Window & { __pageMarker?: string }).__pageMarker,
+    ),
+  ).toBe('vivo');
 
-  await page.getByTestId('roster-custom-2-remove').click();
-  await expect(page.getByTestId('roster-row-custom-2')).toHaveCount(0);
-  expect(await page.getByTestId('roster-row-custom-1').count()).toBe(1);
-  expect((await readState(page)).roster).toHaveLength(5);
+  await setNumber(page, 'seed-input', 1);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__experiment as unknown as V2ExperimentApi).getSeed(),
+      ),
+    )
+    .toBe(1);
+  const afterSeed = await readResults(page);
+  expect(afterSeed.seed).toBe(1);
+  expect(rates(afterSeed.matchups)).not.toEqual(rates(afterDuels.matchups));
 
-  await screenshot(page, 'roster-personalizado', testInfo);
+  await page.getByTestId('run-button').click();
+  await expect(page.getByTestId('controls-status')).toContainText('Semilla 1');
+
+  await page.getByTestId('controls-reset').click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__experiment as unknown as V2ExperimentApi).getSeed(),
+      ),
+    )
+    .toBe(SEED);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () => (window.__experiment as unknown as V2ExperimentApi).getDuels(),
+      ),
+    )
+    .toBe(1000);
+  await expect(page.getByTestId('seed-input')).toHaveValue('1017');
+  await expect(page.getByTestId('duel-count')).toHaveValue('1000');
+
+  await screenshot(page, 'controles-recalculados', testInfo);
   expect(errors).toEqual([]);
 });
 
-test('calcula un ataque y simula el duelo de forma determinista', async ({
+test('misma semilla y duelos producen el mismo resultado y snapshot', async ({
   page,
 }) => {
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
 
-  await page.getByTestId('param-attacker').selectOption('jugador');
-  await page.getByTestId('param-defender').selectOption('centinela');
-
-  const state = await readState(page);
-  expect(state.selection).toEqual({
-    attackerId: 'jugador',
-    defenderId: 'centinela',
-  });
-  expect(state.attack).toMatchObject({
-    impactDifference: 3,
-    impactHits: 30,
-    damageMin: 1,
-    damageMax: 9,
-  });
-  expect(state.attack.damageMean).toBeCloseTo(4.11, 2);
-  expect(state.attack.expectedDamagePerAttack).toBeCloseTo(3.43, 2);
-  await expect(page.getByTestId('attack-damage-min')).toHaveText('1');
-  await expect(page.getByTestId('attack-damage-max')).toHaveText('9');
-  await expect(page.getByTestId('attack-damage-mean')).toHaveText('4,11');
-  await expect(page.getByTestId('duel-count-value')).toHaveText('1000');
-
   const first = await page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
-    return api.simulateDuel({ seed: 1017, duels: 200 });
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.runAll();
   });
   const second = await page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
-    return api.simulateDuel({ seed: 1017, duels: 200 });
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.runAll();
   });
   expect(first).toEqual(second);
-  expect(first).toMatchObject({
-    seed: 1017,
-    count: 200,
-    attackerId: 'jugador',
-    defenderId: 'centinela',
+
+  const snapshot = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.snapshot();
   });
-  expect(first.attackerWins + first.defenderWins + first.draws).toBe(200);
-
-  const otherSeed = await page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
-    return api.simulateDuel({ seed: 1, duels: 200 });
+  const snapshotAgain = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.snapshot();
   });
-  expect(otherSeed).not.toEqual(first);
+  expect(snapshotAgain).toEqual(snapshot);
+  expect(snapshot.params).toEqual({
+    seed: SEED,
+    duels: 1000,
+    matchup: 'guerrero:centinela',
+  });
+  expect(snapshot.matchups).toHaveLength(12);
+  expect(snapshot.catalogVersion).toBe('EXP-003-v2.0.0');
+  expect(snapshot.variants[0].id).toBe('matchups');
+  expect(snapshot.variants[0].metrics).toContainEqual({
+    label: 'Rango victorias héroe',
+    value: '96,3–100 %',
+  });
 
-  await page.getByTestId('seed-input').fill('1');
-  await page.getByTestId('seed-input').dispatchEvent('change');
-  await expect.poll(async () => (await readState(page)).seed).toBe(1);
-  expect((await readState(page)).duel.seed).toBe(1);
+  expect(first.seed).toBe(SEED);
+  expect(first.duels).toBe(1000);
+  expect(first.matchups).toHaveLength(12);
+  expect(first.matchups.every((matchup) => !matchup.insideBand)).toBe(true);
+  expect(Math.min(...rates(first.matchups))).toBeCloseTo(96.3, 3);
+  expect(Math.max(...rates(first.matchups))).toBe(100);
 
-  await page.getByTestId('seed-input').fill(String(SEED));
-  await page.getByTestId('seed-input').dispatchEvent('change');
-  await expect.poll(async () => (await readState(page)).seed).toBe(SEED);
-  await page.getByTestId('duel-simulate').click();
-  await expect(page.getByTestId('decision-status')).toContainText(
-    `semilla ${SEED}`,
-  );
+  const stored = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.getResults();
+  });
+  expect(stored).toEqual(first);
+
+  await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    api.setSeed(1);
+  });
+  const changed = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.snapshot();
+  });
+  expect(changed).not.toEqual(snapshot);
+
+  await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    api.setSeed(1017);
+  });
+  const restored = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.snapshot();
+  });
+  expect(restored).toEqual(snapshot);
+
+  const missing = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    const required = [
+      'getSeed',
+      'setSeed',
+      'getDuels',
+      'setDuels',
+      'runAll',
+      'getResults',
+      'snapshot',
+      'getDecision',
+      'reset',
+    ] as const;
+    return required.filter(
+      (name) => typeof (api as unknown as Record<string, unknown>)[name] !== 'function',
+    );
+  });
+  expect(missing).toEqual([]);
 
   expect(errors).toEqual([]);
 });
 
-test('exporta el JSON descargado y una tabla personalizada', async ({
+test('el detalle, el export y la descarga no llevan marca de tiempo', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
 
-  await page.getByTestId('decision-select').selectOption('A');
-  await page
-    .getByTestId('decision-notes')
-    .fill('La tabla A se siente equilibrada; falta el playtest.');
+  await page.getByTestId('matchup-select-picaro-bruto').click();
+  await expect(page.getByTestId('detail-title')).toHaveText('Pícaro vs Bruto');
+  await expect(page.getByTestId('detail-actions')).toContainText('Atacar');
+  await expect(page.getByTestId('detail-actions')).toContainText('Esperar');
+  await expect(page.getByTestId('detail-spells')).toContainText(
+    'Sin hechizos lanzados.',
+  );
+  await expect(page.getByTestId('detail-mana')).toContainText('No gastado');
+  await expect(page.getByTestId('detail-hp')).toContainText('PV medios del héroe');
+  await expect(page.getByTestId('detail-replicas')).toContainText('Disparadas');
+  await expect(page.getByTestId('detail-duration')).toContainText('Rondas media');
+  await screenshot(page, 'detalle-picaro-bruto', testInfo);
 
   const decision = await page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
+    const api = window.__experiment as unknown as V2ExperimentApi;
     return api.getDecision();
   });
   expect(decision).toMatchObject({
     experiment: 'EXP-003',
+    engine: 'v2.0',
+    catalogVersion: 'EXP-003-v2.0.0',
     seed: SEED,
-    preset: 'A',
-    decision: 'A',
-    attackerId: 'jugador',
-    defenderId: 'centinela',
+    duels: 1000,
+    scenario: { id: 'v2-corridor-8', initiative: 'hero' },
   });
-  expect(decision.roster).toHaveLength(4);
-  expect(decision.attack.impactHits).toBe(30);
-  expect(decision.duel.count).toBe(1000);
-  expect(decision.notes).toContain('playtest');
-  expect(decision.presetDefinitions.C.detail).toContain('+6 PV');
-  expect(decision.presetDefinitions.D.detail).toContain('+2 al daño');
-  expect(Number.isNaN(Date.parse(decision.decidedAt))).toBe(false);
-  const snapshot = await page.evaluate(() => {
-    const api = window.__experiment as unknown as CombatExperimentApi;
-    return api.snapshot();
+  expect(decision.catalog.version).toBe('EXP-003-v2.0.0');
+  expect(decision.catalog.roster).toHaveLength(4);
+  expect(decision.matchups).toHaveLength(12);
+  expect(decision).not.toHaveProperty('decidedAt');
+  expect(decision).not.toHaveProperty('decided_at');
+
+  const decisionAgain = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.getDecision();
   });
-  expect(snapshot).toMatchObject({
-    seed: SEED,
-    params: { preset: 'A', seed: SEED, attacker: 'jugador', defender: 'centinela' },
-  });
-  expect(snapshot.roster).toHaveLength(4);
+  expect(decisionAgain).toEqual(decision);
+
+  await expect(page.getByTestId('export-summary')).toContainText(
+    'catálogo EXP-003-v2.0.0',
+  );
+  await expect(page.getByTestId('export-summary')).toContainText('semilla 1017');
+  await expect(page.getByTestId('export-copy')).toBeEnabled();
 
   const downloadPromise = page.waitForEvent('download');
-  await page.getByTestId('decision-download').click();
+  await page.getByTestId('export-download').click();
   const download = await downloadPromise;
-  const decisionPath = artifactPath(testInfo, 'decision-exp-003.json');
-  await mkdir(dirname(decisionPath), { recursive: true });
-  await download.saveAs(decisionPath);
-  const written = JSON.parse(await readFile(decisionPath, 'utf8')) as {
-    experiment: string;
+  expect(download.suggestedFilename()).toBe(
+    'EXP-003-v2.0-seed-1017-duels-1000.json',
+  );
+  const exportPath = artifactPath(
+    testInfo,
+    'exports',
+    'v2-seed-1017-duels-1000.json',
+  );
+  await mkdir(dirname(exportPath), { recursive: true });
+  await download.saveAs(exportPath);
+  const written = JSON.parse(await readFile(exportPath, 'utf8')) as {
+    engine: string;
+    catalogVersion: string;
     seed: number;
-    preset: string;
-    decision: string;
-    notes: string;
-    roster: Combatant[];
-    attack: AttackSummary;
-    duel: DuelSummary;
-    decidedAt: string;
+    duels: number;
+    scenario: { id: string };
+    catalog: { version: string; roster: unknown[] };
+    matchups: unknown[];
+    decidedAt?: string;
   };
-  expect(written).toMatchObject({
-    experiment: 'EXP-003',
-    seed: SEED,
-    preset: 'A',
-    decision: 'A',
-  });
-  expect(written.notes).toContain('playtest');
-  expect(written.roster).toHaveLength(4);
-  expect(written.attack.impactHits).toBe(30);
-  expect(written.duel.count).toBe(1000);
-  expect(Number.isNaN(Date.parse(written.decidedAt))).toBe(false);
+  expect(written.engine).toBe('v2.0');
+  expect(written.catalogVersion).toBe('EXP-003-v2.0.0');
+  expect(written.seed).toBe(SEED);
+  expect(written.duels).toBe(1000);
+  expect(written.scenario.id).toBe('v2-corridor-8');
+  expect(written.catalog.version).toBe('EXP-003-v2.0.0');
+  expect(written.catalog.roster).toHaveLength(4);
+  expect(written.matchups).toHaveLength(12);
+  expect(written.decidedAt).toBeUndefined();
 
-  await setNumber(page, 'roster-jugador-hp', 24);
-  await page.getByTestId('decision-select').selectOption('personalizada');
-  expect((await readState(page)).preset).toBe('personalizada');
-  expect(combatant(await readState(page), 'jugador').hp).toBe(24);
-  await screenshot(page, 'tabla-personalizada', testInfo);
-
-  const customDownloadPromise = page.waitForEvent('download');
-  await page.getByTestId('decision-download').click();
-  const customDownload = await customDownloadPromise;
-  const customPath = artifactPath(testInfo, 'decision-personalizada.json');
-  await mkdir(dirname(customPath), { recursive: true });
-  await customDownload.saveAs(customPath);
-  const custom = JSON.parse(await readFile(customPath, 'utf8')) as {
-    preset: string;
-    decision: string;
-    roster: Combatant[];
-  };
-  expect(custom.preset).toBe('personalizada');
-  expect(custom.decision).toBe('personalizada');
-  expect(custom.roster.find((unit) => unit.id === 'jugador')?.hp).toBe(24);
-
+  await expect(page.getByTestId('export-status')).toContainText(
+    'EXP-003-v2.0-seed-1017-duels-1000.json',
+  );
+  await screenshot(page, 'export-reproducible', testInfo);
   expect(errors).toEqual([]);
 });

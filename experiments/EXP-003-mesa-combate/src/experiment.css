@@ -1,91 +1,64 @@
-/* Ajustes locales de EXP-003; el CSS compartido del shell no se modifica. */
+/* Ajustes locales de EXP-003 v2; el CSS compartido del shell no se modifica. */
 
-.experiment-shell .experiment-layout {
-  grid-template-columns: minmax(260px, 330px) minmax(0, 1fr);
+.experiment-shell .experiment-header {
+  gap: 12px;
 }
 
-.experiment-shell .controls-panel {
-  gap: 14px;
-}
-
-.control-hint,
-.card-hint {
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.45;
-}
-
-.preset-description {
+.balance-warning {
+  max-width: 1100px;
   margin: 0;
-  padding: 10px 12px;
-  border: 1px solid rgba(232, 184, 109, 0.35);
-  border-radius: 9px;
-  background: rgba(232, 184, 109, 0.07);
+  padding: 12px 14px;
+  border: 1px solid rgba(232, 184, 109, 0.5);
+  border-radius: 10px;
+  background: rgba(232, 184, 109, 0.09);
   color: var(--ink);
-  font-size: 0.82rem;
-  line-height: 1.45;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
-.preset-notes {
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--panel-2);
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.45;
+.controls-status {
+  flex: 1 1 100%;
+  min-height: 1.2em;
+  margin: 0;
 }
 
-.preset-notes summary {
-  cursor: pointer;
-  color: var(--accent-2);
-  font-weight: 650;
-}
-
-.preset-notes p {
-  margin: 8px 0 0;
-}
-
-.roster-panel {
+.matchup-panel,
+.detail-panel,
+.export-panel {
   display: grid;
   gap: 12px;
-  min-width: 0;
+  margin-top: 18px;
   padding: 18px;
 }
 
-.roster-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: start;
-  justify-content: space-between;
-  gap: 12px;
+.matchup-panel h2,
+.detail-panel h2,
+.export-panel h2 {
+  margin: 0;
 }
 
-.roster-header h2 {
-  margin: 0 0 4px;
-}
-
-.roster-scroll {
+.table-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
 }
 
-.roster-table {
+.matchup-table {
   width: 100%;
-  min-width: 960px;
+  min-width: 1180px;
   border-collapse: collapse;
-  font-size: 0.75rem;
+  font-size: 0.74rem;
+  font-variant-numeric: tabular-nums;
 }
 
-.roster-table th {
+.matchup-table th {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 8px 6px;
+  padding: 8px 7px;
   background: var(--panel-2);
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: left;
@@ -93,142 +66,134 @@
   white-space: nowrap;
 }
 
-.roster-table td {
-  padding: 6px;
+.matchup-table td {
+  padding: 7px;
   border-top: 1px solid var(--border);
-  vertical-align: middle;
-}
-
-.roster-table tr:hover td {
-  background: rgba(127, 179, 213, 0.05);
-}
-
-.roster-input {
-  width: 100%;
-  min-width: 54px;
-  padding: 6px 7px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  background: var(--bg);
-  color: var(--ink);
-  font-size: 0.78rem;
-}
-
-.roster-input:focus {
-  border-color: var(--accent-2);
-  outline: 1px solid rgba(127, 179, 213, 0.4);
-}
-
-.roster-name {
-  min-width: 110px;
-}
-
-.roster-number {
-  width: 56px;
-  min-width: 56px;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.roster-table select.roster-input {
-  min-width: 86px;
-}
-
-.roster-actions {
-  display: grid;
-  gap: 3px;
-}
-
-.roster-action {
-  padding: 4px 6px;
-  font-size: 0.68rem;
   white-space: nowrap;
 }
 
-.roster-action.danger {
-  border-color: rgba(224, 122, 122, 0.5);
+.matchup-table tbody tr:hover td {
+  background: rgba(127, 179, 213, 0.05);
+}
+
+.matchup-table tbody tr.is-selected td {
+  background: rgba(232, 184, 109, 0.1);
+}
+
+.band-ok {
+  color: var(--ok);
+  font-weight: 650;
+}
+
+.band-out {
   color: var(--danger);
+  font-weight: 650;
 }
 
-.combat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
-  gap: 18px;
-  grid-column: 1 / -1;
+.matchup-select {
+  padding: 4px 8px;
+  font-size: 0.68rem;
 }
 
-.combat-card {
+.detail-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   gap: 12px;
-  padding: 18px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: rgba(21, 27, 35, 0.86);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
 }
 
-.combat-card h3,
-.combat-card h4 {
+.detail-title {
+  grid-column: 1 / -1;
   margin: 0;
+  color: var(--accent);
   font-size: 1rem;
 }
 
-.combat-card h4 {
-  color: var(--muted);
+.detail-block {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.detail-block h3 {
+  margin: 0;
   font-size: 0.78rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-}
-
-.combat-card .card-hint {
-  margin: 0;
-}
-
-.combat-card .metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
-}
-
-.distribution {
-  display: grid;
-  gap: 3px;
-  max-height: 220px;
-  overflow-y: auto;
-  padding-top: 4px;
-}
-
-.distribution-row {
-  margin: 0;
   color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.74rem;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
 }
 
-.distribution .metric-empty {
+.detail-table th,
+.detail-table td {
+  padding: 4px 6px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.detail-table th {
+  color: var(--muted);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.detail-table td:not(:first-child),
+.detail-table th:not(:first-child) {
+  text-align: right;
+}
+
+.detail-empty {
   margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
 }
 
-.decision-panel .status {
-  min-height: 1.2em;
+.duration-list {
+  display: grid;
+  gap: 2px;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
-@media (max-width: 1080px) {
-  .experiment-shell .experiment-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .combat-grid {
-    grid-column: auto;
-  }
+.duration-row {
+  margin: 0;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
 }
 
-@media (max-width: 620px) {
-  .roster-header {
-    display: grid;
-  }
+.export-summary {
+  margin: 0;
+  padding: 12px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.74rem;
+  line-height: 1.55;
+  white-space: pre;
+}
 
-  .roster-table {
-    min-width: 980px;
+@media (max-width: 720px) {
+  .matchup-panel,
+  .detail-panel,
+  .export-panel {
+    padding: 14px;
   }
 }

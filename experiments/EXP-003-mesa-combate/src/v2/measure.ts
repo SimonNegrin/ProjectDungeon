@@ -313,11 +313,26 @@ export function runMatchup(
   };
 }
 
-export function measureAll(catalog: Catalog = CATALOG): MeasurementPayload {
+export interface MeasureOptions {
+  readonly seed?: number;
+  readonly duels?: number;
+  readonly catalog?: Catalog;
+}
+
+/**
+ * Mide los 12 emparejamientos con semilla y duelos explícitos.
+ *
+ * Es la única puerta parametrizada del motor: la UI la usa para recalcular sin
+ * recargar. Sin argumentos reproduce exactamente `measureAll()`.
+ */
+export function measureMatchups(options: MeasureOptions = {}): MeasurementPayload {
+  const seed = options.seed ?? DEFAULT_SEED;
+  const duels = options.duels ?? DEFAULT_DUELS;
+  const catalog = options.catalog ?? CATALOG;
   const matchups: MatchupResult[] = [];
   for (const heroId of HERO_ORDER) {
     for (const enemyId of ENEMY_ORDER) {
-      matchups.push(runMatchup(heroId, enemyId, DEFAULT_SEED, DEFAULT_DUELS, catalog));
+      matchups.push(runMatchup(heroId, enemyId, seed, duels, catalog));
     }
   }
   return {
@@ -343,13 +358,17 @@ export function measureAll(catalog: Catalog = CATALOG): MeasurementPayload {
           'Dormido espera; alerta ataca, lanza hechizos si el perfil lo permite o avanza a lastKnown; regreso vuelve a home sin atacar; huida maximiza distancia y solo ataca acorralada.',
       },
     },
-    seed: DEFAULT_SEED,
-    duels: DEFAULT_DUELS,
+    seed,
+    duels,
     band: { ...BAND, unit: 'percent' },
     heroOrder: HERO_ORDER,
     enemyOrder: ENEMY_ORDER,
     matchups,
   };
+}
+
+export function measureAll(catalog: Catalog = CATALOG): MeasurementPayload {
+  return measureMatchups({ catalog });
 }
 
 export function serializeMeasurement(payload: MeasurementPayload): string {
