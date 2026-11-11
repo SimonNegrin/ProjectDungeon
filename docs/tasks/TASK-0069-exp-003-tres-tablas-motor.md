@@ -4,14 +4,14 @@ id: TASK-0069
 title: "EXP-003: motor y datos de las tres tablas"
 description: Overrides de héroe, bloques compartidos de enemigo, filas afectadas por enemigo/héroe/arma, diagnóstico y export reproducible para la mesa v2.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-002, R-003, R-004, R-005, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-017, R-018, R-019, R-020, T-001, T-002, T-003, T-006, T-007, T-008]
 depends_on: []
 unlocks: [TASK-0070]
 created_at: 2026-11-11T22:35:00Z
-completed_at:
+completed_at: 2026-11-11T23:58:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0069/
@@ -20,6 +20,14 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:35:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-11T23:58:00Z
+    note: >-
+      Verificación independiente en task/TASK-0069, fusionada en main
+      (`7076915`). Revisado el diff completo; re-ejecutados los 71 tests
+      focalizados y `pnpm run verify` (959 tests, build y bundle OK). Sin
+      cambios fuera de `experiments/EXP-003-mesa-combate/src/**` y artefactos.
+      Detalle en `artifacts/TASK-0069/attempt-1/verification-lead.md`.
 ---
 
 # Objetivo
@@ -40,30 +48,30 @@ es [TASK-0070](TASK-0070-exp-003-tres-tablas-ui.md).
 
 # Criterios de aceptación
 
-- [ ] El catálogo base sigue inmutable; el catálogo de trabajo aplica overrides
+- [x] El catálogo base sigue inmutable; el catálogo de trabajo aplica overrides
       de enemigos, armas y **héroes** sin mutar `CATALOG`.
-- [ ] Los overrides de héroe cubren PV, habilidad, fuerza, defensa, resistencia,
+- [x] Los overrides de héroe cubren PV, habilidad, fuerza, defensa, resistencia,
       acciones, nivel de magia, armadura, escudo y arma inicial (incluido
       `null`).
-- [ ] Los stats de enemigo siguen siendo un bloque compartido: un override
+- [x] Los stats de enemigo siguen siendo un bloque compartido: un override
       afecta a sus cuatro filas y a ningún otro enemigo.
-- [ ] La selección de filas afectadas distingue enemigo (4 filas), héroe (3
+- [x] La selección de filas afectadas distingue enemigo (4 filas), héroe (3
       filas) y arma (todas las filas donde se use en el catálogo de trabajo),
       deduplicando la fila que comparten espada/daga.
-- [ ] Cambiar un objetivo actualiza solo el diagnóstico; no vuelve a simular
+- [x] Cambiar un objetivo actualiza solo el diagnóstico; no vuelve a simular
       duelos.
-- [ ] El diagnóstico sigue calculando objetivo, win %, delta, dentro/fuera,
+- [x] El diagnóstico sigue calculando objetivo, win %, delta, dentro/fuera,
       4-de-4, dispersión y avisos de arma global, leyendo armas y héroes del
       catálogo de trabajo.
-- [ ] El export incluye catálogo ajustado, overrides de enemigo/arma/héroe,
+- [x] El export incluye catálogo ajustado, overrides de enemigo/arma/héroe,
       objetivos, diagnóstico, semilla, duelos e `overridesId` determinista, sin
       timestamp.
-- [ ] La API se amplía con selección/campos/reset de héroe y reset por tabla,
+- [x] La API se amplía con selección/campos/reset de héroe y reset por tabla,
       sin romper los métodos existentes.
-- [ ] Tests unitarios cubren overrides de héroe, filas afectadas, objetivo sin
+- [x] Tests unitarios cubren overrides de héroe, filas afectadas, objetivo sin
       simulación, diagnóstico, resets, export y determinismo; `pnpm run verify`
       pasa.
-- [ ] Sin cambios en reglas, fórmulas, escenario, `src/` de producción,
+- [x] Sin cambios en reglas, fórmulas, escenario, `src/` de producción,
       `tests/` de producción, `index.html` ni `public/`.
 
 # Plan de test
@@ -77,9 +85,9 @@ es [TASK-0070](TASK-0070-exp-003-tres-tablas-ui.md).
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0069/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA en la rama `task/TASK-0069`
+- [x] Informe en `artifacts/TASK-0069/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA en la rama `task/TASK-0069`
 
 # Restricciones
 
