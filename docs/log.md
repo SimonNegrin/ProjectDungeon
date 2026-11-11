@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Experiment — EXP-003 — banco v3 documentado: objetivo editable por par héroe–enemigo con guía heredada, 4-de-4 sin dispersión, filtros de las tres tablas y export con `targetsVersion: 2` y `targetsId`; 993 tests y 109/109 E2E; el balance base sigue sin aprobar — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-11 — Task — TASK-0074 — cerrada: E2E de objetivos por par (sin arrastre), resets, filtros de las tres tablas con `rowspan`, export v2 determinista y QA 1280/900; 993 tests, 109 E2E y verify OK; fusión 3ce6455 — [informe](../artifacts/TASK-0074/attempt-1/report.md)
 * 2026-11-11 — Planning — TASK-0074 — ready: E2E y QA visual de objetivos por par y filtros; dependencia TASK-0073 cerrada — [TASK-0074](tasks/TASK-0074-exp-003-objetivos-filtros-e2e.md)
 * 2026-11-11 — Task — TASK-0073 — cerrada: filtros de vista en las tres tablas (héroe/enemigo, nombre y unidades), sin tildes ni mayúsculas, `rowspan` ajustado, aviso de sin resultados y foco; 993 tests y verify OK; smoke DOM sin cambios en `% real`, 4-de-4, export ni resets; fusión `025395d` — [informe](../artifacts/TASK-0073/attempt-1/report.md)
