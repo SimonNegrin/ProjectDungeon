@@ -91,6 +91,7 @@ describe('réplica (REQ-027)', () => {
     );
     expect(corneredResult.ok && corneredResult.replica?.hit).toBe(true);
     expect(cornered.metrics.replicas.enemy.triggered).toBe(1);
+    expect(cornered.enemy.fleeing).toBe(true);
   });
 
   it('el que regresa replica', () => {
@@ -100,6 +101,7 @@ describe('réplica (REQ-027)', () => {
     const result = performMeleeAttack(state, state.hero, state.enemy);
     expect(result.ok && result.replica?.hit).toBe(true);
     expect(state.metrics.replicas.enemy.triggered).toBe(1);
+    expect(state.enemy.awareness).toBe('returning');
   });
 
   it('la magia no genera réplica', () => {
