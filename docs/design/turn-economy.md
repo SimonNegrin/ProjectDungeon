@@ -13,10 +13,10 @@ Fijar unos valores jugables para el primer prototipo local. No son definitivos:
 están pensados para poder probar el loop y ajustarlos después con experimentos y
 playtests.
 
-> **Aviso de vigencia (2026-11-11).** `REQ-025`, `REQ-026` y `REQ-027` sustituyen
-> la acción única por varias acciones, la magia sin efecto por nivel único con
-> maná y el combate sin reacción por la réplica al fallar. Los valores de este
-> documento son históricos hasta que se implementen esas hojas.
+> **Aviso de vigencia (2026-11-11).** La sección de acción se actualiza con
+> `REQ-026`: varias acciones por turno, Pícaro 3, enemigos 2/1/2 y tope 4
+> provisional. La magia de `REQ-025` y la réplica de `REQ-027` siguen como
+> referencia hasta que se implementen.
 
 # Rejilla y movimiento
 
@@ -39,12 +39,19 @@ playtests.
 
 # Acción
 
-- Cada unidad tiene **una acción por turno**: atacar, interactuar o esperar.
-- Se puede mover antes y después de la acción, mientras queden MP.
-- Atacar no termina el turno por sí solo.
-- El turno termina al pulsar `E`. Si no quedan MP y la acción está usada, el HUD
-  sugiere terminar, pero el prototipo no auto-termina.
-- Al empezar un turno se restauran MP y acción.
+- Cada unidad tiene **2 acciones por turno** por defecto; el Pícaro empieza con
+  **3** y los enemigos tienen 2/1/2 (Centinela/Bruto/Cobarde). Los objetos pueden
+  sumar +1 hasta un **tope de 4**, provisional.
+- Atacar, interactuar (puertas, cofres, cadáveres) y lanzar hechizos consumen
+  **1 acción**; atacar se puede repetir. Moverse, recoger o soltar del suelo,
+  esperar y terminar el turno **no** consumen acción.
+- Recoger o soltar del suelo cuesta **1 MP**. Abrir o registrar un contenedor
+  cuesta **1 acción** y requiere adyacencia; transferir es gratis.
+- `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por
+  pulsación**; no encadena todos los ataques.
+- El turno **no termina solo** al gastar las acciones: se cierra con `E`. El HUD
+  sugiere terminar cuando no quedan acciones ni MP útil.
+- Al empezar un turno se restauran MP, acciones y maná.
 
 # Movimiento por destino
 
@@ -57,11 +64,12 @@ está en [REQ-004](../requirements/REQ-004-cursor-seleccion.md).
   avanza hasta agotar MP y se detiene; no consume la acción.
 - **Rojo**: muro, aliado, objeto bloqueante o sin camino. Moverse no hace nada.
 - **Enemigo**: el camino termina en el tile libre adyacente desde el que se
-  ataca. Moverse se acerca y ataca si alcanza y queda acción; si no queda acción,
-  solo se mueve; si no alcanza, avanza parcialmente sin atacar; si ya está
-  adyacente, ataca directamente.
+  ataca. Moverse se acerca y ejecuta un ataque si alcanza y queda alguna acción;
+  no encadena: repetir Moverse ataca de nuevo. Si no queda acción, solo se mueve;
+  si no alcanza, avanza parcialmente sin atacar; si ya está adyacente, ataca una
+  vez por pulsación.
 - **Atacar** (`F`) es directo desde la posición actual: solo en adyacencia y con
-  acción; no se acerca.
+  acción disponible; no se acerca.
 - El cursor no se recentra al moverse ni al atacar; vuelve al jugador al empezar
   su turno, al reiniciar o al cambiar de semilla.
 
@@ -130,7 +138,8 @@ Todo personaje comparte ocho atributos inherentes, independientes del equipo:
 **habilidad**, **fuerza**, **defensa**, **resistencia**, **puntería**, **magia**,
 **PV** y **MP**. El equipo no define ninguno; solo aporta bonus. Habilidad y
 fuerza sustituyen a los antiguos modificadores de acierto y daño; defensa se
-mantiene. Puntería y magia existen como slots sin efecto en este corte.
+mantiene. Puntería sigue como slot sin efecto; magia se define en `REQ-025`
+(nivel 0–4, maná y hechizos) y aún no está implementada.
 
 | Regla | Valor |
 |---|---|
@@ -202,7 +211,7 @@ la IA es determinista y testeable y no usa `Math.random`.
 | Estado inicial | `dormant`: no se mueve, no ataca y no patrulla. |
 | Detección | Tras cada paso aceptado de `Move`/`MoveTo`; no consume MP ni acción. |
 | Memoria | `lastKnown`; 2 fases enemigas investigando y la tercera volviendo. |
-| Alerta | Ataca si es adyacente; si no, gasta hasta su MP (5/4/6 según tipo) por BFS hacia `lastKnown` y ataca si termina adyacente con acción. Sin ruta, espera. |
+| Alerta | Ataca hasta agotar acciones o matar; si no es adyacente, gasta hasta su MP (5/4/6 según tipo) por BFS hacia `lastKnown` y ataca con las acciones restantes. Sin ruta, espera. |
 | Regreso | Vuelve a `home` sin atacar y se duerme al llegar. |
 | Daño | Despierta y alerta; guarda la posición del atacante y, si sobrevive, da la alarma. |
 | Huida | Solo el perfil cobarde, con un golpe de ≥40 % de sus PV máximos sobreviviendo; rompe la línea de visión y maximiza la distancia. Acorralado, ataca. |
@@ -211,7 +220,8 @@ la IA es determinista y testeable y no usa `Math.random`.
 Flujo de una fase enemiga:
 
 1. Si está `dormant`, espera.
-2. Si está `alert`, persigue `lastKnown` y ataca al llegar si conserva la acción.
+2. Si está `alert`, persigue `lastKnown`, ataca al llegar y sigue atacando hasta
+   agotar acciones o matar.
 3. Si está `returning`, vuelve a `home` sin atacar y se duerme al llegar.
 4. Si es cobarde y `fleeing`, elige la casilla alcanzable que rompe la visión y
    más se aleja; sin visión, vuelve a `home`.
@@ -244,7 +254,7 @@ Estos valores se podrán comparar en experimentos interactivos:
 - coste diagonal 1 frente a 1,5;
 - 4, 6 u 8 MP por tipo;
 - atacar antes o después de mover;
-- una acción frente a puntos de acción;
+- reparto de acciones por arquetipo y tipo (Pícaro 3, enemigos 2/1/2);
 - velocidad y claridad de la cámara;
 - tamaño, opacidad y patrón del cursor y de los puntos del camino;
 - texto y duración de los avisos de rechazo;

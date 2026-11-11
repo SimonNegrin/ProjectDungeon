@@ -102,6 +102,30 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
 
 Ver [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md).
 
+## Economía de acciones
+
+La economía de [REQ-026](../requirements/REQ-026-economia-acciones-rebalanceo.md)
+vive en `src/game/` y es determinista:
+
+- `Unit` guarda `actions { max, remaining }`; se restauran al inicio del turno
+  junto a MP y maná. La IA y el jugador usan el mismo contador.
+- Cada comando declara cuántas acciones consume (0 o 1): atacar, interactuar y
+  lanzar hechizos cuestan 1; moverse, recoger/soltar del suelo, esperar y cerrar
+  el turno cuestan 0. Recoger/soltar cuesta 1 MP; abrir un contenedor cuesta 1
+  acción y transferir es gratis.
+- El `+1` de los objetos vive en `actionsBonus` del equipo; los bonus acumulan con
+  un tope de 4 provisional y `REQ-019` puede exponerlo como trait después.
+- `Moverse` sobre un enemigo se resuelve como movimiento (MP) + un ataque (1
+  acción); no encadena ataques.
+- El turno no auto-termina: se cierra con `EndTurn`. El HUD, el snapshot y el
+  guardado exponen acciones máximas y restantes (`REQ-022`/`REQ-024`).
+- La IA enemiga encadena acciones: en alerta ataca hasta agotar acciones o matar;
+  dormido/regresando no ataca; huyendo usa MP y solo ataca si está acorralado.
+- La presentación encadena un beat por acción en secuencia; el turno completo se
+  mide con `REQ-017`.
+
+Ver [ADR-020](../decisions/ADR-020-economia-acciones.md).
+
 # Percepción, alarma y huida
 
 La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas,

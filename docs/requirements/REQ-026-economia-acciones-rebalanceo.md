@@ -2,16 +2,22 @@
 type: Requirement Sheet
 id: REQ-026
 title: Economía de acciones y rebalanceo
-description: "Varias acciones por turno como noveno atributo (2 por defecto), ataques repetibles, bonus de objetos con tope y rebalanceo del combate con el método de win %."
-status: draft
-version: 1
+description: "Varias acciones por turno como noveno atributo (2 por defecto, Pícaro 3), ataques repetibles, recoger/soltar a 1 MP, contenedores con apertura por acción, bonus de objetos con tope provisional y rebalanceo del combate con el método de win %."
+status: stable
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:05:00Z
-updated_at: 2026-11-11T15:05:00Z
+updated_at: 2026-11-11T16:05:00Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:05:00Z }
 verified:
+  - by: human:simon
+    at: 2026-11-11T16:05:00Z
+    note: >-
+      Revisa y aprueba la hoja: 2 acciones por defecto (Pícaro 3), enemigos
+      2/1/2, tope 4 provisional, fin de turno manual, un ataque por pulsación y
+      rebalanceo con EXP-003.
 ---
 
 # Contexto
@@ -52,30 +58,37 @@ eje de poder.
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| R-001 | Las acciones por turno son el **noveno atributo inherente**, con 2 por defecto. | Una unidad sin modificadores tiene 2 acciones; el atributo es serializable y visible en el HUD. |
+| R-001 | Las acciones por turno son el **noveno atributo inherente**, con 2 por defecto. En el primer corte el **Pícaro tiene 3**; el rebalanceo ajusta el resto. | Una unidad sin modificadores tiene 2 acciones; el Pícaro 3; el atributo es serializable y visible en el HUD. |
 | R-002 | Atacar consume una acción y se puede repetir en el mismo turno, contra el mismo objetivo u otro. | Dos ataques con 2 acciones; el segundo usa la misma fórmula. |
 | R-003 | Interactuar consume una acción: abrir puertas, abrir cofres y acciones equivalentes. | Abrir puerta y cofre en el mismo turno es posible con 2 acciones. |
-| R-004 | Moverse gasta MP, no acciones. Esperar y terminar el turno no gastan acción. | Mover y pulsar fin de turno no reducen el contador de acciones. |
+| R-004 | Moverse gasta MP, no acciones. **Recoger y soltar objetos del suelo cuestan 1 MP** y tampoco gastan acción. Esperar y terminar el turno no gastan acción. | Mover, recoger, soltar y pulsar fin de turno no reducen el contador de acciones. |
 | R-005 | Lanzar un hechizo consume una acción, además del maná y del tope de `REQ-025`. | Sin acción no hay hechizo; sin maná tampoco. |
-| R-006 | Los enemigos tienen acciones **por tipo** en el bestiario, no un valor único global. | Cada tipo declara su número; el snapshot lo expone. |
-| R-007 | Los objetos pueden aportar acciones extra (+1 y similares); los bonus acumulan con un **tope duro de 4 acciones** por turno. | Dos objetos +1 dan +2 hasta el tope; por encima de 4 se recorta. |
-| R-008 | El turno termina al agotar las acciones o al pulsar fin de turno; el HUD sugiere terminar cuando no quedan acciones. | No hay auto-terminación silenciosa; el jugador conserva el control. |
-| R-009 | El rebalanceo es parte de esta hoja: se rehacen roster y bestiario con el método de win % incluyendo acciones, magia y réplica (`REQ-027`). | Los duelos de 1.000 simulaciones con tolerancia ±2 % se recalculan; los valores v1 no se conservan por inercia. |
+| R-006 | Los enemigos tienen acciones **por tipo** en el bestiario: **Centinela 2, Bruto 1, Cobarde 2**. No hay un valor único global. | Cada tipo declara su número; el snapshot lo expone; cambiar un tipo no cambia los demás. |
+| R-007 | Los objetos pueden aportar acciones extra (+1 y similares); los bonus acumulan con un **tope de 4 acciones** por turno, provisional hasta el rebalanceo. | Dos objetos +1 dan +2 hasta el tope; por encima de 4 se recorta; el tope se revisa en EXP-003. |
+| R-008 | El turno **no termina automáticamente** al agotar las acciones: el jugador lo cierra con `E`. El HUD sugiere terminar cuando no quedan acciones y tampoco MP útil. | Gastar la última acción no cambia de turno; el jugador puede seguir moviéndose con MP y cerrar con `E`; no hay auto-terminación. |
+| R-009 | El rebalanceo es parte de esta hoja: se rehacen roster y bestiario con el método de win % incluyendo acciones, magia y réplica (`REQ-027`). | Los duelos de 1.000 simulaciones con tolerancia ±2 % se recalculan; el Pícaro 3 y la tabla enemiga 2/1/2 son valores iniciales, no definitivos. |
+| R-010 | **Soltar un objeto al suelo** cuesta **1 MP y no gasta acción**; el objeto queda en la casilla del personaje. Si estaba equipado, se desequipa en la misma operación. El fantasma mantiene su excepción de `REQ-021`: un objeto por acción. | Soltar con MP deja el objeto en el suelo y no cambia el contador de acciones; sin MP se rechaza. Recogerlo después cuesta 1 MP. |
+| R-011 | Abrir o registrar un **cofre o cadáver** cuesta **1 acción** y requiere **adyacencia**; con el contenedor abierto, transferir objetos es **gratis** (sin acción ni MP), limitado por capacidad, y se permite «coger todo». El fantasma no abre cofres y mueve un objeto por acción (`REQ-021`). | Abrir y coger todo consume 1 acción; las transferencias no consumen más; el fantasma inspecciona sin abrir. |
+| R-012 | Huir y perseguir usan **MP, no acciones**. El cobarde no ataca mientras huye; acorralado, ataca con las acciones que le queden. | Perseguir o huir no reduce el contador de acciones; el cobarde acorralado puede atacar. |
+| R-013 | **`Moverse` sobre un enemigo ejecuta un ataque por pulsación**: se acerca con MP y ataca una vez con 1 acción; si quedan acciones, repetir la pulsación ataca de nuevo. No encadena todos los ataques. `F` sigue siendo ataque directo. | Pícaro con 3 acciones ataca una vez por pulsación; el movimiento no gasta acción; sin acción solo se mueve. |
 
 # Requisitos técnicos
 
 | ID | Requisito | Aceptación |
 |---|---|---|
 | T-001 | El estado de unidad guarda `actions { max, remaining }`; se restaura al inicio del turno junto a MP y maná. | Tests de restauración y de gasto por acción. |
-| T-002 | Cada comando declara cuántas acciones consume (0 o 1); la validación es atómica y rechaza sin cambios si no quedan. | Tests por comando: ataque, interacción, hechizo, movimiento, fin de turno. |
-| T-003 | Los modificadores de equipo se aplican a `max` con el tope de 4; el recorte es determinista. | Tests de acumulación, tope y retirada de objeto. |
-| T-004 | La IA enemiga encadena sus acciones en orden determinista y no usa `Math.random`. | Misma semilla y comandos producen la misma secuencia de acciones. |
+| T-002 | Cada comando declara cuántas acciones consume (0 o 1); la validación es atómica y rechaza sin cambios si no quedan. | Tests por comando: ataque, interacción, hechizo, movimiento, recoger, soltar y fin de turno. |
+| T-003 | Los modificadores de equipo se aplican a `max` con el tope de 4; el +1 vive en `actionsBonus` del equipo y `REQ-019` puede exponerlo como trait después; el recorte es determinista. | Tests de acumulación, tope, retirada de objeto y compatibilidad con traits futuros. |
+| T-004 | La IA enemiga encadena sus acciones en orden determinista y no usa `Math.random`: en alerta se mueve con MP y ataca hasta agotar acciones o matar; dormido/regresando no ataca; huyendo usa MP y solo ataca si está acorralado. | Misma semilla y comandos producen la misma secuencia; tests por estado y de parada al morir el objetivo. |
 | T-005 | El método de balance de `EXP-003`/`REQ-015` se amplía para incluir acciones, hechizos y réplica; el escenario 1v1 sigue siendo la línea base. | El experimento documenta la nueva simulación y sus resultados. |
-| T-006 | La presentación encadena un beat por acción; el techo por acción de `REQ-017` se mantiene y se mide el turno completo. | Tests de timeline; el turno no adelanta beats ni pierde acciones. |
+| T-006 | La presentación encadena **un beat por acción en secuencia**; el techo por acción de `REQ-017` se mantiene y se mide el turno completo. No se agrupan acciones por defecto; si el turno supera el umbral, se propone experimento. | Tests de timeline; el turno no adelanta beats ni pierde acciones; la secuencia respeta el orden. |
 | T-007 | HUD, snapshot de debug y guardado exponen acciones máximas y restantes. | `REQ-022`, `REQ-024` y debug las muestran y las reconstruyen al cargar. |
-| T-008 | Tests nuevos: dos ataques, ataque + interacción, MP sin acción, hechizo sin acción, tope de 4, restauración, IA con varias acciones y E2E del HUD. | `pnpm run verify` pasa; los tests de `REQ-009`, `REQ-010` y `REQ-017` conservan su intención. |
+| T-008 | Tests nuevos: dos ataques, Pícaro con 3 acciones, ataque + interacción, MP sin acción, hechizo sin acción, recoger/soltar sin acción, tope de 4, restauración, IA con varias acciones y E2E del HUD. | `pnpm run verify` pasa; los tests de `REQ-009`, `REQ-010` y `REQ-017` conservan su intención. |
 | T-009 | Se actualizan economía de turno, arquitectura y glosario; se registra un ADR de economía de acciones. | `docs:check` pasa; no queda "una acción por turno" como regla vigente. |
 | T-010 | Sin dependencias nuevas, sin red y sin arte final. | `package.json` y `pnpm-lock.yaml` no cambian. |
+| T-011 | El comando de soltar valida MP y localización, desequipa si hace falta y crea una instancia de suelo en la casilla; snapshot y guardado exponen los objetos del suelo y el host permite elegir cuál recoger si hay varios. | Tests de soltar equipo y objeto de inventario, sin MP, tile con varios objetos, persistencia y selección en la UI; el estado y el RNG no cambian. |
+| T-012 | Abrir/registrar un contenedor valida adyacencia y acción; una vez abierto, las transferencias y «coger todo» son gratuitas y atómicas, limitadas por capacidad; el fantasma no abre cofres. | Tests de apertura, transferencia gratuita, coger todo, capacidad, fantasma y contenedor vacío; solo la apertura consume acción. |
+| T-013 | El comando Moverse sobre un enemigo se resuelve como movimiento (MP) + un ataque (1 acción); no encadena ataques. Si ya es adyacente, solo ataca. | Tests: Pícaro 3 acciones ataca una vez por comando; el movimiento no consume acción; sin acción solo se mueve. |
 
 # Requisitos no funcionales
 
@@ -109,16 +122,8 @@ eje de poder.
 
 # Preguntas abiertas
 
-1. **Recoger objeto.** Hoy cuesta 1 MP sin acción; ¿se mantiene o pasa a costar
-   acción?
-2. **Valores por arquetipo.** ¿Quién tiene 3 acciones y qué paga a cambio?
-3. **Valores por enemigo.** ¿Bruto 1, Centinela 2, Cobarde 2, o otra tabla?
-4. **Tope de 4.** ¿Es definitivo o se ajusta con el balance?
-5. **Objetos.** ¿+1 acción es un trait de `REQ-019` o un campo propio de equipo?
-6. **Ritmo.** ¿Se presenta cada acción en secuencia o se agrupan las de un mismo
-   turno?
-7. **Acciones y huida.** ¿Huir o perseguir consume acción? Provisional: la huida
-   se resuelve en el turno enemigo con su MP.
+Ninguna. Las decisiones de esta versión están registradas en la tabla siguiente.
+El rebalanceo de valores queda como tarea de `EXP-003`.
 
 # Decisiones
 
@@ -130,11 +135,21 @@ eje de poder.
 | 2026-11-11 | Los enemigos tienen acciones por tipo. | human:simon | aceptada |
 | 2026-11-11 | Los bonus de acción acumulan con tope de 4. | human:simon | aceptada |
 | 2026-11-11 | Se rebalancea ahora con el método de win %, incluyendo acciones, magia y réplica. | human:simon | aceptada |
+| 2026-11-11 | Recoger y soltar objetos del suelo cuestan 1 MP y no gastan acción; soltar un objeto equipado lo desequipa. | human:simon | aceptada |
+| 2026-11-11 | Abrir/registrar un cofre o cadáver cuesta 1 acción y requiere adyacencia; transferir es gratis y se permite «coger todo». | human:simon | aceptada |
+| 2026-11-11 | El Pícaro empieza con 3 acciones; el resto 2 en el primer corte y el rebalanceo ajusta. | human:simon | aceptada; provisional v1 |
+| 2026-11-11 | Acciones enemigas: Centinela 2, Bruto 1, Cobarde 2; la IA ataca hasta agotar acciones o matar. | human:simon | aceptada; provisional v1 |
+| 2026-11-11 | El tope de 4 acciones es provisional hasta el rebalanceo. | human:simon | aceptada; provisional |
+| 2026-11-11 | El +1 acción vive en `actionsBonus` del equipo; `REQ-019` puede exponerlo como trait después. | human:simon | aceptada |
+| 2026-11-11 | Presentación secuencial: un beat por acción, sin agrupar por defecto. | human:simon | aceptada |
+| 2026-11-11 | Huir y perseguir usan MP, no acción; el cobarde no ataca huyendo salvo acorralado. | human:simon | aceptada |
+| 2026-11-11 | El turno siempre se cierra manualmente con `E`; no hay auto-terminación. | human:simon | aceptada |
+| 2026-11-11 | `Moverse` sobre un enemigo ejecuta un ataque por pulsación; no encadena. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
 - [x] El usuario ha aprobado las decisiones creativas.
-- [ ] El usuario ha revisado el texto de la hoja.
+- [x] El usuario ha revisado el texto de la hoja.
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
-- [ ] El grafo de tareas es posible; depende de los valores por arquetipo y tipo.
+- [x] El grafo de tareas es posible; el rebalanceo es una tarea del milestone.

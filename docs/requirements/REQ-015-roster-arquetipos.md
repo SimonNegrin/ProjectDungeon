@@ -4,11 +4,11 @@ id: REQ-015
 title: Roster de arquetipos
 description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
 status: draft
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-11T15:30:00Z
+updated_at: 2026-11-11T15:55:00Z
 related_tasks: [TASK-0055, TASK-0056]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
@@ -47,7 +47,7 @@ enemigos y sus objetivos de balance van en una hoja futura.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El roster tiene nueve arquetipos: Guerrero, Bárbaro, Pícaro, Arquero, Mago, Clérigo, Guerrero mágico, Cocinero y Agricultor. | El catálogo lista los nueve con identidad y rol. |
-| R-002 | Cada arquetipo tiene los nueve atributos de REQ-014 con los valores de la tabla de stats (balance provisional v1). El Guerrero es la referencia (+1/+1/+1) y todos parten de 2 acciones. | La tabla es la única fuente de valores; los atributos son serializables. |
+| R-002 | Cada arquetipo tiene los nueve atributos de REQ-014 con los valores de la tabla de stats (balance provisional v1). El Guerrero es la referencia (+1/+1/+1); el Pícaro tiene 3 acciones y el resto 2 en el primer corte. | La tabla es la única fuente de valores; los atributos son serializables. |
 | R-003 | El Guerrero es equilibrado; el resto especializa con tradeoffs (p. ej. Bárbaro +3 fuerza/−1 defensa; Mago −1 fuerza; Clérigo +3 defensa/−1 fuerza). | Nadie domina en todo; cada especialista paga su ventaja en otro atributo. |
 | R-004 | Arma temática inicial por arquetipo. Cuatro atacan hoy (Guerrero, Bárbaro, Pícaro, Cocinero); cinco quedan «arma futura» (Arquero, Mago, Clérigo, Guerrero mágico, Agricultor) y no atacan hasta que exista su arma. | La tabla de equipo refleja arma o «futura»; un arquetipo sin arma no puede atacar en el combate actual. |
 | R-005 | Nueva arma Cuchillo: +4 acierto / 1 daño; más fiable y menos dañina que la daga (+4/2). | El catálogo de armas incluye el Cuchillo con esos valores; la daga no cambia. |
@@ -61,7 +61,7 @@ enemigos y sus objetivos de balance van en una hoja futura.
 |---|---|---|---|---|---|---|---|---|---|
 | Guerrero | +1 | +1 | +1 | +1 | 20 | 6 | 0 | 0 | 2 |
 | Bárbaro | 0 | +3 | −1 | 0 | 24 | 5 | 0 | 0 | 2 |
-| Pícaro | +3 | 0 | +1 | 0 | 14 | 8 | 0 | 0 | 2 |
+| Pícaro | +3 | 0 | +1 | 0 | 14 | 8 | 0 | 0 | 3 |
 | Arquero | +1 | 0 | 0 | 0 | 14 | 6 | +3 | 0 | 2 |
 | Mago | 0 | −1 | 0 | 0 | 12 | 5 | 0 | 4 | 2 |
 | Clérigo | 0 | −1 | +3 | +2 | 18 | 5 | 0 | 3 | 2 |
@@ -76,7 +76,8 @@ daño sigue garantizando mínimo 1 en un impacto.
 
 `Mag` es el nivel de magia (entero 0–4; 0 = sin magia) y `Acc` las acciones por
 turno. El maná máximo se deriva del nivel en `REQ-025` (nivel × 4) y no se
-duplica en esta tabla. 2 acciones es el valor por defecto de `REQ-026`.
+duplica en esta tabla. 2 acciones es el valor por defecto; el Pícaro tiene 3 en
+el primer corte (`REQ-026`).
 
 ## Equipo inicial
 
@@ -160,7 +161,7 @@ son categorías de efecto, no afinidades por arquetipo.
 
 - Los objetivos de win % del bestiario (hoja futura).
 - El ajuste de los niveles de magia tras playtest (valores v1 en `REQ-025`).
-- Los valores de acciones por arquetipo (`REQ-026`).
+- Si otro arquetipo recibirá 3 acciones tras el rebalanceo (el Pícaro ya tiene 3).
 - Si el Clérigo tendrá un ataque propio además de la curación (maza futura).
 
 # Decisiones
@@ -177,6 +178,7 @@ son categorías de efecto, no afinidades por arquetipo.
 | 2026-11-11 | Enmienda `REQ-025`: magia como nivel único; los niveles por arquetipo se cierran en la fila siguiente. | human:simon | aceptada |
 | 2026-11-11 | Enmienda `REQ-026`: acciones por turno con 2 por defecto; valores por arquetipo pendientes. | human:simon | aceptada |
 | 2026-11-11 | Niveles de magia por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el resto 0. | human:simon | aceptada |
+| 2026-11-11 | Pícaro con 3 acciones desde el inicio; el resto 2 y el rebalanceo ajusta. | human:simon | aceptada; provisional v1 |
 
 # Aceptación de la hoja
 

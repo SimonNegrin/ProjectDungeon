@@ -137,7 +137,8 @@ como preguntas para la sesión de cierre.
    tienen función.
 2. **Coste de equipar y desequipar.** ¿1 MP sin gastar la acción, gratis siempre
    o acción del turno? La propuesta es 1 MP y gratis cuando ningún enemigo está
-   alertado.
+   alertado. Soltar un objeto equipado ya está cerrado en `REQ-026`: cuesta 1 MP
+   y lo desequipa en la misma operación.
 3. **Aporte de casco, botas y guantes.** ¿Suman armadura, dan sobre todo traits o
    mezcla? La propuesta es armadura corporal como absorción principal y piezas
    secundarias con poca armadura o traits.

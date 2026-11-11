@@ -4,11 +4,11 @@ id: REQ-009
 title: Percepción, alarma y huida enemiga
 description: Campo de visión con línea de visión, activación por pasos, alarma de una onda y huida determinista del perfil cobarde, con un bestiario mínimo de 4 enemigos. Balance provisional v1 en REQ-009 v4.
 status: stable
-version: 4
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T14:57:04Z
-updated_at: 2026-11-09T12:00:00Z
+updated_at: 2026-11-11T16:00:00Z
 related_tasks: [TASK-0034, TASK-0035, TASK-0036, TASK-0037, TASK-0038, TASK-0039]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:29:01Z }
 verified:
@@ -81,6 +81,7 @@ provisionales.
 | R-010 | El bestiario mínimo de este corte es de 4 enemigos y 2 perfiles: valiente y cobarde. La semilla de referencia coloca 2 centinelas, 1 bruto y 1 cobarde. Aparecen en salas distintas, ninguno dentro de la visión inicial del jugador, y al menos una pareja queda dentro del radio de alarma para poder probarla. | La semilla de referencia coloca 4 enemigos en salas distintas; ninguno ve al jugador al inicio; hay al menos una pareja a ≤5 tiles y un enemigo a >5 de los demás. |
 | R-011 | El enemigo que ve al jugador muestra un "!" sobre su cabeza y el host muestra un aviso breve de alarma. Los radios de visión y alarma solo se dibujan en el overlay de debug `F1`. | El "!" aparece en el paso de detección y desaparece al enfriarse la alerta; el aviso no bloquea el juego; sin `F1` no se dibujan radios. |
 | R-012 | La presentación no revela el estado interno de todos los enemigos: en juego normal solo se ve el "!" del que detecta y el aviso de alarma. | El estado de alerta, la última posición conocida y los radios quedan en `F1`; no hay líneas de visión permanentes. |
+| R-013 | Cada tipo de enemigo declara sus **acciones por turno**: Centinela 2, Bruto 1, Cobarde 2. | El bestiario es la fuente única; el snapshot lo expone. |
 
 > **Revisión 2026-11-08:** `R-010` y `T-007` quedan parcialmente sustituidos por
 > [`REQ-012`](REQ-012-spawn-sala-protegida.md). BSP conserva 4 enemigos, salas
@@ -91,18 +92,19 @@ provisionales.
 
 ## Bestiario mínimo
 
-| Tipo | Perfil | Visión | Alarma | MP | Papel | Unidades |
-|---|---|---:|---:|---:|---|---:|
-| Centinela | Valiente | 6 | 5 | 5 | Guardia estándar; ve, persigue y avisa. | 2 |
-| Bruto | Valiente | 4 | 5 | 4 | Poco perceptivo; castiga el contacto y depende de la alarma. | 1 |
-| Cobarde | Cobarde | 5 | 5 | 6 | Huye al cruzar el umbral; acorralado, lucha. | 1 |
+| Tipo | Perfil | Visión | Alarma | MP | Acc | Papel | Unidades |
+|---|---|---:|---:|---:|---:|---|---:|
+| Centinela | Valiente | 6 | 5 | 5 | 2 | Guardia estándar; ve, persigue y avisa. | 2 |
+| Bruto | Valiente | 4 | 5 | 4 | 1 | Poco perceptivo; castiga el contacto y depende de la alarma. | 1 |
+| Cobarde | Cobarde | 5 | 5 | 6 | 2 | Huye al cruzar el umbral; acorralado, lucha. | 1 |
 
 Total: 4 enemigos, 3 valientes y 1 cobarde. Los nombres y roles quedan fijados
 en este corte; los sprites y el arte final siguen provisionales y fuera de
 alcance. Las PV, el arma, la armadura y el escudo de cada tipo viven en
 [REQ-010](REQ-010-combate-equipo-acierto-defensa.md). La visión es 6/4/5, el
-radio de alarma es 5 para todos y el MP es 5/4/6 por tipo; cambiarlo exige una
-nueva versión de la hoja. Los valores son provisionales y se reajustarán.
+radio de alarma es 5 para todos, el MP es 5/4/6 y las acciones son 2/1/2 por
+tipo (Centinela/Bruto/Cobarde); cambiarlo exige una nueva versión de la hoja.
+Los valores son provisionales y se reajustarán.
 
 # Requisitos técnicos
 
@@ -112,12 +114,12 @@ nueva versión de la hoja. Los valores son provisionales y se reajustarán.
 | T-002 | La detección se evalúa tras cada paso aceptado de `Move` y `MoveTo`; no consume MP ni acción y emite un evento ordenado por paso. | Un movimiento de 3 pasos que cruza una vista emite la detección en el paso correcto; el MP y la acción no cambian por ser visto. |
 | T-003 | El estado del enemigo añade `awareness` (`dormant` / `alert` / `returning`), `fleeing`, `home`, `lastKnown`, `alertTurns` y `hasShouted`; es serializable y `window.__game.snapshot()` lo expone en solo lectura. | El snapshot muestra el estado, la huida, el puesto y la última posición conocida; dos llamadas seguidas coinciden; no hay mutadores expuestos. |
 | T-004 | La alarma se resuelve en el instante de la detección: una onda desde el enemigo que ve, sin cadena, con orden determinista por índice. Los receptores vivos dentro del radio pasan o permanecen en alerta, comparten `lastKnown` y marcan `hasShouted` para no generar otra onda. Los alertados que aún no han actuado en la fase actual actúan; los que ya actuaron esperan al siguiente turno. | Dos ejecuciones idénticas dan el mismo conjunto de alertados; un enemigo que ya actuó no vuelve a actuar por ser alertado; ningún receptor genera una segunda onda en el mismo episodio. |
-| T-005 | `planEnemyAction` distingue dormido (esperar), alerta (atacar si es adyacente; si no, gastar hasta todo el MP avanzando por BFS a `lastKnown` y atacar si termina adyacente y conserva la acción; si no hay ruta, esperar), regreso (volver a `home` sin atacar) y huida (plan del cobarde). Mantiene el desempate por índice. | Tests de los cuatro estados; el dormido no se mueve; el alertado converge a la última posición y ataca al llegar; el que regresa no ataca; el cobarde huye. |
+| T-005 | `planEnemyAction` distingue dormido (esperar), alerta (atacar si es adyacente; si no, gastar hasta todo el MP avanzando por BFS a `lastKnown` y atacar con las acciones restantes; si no hay ruta, esperar), regreso (volver a `home` sin atacar) y huida (plan del cobarde con MP, sin atacar salvo acorralado). En alerta ataca hasta agotar acciones o matar. Mantiene el desempate por índice. | Tests de los cuatro estados; el dormido no se mueve; el alertado converge a la última posición y ataca hasta agotar o matar; el que regresa no ataca; el cobarde huye y solo ataca acorralado. |
 | T-006 | La huida elige, entre las casillas alcanzables con el MP disponible, las que rompen la línea de visión de todos los jugadores visibles y maximizan la distancia al más cercano, con desempate determinista. Si ninguna rompe la visión, elige la que más se aleja; si no hay ninguna que mejore, se queda y ataca si está adyacente. Sin jugador visible, vuelve a `home`. | La ruta elegida rompe la visión; dos ejecuciones coinciden; acorralado, ataca en vez de esperar; sin visión, vuelve a su puesto. |
 | T-007 | La colocación de 4 enemigos es determinista por semilla y se deriva del mapa: salas distintas, distancia mínima entre enemigos y al jugador, ninguna visión inicial, al menos una pareja dentro del radio de alarma y un enemigo fuera. | La semilla de referencia cumple todas las restricciones; otra semilla también; no se usa `Math.random`. |
 | T-008 | El motor emite eventos de percepción (`EnemySpotted`, `AlarmRaised`, `EnemyFled`, `EnemyReturned` o equivalentes) para que el host presente el feedback y el E2E los verifique. | Los eventos aparecen en orden y con el `unitId` correcto; el host no necesita leer estado interno. |
 | T-009 | Se actualizan la sección de IA de `docs/design/turn-economy.md`, el glosario y la arquitectura si procede. Esta versión sincroniza la alarma a 5 y el MP por tipo; los valores de combate viven en `REQ-010` v5. | `pnpm run docs:check` pasa; no quedan valores de alarma o MP contradictorios; el bestiario es la única fuente de esos radios y MP. |
-| T-010 | Tests nuevos: línea de visión, radios por tipo, detección por paso, memoria, alarma sin cadena, enfriamiento, daño, huida determinista, duración, uso de MP, colocación de 4 y determinismo. Los tests leen del bestiario y no duplican valores. No se borran, saltan ni debilitan tests existentes. | `pnpm run verify` pasa; los tests existentes conservan su intención; un cambio de alarma o MP en el bestiario no obliga a reescribir los tests de propiedades. |
+| T-010 | Tests nuevos: línea de visión, radios por tipo, detección por paso, memoria, alarma sin cadena, enfriamiento, daño, huida determinista, duración, uso de MP, acciones por tipo, ataque hasta agotar o matar, colocación de 4 y determinismo. Los tests leen del bestiario y no duplican valores. No se borran, saltan ni debilitan tests existentes. | `pnpm run verify` pasa; los tests existentes conservan su intención; un cambio de alarma, MP o acciones en el bestiario no obliga a reescribir los tests de propiedades. |
 | T-011 | Sin dependencias nuevas, sin red y sin cambios en el arte final; el motor sigue sin DOM y el host sigue siendo presentación. | `package.json` y `pnpm-lock.yaml` no cambian; no hay imports de `src/host/` en `src/game/`. |
 
 # Requisitos no funcionales
@@ -204,6 +206,7 @@ Ninguna. Las decisiones de esta versión están registradas en la tabla siguient
 | 2026-11-09 | MP por tipo: Centinela 5, Bruto 4, Cobarde 6. | human:simon | aceptada (provisional) |
 | 2026-11-09 | Cobarde con 5 PV; umbral de huida 2 y probabilidad real 41,7/25,0/44,4 %. Se acepta que a menudo muera antes de huir. | human:simon | aceptada (provisional) |
 | 2026-11-09 | Los valores de alarma, MP y PV son provisionales y se reajustarán. | human:simon | aceptada |
+| 2026-11-11 | Acciones por tipo: Centinela 2, Bruto 1, Cobarde 2; la IA ataca hasta agotar acciones o matar. | human:simon | aceptada; provisional v1 |
 
 # Aceptación de la hoja
 
@@ -220,6 +223,7 @@ Ninguna. Las decisiones de esta versión están registradas en la tabla siguient
 - [x] La memoria y el enfriamiento quedan unificados en 3 fases.
 - [x] El umbral y la probabilidad de huida están fijados con la tabla A.
 - [x] El usuario ha aprobado la alarma de 5 y el MP por tipo (5/4/6).
+- [x] El usuario ha aprobado las acciones por tipo (2/1/2) y la IA encadenada.
 - [x] El usuario ha aceptado que el cobarde sea frágil y que los números se
       reajusten.
 - [x] Los requisitos son verificables en su totalidad.

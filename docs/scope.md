@@ -68,8 +68,8 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   ser pregunta abierta.
 - Magia y maná: `REQ-025` está `stable`; nivel único, maná por turno, catálogo
   mínimo de seis hechizos y resurrección como hechizo.
-- Economía de acciones: `REQ-026` en borrador; 2 acciones por defecto y rebalanceo
-  pendiente.
+- Economía de acciones: `REQ-026` está `stable` v5; reglas cerradas y rebalanceo
+  pendiente con `EXP-003`.
 - Réplica cuerpo a cuerpo: `REQ-027` en borrador; se dispara con un ataque fallido.
 
 # Primer hito jugable
@@ -162,9 +162,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Cada personaje tiene **un nivel de magia único 0–4**; las familias son
   categorías de hechizo, no niveles. Cualquier lanzador con nivel suficiente usa
   cualquier hechizo.
-- Las acciones por turno son el noveno atributo inherente: 2 por defecto, variables
-  por arquetipo y por objetos con tope de 4. Atacar, interactuar y lanzar hechizos
-  consumen una; moverse y esperar no.
+- Las acciones por turno son el noveno atributo inherente: 2 por defecto, el
+  Pícaro 3, enemigos 2/1/2 y objetos con tope de 4 provisional. Atacar,
+  interactuar y lanzar hechizos consumen una; moverse, recoger/soltar y esperar
+  no. Abrir contenedores cuesta una acción y transferir es gratis.
 - Fallar un ataque cuerpo a cuerpo permite al defensor **replicar** de inmediato,
   gratis, con tirada normal y sin cadena. Un impacto no genera réplica.
 - El HUD de juego vive en las columnas laterales del marco 16:9: izquierda para el

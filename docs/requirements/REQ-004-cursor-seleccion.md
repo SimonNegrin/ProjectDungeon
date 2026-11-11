@@ -4,11 +4,11 @@ id: REQ-004
 title: Cursor de selección, camino y acciones por destino
 description: Cursor cuadrado que se mueve por el viewport, resalta el camino, colorea destinos y dirige el movimiento y el ataque del jugador.
 status: stable
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T01:18:43Z
-updated_at: 2026-11-08T09:03:30Z
+updated_at: 2026-11-11T16:00:00Z
 related_tasks: [TASK-0012, TASK-0013, TASK-0014, TASK-0015]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T01:18:43Z }
 verified:
@@ -18,6 +18,11 @@ verified:
   - by: human:simon
     at: 2026-11-08T09:03:30Z
     note: Playtest aprobado; el cursor, los estados, el camino y las acciones por destino funcionan correctamente. REQ-004 completada.
+  - by: human:simon
+    at: 2026-11-11T16:00:00Z
+    note: >-
+      Aprueba la enmienda de REQ-026: con varias acciones, Moverse sobre un
+      enemigo ejecuta un ataque por pulsación y no encadena.
 ---
 
 # Contexto
@@ -36,6 +41,13 @@ enemigo, Moverse se interpreta como acercarse y atacar.
 La hoja conserva la economía de turno, el combate cuerpo a cuerpo, el mapa de
 `REQ-003`, la cámara de 12×12 tiles y el HUD. Solo cambia la forma de seleccionar
 y ejecutar movimiento y ataque.
+
+# Enmienda 2026-11-11
+
+`REQ-026` introduce varias acciones por turno. **Moverse** sobre un enemigo sigue
+acercando y atacando, pero ejecuta **un ataque por pulsación**: si quedan
+acciones, repetir la pulsación ataca de nuevo; no encadena todos los ataques. El
+resto de la hoja sigue vigente.
 
 # Objetivos de experiencia
 
@@ -63,7 +75,7 @@ y ejecutar movimiento y ataque.
 | R-008 | **Moverse** con el cursor en verde lleva al jugador por el camino hasta el tile del cursor, gastando 1 MP por paso. No consume la acción ni termina el turno. El cursor permanece en el destino. | El jugador termina en el tile del cursor; el MP baja exactamente el coste; la acción y el turno no cambian. |
 | R-009 | **Moverse** con el cursor en ámbar avanza por el camino hasta agotar los MP y se detiene en el último tile alcanzable. No consume la acción ni ataca. El cursor permanece en el objetivo. | El jugador termina en el paso `min(coste, MP)` del camino; el MP queda en 0; la acción y el turno no cambian; no se emite ataque. |
 | R-010 | **Moverse** con el cursor en rojo (muro, aliado, objeto bloqueante o sin camino) no mueve al jugador, no gasta MP ni acción y no cambia el estado de juego, salvo el aviso de rechazo. | El snapshot del jugador, MP, acción y turno no cambia; el HUD muestra el motivo del rechazo. |
-| R-011 | Con el cursor sobre un enemigo, el camino termina en el tile libre adyacente más cercano desde el que se puede atacar; nunca en el tile del enemigo. Si el coste es ≤ MP y hay acción, **Moverse** se acerca hasta ese tile y ataca, gastando MP y acción. Si el coste es ≤ MP y no hay acción, solo se mueve. Si el coste es > MP, avanza hasta agotar MP y no ataca. Si ya es adyacente y hay acción, ataca sin moverse. Si ya es adyacente y no hay acción, no hace nada. | Cada caso se prueba por separado: movimiento + ataque, solo movimiento, avance parcial, ataque directo y no-op. El enemigo nunca es pisado. Si no hay tile de ataque libre o camino, se trata como rojo. |
+| R-011 | Con el cursor sobre un enemigo, el camino termina en el tile libre adyacente más cercano desde el que se puede atacar; nunca en el tile del enemigo. Si el coste es ≤ MP y hay acción, **Moverse** se acerca hasta ese tile y ejecuta **un ataque** (1 acción); si quedan acciones, repetir **Moverse** vuelve a atacar una vez. No encadena todos los ataques. Si el coste es ≤ MP y no hay acción, solo se mueve. Si el coste es > MP, avanza hasta agotar MP y no ataca. Si ya es adyacente y hay acción, ataca sin moverse; cada pulsación ataca una vez. Si ya es adyacente y no hay acción, no hace nada. | Cada caso se prueba por separado: movimiento + un ataque, solo movimiento, avance parcial, ataque directo repetido pulsación a pulsación, varias acciones y no-op. El enemigo nunca es pisado. Si no hay tile de ataque libre o camino, se trata como rojo. |
 | R-012 | **Atacar** (`F`) solo funciona si el cursor está sobre un enemigo vivo, a distancia Chebyshev 1 (incluye diagonales) y el jugador tiene acción. Gasta la acción, no MP, y no mueve al jugador. Fuera de rango, sin enemigo o sin acción no hace nada y avisa. | El ataque se ejecuta solo en adyacencia y con acción; el jugador no se desplaza; el MP no cambia; la acción pasa a no disponible; el daño y el flash se mantienen. |
 | R-013 | El cursor no se recentra al moverse ni al atacar: conserva su tile. Solo vuelve al tile del jugador activo al empezar un turno del jugador, tras reiniciar o tras cambiar de semilla. | Tras Moverse, Moverse parcialmente o Atacar, el cursor sigue en su tile. Tras `E` y la fase enemiga, aparece sobre el jugador; tras `R` y `F2`, también. |
 | R-014 | Durante la fase enemiga o con la partida terminada, el cursor y el camino están ocultos y las teclas de cursor y acción no responden. Al volver la fase del jugador, el cursor aparece sobre el tile del jugador activo. | En fase `enemy` o estado terminal no se dibujan cursor ni camino y las teclas no cambian el estado. En fase `player` el cursor está sobre el jugador. |
@@ -79,12 +91,12 @@ y ejecutar movimiento y ataque.
 | T-001 | El cursor es estado de presentación del host (`src/host/`), no del motor. El motor no conoce teclas, cursor ni Canvas. `window.__game.snapshot()` expone un cursor serializable con posición, estado, camino y tile de ataque si aplica. | `src/game/` no importa DOM ni input; el snapshot incluye `cursor: { x, y, kind, path, attackTile? }` y `JSON.parse(JSON.stringify(snapshot))` lo conserva. |
 | T-002 | La planificación de destino es una función pura y determinista en `src/game/` (o módulo compartido sin DOM): recibe estado, unidad y objetivo, y devuelve tipo (`floor`/`enemy`/`blocked`), camino, coste y tile de ataque si aplica. | Vitest la ejecuta sin jsdom; dos llamadas con el mismo estado devuelven lo mismo; no usa `Math.random`, `Date.now` ni `performance.now`. |
 | T-003 | Se añade un comando de motor para moverse a un objetivo (por ejemplo `MoveTo`) que usa la misma planificación que el camino. El comando `Move` de un paso y las primitivas de movimiento se mantienen para la IA y los tests. `Attack` conserva su semántica. | `reduce` acepta el nuevo comando y lo rechaza con las mismas reglas de fase/unidad; los tests de `Move`, `Attack` y la IA existentes siguen pasando. |
-| T-004 | La lógica de **Moverse sobre un enemigo** (acercarse, atacar o quedarse a mitad) vive en el motor, no en el host. Emite eventos deterministas y no muta la entrada. | Tests de los cinco casos de R-011 comprueban posición, MP, acción, vida y orden de eventos. |
+| T-004 | La lógica de **Moverse sobre un enemigo** (acercarse, atacar o quedarse a mitad) vive en el motor, no en el host. Emite eventos deterministas y no muta la entrada. Ejecuta un ataque por comando, nunca una cadena. | Tests de los casos de R-011 comprueban posición, MP, acción, vida, orden de eventos y que con varias acciones solo se ataca una vez por pulsación. |
 | T-005 | El input traduce flechas/`WASD` a intenciones de cursor; `Espacio`/`Enter` a `MoveTo` con el tile del cursor; `F` a `Attack` contra el enemigo bajo el cursor; `E` a `EndTurn`. Ignora repetición y modificadores. `translateKey` sigue siendo puro. | Tabla de tests unitarios por tecla y estado; la repetición automática no mueve el cursor; `F1`/`F2`/`R` se mantienen. |
 | T-006 | El render del cursor y del camino se recorta al viewport, no mueve la cámara, escala con el marco y conserva el pixel art nítido. Los puntos son blancos semitransparentes con dos niveles de opacidad. Si es DOM, no intercepta clics. | La QA visual comprueba que cursor y puntos quedan dentro del viewport y que la cámara no cambia al moverlos; no hay suavizado ni desplazamientos fraccionarios. |
 | T-007 | El ciclo de vida del cursor se deriva de eventos y estado: aparece sobre el jugador al arrancar y en `PlayerTurnStarted`/`GameRestarted`/regeneración; se oculta en fase enemiga o estado terminal; se limita al viewport tras cada movimiento de cámara. | Tests de eventos y E2E cubren arranque, fin de turno, reinicio, semilla nueva, fase enemiga y clamp tras mover al jugador. |
 | T-008 | `window.__game` expone cursor, camino y clasificación para E2E; el overlay de debug muestra coordenadas y estado del cursor. `dispatch` acepta el nuevo comando. No se exponen mutadores del estado vivo. | E2E lee el cursor y el camino sin tocar el DOM interno; el debug muestra `Cursor: (x,y) estado`; `dispatch` funciona con `MoveTo`. |
-| T-009 | Tests nuevos: planificación (diagonal, corte de esquina, muro, aliado, enemigo, objeto, sin camino, empates), clasificación, camino parcial, Moverse en verde/ámbar/rojo, Moverse sobre enemigo en todos los casos, `F`, rechazos, ciclo de vida e input. E2E: movimiento de cursor, estados/patrones, camino, movimiento parcial, acercarse + atacar, cámara inmóvil, reinicio y fase enemiga. | `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni debilitan tests existentes. |
+| T-009 | Tests nuevos: planificación (diagonal, corte de esquina, muro, aliado, enemigo, objeto, sin camino, empates), clasificación, camino parcial, Moverse en verde/ámbar/rojo, Moverse sobre enemigo en todos los casos, Moverse con varias acciones (un ataque por pulsación), `F`, rechazos, ciclo de vida e input. E2E: movimiento de cursor, estados/patrones, camino, movimiento parcial, acercarse + atacar, cámara inmóvil, reinicio y fase enemiga. | `pnpm run verify` y `pnpm run test:e2e` pasan; no se borran, saltan ni debilitan tests existentes. |
 | T-010 | Sin dependencias nuevas. La planificación de 32×32 se ejecuta en cada movimiento de cursor sin afectar a 60 fps. | `package.json` no incorpora dependencias; la medición de rendimiento no muestra tirones. |
 | T-011 | Se mantienen las invariantes de `REQ-002` y `REQ-003`: 16:9, viewport 12×12, cámara limitada, HUD, mapa BSP, muros, debug y determinismo. Solo cambian controles, cursor, camino y feedback asociado. | Los tests de encuadre, cámara, mapa, muros y debug siguen pasando; las actualizaciones se limitan a controles y presentación. |
 | T-012 | El feedback de rechazo se deriva de eventos `CommandRejected` o del resultado de la planificación y es transitorio; no crea estado de juego ni altera el turno. | El aviso se muestra y desaparece sin cambiar el estado; no hay eventos de movimiento o ataque espurios. |
@@ -126,8 +138,8 @@ históricas se mantienen estables y las tareas de este corte actualizan sus test
 - Botones clicables, ratón, táctil o selección con clic.
 - Números de coste por tile, previsualización de rango de ataque o línea de
   visión.
-- Ataque a distancia, esperar/interactuar, puntos de acción y cambios en la
-  economía de turno.
+- Ataque a distancia, esperar/interactuar y cambios en la economía de turno; las
+  acciones se definen en `REQ-026` y aquí solo se adapta `Moverse`.
 - Multijugador local hotseat y controladores remotos; el cursor se define para
   el jugador activo.
 - Nuevos objetos o props bloqueantes; la planificación los soporta, pero no se
@@ -166,6 +178,7 @@ No hay preguntas bloqueantes. Quedan como ajustes revisables en playtest:
 | 2026-11-08 | Se ignoran las repeticiones automáticas de teclado; cada pulsación mueve un tile. | requirements-writer | aceptada |
 | 2026-11-08 | En el borde del viewport se permiten tiles parcialmente visibles y el cursor se recorta al viewport. | requirements-writer | aceptada |
 | 2026-11-08 | Playtest aprobado: cursor, estados, camino y acciones por destino funcionan correctamente. `REQ-004` completada. | human:simon | aceptada |
+| 2026-11-11 | Con varias acciones, `Moverse` sobre un enemigo ejecuta un ataque por pulsación; no encadena. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -177,3 +190,4 @@ No hay preguntas bloqueantes. Quedan como ajustes revisables en playtest:
 - [x] No hay contradicciones abiertas.
 - [x] El usuario ha aprobado `REQ-004` v1.
 - [x] El usuario ha hecho el playtest y ha aprobado el cursor, el camino y las acciones por destino.
+- [x] El usuario ha aprobado que `Moverse` sobre un enemigo ataque una vez por pulsación con varias acciones.

@@ -2,6 +2,14 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-026 — stable v5: revisada y aprobada por el usuario; economía de acciones cerrada y rebalanceo pendiente en EXP-003 — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
+* 2026-11-11 — Requirement — REQ-026 — cerradas las preguntas restantes: enemigos 2/1/2, tope 4 provisional, +1 como campo de equipo, ritmo secuencial, huida por MP, fin de turno manual, `Moverse` con un ataque por pulsación y IA que ataca hasta agotar o matar — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
+* 2026-11-11 — Requirement — REQ-009/REQ-004 — bestiario con acciones 2/1/2 y `Moverse` sobre enemigo con un ataque por pulsación — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
+* 2026-11-11 — Decision — ADR-020 — economía de acciones: 2 por defecto, Pícaro 3, enemigos 2/1/2, tope 4 provisional, fin de turno manual y AI encadenada — [ADR-020](decisions/ADR-020-economia-acciones.md)
+* 2026-11-11 — Docs — economía de turno/arquitectura/glosario — acciones por turno, Pícaro 3, manejados a 1 MP y contenedores con apertura por acción — [economía de turno](design/turn-economy.md)
+* 2026-11-11 — Requirement — REQ-015/REQ-026 — Pícaro con 3 acciones desde el inicio; el resto 2 y el rebalanceo ajusta — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
+* 2026-11-11 — Requirement — REQ-020/REQ-026 — contenedores: abrir/registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo»; el fantasma no abre cofres — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
+* 2026-11-11 — Requirement — REQ-026 — recoger y soltar objetos del suelo: 1 MP sin acción; soltar un equipado lo desequipa; contenedores siguen abiertos — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
 * 2026-11-11 — Requirement — REQ-025 — stable v3: revisada y aprobada por el usuario; catálogo mínimo y valores provisionales v1 aceptados — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
 * 2026-11-11 — Requirement — REQ-021/REQ-025 — PV al volver de la resurrección: 60 % del máximo, redondeado hacia arriba (mínimo 1); parámetro del efecto en el catálogo — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
 * 2026-11-11 — Requirement — REQ-025 — aclarada la adjustabilidad del catálogo: coste final por hechizo, efecto parametrizado y tests que leen del catálogo; las fórmulas quedan como reglas compartidas — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)

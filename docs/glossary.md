@@ -51,7 +51,9 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
 | **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
 | **Maná** | Recurso de hechizos separado del MP; su máximo es nivel × 4 y se recarga completo al inicio de cada turno. |
-| **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto). Atacar, interactuar y lanzar hechizos consumen una; moverse y esperar no. |
+| **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto, Pícaro 3; tope 4 provisional). Atacar, interactuar y lanzar hechizos consumen una; moverse, recoger/soltar del suelo, esperar y terminar el turno no. |
+| **Recoger y soltar** | Manejo de un objeto del suelo: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa. |
+| **Contenedor** | Cofre o cadáver con inventario propio; abrir o registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo». |
 | **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla; puede fallar, puede matar y no se encadena. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
