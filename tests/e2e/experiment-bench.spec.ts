@@ -745,6 +745,16 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
   const second = await readDecision(page);
   expect(JSON.stringify(second)).toBe(JSON.stringify(first));
 
+  // Re-ejecutar la medición con el mismo estado reproduce el mismo export.
+  const rerun = await page.evaluate(() => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    return api.runAll();
+  });
+  expect(rerun.matchups).toEqual(first.matchups);
+  expect(JSON.stringify(await readDecision(page))).toBe(
+    JSON.stringify(first),
+  );
+
   const id = await readOverridesId(page);
   expect(first.overridesId).toBe(id);
   expect(id).toMatch(/^[0-9a-f]{8}$/);
