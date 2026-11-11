@@ -23,7 +23,8 @@ verified:
   - by: task-lead
     at: 2026-11-11T22:20:00Z
     note: >-
-      Verificación independiente en task/TASK-0070. Revisado el diff completo;
+      Verificación independiente en task/TASK-0070, fusionada en main
+      (`90bb198`). Revisado el diff completo;
       178 tests focalizados de EXP-003 y 974 en la secuencia equivalente de
       verify (docs, config, tests, tsc, vite y bundle). El `pnpm run verify`
       estricto falla solo por el timeout ajeno de EXP-004 spawn, que pasa
