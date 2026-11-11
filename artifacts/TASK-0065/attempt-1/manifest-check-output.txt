@@ -1,0 +1,8 @@
+OK — título = experiment.md
+OK — descripción = experiment.md
+OK — pregunta = experiment.md
+OK — pregunta = src/ui.ts
+OK — estado = experiment.md experiment_status
+OK — path intacto
+
+6/6 comprobaciones OK
