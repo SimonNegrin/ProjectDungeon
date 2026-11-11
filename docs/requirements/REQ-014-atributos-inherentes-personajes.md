@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-014
 title: Atributos inherentes de los personajes
-description: "Esquema de ocho atributos por personaje (habilidad, fuerza, defensa, resistencia, puntería, magia, PV y MP) y enmienda a la fórmula de combate de REQ-010: la resistencia entra en la capa de absorción y la armadura es su bonus."
+description: "Esquema de nueve atributos por personaje (habilidad, fuerza, defensa, resistencia, puntería, magia, PV, MP y acciones) y enmienda a la fórmula de combate de REQ-010: la resistencia entra en la capa de absorción y la armadura es su bonus."
 status: stable
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T13:30:00Z
-updated_at: 2026-11-09T13:30:00Z
+updated_at: 2026-11-11T15:20:00Z
 related_tasks: [TASK-0053, TASK-0054]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T13:30:00Z }
 verified:
@@ -48,25 +48,25 @@ eso es `REQ-016`.
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| R-001 | Todo personaje tiene ocho atributos inherentes, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV y MP. | El estado de cada unidad expone los ocho; el equipo no los define. |
+| R-001 | Todo personaje tiene nueve atributos inherentes, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV, MP y acciones por turno. | El estado de cada unidad expone los nueve; el equipo no los define. |
 | R-002 | Habilidad es el modificador de acierto: se suma al acierto del arma. Sustituye el «mod. acierto» de REQ-010. | Cambiar habilidad cambia la probabilidad de impacto sin tocar la fórmula. |
 | R-003 | Fuerza es el modificador de daño: se suma al daño del arma. Sustituye el «mod. daño» de REQ-010. | Cambiar fuerza cambia el daño sin tocar la fórmula. |
 | R-004 | Defensa se mantiene: se suma al escudo para evitar impactos. | Igual que en REQ-010; el escudo sigue evitando, no reduciendo. |
 | R-005 | Resistencia es absorción de daño: se suma a la armadura del equipo en una sola capa. La armadura se entiende como un bonus a la resistencia. | El daño se reduce por (resistencia + armadura); quitar la armadura sube el daño recibido y quitar la resistencia también. |
 | R-006 | Puntería es un slot sin efecto en este corte; queda para el futuro ataque a distancia. | El atributo existe y es serializable; no cambia ningún cálculo actual. |
-| R-007 | Magia define las familias de hechizo del personaje, cada una con un nivel de 1 a 4 (p. ej. `{ fuego: 3, veneno: 4 }`), y alimenta el recurso de maná de `REQ-021`; el resto de sus efectos queda para la hoja de magia. | El atributo admite varias familias con nivel 1–4 y es serializable; el maná deriva de la puntuación de magia. |
+| R-007 | Magia es un **nivel entero único** por personaje, no un conjunto de familias con nivel. Alimenta el maná de `REQ-025`; las familias (fuego, hielo, veneno, vida…) son categorías de hechizo, no niveles. | El atributo es un entero serializable; no existen mapas familia→nivel; el maná deriva del nivel. |
 | R-008 | La fórmula de impacto se renombra: `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el empate sigue fallando. | Mismas probabilidades de REQ-010 con los nombres nuevos. |
 | R-009 | La fórmula de daño incorpora la resistencia: `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`. | Con resistencia 0, el daño es idéntico al de REQ-010; con resistencia >0, baja. |
-| R-010 | Héroes y enemigos comparten el mismo esquema de atributos; los enemigos conservan además sus campos de IA (visión, alarma, perfil). | El bestiario declara los ocho atributos por tipo además de visión/alarma/MP. |
+| R-010 | Héroes y enemigos comparten el mismo esquema de atributos; los enemigos conservan además sus campos de IA (visión, alarma, perfil). | El bestiario declara los nueve atributos por tipo además de visión/alarma/MP. |
 
 # Requisitos técnicos
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| T-001 | Los atributos son datos serializables, no código: cada unidad guarda un bloque de stats con los ocho atributos; magia es una lista de pares `{familia, nivel}` con nivel 1–4. | El snapshot expone los ocho atributos y la lista de magia; cambiar un valor cambia el combate sin tocar la fórmula. |
+| T-001 | Los atributos son datos serializables, no código: cada unidad guarda un bloque de stats con los nueve atributos; magia es un entero y acciones es el número de acciones por turno. | El snapshot expone los nueve atributos; cambiar un valor cambia el combate sin tocar la fórmula. |
 | T-002 | El resolvedor de combate usa los nombres nuevos y la capa de absorción (resistencia + armadura). No hay una fórmula paralela para jugador y enemigo. | Los tests de combate de REQ-010 pasan con habilidad/fuerza/defensa y resistencia 0; la IA y el jugador usan el mismo cálculo. |
-| T-003 | En este corte el jugador actual conserva su comportamiento: habilidad +1, fuerza +1, defensa +1, resistencia 0, puntería 0 y magia vacía. Los enemigos actuales reciben resistencia 0, puntería 0 y magia vacía. | El balance v1 de REQ-010 (PV 6/8/5, armas 3/5/2, centinela sin armadura) no cambia: `pnpm run verify` y el E2E siguen en verde con los mismos resultados. |
-| T-004 | La fuente única de valores sigue en los catálogos: el bestiario declara los ocho atributos por tipo y el roster de héroes (REQ-015) los suyos; no se duplican valores fuera de los catálogos. | Cambiar un atributo en el catálogo cambia el combate; los tests de balance leen del catálogo, no de constantes. |
+| T-003 | En este corte el jugador actual conserva su comportamiento: habilidad +1, fuerza +1, defensa +1, resistencia 0, puntería 0, nivel de magia 0 y 2 acciones. Los enemigos actuales reciben resistencia 0, puntería 0, magia 0 y acciones por tipo. | El balance v1 de REQ-010 (PV 6/8/5, armas 3/5/2, centinela sin armadura) no cambia: `pnpm run verify` y el E2E siguen en verde con los mismos resultados. |
+| T-004 | La fuente única de valores sigue en los catálogos: el bestiario declara los nueve atributos por tipo y el roster de héroes (REQ-015) los suyos; no se duplican valores fuera de los catálogos. | Cambiar un atributo en el catálogo cambia el combate; los tests de balance leen del catálogo, no de constantes. |
 | T-005 | Se actualizan `docs/design/turn-economy.md`, el glosario y la arquitectura con el esquema nuevo; se registra el ADR de atributos inherentes (ADR-015). | `pnpm run docs:check` pasa; no quedan referencias a los tres modificadores antiguos como únicos. |
 
 # Requisitos no funcionales
@@ -106,13 +106,15 @@ eso es `REQ-016`.
 | 2026-11-09 | Resistencia = absorción de daño; la armadura del equipo es un bonus que se suma en una sola capa. | human:simon | aceptada |
 | 2026-11-09 | La resistencia tira 1d6, como hoy la armadura. | human:simon | aceptada |
 | 2026-11-09 | Puntería y magia son slots sin efecto en este corte. | human:simon | aceptada; magia enmendada el 2026-11-11 |
-| 2026-11-11 | Enmienda `REQ-021`: magia alimenta el maná de los hechizos; las familias 1–4 se mantienen. | human:simon | aceptada |
-| 2026-11-09 | Magia multi-familia con nivel 1–4 por familia. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-021`: magia alimenta el maná de los hechizos. | human:simon | aceptada; sustituida por nivel único |
+| 2026-11-09 | Magia multi-familia con nivel 1–4 por familia. | human:simon | sustituida el 2026-11-11 |
+| 2026-11-11 | Enmienda `REQ-025`: magia pasa a un **nivel entero único**; las familias son categorías de hechizo. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-026`: **acciones por turno** se añade como noveno atributo, 2 por defecto. | human:simon | aceptada |
 | 2026-11-09 | Héroes y enemigos comparten el mismo esquema de stats. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
-- [x] El usuario ha aprobado la lista de ocho atributos y sus significados.
+- [x] El usuario ha aprobado la lista de nueve atributos y sus significados.
 - [x] El usuario ha aprobado la enmienda a la fórmula (resistencia en la absorción).
 - [x] El usuario ha aprobado puntería y magia como slots, y magia multi-familia 1–4.
 - [x] El usuario ha aprobado mantener defensa y que los enemigos compartan el esquema.

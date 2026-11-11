@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-015
 title: Roster de arquetipos
-description: "Nueve arquetipos jugables con stats inherentes, arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
+description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
 status: draft
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-09T14:00:00Z
+updated_at: 2026-11-11T15:25:00Z
 related_tasks: [TASK-0055, TASK-0056]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
@@ -23,7 +23,7 @@ verified:
 
 # Contexto
 
-`REQ-014` fijó el esquema de ocho atributos por personaje. Esta hoja define el
+`REQ-014` fijó el esquema de nueve atributos por personaje. Esta hoja define el
 **roster**: nueve arquetipos jugables con sus stats inherentes, arma temática,
 variantes de sprite e identidad. Es el contenido que la pantalla de inicio
 (`REQ-016`) mostrará para que cada jugador elija personaje.
@@ -47,32 +47,37 @@ enemigos y sus objetivos de balance van en una hoja futura.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El roster tiene nueve arquetipos: Guerrero, Bárbaro, Pícaro, Arquero, Mago, Clérigo, Guerrero mágico, Cocinero y Agricultor. | El catálogo lista los nueve con identidad y rol. |
-| R-002 | Cada arquetipo tiene los ocho atributos de REQ-014 con los valores de la tabla de stats (balance provisional v1). El Guerrero es la referencia (+1/+1/+1). | La tabla es la única fuente de valores; los atributos son serializables. |
+| R-002 | Cada arquetipo tiene los nueve atributos de REQ-014 con los valores de la tabla de stats (balance provisional v1). El Guerrero es la referencia (+1/+1/+1) y todos parten de 2 acciones. | La tabla es la única fuente de valores; los atributos son serializables. |
 | R-003 | El Guerrero es equilibrado; el resto especializa con tradeoffs (p. ej. Bárbaro +3 fuerza/−1 defensa; Mago −1 fuerza; Clérigo +3 defensa/−1 fuerza). | Nadie domina en todo; cada especialista paga su ventaja en otro atributo. |
 | R-004 | Arma temática inicial por arquetipo. Cuatro atacan hoy (Guerrero, Bárbaro, Pícaro, Cocinero); cinco quedan «arma futura» (Arquero, Mago, Clérigo, Guerrero mágico, Agricultor) y no atacan hasta que exista su arma. | La tabla de equipo refleja arma o «futura»; un arquetipo sin arma no puede atacar en el combate actual. |
 | R-005 | Nueva arma Cuchillo: +4 acierto / 1 daño; más fiable y menos dañina que la daga (+4/2). | El catálogo de armas incluye el Cuchillo con esos valores; la daga no cambia. |
 | R-006 | Cada arquetipo ofrece dos variantes de sprite seleccionables, sin etiqueta de género. | El roster declara dos variantes por arquetipo; la selección se hace en REQ-016. |
 | R-007 | Cada instancia de personaje tiene un nombre editable; por defecto, el del arquetipo. | El estado guarda el nombre; la pantalla de inicio permite editarlo. |
-| R-008 | Identidad mágica registrada (campo vacío, sin efecto en combate): Mago con varias familias; Guerrero mágico con magia baja; Cocinero con curación; Clérigo tanque sin curación en este corte. | La tabla de identidad lo recoge; el campo magia no cambia ningún cálculo. |
+| R-008 | Identidad mágica por **nivel único**: Mago con nivel alto, Guerrero mágico medio, Clérigo de apoyo y Cocinero con nivel bajo; el resto sin magia. Cualquier lanzador puede usar cualquier hechizo de su nivel. | La tabla de identidad recoge un nivel o «sin magia»; no hay familias con nivel propio. |
 
 ## Stats inherentes (balance provisional v1)
 
-| Arquetipo | Hab | Fue | Def | Res | PV | MP | Pun |
-|---|---|---|---|---|---|---|---|
-| Guerrero | +1 | +1 | +1 | +1 | 20 | 6 | 0 |
-| Bárbaro | 0 | +3 | −1 | 0 | 24 | 5 | 0 |
-| Pícaro | +3 | 0 | +1 | 0 | 14 | 8 | 0 |
-| Arquero | +1 | 0 | 0 | 0 | 14 | 6 | +3 |
-| Mago | 0 | −1 | 0 | 0 | 12 | 5 | 0 |
-| Clérigo | 0 | −1 | +3 | +2 | 18 | 5 | 0 |
-| Guerrero mágico | +1 | 0 | +1 | 0 | 18 | 6 | 0 |
-| Cocinero | +3 | −1 | 0 | 0 | 14 | 6 | 0 |
-| Agricultor | −1 | +3 | 0 | +1 | 22 | 4 | 0 |
+| Arquetipo | Hab | Fue | Def | Res | PV | MP | Pun | Mag | Acc |
+|---|---|---|---|---|---|---|---|---|---|
+| Guerrero | +1 | +1 | +1 | +1 | 20 | 6 | 0 | 0 | 2 |
+| Bárbaro | 0 | +3 | −1 | 0 | 24 | 5 | 0 | 0 | 2 |
+| Pícaro | +3 | 0 | +1 | 0 | 14 | 8 | 0 | 0 | 2 |
+| Arquero | +1 | 0 | 0 | 0 | 14 | 6 | +3 | 0 | 2 |
+| Mago | 0 | −1 | 0 | 0 | 12 | 5 | 0 | por decidir | 2 |
+| Clérigo | 0 | −1 | +3 | +2 | 18 | 5 | 0 | por decidir | 2 |
+| Guerrero mágico | +1 | 0 | +1 | 0 | 18 | 6 | 0 | por decidir | 2 |
+| Cocinero | +3 | −1 | 0 | 0 | 14 | 6 | 0 | por decidir | 2 |
+| Agricultor | −1 | +3 | 0 | +1 | 22 | 4 | 0 | 0 | 2 |
 
 La escala es relativa al Guerrero (+1): `0` queda un punto por debajo, `−1` dos
 por debajo y `+2/+3` por encima. Un modificador negativo se suma al total de su
 lado de la fórmula (equivale a restar 1 a la tirada de 1d6); el `max(1, …)` del
 daño sigue garantizando mínimo 1 en un impacto.
+
+`Mag` es el nivel de magia (entero único) y `Acc` las acciones por turno. El maná
+máximo se deriva del nivel de magia en `REQ-025` y no se duplica en esta tabla.
+Los niveles de magia de los arquetipos con hechizos quedan por decidir; 2 acciones
+es el valor por defecto de `REQ-026`.
 
 ## Equipo inicial
 
@@ -90,17 +95,21 @@ daño sigue garantizando mínimo 1 en un impacto.
 
 ## Identidad y magia
 
-| Arquetipo | Rol / identidad | Magia (identidad) |
+| Arquetipo | Rol / identidad | Nivel de magia (identidad) |
 |---|---|---|
-| Guerrero | Equilibrado; referencia | — |
-| Bárbaro | Pega fuerte y encaja | — |
-| Pícaro | Rápido y fiable | — |
-| Arquero | Distancia (futuro) | — |
-| Mago | Hechizos (futuro) | varias familias (fuego, veneno…) |
-| Clérigo | Tanque de apoyo | tanque, sin curación en este corte |
-| Guerrero mágico | Guerrero algo más débil | magia baja (menor que el Mago) |
-| Cocinero | Cuchillo y apoyo | curación |
-| Agricultor | Fuerza bruta | — |
+| Guerrero | Equilibrado; referencia | sin magia |
+| Bárbaro | Pega fuerte y encaja | sin magia |
+| Pícaro | Rápido y fiable | sin magia |
+| Arquero | Distancia (futuro) | sin magia |
+| Mago | Hechizos | alto (por decidir) |
+| Clérigo | Tanque de apoyo | medio (por decidir) |
+| Guerrero mágico | Guerrero algo más débil | medio-bajo (por decidir) |
+| Cocinero | Cuchillo y apoyo | bajo (por decidir) |
+| Agricultor | Fuerza bruta | sin magia |
+
+Todos los lanzadores comparten el catálogo de hechizos: el nivel es el único
+requisito de acceso (`REQ-025`). Las familias (fuego, hielo, veneno, vida…) son
+categorías de efecto, no afinidades por arquetipo.
 
 # Cómo ajustar el balance (método)
 
@@ -111,6 +120,7 @@ daño sigue garantizando mínimo 1 en un impacto.
 3. Escenario: **duelo 1v1**, PV completos, ambos con **equipo básico inicial**
    (definido antes de simular). No se calculan todas las combinaciones posibles.
 4. Simulación determinista en `EXP-003`: **1.000 duelos** y **tolerancia ±2 %**.
+   La simulación incluye acciones por turno, hechizos/maná y réplica.
 5. Se ajustan los **stats del enemigo** hasta alcanzar el objetivo.
 6. El porcentaje es **línea base 1v1**; la dificultad real viene de grupos y
    alarma.
@@ -121,7 +131,7 @@ daño sigue garantizando mínimo 1 en un impacto.
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| T-001 | El roster es un catálogo de datos serializable con los nueve arquetipos: stats, equipo inicial, dos variantes y magia (identidad). Fuente única; sin valores duplicados en motor, host ni tests. | Cambiar un valor en el catálogo cambia el juego; los tests leen del catálogo. |
+| T-001 | El roster es un catálogo de datos serializable con los nueve arquetipos: stats, equipo inicial, dos variantes, nivel de magia y acciones. Fuente única; sin valores duplicados en motor, host ni tests. | Cambiar un valor en el catálogo cambia el juego; los tests leen del catálogo. |
 | T-002 | El campo `nombre` es parte del estado de la instancia de personaje, serializable y por defecto el nombre del arquetipo. | El snapshot expone el nombre; editarlo no cambia stats. |
 | T-003 | El Guerrero sustituye al jugador único provisional de REQ-014 como personaje por defecto; gana +1 de resistencia respecto a ese jugador (0 → 1). | El personaje por defecto usa los valores del Guerrero; el balance v1 de enemigos y armas no cambia. |
 | T-004 | Los cinco arquetipos «arma futura» se representan sin arma equipada y no pueden atacar, sin romper el resolvedor. | Un ataque desde un arquetipo sin arma se rechaza; el catálogo los marca como sin arma. |
@@ -143,15 +153,16 @@ daño sigue garantizando mínimo 1 en un impacto.
 - La pantalla de inicio y la selección de personaje (REQ-016).
 - Los assets de sprite (REQ-016).
 - El bestiario y sus objetivos de win % (hoja futura).
-- Implementar distancia (puntería) o hechizos (magia).
+- La implementación de hechizos, maná y réplica (`REQ-025` y `REQ-027`).
 - Las armas futuras (arco, bastón, maza, guadaña…).
 - Hotseat, red y persistencia.
 
 # Preguntas abiertas
 
 - Los objetivos de win % del bestiario (hoja futura).
-- Las familias de magia concretas (al crear hechizos).
-- Si el Clérigo curará en el futuro (identidad provisional: tanque).
+- Los niveles de magia concretos por arquetipo (`REQ-025`).
+- Los valores de acciones por arquetipo (`REQ-026`).
+- Si el Clérigo curará en el futuro (identidad provisional: apoyo).
 
 # Decisiones
 
@@ -162,14 +173,16 @@ daño sigue garantizando mínimo 1 en un impacto.
 | 2026-11-09 | Nueva arma Cuchillo +4/1 (más fiable, menos dañina que la daga). | human:simon | aceptada |
 | 2026-11-09 | Dos variantes de sprite por arquetipo, sin etiqueta de género. | human:simon | aceptada |
 | 2026-11-09 | Nombre editable por instancia, por defecto el del arquetipo. | human:simon | aceptada |
-| 2026-11-09 | Magia vacía en combate; identidad registrada (Mago, Guerrero mágico, Cocinero). Clérigo tanque sin curación. | human:simon | aceptada |
+| 2026-11-09 | Magia vacía en combate; identidad registrada (Mago, Guerrero mágico, Cocinero). Clérigo tanque sin curación. | human:simon | sustituida el 2026-11-11 |
 | 2026-11-09 | Método de balance por win % esperado: héroe con iniciativa, 1v1, equipo básico, 1.000 duelos y ±2 %. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-025`: magia como nivel único; los niveles por arquetipo quedan por decidir. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-026`: acciones por turno con 2 por defecto; valores por arquetipo pendientes. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
 - [x] El usuario ha aprobado los nueve arquetipos y sus identidades.
 - [x] El usuario ha aprobado la tabla de stats y el mapeo de armas/equipo.
 - [x] El usuario ha aprobado el Cuchillo, las dos variantes de sprite y el nombre editable.
-- [x] El usuario ha aprobado la magia como identidad y el clérigo tanque sin curación.
+- [x] El usuario ha aprobado la magia como nivel único y el clérigo como apoyo.
 - [x] El usuario ha aprobado el método de balance por porcentaje de victorias.
 - [x] Los requisitos son verificables y el fuera de alcance está claro.

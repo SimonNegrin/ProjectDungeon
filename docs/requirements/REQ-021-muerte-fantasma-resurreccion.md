@@ -24,9 +24,9 @@ muerte en un estado jugable: el personaje cae, deja un cadáver con su equipo y 
 jugador continúa como fantasma hasta que lo resuciten o la partida termine.
 
 La decisión creativa está tomada. Esta hoja la fija y deja como provisionales los
-valores que aún no se han decidido (coste y regeneración del maná, PV al volver y
-visión del fantasma). No define magia ni hechizos: solo el efecto de resurrección
-y el recurso de maná que lo paga.
+valores que aún no se han decidido (coste y nivel del hechizo, PV al volver y
+visión del fantasma). No define la lista de hechizos: solo el efecto de
+resurrección y el recurso de maná que lo paga.
 
 # Enmienda a documentos vigentes
 
@@ -62,13 +62,13 @@ antes de implementar.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | Al morir, el jugador no abandona la partida: su personaje deja un cadáver con el equipo que llevaba y el jugador pasa a controlar un fantasma. | La muerte produce cadáver con inventario y un fantasma controlable; el jugador no pierde la sesión. |
-| R-002 | El fantasma actúa en su propio turno dentro de la fase de jugadores, con el MP intrínseco de su personaje y una acción por ronda. | El turno del fantasma respeta el orden de jugadores; el MP no incluye bonus de equipo; la acción se consume una vez por ronda. |
+| R-002 | El fantasma actúa en su propio turno dentro de la fase de jugadores, con el MP intrínseco de su personaje y **una acción por ronda**, como excepción a las acciones de `REQ-026`. | El turno del fantasma respeta el orden de jugadores; el MP no incluye bonus de equipo; la acción se consume una vez por ronda. |
 | R-003 | El fantasma no atraviesa muros, pero sí personajes y enemigos; puede compartir casilla con cualquier unidad y no bloquea paso, pathfinding ni posición de ataque. | Unidades y enemigos pueden terminar su movimiento sobre el fantasma; el fantasma no impide atacar ni moverse. |
 | R-004 | El fantasma no es objetivo de ataque, no recibe daño y no puede atacar ni usar objetos. | Ningún comando de ataque o daño puede seleccionarlo; sus acciones no gastan objetos ni equipo. |
 | R-005 | La acción del fantasma permite interactuar con puertas, coger y mover **un** objeto a la vez y acercarlo a los vivos. | El fantasma puede abrir puertas, recoger un objeto y soltarlo; no puede llevar dos ni usarlos. |
 | R-006 | El fantasma ve el contenido de cofres abiertos y cerrados e informa de él, pero no sabe si hay trampa ni puede abrir un cofre. | Abrir un cofre sigue siendo acción de un vivo; el fantasma muestra el contenido sin revelar trampa. |
 | R-007 | El fantasma puede saquear el cadáver y entregar sus objetos a los vivos. | Los objetos del cadáver se pueden coger de uno en uno; el cadáver conserva el resto. |
-| R-008 | La resurrección requiere un mago vivo con el hechizo y **maná suficiente**, o un objeto de resurrección en el inventario de quien lo usa. Sin ninguno, la muerte es definitiva. | El comando comprueba la fuente; el maná se gasta o el objeto se consume al resucitar. |
+| R-008 | La resurrección requiere un **lanzador vivo con nivel de magia suficiente y maná suficiente** (hechizo de nivel alto de `REQ-025`), o un objeto de resurrección en el inventario de quien lo usa. Sin ninguno, la muerte es definitiva. | El comando comprueba la fuente; el maná se gasta o el objeto se consume al resucitar. |
 | R-009 | Quien resucita debe estar **adyacente a la casilla del cadáver**, y esa casilla no puede estar ocupada por un vivo (aliado o enemigo). Un vivo puede quedarse encima y bloquear la resurrección. | Fuera de adyacencia o con un vivo en la casilla, la resurrección se rechaza; el fantasma no cuenta como ocupante. |
 | R-010 | El personaje resucitado **vuelve en la casilla del cadáver**, no en la del fantasma. | Tras resucitar, la unidad viva ocupa la casilla del cadáver; el fantasma desaparece de esa posición. |
 | R-011 | La partida se pierde por wipe total: cuando no queda ningún jugador vivo, aunque queden fantasmas o existan objetos de resurrección. | Al morir el último vivo, la partida termina; los fantasmas no la prolongan. |
@@ -83,8 +83,8 @@ antes de implementar.
 | T-003 | El MP del fantasma se calcula desde el atributo intrínseco del personaje, sin modificadores de equipo; el equipo del cadáver no altera su turno. | Con y sin equipo, el MP del fantasma es el mismo; el del vivo cambia. |
 | T-004 | Existe un comando de interacción del fantasma limitado a puertas, recogida/suelta de un objeto e inspección de contenedores. | Comandos inválidos se rechazan sin cambios de estado; no hay acciones de ataque, uso o equipo. |
 | T-005 | La inspección de contenedores devuelve el contenido a los vivos, pero nunca el estado de trampa; abrir un cofre sigue siendo un comando de unidad viva. | Un cofre con trampa conserva su estado oculto; el fantasma no puede abrirlo. |
-| T-006 | La resurrección es un comando con fuente (mago con hechizo y maná suficiente, u objeto en inventario) que valida adyacencia a la casilla del cadáver, ausencia de vivos en ella y disponibilidad de fuente; si es válido, consume maná u objeto y sitúa al resucitado en la casilla del cadáver. | Tests: fuera de adyacencia, casilla ocupada por aliado, ocupada por enemigo, fantasma sobre la casilla (permitido), maná insuficiente, con objeto; los comandos inválidos no cambian estado y no consumen. |
-| T-007 | La puntuación de magia define un recurso de **maná** separado del MP de movimiento; el maná es serializable, se expone en el snapshot y el host lo muestra en el HUD. | Tests de creación y gasto; el maná no altera el MP ni el movimiento; la reserva se reconstruye al reiniciar. |
+| T-006 | La resurrección es un comando con fuente (lanzador con nivel de magia y maná suficientes, u objeto en inventario) que valida adyacencia a la casilla del cadáver, ausencia de vivos en ella y disponibilidad de fuente; si es válido, consume maná u objeto y sitúa al resucitado en la casilla del cadáver. | Tests: fuera de adyacencia, casilla ocupada por aliado, ocupada por enemigo, fantasma sobre la casilla (permitido), nivel insuficiente, maná insuficiente, con objeto; los comandos inválidos no cambian estado y no consumen. |
+| T-007 | El nivel de magia define el maná máximo, que se recarga completo al inicio del turno de la unidad; el maná es serializable, se expone en el snapshot y el host lo muestra en el HUD. | Tests de creación, recarga y gasto; el maná no altera el MP ni el movimiento; la reserva se reconstruye al reiniciar. |
 | T-008 | La comprobación de derrota cuenta solo jugadores vivos; los fantasmas y los objetos de resurrección no la evitan. | Al morir el último vivo se emite el fin de partida; con un vivo y fantasmas, no. |
 | T-009 | La IA enemiga ignora al fantasma y no lo selecciona como objetivo ni obstáculo. | La percepción, la persecución y el ataque no reaccionan al fantasma. |
 | T-010 | El host presenta el fantasma, su turno y sus acciones con feedback; el jugador entiende por qué no puede atacar, abrir cofres ni usar objetos. | Avisos de rechazo con texto; el turno del fantasma se distingue del turno vivo. |
@@ -137,9 +137,9 @@ antes de implementar.
 
 # Preguntas abiertas
 
-1. **Coste y regeneración del maná.** ¿Cuánto maná cuesta resucitar y cómo se
-   recupera (por turno, por nivel o al descansar)? ¿El máximo depende solo de la
-   puntuación de magia o también del nivel y del equipo?
+1. **Coste y nivel del hechizo.** ¿Qué nivel de magia y qué maná exige resucitar?
+   ¿El objeto de resurrección tiene nivel o solo se consume? El maná máximo se
+   deriva del nivel y se recarga completo por turno (`REQ-025`).
 2. **PV al volver.** ¿El resucitado vuelve con 1 PV, con un porcentaje o completo?
 3. **Visión del fantasma.** ¿Respeta línea de visión normal o ve a través de
    muros? Provisional: línea de visión normal.
@@ -163,7 +163,9 @@ antes de implementar.
 | 2026-11-11 | El fantasma no cruza muros, comparte casilla y no bloquea; no es objetivo ni ataca. | human:simon | aceptada |
 | 2026-11-11 | Acción del fantasma: puertas, un objeto a la vez, inspección de cofres sin trampa y saqueo del cadáver. | human:simon | aceptada |
 | 2026-11-11 | La resurrección exige mago vivo con maná u objeto consumible. | human:simon | aceptada |
-| 2026-11-11 | Los hechizos usan un maná aparte derivado de la puntuación de magia; no gastan MP de movimiento. | human:simon | aceptada |
+| 2026-11-11 | Los hechizos usan un maná aparte derivado de la puntuación de magia; no gastan MP de movimiento. | human:simon | aceptada; completada por REQ-025 |
+| 2026-11-11 | El maná se recarga completo al inicio de cada turno y su máximo deriva del nivel de magia (enmienda `REQ-025`). | human:simon | aceptada |
+| 2026-11-11 | La resurrección es un hechizo de nivel alto; no tiene tope propio por turno. | human:simon | aceptada |
 | 2026-11-11 | Un intento de resurrección inválido no consume maná ni objeto. | human:simon | aceptada |
 | 2026-11-11 | La resurrección se hace en la casilla del cadáver: resucitador adyacente y casilla sin vivos. | human:simon | aceptada |
 | 2026-11-11 | Un vivo puede quedarse encima del cadáver y bloquear la resurrección. | human:simon | aceptada |

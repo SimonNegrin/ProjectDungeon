@@ -105,7 +105,7 @@ como preguntas para la sesión de cierre.
 
 - [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): equipo, armas y recogida
   vigentes; esta hoja sustituye su inventario de tres armas y su equipo fijo.
-- [REQ-014](REQ-014-atributos-inherentes-personajes.md): ocho atributos y capa de
+- [REQ-014](REQ-014-atributos-inherentes-personajes.md): nueve atributos y capa de
   absorción; el equipo aporta modificadores sobre ellos.
 - [REQ-015](REQ-015-roster-arquetipos.md): arquetipos, arma temática y nombre;
   el equipo inicial por arquetipo se decide en esta hoja.

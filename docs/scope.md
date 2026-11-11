@@ -66,6 +66,11 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   `REQ-018` y `REQ-020`.
 - Menú de pausa y guardado local: `REQ-024` en borrador; la persistencia deja de
   ser pregunta abierta.
+- Magia y maná: `REQ-025` en borrador; nivel único, maná por turno y resurrección
+  como hechizo.
+- Economía de acciones: `REQ-026` en borrador; 2 acciones por defecto y rebalanceo
+  pendiente.
+- Réplica cuerpo a cuerpo: `REQ-027` en borrador; se dispara con un ataque fallido.
 
 # Primer hito jugable
 
@@ -125,10 +130,11 @@ Los valores concretos de la economía de turno son provisionales y viven en
   distancia de grafo ≥2, preferiblemente la más lejana. Se representa como puerta
   exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional de
   niveles queda fuera de este corte.
-- Cada personaje tiene ocho atributos inherentes independientes del equipo:
+- Cada personaje tiene nueve atributos inherentes independientes del equipo:
   habilidad (acierto), fuerza (daño), defensa (evitación), resistencia
-  (absorción), puntería y magia (sin efecto aún), PV y MP. La resistencia se suma
-  a la armadura en una sola capa; la armadura es un bonus a la resistencia.
+  (absorción), puntería, magia (nivel único que alimenta el maná), PV, MP y
+  acciones por turno. La resistencia se suma a la armadura en una sola capa; la
+  armadura es un bonus a la resistencia.
 - El roster tiene nueve arquetipos (Guerrero, Bárbaro, Pícaro, Arquero, Mago,
   Clérigo, Guerrero mágico, Cocinero y Agricultor) con el Guerrero como
   referencia. Cinco quedan con arma futura; se añade el Cuchillo +4/1. Cada
@@ -149,8 +155,17 @@ Los valores concretos de la economía de turno son provisionales y viven en
   estar adyacente a la casilla del cadáver, libre de vivos; el personaje vuelve en
   esa casilla, no en la del fantasma. Sin fuente disponible, la muerte es
   definitiva.
-- Los hechizos usan un recurso de **maná** derivado de la puntuación de magia,
-  separado del MP de movimiento. La regeneración y el coste quedan por decidir.
+- Los hechizos usan un recurso de **maná** derivado del nivel de magia, separado
+  del MP de movimiento. El maná se recarga completo cada turno y su máximo se
+  deriva del nivel. Cada hechizo cuesta maná y una acción; máximo 2 por turno.
+- Cada personaje tiene **un nivel de magia único**; las familias son categorías de
+  hechizo, no niveles. Cualquier lanzador con nivel suficiente usa cualquier
+  hechizo.
+- Las acciones por turno son el noveno atributo inherente: 2 por defecto, variables
+  por arquetipo y por objetos con tope de 4. Atacar, interactuar y lanzar hechizos
+  consumen una; moverse y esperar no.
+- Fallar un ataque cuerpo a cuerpo permite al defensor **replicar** de inmediato,
+  gratis, con tirada normal y sin cadena. Un impacto no genera réplica.
 - El HUD de juego vive en las columnas laterales del marco 16:9: izquierda para el
   jugador activo, derecha para el detalle del cursor. El HUD exterior desaparece.
 - El detalle del cursor exige línea de visión de un jugador vivo; un cofre cerrado
@@ -169,10 +184,12 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Hotseat jugable; la pantalla de configuración (`REQ-016`, borrador) es
   preparación.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
-- Habilidades, magia, proyectiles, teletransporte y curación: horizonte sin hoja
-  aprobada.
-- Puntos de habilidad, acciones por personaje como atributo y progresión:
-  horizonte sin hoja aprobada.
+- Habilidades, magia, proyectiles, teletransporte y curación: horizonte con
+  `REQ-025` en borrador; implementación pendiente.
+- Puntos de habilidad y progresión: horizonte sin hoja aprobada. Las acciones por
+  personaje ya tienen hoja (`REQ-026`), sin implementar.
+- Rebalanceo de combate por acciones y réplica: planificado en `REQ-026`; valores
+  aún no recalculados.
 - Puertas con llave y cofres implementados; `REQ-020` sigue en borrador.
 - Inventario, equipo y traits implementados; `REQ-018` y `REQ-019` siguen en
   borrador.

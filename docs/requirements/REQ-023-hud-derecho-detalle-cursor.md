@@ -57,7 +57,7 @@ columna izquierda ni cambia el mapa.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El panel muestra información de la casilla bajo el cursor en la columna derecha del marco. | Al mover el cursor, el panel cambia a la casilla actual sin retardo perceptible. |
-| R-002 | Enemigo visible: nombre o tipo, PV actuales y máximos, arma, defensa, resistencia y equipo. | Los valores coinciden con el estado del motor para un enemigo con línea de visión. |
+| R-002 | Enemigo visible: nombre o tipo, PV actuales y máximos, arma, defensa, resistencia, equipo, **acciones restantes** y, si lanza hechizos, **nivel de magia y maná**. | Los valores coinciden con el estado del motor para un enemigo con línea de visión. |
 | R-003 | Aliado vivo: nombre, arquetipo y stats relevantes; el fantasma muestra su estado y MP, sin equipo ni inventario. | El panel distingue aliado vivo y fantasma; no inventa equipo en el fantasma. |
 | R-004 | Objeto en el suelo: nombre y cantidad. Contenedor abierto: contenido. Contenedor cerrado: estado y tipo, **sin contenido ni trampa**. | Un cofre cerrado nunca revela contenido ni trampa; uno abierto muestra sus objetos. |
 | R-005 | Puerta: tipo y zona, como elemento decorativo; no se muestra cerrada con llave ni interactuable si no lo es. | El texto no promete una regla que no existe. |

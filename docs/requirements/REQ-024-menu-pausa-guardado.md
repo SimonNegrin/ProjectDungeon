@@ -56,7 +56,7 @@ El menú es **solo de pausa**. El arranque sigue en
 | R-005 | Cargar acepta un `.zip` de guardado o un `.json` de partida. | Ambos formatos reconstruyen la partida; un archivo inválido se rechaza con mensaje. |
 | R-006 | Cargar con una partida en curso pide confirmación y reemplaza la partida actual. | Cancelar no cambia nada; confirmar reconstruye la partida cargada. |
 | R-007 | La pantalla de controles explica las teclas vigentes con texto; no permite remapear. | La lista coincide con los controles del juego; no hay editor de teclas. |
-| R-008 | La partida guardada conserva el estado completo: semilla, RNG, turno, jugadores vivos, fantasmas, cadáveres, contenedores, objetos y equipo. | Cargar y volver a guardar produce un estado equivalente. |
+| R-008 | La partida guardada conserva el estado completo: semilla, RNG, turno, jugadores vivos, fantasmas, cadáveres, contenedores, objetos, equipo, **acciones restantes/máximas, maná y nivel de magia**. | Cargar y volver a guardar produce un estado equivalente. |
 | R-009 | El guardado no incluye presentación: ni timeline de feedback, ni cámara, ni cursor. Al cargar se reconstruye la presentación. | La partida cargada se ve en estado final, sin reproducir beats pendientes. |
 
 # Requisitos técnicos

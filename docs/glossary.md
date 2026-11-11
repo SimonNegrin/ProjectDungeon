@@ -41,7 +41,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Determinista** | Mismo estado inicial, comandos y semilla producen el mismo resultado. |
 | **Semilla** | Valor que inicializa el generador pseudoaleatorio. |
 | **RNG sembrado** | Generador pseudoaleatorio determinista inicializado por la semilla; su estado es serializable y reproducible. |
-| **Atributos inherentes** | Los ocho valores propios de un personaje, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV y MP. |
+| **Atributos inherentes** | Los nueve valores propios de un personaje, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV, MP y acciones por turno. |
 | **Habilidad** | Atributo inherente que se suma al acierto del arma para resolver el impacto; sustituye al antiguo modificador de acierto. |
 | **Fuerza** | Atributo inherente que se suma al daño del arma; sustituye al antiguo modificador de daño. |
 | **Defensa** | Atributo inherente que se suma al escudo para resistir el impacto. |
@@ -49,7 +49,11 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Acierto del arma** | Bonus del arma que se suma a la habilidad al resolver el impacto. |
 | **Daño del arma** | Bonus del arma que se suma a la fuerza al resolver el daño. |
 | **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
-| **Magia** | Atributo inherente compuesto por familias con nivel 1–4; sin efecto en este corte. |
+| **Magia** | Atributo inherente de nivel entero único. Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
+| **Maná** | Recurso de hechizos separado del MP; su máximo deriva del nivel de magia y se recarga completo al inicio de cada turno. |
+| **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto). Atacar, interactuar y lanzar hechizos consumen una; moverse y esperar no. |
+| **Hechizo** | Efecto mágico con nivel mínimo, coste de maná, alcance y familia; consume una acción y se limita a dos por turno. |
+| **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla; puede fallar, puede matar y no se encadena. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
 | **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
 | **Equipo** | Arma, escudo y armadura de una unidad, guardados por IDs en el estado. |
@@ -59,7 +63,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Decoración** | Decal plano del tileset dibujado sobre el suelo; no bloquea, no se escribe en la rejilla y no cambia reglas. |
 | **Feedback visual** | Presentación de un evento del motor mediante un cue: destello, sacudida, parpadeo, texto, banner u onda. No cambia reglas ni estado. |
 | **Beat** | Tiempo mínimo en que el input sigue bloqueado para que el ojo registre un evento; los textos y marcas pueden persistir más allá. |
-| **Cadáver** | Marca persistente de presentación en el tile donde murió una unidad; no bloquea ni se interactúa y se reserva para muertes reales. |
+| **Cadáver** | Marca persistente en el tile donde murió una unidad. El de enemigo es presentación y no se interactúa; el de jugador es contenedor saqueable y origen del fantasma ([REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)). |
 | **Percepción** | Regla que decide si un enemigo ve a un jugador: visión 360°, radio por tipo y línea de visión de Bresenham; los muros bloquean y las unidades no. |
 | **Dormido** | Estado `dormant`: el enemigo no se mueve, no ataca y no patrulla hasta ver a un jugador, recibir daño o una alarma. |
 | **Alerta** | Estado `alert`: el enemigo persigue la última posición conocida y ataca si llega a adyacencia con acción. |

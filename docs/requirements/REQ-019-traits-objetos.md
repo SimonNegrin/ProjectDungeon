@@ -18,12 +18,13 @@ verified:
 
 El equipo de [REQ-010](REQ-010-combate-equipo-acierto-defensa.md) solo aporta
 números: acierto, daño, escudo y armadura. [REQ-014](REQ-014-atributos-inherentes-personajes.md)
-fijó ocho atributos y [REQ-018](REQ-018-inventario-equipo.md) reserva los huecos
+fijó nueve atributos y [REQ-018](REQ-018-inventario-equipo.md) reserva los huecos
 y el campo de traits en el objeto. Falta definir **qué hacen** esos traits.
 
 El usuario quiere dos familias:
 
-- **Modificadores de stats:** incremento o decremento de los ocho atributos.
+- **Modificadores de stats:** incremento o decremento de los nueve atributos,
+  incluidas las acciones por turno (con el tope de `REQ-026`).
 - **Efectos especiales:** cuerpo etéreo (atravesar paredes), robo de vida (curar
   al portador el daño infligido) y ataque de área.
 
@@ -102,7 +103,7 @@ como preguntas para la sesión de cierre.
 
 - [REQ-018](REQ-018-inventario-equipo.md): huecos de equipo, campo de traits en el
   objeto y agregación de stats; esta hoja los consume.
-- [REQ-014](REQ-014-atributos-inherentes-personajes.md): ocho atributos y capa de
+- [REQ-014](REQ-014-atributos-inherentes-personajes.md): nueve atributos y capa de
   absorción sobre la que actúan los modificadores.
 - [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): resolvedor de combate,
   armas y equipo; robo de vida y área lo extienden.

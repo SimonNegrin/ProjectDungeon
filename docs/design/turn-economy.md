@@ -13,6 +13,11 @@ Fijar unos valores jugables para el primer prototipo local. No son definitivos:
 están pensados para poder probar el loop y ajustarlos después con experimentos y
 playtests.
 
+> **Aviso de vigencia (2026-11-11).** `REQ-025`, `REQ-026` y `REQ-027` sustituyen
+> la acción única por varias acciones, la magia sin efecto por nivel único con
+> maná y el combate sin reacción por la réplica al fallar. Los valores de este
+> documento son históricos hasta que se implementen esas hojas.
+
 # Rejilla y movimiento
 
 | Regla | Valor provisional |

@@ -60,6 +60,14 @@ experimento.
 - **Habilidades**: combate cuerpo a cuerpo, proyectiles físicos y mágicos,
   familias mágicas con efectos temporales y permanentes, teletransporte mediante
   magia y curación.
+- **Magia simple**: un nivel de magia único, maná que se recarga cada turno y
+  hechizos por familia accesibles por nivel. Cada hechizo cuesta maná y una
+  acción; máximo dos hechizos por turno.
+- **Acciones**: varias acciones por turno, 2 por defecto, ajustables por arquetipo
+  y por objetos. Atacar, interactuar y lanzar hechizos consumen acción; moverse y
+  esperar no.
+- **Combate con reacción**: fallar un ataque cuerpo a cuerpo permite al defensor
+  replicar al instante, gratis y sin cadena.
 - **Progresión**: puntos de habilidad para mejorar los atributos del personaje y
   un número de acciones por personaje tratado como atributo.
 - **Exploración con llaves**: puertas cerradas que exigen encontrar llaves; no

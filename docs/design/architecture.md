@@ -57,8 +57,9 @@ El combate vive en `src/game/` y es puro y determinista:
   resistencia a la armadura en una sola capa de absorción. Un fallo consume dos
   tiradas y un impacto cuatro, en el orden ataque, escudo, golpe y absorción.
 - `equipment.ts` guarda el catálogo de armas, armaduras y escudos con IDs
-  estables; `bestiary.ts` guarda por tipo los ocho atributos (habilidad, fuerza,
-  defensa, resistencia, puntería, magia, PV y MP), arma, escudo, armadura, visión
+  estables; `bestiary.ts` guarda por tipo los nueve atributos (habilidad, fuerza,
+  defensa, resistencia, puntería, magia, PV, MP y acciones), arma, escudo,
+  armadura, visión
   y perfil.
 - `roster.ts` es la fuente única de los nueve arquetipos jugables de REQ-015:
   stats, equipo inicial, variantes, rol y magia de identidad. El jugador por

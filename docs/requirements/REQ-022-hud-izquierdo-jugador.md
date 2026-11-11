@@ -57,7 +57,7 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 |---|---|---|
 | R-001 | El HUD del jugador vive en la columna izquierda del marco 16:9 y sustituye al HUD exterior. | No queda HUD de juego fuera del marco; la columna izquierda muestra al jugador activo. |
 | R-002 | La columna muestra miniatura o retrato, nombre y arquetipo del jugador activo. | Al cambiar de jugador activo, miniatura, nombre y arquetipo cambian en el mismo turno. |
-| R-003 | La columna muestra PV, MP y los atributos con efecto vigente del personaje. | Los valores coinciden con el estado del motor; no se muestran atributos sin efecto como si funcionaran. |
+| R-003 | La columna muestra PV, MP, **acciones restantes**, **maná actual/máximo** y los atributos con efecto vigente del personaje. | Los valores coinciden con el estado del motor; no se muestran atributos sin efecto como si funcionaran. |
 | R-004 | La columna muestra el inventario y el equipo del jugador activo de forma resumida. | Se ven los objetos equipados y la ocupación del inventario sin abrir otra pantalla. |
 | R-005 | En estado fantasma, la columna indica la condición y muestra el MP intrínseco; oculta inventario y equipo. | Un jugador muerto no ve inventario ni equipo propios; ve su estado fantasma y su MP. |
 | R-006 | En hotseat, la columna sigue automáticamente al jugador activo. | Cada turno muestra al jugador correcto sin acción manual. |
