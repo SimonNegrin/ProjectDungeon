@@ -507,6 +507,7 @@ root.append(
 interface FieldRefs {
   readonly input: HTMLInputElement | HTMLSelectElement;
   readonly error: HTMLElement;
+  readonly hint?: HTMLElement;
 }
 
 interface CombatRowRefs {
@@ -706,6 +707,7 @@ function applyEnemyField(
 ): void {
   if (!findTemplate(CATALOG, enemyId)) return;
   setOverrides(withEnemyOverride(overrides, enemyId, enemyFieldPatch(field, value)));
+  if (field === 'weaponId') syncCombatWeaponHints();
   scheduleRecalc({ kind: 'enemy', enemyId });
 }
 
@@ -717,6 +719,7 @@ function applyWeaponField(
   if (!workingCatalog.weapons[weaponId]) return;
   const patch = field === 'accuracy' ? { accuracy: value } : { damage: value };
   setOverrides(withWeaponOverride(overrides, weaponId, patch));
+  syncCombatWeaponHints();
   scheduleRecalc({ kind: 'weapon', weaponId });
 }
 
@@ -863,7 +866,14 @@ function buildSharedFieldCell(
     testId: `combats-field-error-${enemyId}-${field}`,
   });
   error.setAttribute('aria-live', 'polite');
-  const refs: FieldRefs = { input, error };
+  const hint =
+    field === 'weaponId'
+      ? element('span', {
+          className: 'weapon-hint',
+          testId: `combats-weapon-hint-${enemyId}`,
+        })
+      : undefined;
+  const refs: FieldRefs = { input, error, ...(hint ? { hint } : {}) };
 
   const onFieldChange = (): void => {
     const validation = validateEnemyField(field, input.value, CATALOG);
@@ -884,7 +894,7 @@ function buildSharedFieldCell(
     setBlockActive(enemyId, false);
   });
 
-  cell.append(input, error);
+  cell.append(input, ...(hint ? [hint] : []), error);
   const block = combatBlocks.get(enemyId);
   if (block) block.fields.set(field, refs);
   return cell;
@@ -1033,6 +1043,9 @@ function syncCombats(): void {
     for (const [field, refs] of block.fields) {
       if (document.activeElement !== refs.input) {
         refs.input.value = displayEnemyField(block.enemyId, field);
+      }
+      if (field === 'weaponId' && refs.hint) {
+        refs.hint.textContent = enemyWeaponHint(block.enemyId);
       }
     }
 
@@ -1268,6 +1281,21 @@ function renderHeroes(): void {
     }
     heroesBody.append(row);
     heroRefs.set(hero.id, { fields, weaponHint });
+  }
+}
+
+function enemyWeaponHint(enemyId: string): string {
+  const template = findTemplate(workingCatalog, enemyId);
+  const weapon = template?.weaponId
+    ? workingCatalog.weapons[template.weaponId]
+    : null;
+  return formatWeaponBonus(weapon);
+}
+
+function syncCombatWeaponHints(): void {
+  for (const block of combatBlocks.values()) {
+    const refs = block.fields.get('weaponId');
+    if (refs?.hint) refs.hint.textContent = enemyWeaponHint(block.enemyId);
   }
 }
 

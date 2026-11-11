@@ -203,6 +203,45 @@ describe('formato de celdas de la mesa', () => {
     expect(formatWeaponUsers([])).toBe('sin unidades');
   });
 
+  it('el hint del arma del enemigo sale del catálogo de trabajo', () => {
+    const withWeapon = createWorkingCatalog(
+      CATALOG,
+      pruneOverrides(
+        CATALOG,
+        withEnemyOverride(emptyOverrides(), 'centinela', { weaponId: 'hacha' }),
+      ),
+    );
+    const centinela = withWeapon.bestiary.find((entry) => entry.id === 'centinela');
+    expect(centinela?.weaponId).toBe('hacha');
+    expect(
+      formatWeaponBonus(
+        centinela?.weaponId ? withWeapon.weapons[centinela.weaponId] : null,
+      ),
+    ).toBe('Acierto +2 · Daño +5');
+
+    const withoutWeapon = createWorkingCatalog(
+      CATALOG,
+      pruneOverrides(
+        CATALOG,
+        withEnemyOverride(emptyOverrides(), 'bruto', { weaponId: null }),
+      ),
+    );
+    const bruto = withoutWeapon.bestiary.find((entry) => entry.id === 'bruto');
+    expect(bruto?.weaponId).toBeNull();
+    expect(
+      formatWeaponBonus(bruto?.weaponId ? withoutWeapon.weapons[bruto.weaponId] : null),
+    ).toBe('sin arma');
+
+    const edited = createWorkingCatalog(
+      CATALOG,
+      pruneOverrides(
+        CATALOG,
+        withWeaponOverride(emptyOverrides(), 'hacha', { damage: 9 }),
+      ),
+    );
+    expect(formatWeaponBonus(edited.weapons.hacha)).toBe('Acierto +2 · Daño +9');
+  });
+
   it('indica el número de filas recalculadas con singular y plural', () => {
     expect(formatRecalcStatus(0)).toBe('Recalculado: 0 filas afectadas.');
     expect(formatRecalcStatus(1)).toBe('Recalculado: 1 fila afectada.');
