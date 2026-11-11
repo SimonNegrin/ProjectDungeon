@@ -78,7 +78,7 @@ Avisos (77):
 - artifacts/TASK-0070/attempt-1/brief.md: handoff de 3806 B; objetivo ≤2560 B
 - artifacts/TASK-0070/attempt-1/report.md: handoff de 3283 B; objetivo ≤2560 B
 - artifacts/TASK-0070/attempt-2/report.md: handoff de 2727 B; objetivo ≤2560 B
-OK: 368 documentos, 74 tareas, 5 experimentos.
+OK: 369 documentos, 74 tareas, 5 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -88,11 +88,11 @@ $ vitest run
 
  Test Files  72 passed (72)
       Tests  979 passed (979)
-   Start at  23:15:19
-   Duration  11.71s (tests 92%, import 6%, transform 2%, worker 1%)
+   Start at  23:16:20
+   Duration  11.22s (tests 92%, import 6%, transform 1%, worker 1%)
 
-    Isolate  72 workers spawned · ~131ms startup each (spawn + environment, per file)
-             at least ~1.22s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  72 workers spawned · ~121ms startup each (spawn + environment, per file)
+             at least ~1.12s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -102,6 +102,6 @@ rendering chunks...
 computing gzip size...
 dist/index.html                17.12 kB │ gzip:  3.90 kB
 dist/assets/main-3vcR1QGj.js  138.70 kB │ gzip: 47.47 kB
-✓ built in 353ms
+✓ built in 344ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 10 dist files and 56 production modules; no forbidden markers.
