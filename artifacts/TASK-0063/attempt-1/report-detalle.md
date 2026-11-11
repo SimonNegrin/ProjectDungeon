@@ -117,3 +117,33 @@ pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2
 
 El test de medición escribe `results/v2-seed-1017-duels-1000.json` si falta y lo
 compara byte a byte si existe. No usa `Math.random`, `Date.now` ni relojes.
+
+## Verificación independiente del lead
+
+- Rama `task/TASK-0063`, fusionada en `main` con fast-forward hasta `3ac1df5`.
+  Diff limitado a `experiments/EXP-003-mesa-combate/src/v2/`,
+  `experiments/EXP-003-mesa-combate/results/`, `artifacts/TASK-0063/` y el
+  estado de la ficha. Sin cambios en `src/`, `tests/`, la v1, `index.html`,
+  `public/`, `package.json`, `pnpm-lock.yaml` ni `docs/` ajenos a la tarea.
+- Re-ejecutado por el lead: `pnpm exec vitest run
+  experiments/EXP-003-mesa-combate/src/v2` (62/62, 6 archivos, 327 ms) y
+  `pnpm run verify` (docs 328, config OK, 887/887 tests en 68 archivos, build 59
+  módulos y `check:bundle` OK). `git status` limpio después.
+- Resultados comprobados contra el JSON: 12 emparejamientos, 1.000 duelos cada
+  uno, sin tablas, win rate 96,3–100 %, `insideBand: false` en los 12. El
+  fichero queda byte a byte igual tras ejecutar los tests.
+- Criterios de aceptación: los 9 cubiertos. El criterio de banda no exige que
+  los valores actuales entren en 40–60; exige medir y marcar cada caso, y el
+  informe lo hace. No se ha aplicado ningún ajuste de balance.
+- Observación menor: `insideBand` interpreta la tolerancia como banda ampliada
+  (38–62). No cambia el resultado porque los 12 casos están muy por encima; si
+  se quiere evaluar estrictamente 40–60, el margen de ±2 pp debe leerse como
+  error de simulación, no como ampliación.
+- Limitación no listada por el runner: la detección inicial solo se evalúa tras
+  un paso del héroe; un escenario que empiece con el enemigo dormido dentro de
+  su visión no lo despierta hasta el primer movimiento. No afecta al escenario
+  0/7 medido, pero conviene cubrirlo en v2.1 o al abrir posiciones en la UI.
+- Fricción triada: el requisito de OKF en `*-detalle.md` es documental/de arnés,
+  no un fallo de la tarea. Disposición `deferred`, elevada a
+  `requirements-writer` y candidata a `harness-keeper`; el usuario decide si se
+  exime el anexo en la plantilla o en el validador.

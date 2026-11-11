@@ -4,22 +4,42 @@ id: TASK-0063
 title: "EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición"
 description: Construir el núcleo de la mesa de combate v2.0 con catálogos, pasillo 1D, acciones, magia, réplica, RNG sembrado y 1.000 duelos por emparejamiento con resultados reproducibles.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-027
 requirement_ids: [REQ-025, REQ-026, REQ-027]
 depends_on: []
 unlocks: [TASK-0064]
-created_at: 2026-11-11T18:45:00Z
-completed_at:
+created_at: 2026-11-11T15:20:00Z
+completed_at: 2026-11-11T15:48:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0063/
 priority: P1
 risk: medium
 review_required: false
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:45:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:20:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-11T15:48:00Z
+    note: >-
+      Verificación independiente en task/TASK-0063, fusionada en main con
+      fast-forward hasta 3ac1df5. Diff limitado a experiments/EXP-003-mesa-combate/src/v2/,
+      experiments/EXP-003-mesa-combate/results/, artifacts/TASK-0063/ y esta
+      ficha; src/, tests/, la v1, index.html, public/, package.json,
+      pnpm-lock.yaml y docs/ ajenos intactos. Re-ejecutado por el lead: 62/62
+      tests de v2 (6 archivos) y pnpm run verify (docs 328, config OK, 887/887,
+      build 59 módulos, bundle OK), con git status limpio. Resultados byte a
+      byte estables; 12 emparejamientos × 1.000 duelos con semilla 1017 y héroe
+      con iniciativa. Los 12 quedan fuera de la banda 40–60 % por arriba
+      (96,3–100 %); no se aplicó ningún ajuste de balance y las recomendaciones
+      quedan en el informe. Los 9 criterios de aceptación están cubiertos.
+      Limitaciones declaradas: sin enfriamiento/investigación de alerta, el
+      cobarde queda acorralado en el escenario por defecto, se permite repetir
+      hechizo, no hay ataque a distancia y la política del héroe es agresiva;
+      la detección inicial solo se evalúa tras un paso (no afecta al escenario
+      0/7). Fricción de OKF en *-detalle.md: disposición deferred, elevada a
+      requirements-writer y candidata a harness-keeper.
 ---
 
 # Objetivo
@@ -38,34 +58,34 @@ El brief y sus decisiones cerradas viven en
 
 # Criterios de aceptación
 
-- [ ] El catálogo declara versión explícita y contiene roster (Guerrero, Pícaro,
+- [x] El catálogo declara versión explícita y contiene roster (Guerrero, Pícaro,
       Mago, Clérigo), bestiario (Centinela, Bruto, Cobarde), armas, hechizos
       (los seis de REQ-025) y perfiles de IA. Añadir un enemigo de prueba por
       datos no exige tocar el resolvedor y un test lo demuestra.
-- [ ] La fórmula física usa habilidad + acierto del arma + 1d6 contra defensa +
+- [x] La fórmula física usa habilidad + acierto del arma + 1d6 contra defensa +
       escudo + 1d6, y daño `max(1, fuerza + daño del arma + 1d6 − (resistencia +
       armadura + 1d6))`. La mágica usa nivel de magia + acierto del hechizo y
       poder + 1d6 − (resistencia + armadura + 1d6). El empate falla.
-- [ ] Acciones: 2 por defecto, Pícaro 3, enemigos 2/1/2. Atacar y lanzar hechizo
+- [x] Acciones: 2 por defecto, Pícaro 3, enemigos 2/1/2. Atacar y lanzar hechizo
       cuestan 1 acción; moverse cuesta MP; acciones y maná se restauran al
       inicio del turno; máximo 2 hechizos por turno.
-- [ ] Réplica: solo tras un ataque cuerpo a cuerpo fallido, solo con arma
+- [x] Réplica: solo tras un ataque cuerpo a cuerpo fallido, solo con arma
       equipada y adyacencia; gratis, inmediata, sin cadena y sin tope; usa
       tiradas nuevas; el dormido no es atacable en melé y no replica; el que
       regresa replica; el que huye solo replica acorralado; una réplica letal
       descarta las acciones restantes del atacante.
-- [ ] RNG sembrado y determinista: misma semilla, mismo escenario y mismas
+- [x] RNG sembrado y determinista: misma semilla, mismo escenario y mismas
       reglas producen el mismo resultado; no se usa `Math.random`.
-- [ ] La medición cubre los 12 emparejamientos (4 héroes × 3 enemigos) con
+- [x] La medición cubre los 12 emparejamientos (4 héroes × 3 enemigos) con
       semilla 1017 y 1.000 duelos, héroe con iniciativa, y registra victorias,
       turnos/rondas, acciones por tipo, hechizos, maná gastado/no gastado, daño,
       curación, TTK, PV restantes y réplicas disparadas/impactos/muertes.
-- [ ] Los resultados quedan en `experiments/EXP-003-mesa-combate/results/` en
+- [x] Los resultados quedan en `experiments/EXP-003-mesa-combate/results/` en
       JSON reproducible con versión de catálogo, escenario, semilla y métricas;
       una segunda ejecución produce los mismos números.
-- [ ] Tests del experimento en verde y `pnpm run docs:check` pasa. No se toca
+- [x] Tests del experimento en verde y `pnpm run docs:check` pasa. No se toca
       `src/` de producción ni se añaden dependencias.
-- [ ] La banda de aceptación es 40–60 % de victorias del héroe con ±2 % de
+- [x] La banda de aceptación es 40–60 % de victorias del héroe con ±2 % de
       tolerancia; el informe marca cada emparejamiento dentro o fuera.
 
 # Plan de test
@@ -81,10 +101,10 @@ El brief y sus decisiones cerradas viven en
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0063/attempt-1/report.md`
-- [ ] `test-output.txt` y `docs-check-output.txt`
-- [ ] Resultados en `experiments/EXP-003-mesa-combate/results/`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0063/attempt-1/report.md`
+- [x] `test-output.txt` y `docs-check-output.txt`
+- [x] Resultados en `experiments/EXP-003-mesa-combate/results/`
+- [x] Commit SHA
 
 # Restricciones
 

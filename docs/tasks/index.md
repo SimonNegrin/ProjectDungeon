@@ -58,7 +58,7 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0057](TASK-0057-nucleo-feedback-timeline-estado.md) | Núcleo del feedback visual: configuración, timeline y estado intermedio | `done` | REQ-017 | — | P1 |
 | [TASK-0058](TASK-0058-feedback-combate-muerte.md) | Feedback de combate y muerte: impacto, fallo, daño y cadáver | `done` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0059](TASK-0059-feedback-inventario-percepcion-turno.md) | Feedback de inventario, percepción y turno | `done` | REQ-017 | TASK-0057 | P1 |
-| [TASK-0063](TASK-0063-exp-003-v2-motor-medicion.md) | EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición | `ready` | REQ-027 | — | P1 |
+| [TASK-0063](TASK-0063-exp-003-v2-motor-medicion.md) | EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición | `done` | REQ-027 | — | P1 |
 | [TASK-0064](TASK-0064-exp-003-v2-pagina-api-export.md) | EXP-003 v2.0: página, API y export de la mesa | `backlog` | REQ-027 | TASK-0063 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
@@ -68,10 +68,6 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0060](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md) | Fase enemiga fuera de pantalla y movimiento reducido | `done` | REQ-017 | TASK-0057, TASK-0058, TASK-0059 | P2 |
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
-
-# ready
-
-* [TASK-0063 — EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición](TASK-0063-exp-003-v2-motor-medicion.md)
 
 # review
 
@@ -137,6 +133,7 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0057 — Núcleo del feedback visual: configuración, timeline y estado intermedio](TASK-0057-nucleo-feedback-timeline-estado.md)
 * [TASK-0058 — Feedback de combate y muerte: impacto, fallo, daño y cadáver](TASK-0058-feedback-combate-muerte.md)
 * [TASK-0059 — Feedback de inventario, percepción y turno](TASK-0059-feedback-inventario-percepcion-turno.md)
+* [TASK-0063 — EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición](TASK-0063-exp-003-v2-motor-medicion.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

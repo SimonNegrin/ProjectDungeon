@@ -91,13 +91,13 @@ JSON: [resultados](../../../experiments/EXP-003-mesa-combate/results/v2-seed-101
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `docs:check` exige OKF a `*-detalle.md` | `brief-detalle.md: falta frontmatter OKF` | Frontmatter en el anexo | La plantilla manda desbordar sin pedir OKF; se repetirá | Eximir el anexo | Bajo | `pending` |
+| `docs:check` exige OKF a `*-detalle.md` | `brief-detalle.md: falta frontmatter OKF` | Frontmatter en el anexo | La plantilla manda desbordar sin pedir OKF; se repetirá | Eximir el anexo | Bajo | `deferred` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2524 |
-| `report_bytes` | 4009 |
-| `overflow` | `none` |
+| `report_bytes` | 4020 |
+| `overflow` | `report-detalle` |
 | `criteria_failed` | 0 |
