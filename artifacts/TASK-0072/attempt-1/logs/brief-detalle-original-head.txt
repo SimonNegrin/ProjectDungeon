@@ -1,0 +1,5 @@
+# Detalle del brief · TASK-0072
+
+Este anexo concreta el modelo de objetivos por par, el formato del export y los
+tests esperados. La ficha y el requisito mandan; esto solo evita decisiones
+implícitas.

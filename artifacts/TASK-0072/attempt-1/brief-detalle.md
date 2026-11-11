@@ -1,3 +1,13 @@
+---
+type: Task Brief Detail
+title: "TASK-0072: detalle del brief del intento 1"
+description: Modelo de objetivos por par, formato del export, diagnóstico y tests esperados.
+task: TASK-0072
+attempt: 1
+status: stable
+generated: { by: task-lead, at: 2026-11-12T00:20:00Z }
+---
+
 # Detalle del brief · TASK-0072
 
 Este anexo concreta el modelo de objetivos por par, el formato del export y los
