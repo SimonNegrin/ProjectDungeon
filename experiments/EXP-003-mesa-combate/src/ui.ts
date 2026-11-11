@@ -11,6 +11,13 @@ import type {
   MeasurementPayload,
   NumericSummary,
 } from './v2/measure';
+import type {
+  BenchExport,
+  BenchOverrides,
+  BenchSelection,
+  BenchTargets,
+  EnemyDiagnosis,
+} from './v2/bench';
 import type { Catalog, ReplicaMetrics, Side, SpellMetrics } from './v2/types';
 
 export const EXPERIMENT_ID = 'EXP-003';
@@ -268,6 +275,18 @@ export function buildSnapshot(
   };
 }
 
+export interface BenchSnapshot extends ExperimentSnapshot {
+  readonly experiment: string;
+  readonly engine: string;
+  readonly duels: number;
+  readonly scenario: MeasurementPayload['scenario'];
+  readonly catalog: Catalog;
+  readonly targets: BenchTargets;
+  readonly overrides: BenchOverrides;
+  readonly overridesId: string;
+  readonly diagnosis: ReadonlyArray<EnemyDiagnosis>;
+}
+
 export interface V2ExperimentApi {
   readonly id: string;
   getSeed(): number;
@@ -276,7 +295,29 @@ export interface V2ExperimentApi {
   setDuels(next: number): void;
   runAll(): MeasurementPayload;
   getResults(): MeasurementPayload;
-  snapshot(): ExperimentSnapshot;
-  getDecision(): ExportPayload;
+  snapshot(): BenchSnapshot;
+  getDecision(): BenchExport;
   reset(): void;
+  getTargets(): BenchTargets;
+  setTarget(enemyId: string, value: unknown): void;
+  resetTarget(enemyId: string): void;
+  getOverrides(): BenchOverrides;
+  resetEnemy(enemyId: string): void;
+  resetWeapon(weaponId: string): void;
+  resetWeaponField(
+    weaponId: string,
+    field: 'accuracy' | 'damage',
+  ): void;
+  resetAll(): void;
+  setEnemyField(enemyId: string, field: string, value: unknown): void;
+  resetEnemyField(enemyId: string, field: string): void;
+  setWeaponField(
+    weaponId: string,
+    field: 'accuracy' | 'damage',
+    value: unknown,
+  ): void;
+  recalculate(selection?: BenchSelection): MeasurementPayload;
+  getDiagnosis(): ReadonlyArray<EnemyDiagnosis>;
+  getWorkingCatalog(): Catalog;
+  getOverridesId(): string;
 }
