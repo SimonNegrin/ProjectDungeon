@@ -5,7 +5,7 @@ description: UI del banco de ajuste de EXP-003 sobre el motor de TASK-0066.
 task: TASK-0067
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T21:55:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:20:00Z }
 artifacts: artifacts/TASK-0067/attempt-1/
 verified:
 ---
@@ -16,25 +16,26 @@ verified:
 
 # Cambios
 
-- `bench-ui.ts`/`bench-ui.test.ts` (nuevos): validación, rangos, prune, formato, armas, descarga y resumen; 19 tests.
-- `main.ts`: tabla con objetivo/real/delta/estado, editor compartido, diagnóstico, tabla de armas, recálculo diferido, resets y API.
-- `ui.ts`: tipos `BenchSnapshot` y API ampliada. `experiment.css`: estilos locales.
-- Commit SHA: `79610fe` (`feat(TASK-0067): UI del banco de ajuste`).
+- `bench-ui.ts`/`bench-ui.test.ts`: validación, rangos, prune, formato, armas, descarga y resumen; `resetWeaponFieldOverride`; 20 tests.
+- `main.ts`: tabla con objetivo/real/delta/estado, editor compartido, diagnóstico, tabla de armas, recálculo diferido, resets y API. Campos numéricos, objetivo y acierto/daño usan `input` con debounce; selects usan `change`. Reset por campo de arma y `aria-label` con enemigo/arma.
+- `ui.ts`: tipos `BenchSnapshot`, API ampliada y `resetWeaponField`. `experiment.css`: estilos locales.
+- Commit SHA: `85c8991` (`fix(TASK-0067): ajuste al escribir, reset por campo de arma y etiquetas accesibles`).
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run test` | 71 archivos, 944 tests OK | `test-output.txt` |
+| `pnpm run test` | 71 archivos, 945 tests OK | `test-output.txt` |
 | `pnpm run verify` | docs, config, tests, build y bundle OK | `verify-output.txt` |
 | `pnpm exec playwright test tests/e2e/experiment-combat.spec.ts` | 4/4 OK | `e2e-output.txt` |
 
-Playwright manual (`?test=1&seed=1017`): 12 filas sin editor; PV recalcula 4 filas; arma recalcula 6; objetivo cambia diagnóstico sin duelos; inválido marca `aria-invalid` y se restaura; resets vuelven a base; sin errores de consola.
+Playwright manual (`?test=1&seed=1017`): al escribir PV se recalcula solo 4 filas y el foco sigue en el campo; arma recalcula 6; objetivo cambia diagnóstico sin duelos; inválido marca `aria-invalid` y se restaura; reset por campo de arma deja intacto el otro campo; resets globales vuelven a base; sin errores de consola. `aria-label` comprobados en objetivo, editor y armas.
 
 # Evidencia visual
 
-- `screenshots/banco-ajuste-editor.png` (1600×1300, página completa).
-- Debe mirarse: editor de Centinela, aviso de cuatro filas, diagnóstico y tabla de armas.
+- `screenshots/banco-ajuste-editor.png`: página completa con tabla, editor y armas.
+- `screenshots/banco-ajuste-armas.png`: panel de armas completo con reset por campo.
+- `screenshots/banco-ajuste-editor-campos.png`: campos del editor compartido completos.
 
 # Desviaciones
 
@@ -44,7 +45,7 @@ Playwright manual (`?test=1&seed=1017`): 12 filas sin editor; PV recalcula 4 fil
 
 # Problemas conocidos y preguntas abiertas
 
-- La tabla de 18 columnas exige scroll horizontal en 1600 px; no rompe foco ni funcionalidad.
+- La tabla de 18 columnas exige scroll horizontal; no rompe foco ni funcionalidad.
 - Los 12 emparejamientos siguen fuera de banda: el banco no aprueba balance.
 - Sin bloqueos; TASK-0068 puede cubrir E2E y QA visual final.
 
@@ -59,6 +60,6 @@ Playwright manual (`?test=1&seed=1017`): 12 filas sin editor; PV recalcula 4 fil
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3005 |
-| `report_bytes` | 3045 |
+| `report_bytes` | 3504 |
 | `overflow` | `brief-detalle` |
 | `criteria_failed` | 0 |
