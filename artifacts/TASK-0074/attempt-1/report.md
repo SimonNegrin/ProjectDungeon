@@ -56,7 +56,7 @@ A 1280 sin overflow; a 900 scroll interno; el vacío avisa y mantiene foco.
 
 | Síntoma | Evidencia | Workaround | Reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Brief dice `bench-base` sin overrides; el código usa el nombre histórico. | `bench-ui.ts:668-675`; `bench-ui.test.ts:503-505`. | Ver unitarios; adaptar E2E. | Nombres de export en futuras tareas. | Corregir el brief o documentar la regla. | Bajo; documentación. | `pending` |
+| Brief dice `bench-base` sin overrides; el código usa el nombre histórico. | `bench-ui.ts:668-675`; `bench-ui.test.ts:503-505`. | Ver unitarios; adaptar E2E. | Export en futuras tareas. | Corregir el brief. | Bajo. | `rejected` (error del brief, no del arnés) |
 
 # Métricas de handoff
 
