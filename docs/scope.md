@@ -62,6 +62,10 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   `REQ-018` a `REQ-020` sin tareas.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
   ordenar con `REQ-018`/`REQ-020`.
+- HUD lateral: `REQ-022` (jugador) y `REQ-023` (cursor) en borrador; dependen de
+  `REQ-018` y `REQ-020`.
+- Menú de pausa y guardado local: `REQ-024` en borrador; la persistencia deja de
+  ser pregunta abierta.
 
 # Primer hito jugable
 
@@ -147,12 +151,21 @@ Los valores concretos de la economía de turno son provisionales y viven en
   definitiva.
 - Los hechizos usan un recurso de **maná** derivado de la puntuación de magia,
   separado del MP de movimiento. La regeneración y el coste quedan por decidir.
+- El HUD de juego vive en las columnas laterales del marco 16:9: izquierda para el
+  jugador activo, derecha para el detalle del cursor. El HUD exterior desaparece.
+- El detalle del cursor exige línea de visión de un jugador vivo; un cofre cerrado
+  no revela contenido ni trampa.
+- El menú de pausa ofrece reanudar, guardar en `.zip`, cargar `.json` o `.zip` y
+  controles. Guardar solo desde la pausa, un archivo por partida; cargar pide
+  confirmación y reemplaza la partida actual.
+- La persistencia es local por archivo, sin cuentas ni servidor; no implica
+  progresión entre runs.
 
 # Fuera de alcance ahora
 
 - Servidor, WebSocket, QR y salas (fase 3).
-- Cuentas, base de datos y matchmaking. La persistencia local está pendiente de
-  decidir con la estructura de run.
+- Cuentas, base de datos y matchmaking. El guardado local de partida lo define
+  `REQ-024`; la progresión entre runs sigue abierta.
 - Hotseat jugable; la pantalla de configuración (`REQ-016`, borrador) es
   preparación.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.

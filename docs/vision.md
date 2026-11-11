@@ -88,6 +88,22 @@ La muerte es un estado jugable, no una salida de la mesa.
 - Cada muerte pesa según el estado del grupo: perder al mago o al objeto de
   resurrección cambia el riesgo de la partida.
 
+# Interfaz
+
+- El marco 16:9 contiene el mapa en el centro y dos columnas laterales. La
+  izquierda muestra al jugador activo: miniatura, stats, inventario y equipo. La
+  derecha detalla lo que hay bajo el cursor: enemigos, aliados, objetos, cofres,
+  puertas y terreno. No hay HUD de juego fuera del marco.
+- El detalle del cursor muestra stats exactas solo si algún jugador vivo tiene
+  línea de visión a esa casilla; sin visión, la información es desconocida. Un
+  cofre cerrado no revela contenido ni trampa.
+- Un menú de pausa detiene la partida y ofrece reanudar, guardar, cargar y
+  controles. Guardar produce un archivo `.zip` local con la partida y un
+  manifiesto; cargar acepta ese `.zip` o un `.json` y pide confirmación antes de
+  reemplazar la partida en curso. Los controles se explican con texto.
+- La persistencia es local por archivo: sin cuentas, sin servidor y sin guardado
+  automático. No implica progresión entre runs.
+
 # Modos de juego
 
 - **Hotseat**: varios jugadores se turnan en el mismo teclado y la misma pantalla.
@@ -107,7 +123,8 @@ de requisitos aceptada; lo que no está aceptado sigue siendo propuesta.
 - **Estructura de run**: ¿muerte permanente con runs, pisos encadenados y
   progresión entre partidas, o partidas sueltas con mapa procedural?
 - **Puntos de habilidad**: ¿se ganan y gastan dentro de la run o persisten entre
-  partidas? Lo segundo implica guardado local.
+  partidas? Lo segundo implica guardado entre runs, distinto del guardado de
+  partida del menú de pausa.
 - **Filtros CRT/VHS**: ¿activos por defecto con opción de apagarlos o solo un
   modo opcional?
 - **Borde del fantasma**: ¿alguna unidad puede terminar su movimiento sobre la
@@ -122,8 +139,8 @@ de requisitos aceptada; lo que no está aceptado sigue siendo propuesta.
 # No objetivos
 
 - No es un juego competitivo ni un eSport.
-- No hay cuentas ni matchmaking. La persistencia sigue siendo una pregunta
-  abierta.
+- No hay cuentas ni matchmaking. La partida se guarda en un archivo local; la
+  persistencia de progresión entre runs sigue siendo una pregunta abierta.
 - No se busca un motor genérico ni un framework de gameplay.
 - No se sacrifica la legibilidad por efectos visuales o filtros.
 - No se implementan sistemas del horizonte sin hoja de requisitos aceptada.

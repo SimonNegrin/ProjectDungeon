@@ -2,6 +2,10 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-024 — creada (borrador): menú de pausa con guardado `.zip` (partida y manifiesto), carga `.json`/`.zip` con confirmación y controles; persistencia local por archivo — [REQ-024](requirements/REQ-024-menu-pausa-guardado.md)
+* 2026-11-11 — Requirement — REQ-023 — creada (borrador): HUD derecho con stats exactas bajo el cursor, limitadas a línea de visión; cofre cerrado sin contenido ni trampa — [REQ-023](requirements/REQ-023-hud-derecho-detalle-cursor.md)
+* 2026-11-11 — Requirement — REQ-022 — creada (borrador): HUD izquierdo con miniatura, stats, inventario y equipo del jugador activo; ocupa el lateral del marco y retira el HUD exterior — [REQ-022](requirements/REQ-022-hud-izquierdo-jugador.md)
+* 2026-11-11 — Docs — vision/scope — HUD en columnas laterales, menú de pausa con guardado local `.zip` y detalle del cursor por línea de visión; persistencia deja de ser pregunta abierta — [vision](vision.md)
 * 2026-11-11 — Requirement — REQ-021 — stable v1: aprobada por el usuario; enmiendas aplicadas a REQ-014 (magia alimenta maná), REQ-017 (cadáver de jugador) y REQ-020 (solo enemigos) — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
 * 2026-11-11 — Requirement — REQ-021 — actualizada: maná aparte derivado de magia para hechizos y resurrección, intento fallido sin coste y un vivo puede bloquear la resurrección quedándose sobre el cadáver — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
 * 2026-11-11 — Requirement — REQ-021 — actualizada: la resurrección ocurre en la casilla del cadáver, con el resucitador adyacente y la casilla libre de vivos — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)

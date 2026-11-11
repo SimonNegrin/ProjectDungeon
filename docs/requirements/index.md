@@ -22,6 +22,9 @@
 * [REQ-019 — Traits de objetos equipados](REQ-019-traits-objetos.md) - Borrador: traits que aportan los objetos equipados, con modificadores de stats y especiales (cuerpo etéreo, robo de vida, ataque de área). Abiertas semántica, stacking y corte inicial.
 * [REQ-020 — Cofres, cadáveres saqueables y transferencia](REQ-020-cofres-saqueo.md) - Borrador: cofres y cadáveres como contenedores, transferencia de objetos y botín determinista. Enmienda REQ-017 y el alcance; abiertas interacción, drop y colocación.
 * [REQ-021 — Muerte, fantasma y resurrección](REQ-021-muerte-fantasma-resurreccion.md) - Stable v1: la muerte no expulsa al jugador; cadáver saqueable, fantasma con turno propio y una acción por ronda, resurrección en la casilla del cadáver con mago y maná u objeto, y derrota por wipe total. Enmienda REQ-014, REQ-017 y REQ-020.
+* [REQ-022 — HUD izquierdo del jugador activo](REQ-022-hud-izquierdo-jugador.md) - Borrador: columna izquierda del marco 16:9 con miniatura, stats, inventario y equipo del jugador activo; retira el HUD exterior. Enmienda REQ-002 y REQ-005.
+* [REQ-023 — HUD derecho de detalle bajo el cursor](REQ-023-hud-derecho-detalle-cursor.md) - Borrador: stats exactas de unidades, objetos, cofres y puertas bajo el cursor, limitadas a la línea de visión de un jugador vivo; cofre cerrado sin contenido ni trampa.
+* [REQ-024 — Menú de pausa y guardado local](REQ-024-menu-pausa-guardado.md) - Borrador: menú de pausa con reanudar, guardar en `.zip` (partida y manifiesto), cargar `.json` o `.zip` con confirmación y controles informativos; persistencia local por archivo.
 
 Las tareas deben apuntar a la hoja y a los identificadores de requisito
 concretos. Cuando se cree una hoja nueva, se añadirá aquí con el identificador
