@@ -3,8 +3,8 @@ type: Task
 id: TASK-0067
 title: "EXP-003: UI del banco de ajuste"
 description: Objetivos editables, fila expandible con stats del enemigo, tabla global de armas, diagnóstico 4-de-4, reset y export en la página de la mesa.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, T-003, T-004, T-005, T-006]
