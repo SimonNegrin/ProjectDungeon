@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Experiment — EXP-003 — banco v2 documentado: tres tablas inline a ancho completo (combates, armas y héroes), stats de enemigo compartidos en celdas agrupadas, recálculo 4/3/todas sus filas, resets por tabla y export determinista; 974 tests y 106/106 E2E; el balance base sigue sin aprobar — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-11 — Task — TASK-0071 — cerrada: E2E y QA visual de las tres tablas inline (enemigo 4 filas, héroe 3, arma compartida sin duplicar, objetivo sin duelos, resets por tabla/global, export determinista y capturas 1280×720/900×700); 106/106 E2E, 974 tests y verify OK; ajuste CSS mínimo documentado; fusión `2e27a05` — [informe](../artifacts/TASK-0071/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0070 — cerrada: tres tablas inline a ancho completo (combates con celdas agrupadas del enemigo, armas globales, héroes con arma inicial, detalle ampliado, resets y export); 974 tests y verify OK; sin E2E/QA visual (TASK-0071); fusión `90bb198` — [informe](../artifacts/TASK-0070/attempt-2/report.md)
 * 2026-11-11 — Task — TASK-0069 — cerrada: motor y datos v2 de las tres tablas (overrides de héroe, enemigo compartido, filas 4/3/6/4/0 deduplicadas, objetivo sin simular, export e `overridesId`); 959/959 tests y verify OK; fusión `7076915` — [informe](../artifacts/TASK-0069/attempt-1/report.md)

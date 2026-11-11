@@ -2,7 +2,7 @@
 type: Experiment
 id: EXP-003
 title: "Mesa de combate: acciones, magia, réplica y banco de ajuste (v2.0)"
-description: Simulador data-driven de duelos 1v1 con acciones, magia/maná, réplica y banco de ajuste de enemigos y armas; mide 1.000 duelos por emparejamiento y permite afinar objetivos sin aprobar el balance.
+description: Simulador data-driven de duelos 1v1 con acciones, magia/maná, réplica y banco de ajuste en tres tablas (combates, armas y héroes); mide 1.000 duelos por emparejamiento y permite afinar objetivos sin aprobar el balance.
 status: stable
 experiment_status: ready
 question: ¿Qué valores de acciones, magia y réplica producen combates equilibrados y legibles en los escenarios del primer corte?
@@ -33,7 +33,7 @@ previous_decision:
     Tabla A de REQ-010, histórica; el balance v1 se sustituyó por la pasada
     provisional del 2026-11-09.
 created_at: 2026-11-08T16:37:43Z
-updated_at: 2026-11-11T21:30:00Z
+updated_at: 2026-11-11T23:30:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
   - by: human:simon
@@ -50,10 +50,18 @@ verified:
   - by: task-lead
     at: 2026-11-11T21:30:00Z
     note: >-
-      Banco de ajuste (REQ-028): catálogo de trabajo, objetivos editables,
+      Banco de ajuste v1 (REQ-028): catálogo de trabajo, objetivos editables,
       diagnóstico 4-de-4, resets y export determinista; 945 tests de verify y
       105/105 E2E, con 11/11 del banco y la mesa. No aprueba valores: los 12
       emparejamientos base siguen fuera de la banda.
+  - by: task-lead
+    at: 2026-11-11T23:30:00Z
+    note: >-
+      Banco de ajuste v2 (REQ-028): tres tablas inline a ancho completo
+      (combates, armas y héroes), stats de enemigo compartidos en celdas
+      agrupadas, overrides de héroe, recálculo 4/3/todas sus filas, resets por
+      tabla y export determinista; 974 tests de verify y 106/106 E2E. No aprueba
+      valores: los 12 emparejamientos base siguen fuera de la banda.
 ---
 
 # Propósito
@@ -110,9 +118,10 @@ aceptación. La guía inicial es 75 % Centinela, 85 % Cobarde y 30 % Bruto.
 - Escenario de pasillo abstracto 1D de 8 casillas: héroe en 0, enemigo en 7,
   héroe con iniciativa. Moverse cuesta 1 MP por casilla; atacar y lanzar un
   hechizo cuestan 1 acción.
-- **Banco de ajuste (REQ-028):** objetivos editables por enemigo, editor
-  expandible de stats compartidos, tabla global de armas, diagnóstico 4-de-4,
-  resets y export reproducible. No cambia el motor ni las reglas.
+- **Banco de ajuste (REQ-028):** tres tablas inline a ancho completo —
+  combates con stats compartidos de enemigo, armas globales y héroes—, objetivos
+  editables, diagnóstico 4-de-4, resets y export reproducible. No cambia el motor
+  ni las reglas.
 - Sin grupos, posiciones 2D, terreno, línea de visión ni arte. Eso es v2.1.
 
 # Cómo usarlo
@@ -120,62 +129,79 @@ aceptación. La guía inicial es 75 % Centinela, 85 % Cobarde y 30 % Bruto.
 1. `pnpm run dev` y abre
    `http://127.0.0.1:5173/experiments/EXP-003-mesa-combate/`.
 2. Ajusta semilla y duelos por emparejamiento; por defecto 1017 y 1.000.
-3. Lee la tabla de 12 emparejamientos y selecciona uno para ver acciones,
-   hechizos, maná, daño, PV restantes y distribución de duración.
-4. En el **banco de ajuste**, pulsa «Ajustar» en una fila y edita el enemigo:
-   PV, habilidad, fuerza, defensa, resistencia, acciones, armadura, escudo y
-   arma. El enemigo es compartido: el cambio recalcula sus cuatro filas, no una
-   copia por fila.
-5. Cambia el **objetivo de victorias** de cada enemigo si lo necesitas. La guía
-   inicial es 75/85/30, pero es editable. La fila muestra objetivo, win % real,
-   delta y si está dentro del margen de referencia de ±5 pp; el panel del enemigo
-   muestra el 4-de-4 y qué héroe queda fuera.
-6. En la **tabla de armas**, edita acierto y daño de espada, hacha, daga o
-   cuchillo. El arma es global: la tabla indica qué unidades la usan y se
-   recalculan todas las filas afectadas.
-7. Usa los resets por campo, por enemigo, por arma o global para volver al
-   catálogo base y a la guía de objetivos.
-8. Descarga o copia el JSON. Sin overrides conserva el nombre base; con ajustes
+3. **Tabla de combates:** 12 filas agrupadas por enemigo, cuatro héroes por
+   bloque. Columnas: Héroe, Enemigo, Victorias héroe, Victorias enemigo,
+   % objetivo, % real, PV, Acierto, Daño, Defensa, Resistencia, Acciones,
+   Armadura, Escudo y Arma. El enemigo, el objetivo y los stats compartidos usan
+   celdas agrupadas; un solo input sirve a sus cuatro filas.
+4. **Acierto y Daño** son la habilidad y la fuerza propias del enemigo; el arma
+   suma su acierto y daño aparte y la celda del arma muestra esos valores.
+   `% real` incluye el delta y el estado dentro/fuera de ±5 pp; la celda del
+   enemigo muestra el 4-de-4 y qué héroe queda fuera.
+5. **Tabla de armas:** Arma, Acierto y Daño. Bajo el nombre aparecen las
+   unidades que la usan. Editar un arma recalcula todas las filas donde se use,
+   sean de héroes o de enemigos.
+6. **Tabla de héroes:** Héroe, Arma inicial (con «sin arma»), PV, Acierto, Daño,
+   Defensa, Resistencia, Acciones, Armadura, Escudo y Nivel de magia. Editar un
+   stat recalcula las tres filas del héroe; cambiar el arma también actualiza la
+   tabla de armas.
+7. Selecciona una fila para ver el detalle: acciones, hechizos, maná, PV,
+   réplicas, duración, banda, TTK, turnos/rondas y daño.
+8. Usa los resets por tabla o global para volver al catálogo base y a la guía de
+   objetivos.
+9. Descarga o copia el JSON. Sin overrides conserva el nombre base; con ajustes
    usa `bench-overrides-<id>` e incluye catálogo ajustado, objetivos,
    diagnóstico y semilla. La página no decide ni aprueba el balance.
-9. Para una ejecución determinista: `?test=1&seed=1017`.
-10. Reproducción por CLI:
+10. Para una ejecución determinista: `?test=1&seed=1017`.
+11. Reproducción por CLI:
     `pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2`.
 
 La API de test `window.__experiment` mantiene `getSeed`, `setSeed`, `getDuels`,
 `setDuels`, `runAll`, `getResults`, `snapshot`, `getDecision` y `reset`, y añade
 `getTargets`, `setTarget`, `resetTarget`, `getOverrides`, `resetEnemy`,
 `resetWeapon`, `resetWeaponField`, `resetAll`, `setEnemyField`,
-`resetEnemyField`, `setWeaponField`, `recalculate`, `getDiagnosis`,
-`getWorkingCatalog` y `getOverridesId`.
+`resetEnemyField`, `setWeaponField`, `setHeroField`, `resetHeroField`,
+`resetHero`, `resetEnemies`, `resetWeapons`, `resetHeroes`, `recalculate`,
+`getDiagnosis`, `getWorkingCatalog` y `getOverridesId`.
 
 # Banco de ajuste (REQ-028)
 
 El banco es una capa de edición sobre el catálogo base. No cambia el motor, las
 fórmulas ni el escenario: proyecta un **catálogo de trabajo** con overrides y
-vuelve a medir las filas afectadas con la misma semilla y los mismos duelos.
+vuelve a medir solo las filas afectadas con la misma semilla y los mismos duelos.
 
-- **Enemigo compartido:** editar un enemigo reconstruye sus cuatro filas
-  (Guerrero, Pícaro, Mago y Clérigo). No hay copias por emparejamiento.
-- **Armas globales:** acierto y daño se editan una vez para todos los que usan
-  el arma. La espada mueve 6 filas (Guerrero contra los tres enemigos y los
-  cuatro héroes contra Centinela, con la fila de Guerrero/Centinela compartida);
-  la daga, otras 6; el hacha, 4; el cuchillo no lo usa ningún combatiente de la
-  muestra y no mueve filas.
-- **Objetivos editables:** cada enemigo tiene un objetivo entero 0–100. La guía
-  inicial 75/85/30 no es normativa. El margen de referencia es ±5 pp.
-- **Diagnóstico:** por fila, objetivo, win % real, delta y dentro/fuera; por
-  enemigo, 4-de-4, mínimo, máximo y dispersión. Se avisa cuando la dispersión
-  entre héroes supera 10 pp (un bloque compartido no puede centrar las cuatro
-  filas) o cuando el arma del enemigo también la usa un héroe. Son avisos
-  informativos: no bloquean edición, export ni reset.
-- **Recálculo:** solo las filas afectadas, con retardo al escribir y estado
-  visible. En la máquina de referencia, 4 × 1.000 duelos tardan ~61 ms.
-- **Reset:** por campo, por enemigo, por arma y global; restaura catálogo base y
-  guía de objetivos.
-- **Export:** incluye catálogo ajustado, objetivos, overrides, diagnóstico y un
-  `overridesId` determinista sin marca de tiempo. Sin overrides conserva el
-  nombre histórico; con overrides usa `bench-overrides-<id>`.
+- **Tres tablas:** combates (12 filas agrupadas por enemigo), armas (una fila por
+  arma) y héroes (una fila por héroe). Todas usan el ancho completo de la ventana
+  y editan en la propia celda.
+- **Enemigo compartido:** el Centinela, el Bruto y el Cobarde tienen un solo
+  bloque de stats para sus cuatro héroes. Las celdas del enemigo, el objetivo y
+  los stats se agrupan verticalmente; editar un stat recalcula sus cuatro filas
+  y el bloque se resalta al enfocar el campo.
+- **Acierto y Daño propios:** la columna Acierto edita la habilidad y la columna
+  Daño edita la fuerza. El arma suma aparte; la celda del arma muestra su
+  acierto/daño para que la suma sea legible.
+- **Armas globales:** acierto y daño se editan una vez para todos los que usan el
+  arma. La espada mueve 6 filas (Guerrero contra los tres enemigos y los cuatro
+  héroes contra Centinela, con Guerrero/Centinela compartida); la daga, otras 6;
+  el hacha, 4; el cuchillo no lo usa ningún combatiente de la muestra y no mueve
+  filas. La lista de unidades se actualiza si un héroe o un enemigo cambia de
+  arma.
+- **Héroes editables:** stats, armadura, escudo, nivel de magia y arma inicial.
+  Cambiar un stat recalcula las tres filas del héroe; cambiar el arma recalcula
+  sus tres filas y actualiza las unidades de la tabla de armas.
+- **Objetivos y diagnóstico:** objetivo entero 0–100 por enemigo (guía 75/85/30,
+  no normativa); `% real` con delta y dentro/fuera de ±5 pp; 4-de-4 y dispersión
+  en la celda del enemigo. Cambiar el objetivo solo actualiza el diagnóstico, no
+  repite duelos. Los avisos son informativos y no bloquean.
+- **Recálculo:** enemigo 4 filas, héroe 3 filas, arma todas las filas donde se
+  use; estado visible con el número de filas recalculadas. En la máquina de
+  referencia, 4 × 1.000 duelos tardan ~61 ms.
+- **Reset:** por tabla (enemigos, armas, héroes) y global; restaura catálogo base
+  y guía de objetivos. No hay botones de reset por campo dentro de las celdas.
+- **Export:** incluye catálogo ajustado (enemigos, armas y héroes), objetivos,
+  overrides, diagnóstico y un `overridesId` determinista sin marca de tiempo. Sin
+  overrides conserva el nombre histórico; con overrides usa
+  `bench-overrides-<id>`.
 
 El banco **no aprueba el balance**. Los 12 emparejamientos base siguen entre
 96,3 % y 100 % de victorias del héroe, fuera de la banda 40–60 %. La mesa sirve
@@ -390,9 +416,16 @@ Evidencia v1: [JSON de decisión](results/decision-2026-11-08T17-18-00Z.json) y
   con la UI, los resets y el export.
 - [Informe de TASK-0068](../../artifacts/TASK-0068/attempt-1/report.md) y
   [verificación independiente](../../artifacts/TASK-0068/attempt-1/verification-lead.md)
-  con E2E, QA visual y capturas.
-- Tests: 945 tests de `pnpm run verify` y 105/105 E2E; 11/11 de la mesa y el
-  banco. Recálculo de 4 × 1.000 duelos medido en ~61 ms.
+  con E2E, QA visual y capturas de la v1 del banco.
+- [Informe de TASK-0069](../../artifacts/TASK-0069/attempt-1/report.md) con los
+  overrides de héroe, las filas afectadas 4/3/todas y el export.
+- [Informe de TASK-0070](../../artifacts/TASK-0070/attempt-2/report.md) con las
+  tres tablas inline, las celdas agrupadas y el detalle ampliado.
+- [Informe de TASK-0071](../../artifacts/TASK-0071/attempt-1/report.md) y
+  [verificación del lead](../../artifacts/TASK-0071/attempt-1/verify-output-lead.txt)
+  con E2E, QA visual a 1280×720 y 900×700, capturas y exports.
+- Tests: 974 tests de `pnpm run verify` y 106/106 E2E. Recálculo de 4 × 1.000
+  duelos medido en ~61 ms; el export base y el ajustado son deterministas.
 - Reproducción: `pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2`.
 
 # Siguientes pasos
