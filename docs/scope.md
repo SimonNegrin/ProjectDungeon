@@ -1,67 +1,40 @@
 ---
 type: Scope
 title: Alcance y fases
-description: Alcance vigente, hitos y límites del proyecto.
+description: Horizonte del juego, alcance vigente, fases y límites del proyecto.
 status: draft
-generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:18:04Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T10:05:00Z }
 ---
 
 # Alcance vigente
 
-La **fase 1** está cerrada en su núcleo y la fase 1.9 también: `REQ-008` cerró el
-suelo programático y la decoración ambiental con `TASK-0023` y `TASK-0024`. La fase 0 dejó documentación, agentes, skills
-y un shell de experimentos fiable. El primer hito jugable está construido y
-probado por el usuario; `REQ-002` cerró el encuadre, la sala y el movimiento.
-`REQ-003` cerró la generación procedural con BSP, la interfaz `MapGenerator` y
-pasillos anchos de 2 tiles. `REQ-004` cerró el cursor de selección, el camino
-resaltado y las acciones por destino tras el playtest. `REQ-005` ajustó el
-sub-viewport a 13×13 tiles para centrar al jugador y mostrar tiles completos en
-los bordes. `REQ-006` completó la fase 1.7: el movimiento se presenta tile a tile
-con la cámara siguiendo al personaje y el input bloqueado hasta terminar, con el
-ritmo decidido en `EXP-002` (125 ms por paso, 70 ms de pausa y diagonal a
-duración constante). `REQ-007` completó la fase 1.8: el suelo transitable usa un
-damero global de dos tonos y una decoración plana determinista que no bloquea,
-aprobada en playtest. `REQ-008` completó la fase 1.9: damero de colores planos
-con paleta por sala y decoración ambiental, sin cambiar reglas.
+El prototipo actual es un dungeon crawler de un jugador con teclado: mazmorra
+generada, turnos, combate con equipo, percepción y feedback visual. La base está
+cerrada: `REQ-001` a `REQ-010` y `REQ-017` están implementadas; `REQ-009`,
+`REQ-011`, `REQ-012` y `REQ-013` están `stable` con playtest pendiente o en curso.
 
-Dos cortes de juego quedan implementados y pendientes de playtest. `REQ-010`
-está `stable` y cerrado con `TASK-0026` a `TASK-0030`: define el combate con
-equipo (acierto, defensa y daño variable) con el balance provisional v1 de
-`REQ-010` v5. `REQ-009` también está `stable` e implementado con `TASK-0034` a
-`TASK-0039` cerradas: fija el bestiario (Centinela/Bruto/Cobarde), la percepción
-por pasos, la alarma de una onda y la huida determinista del cobarde.
+El trabajo inmediato es cerrar el generador denso y la exploración
+(`TASK-0043` a `TASK-0049`), el feedback visual (`TASK-0057` a `TASK-0061`) y
+preparar la fase 2: esquema de atributos, roster y pantalla de inicio
+(`TASK-0053` a `TASK-0056`; `REQ-016` en borrador).
 
-El siguiente corte está planificado. `REQ-011` añade un segundo `MapGenerator`
-de mazmorra densa con salas poligonales, pasillos cortos y puertas validadas;
-`REQ-012` cambia la aparición para todos los generadores (grupo alrededor del
-acceso de la sala más protegida), la adyacencia en parejas y el reparto orgánico
-de enemigos del generador denso por superficie y jugadores; `REQ-013` define la
-entrada, la salida y la exploración mínima por nivel. `EXP-004` cerró la decisión
-el 2026-11-09: `growth` es el generador por defecto y BSP queda como alternativa
-inyectable; las tareas `TASK-0043` a `TASK-0049` promocionan el modelo, el
-generador y el host. Después, la fase 2: multijugador local hotseat.
+# Horizonte
 
-El milestone actual prepara la fase 2 y adelanta contenido de héroes. `REQ-014`
-fija el esquema de ocho atributos inherentes (habilidad, fuerza, defensa,
-resistencia, puntería, magia, PV y MP) y enmienda la fórmula de combate: la
-resistencia entra en la absorción junto a la armadura. `REQ-015` define el roster
-de nueve arquetipos con stats, arma temática, dos variantes de sprite y nombre
-editable, y el método de balance por porcentaje de victorias esperado. `REQ-016`
-(borrador) define la pantalla de inicio (nº de jugadores 1–6, arquetipo, variante
-y nombre). Las tareas `TASK-0053` a `TASK-0056` implementan el esquema y el
-roster; la pantalla de inicio espera cerrar su borrador.
+El estado final buscado está en la [visión](vision.md): roguelike 2D cooperativo,
+hotseat y remoto por QR, estética clásica con tacto moderno, catálogo amplio de
+armas y enemigos, habilidades y magia, progresión por puntos de habilidad,
+puertas con llave, cofres, inventario, equipo y traits. La muerte no expulsa al
+jugador: cadáver con objetos, fantasma jugable y resurrección condicionada.
 
-`REQ-017` añade el feedback visual de eventos: todo evento tiene una respuesta
-visual o una excepción declarada, con un ritmo pausado, ataque/defensa/muerte
-legibles, cadáver persistente de presentación y atajo para enemigos fuera de
-pantalla. La hoja está aprobada y planificada en `TASK-0057` a `TASK-0061`.
+El horizonte **no es el alcance vigente**. Cada sistema necesita su hoja de
+requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 
 # Fases
 
 | Fase | Objetivo | Estado |
 |---|---|---|
 | 0 | Documentación base, agentes, skills y shell de experimentos | Completado |
-| 1 | Prototipo local de un jugador con teclado | Completado; REQ-002 y REQ-003 cerradas |
+| 1 | Prototipo local de un jugador con teclado | Completado; REQ-001 y REQ-002 cerradas |
 | 1.5 | Generación procedural del mapa y muros (REQ-003) | Completado tras playtest; BSP, `MapGenerator` y pasillos anchos de 2 tiles |
 | 1.6 | Cursor de selección, camino y acciones por destino (REQ-004 y REQ-005) | Completado tras playtest; viewport 13×13 y TASK-0012 a TASK-0016 cerradas |
 | 1.7 | Animación del recorrido, cámara que sigue y bloqueo de input (REQ-006) | Completada tras playtest; ritmo 125/70 y diagonal constante; TASK-0017 a TASK-0019 cerradas |
@@ -71,34 +44,43 @@ pantalla. La hoja está aprobada y planificada en `TASK-0057` a `TASK-0061`.
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
 | 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Decidido: `growth` por defecto; EXP-004 cerrado en TASK-0042; producción planificada en TASK-0043 a TASK-0049 |
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Planificada: TASK-0057 a TASK-0061 |
-| 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador |
+| 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador (REQ-016) |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
-| 4 | Contenido: clases, objetivos, niveles, arte y audio | Pendiente |
+| 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
+
+Las fases 2 y 3 son **ambas obligatorias**: el juego debe soportar hotseat y
+control remoto. El orden indica qué se construye antes, no qué modo es opcional.
+
+# Estado de requisitos
+
+El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
+
+- `REQ-001` a `REQ-015` y `REQ-017`: implementadas o `stable`, con playtest
+  pendiente en `REQ-009`.
+- `REQ-016` (pantalla de inicio), `REQ-018` (inventario y equipo), `REQ-019`
+  (traits de objetos) y `REQ-020` (cofres y cadáveres saqueables): **borrador**;
+  `REQ-018` a `REQ-020` sin tareas.
+- Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
+  ordenar con `REQ-018`/`REQ-020`.
 
 # Primer hito jugable
 
-- Una sala de rejilla cuadrada.
-- Un jugador controlado con teclado.
-- Un enemigo controlado por IA simple.
-- Cámara que sigue al jugador activo.
-- Fase de jugadores y después fase de enemigos.
-- Movimiento y ataque en diagonal.
-- Puntos de movimiento y una acción por turno.
-- Victoria al eliminar a todos los enemigos; derrota si el jugador cae.
-- Arte placeholder y HUD mínimo.
-
-Estado: **cerrado** tras el playtest de `REQ-001`. Las mejoras de encuadre,
-tamaño de sala y movimiento por turno pasan a
-[REQ-002](requirements/REQ-002-encuadre-16-9.md).
+Cerrado tras el playtest de `REQ-001`: una sala, un jugador con teclado, un
+enemigo con IA simple, cámara que sigue al jugador, fase de jugadores y fase
+enemiga, movimiento y ataque en diagonal, MP y una acción por turno, victoria al
+eliminar a los enemigos y derrota si el jugador cae, arte placeholder y HUD
+mínimo. Se conserva como referencia histórica.
 
 Los valores concretos de la economía de turno son provisionales y viven en
 [la economía de turno](design/turn-economy.md).
 
 # Decisiones confirmadas
 
-- El juego es local-first.
+- El juego es local-first en su construcción: teclado, después hotseat y después
+  remoto. El orden no hace opcional ninguno de los modos.
+- Se juega con teclado, hotseat y controladores remotos móviles por QR; hotseat y
+  remoto son ambos objetivo del producto.
 - El host es solo pantalla.
-- Ahora se juega con teclado; después, hotseat; al final, controladores remotos.
 - El servidor será Node a medida y las partidas vivirán en memoria.
 - El motor será TypeScript y Canvas 2D.
 - La rejilla es cuadrada; movimiento y ataque diagonales.
@@ -108,8 +90,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - La cámara sigue al jugador activo.
 - El movimiento se presenta animado tile a tile, con la cámara siguiendo al
   personaje y el input bloqueado hasta que termina.
-- La mazmorra se genera por semilla con BSP; el primer corte usa un mapa de 32×32.
-- La generación se encapsula tras `MapGenerator` para poder cambiar el algoritmo.
+- La mazmorra se genera por semilla; `growth` es el generador por defecto y BSP
+  queda como alternativa inyectable.
+- La generación se encapsula tras `MapGenerator`.
 - Hay pasillos estrechos con puertas y 1-2 pasillos anchos de 2 tiles sin puertas.
 - El suelo usa un damero de dos colores planos generados por código, con base
   común y segundo tono por sala; la decoración plana se agrupa por ambientes y no
@@ -119,31 +102,25 @@ Los valores concretos de la economía de turno son provisionales y viven en
   reduce daño; cada personaje aporta modificadores de acierto, daño y defensa.
   La tabla A de `EXP-003` queda sustituida por el balance provisional v1 de
   `REQ-010` v5; los números se reajustarán.
-- Los enemigos tienen visión de 360° con línea de visión (los muros bloquean y
-  las unidades no), detección en cada paso y alarma de una onda de radio 5 sin
-  cadena. El perfil cobarde huye de forma determinista al recibir un golpe de al
-  menos el 40 % de su vida máxima; la alerta y la huida usan el MP por tipo
-  (Centinela 5, Bruto 4, Cobarde 6).
-- El generador de mazmorra densa `growth` es el defecto de producción: mapas
-  pequeños (~22×18), mínimo de 3 salas (4-6 normales y 3 en caverna), salas
-  poligonales pared con pared, pasillos de 0-3 tiles, pasillos anchos ocasionales
-  y una caverna excepcional. BSP se mantiene como alternativa inyectable; las
-  otras variantes siguen en `EXP-004`.
+- Los enemigos tienen visión de 360° con línea de visión, detección en cada paso
+  y alarma de una onda de radio 5 sin cadena. El perfil cobarde huye de forma
+  determinista al recibir un golpe de al menos el 40 % de su vida máxima; la
+  alerta y la huida usan el MP por tipo (Centinela 5, Bruto 4, Cobarde 6).
 - Las puertas de los accesos son decorativas y acordes a la zona; no bloquean.
-  Solo se dibujan con dos muros en la línea, suelo a ambos lados y conexión
-  entre dos salas distintas, con separación Chebyshev ≥3 y máximo una por
-  pasillo; si la geometría no lo permite, queda una boca abierta con aviso.
+  Solo se dibujan con dos muros en la línea, suelo a ambos lados y conexión entre
+  dos salas distintas, con separación Chebyshev ≥3 y máximo una por pasillo; si
+  la geometría no lo permite, queda una boca abierta con aviso.
 - En todos los generadores, el grupo aparece alrededor del acceso de la sala más
   protegida, con al menos 6 huecos y sin enemigos ni línea de visión inicial. En
-  empate se evita la sala mayor y se permiten parejas adyacentes, nunca grupos
-  de 3 o más. BSP conserva 4 enemigos; el generador denso calcula el total por
+  empate se evita la sala mayor y se permiten parejas adyacentes, nunca grupos de
+  3 o más. BSP conserva 4 enemigos; el generador denso calcula el total por
   superficie de salas y jugadores (factores 0,02 y 1,2 con 6 jugadores por
   defecto), lo reparte por área con mínimo 1 por sala no-spawn, prefiere
   interiores y puede colocar emboscados en puntos calientes al 0,25.
 - La entrada es el acceso de spawn y la salida es única: una sala no-spawn a
-  distancia de grafo ≥2, preferiblemente la más lejana. Se representa como
-  puerta exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional
-  de niveles queda fuera de este corte.
+  distancia de grafo ≥2, preferiblemente la más lejana. Se representa como puerta
+  exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional de
+  niveles queda fuera de este corte.
 - Cada personaje tiene ocho atributos inherentes independientes del equipo:
   habilidad (acierto), fuerza (daño), defensa (evitación), resistencia
   (absorción), puntería y magia (sin efecto aún), PV y MP. La resistencia se suma
@@ -157,25 +134,45 @@ Los valores concretos de la economía de turno son provisionales y viven en
   héroe atacando primero, equipo básico y 1.000 duelos, con tolerancia ±2 %.
 - Cada evento del motor tiene feedback visual o una excepción declarada, con un
   beat pausado y un techo de tiempo. El ataque, la defensa y la muerte se leen
-  con secuencia; el cadáver es persistente pero solo presentación; la fase
-  enemiga es secuencial y usa un atajo fuera de pantalla.
+  con secuencia; el cadáver es persistente pero solo presentación en ese corte.
+- **Nadie sale de la partida**: el jugador muerto sigue jugando. El cadáver queda
+  en el suelo con sus objetos y el jugador pasa a fantasma con turno propio,
+  movimiento limitado y una acción por ronda.
+- El fantasma no atraviesa muros, sí personajes y enemigos, no puede terminar en
+  una casilla ocupada y los demás también pueden atravesarlo; no bloquea el paso.
+- La resurrección requiere un mago vivo con el hechizo y maná suficiente, o un
+  objeto de resurrección en el inventario de quien lo usa. Quien resucita debe
+  estar adyacente a la casilla del cadáver, libre de vivos; el personaje vuelve en
+  esa casilla, no en la del fantasma. Sin fuente disponible, la muerte es
+  definitiva.
+- Los hechizos usan un recurso de **maná** derivado de la puntuación de magia,
+  separado del MP de movimiento. La regeneración y el coste quedan por decidir.
 
 # Fuera de alcance ahora
 
-- Servidor, WebSocket, QR y salas.
-- Cuentas, base de datos, matchmaking y persistencia.
-- Hotseat jugable (varios jugadores por turnos en un teclado); la pantalla de
-  configuración (REQ-016, borrador) es preparación. Red y remoto siguen fuera.
-- Arte y audio finales.
-- Saqueo de cadáveres; el cadáver actual es solo presentación y no se interactúa
-  con él.
-- Encadenado funcional de múltiples niveles, objetivos, progresión de clase y
-  habilidades (el roster de arquetipos ya está definido, sin progresión).
+- Servidor, WebSocket, QR y salas (fase 3).
+- Cuentas, base de datos y matchmaking. La persistencia local está pendiente de
+  decidir con la estructura de run.
+- Hotseat jugable; la pantalla de configuración (`REQ-016`, borrador) es
+  preparación.
+- Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
+- Habilidades, magia, proyectiles, teletransporte y curación: horizonte sin hoja
+  aprobada.
+- Puntos de habilidad, acciones por personaje como atributo y progresión:
+  horizonte sin hoja aprobada.
+- Puertas con llave y cofres implementados; `REQ-020` sigue en borrador.
+- Inventario, equipo y traits implementados; `REQ-018` y `REQ-019` siguen en
+  borrador.
+- Estructura de run (roguelike), muerte permanente y encadenado funcional de
+  niveles: sin definir.
+- Saqueo de cadáveres: definido como objetivo de la muerte jugable, sin
+  implementar.
 
 # Restricciones
 
 - Debe funcionar en navegador de escritorio para el host.
-- Los controladores futuros serán móviles; la UI deberá ser táctil y legible.
+- Debe soportar hotseat y control remoto por QR; la UI debe ser táctil y legible.
 - El motor no dependerá del DOM, de la red ni del teclado.
 - La documentación debe ser OKF y validable.
 - El usuario no debe tener que revisar código para tomar decisiones creativas.
+- La estética vintage no puede comprometer la legibilidad.

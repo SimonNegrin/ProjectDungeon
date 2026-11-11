@@ -54,7 +54,7 @@ eso es `REQ-016`.
 | R-004 | Defensa se mantiene: se suma al escudo para evitar impactos. | Igual que en REQ-010; el escudo sigue evitando, no reduciendo. |
 | R-005 | Resistencia es absorción de daño: se suma a la armadura del equipo en una sola capa. La armadura se entiende como un bonus a la resistencia. | El daño se reduce por (resistencia + armadura); quitar la armadura sube el daño recibido y quitar la resistencia también. |
 | R-006 | Puntería es un slot sin efecto en este corte; queda para el futuro ataque a distancia. | El atributo existe y es serializable; no cambia ningún cálculo actual. |
-| R-007 | Magia es un slot sin efecto en este corte: un personaje puede tener varias familias de magia a la vez, cada una con un nivel de 1 a 4 (p. ej. `{ fuego: 3, veneno: 4 }`). | El atributo admite varias familias con nivel 1–4; no cambia ningún cálculo actual. |
+| R-007 | Magia define las familias de hechizo del personaje, cada una con un nivel de 1 a 4 (p. ej. `{ fuego: 3, veneno: 4 }`), y alimenta el recurso de maná de `REQ-021`; el resto de sus efectos queda para la hoja de magia. | El atributo admite varias familias con nivel 1–4 y es serializable; el maná deriva de la puntuación de magia. |
 | R-008 | La fórmula de impacto se renombra: `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el empate sigue fallando. | Mismas probabilidades de REQ-010 con los nombres nuevos. |
 | R-009 | La fórmula de daño incorpora la resistencia: `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`. | Con resistencia 0, el daño es idéntico al de REQ-010; con resistencia >0, baja. |
 | R-010 | Héroes y enemigos comparten el mismo esquema de atributos; los enemigos conservan además sus campos de IA (visión, alarma, perfil). | El bestiario declara los ocho atributos por tipo además de visión/alarma/MP. |
@@ -105,7 +105,8 @@ eso es `REQ-016`.
 | 2026-11-09 | Habilidad = acierto y fuerza = daño (renombran los modificadores de REQ-010); defensa se mantiene. | human:simon | aceptada |
 | 2026-11-09 | Resistencia = absorción de daño; la armadura del equipo es un bonus que se suma en una sola capa. | human:simon | aceptada |
 | 2026-11-09 | La resistencia tira 1d6, como hoy la armadura. | human:simon | aceptada |
-| 2026-11-09 | Puntería y magia son slots sin efecto en este corte. | human:simon | aceptada |
+| 2026-11-09 | Puntería y magia son slots sin efecto en este corte. | human:simon | aceptada; magia enmendada el 2026-11-11 |
+| 2026-11-11 | Enmienda `REQ-021`: magia alimenta el maná de los hechizos; las familias 1–4 se mantienen. | human:simon | aceptada |
 | 2026-11-09 | Magia multi-familia con nivel 1–4 por familia. | human:simon | aceptada |
 | 2026-11-09 | Héroes y enemigos comparten el mismo esquema de stats. | human:simon | aceptada |
 

@@ -80,7 +80,7 @@ más vivo: **más rápido que en 1986, más lento que en 2026**.
 | R-006 | En un fallo, el atacante hace la misma embestida y el defensor responde con un gesto de esquiva o de escudo; se muestra `Fallo` en gris. No hay destello rojo ni sacudida de impacto. | Impacto y fallo se distinguen en escala de grises; el fallo muestra `Fallo`; no hay destello de impacto. |
 | R-007 | La defensa es visible: el defensor reacciona tanto si el ataque impacta como si falla. No se inventan reglas ni se afirma qué tirada concreta ha evitado el golpe. | El defensor tiene una reacción visible en ambos casos; el texto no atribuye el fallo a una regla no expuesta. |
 | R-008 | La muerte se presenta en 900 ms: destello blanco, tres parpadeos, disolución de paleta de 300 ms y sacudida de 1 px. Al terminar queda un cadáver persistente en el tile. | La unidad no desaparece en el impacto; la secuencia se ve completa; el cadáver queda al final; la unidad muerta no se dibuja como viva. |
-| R-009 | El cadáver es **solo presentación** en este corte: se dibuja desde la unidad muerta que el motor ya conserva, no bloquea, no se puede interactuar y no añade reglas. El saqueo futuro tendrá su propia hoja y podrá leer el botín de la unidad muerta. | No hay comandos ni eventos nuevos; el pathfinding no cambia; el cadáver no se escribe en `state.grid.tiles`; se puede caminar sobre él. |
+| R-009 | El cadáver de enemigo es **solo presentación** en este corte: se dibuja desde la unidad muerta que el motor ya conserva, no bloquea, no se puede interactuar y no añade reglas. El cadáver de jugador queda definido por `REQ-021` como contenedor saqueable y origen del fantasma; esta hoja conserva su presentación de muerte. | No hay comandos ni eventos nuevos para enemigos; el pathfinding no cambia; el cadáver no se escribe en `state.grid.tiles`; se puede caminar sobre él. |
 | R-010 | El cadáver persiste hasta reiniciar la sala, regenerar la semilla o cambiar de nivel. Se dibuja bajo la capa de unidades y sobre la decoración del suelo. | El cadáver sigue visible tras varios turnos; desaparece al reiniciar o regenerar; no tapa al jugador ni al cursor. |
 
 ## Inventario y percepción
@@ -204,7 +204,8 @@ su fila o declarar una excepción antes de implementarse.
 - Audio y sonido.
 - Partículas, blur, degradados, inversión de color a pantalla completa y
   animaciones de sprite de varios frames.
-- Saqueo de cadáveres y cadáver como entidad de motor.
+- Saqueo de cadáveres de enemigos y cadáver como entidad de motor; el cadáver de
+  jugador y el fantasma los define `REQ-021`.
 - Cambios en reglas, combate, IA, pathfinding, generación o economía de turno.
 - Relojes paralelos por unidad o fase enemiga solapada.
 - Sacudida de cámara de más de 2 px o a pantalla completa.
@@ -231,6 +232,7 @@ sin cambiar las reglas:
 | 2026-11-10 | Fase enemiga secuencial; enemigos visibles con beat completo y cámara; fuera de pantalla con atajo de ~150 ms y sin cámara. | human:simon | aceptada |
 | 2026-11-10 | Silencios solo en transiciones redundantes: `TurnEnded` calla cuando le sigue `EnemyPhaseStarted`. | human:simon | aceptada |
 | 2026-11-10 | Cadáver persistente, solo presentación en este corte; el saqueo futuro tendrá su propia hoja. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-021`: el cadáver de jugador es contenedor saqueable y origen del fantasma; el de enemigo sigue solo como presentación en este corte. | human:simon | aceptada |
 | 2026-11-10 | El sprite de cadáver se reserva para muertes reales y se retira de la decoración ambiental. | human:simon | aceptada |
 | 2026-11-10 | Separar reglas creativas (REQ-017) e implementación (ADR-017). | human:simon | aceptada |
 

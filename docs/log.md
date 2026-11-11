@@ -2,6 +2,12 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-021 — stable v1: aprobada por el usuario; enmiendas aplicadas a REQ-014 (magia alimenta maná), REQ-017 (cadáver de jugador) y REQ-020 (solo enemigos) — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Requirement — REQ-021 — actualizada: maná aparte derivado de magia para hechizos y resurrección, intento fallido sin coste y un vivo puede bloquear la resurrección quedándose sobre el cadáver — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Requirement — REQ-021 — actualizada: la resurrección ocurre en la casilla del cadáver, con el resucitador adyacente y la casilla libre de vivos — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Requirement — REQ-021 — creada (borrador): cadáver saqueable, fantasma con turno, MP intrínseco y una acción, casilla compartida sin bloqueo, resurrección por mago u objeto y derrota por wipe total; enmienda REQ-017 y REQ-020 — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Docs — vision — reescrita: estado final roguelike cooperativo, hotseat y QR ambos obligatorios, tono vintage con tacto moderno, sistemas del horizonte, principio «nadie sale de la partida», regla de idea evolutiva y preguntas abiertas — [vision](vision.md)
+* 2026-11-11 — Docs — scope — reescrita: horizonte separado del alcance vigente, fases 2 y 3 ambas obligatorias, REQ-018/019/020 reflejadas y corregidas las contradicciones sobre habilidades, saqueo y progresión — [scope](scope.md)
 * 2026-11-11 — Harness — requirements-writer/harness-keeper — límite de respuesta relajado a 500 palabras orientativas (antes 120/6 líneas), informe final sin límite en `requirements-writer` y retirada de las reglas de una pregunta y 3 opciones; aplicado a ambos agentes y a la skill `requirements-interview` — [agente](../.opencode/agents/requirements-writer.md)
 * 2026-11-11 — Decision — ADR-018 — Harness Keeper: agente primario para arnés y documentación, propiedad por ruta y auditoría manual sin cadencia obligatoria — [ADR-018](decisions/ADR-018-harness-keeper.md)
 * 2026-11-11 — Harness — harness-keeper — creado el agente; `requirements-writer` deja de editar `docs/harness`, plantillas y `AGENTS.md`; actualizados workflow, AGENTS, README y validador — [agente](../.opencode/agents/harness-keeper.md)
