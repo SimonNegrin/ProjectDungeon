@@ -364,13 +364,13 @@
 
 .bench-fields {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 10px;
 }
 
 .bench-field {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 4px 6px;
   align-items: center;
   padding: 8px;
@@ -392,6 +392,15 @@
 .bench-field input,
 .bench-field select {
   width: 100%;
+  min-width: 0;
+}
+
+.bench-field select {
+  grid-column: 1 / -1;
+}
+
+.bench-field .field-error {
+  grid-column: 1 / -1;
 }
 
 .state-ok {

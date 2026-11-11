@@ -1303,6 +1303,29 @@ function flushRecalculation(): number {
   return affected.size;
 }
 
+let flushingPending = false;
+
+/**
+ * Fuerza el recálculo pendiente antes de exportar o leer estado. No se llama
+ * desde `currentExport()` para evitar la recursión de `renderExport()` durante
+ * `syncDerived()`.
+ */
+function ensureRecalculated(): void {
+  if (flushingPending) return;
+  if (recalcTimer === null && pendingSelections.length === 0) return;
+  if (recalcTimer !== null) {
+    clearTimeout(recalcTimer);
+    recalcTimer = null;
+  }
+  flushingPending = true;
+  try {
+    const count = flushRecalculation();
+    benchStatus.textContent = `Recalculado: ${count} filas afectadas.`;
+  } finally {
+    flushingPending = false;
+  }
+}
+
 function recalculateNow(selection?: BenchSelection): MeasurementPayload {
   if (recalcTimer !== null) {
     clearTimeout(recalcTimer);
@@ -1456,6 +1479,7 @@ resetAllButton.addEventListener('click', () => {
 });
 
 copyButton.addEventListener('click', async () => {
+  ensureRecalculated();
   const payload = currentExport();
   const copied = await copyJson(
     payload as unknown as Parameters<typeof copyJson>[0],
@@ -1467,6 +1491,7 @@ copyButton.addEventListener('click', async () => {
 });
 
 downloadButton.addEventListener('click', () => {
+  ensureRecalculated();
   const payload = currentExport();
   const fileName = benchFileName(payload, overrides);
   downloadText(fileName, benchExportJson(payload));
@@ -1538,9 +1563,18 @@ const api: V2ExperimentApi = {
     recomputeAll();
   },
   runAll: () => recalculateNow(),
-  getResults: () => results,
-  snapshot: () => currentSnapshot(),
-  getDecision: () => currentExport(),
+  getResults: () => {
+    ensureRecalculated();
+    return results;
+  },
+  snapshot: () => {
+    ensureRecalculated();
+    return currentSnapshot();
+  },
+  getDecision: () => {
+    ensureRecalculated();
+    return currentExport();
+  },
   reset: () => {
     seed = DEFAULT_SEED;
     duels = DEFAULT_DUELS;
@@ -1587,7 +1621,10 @@ const api: V2ExperimentApi = {
     setWeaponField(weaponId, field, value);
   },
   recalculate: (selection) => recalculateNow(selection),
-  getDiagnosis: () => diagnosis,
+  getDiagnosis: () => {
+    ensureRecalculated();
+    return diagnosis;
+  },
   getWorkingCatalog: () => workingCatalog,
   getOverridesId: () => overridesId(overrides),
 };
