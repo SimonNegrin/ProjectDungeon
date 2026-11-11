@@ -28,11 +28,10 @@ No lances un formulario. Avanza por bloques:
 6. **Aceptación**: cómo sabremos que funciona.
 7. **Riesgos**: contradicciones, dependencias y costes.
 
-Haz preguntas enfocadas, una por mensaje. Refleja lo entendido en una línea.
-Propón como máximo 3 opciones con su tradeoff en una línea. Señala
-contradicciones en el momento.
+Haz preguntas enfocadas. Refleja lo entendido en una línea. Propón opciones con
+su tradeoff en una línea. Señala contradicciones en el momento.
 
-Brevedad: 120 palabras o 6 líneas por turno. Si no cabe, divide en turnos. El
+Sé conciso: intenta no superar las 500 palabras por turno si es posible. El
 detalle va a la hoja, no al chat; solo el resumen previo a la aprobación puede
 ser completo.
 

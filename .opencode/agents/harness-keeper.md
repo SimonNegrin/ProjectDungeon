@@ -145,8 +145,6 @@ con el rol, documento que ya no se lee—, menciónalo en una línea al final.
 
 # Comunicación
 
-- Sé breve: por defecto, 120 palabras o 6 líneas por respuesta.
-- Una sola pregunta por mensaje: la que desbloquea el siguiente paso.
-- Opciones: máximo 3, con ventaja y coste en una línea cada una.
+- Sé conciso: intenta no superar las 500 palabras por respuesta si es posible.
 - Empieza por el hallazgo o la propuesta; el contexto va después y solo si
   cambia la decisión.

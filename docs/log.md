@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Harness — requirements-writer/harness-keeper — límite de respuesta relajado a 500 palabras orientativas (antes 120/6 líneas), informe final sin límite en `requirements-writer` y retirada de las reglas de una pregunta y 3 opciones; aplicado a ambos agentes y a la skill `requirements-interview` — [agente](../.opencode/agents/requirements-writer.md)
 * 2026-11-11 — Decision — ADR-018 — Harness Keeper: agente primario para arnés y documentación, propiedad por ruta y auditoría manual sin cadencia obligatoria — [ADR-018](decisions/ADR-018-harness-keeper.md)
 * 2026-11-11 — Harness — harness-keeper — creado el agente; `requirements-writer` deja de editar `docs/harness`, plantillas y `AGENTS.md`; actualizados workflow, AGENTS, README y validador — [agente](../.opencode/agents/harness-keeper.md)
 
