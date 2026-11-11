@@ -1,0 +1,105 @@
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
+$ node scripts/validate-docs.mjs
+Avisos (75):
+- docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
+- docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
+- artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
+- artifacts/TASK-0025/attempt-1/brief.md: handoff de 3071 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/brief.md: handoff de 2968 B; objetivo ≤2560 B
+- artifacts/TASK-0027/attempt-1/report.md: handoff de 3028 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/brief.md: handoff de 2573 B; objetivo ≤2560 B
+- artifacts/TASK-0028/attempt-1/report.md: handoff de 3350 B; objetivo ≤2560 B
+- artifacts/TASK-0032/attempt-1/report.md: handoff de 2677 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/brief.md: handoff de 3067 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-1/report.md: handoff de 3827 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/brief.md: handoff de 2868 B; objetivo ≤2560 B
+- artifacts/TASK-0034/attempt-2/report.md: handoff de 3330 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/brief.md: handoff de 2732 B; objetivo ≤2560 B
+- artifacts/TASK-0035/attempt-1/report.md: handoff de 3062 B; objetivo ≤2560 B
+- artifacts/TASK-0036/attempt-1/brief.md: handoff de 2717 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/brief.md: handoff de 2723 B; objetivo ≤2560 B
+- artifacts/TASK-0037/attempt-1/report.md: handoff de 3573 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/brief.md: handoff de 3280 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-1/report.md: handoff de 3521 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/brief.md: handoff de 2607 B; objetivo ≤2560 B
+- artifacts/TASK-0038/attempt-2/report.md: handoff de 3037 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/brief.md: handoff de 3111 B; objetivo ≤2560 B
+- artifacts/TASK-0040/attempt-2/report.md: handoff de 2844 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/brief.md: handoff de 3092 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-1/report.md: handoff de 3817 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-2/brief.md: handoff de 3384 B; objetivo ≤2560 B
+- artifacts/TASK-0041/attempt-2/report.md: handoff de 2840 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-1/brief.md: handoff de 3269 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-1/report.md: handoff de 3615 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-2/brief.md: handoff de 4060 B; objetivo ≤2560 B
+- artifacts/TASK-0042/attempt-2/report.md: handoff de 3916 B; objetivo ≤2560 B
+- artifacts/TASK-0043/attempt-1/brief.md: handoff de 4086 B; objetivo ≤2560 B
+- artifacts/TASK-0044/attempt-1/brief.md: handoff de 3213 B; objetivo ≤2560 B
+- artifacts/TASK-0044/attempt-1/report.md: handoff de 2880 B; objetivo ≤2560 B
+- artifacts/TASK-0045/attempt-1/brief.md: handoff de 3600 B; objetivo ≤2560 B
+- artifacts/TASK-0045/attempt-1/report.md: handoff de 3104 B; objetivo ≤2560 B
+- artifacts/TASK-0045/attempt-2/brief.md: handoff de 3393 B; objetivo ≤2560 B
+- artifacts/TASK-0045/attempt-2/report.md: handoff de 2839 B; objetivo ≤2560 B
+- artifacts/TASK-0046/attempt-1/brief.md: handoff de 2964 B; objetivo ≤2560 B
+- artifacts/TASK-0046/attempt-1/report.md: handoff de 3657 B; objetivo ≤2560 B
+- artifacts/TASK-0046/attempt-2/brief.md: handoff de 2771 B; objetivo ≤2560 B
+- artifacts/TASK-0046/attempt-2/report.md: handoff de 3641 B; objetivo ≤2560 B
+- artifacts/TASK-0048/attempt-1/report.md: handoff de 3743 B; objetivo ≤2560 B
+- artifacts/TASK-0049/attempt-1/brief.md: handoff de 3196 B; objetivo ≤2560 B
+- artifacts/TASK-0049/attempt-1/report.md: handoff de 3559 B; objetivo ≤2560 B
+- artifacts/TASK-0049/attempt-2/brief.md: handoff de 3173 B; objetivo ≤2560 B
+- artifacts/TASK-0049/attempt-2/report.md: handoff de 2575 B; objetivo ≤2560 B
+- artifacts/TASK-0050/attempt-1/report.md: handoff de 2735 B; objetivo ≤2560 B
+- artifacts/TASK-0051/attempt-1/brief.md: handoff de 3761 B; objetivo ≤2560 B
+- artifacts/TASK-0051/attempt-1/report.md: handoff de 3731 B; objetivo ≤2560 B
+- artifacts/TASK-0054/attempt-1/report.md: handoff de 3753 B; objetivo ≤2560 B
+- artifacts/TASK-0055/attempt-1/brief.md: handoff de 3592 B; objetivo ≤2560 B
+- artifacts/TASK-0056/attempt-1/report.md: handoff de 3805 B; objetivo ≤2560 B
+- artifacts/TASK-0057/attempt-1/report.md: handoff de 3599 B; objetivo ≤2560 B
+- artifacts/TASK-0057/attempt-2/brief.md: handoff de 3763 B; objetivo ≤2560 B
+- artifacts/TASK-0057/attempt-2/report.md: handoff de 3181 B; objetivo ≤2560 B
+- artifacts/TASK-0058/attempt-1/brief.md: handoff de 3141 B; objetivo ≤2560 B
+- artifacts/TASK-0059/attempt-1/brief.md: handoff de 2820 B; objetivo ≤2560 B
+- artifacts/TASK-0059/attempt-1/report.md: handoff de 3398 B; objetivo ≤2560 B
+- artifacts/TASK-0060/attempt-1/brief.md: handoff de 3680 B; objetivo ≤2560 B
+- artifacts/TASK-0060/attempt-1/report.md: handoff de 2746 B; objetivo ≤2560 B
+- artifacts/TASK-0061/attempt-1/brief.md: handoff de 3272 B; objetivo ≤2560 B
+- artifacts/TASK-0061/attempt-1/report.md: handoff de 2618 B; objetivo ≤2560 B
+- artifacts/TASK-0063/attempt-1/report.md: handoff de 4020 B; objetivo ≤2560 B
+- artifacts/TASK-0064/attempt-1/brief.md: handoff de 2791 B; objetivo ≤2560 B
+- artifacts/TASK-0064/attempt-1/report.md: handoff de 2701 B; objetivo ≤2560 B
+- artifacts/TASK-0067/attempt-1/brief.md: handoff de 3005 B; objetivo ≤2560 B
+- artifacts/TASK-0067/attempt-1/report.md: handoff de 3829 B; objetivo ≤2560 B
+- artifacts/TASK-0068/attempt-1/brief.md: handoff de 2991 B; objetivo ≤2560 B
+- artifacts/TASK-0068/attempt-1/report.md: handoff de 3361 B; objetivo ≤2560 B
+- artifacts/TASK-0069/attempt-1/brief.md: handoff de 2712 B; objetivo ≤2560 B
+- artifacts/TASK-0069/attempt-1/report.md: handoff de 3558 B; objetivo ≤2560 B
+- artifacts/TASK-0070/attempt-1/brief.md: handoff de 3806 B; objetivo ≤2560 B
+- artifacts/TASK-0070/attempt-1/report.md: handoff de 3283 B; objetivo ≤2560 B
+OK: 356 documentos, 71 tareas, 5 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 4 agentes, 3 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  72 passed (72)
+      Tests  973 passed (973)
+   Start at  22:07:51
+   Duration  14.10s (tests 90%, import 7%, transform 2%, worker 1%)
+
+    Isolate  72 workers spawned · ~155ms startup each (spawn + environment, per file)
+             at least ~1.44s faster with isolate: false — reuses workers across files instead of one per file
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 59 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                17.12 kB │ gzip:  3.90 kB
+dist/assets/main-3vcR1QGj.js  138.70 kB │ gzip: 47.47 kB
+✓ built in 544ms
+$ node scripts/check-bundle.mjs
+check:bundle: OK — scanned 10 dist files and 56 production modules; no forbidden markers.

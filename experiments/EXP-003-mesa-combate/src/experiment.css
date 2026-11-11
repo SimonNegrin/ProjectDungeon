@@ -1,5 +1,12 @@
 /* Ajustes locales de EXP-003 v2; el CSS compartido del shell no se modifica. */
 
+/* Mesa a ancho completo: las tres tablas ocupan la ventana disponible. */
+.experiment-shell {
+  width: 100%;
+  max-width: none;
+  padding: clamp(16px, 2.2vw, 30px);
+}
+
 .experiment-shell .experiment-header {
   gap: 12px;
 }
@@ -22,80 +29,282 @@
   margin: 0;
 }
 
-.matchup-panel,
-.bench-panel,
+.combats-panel,
+.weapons-panel,
+.heroes-panel,
 .detail-panel,
 .export-panel {
   display: grid;
   gap: 12px;
   margin-top: 18px;
   padding: 18px;
+  min-width: 0;
 }
 
-.matchup-panel h2,
-.bench-panel h2,
+.combats-panel h2,
+.weapons-panel h2,
+.heroes-panel h2,
 .detail-panel h2,
 .export-panel h2 {
   margin: 0;
 }
 
+.panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.bench-status {
+  flex: 1 1 320px;
+  min-height: 1.2em;
+  margin: 0;
+}
+
+/* Scroll interno: a 900 px el documento no se mueve. */
 .table-scroll {
+  width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 10px;
 }
 
-.matchup-table {
+/* Tabla 1 · Combates (15 columnas, layout fijo). */
+.combats-table {
   width: 100%;
-  min-width: 1180px;
+  min-width: 1080px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.weapon-table {
+  width: 100%;
+  min-width: 560px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.heroes-table {
+  width: 100%;
+  min-width: 940px;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.74rem;
   font-variant-numeric: tabular-nums;
 }
 
-.matchup-table th {
+.combats-table th,
+.weapon-table th,
+.heroes-table th {
   position: sticky;
   top: 0;
   z-index: 1;
-  padding: 8px 7px;
+  padding: 6px 5px;
   background: var(--panel-2);
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-align: left;
   text-transform: uppercase;
-  white-space: nowrap;
+  white-space: normal;
 }
 
-.matchup-table td {
-  padding: 7px;
+.combats-table td,
+.weapon-table td,
+.heroes-table td {
+  padding: 5px;
+  overflow: hidden;
   border-top: 1px solid var(--border);
+  text-overflow: ellipsis;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
-.matchup-table tbody tr:hover td {
+.weapon-table th:first-child,
+.weapon-table td:first-child {
+  width: 50%;
+}
+
+.weapon-table th:nth-child(2),
+.weapon-table td:nth-child(2),
+.weapon-table th:nth-child(3),
+.weapon-table td:nth-child(3) {
+  width: 25%;
+}
+
+.combats-table tbody tr:hover td,
+.weapon-table tbody tr:hover td,
+.heroes-table tbody tr:hover td {
   background: rgba(127, 179, 213, 0.05);
 }
 
-.matchup-table tbody tr.is-selected td {
-  background: rgba(232, 184, 109, 0.1);
+.combats-table tbody tr.is-selected td {
+  background: rgba(232, 184, 109, 0.12);
 }
 
-.band-ok {
+.combats-table tbody tr.is-block-active td {
+  background: rgba(127, 179, 213, 0.09);
+}
+
+.combats-table tbody tr:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.shared-cell {
+  vertical-align: middle;
+  background: rgba(21, 27, 35, 0.35);
+}
+
+.enemy-cell {
+  white-space: normal;
+}
+
+.enemy-cell strong {
+  display: block;
+  color: var(--accent);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.four-of-four {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.four-of-four.is-good {
   color: var(--ok);
-  font-weight: 650;
 }
 
-.band-out {
+.four-of-four.is-bad {
   color: var(--danger);
+}
+
+.block-problems {
+  display: grid;
+  gap: 2px;
+  margin: 3px 0 0;
+  padding-left: 12px;
+  color: var(--muted);
+  font-size: 0.6rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.block-problems .problem-global-weapon {
+  color: var(--accent);
+}
+
+.real-cell {
+  color: var(--ink);
+  font-size: 0.66rem;
+  line-height: 1.3;
+  white-space: normal;
+}
+
+.hero-cell {
+  color: var(--ink);
   font-weight: 650;
 }
 
-.matchup-select {
-  padding: 4px 8px;
-  font-size: 0.68rem;
+.numeric-cell {
+  text-align: right;
 }
+
+.heroes-table .numeric-cell,
+.heroes-table th.numeric-cell {
+  text-align: right;
+}
+
+.cell-input {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 4px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+select.cell-input {
+  padding-right: 2px;
+}
+
+.cell-input[aria-invalid='true'] {
+  border-color: var(--danger);
+  outline: 2px solid rgba(224, 107, 107, 0.35);
+}
+
+.cell-input:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.field-error {
+  min-height: 0;
+  margin: 2px 0 0;
+  color: var(--danger);
+  font-size: 0.6rem;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.field-error:empty {
+  display: none;
+}
+
+.weapon-name-cell {
+  white-space: normal;
+}
+
+.weapon-name {
+  display: block;
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.weapon-users {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.67rem;
+  line-height: 1.3;
+}
+
+.weapon-hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.state-ok {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.state-out {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+/* Detalle del emparejamiento. */
 
 .detail-grid {
   display: grid;
@@ -178,6 +387,8 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Export reproducible. */
+
 .export-summary {
   margin: 0;
   padding: 12px;
@@ -193,279 +404,11 @@
 }
 
 @media (max-width: 720px) {
-  .matchup-panel,
-  .bench-panel,
+  .combats-panel,
+  .weapons-panel,
+  .heroes-panel,
   .detail-panel,
   .export-panel {
     padding: 14px;
   }
 }
-
-/* Banco de ajuste: objetivos, diagnóstico, editor y armas globales. */
-
-.bench-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-
-.bench-status {
-  flex: 1 1 320px;
-  min-height: 1.2em;
-  margin: 0;
-}
-
-.diagnosis-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: 12px;
-}
-
-.diagnosis-card {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--panel-2);
-}
-
-.diagnosis-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
-  justify-content: space-between;
-}
-
-.diagnosis-header h3 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 0.92rem;
-}
-
-.diagnosis-four {
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.diagnosis-four.is-good {
-  color: var(--ok);
-}
-
-.diagnosis-four.is-bad {
-  color: var(--danger);
-}
-
-.target-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.target-label {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  font-size: 0.78rem;
-  font-weight: 650;
-}
-
-.target-label input,
-.bench-field input,
-.bench-field select,
-.weapon-table input {
-  width: 6.5em;
-  padding: 4px 6px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
-  color: var(--ink);
-  font: inherit;
-  font-variant-numeric: tabular-nums;
-}
-
-.bench-field select {
-  width: 9.5em;
-}
-
-.target-guide {
-  color: var(--muted);
-  font-size: 0.72rem;
-}
-
-.bench-target-reset,
-.bench-field-reset {
-  padding: 3px 7px;
-  font-size: 0.68rem;
-}
-
-.diagnosis-rows,
-.diagnosis-problems {
-  display: grid;
-  gap: 3px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.73rem;
-  line-height: 1.45;
-}
-
-.diagnosis-rows .is-inside {
-  color: var(--ok);
-}
-
-.diagnosis-rows .is-outside {
-  color: var(--danger);
-}
-
-.diagnosis-problems {
-  color: var(--muted);
-}
-
-.diagnosis-problems .problem-global-weapon {
-  color: var(--accent);
-}
-
-.field-error {
-  flex: 1 1 100%;
-  min-height: 1em;
-  margin: 0;
-  color: var(--danger);
-  font-size: 0.7rem;
-  line-height: 1.35;
-}
-
-.bench-editor-row td {
-  padding: 14px;
-  background: rgba(127, 179, 213, 0.06);
-  white-space: normal;
-}
-
-.bench-editor {
-  display: grid;
-  gap: 12px;
-}
-
-.bench-editor h3 {
-  margin: 0;
-  color: var(--accent);
-  font-size: 0.95rem;
-}
-
-.bench-editor-warning {
-  margin: 0;
-  color: var(--ink);
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.bench-fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
-  gap: 10px;
-}
-
-.bench-field {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 6px;
-  align-items: center;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel-2);
-  font-size: 0.75rem;
-}
-
-.bench-field > span {
-  grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.bench-field input,
-.bench-field select {
-  width: 100%;
-  min-width: 0;
-}
-
-.bench-field select {
-  grid-column: 1 / -1;
-}
-
-.bench-field .field-error {
-  grid-column: 1 / -1;
-}
-
-.state-ok {
-  color: var(--ok);
-  font-weight: 700;
-}
-
-.state-out {
-  color: var(--danger);
-  font-weight: 700;
-}
-
-.weapons-block {
-  display: grid;
-  gap: 8px;
-}
-
-.weapons-block h3 {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.weapon-table {
-  width: 100%;
-  min-width: 640px;
-  border-collapse: collapse;
-  font-size: 0.77rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.weapon-table th,
-.weapon-table td {
-  padding: 7px;
-  border-top: 1px solid var(--border);
-  text-align: left;
-  white-space: nowrap;
-}
-
-.weapon-table th {
-  background: var(--panel-2);
-  color: var(--muted);
-  font-size: 0.67rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.weapon-table td:last-child,
-.weapon-table th:last-child {
-  text-align: right;
-}
-
-.weapon-table input[aria-invalid='true'],
-.target-label input[aria-invalid='true'],
-.bench-field input[aria-invalid='true'],
-.bench-field select[aria-invalid='true'] {
-  border-color: var(--danger);
-  outline: 2px solid rgba(224, 107, 107, 0.35);
-}
-
-.target-label input:focus-visible,
-.bench-field input:focus-visible,
-.bench-field select:focus-visible,
-.weapon-table input:focus-visible,
-.button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-

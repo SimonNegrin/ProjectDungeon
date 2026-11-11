@@ -64,7 +64,7 @@ Total: **71**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0067](TASK-0067-exp-003-banco-ajuste-ui.md) | EXP-003: UI del banco de ajuste | `done` | REQ-028 | TASK-0066 | P1 |
 | [TASK-0068](TASK-0068-exp-003-banco-ajuste-e2e.md) | EXP-003: E2E y QA visual del banco de ajuste | `done` | REQ-028 | TASK-0067 | P1 |
 | [TASK-0069](TASK-0069-exp-003-tres-tablas-motor.md) | EXP-003: motor y datos de las tres tablas | `done` | REQ-028 | — | P1 |
-| [TASK-0070](TASK-0070-exp-003-tres-tablas-ui.md) | EXP-003: tres tablas inline a ancho completo | `backlog` | REQ-028 | TASK-0069 | P1 |
+| [TASK-0070](TASK-0070-exp-003-tres-tablas-ui.md) | EXP-003: tres tablas inline a ancho completo | `done` | REQ-028 | TASK-0069 | P1 |
 | [TASK-0071](TASK-0071-exp-003-tres-tablas-e2e.md) | EXP-003: E2E y QA visual de las tres tablas | `backlog` | REQ-028 | TASK-0070 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
@@ -83,7 +83,6 @@ Total: **71**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0070 — EXP-003: tres tablas inline a ancho completo](TASK-0070-exp-003-tres-tablas-ui.md)
 * [TASK-0071 — EXP-003: E2E y QA visual de las tres tablas](TASK-0071-exp-003-tres-tablas-e2e.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
@@ -147,6 +146,7 @@ Total: **71**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0067 — EXP-003: UI del banco de ajuste](TASK-0067-exp-003-banco-ajuste-ui.md)
 * [TASK-0068 — EXP-003: E2E y QA visual del banco de ajuste](TASK-0068-exp-003-banco-ajuste-e2e.md)
 * [TASK-0069 — EXP-003: motor y datos de las tres tablas](TASK-0069-exp-003-tres-tablas-motor.md)
+* [TASK-0070 — EXP-003: tres tablas inline a ancho completo](TASK-0070-exp-003-tres-tablas-ui.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

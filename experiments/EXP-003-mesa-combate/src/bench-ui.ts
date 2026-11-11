@@ -25,7 +25,7 @@ import type {
   Stats,
   WeaponDefinition,
 } from './v2/types';
-import { formatNumber } from './ui';
+import { formatNumber, formatPercent } from './ui';
 
 export const STAT_FIELDS = [
   'habilidad',
@@ -671,6 +671,156 @@ export function benchFileName(
     return `${payload.experiment}-${payload.engine}-seed-${payload.seed}-duels-${payload.duels}.json`;
   }
   return benchExportFileName(payload, overrides);
+}
+
+/* Columnas y agrupación de las tres tablas inline. */
+
+/** Columnas exactas de la tabla de combates, en orden de presentación. */
+export const COMBAT_COLUMNS = [
+  'Héroe',
+  'Enemigo',
+  'Victorias héroe',
+  'Victorias enemigo',
+  '% objetivo',
+  '% real',
+  'PV',
+  'Acierto',
+  'Daño',
+  'Defensa',
+  'Resistencia',
+  'Acciones',
+  'Armadura',
+  'Escudo',
+  'Arma',
+] as const;
+
+/** Columnas exactas de la tabla de armas. */
+export const WEAPON_COLUMNS = ['Arma', 'Acierto', 'Daño'] as const;
+
+/** Columnas exactas de la tabla de héroes. */
+export const HERO_COLUMNS = [
+  'Héroe',
+  'Arma inicial',
+  'PV',
+  'Acierto',
+  'Daño',
+  'Defensa',
+  'Resistencia',
+  'Acciones',
+  'Armadura',
+  'Escudo',
+  'Nivel de magia',
+] as const;
+
+export interface EnemyTableField {
+  readonly field: EnemyField;
+  readonly label: string;
+}
+
+/** Los nueve stats compartidos del enemigo, en el orden de la tabla. */
+export const ENEMY_TABLE_FIELDS: ReadonlyArray<EnemyTableField> = [
+  { field: 'maxHp', label: 'PV' },
+  { field: 'habilidad', label: 'Acierto' },
+  { field: 'fuerza', label: 'Daño' },
+  { field: 'defensa', label: 'Defensa' },
+  { field: 'resistencia', label: 'Resistencia' },
+  { field: 'maxActions', label: 'Acciones' },
+  { field: 'armorId', label: 'Armadura' },
+  { field: 'shieldId', label: 'Escudo' },
+  { field: 'weaponId', label: 'Arma' },
+];
+
+export interface HeroTableField {
+  readonly field: HeroField;
+  readonly label: string;
+}
+
+/** Campos editables de un héroe, en el orden de columnas de la tabla. */
+export const HERO_TABLE_FIELDS: ReadonlyArray<HeroTableField> = [
+  { field: 'weaponId', label: 'Arma inicial' },
+  { field: 'maxHp', label: 'PV' },
+  { field: 'habilidad', label: 'Acierto' },
+  { field: 'fuerza', label: 'Daño' },
+  { field: 'defensa', label: 'Defensa' },
+  { field: 'resistencia', label: 'Resistencia' },
+  { field: 'maxActions', label: 'Acciones' },
+  { field: 'armorId', label: 'Armadura' },
+  { field: 'shieldId', label: 'Escudo' },
+  { field: 'magicLevel', label: 'Nivel de magia' },
+];
+
+export interface EnemyBlock<T> {
+  readonly enemyId: string;
+  readonly rows: ReadonlyArray<T>;
+}
+
+/**
+ * Agrupa las filas por enemigo en bloques de cuatro, conservando el orden de
+ * encuentro. Si se pasa `enemyOrder`, ese orden manda para los enemigos
+ * presentes; el resto se añade al final en orden de aparición.
+ */
+export function groupMatchupsByEnemy<T extends { readonly enemyId: string }>(
+  matchups: ReadonlyArray<T>,
+  enemyOrder: ReadonlyArray<string> = [],
+): ReadonlyArray<EnemyBlock<T>> {
+  const encounter: string[] = [];
+  const grouped = new Map<string, T[]>();
+  for (const matchup of matchups) {
+    const rows = grouped.get(matchup.enemyId);
+    if (rows) {
+      rows.push(matchup);
+    } else {
+      grouped.set(matchup.enemyId, [matchup]);
+      encounter.push(matchup.enemyId);
+    }
+  }
+  const preferred = enemyOrder.filter((enemyId) => grouped.has(enemyId));
+  const remaining = encounter.filter(
+    (enemyId) => !preferred.includes(enemyId),
+  );
+  return [...preferred, ...remaining].map((enemyId) => ({
+    enemyId,
+    rows: grouped.get(enemyId) ?? [],
+  }));
+}
+
+/** «71,2 % · −3,8 pp · dentro»: % real, delta y estado en una sola celda. */
+export function formatRealCell(
+  winRate: number,
+  delta: number,
+  inside: boolean,
+): string {
+  return `${formatPercent(winRate)} · ${formatDelta(delta)} · ${formatRowState(inside)}`;
+}
+
+/** Recuento de victorias; los empates van como sufijo solo si existen. */
+export function formatWins(wins: number, draws: number): string {
+  if (draws <= 0) return String(wins);
+  return `${wins} (+${draws} ${draws === 1 ? 'empate' : 'empates'})`;
+}
+
+function formatSignedValue(value: number): string {
+  const rounded = Math.round(value);
+  const sign = rounded > 0 ? '+' : rounded < 0 ? '−' : '±';
+  return `${sign}${Math.abs(rounded)}`;
+}
+
+/** Acierto y daño de un arma bajo el nombre: «Acierto +3 · Daño +3». */
+export function formatWeaponBonus(
+  weapon: WeaponDefinition | null | undefined,
+): string {
+  if (!weapon) return 'sin arma';
+  return `Acierto ${formatSignedValue(weapon.accuracy)} · Daño ${formatSignedValue(weapon.damage)}`;
+}
+
+/** Unidades que usan un arma bajo su nombre; vacío se hace explícito. */
+export function formatWeaponUsers(users: ReadonlyArray<string>): string {
+  return users.length === 0 ? 'sin unidades' : users.join(', ');
+}
+
+/** Estado `aria-live` del recálculo quirúrgico. */
+export function formatRecalcStatus(count: number): string {
+  return `Recalculado: ${count} ${count === 1 ? 'fila afectada' : 'filas afectadas'}.`;
 }
 
 /** Resumen del export con catálogo, semilla, overrides, objetivos y diagnóstico. */
