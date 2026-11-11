@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Planning — TASK-0073 — ready: filtros de las tres tablas; dependencia TASK-0072 cerrada — [TASK-0073](tasks/TASK-0073-exp-003-filtros-tablas.md)
 * 2026-11-11 — Task — TASK-0072 — cerrada: objetivos por par héroe–enemigo (guía 75/85/30 heredada, fallback 50, 4-de-4 sin dispersión), input por fila sin `rowspan`, API por par y export con `targetsVersion: 2` y `targetsId` determinista; 979 tests y verify OK; el E2E funcional queda para TASK-0074; fusión `e61c807` — [informe](../artifacts/TASK-0072/attempt-1/report.md)
 * 2026-11-11 — Requirement — REQ-028 — stable v3: objetivo editable por par héroe–enemigo con guía 75/85/30 heredada, 4-de-4 contra el objetivo de cada par, retirada del aviso de dispersión y filtros de texto por tabla (héroe y enemigo en Combates), solo de vista — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)
 * 2026-11-11 — Task — TASK-0072 — creada ready: objetivos por par, guía heredada, diagnóstico sin dispersión, API por par y export con `targetsVersion: 2` — [TASK-0072](tasks/TASK-0072-exp-003-objetivos-por-par.md)

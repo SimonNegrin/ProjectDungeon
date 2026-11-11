@@ -4,7 +4,7 @@ id: TASK-0073
 title: "EXP-003: filtros de las tres tablas"
 description: Filtros de texto por héroe y enemigo en combates, por nombre y unidades en armas y por nombre en héroes; solo de vista, con celdas compartidas ajustadas.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-015, R-021, R-022, R-023, R-024, T-004, T-005, T-011]
