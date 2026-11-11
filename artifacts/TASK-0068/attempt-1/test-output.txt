@@ -1,0 +1,13 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts
+
+Running 7 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/experiment-bench.spec.ts:274:1 › cambiar el objetivo actualiza delta y 4-de-4 y se restaura a la guía (1.6s)
+  ✓  1 [chromium] › tests/e2e/experiment-bench.spec.ts:198:1 › editar el PV de un enemigo recalcula solo sus cuatro filas (1.9s)
+  ✓  3 [chromium] › tests/e2e/experiment-bench.spec.ts:332:1 › editar el daño de un arma recalcula solo las filas de sus portadores (2.1s)
+  ✓  7 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 900x700: editor, armas, sin desbordamiento y foco visible (1.3s)
+  ✓  4 [chromium] › tests/e2e/experiment-bench.spec.ts:393:1 › reset por enemigo y global devuelven la base y quitan los overrides del export (3.4s)
+  ✓  6 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 1280x720: editor, armas, sin desbordamiento y foco visible (1.5s)
+  ✓  5 [chromium] › tests/e2e/experiment-bench.spec.ts:482:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas (2.1s)
+
+  7 passed (6.7s)
