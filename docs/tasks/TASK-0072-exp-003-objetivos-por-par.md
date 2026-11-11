@@ -4,22 +4,31 @@ id: TASK-0072
 title: "EXP-003: objetivos por par, diagnóstico y export"
 description: Objetivo editable por héroe–enemigo, guía heredada, 4-de-4 sin dispersión, API por par y export con targetsVersion 2.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-005, R-006, R-007, R-016, R-017, R-018, R-019, R-020, T-001, T-002, T-003, T-004, T-006, T-007, T-008, T-010, T-012]
 depends_on: []
 unlocks: [TASK-0073]
 created_at: 2026-11-11T23:50:00Z
-completed_at:
+completed_at: 2026-11-11T23:55:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0072/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T23:50:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-11T23:55:00Z
+    note: >-
+      Diff completo revisado; 979 tests y `pnpm run verify` verdes en main tras
+      la fusión; objetivos por par con guía heredada y fallback 50, diagnóstico
+      4-de-4 sin dispersión, input por fila sin `rowspan`, API por par y export
+      con `targetsVersion: 2` y `targetsId` determinista. Sin cambios en
+      fórmulas, motor, `src/`/`tests/` de producción, `index.html` ni `public/`.
+      El E2E funcional queda para TASK-0074.
 ---
 
 # Objetivo
@@ -42,31 +51,31 @@ tabla son [TASK-0073](TASK-0073-exp-003-filtros-tablas.md).
 
 # Criterios de aceptación
 
-- [ ] Los objetivos se guardan por par con clave `heroId:enemyId`, cubren todo el
+- [x] Los objetivos se guardan por par con clave `heroId:enemyId`, cubren todo el
       producto roster × bestiario en orden fijo y no mutan la guía. Un enemigo sin
       guía recibe 50 % en sus cuatro pares.
-- [ ] Cada fila de combates tiene su propio input `% objetivo`; el enemigo y sus
+- [x] Cada fila de combates tiene su propio input `% objetivo`; el enemigo y sus
       nueve stats siguen en celdas agrupadas, pero el objetivo ya no usa
       `rowspan`.
-- [ ] Editar el objetivo de un par actualiza solo el delta, el estado dentro/fuera
+- [x] Editar el objetivo de un par actualiza solo el delta, el estado dentro/fuera
       y el 4-de-4 de su fila; no lanza duelos ni cambia el `% real` de las demás.
-- [ ] El 4-de-4 usa el objetivo de cada fila: «4/4» si los cuatro pares están a
+- [x] El 4-de-4 usa el objetivo de cada fila: «4/4» si los cuatro pares están a
       ±5 pp de su propio objetivo; la lista de fuera conserva héroe y delta. El
       aviso y el cálculo de dispersión desaparecen del diagnóstico, la UI y el
       export.
-- [ ] Restablecer enemigos devuelve a la guía los cuatro objetivos de cada
+- [x] Restablecer enemigos devuelve a la guía los cuatro objetivos de cada
       enemigo; restablecer todo devuelve catálogo y los 12 objetivos.
-- [ ] La API expone `getTargets` por par, `setTarget(heroId, enemyId, value)` y
+- [x] La API expone `getTargets` por par, `setTarget(heroId, enemyId, value)` y
       `resetTarget(heroId, enemyId)`; el resto de operaciones se conserva.
-- [ ] El export incluye `targets` por par, `targetsVersion: 2` y `targetsId`
+- [x] El export incluye `targets` por par, `targetsVersion: 2` y `targetsId`
       determinista; sin timestamp. Cambiar un objetivo cambia `targetsId` y el
       nombre de descarga, pero no `overridesId`.
-- [ ] El resumen del export agrupa los objetivos por enemigo y no lista una línea
+- [x] El resumen del export agrupa los objetivos por enemigo y no lista una línea
       por par; el JSON conserva todos los pares.
-- [ ] Tests unitarios y de integración cubren claves, guía heredada, fallback,
+- [x] Tests unitarios y de integración cubren claves, guía heredada, fallback,
       4-de-4 con objetivos distintos, ausencia de dispersión, resets, API y
       determinismo del export. `pnpm run verify` pasa.
-- [ ] Sin cambios en fórmulas, motor de duelo, `src/`, `tests/`, `index.html` ni
+- [x] Sin cambios en fórmulas, motor de duelo, `src/`, `tests/`, `index.html` ni
       `public/` de producción.
 
 # Plan de test
@@ -81,9 +90,9 @@ tabla son [TASK-0073](TASK-0073-exp-003-filtros-tablas.md).
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0072/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0072/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Restricciones
 
