@@ -4,7 +4,7 @@ id: TASK-0066
 title: "EXP-003: motor y datos del banco de ajuste"
 description: Catálogo de trabajo, objetivos por enemigo, recálculo de filas afectadas, diagnóstico 4-de-4 y export reproducible, sin tocar el catálogo base.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-003, R-004, R-007, R-008, R-009, R-010, R-012, T-001, T-002, T-004, T-006, T-007, T-008]
