@@ -1245,12 +1245,18 @@ test('el export v2 incluye objetivos por par y es determinista aunque haya filtr
     targets: unknown;
     targetsVersion: number;
     targetsId: string;
+    overrides: unknown;
     matchups: unknown;
     catalog: { bestiary: ReadonlyArray<{ id: string; maxHp: number }> };
   };
   expect(baseWritten.targets).toEqual(GUIDE_TARGETS);
   expect(baseWritten.targetsVersion).toBe(2);
   expect(baseWritten.targetsId).toBe(guideDecision.targetsId);
+  expect(baseWritten.overrides).toEqual({
+    enemies: {},
+    weapons: {},
+    heroes: {},
+  });
   expect(baseWritten.matchups).toEqual(base.matchups);
 
   expect(errors).toEqual([]);
