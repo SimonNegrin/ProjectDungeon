@@ -3,15 +3,21 @@ type: Experiment Brief
 id: EXP-003-v2
 title: "EXP-003 v2: mesa de combate ampliable"
 description: Requisitos del simulador que medirá acciones, magia, réplica y escenarios de grupo, con catálogos data-driven para crecer a todo el bestiario sin reescribir el experimento.
-status: draft
-experiment_status: proposed
+status: stable
+experiment_status: building
 question: ¿Qué valores de acciones, magia y réplica producen combates equilibrados y legibles en los escenarios del primer corte?
 related_requirements: [REQ-009, REQ-014, REQ-015, REQ-017, REQ-021, REQ-025, REQ-026, REQ-027]
 related_decisions: [ADR-012, ADR-014, ADR-015, ADR-019, ADR-020]
 created_at: 2026-11-11T16:10:00Z
-updated_at: 2026-11-11T16:10:00Z
+updated_at: 2026-11-11T18:40:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T16:10:00Z }
 verified:
+  - by: human:simon
+    at: 2026-11-11T18:40:00Z
+    note: >-
+      Aprueba el cierre de las preguntas: banda 40–60 %, resolvedor aislado con
+      equivalencia, pasillo 1D de 8 casillas, IA de alerta/huida/regreso con
+      hechizos genéricos, v2.0 solo 1v1 y v2.1 sin estados ni resistencias.
 ---
 
 # Propósito
@@ -33,10 +39,21 @@ funcional.
 ¿Qué valores de acciones, magia y réplica producen combates equilibrados y
 legibles en los escenarios del primer corte?
 
-Las bandas objetivo por emparejamiento se fijan al cerrar `REQ-027`/EXP-003. La
-propuesta inicial es 50 % ±10 % en emparejamientos neutros, con ±2 % de tolerancia
-de simulación y héroe con iniciativa, como en
-[REQ-015](../requirements/REQ-015-roster-arquetipos.md).
+La banda objetivo es **40–60 % de victorias del héroe** (50 % ±10 %) en todos los
+emparejamientos neutros, con **±2 % de tolerancia de simulación** y **héroe con
+iniciativa**, como en [REQ-015](../requirements/REQ-015-roster-arquetipos.md). El
+Pícaro contra Bruto es el caso de estrés de la banda, no una excepción.
+
+# Decisiones de cierre (2026-11-11)
+
+| Pregunta | Decisión |
+|---|---|
+| Bandas | 40–60 % para todos los emparejamientos neutros; ±2 % de tolerancia; héroe con iniciativa. |
+| Resolvedor | Copia aislada en el experimento con tests de equivalencia y determinismo; no se importa desde `src/`. |
+| Espacio | Pasillo abstracto 1D de 8 casillas; mide acercamiento, MP, huida y alcance sin mapa ni línea de visión. |
+| IA v2.0 | Perfiles deterministas de alerta, huida/regreso y hechizos genéricos; la muestra usa Centinela, Bruto y Cobarde. |
+| Grupos | v2.0 solo 1v1; el 2v2 representativo pasa a v2.1 junto con las posiciones 2D. |
+| v2.1 | Solo habilidades del primer corte; estados alterados y resistencias necesitan su propia hoja. |
 
 # Hipótesis
 
@@ -120,10 +137,11 @@ de simulación y héroe con iniciativa, como en
 | Guerrero vs Centinela | Línea base de `REQ-010` con el nuevo contador de acciones. |
 | Pícaro vs Bruto | Prueba el Pícaro 3 contra el enemigo de un solo golpe fuerte. |
 | Mago vs Cobarde | Prueba el daño mágico, el maná y la huida. |
-| Clérigo vs Centinela | Prueba curación, tanque y acciones de apoyo. |
-| 2v2 representativo | Primera lectura de grupo: Guerrero + Pícaro vs Centinela + Bruto. |
+| Clérigo vs Centinela | Prueba el lanzador de apoyo y el tanque; en 1v1 no hay aliado al que curar. |
 
-La v2.1 amplía a todos los tipos y a grupos con posiciones.
+La muestra cruza los cuatro héroes con los tres enemigos. La v2.1 amplía a todos
+los tipos y a grupos con posiciones 2D; el 2v2 representativo
+(Guerrero + Pícaro vs Centinela + Bruto) queda para esa versión.
 
 # Métricas
 
@@ -164,15 +182,9 @@ Si una métrica no cambia la decisión, se elimina.
 
 # Preguntas abiertas
 
-- ¿Bandas objetivo exactas por emparejamiento? Se fijan al cerrar REQ-027.
-- ¿Se comparte el resolvedor con producción desde el inicio o se mantiene una
-  copia con tests de equivalencia hasta que producción lo implemente?
-- ¿La v2.0 modela posiciones/terreno o usa distancia abstracta para el 1v1?
-- ¿Qué perfiles de IA entran en la v2.0: alerta, huida y regreso, o también
-  hechizos enemigos?
-- ¿Cuántos escenarios de grupo hacen falta para la primera lectura?
-- ¿La v2.1 incluye estados alterados y resistencias, o se limita a las habilidades
-  del primer corte?
+Ninguna bloquea la v2.0. Las seis preguntas del brief quedaron cerradas el
+2026-11-11 en la tabla de decisiones de cierre. La aprobación de los valores de
+balance sigue siendo del usuario tras leer `experiment.md`.
 
 # Riesgos
 

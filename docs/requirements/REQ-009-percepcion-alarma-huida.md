@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-009
 title: Percepción, alarma y huida enemiga
-description: Campo de visión con línea de visión, activación por pasos, alarma de una onda y huida determinista del perfil cobarde, con un bestiario mínimo de 4 enemigos. Balance provisional v1 en REQ-009 v4.
+description: Campo de visión con línea de visión, activación por pasos, alarma de una onda y huida determinista del perfil cobarde, con un bestiario mínimo de 4 enemigos. Balance provisional v1.
 status: stable
-version: 5
+version: 6
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T14:57:04Z
-updated_at: 2026-11-11T16:00:00Z
+updated_at: 2026-11-11T16:15:00Z
 related_tasks: [TASK-0034, TASK-0035, TASK-0036, TASK-0037, TASK-0038, TASK-0039]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T20:29:01Z }
 verified:
@@ -26,6 +26,12 @@ verified:
       Aprueba la pasada de balance provisional v1: alarma 5 para todos, MP por
       tipo (Centinela 5, Bruto 4, Cobarde 6) y Cobarde con 5 PV. Acepta que el
       Cobarde a menudo muera antes de huir.
+  - by: human:simon
+    at: 2026-11-11T16:15:00Z
+    note: >-
+      Aprueba la aclaración de coherencia con REQ-027: un ataque cuerpo a cuerpo
+      siempre ocurre dentro de la visión (360° y adyacencia); R-008 se refiere a
+      ataques a distancia o mágicos.
 ---
 
 # Contexto
@@ -46,12 +52,13 @@ validar la alarma, y sin perfiles no se puede cumplir que solo algunos huyan.
 Por eso el corte incluye un bestiario mínimo de 4 enemigos y dos perfiles
 (valiente y cobarde).
 
-La hoja está **cerrada** como `stable` v4. La percepción, la alarma y la huida
+La hoja está **cerrada** como `stable` v6. La percepción, la alarma y la huida
 están decididas; el umbral del 40 % y la probabilidad por arma salen del balance
 provisional v1 de [REQ-010](REQ-010-combate-equipo-acierto-defensa.md). Esta
-versión sincroniza la alarma a 5, fija el MP por tipo (5/4/6) y actualiza el
-Cobarde a 5 PV; los valores concretos de combate viven en REQ-010 v5 y son
-provisionales.
+versión sincroniza la alarma a 5, fija el MP por tipo (5/4/6), actualiza el
+Cobarde a 5 PV y aclara que un ataque cuerpo a cuerpo siempre ocurre dentro de la
+visión: `R-008` se refiere a ataques a distancia o mágicos. Los valores concretos
+de combate viven en REQ-010 y son provisionales.
 
 # Objetivos de experiencia
 
@@ -76,7 +83,7 @@ provisionales.
 | R-005 | Al ver a un jugador, el enemigo pasa a alerta y guarda la última posición conocida. Si deja de verlo, se dirige a esa posición e investiga hasta 2 fases enemigas; en la tercera vuelve a su puesto y se duerme al llegar. Si no llega, sigue volviendo sin atacar hasta su puesto. | El enemigo llega al último punto visto, investiga hasta 2 fases y en la tercera regresa; si vuelve a ver al jugador, reinicia la memoria. |
 | R-006 | Al ver por primera vez en un episodio, el enemigo da la alarma: una onda de radio 5 desde su posición que no requiere línea de visión y no se propaga en cadena. Los enemigos dentro de la onda que no lo habían visto pasan a alerta y acuden a la última posición conocida. | Un enemigo a 5 tiles tras un muro se alerta; uno a 6 no; un alertado no genera una segunda onda; el aviso no atraviesa el mapa entero. |
 | R-007 | La alerta se enfría tras 3 fases enemigas sin ver al jugador y sin recibir daño: en las 2 primeras se dirige a la última posición conocida y la investiga; en la tercera vuelve a su puesto. Al enfriarse deja de perseguir y de atacar; si no está en su puesto, lo alcanza sin atacar y se duerme al llegar. | Tres fases sin contacto devuelven al enemigo a su puesto y lo duermen; una nueva visión reinicia el contador; recibir daño también lo reinicia y lo devuelve a alerta. |
-| R-008 | Recibir daño despierta y alerta a un enemigo dormido aunque no haya visto al jugador; guarda como última posición conocida la del atacante y, si sobrevive, da la alarma. | Atacar a un centinela desde fuera de su visión lo alerta, guarda la posición del atacante y activa a los enemigos dentro de su radio. |
+| R-008 | Recibir daño despierta y alerta a un enemigo dormido aunque no haya visto al jugador; guarda como última posición conocida la del atacante y, si sobrevive, da la alarma. Un ataque cuerpo a cuerpo siempre ocurre dentro de la visión (360° y adyacencia); atacar desde fuera de su visión exige ataque a distancia o magia. | Un ataque a distancia o mágico desde fuera de la visión lo alerta, guarda la posición del atacante y activa a los enemigos dentro de su radio; un ataque cuerpo a cuerpo solo puede alcanzar a un enemigo ya alertado. |
 | R-009 | Solo el perfil cobarde huye. Huye de forma determinista cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; no hay tirada adicional de moral ni de huida. Si se acorrala, lucha. No desaparece del mapa ni se rinde. Mientras la alerta siga activa, si ve a un jugador elige la casilla alcanzable que maximiza la distancia y rompe la línea de visión; si no ve a ninguno, vuelve a su puesto. Al enfriarse la alerta se duerme allí. | Con 5 PV el umbral es 2 de daño; un impacto que lo cruce y no lo mate hace huir. La probabilidad de huida real (sobreviviendo) con el balance provisional v1 de [REQ-010](REQ-010-combate-equipo-acierto-defensa.md) es 41,7 % con espada, 25,0 % con hacha y 44,4 % con daga contra armadura 0; el cobarde a menudo muere antes de huir. El valiente nunca huye; el cobarde acorralado ataca; sigue vivo y cuenta para la victoria; un nuevo golpe que cruce el umbral renueva la huida. |
 | R-010 | El bestiario mínimo de este corte es de 4 enemigos y 2 perfiles: valiente y cobarde. La semilla de referencia coloca 2 centinelas, 1 bruto y 1 cobarde. Aparecen en salas distintas, ninguno dentro de la visión inicial del jugador, y al menos una pareja queda dentro del radio de alarma para poder probarla. | La semilla de referencia coloca 4 enemigos en salas distintas; ninguno ve al jugador al inicio; hay al menos una pareja a ≤5 tiles y un enemigo a >5 de los demás. |
 | R-011 | El enemigo que ve al jugador muestra un "!" sobre su cabeza y el host muestra un aviso breve de alarma. Los radios de visión y alarma solo se dibujan en el overlay de debug `F1`. | El "!" aparece en el paso de detección y desaparece al enfriarse la alerta; el aviso no bloquea el juego; sin `F1` no se dibujan radios. |
@@ -207,6 +214,7 @@ Ninguna. Las decisiones de esta versión están registradas en la tabla siguient
 | 2026-11-09 | Cobarde con 5 PV; umbral de huida 2 y probabilidad real 41,7/25,0/44,4 %. Se acepta que a menudo muera antes de huir. | human:simon | aceptada (provisional) |
 | 2026-11-09 | Los valores de alarma, MP y PV son provisionales y se reajustarán. | human:simon | aceptada |
 | 2026-11-11 | Acciones por tipo: Centinela 2, Bruto 1, Cobarde 2; la IA ataca hasta agotar acciones o matar. | human:simon | aceptada; provisional v1 |
+| 2026-11-11 | Aclaración: un ataque cuerpo a cuerpo siempre ocurre dentro de la visión (360° y adyacencia); `R-008` se refiere a ataques a distancia o mágicos. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

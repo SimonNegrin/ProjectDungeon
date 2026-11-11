@@ -70,7 +70,8 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   mínimo de seis hechizos y resurrección como hechizo.
 - Economía de acciones: `REQ-026` está `stable` v5; reglas cerradas y rebalanceo
   pendiente con `EXP-003`.
-- Réplica cuerpo a cuerpo: `REQ-027` en borrador; se dispara con un ataque fallido.
+- Réplica cuerpo a cuerpo: `REQ-027` está `stable` v2; se dispara con un ataque
+  fallido con arma equipada; el dormido no es atacable en melé.
 
 # Primer hito jugable
 
@@ -167,7 +168,8 @@ Los valores concretos de la economía de turno son provisionales y viven en
   interactuar y lanzar hechizos consumen una; moverse, recoger/soltar y esperar
   no. Abrir contenedores cuesta una acción y transferir es gratis.
 - Fallar un ataque cuerpo a cuerpo permite al defensor **replicar** de inmediato,
-  gratis, con tirada normal y sin cadena. Un impacto no genera réplica.
+  gratis, con tirada normal y sin cadena. Un impacto no genera réplica; exige
+  arma equipada y el dormido no es atacable en melé.
 - El HUD de juego vive en las columnas laterales del marco 16:9: izquierda para el
   jugador activo, derecha para el detalle del cursor. El HUD exterior desaparece.
 - El detalle del cursor exige línea de visión de un jugador vivo; un cofre cerrado

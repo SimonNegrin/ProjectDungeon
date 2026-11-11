@@ -2,6 +2,9 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-027 — stable v2: revisada y aprobada por el usuario; dormido no atacable, regreso replica, sin aviso en el HUD, presentación sin texto y réplicas sin tope — [REQ-027](requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+* 2026-11-11 — Requirement — REQ-027 — cerradas las preguntas: dormido no atacable en melé, regreso replica, sin aviso en el HUD, presentación sin texto y réplicas sin tope — [REQ-027](requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+* 2026-11-11 — Requirement — REQ-009/REQ-010 — aclaraciones de coherencia: el ataque cuerpo a cuerpo ocurre dentro de la visión y el test de tiradas se acota a ataques sin réplica — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md), [REQ-010](requirements/REQ-010-combate-equipo-acierto-defensa.md)
 * 2026-11-11 — Experiment — EXP-003 v2 — brief de la mesa de combate ampliable: acciones, magia, réplica, escenarios de grupo y catálogos data-driven — [brief](design/exp-003-v2-brief.md)
 * 2026-11-11 — Requirement — REQ-026 — stable v5: revisada y aprobada por el usuario; economía de acciones cerrada y rebalanceo pendiente en EXP-003 — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
 * 2026-11-11 — Requirement — REQ-026 — cerradas las preguntas restantes: enemigos 2/1/2, tope 4 provisional, +1 como campo de equipo, ritmo secuencial, huida por MP, fin de turno manual, `Moverse` con un ataque por pulsación y IA que ataca hasta agotar o matar — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)

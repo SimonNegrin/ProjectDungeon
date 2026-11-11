@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-010
 title: "Combate con equipo: acierto, escudo y armadura"
-description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1 en REQ-010 v5.
+description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1.
 status: stable
-version: 5
+version: 6
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T16:18:04Z
-updated_at: 2026-11-09T12:00:00Z
+updated_at: 2026-11-11T16:15:00Z
 related_tasks: [TASK-0025, TASK-0026, TASK-0027, TASK-0028, TASK-0029, TASK-0030]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
@@ -26,6 +26,12 @@ verified:
       (Espada 3, Hacha 5, Daga 2) y Centinela sin armadura. Acepta que el
       Cobarde sea frágil y que estos números se reajusten en la futura
       ampliación de bestiario y armas.
+  - by: human:simon
+    at: 2026-11-11T16:15:00Z
+    note: >-
+      Aprueba la aclaración de coherencia con REQ-027: el test de tiradas se acota
+      a ataques sin réplica; un fallo con réplica añade las tiradas del defensor
+      y el orden es ataque → réplica.
 ---
 
 # Contexto
@@ -182,7 +188,7 @@ Decisiones de esta pasada:
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| T-001 | El combate vive en un módulo puro de `src/game/` que resuelve el impacto y el daño con dados. Orden de tiradas: ataque, escudo; si impacta, daño y armadura. No conoce DOM, Canvas, red ni relojes. | Tests unitarios importan el módulo sin DOM; un fallo consume dos tiradas y un impacto cuatro; el resultado incluye tiradas, impacto, daño y eventos. |
+| T-001 | El combate vive en un módulo puro de `src/game/` que resuelve el impacto y el daño con dados. Orden de tiradas: ataque, escudo; si impacta, daño y armadura. No conoce DOM, Canvas, red ni relojes. | Tests unitarios importan el módulo sin DOM; un fallo sin réplica consume dos tiradas y un impacto cuatro; un fallo con réplica añade las tiradas del defensor en el orden ataque → réplica; el resultado incluye tiradas, impacto, daño y eventos. |
 | T-002 | El estado guarda un RNG sembrado y serializable. La semilla de combate se deriva de la semilla de la partida; `window.__game.snapshot()` lo expone en solo lectura. | Misma semilla y comandos dan la misma secuencia; el snapshot no permite mutar el RNG; no se usa `Math.random`. |
 | T-003 | El equipo y los modificadores son datos, no código: catálogo de armas, armaduras y escudos con IDs; el bestiario declara por tipo PV, visión, alarma, MP máximo, modificadores y equipo; cada unidad tiene equipo equipado, inventario de armas y modificadores. El modelo admite futuras habilidades y tipos nuevos. | Cambiar una estadística en el catálogo o en el bestiario cambia el combate sin tocar la fórmula; los IDs son estables; el inventario, los modificadores y el MP máximo son serializables; no hay valores de balance duplicados fuera de los catálogos. |
 | T-004 | Las armas del mapa son entidades con posición e ID; `G` recoge la del tile del jugador, gasta 1 MP, la equipa y la elimina del mapa. `1`-`3` cambia de arma sin coste de acción ni MP. | Recoger dos veces la misma arma no duplica; el inventario no pasa de tres; con 0 MP se rechaza; el cambio no consume MP ni acción. |
@@ -285,6 +291,7 @@ bajo el cursor y el resto en `F1`.
 | 2026-11-09 | −1 de daño a todas las armas (Espada 3, Hacha 5, Daga 2); afecta también al jugador. | human:simon | aceptada (provisional) |
 | 2026-11-09 | Centinela sin armadura; conserva el escudo. | human:simon | aceptada (provisional) |
 | 2026-11-09 | El balance es provisional, se reajustará y debe ser barato de cambiar: valores solo en los catálogos y tests por propiedades. | human:simon | aceptada |
+| 2026-11-11 | El test de tiradas se acota a ataques sin réplica; la réplica añade sus propias tiradas y el orden es ataque → réplica. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
