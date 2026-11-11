@@ -26,9 +26,10 @@ verified:
       Verificación independiente en task/TASK-0070, fusionada en main
       (`90bb198`). Revisado el diff completo;
       178 tests focalizados de EXP-003 y 974 en la secuencia equivalente de
-      verify (docs, config, tests, tsc, vite y bundle). El `pnpm run verify`
-      estricto falla solo por el timeout ajeno de EXP-004 spawn, que pasa
-      aislado y no está en el diff. Sin cambios fuera de
+      verify (docs, config, tests, tsc, vite y bundle). `pnpm run verify`
+      volvió a pasar en main con 974 tests, build y bundle OK; un intento
+      intermedio del lead sufrió el timeout intermitente de EXP-004, ajeno al
+      diff y verde aislado. Sin cambios fuera de
       `experiments/EXP-003-mesa-combate/src/**` ni tests debilitados. Sin
       Playwright/E2E/QA visual: TASK-0071. Detalle en
       `artifacts/TASK-0070/attempt-2/verification-lead.md`.
@@ -84,11 +85,11 @@ bloque compartido del enemigo y recálculo quirúrgico.
       fórmulas, `src/` de producción, `tests/` de producción, `index.html` ni
       `public/`.
 
-Nota de verificación: `pnpm run verify` estricto se ejecutó en verde en el
-intento 1 (`verify-output.txt`). En las re-ejecuciones del lead falla solo el
-test ajeno `EXP-004 spawn` por su timeout de 5 s bajo carga paralela; aislado
-pasa y no está en el diff. La secuencia equivalente (docs, config, 974 tests con
-`--testTimeout=15000`, tsc, vite y bundle) está en verde.
+Nota de verificación: `pnpm run verify` se ejecutó en verde en el intento 1 y de
+nuevo en `main` tras la fusión (974 tests, build y bundle OK). Algunas
+re-ejecuciones intermedias del lead fallaron solo por el timeout intermitente
+del test ajeno `EXP-004 spawn` bajo carga paralela; aislado pasa y no está en el
+diff. La secuencia equivalente también está en verde.
 
 # Plan de test
 

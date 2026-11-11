@@ -36,6 +36,7 @@ generated: { by: task-lead, at: 2026-11-11T22:20:00Z }
 | `pnpm run verify` | Falla solo el test ajeno `EXP-004 spawn` por timeout de 5 s bajo carga paralela (2 intentos) | `attempt-1/verify-output-lead*.txt` |
 | `pnpm exec vitest run experiments/EXP-004-salas-irregulares/src/spawn.test.ts` | 20 tests OK aislado; confirma que el fallo no es de EXP-003 | `attempt-1/exp004-isolated-lead.txt` |
 | docs + config + `vitest run --testTimeout=15000` + build + bundle | 72 archivos, 974 tests OK; tsc, vite y bundle OK | `attempt-2/verify-equivalent-lead.txt` |
+| `pnpm run verify` en `main` tras la fusión | 974 tests, build y bundle OK | `attempt-2/verify-output-lead-main.txt` |
 
 El informe del runner incluye una ejecución completa de `pnpm run verify` en
 verde (973 tests) en `attempt-1/verify-output.txt`. El timeout de EXP-004 es
