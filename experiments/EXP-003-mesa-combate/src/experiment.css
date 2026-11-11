@@ -23,6 +23,7 @@
 }
 
 .matchup-panel,
+.bench-panel,
 .detail-panel,
 .export-panel {
   display: grid;
@@ -32,6 +33,7 @@
 }
 
 .matchup-panel h2,
+.bench-panel h2,
 .detail-panel h2,
 .export-panel h2 {
   margin: 0;
@@ -192,8 +194,269 @@
 
 @media (max-width: 720px) {
   .matchup-panel,
+  .bench-panel,
   .detail-panel,
   .export-panel {
     padding: 14px;
   }
 }
+
+/* Banco de ajuste: objetivos, diagnóstico, editor y armas globales. */
+
+.bench-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.bench-status {
+  flex: 1 1 320px;
+  min-height: 1.2em;
+  margin: 0;
+}
+
+.diagnosis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 12px;
+}
+
+.diagnosis-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+}
+
+.diagnosis-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.diagnosis-header h3 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.92rem;
+}
+
+.diagnosis-four {
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.diagnosis-four.is-good {
+  color: var(--ok);
+}
+
+.diagnosis-four.is-bad {
+  color: var(--danger);
+}
+
+.target-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.target-label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.target-label input,
+.bench-field input,
+.bench-field select,
+.weapon-table input {
+  width: 6.5em;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.bench-field select {
+  width: 9.5em;
+}
+
+.target-guide {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.bench-target-reset,
+.bench-field-reset {
+  padding: 3px 7px;
+  font-size: 0.68rem;
+}
+
+.diagnosis-rows,
+.diagnosis-problems {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.73rem;
+  line-height: 1.45;
+}
+
+.diagnosis-rows .is-inside {
+  color: var(--ok);
+}
+
+.diagnosis-rows .is-outside {
+  color: var(--danger);
+}
+
+.diagnosis-problems {
+  color: var(--muted);
+}
+
+.diagnosis-problems .problem-global-weapon {
+  color: var(--accent);
+}
+
+.field-error {
+  flex: 1 1 100%;
+  min-height: 1em;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.bench-editor-row td {
+  padding: 14px;
+  background: rgba(127, 179, 213, 0.06);
+  white-space: normal;
+}
+
+.bench-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.bench-editor h3 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.95rem;
+}
+
+.bench-editor-warning {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.bench-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 10px;
+}
+
+.bench-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 6px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel-2);
+  font-size: 0.75rem;
+}
+
+.bench-field > span {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.bench-field input,
+.bench-field select {
+  width: 100%;
+}
+
+.state-ok {
+  color: var(--ok);
+  font-weight: 700;
+}
+
+.state-out {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.weapons-block {
+  display: grid;
+  gap: 8px;
+}
+
+.weapons-block h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.weapon-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.77rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.weapon-table th,
+.weapon-table td {
+  padding: 7px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.weapon-table th {
+  background: var(--panel-2);
+  color: var(--muted);
+  font-size: 0.67rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.weapon-table td:last-child,
+.weapon-table th:last-child {
+  text-align: right;
+}
+
+.weapon-table input[aria-invalid='true'],
+.target-label input[aria-invalid='true'],
+.bench-field input[aria-invalid='true'],
+.bench-field select[aria-invalid='true'] {
+  border-color: var(--danger);
+  outline: 2px solid rgba(224, 107, 107, 0.35);
+}
+
+.target-label input:focus-visible,
+.bench-field input:focus-visible,
+.bench-field select:focus-visible,
+.weapon-table input:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
