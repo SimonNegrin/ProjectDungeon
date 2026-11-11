@@ -5,7 +5,7 @@ description: Mapa de IDs, comandos, estados esperados y aserciones de la QA visu
 task: TASK-0071
 attempt: 1
 status: stable
-generated: { by: task-lead, at: 2026-11-11T23:56:00Z }
+generated: { by: task-lead, at: 2026-11-11T22:36:30Z }
 ---
 
 # Hecho de partida

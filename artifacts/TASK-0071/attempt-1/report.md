@@ -5,7 +5,7 @@ description: E2E y QA visual de las tres tablas inline de EXP-003.
 task: TASK-0071
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T23:05:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:37:30Z }
 artifacts: artifacts/TASK-0071/attempt-1/
 verified:
 ---
