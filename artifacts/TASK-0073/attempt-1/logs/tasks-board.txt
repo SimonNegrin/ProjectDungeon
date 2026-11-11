@@ -1,0 +1,2 @@
+$ node scripts/task-board.mjs
+Tablero actualizado: docs/tasks/index.md (74 tareas).
