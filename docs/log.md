@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Planning — TASK-0074 — ready: E2E y QA visual de objetivos por par y filtros; dependencia TASK-0073 cerrada — [TASK-0074](tasks/TASK-0074-exp-003-objetivos-filtros-e2e.md)
 * 2026-11-11 — Task — TASK-0073 — cerrada: filtros de vista en las tres tablas (héroe/enemigo, nombre y unidades), sin tildes ni mayúsculas, `rowspan` ajustado, aviso de sin resultados y foco; 993 tests y verify OK; smoke DOM sin cambios en `% real`, 4-de-4, export ni resets; fusión `025395d` — [informe](../artifacts/TASK-0073/attempt-1/report.md)
 * 2026-11-11 — Planning — TASK-0073 — ready: filtros de las tres tablas; dependencia TASK-0072 cerrada — [TASK-0073](tasks/TASK-0073-exp-003-filtros-tablas.md)
 * 2026-11-11 — Task — TASK-0072 — cerrada: objetivos por par héroe–enemigo (guía 75/85/30 heredada, fallback 50, 4-de-4 sin dispersión), input por fila sin `rowspan`, API por par y export con `targetsVersion: 2` y `targetsId` determinista; 979 tests y verify OK; el E2E funcional queda para TASK-0074; fusión `e61c807` — [informe](../artifacts/TASK-0072/attempt-1/report.md)

@@ -4,7 +4,7 @@ id: TASK-0074
 title: "EXP-003: E2E y QA visual de objetivos por par y filtros"
 description: Cubrir con E2E y QA visual el objetivo editable por par, el 4-de-4 sin dispersión, los filtros de las tres tablas y el export con targetsVersion 2.
 status: stable
-task_status: backlog
+task_status: ready
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-005, R-006, R-015, R-019, R-021, R-022, R-023, R-024, T-004, T-005, T-007, T-008, T-009]
