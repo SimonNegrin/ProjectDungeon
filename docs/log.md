@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Task — TASK-0066 — cerrada: motor y datos del banco de ajuste (overlay sin mutar `CATALOG`, objetivos 75/85/30, filas afectadas, diagnóstico 4-de-4 con avisos y export determinista); 925/925 tests y verify OK; fusión `d240a0c` — [informe](../artifacts/TASK-0066/attempt-1/report.md)
 * 2026-11-11 — Requirement — REQ-028 — stable v1: mesa de ajuste con objetivos editables por enemigo, stats compartidos, armas globales, editor expandible, diagnóstico 4-de-4 y export; guía 75/85/30 no normativa y análisis posterior de problemas — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)
 * 2026-11-11 — Task — TASK-0066 — creada ready: motor y datos del banco de ajuste (overlay, objetivos, filas afectadas, diagnóstico y export) — [TASK-0066](tasks/TASK-0066-exp-003-banco-ajuste-motor.md)
 * 2026-11-11 — Task — TASK-0067 — creada backlog: UI del banco de ajuste (fila expandible, tabla de armas, diagnóstico, reset y export); depende de TASK-0066 — [TASK-0067](tasks/TASK-0067-exp-003-banco-ajuste-ui.md)

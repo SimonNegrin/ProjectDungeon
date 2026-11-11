@@ -4,22 +4,32 @@ id: TASK-0066
 title: "EXP-003: motor y datos del banco de ajuste"
 description: Catálogo de trabajo, objetivos por enemigo, recálculo de filas afectadas, diagnóstico 4-de-4 y export reproducible, sin tocar el catálogo base.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-003, R-004, R-007, R-008, R-009, R-010, R-012, T-001, T-002, T-004, T-006, T-007, T-008]
 depends_on: []
 unlocks: [TASK-0067]
 created_at: 2026-11-11T20:20:00Z
-completed_at:
+completed_at: 2026-11-11T20:55:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0066/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T20:20:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-11T20:55:00Z
+    note: >-
+      Verificación independiente en task/TASK-0066, fusionada en main
+      (`d240a0c`). Diff limitado a `src/v2/bench.ts`, `bench.test.ts`, el export
+      de `v2/index.ts` y artefactos. Re-ejecutado `pnpm run verify`: 925/925
+      tests, `tsc`, build y bundle OK; el primer intento agotó el timeout de un
+      test pesado ajeno (EXP-004), que pasó solo y en la segunda ejecución.
+      Comprobados catálogo base intacto, objetivos, filas afectadas,
+      diagnóstico/avisos, reset y determinismo del export.
 ---
 
 # Objetivo
@@ -40,27 +50,27 @@ UI de [TASK-0067](TASK-0067-exp-003-banco-ajuste-ui.md).
 
 # Criterios de aceptación
 
-- [ ] Existe un catálogo de trabajo que parte de `CATALOG`, aplica overrides de
+- [x] Existe un catálogo de trabajo que parte de `CATALOG`, aplica overrides de
       enemigos y armas y nunca muta el catálogo base; un reset restaura la base.
-- [ ] Los objetivos por enemigo existen con guía inicial 75/85/30, validación
+- [x] Los objetivos por enemigo existen con guía inicial 75/85/30, validación
       entera 0–100 y reset a la guía; el usuario puede fijar otros valores.
-- [ ] La medición acepta el catálogo ajustado y puede recalcular solo las filas
+- [x] La medición acepta el catálogo ajustado y puede recalcular solo las filas
       afectadas por un enemigo (sus 4) o por un arma (todas las unidades que la
       equipan), manteniendo semilla y duelos.
-- [ ] El diagnóstico por enemigo calcula objetivo, win % por fila, delta, filas
+- [x] El diagnóstico por enemigo calcula objetivo, win % por fila, delta, filas
       dentro del margen de ±5 pp, recuento 4-de-4, mínimo/máximo/dispersión y la
       lista de filas fuera con su desviación.
-- [ ] El diagnóstico marca problemáticas sin decidir: dispersión entre héroes
+- [x] El diagnóstico marca problemáticas sin decidir: dispersión entre héroes
       superior a 10 pp (bloque compartido que no puede centrar las 4 filas),
       filas fuera y efecto de un arma global sobre ambos bandos.
-- [ ] El export incluye catálogo ajustado, objetivos, overrides y diagnóstico,
+- [x] El export incluye catálogo ajustado, objetivos, overrides y diagnóstico,
       con un identificador determinista de overrides y sin marca de tiempo; dos
       ejecuciones con los mismos valores producen el mismo JSON.
-- [ ] El nombre de archivo o el payload distingue una ejecución ajustada de la
+- [x] El nombre de archivo o el payload distingue una ejecución ajustada de la
       base sin sobrescribir el export base.
-- [ ] Tests unitarios cubren overlay, objetivos, filas afectadas, diagnóstico,
+- [x] Tests unitarios cubren overlay, objetivos, filas afectadas, diagnóstico,
       reset y determinismo; `pnpm run verify` pasa.
-- [ ] No cambian las reglas del duelo, el escenario 1D, `src/` de producción,
+- [x] No cambian las reglas del duelo, el escenario 1D, `src/` de producción,
       `tests/` de producción, `index.html` ni `public/`.
 
 # Plan de test
@@ -75,9 +85,9 @@ UI de [TASK-0067](TASK-0067-exp-003-banco-ajuste-ui.md).
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0066/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA en la rama `task/TASK-0066`
+- [x] Informe en `artifacts/TASK-0066/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA en la rama `task/TASK-0066`
 
 # Restricciones
 
