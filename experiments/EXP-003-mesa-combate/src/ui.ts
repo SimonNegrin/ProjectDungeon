@@ -304,6 +304,10 @@ export interface V2ExperimentApi {
   getOverrides(): BenchOverrides;
   resetEnemy(enemyId: string): void;
   resetWeapon(weaponId: string): void;
+  resetWeaponField(
+    weaponId: string,
+    field: 'accuracy' | 'damage',
+  ): void;
   resetAll(): void;
   setEnemyField(enemyId: string, field: string, value: unknown): void;
   resetEnemyField(enemyId: string, field: string): void;

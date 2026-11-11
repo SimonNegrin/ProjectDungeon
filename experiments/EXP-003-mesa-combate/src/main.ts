@@ -19,6 +19,7 @@ import {
   formatTarget,
   pruneOverrides,
   resetEnemyFieldOverride,
+  resetWeaponFieldOverride,
   validateEnemyField,
   validateTargetInput,
   validateWeaponField,
@@ -707,6 +708,10 @@ function renderEditorRow(enemyId: string): HTMLTableRowElement {
     const key = `${enemyId}:${field}`;
     fieldInputs.set(key, input);
     input.value = displayFieldValue(enemyId, field);
+    input.setAttribute(
+      'aria-label',
+      `${ENEMY_FIELD_LABELS[field]} de ${template?.name ?? enemyId}`,
+    );
 
     const error = element('p', {
       className: 'field-error',
@@ -724,7 +729,7 @@ function renderEditorRow(enemyId: string): HTMLTableRowElement {
       clearFieldError(enemyId, field);
       applyEnemyField(enemyId, field, validation.value);
     };
-    input.addEventListener('change', onFieldChange);
+    input.addEventListener(isSelect ? 'change' : 'input', onFieldChange);
     if (!isSelect) {
       input.addEventListener('blur', () => {
         (input as HTMLInputElement).value = displayFieldValue(enemyId, field);
@@ -805,6 +810,10 @@ function renderDiagnosis(): void {
     targetInput.max = '100';
     targetInput.step = '1';
     targetInput.value = String(entry.target);
+    targetInput.setAttribute(
+      'aria-label',
+      `Objetivo de ${unitName(workingCatalog, entry.enemyId)}`,
+    );
     targetLabel.append(targetInput);
 
     const guide = element('span', {
@@ -829,7 +838,7 @@ function renderDiagnosis(): void {
     });
     targetError.setAttribute('aria-live', 'polite');
 
-    targetInput.addEventListener('change', () => {
+    targetInput.addEventListener('input', () => {
       const validation = validateTargetInput(targetInput.value);
       if (!validation.ok) {
         targetInput.setAttribute('aria-invalid', 'true');
@@ -937,6 +946,7 @@ function renderWeapons(): void {
     accuracy.min = String(WEAPON_LIMITS.accuracy.min);
     accuracy.max = String(WEAPON_LIMITS.accuracy.max);
     accuracy.value = String(weapon.accuracy);
+    accuracy.setAttribute('aria-label', `Acierto de ${weapon.name}`);
 
     const damage = element('input', {
       testId: `bench-weapon-${weapon.id}-damage`,
@@ -946,6 +956,7 @@ function renderWeapons(): void {
     damage.min = String(WEAPON_LIMITS.damage.min);
     damage.max = String(WEAPON_LIMITS.damage.max);
     damage.value = String(weapon.damage);
+    damage.setAttribute('aria-label', `Daño de ${weapon.name}`);
 
     const accuracyError = element('p', {
       className: 'field-error',
@@ -963,7 +974,7 @@ function renderWeapons(): void {
       input: HTMLInputElement,
       error: HTMLElement,
     ): void => {
-      input.addEventListener('change', () => {
+      input.addEventListener('input', () => {
         const validation = validateWeaponField(field, input.value);
         if (!validation.ok) {
           input.setAttribute('aria-invalid', 'true');
@@ -987,10 +998,30 @@ function renderWeapons(): void {
       testId: `bench-weapon-users-${weapon.id}`,
       text: weapon.users.join(', '),
     });
+    const accuracyReset = element('button', {
+      className: 'button ghost bench-field-reset',
+      text: 'Reset campo',
+      testId: `bench-weapon-field-reset-${weapon.id}-accuracy`,
+    });
+    accuracyReset.type = 'button';
+    accuracyReset.setAttribute('aria-label', `Restablecer acierto de ${weapon.name}`);
+    accuracyReset.addEventListener('click', () =>
+      resetWeaponFieldState(weapon.id, 'accuracy'),
+    );
+    const damageReset = element('button', {
+      className: 'button ghost bench-field-reset',
+      text: 'Reset campo',
+      testId: `bench-weapon-field-reset-${weapon.id}-damage`,
+    });
+    damageReset.type = 'button';
+    damageReset.setAttribute('aria-label', `Restablecer daño de ${weapon.name}`);
+    damageReset.addEventListener('click', () =>
+      resetWeaponFieldState(weapon.id, 'damage'),
+    );
     const accuracyCell = element('td');
-    accuracyCell.append(accuracy, accuracyError);
+    accuracyCell.append(accuracy, accuracyReset, accuracyError);
     const damageCell = element('td');
-    damageCell.append(damage, damageError);
+    damageCell.append(damage, damageReset, damageError);
 
     const resetWeaponButton = element('button', {
       className: 'button ghost',
@@ -998,6 +1029,10 @@ function renderWeapons(): void {
       testId: `bench-weapon-reset-${weapon.id}`,
     });
     resetWeaponButton.type = 'button';
+    resetWeaponButton.setAttribute(
+      'aria-label',
+      `Restablecer arma ${weapon.name}`,
+    );
     resetWeaponButton.addEventListener('click', () => resetWeaponState(weapon.id));
     const resetCell = element('td');
     resetCell.append(resetWeaponButton);
@@ -1349,6 +1384,19 @@ function resetWeaponState(weaponId: string): void {
   scheduleRecalc({ kind: 'weapon', weaponId });
 }
 
+function resetWeaponFieldState(weaponId: string, field: WeaponField): void {
+  setOverrides(resetWeaponFieldOverride(overrides, weaponId, field));
+  const refs = weaponRefs.get(weaponId);
+  if (refs) {
+    const input = field === 'accuracy' ? refs.accuracy : refs.damage;
+    input.value = String(workingCatalog.weapons[weaponId]?.[field] ?? '');
+    input.removeAttribute('aria-invalid');
+    const error = field === 'accuracy' ? refs.accuracyError : refs.damageError;
+    error.textContent = '';
+  }
+  scheduleRecalc({ kind: 'weapon', weaponId });
+}
+
 function resetAllState(): void {
   overrides = resetAllOverrides();
   targets = createTargets();
@@ -1517,6 +1565,13 @@ const api: V2ExperimentApi = {
   },
   resetWeapon: (weaponId) => {
     resetWeaponState(weaponId);
+    recalculateNow({ kind: 'weapon', weaponId });
+  },
+  resetWeaponField: (weaponId, field) => {
+    if (!workingCatalog.weapons[weaponId]) {
+      throw new RangeError(`Arma desconocida: ${weaponId}.`);
+    }
+    resetWeaponFieldState(weaponId, field);
     recalculateNow({ kind: 'weapon', weaponId });
   },
   resetAll: () => {

@@ -11,6 +11,7 @@ import {
   formatTarget,
   pruneOverrides,
   resetEnemyFieldOverride,
+  resetWeaponFieldOverride,
   validateEnemyField,
   validateTargetInput,
   validateWeaponField,
@@ -205,6 +206,31 @@ describe('normalización de overrides', () => {
       'habilidad',
     );
     expect(pruneOverrides(CATALOG, withoutSkill)).toEqual(emptyOverrides());
+  });
+
+  it('elimina solo el campo pedido de un arma y poda si queda vacío', () => {
+    const overrides = withWeaponOverride(emptyOverrides(), 'espada', {
+      accuracy: 5,
+      damage: 6,
+    });
+    const withoutAccuracy = resetWeaponFieldOverride(
+      overrides,
+      'espada',
+      'accuracy',
+    );
+    expect(withoutAccuracy.weapons.espada).toEqual({ damage: 6 });
+    expect(pruneOverrides(CATALOG, withoutAccuracy)).toEqual({
+      enemies: {},
+      weapons: { espada: { damage: 6 } },
+    });
+
+    const withoutBoth = resetWeaponFieldOverride(
+      withoutAccuracy,
+      'espada',
+      'damage',
+    );
+    expect(pruneOverrides(CATALOG, withoutBoth)).toEqual(emptyOverrides());
+    expect(resetWeaponFieldOverride(overrides, 'hacha', 'damage')).toBe(overrides);
   });
 
   it('construye parches tipados y lee el valor efectivo del catálogo ajustado', () => {

@@ -285,6 +285,26 @@ export function resetEnemyFieldOverride(
 }
 
 /**
+ * Elimina un campo del override de un arma sin tocar el otro.
+ *
+ * No poda por sí sola: el llamador encadena `pruneOverrides` antes de guardar.
+ */
+export function resetWeaponFieldOverride(
+  overrides: BenchOverrides,
+  weaponId: string,
+  field: WeaponField,
+): BenchOverrides {
+  const current = overrides.weapons[weaponId];
+  if (!current) return overrides;
+  const next: { accuracy?: number; damage?: number } = { ...current };
+  delete next[field];
+  return {
+    ...overrides,
+    weapons: { ...overrides.weapons, [weaponId]: next },
+  };
+}
+
+/**
  * Normaliza el estado: sin campos iguales a la base, sin `{}` y sin
  * enemigos/armas desconocidos. No muta la entrada.
  */

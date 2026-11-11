@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (68):
+Avisos (69):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - artifacts/TASK-0022/attempt-1/report.md: handoff de 3937 B; objetivo ≤2560 B
@@ -69,7 +69,8 @@ Avisos (68):
 - artifacts/TASK-0064/attempt-1/brief.md: handoff de 2791 B; objetivo ≤2560 B
 - artifacts/TASK-0064/attempt-1/report.md: handoff de 2701 B; objetivo ≤2560 B
 - artifacts/TASK-0067/attempt-1/brief.md: handoff de 3005 B; objetivo ≤2560 B
-OK: 342 documentos, 68 tareas, 5 experimentos.
+- artifacts/TASK-0067/attempt-1/report.md: handoff de 3045 B; objetivo ≤2560 B
+OK: 343 documentos, 68 tareas, 5 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -78,12 +79,12 @@ $ vitest run
 
 
  Test Files  71 passed (71)
-      Tests  944 passed (944)
-   Start at  16:54:43
-   Duration  10.62s (tests 92%, import 6%, transform 2%, worker 1%)
+      Tests  945 passed (945)
+   Start at  17:00:23
+   Duration  10.46s (tests 91%, import 6%, transform 2%, worker 1%)
 
-    Isolate  71 workers spawned · ~113ms startup each (spawn + environment, per file)
-             at least ~1.04s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  71 workers spawned · ~112ms startup each (spawn + environment, per file)
+             at least ~1.02s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -93,6 +94,6 @@ rendering chunks...
 computing gzip size...
 dist/index.html                17.12 kB │ gzip:  3.90 kB
 dist/assets/main-3vcR1QGj.js  138.70 kB │ gzip: 47.47 kB
-✓ built in 340ms
+✓ built in 338ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 10 dist files and 56 production modules; no forbidden markers.
