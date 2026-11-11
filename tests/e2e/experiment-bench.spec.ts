@@ -11,6 +11,7 @@ import {
 import type {
   BenchExport,
   BenchOverrides,
+  BenchTargets,
   EnemyDiagnosis,
 } from '../../experiments/EXP-003-mesa-combate/src/v2/bench';
 import type {
@@ -22,7 +23,7 @@ import type { V2ExperimentApi } from '../../experiments/EXP-003-mesa-combate/src
 import { artifactPath } from './artifacts';
 
 /**
- * E2E de las tres tablas inline de EXP-003 (REQ-028, TASK-0071).
+ * E2E de las tres tablas inline de EXP-003 (REQ-028, TASK-0071/TASK-0074).
  *
  * Todo el estado se lee de `window.__experiment` y del DOM real. El recálculo
  * es diferido: se espera al texto de `bench-status` o al propio estado, nunca
@@ -35,7 +36,15 @@ const DUELS = 1000;
 const MARGIN_PP = 5;
 const HEROES = ['guerrero', 'picaro', 'mago', 'clerigo'] as const;
 const ENEMIES = ['centinela', 'bruto', 'cobarde'] as const;
-const GUIDE_TARGETS = { centinela: 75, cobarde: 85, bruto: 30 } as const;
+const GUIDE_BY_ENEMY = { centinela: 75, cobarde: 85, bruto: 30 } as const;
+const GUIDE_TARGETS: Record<string, number> = Object.fromEntries(
+  HEROES.flatMap((heroId) =>
+    ENEMIES.map((enemyId) => [
+      `${heroId}:${enemyId}`,
+      GUIDE_BY_ENEMY[enemyId],
+    ]),
+  ),
+);
 const SHARED_FIELDS = [
   'maxHp',
   'habilidad',
@@ -119,7 +128,7 @@ async function readDiagnosis(
   });
 }
 
-async function readTargets(page: Page): Promise<Record<string, number>> {
+async function readTargets(page: Page): Promise<BenchTargets> {
   return page.evaluate(() => {
     const api = window.__experiment as unknown as V2ExperimentApi;
     return { ...api.getTargets() };
@@ -193,6 +202,32 @@ async function combatRowTexts(page: Page): Promise<Record<string, string>> {
     }
     return rows;
   });
+}
+
+/** Texto del 4-de-4 de cada bloque visible. */
+async function combatFourTexts(page: Page): Promise<Record<string, string>> {
+  return page.evaluate(() => {
+    const fours: Record<string, string> = {};
+    for (const node of document.querySelectorAll<HTMLElement>(
+      '[data-testid^="combats-four-"]',
+    )) {
+      const testId = node.dataset.testid ?? '';
+      const enemyId = testId.slice('combats-four-'.length);
+      fours[enemyId] = node.textContent ?? '';
+    }
+    return fours;
+  });
+}
+
+async function realCellText(
+  page: Page,
+  heroId: string,
+  enemyId: string,
+): Promise<string> {
+  return (
+    (await page.getByTestId(`combats-real-${heroId}-${enemyId}`).textContent()) ??
+    ''
+  );
 }
 
 function firstPercent(text: string): string {
@@ -554,110 +589,201 @@ test('editar el daño de un arma recalcula todas las filas donde se usa sin dupl
   expect(errors).toEqual([]);
 });
 
-test('cambiar el objetivo actualiza delta y 4-de-4 sin relanzar duelos', async ({
+test('editar el objetivo de un par cambia su delta y el 4-de-4 del enemigo sin tocar a los otros héroes', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
   await openExperiment(page);
+
   const before = await readResults(page);
-  const beforeResultsJson = JSON.stringify(before);
+  const beforeRows = await combatRowTexts(page);
+  const beforeFour = await combatFourTexts(page);
+  const beforeTargets = await readTargets(page);
+  const beforeReal = await realCellText(page, 'guerrero', 'centinela');
+  expect(Object.keys(beforeTargets)).toHaveLength(12);
 
-  const targetInput = page.getByTestId('combats-target-centinela');
-  const four = page.getByTestId('combats-four-centinela');
+  const target = page.getByTestId('combats-target-guerrero-centinela');
   const real = page.getByTestId('combats-real-guerrero-centinela');
-  const wins = page.getByTestId('combats-wins-hero-guerrero-centinela');
-  const brutoFour = page.getByTestId('combats-four-bruto');
+  const four = page.getByTestId('combats-four-centinela');
+  await expect(target).toHaveValue(String(GUIDE_BY_ENEMY.centinela));
+  await expect(real).toContainText('fuera');
+  await expect(four).toContainText('0/4');
 
-  await expect(targetInput).toHaveValue(String(GUIDE_TARGETS.centinela));
-  await expect(four).not.toHaveText('4/4 dentro');
-  const beforeReal = (await real.textContent()) ?? '';
-  const beforeRate = firstPercent(beforeReal);
-  const beforeWins = (await wins.textContent()) ?? '';
-  expect(beforeRate).toMatch(/^\d+,\d+ %$/);
-
-  await targetInput.fill('100');
-  await waitForBenchStatus(page, '0 filas medidas de nuevo');
-  await expect(page.getByTestId('bench-status')).toContainText(
-    'diagnóstico actualizado',
-  );
-
-  // Ni el win % ni los recuentos cambian: no se ejecutan duelos.
-  expect(await readResults(page)).toEqual(before);
-  expect(JSON.stringify(await readResults(page))).toBe(beforeResultsJson);
-  await expect(wins).toHaveText(beforeWins);
-  expect(firstPercent((await real.textContent()) ?? '')).toBe(beforeRate);
-
-  await expect(real).toContainText('dentro');
-  await expect(four).toHaveText('4/4 dentro');
-  await expect(
-    page.getByTestId('combats-real-guerrero-bruto'),
-  ).toContainText('fuera');
-  await expect(brutoFour).toContainText('fuera');
-  await expect(brutoFour).not.toHaveText('4/4 dentro');
-  expect(await readTargets(page)).toEqual({ ...GUIDE_TARGETS, centinela: 100 });
-
-  const diagnosis = await readDiagnosis(page);
-  const centinela = diagnosis.find((entry) => entry.enemyId === 'centinela');
-  expect(centinela?.rows.every((row) => row.target === 100)).toBe(true);
-  expect(centinela?.fourOfFour).toBe(true);
-  expect(centinela?.rows).toHaveLength(4);
-  expect(
-    centinela?.rows.every((row) => Math.abs(row.delta) <= MARGIN_PP),
-  ).toBe(true);
+  const otherTargets = new Map<string, string>();
+  const otherReal = new Map<string, string>();
+  for (const heroId of HEROES.filter((heroId) => heroId !== 'guerrero')) {
+    const key = `${heroId}:centinela`;
+    otherTargets.set(
+      key,
+      (await page.getByTestId(`combats-target-${heroId}-centinela`).inputValue()) ??
+        '',
+    );
+    otherReal.set(key, await realCellText(page, heroId, 'centinela'));
+  }
 
   await screenshotElement(
     page.getByTestId('combats-panel'),
-    'objetivo-4-de-4',
+    'objetivo-por-fila-antes',
     testInfo,
   );
 
-  // El reset de enemigos restaura la guía y el estado base.
-  await page.getByTestId('bench-reset-enemies').click();
-  await expect.poll(() => readTargets(page), { timeout: 10_000 }).toEqual(
-    GUIDE_TARGETS,
-  );
-  await expect(targetInput).toHaveValue(String(GUIDE_TARGETS.centinela));
-  await expect(four).not.toHaveText('4/4 dentro');
-  await expect(real).toHaveText(beforeReal);
+  await target.fill('100');
+  await waitForBenchStatus(page, 'diagnóstico actualizado');
+  await expect(target).toBeFocused();
+
+  // El objetivo es solo diagnóstico: no se lanzan duelos.
   expect(await readResults(page)).toEqual(before);
+  expect(JSON.stringify(await readResults(page))).toBe(JSON.stringify(before));
+
+  const afterTargets = await readTargets(page);
+  expect(afterTargets).toEqual({
+    ...beforeTargets,
+    'guerrero:centinela': 100,
+  });
+
+  // La fila editada cambia de delta y estado; el bloque pasa a 1/4.
+  expect(firstPercent(await realCellText(page, 'guerrero', 'centinela'))).toBe(
+    firstPercent(beforeReal),
+  );
+  expect(await realCellText(page, 'guerrero', 'centinela')).not.toBe(beforeReal);
+  await expect(real).toContainText('100,0 %');
+  await expect(real).toContainText('±0,0 pp');
+  await expect(real).toContainText('dentro');
+  await expect(four).toContainText('1/4');
+  await expect(four).not.toHaveText('4/4 dentro');
+
+  // Los otros tres héroes del mismo enemigo conservan objetivo y % real.
+  for (const [key, previousTarget] of otherTargets) {
+    const [heroId] = key.split(':');
+    await expect(
+      page.getByTestId(`combats-target-${heroId}-centinela`),
+      `objetivo de ${key}`,
+    ).toHaveValue(previousTarget);
+    expect(await realCellText(page, heroId, 'centinela'), `% real de ${key}`).toBe(
+      otherReal.get(key),
+    );
+    expect(
+      (await combatRowTexts(page))[key],
+      `fila completa de ${key}`,
+    ).toBe(beforeRows[key]);
+  }
+
+  // Los otros bloques no cambian ni su 4-de-4.
+  expect(await combatFourTexts(page)).toMatchObject({
+    bruto: beforeFour.bruto,
+    cobarde: beforeFour.cobarde,
+  });
+
+  await screenshotElement(
+    page.getByTestId('combats-panel'),
+    'objetivo-por-fila-despues',
+    testInfo,
+  );
+  expect(errors).toEqual([]);
+});
+
+test('dos pares del mismo enemigo con objetivos distintos calculan delta y 4-de-4 propios sin aviso de dispersión', async ({
+  page,
+}) => {
+  const errors = trackConsoleErrors(page);
+  await openExperiment(page);
+
+  const assignments = {
+    'guerrero:centinela': 100,
+    'picaro:centinela': 95,
+    'mago:centinela': 95,
+    'clerigo:centinela': 100,
+  } as const;
+  await page.evaluate((entries) => {
+    const api = window.__experiment as unknown as V2ExperimentApi;
+    for (const [key, value] of entries) {
+      const [heroId, enemyId] = key.split(':');
+      api.setTarget(heroId, enemyId, value);
+    }
+  }, Object.entries(assignments));
+
+  const results = await readResults(page);
+  const resultsByKey = byKey(results.matchups);
+  const diagnosis = await readDiagnosis(page);
+  const centinela = diagnosis.find((entry) => entry.enemyId === 'centinela');
+  expect(centinela).toBeDefined();
+  expect(centinela?.rows).toHaveLength(4);
+  expect(centinela?.total).toBe(4);
+
+  const targets = new Set<number>();
+  for (const row of centinela?.rows ?? []) {
+    const key = `${row.heroId}:centinela`;
+    const expectedTarget = assignments[key as keyof typeof assignments];
+    const matchup = resultsByKey.get(key);
+    expect(row.target, `objetivo de ${key}`).toBe(expectedTarget);
+    expect(row.heroWinRate, `tasa de ${key}`).toBe(matchup?.heroWinRate);
+    expect(row.delta, `delta de ${key}`).toBeCloseTo(
+      (matchup?.heroWinRate ?? 0) - expectedTarget,
+      3,
+    );
+    expect(row.inside, `estado de ${key}`).toBe(true);
+    targets.add(row.target);
+  }
+
+  // Dos objetivos distintos: el delta se calcula contra el de cada fila.
+  expect(targets.size).toBe(2);
+  expect(centinela?.insideCount).toBe(4);
+  expect(centinela?.fourOfFour).toBe(true);
+  expect(centinela?.outside).toEqual([]);
+
+  await expect(page.getByTestId('combats-four-centinela')).toHaveText(
+    '4/4 dentro',
+  );
+  for (const heroId of HEROES) {
+    await expect(
+      page.getByTestId(`combats-real-${heroId}-centinela`),
+    ).toContainText('dentro');
+  }
+  const panelText = (await page.getByTestId('combats-panel').textContent()) ?? '';
+  expect(panelText).not.toMatch(/dispersi/i);
 
   expect(errors).toEqual([]);
 });
 
-test('los resets por tabla y global restauran solo su parte y devuelven la base', async ({
+test('los resets por tabla y global restauran objetivos por par sin tocar armas ni héroes', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
   const base = await readResults(page);
+  const guide = await readTargets(page);
   const emptyId = await readOverridesId(page);
+  expect(Object.keys(guide)).toHaveLength(12);
+  expect(guide).toEqual(GUIDE_TARGETS);
 
   // Sin resets por campo dentro de las tablas.
   await expect(
     page.locator('.combats-table button, .weapon-table button, .heroes-table button'),
   ).toHaveCount(0);
 
-  // Ensuciar enemigo, arma, héroe y objetivo.
+  // Ensuciar enemigo, arma, héroe y un objetivo por par.
   await page.getByTestId('combats-field-centinela-maxHp').fill('30');
   await waitForBenchStatus(page, 'Recalculado: 4 filas afectadas.');
   await page.getByTestId('weapon-espada-damage').fill('8');
   await waitForBenchStatus(page, 'Recalculado: 6 filas afectadas.');
   await page.getByTestId('hero-field-guerrero-maxHp').fill('1');
   await waitForBenchStatus(page, 'Recalculado: 3 filas afectadas.');
-  await page.getByTestId('combats-target-cobarde').fill('60');
-  await waitForBenchStatus(page, '0 filas medidas de nuevo');
+  await page.getByTestId('combats-target-clerigo-cobarde').fill('60');
+  await waitForBenchStatus(page, 'diagnóstico actualizado');
 
   const dirty = await readOverrides(page);
   expect(Object.keys(dirty.enemies)).toEqual(['centinela']);
   expect(Object.keys(dirty.weapons)).toEqual(['espada']);
   expect(Object.keys(dirty.heroes)).toEqual(['guerrero']);
-  expect(await readTargets(page)).toEqual({ ...GUIDE_TARGETS, cobarde: 60 });
+  expect(await readTargets(page)).toEqual({
+    ...guide,
+    'clerigo:cobarde': 60,
+  });
 
-  // Reset de enemigos: limpia enemigos y objetivos, deja armas y héroes.
+  // Reset de enemigos: limpia enemigos y los 12 objetivos, deja armas y héroes.
   await page.getByTestId('bench-reset-enemies').click();
-  await expect.poll(() => readTargets(page), { timeout: 10_000 }).toEqual(
-    GUIDE_TARGETS,
-  );
+  await expect.poll(() => readTargets(page), { timeout: 10_000 }).toEqual(guide);
   const afterEnemies = await readOverrides(page);
   expect(afterEnemies).toEqual({
     enemies: {},
@@ -665,6 +791,16 @@ test('los resets por tabla y global restauran solo su parte y devuelven la base'
     heroes: { guerrero: { maxHp: 1 } },
   });
   expect(await readResults(page)).not.toEqual(base);
+  for (const enemyId of ENEMIES) {
+    for (const heroId of HEROES) {
+      await expect(
+        page.getByTestId(`combats-target-${heroId}-${enemyId}`),
+        `objetivo de ${heroId}:${enemyId}`,
+      ).toHaveValue(String(GUIDE_BY_ENEMY[enemyId]));
+    }
+  }
+  await expect(page.getByTestId('weapon-espada-damage')).toHaveValue('8');
+  await expect(page.getByTestId('hero-field-guerrero-maxHp')).toHaveValue('1');
 
   // Reset de armas: limpia armas, deja héroes.
   await page.getByTestId('bench-reset-weapons').click();
@@ -683,7 +819,7 @@ test('los resets por tabla y global restauran solo su parte y devuelven la base'
     heroes: {},
   });
   expect(await readResults(page)).toEqual(base);
-  expect(await readTargets(page)).toEqual(GUIDE_TARGETS);
+  expect(await readTargets(page)).toEqual(guide);
   expect(await readOverridesId(page)).toBe(emptyId);
 
   // Ensuciar los tres y usar el reset global.
@@ -693,6 +829,8 @@ test('los resets por tabla y global restauran solo su parte y devuelven la base'
   await waitForBenchStatus(page, 'Recalculado: 6 filas afectadas.');
   await page.getByTestId('hero-field-guerrero-maxHp').fill('1');
   await waitForBenchStatus(page, 'Recalculado: 3 filas afectadas.');
+  await page.getByTestId('combats-target-mago-bruto').fill('70');
+  await waitForBenchStatus(page, 'diagnóstico actualizado');
 
   await page.getByTestId('bench-reset-all').click();
   await waitForBenchStatus(page, 'Todo restablecido');
@@ -702,14 +840,20 @@ test('los resets por tabla y global restauran solo su parte y devuelven la base'
     heroes: {},
   });
   expect(await readResults(page)).toEqual(base);
-  expect(await readTargets(page)).toEqual(GUIDE_TARGETS);
+  expect(await readTargets(page)).toEqual(guide);
   expect(await readOverridesId(page)).toBe(emptyId);
   await expect(page.getByTestId('combats-field-centinela-maxHp')).toHaveValue(
     '6',
   );
   await expect(page.getByTestId('weapon-espada-damage')).toHaveValue('3');
   await expect(page.getByTestId('hero-field-guerrero-maxHp')).toHaveValue('20');
-  await expect(page.getByTestId('combats-target-cobarde')).toHaveValue('85');
+  for (const enemyId of ENEMIES) {
+    for (const heroId of HEROES) {
+      await expect(
+        page.getByTestId(`combats-target-${heroId}-${enemyId}`),
+      ).toHaveValue(String(GUIDE_BY_ENEMY[enemyId]));
+    }
+  }
 
   await expect(page.getByTestId('export-summary')).toContainText(
     `overridesId ${emptyId}`,
@@ -725,13 +869,205 @@ test('los resets por tabla y global restauran solo su parte y devuelven la base'
   expect(errors).toEqual([]);
 });
 
-test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas', async ({
+test('los filtros de Combates ajustan filas y rowspan, combinan y explican el vacío sin perder el foco', async ({
+  page,
+}, testInfo) => {
+  const errors = trackConsoleErrors(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await openExperiment(page);
+
+  const heroFilter = page.getByTestId('combats-filter-hero');
+  const enemyFilter = page.getByTestId('combats-filter-enemy');
+  const empty = page.getByTestId('combats-filter-empty');
+  const rows = page.getByTestId('combats-rows').locator('tr');
+
+  await expect(heroFilter).toBeVisible();
+  await expect(enemyFilter).toBeVisible();
+  await expect(empty).toBeHidden();
+  await expect(rows).toHaveCount(12);
+
+  // Filtro por héroe: una fila por bloque y el enemigo ocupa una sola fila.
+  await heroFilter.fill('guerrero');
+  await expect(heroFilter).toBeFocused();
+  await expect(rows).toHaveCount(3);
+  for (const enemyId of ENEMIES) {
+    await expect(
+      page.getByTestId(`combats-row-guerrero-${enemyId}`),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId(`combats-cell-${enemyId}-maxHp`),
+      `rowspan de ${enemyId}`,
+    ).toHaveAttribute('rowspan', '1');
+    for (const field of SHARED_FIELDS) {
+      await expect(
+        page.getByTestId(`combats-cell-${enemyId}-${field}`),
+      ).toHaveAttribute('rowspan', '1');
+    }
+  }
+  await screenshotElement(
+    page.getByTestId('combats-panel'),
+    'combates-filtro-heroe',
+    testInfo,
+  );
+
+  // Combinar héroe y enemigo da la intersección: una fila.
+  await enemyFilter.fill('centinela');
+  await expect(enemyFilter).toBeFocused();
+  await expect(rows).toHaveCount(1);
+  await expect(
+    page.getByTestId('combats-row-guerrero-centinela'),
+  ).toBeVisible();
+  await expect(page.getByTestId('combats-cell-centinela-maxHp')).toHaveAttribute(
+    'rowspan',
+    '1',
+  );
+  await expect(page.getByTestId('combats-cell-bruto-maxHp')).toHaveCount(0);
+
+  // Limpiar el héroe deja las cuatro filas del enemigo, con rowspan 4.
+  await page.getByTestId('combats-filter-hero-clear').click();
+  await expect(heroFilter).toHaveValue('');
+  await expect(heroFilter).toBeFocused();
+  await expect(rows).toHaveCount(4);
+  for (const sharedField of [
+    'combats-cell-centinela-maxHp',
+    'combats-cell-centinela-habilidad',
+  ]) {
+    await expect(page.getByTestId(sharedField)).toHaveAttribute(
+      'rowspan',
+      '4',
+    );
+  }
+  await screenshotElement(
+    page.getByTestId('combats-panel'),
+    'combates-filtro-enemigo',
+    testInfo,
+  );
+
+  // Un filtro sin coincidencias muestra el aviso y no deja la tabla vacía.
+  await heroFilter.fill('zombi');
+  await expect(rows).toHaveCount(0);
+  await expect(empty).toBeVisible();
+  await expect(empty).toHaveText(/Sin resultados/);
+  await expect(heroFilter).toBeFocused();
+  await screenshotElement(
+    page.getByTestId('combats-panel'),
+    'combates-sin-resultados',
+    testInfo,
+  );
+
+  // Limpiar enemigo y héroe restaura las 12 filas y oculta el aviso.
+  await page.getByTestId('combats-filter-enemy-clear').click();
+  await expect(enemyFilter).toHaveValue('');
+  await page.getByTestId('combats-filter-hero-clear').click();
+  await expect(heroFilter).toHaveValue('');
+  await expect(heroFilter).toBeFocused();
+  await expect(rows).toHaveCount(12);
+  await expect(empty).toBeHidden();
+  for (const enemyId of ENEMIES) {
+    await expect(
+      page.getByTestId(`combats-cell-${enemyId}-maxHp`),
+    ).toHaveAttribute('rowspan', '4');
+  }
+
+  expect(errors).toEqual([]);
+});
+
+test('los filtros de Armas y Héroes buscan por unidad sin mayúsculas ni tildes y conservan el foco', async ({
+  page,
+}, testInfo) => {
+  const errors = trackConsoleErrors(page);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await openExperiment(page);
+
+  const weaponsFilter = page.getByTestId('weapons-filter');
+  const heroesFilter = page.getByTestId('heroes-filter');
+  await expect(weaponsFilter).toBeVisible();
+  await expect(heroesFilter).toBeVisible();
+
+  // Armas: «guerrero» muestra el arma que usa el Guerrero, no las demás.
+  await weaponsFilter.fill('guerrero');
+  await expect(weaponsFilter).toBeFocused();
+  await expect(page.getByTestId('weapons-row-espada')).toBeVisible();
+  await expect(page.getByTestId('weapon-users-espada')).toContainText(
+    'Guerrero',
+  );
+  for (const weaponId of ['hacha', 'daga', 'cuchillo']) {
+    await expect(page.getByTestId(`weapons-row-${weaponId}`)).toBeHidden();
+  }
+  await expect(page.getByTestId('weapons-filter-empty')).toBeHidden();
+  await screenshotElement(
+    page.getByTestId('weapons-panel'),
+    'armas-filtro-unidad',
+    testInfo,
+  );
+
+  // Mayúsculas: la misma consulta en mayúsculas conserva el resultado.
+  await page.getByTestId('weapons-filter-clear').click();
+  await expect(weaponsFilter).toHaveValue('');
+  await expect(weaponsFilter).toBeFocused();
+  await expect(page.getByTestId('weapon-rows').locator('tr')).toHaveCount(4);
+  await weaponsFilter.fill('GUERRERO');
+  await expect(page.getByTestId('weapons-row-espada')).toBeVisible();
+  await expect(page.getByTestId('weapons-row-daga')).toBeHidden();
+
+  // Sin coincidencias: aviso visible y ninguna fila.
+  await weaponsFilter.fill('zombi');
+  await expect(page.getByTestId('weapon-rows').locator('tr[hidden]')).toHaveCount(
+    4,
+  );
+  await expect(page.getByTestId('weapons-filter-empty')).toBeVisible();
+  await page.getByTestId('weapons-filter-clear').click();
+  await expect(page.getByTestId('weapons-filter-empty')).toBeHidden();
+
+  // Héroes: «clerigo» y «CLÉRIGO» encuentran a Clérigo.
+  await heroesFilter.fill('clerigo');
+  await expect(heroesFilter).toBeFocused();
+  await expect(page.getByTestId('heroes-row-clerigo')).toBeVisible();
+  for (const heroId of ['guerrero', 'picaro', 'mago']) {
+    await expect(page.getByTestId(`heroes-row-${heroId}`)).toBeHidden();
+  }
+  await expect(page.getByTestId('heroes-filter-empty')).toBeHidden();
+  await screenshotElement(
+    page.getByTestId('heroes-panel'),
+    'heroes-filtro',
+    testInfo,
+  );
+
+  await page.getByTestId('heroes-filter-clear').click();
+  await expect(heroesFilter).toHaveValue('');
+  await expect(heroesFilter).toBeFocused();
+  await expect(page.getByTestId('hero-rows').locator('tr')).toHaveCount(4);
+  await heroesFilter.fill('CLÉRIGO');
+  await expect(page.getByTestId('heroes-row-clerigo')).toBeVisible();
+  await expect(page.getByTestId('heroes-row-guerrero')).toBeHidden();
+
+  // Sin coincidencias: aviso visible.
+  await heroesFilter.fill('zombi');
+  await expect(page.getByTestId('heroes-filter-empty')).toBeVisible();
+  await expect(page.getByTestId('heroes-filter-empty')).toHaveText(
+    /Sin resultados/,
+  );
+  await page.getByTestId('heroes-filter-clear').click();
+  await expect(page.getByTestId('heroes-filter-empty')).toBeHidden();
+  await expect(page.getByTestId('hero-rows').locator('tr')).toHaveCount(4);
+
+  expect(errors).toEqual([]);
+});
+
+test('el export v2 incluye objetivos por par y es determinista aunque haya filtros activos', async ({
   page,
 }, testInfo) => {
   const errors = trackConsoleErrors(page);
   await openExperiment(page);
   await expect(page.locator('.test-badge')).toHaveText('modo test determinista');
   const base = await readResults(page);
+
+  // Export base: 12 objetivos de guía, versión 2 e id determinista.
+  const guideDecision = await readDecision(page);
+  expect(Object.keys(guideDecision.targets)).toHaveLength(12);
+  expect(guideDecision.targets).toEqual(GUIDE_TARGETS);
+  expect(guideDecision.targetsVersion).toBe(2);
+  expect(guideDecision.targetsId).toMatch(/^[0-9a-f]{8}$/);
 
   // Enemigo, arma y héroe ajustados en el mismo estado.
   await page.getByTestId('combats-field-centinela-maxHp').fill('30');
@@ -744,6 +1080,10 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
   const first = await readDecision(page);
   const second = await readDecision(page);
   expect(JSON.stringify(second)).toBe(JSON.stringify(first));
+  expect(first.targetsVersion).toBe(2);
+  expect(first.targetsId).toBe(guideDecision.targetsId);
+  expect(Object.keys(first.targets)).toHaveLength(12);
+  expect(first.targets).toEqual(GUIDE_TARGETS);
 
   // Re-ejecutar la medición con el mismo estado reproduce el mismo export.
   const rerun = await page.evaluate(() => {
@@ -763,7 +1103,6 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
     weapons: { espada: { damage: 8 } },
     heroes: { guerrero: { maxHp: 1 } },
   });
-  expect(first.targets).toEqual(GUIDE_TARGETS);
   expect(first.seed).toBe(SEED);
   expect(first.duels).toBe(DUELS);
   expect(first.engine).toBe('v2.0');
@@ -779,7 +1118,7 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
     first.catalog.roster.find((hero) => hero.id === 'guerrero')?.maxHp,
   ).toBe(1);
 
-  // Diagnóstico completo: 3 enemigos × 4 filas.
+  // Diagnóstico completo: 3 enemigos × 4 filas con su propio objetivo.
   expect(first.diagnosis).toHaveLength(3);
   for (const entry of first.diagnosis) {
     expect(entry.rows).toHaveLength(4);
@@ -787,9 +1126,7 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
     expect(entry.margin).toBe(MARGIN_PP);
     expect(
       entry.rows.every(
-        (row) =>
-          row.target ===
-          GUIDE_TARGETS[entry.enemyId as keyof typeof GUIDE_TARGETS],
+        (row) => row.target === GUIDE_TARGETS[`${row.heroId}:${entry.enemyId}`],
       ),
     ).toBe(true);
   }
@@ -803,7 +1140,36 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
   expect(snapshot.targets).toEqual(first.targets);
   expect(snapshot.diagnosis).toEqual(first.diagnosis);
 
-  // Descarga ajustada: nombre con overridesId y JSON idéntico al de la API.
+  // Los filtros no alteran medición, diagnóstico, 4-de-4 ni export.
+  const rowsBefore = await combatRowTexts(page);
+  const foursBefore = await combatFourTexts(page);
+  const resultsBeforeFilters = await readResults(page);
+  const realBeforeFilters = await realCellText(page, 'guerrero', 'centinela');
+  await page.getByTestId('combats-filter-hero').fill('guerrero');
+  await page.getByTestId('combats-filter-enemy').fill('centinela');
+  await page.getByTestId('weapons-filter').fill('guerrero');
+  await page.getByTestId('heroes-filter').fill('clerigo');
+  expect(JSON.stringify(await readDecision(page))).toBe(
+    JSON.stringify(first),
+  );
+  expect(await readResults(page)).toEqual(resultsBeforeFilters);
+  await expect(
+    page.getByTestId('combats-real-guerrero-centinela'),
+  ).toHaveText(realBeforeFilters);
+  await expect(page.getByTestId('combats-four-centinela')).toHaveText(
+    foursBefore.centinela ?? '',
+  );
+  await page.getByTestId('combats-filter-hero-clear').click();
+  await page.getByTestId('combats-filter-enemy-clear').click();
+  await page.getByTestId('weapons-filter-clear').click();
+  await page.getByTestId('heroes-filter-clear').click();
+  expect(await combatRowTexts(page)).toEqual(rowsBefore);
+  expect(await combatFourTexts(page)).toEqual(foursBefore);
+  expect(JSON.stringify(await readDecision(page))).toBe(
+    JSON.stringify(first),
+  );
+
+  // Descarga ajustada por overrides y guía: nombre con overridesId y JSON de la API.
   const fileName = `EXP-003-v2.0-seed-1017-duels-1000-bench-overrides-${id}.json`;
   const downloadPromise = page.waitForEvent('download');
   await page.getByTestId('export-download').click();
@@ -824,7 +1190,33 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
     `overridesId ${id}`,
   );
   await expect(page.getByTestId('export-summary')).toContainText(
-    'objetivos: Centinela 75 % · Bruto 30 % · Cobarde 85 %',
+    'objetivos: Centinela 75/75/75/75 % · Bruto 30/30/30/30 % · Cobarde 85/85/85/85 %',
+  );
+
+  // Cambiar un objetivo cambia targetsId y el nombre, pero no overridesId.
+  await page.getByTestId('combats-target-guerrero-centinela').fill('60');
+  await waitForBenchStatus(page, 'diagnóstico actualizado');
+  const changed = await readDecision(page);
+  expect(changed.targets['guerrero:centinela']).toBe(60);
+  expect(changed.targetsId).not.toBe(first.targetsId);
+  expect(changed.overridesId).toBe(id);
+  expect(changed.matchups).toEqual(first.matchups);
+  const changedName = `EXP-003-v2.0-seed-1017-duels-1000-bench-overrides-${id}-targets-${changed.targetsId}.json`;
+  const changedDownloadPromise = page.waitForEvent('download');
+  await page.getByTestId('export-download').click();
+  const changedDownload = await changedDownloadPromise;
+  expect(changedDownload.suggestedFilename()).toBe(changedName);
+  const changedPath = await saveDownload(
+    changedDownload,
+    testInfo,
+    `bench-overrides-${id}-targets-${changed.targetsId}.json`,
+  );
+  const changedWritten = JSON.parse(
+    await readFile(changedPath, 'utf8'),
+  ) as Record<string, unknown>;
+  expect(changedWritten).toEqual(changed);
+  await expect(page.getByTestId('export-summary')).toContainText(
+    'objetivos: Centinela 60/75/75/75 % · Bruto 30/30/30/30 % · Cobarde 85/85/85/85 %',
   );
 
   await screenshot(page, 'export-ajustado', testInfo);
@@ -832,11 +1224,14 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
   // Reset global: el export vuelve al nombre y contenido base.
   await page.getByTestId('bench-reset-all').click();
   await waitForBenchStatus(page, 'Todo restablecido');
-  expect(await readDecision(page)).toMatchObject({
+  const baseDecision = await readDecision(page);
+  expect(baseDecision).toMatchObject({
     overrides: { enemies: {}, weapons: {}, heroes: {} },
     targets: GUIDE_TARGETS,
+    targetsVersion: 2,
     overridesId: await readOverridesId(page),
   });
+  expect(baseDecision.targetsId).toBe(guideDecision.targetsId);
   expect((await readResults(page)).matchups).toEqual(base.matchups);
 
   const baseDownloadPromise = page.waitForEvent('download');
@@ -847,24 +1242,22 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
   );
   const basePath = await saveDownload(baseDownload, testInfo, 'bench-base.json');
   const baseWritten = JSON.parse(await readFile(basePath, 'utf8')) as {
-    overrides: unknown;
     targets: unknown;
+    targetsVersion: number;
+    targetsId: string;
     matchups: unknown;
     catalog: { bestiary: ReadonlyArray<{ id: string; maxHp: number }> };
   };
-  expect(baseWritten.overrides).toEqual({
-    enemies: {},
-    weapons: {},
-    heroes: {},
-  });
   expect(baseWritten.targets).toEqual(GUIDE_TARGETS);
+  expect(baseWritten.targetsVersion).toBe(2);
+  expect(baseWritten.targetsId).toBe(guideDecision.targetsId);
   expect(baseWritten.matchups).toEqual(base.matchups);
 
   expect(errors).toEqual([]);
 });
 
 for (const viewport of VIEWPORTS) {
-  test(`QA visual ${viewport.label}: tres tablas a ancho completo, foco, detalle y dentro/fuera`, async ({
+  test(`QA visual ${viewport.label}: tres tablas, filtros y objetivo por fila sin overflow de documento`, async ({
     page,
   }, testInfo) => {
     const errors = trackConsoleErrors(page);
@@ -874,8 +1267,10 @@ for (const viewport of VIEWPORTS) {
     });
     await openExperiment(page);
 
-    // Objetivo 100 deja las filas del Centinela dentro y las de Bruto fuera.
-    await page.getByTestId('combats-target-centinela').fill('100');
+    // Los cuatro pares del Centinela dentro dejan el bloque en 4/4; Bruto fuera.
+    for (const heroId of HEROES) {
+      await page.getByTestId(`combats-target-${heroId}-centinela`).fill('100');
+    }
     await waitForBenchStatus(page, '0 filas medidas de nuevo');
     await expect(page.getByTestId('combats-four-centinela')).toHaveText(
       '4/4 dentro',
@@ -928,8 +1323,10 @@ for (const viewport of VIEWPORTS) {
         const style = window.getComputedStyle(input);
         const rect = input.getBoundingClientRect();
         return {
+          testId: (input as HTMLElement).dataset.testid ?? '',
           fontSize: Number.parseFloat(style.fontSize),
           height: rect.height,
+          width: rect.width,
           visible: input.offsetParent !== null && rect.width > 0,
         };
       });
@@ -942,6 +1339,13 @@ for (const viewport of VIEWPORTS) {
         scrollWidth: cell.scrollWidth,
         clientWidth: cell.clientWidth,
       }));
+      const filterLabels = [
+        ...document.querySelectorAll<HTMLElement>('.filter-field'),
+      ].map((label) => ({
+        text: label.textContent ?? '',
+        visible: label.offsetParent !== null,
+        rect: label.getBoundingClientRect().toJSON(),
+      }));
       return {
         innerWidth,
         documentScrollWidth: document.documentElement.scrollWidth,
@@ -951,6 +1355,7 @@ for (const viewport of VIEWPORTS) {
         heroesScroll: scroll('.heroes-panel .table-scroll'),
         inputs,
         essential,
+        filterLabels,
       };
     });
 
@@ -983,6 +1388,15 @@ for (const viewport of VIEWPORTS) {
       expect(layout.heroesScroll?.scrollWidth).toBeGreaterThan(
         layout.heroesScroll?.clientWidth ?? 0,
       );
+      for (const selector of ['.combats-panel', '.heroes-panel']) {
+        const panelScroll = await page.locator(`${selector} .table-scroll`).evaluate(
+          (node) => ({
+            scrollWidth: node.scrollWidth,
+            clientWidth: node.clientWidth,
+          }),
+        );
+        expect(panelScroll.scrollWidth).toBeGreaterThan(panelScroll.clientWidth);
+      }
     } else {
       expect(layout.combatsScroll?.scrollWidth).toBeLessThanOrEqual(
         (layout.combatsScroll?.clientWidth ?? 0) + 1,
@@ -992,12 +1406,37 @@ for (const viewport of VIEWPORTS) {
       );
     }
 
-    // Inputs legibles y presentes.
+    // Los cuatro campos de filtro existen, se ven y conservan su etiqueta.
+    expect(layout.filterLabels).toHaveLength(4);
+    for (const label of layout.filterLabels) {
+      expect(label.visible).toBe(true);
+      expect(label.text.trim().length).toBeGreaterThan(0);
+    }
+    for (const testId of [
+      'combats-filter-hero',
+      'combats-filter-enemy',
+      'weapons-filter',
+      'heroes-filter',
+    ]) {
+      await expect(page.getByTestId(testId)).toBeVisible();
+      await expect(page.getByTestId(testId)).toHaveValue('');
+    }
+
+    // Inputs legibles y presentes, con los 12 objetivos por fila.
     expect(layout.inputs.length).toBeGreaterThan(0);
     for (const input of layout.inputs) {
       expect(input.visible).toBe(true);
       expect(input.fontSize).toBeGreaterThanOrEqual(11);
       expect(input.height).toBeGreaterThanOrEqual(18);
+    }
+    const targetInputs = layout.inputs.filter((input) =>
+      input.testId.startsWith('combats-target-'),
+    );
+    expect(targetInputs).toHaveLength(12);
+    for (const target of targetInputs) {
+      expect(target.width).toBeGreaterThan(0);
+      expect(target.fontSize).toBeGreaterThanOrEqual(11);
+      expect(target.height).toBeGreaterThanOrEqual(18);
     }
 
     // Victorias, % real y cabeceras se leen completos: sin recorte.
