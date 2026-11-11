@@ -5,7 +5,7 @@ description: Revisión independiente de los filtros de vista de EXP-003.
 task: TASK-0073
 attempt: 1
 status: stable
-generated: { by: task-lead, at: 2026-11-11T23:26:00Z }
+generated: { by: task-lead, at: 2026-11-11T23:55:00Z }
 ---
 
 # Resultado
