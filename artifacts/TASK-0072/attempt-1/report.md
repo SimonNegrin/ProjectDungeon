@@ -58,7 +58,13 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `brief-detalle.md` sin frontmatter OKF bloquea `docs:check` | `logs/brief-detalle-original-head.txt` | Añadir cabecera | Se repite con `read_detail` | Incluir frontmatter | Bajo | `pending` |
+| `brief-detalle.md` sin frontmatter OKF bloquea `docs:check` | `logs/brief-detalle-original-head.txt` | Añadir cabecera | Se repite con `read_detail` | Incluir frontmatter | Bajo | `deferred` |
+
+Disposición del lead: `deferred`. Es una brecha documental/arnés: la plantilla no
+exige frontmatter en `brief-detalle.md` y `docs:check` sí lo valida. El workaround
+local ya está aplicado; se eleva a `requirements-writer` con evidencia para que
+el usuario decida si `harness-keeper` actualiza la plantilla o el validador. No
+bloquea ni desbloquea TASK-0072.
 
 # Métricas de handoff
 
