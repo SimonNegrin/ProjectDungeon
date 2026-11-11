@@ -1,0 +1,20 @@
+OK 12 filas iniciales — 12
+OK rowspan inicial 4 — 4
+OK filtro héroe deja 3 filas — 3
+OK filtro héroe conserva foco
+OK rowspan ajustado a 1 — 1
+OK intersección deja 1 fila — 1
+OK limpiar héroe deja 4 filas del Centinela — 4
+OK limpiar devuelve foco al filtro de héroe
+OK limpiar todo deja 12 filas — 12
+OK filtrar no cambia % real — 100,0 % · +25,0 pp · fuera / 100,0 % · +25,0 pp · fuera
+OK sin resultados muestra aviso
+OK sin resultados conserva foco
+OK armas por unidad deja 1 — 1
+OK arma filtrada es espada
+OK héroes por nombre deja 1 — 1
+OK héroe filtrado es clérigo
+OK editar stat con filtro conserva 3 filas — 3
+OK editar stat conserva el filtro
+OK sin overflow horizontal a 1280 — 1280/1280
+DOM smoke OK
