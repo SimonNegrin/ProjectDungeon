@@ -1,0 +1,8 @@
+OK filtrar no cambia el export
+OK filtrar no cambia los resultados
+OK filtrar no cambia el 4-de-4 — 0/4; Guerrero fuera por +25,0 pp, Pícaro fuera por +24,7 pp, Mago fuera por +24,8 pp, Clérigo fuera por +25,0 pp / 0/4; Guerrero fuera por +25,0 pp, Pícaro fuera por +24,7 pp, Mago fuera por +24,8 pp, Clérigo fuera por +25,0 pp
+OK reset de enemigos conserva el filtro
+OK reset con filtro deja 3 filas
+OK reset global conserva el filtro
+OK reset global con filtro deja 3 filas
+DOM export/reset OK

@@ -4,22 +4,33 @@ id: TASK-0073
 title: "EXP-003: filtros de las tres tablas"
 description: Filtros de texto por héroe y enemigo en combates, por nombre y unidades en armas y por nombre en héroes; solo de vista, con celdas compartidas ajustadas.
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-015, R-021, R-022, R-023, R-024, T-004, T-005, T-011]
 depends_on: [TASK-0072]
 unlocks: [TASK-0074]
 created_at: 2026-11-11T23:50:00Z
-completed_at:
+completed_at: 2026-11-11T23:26:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0073/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T23:50:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-11T23:26:00Z
+    note: >-
+      Diff completo revisado; `pnpm run verify` verde (73 archivos, 993 tests,
+      tsc, vite y bundle); smoke DOM en Chromium con `?test=1&seed=1017`: 12
+      filas, rowspan 4, filtro de héroe 3 filas con rowspan 1, intersección,
+      limpieza, foco conservado, aviso de sin resultados, armas por unidad,
+      héroes por nombre, edición con filtro activo y sin overflow a 1280.
+      Export, resultados y 4-de-4 intactos al filtrar; resets no limpian los
+      filtros. Sin cambios en motor, fórmulas, valores base, `src/`, `tests/`,
+      `index.html` ni `public/`.
 ---
 
 # Objetivo
@@ -41,32 +52,32 @@ Los filtros son solo de vista.
 
 # Criterios de aceptación
 
-- [ ] La cabecera de Combates tiene dos campos etiquetados, **héroe** y
+- [x] La cabecera de Combates tiene dos campos etiquetados, **héroe** y
       **enemigo**; Armas tiene uno; Héroes tiene uno. Cada campo tiene botón para
       limpiar.
-- [ ] La coincidencia es por subcadena, sin distinguir mayúsculas ni tildes:
+- [x] La coincidencia es por subcadena, sin distinguir mayúsculas ni tildes:
       «clerigo» encuentra Clérigo, «CENTINELA» encuentra Centinela y
       «guerrero» en Armas muestra las armas que usa el Guerrero.
-- [ ] En Combates, el filtro de héroe solo mira el nombre del héroe y el de
+- [x] En Combates, el filtro de héroe solo mira el nombre del héroe y el de
       enemigo solo el del enemigo. El orden de los bloques y las filas se
       conserva.
-- [ ] Al filtrar, se ocultan las filas que no coinciden; las celdas agrupadas del
+- [x] Al filtrar, se ocultan las filas que no coinciden; las celdas agrupadas del
       enemigo se ajustan al número de filas visibles y un bloque sin filas
       visibles desaparece. Filtrar por un héroe deja una fila por bloque; filtrar
       por un enemigo deja sus cuatro filas.
-- [ ] Si no hay resultados, la tabla muestra un mensaje legible y el campo no
+- [x] Si no hay resultados, la tabla muestra un mensaje legible y el campo no
       pierde el foco. Limpiar el filtro restaura todas las filas.
-- [ ] Los filtros no lanzan duelos, no cambian `% real`, 4-de-4, diagnóstico ni
+- [x] Los filtros no lanzan duelos, no cambian `% real`, 4-de-4, diagnóstico ni
       export, y los resets no los modifican. Se conservan al editar un stat, al
       recalcular y al cambiar el otro filtro.
-- [ ] Los filtros se apoyan en funciones puras de normalización y coincidencia, y
+- [x] Los filtros se apoyan en funciones puras de normalización y coincidencia, y
       en un cálculo de filas visibles; la UI reconstruye solo las filas visibles
       y mantiene el foco en el campo de filtro.
-- [ ] Tests de DOM y de helpers cubren tildes, mayúsculas, unidades de arma,
+- [x] Tests de DOM y de helpers cubren tildes, mayúsculas, unidades de arma,
       `rowspan` ajustado, bloques vacíos y ausencia de medición.
-- [ ] El layout sigue sin overflow horizontal de documento a 1280×720;
+- [x] El layout sigue sin overflow horizontal de documento a 1280×720;
       `pnpm run verify` pasa.
-- [ ] Sin cambios en el motor, las fórmulas, los valores base, `src/`, `tests/`,
+- [x] Sin cambios en el motor, las fórmulas, los valores base, `src/`, `tests/`,
       `index.html` ni `public/` de producción.
 
 # Plan de test
@@ -81,10 +92,13 @@ Los filtros son solo de vista.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0073/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Capturas de los filtros si el intento incluye QA visual
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0073/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` (`verify-output.txt`, `verify-output-lead.txt`)
+- [x] Smoke DOM en Chromium (`logs/dom-check.txt`,
+      `logs/dom-check-export-reset.txt`); no hay capturas porque el intento no
+      incluye QA visual, que queda en TASK-0074.
+- [x] Commits: `c95298c` (implementación), `7838f19` (tests), `1ac810a`
+      (informe); cierre del lead en esta rama.
 
 # Restricciones
 
