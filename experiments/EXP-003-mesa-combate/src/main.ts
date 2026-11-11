@@ -3,21 +3,29 @@ import './experiment.css';
 import { copyJson } from '../../_shell/export';
 import type { ExperimentTestApi } from '../../_shell/types';
 import {
-  ENEMY_FIELD_LABELS,
-  ENEMY_FIELD_ORDER,
+  COMBAT_COLUMNS,
   ENEMY_NUMERIC_LIMITS,
-  ENEMY_SELECT_FIELDS,
+  ENEMY_TABLE_FIELDS,
+  HERO_COLUMNS,
+  HERO_NUMERIC_LIMITS,
+  HERO_TABLE_FIELDS,
+  WEAPON_COLUMNS,
   WEAPON_LIMITS,
   benchFileName,
   enemyFieldPatch,
   enemyFieldValue,
   formatBenchSummary,
   formatDelta,
-  formatDiagnosisRow,
   formatFourOfFour,
-  formatRowState,
+  formatRealCell,
+  formatRecalcStatus,
   formatTarget,
+  formatWeaponBonus,
+  formatWeaponUsers,
+  formatWins,
+  groupMatchupsByEnemy,
   heroFieldPatch,
+  heroFieldValue,
   pruneOverrides,
   resetEnemyFieldOverride,
   resetHeroFieldOverride,
@@ -86,14 +94,11 @@ import {
   formatFindingRange,
   formatNumber,
   formatPercent,
-  manaSpent,
-  matchupKey,
   matchupTitle,
   normalizeDuels,
   normalizeSeed,
   replicaTotals,
   spellRows,
-  totalSpellCasts,
   unitName,
   type BenchSnapshot,
   type V2ExperimentApi,
@@ -121,6 +126,59 @@ function randomSeed(): number {
     return crypto.getRandomValues(new Uint32Array(1))[0];
   }
   return Date.now() >>> 0;
+}
+
+function buildHead(labels: ReadonlyArray<string>): HTMLTableSectionElement {
+  const head = element('thead');
+  const row = element('tr');
+  for (const label of labels) {
+    const cell = element('th', { text: label });
+    cell.scope = 'col';
+    row.append(cell);
+  }
+  head.append(row);
+  return head;
+}
+
+function buildColgroup(widths: ReadonlyArray<string>): HTMLTableColElement[] {
+  return widths.map((width) => {
+    const col = document.createElement('col');
+    col.style.width = width;
+    return col;
+  });
+}
+
+function createNumberInput(
+  value: number | string | null,
+  limits: { readonly min: number; readonly max: number },
+  testId: string,
+): HTMLInputElement {
+  const input = element('input', { className: 'cell-input', testId });
+  input.type = 'number';
+  input.step = '1';
+  input.min = String(limits.min);
+  input.max = String(limits.max);
+  input.value = value === null ? '' : String(value);
+  return input;
+}
+
+function createSelect(
+  value: string | null,
+  emptyLabel: string,
+  options: Readonly<Record<string, { readonly id: string; readonly name: string }>>,
+  testId: string,
+): HTMLSelectElement {
+  const select = element('select', { className: 'cell-input', testId });
+  const emptyOption = element('option', { text: emptyLabel });
+  emptyOption.value = '';
+  select.append(emptyOption);
+  for (const option of Object.values(options)) {
+    const node = element('option', { text: option.name });
+    node.value = option.id;
+    select.append(node);
+  }
+  select.value = value ?? '';
+  return select;
 }
 
 const root = document.querySelector<HTMLElement>('#app');
@@ -156,7 +214,6 @@ let selected = {
   heroId: HERO_ORDER[0] as string,
   enemyId: ENEMY_ORDER[0] as string,
 };
-let expanded: { heroId: string; enemyId: string } | null = null;
 let pendingSelections: BenchSelection[] = [];
 let recalcTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -225,116 +282,164 @@ const resetButton = element('button', {
 });
 resetButton.type = 'button';
 
+const resetAllButton = element('button', {
+  className: 'button ghost',
+  text: 'Restablecer todo',
+  testId: 'bench-reset-all',
+});
+resetAllButton.type = 'button';
+
 const controlsStatus = element('p', {
   className: 'status controls-status',
   testId: 'controls-status',
 });
 controlsStatus.setAttribute('aria-live', 'polite');
 
-toolbar.append(seedLabel, duelLabel, runButton, resetButton, controlsStatus);
+toolbar.append(
+  seedLabel,
+  duelLabel,
+  runButton,
+  resetButton,
+  resetAllButton,
+  controlsStatus,
+);
 
-/* Tabla de emparejamientos con objetivo, delta y acción de ajuste. */
+/* Tabla 1 · Combates: 15 columnas con el bloque del enemigo agrupado. */
 
-const tablePanel = element('section', {
-  className: 'panel matchup-panel',
-  testId: 'matchup-panel',
+const combatsPanel = element('section', {
+  className: 'panel combats-panel',
+  testId: 'combats-panel',
 });
-tablePanel.append(
-  element('h2', { text: '12 emparejamientos' }),
+combatsPanel.append(
+  element('h2', { text: 'Combates' }),
   element('p', {
     className: 'panel-hint',
-    text: 'Banda de referencia 40–60 % de victorias del héroe, tolerancia ±2 pp, héroe con iniciativa. Cada fila muestra además el objetivo editable del enemigo y el delta real − objetivo con margen ±5 pp. «Ajustar» abre el editor compartido del enemigo.',
+    text: 'Doce emparejamientos agrupados por enemigo. El enemigo, el objetivo y sus nueve stats son un bloque compartido: un solo input afecta a sus cuatro héroes. Al enfocar un stat se resaltan sus cuatro filas; el foco se conserva tras el recálculo.',
   }),
 );
-const tableScroll = element('div', { className: 'table-scroll' });
-const table = element('table', { className: 'matchup-table', testId: 'matchup-table' });
-const tableHead = element('thead');
-const headRow = element('tr');
-const TABLE_HEADERS = [
-  'Héroe',
-  'Enemigo',
-  'Victorias héroe',
-  'Victorias enemigo',
-  'Banda 40–60 %',
-  'Objetivo',
-  'Real',
-  'Δ objetivo',
-  'Estado',
-  'Turnos / rondas',
-  'TTK (rondas)',
-  'Réplicas héroe',
-  'Réplicas enemigo',
-  'Hechizos',
-  'Maná gastado H/E',
-  'Daño H/E',
-  'Detalle',
-  'Ajustar',
-] as const;
-for (const label of TABLE_HEADERS) {
-  headRow.append(element('th', { text: label }));
-}
-tableHead.append(headRow);
-const tableBody = element('tbody', { testId: 'matchup-rows' });
-table.append(tableHead, tableBody);
-tableScroll.append(table);
-tablePanel.append(tableScroll);
-
-/* Panel del banco: diagnóstico, objetivos y armas globales. */
-
-const benchPanel = element('section', {
-  className: 'panel bench-panel',
-  testId: 'bench-panel',
-});
-benchPanel.append(
-  element('h2', { text: 'Banco de ajuste' }),
-  element('p', {
-    className: 'panel-hint',
-    text: 'Objetivos por enemigo, diagnóstico 4-de-4 y armas compartidas. Los avisos son informativos: no bloquean edición, export ni reset. Los cambios de stats y armas recalculan solo las filas afectadas.',
-  }),
-);
-const benchToolbar = element('div', { className: 'bench-toolbar' });
+const combatsToolbar = element('div', { className: 'panel-toolbar' });
 const benchStatus = element('p', {
   className: 'status bench-status',
   testId: 'bench-status',
 });
 benchStatus.setAttribute('aria-live', 'polite');
 benchStatus.setAttribute('role', 'status');
-const resetAllButton = element('button', {
+const resetEnemiesButton = element('button', {
   className: 'button ghost',
-  text: 'Restablecer banco',
-  testId: 'bench-reset-all',
+  text: 'Restablecer enemigos',
+  testId: 'bench-reset-enemies',
 });
-resetAllButton.type = 'button';
-benchToolbar.append(benchStatus, resetAllButton);
-benchPanel.append(benchToolbar);
+resetEnemiesButton.type = 'button';
+combatsToolbar.append(benchStatus, resetEnemiesButton);
+combatsPanel.append(combatsToolbar);
 
-const diagnosisGrid = element('div', { className: 'diagnosis-grid' });
-benchPanel.append(diagnosisGrid);
+const combatsScroll = element('div', { className: 'table-scroll' });
+const combatsTable = element('table', {
+  className: 'combats-table',
+  testId: 'combats-table',
+});
+combatsTable.append(
+  ...buildColgroup([
+    '8%',
+    '8%',
+    '6%',
+    '6%',
+    '6%',
+    '10%',
+    '5%',
+    '5.5%',
+    '5%',
+    '5%',
+    '5%',
+    '5%',
+    '9%',
+    '8%',
+    '8.5%',
+  ]),
+  buildHead(COMBAT_COLUMNS),
+);
+const combatsBody = element('tbody', { testId: 'combats-rows' });
+combatsTable.append(combatsBody);
+combatsScroll.append(combatsTable);
+combatsPanel.append(combatsScroll);
 
-const weaponsBlock = element('div', { className: 'weapons-block' });
-weaponsBlock.append(
-  element('h3', { text: 'Armas globales' }),
+/* Tabla 2 · Armas: nombre con sus unidades, acierto y daño. */
+
+const weaponsPanel = element('section', {
+  className: 'panel weapons-panel',
+  testId: 'weapons-panel',
+});
+weaponsPanel.append(
+  element('h2', { text: 'Armas' }),
   element('p', {
     className: 'panel-hint',
-    text: 'Acierto y daño se aplican a todas las unidades que equipan el arma; un arma compartida mueve a héroes y enemigos. Las unidades listadas salen del catálogo ajustado.',
+    text: 'Acierto y daño se aplican a todas las unidades que equipan el arma. Bajo cada nombre aparecen las unidades que la usan en el catálogo ajustado; un arma compartida mueve a héroes y enemigos.',
   }),
 );
-const weaponScroll = element('div', { className: 'table-scroll' });
-const weaponTable = element('table', {
-  className: 'weapon-table',
-  testId: 'bench-weapon-table',
+const weaponsToolbar = element('div', { className: 'panel-toolbar' });
+const weaponStatus = element('p', {
+  className: 'status',
+  testId: 'weapons-status',
 });
-const weaponHead = element('thead');
-const weaponHeadRow = element('tr');
-for (const label of ['Arma', 'Acierto', 'Daño', 'Unidades que la usan', 'Reset']) {
-  weaponHeadRow.append(element('th', { text: label }));
-}
-weaponHead.append(weaponHeadRow);
-const weaponBody = element('tbody');
-weaponTable.append(weaponHead, weaponBody);
-weaponScroll.append(weaponTable);
-weaponsBlock.append(weaponScroll);
-benchPanel.append(weaponsBlock);
+weaponStatus.setAttribute('aria-live', 'polite');
+const resetWeaponsButton = element('button', {
+  className: 'button ghost',
+  text: 'Restablecer armas',
+  testId: 'bench-reset-weapons',
+});
+resetWeaponsButton.type = 'button';
+weaponsToolbar.append(weaponStatus, resetWeaponsButton);
+weaponsPanel.append(weaponsToolbar);
+
+const weaponsScroll = element('div', { className: 'table-scroll' });
+const weaponsTable = element('table', {
+  className: 'weapon-table',
+  testId: 'weapons-table',
+});
+weaponsTable.append(buildHead(WEAPON_COLUMNS));
+const weaponsBody = element('tbody', { testId: 'weapon-rows' });
+weaponsTable.append(weaponsBody);
+weaponsScroll.append(weaponsTable);
+weaponsPanel.append(weaponsScroll);
+
+/* Tabla 3 · Héroes: set completo y arma inicial con «sin arma». */
+
+const heroesPanel = element('section', {
+  className: 'panel heroes-panel',
+  testId: 'heroes-panel',
+});
+heroesPanel.append(
+  element('h2', { text: 'Héroes' }),
+  element('p', {
+    className: 'panel-hint',
+    text: 'Acierto y daño son la habilidad y la fuerza propias del héroe; el arma suma aparte. Editar un stat recalcula sus tres filas. Armadura, escudo y arma inicial incluyen la opción vacía.',
+  }),
+);
+const heroesToolbar = element('div', { className: 'panel-toolbar' });
+const heroStatus = element('p', {
+  className: 'status',
+  testId: 'heroes-status',
+});
+heroStatus.setAttribute('aria-live', 'polite');
+const resetHeroesButton = element('button', {
+  className: 'button ghost',
+  text: 'Restablecer héroes',
+  testId: 'bench-reset-heroes',
+});
+resetHeroesButton.type = 'button';
+heroesToolbar.append(heroStatus, resetHeroesButton);
+heroesPanel.append(heroesToolbar);
+
+const heroesScroll = element('div', { className: 'table-scroll' });
+const heroesTable = element('table', {
+  className: 'heroes-table',
+  testId: 'heroes-table',
+});
+heroesTable.append(buildHead(HERO_COLUMNS));
+const heroesBody = element('tbody', { testId: 'hero-rows' });
+heroesTable.append(heroesBody);
+heroesScroll.append(heroesTable);
+heroesPanel.append(heroesScroll);
 
 const detailPanel = element('section', {
   className: 'panel detail-panel',
@@ -344,10 +449,13 @@ detailPanel.append(
   element('h2', { text: 'Detalle del emparejamiento' }),
   element('p', {
     className: 'panel-hint',
-    text: 'Acciones por tipo, hechizos por id, maná no gastado, PV restantes y distribución de duración del emparejamiento seleccionado.',
+    text: 'Selecciona una fila de combates. Conserva acciones, hechizos, maná, PV, réplicas y duración, y añade banda, TTK, turnos/rondas y daño.',
   }),
 );
-const detailHost = element('div', { className: 'detail-grid', testId: 'matchup-detail' });
+const detailHost = element('div', {
+  className: 'detail-grid',
+  testId: 'matchup-detail',
+});
 detailPanel.append(detailHost);
 
 const exportPanel = element('section', {
@@ -386,29 +494,40 @@ const exportStatus = element('p', {
 exportStatus.setAttribute('aria-live', 'polite');
 exportPanel.append(exportSummary, exportActions, exportStatus);
 
-root.append(header, toolbar, tablePanel, benchPanel, detailPanel, exportPanel);
+root.append(
+  header,
+  toolbar,
+  combatsPanel,
+  weaponsPanel,
+  heroesPanel,
+  detailPanel,
+  exportPanel,
+);
 
-/* Estado de refs para actualizar en sitio sin reconstruir estructura. */
+interface FieldRefs {
+  readonly input: HTMLInputElement | HTMLSelectElement;
+  readonly error: HTMLElement;
+}
 
-interface RowRefs {
+interface CombatRowRefs {
+  readonly key: string;
+  readonly row: HTMLTableRowElement;
   readonly winsHero: HTMLElement;
-  readonly band: HTMLElement;
-  readonly target: HTMLElement;
+  readonly winsEnemy: HTMLElement;
   readonly real: HTMLElement;
-  readonly delta: HTMLElement;
-  readonly state: HTMLElement;
 }
 
-interface DiagnosisRefs {
+interface CombatBlockRefs {
+  readonly enemyId: string;
   readonly four: HTMLElement;
-  readonly targetInput: HTMLInputElement;
-  readonly targetError: HTMLElement;
-  readonly guide: HTMLElement;
-  readonly rows: HTMLElement;
   readonly problems: HTMLElement;
+  targetInput: HTMLInputElement;
+  targetError: HTMLElement;
+  readonly fields: Map<EnemyField, FieldRefs>;
+  readonly rows: CombatRowRefs[];
 }
 
-interface WeaponRefs {
+interface WeaponRowRefs {
   readonly accuracy: HTMLInputElement;
   readonly damage: HTMLInputElement;
   readonly accuracyError: HTMLElement;
@@ -416,11 +535,15 @@ interface WeaponRefs {
   readonly users: HTMLElement;
 }
 
-const rowRefs = new Map<string, RowRefs>();
-const diagnosisRefs = new Map<string, DiagnosisRefs>();
-const weaponRefs = new Map<string, WeaponRefs>();
-const fieldInputs = new Map<string, HTMLInputElement | HTMLSelectElement>();
-const fieldErrors = new Map<string, HTMLElement>();
+interface HeroRowRefs {
+  readonly fields: Map<HeroField, FieldRefs>;
+  readonly weaponHint: HTMLElement;
+}
+
+const combatBlocks = new Map<string, CombatBlockRefs>();
+const combatRows = new Map<string, CombatRowRefs>();
+const weaponRefs = new Map<string, WeaponRowRefs>();
+const heroRefs = new Map<string, HeroRowRefs>();
 
 function selectedMatchup(): MatchupResult {
   const found = results.matchups.find(
@@ -448,830 +571,29 @@ function renderBalanceWarning(): void {
     'Los valores de balance están pendientes de aprobación del usuario.';
 }
 
-function rowDelta(matchup: MatchupResult): { delta: number; inside: boolean } {
-  const target = targets[matchup.enemyId] ?? 0;
-  const delta =
-    Math.round((matchup.heroWinRate - target + Number.EPSILON) * 10000) / 10000;
-  return { delta, inside: Math.abs(delta) <= MARGIN_PP };
-}
-
-function renderTable(): void {
-  tableBody.replaceChildren();
-  rowRefs.clear();
-  fieldInputs.clear();
-  fieldErrors.clear();
-
-  for (const matchup of results.matchups) {
-    const key = matchupKey(matchup.heroId, matchup.enemyId);
-    const row = element('tr', {
-      testId: `matchup-row-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    if (
-      matchup.heroId === selected.heroId &&
-      matchup.enemyId === selected.enemyId
-    ) {
-      row.classList.add('is-selected');
-    }
-
-    const band = element('span', {
-      className: matchup.insideBand ? 'band-ok' : 'band-out',
-      text: formatBand(matchup.insideBand, matchup.bandDelta),
-      testId: `matchup-band-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    const bandCell = element('td');
-    bandCell.append(band);
-
-    const targetCell = element('td', {
-      testId: `bench-row-target-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    const winsHero = element('td', {
-      text: `${matchup.heroWins} (${formatPercent(matchup.heroWinRate)})`,
-      testId: `matchup-wins-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    const realCell = element('td', {
-      testId: `bench-row-real-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    const deltaCell = element('td', {
-      testId: `bench-row-delta-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    const stateCell = element('td', {
-      testId: `bench-row-state-${matchup.heroId}-${matchup.enemyId}`,
-    });
-
-    const mana = manaSpent(matchup);
-    const selectButton = element('button', {
-      className: 'button ghost matchup-select',
-      text: 'Ver',
-      testId: `matchup-select-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    selectButton.type = 'button';
-    selectButton.addEventListener('click', () => {
-      selected = { heroId: matchup.heroId, enemyId: matchup.enemyId };
-      for (const [rowKeyValue, refs] of rowRefs) {
-        const isSelected = rowKeyValue === key;
-        refs.winsHero.closest('tr')?.classList.toggle('is-selected', isSelected);
-      }
-      renderDetail();
-      setStatus(
-        controlsStatus,
-        `Detalle: ${matchupTitle(CATALOG, matchup)} (${key}).`,
-      );
-    });
-
-    const adjustButton = element('button', {
-      className: 'button ghost bench-adjust',
-      text: expanded?.heroId === matchup.heroId &&
-        expanded?.enemyId === matchup.enemyId
-        ? 'Cerrar'
-        : 'Ajustar',
-      testId: `bench-adjust-${matchup.heroId}-${matchup.enemyId}`,
-    });
-    adjustButton.type = 'button';
-    adjustButton.setAttribute(
-      'aria-expanded',
-      String(
-        expanded?.heroId === matchup.heroId &&
-          expanded?.enemyId === matchup.enemyId,
-      ),
-    );
-    adjustButton.addEventListener('click', () => {
-      const same =
-        expanded?.heroId === matchup.heroId &&
-        expanded?.enemyId === matchup.enemyId;
-      expanded = same ? null : { heroId: matchup.heroId, enemyId: matchup.enemyId };
-      renderTable();
-      syncTableValues();
-    });
-
-    const detailCell = element('td');
-    detailCell.append(selectButton);
-    const adjustCell = element('td');
-    adjustCell.append(adjustButton);
-
-    row.append(
-      element('td', { text: unitName(workingCatalog, matchup.heroId) }),
-      element('td', { text: unitName(workingCatalog, matchup.enemyId) }),
-      winsHero,
-      element('td', {
-        text: `${matchup.enemyWins} (${formatPercent(matchup.enemyWinRate)})`,
-      }),
-      bandCell,
-      targetCell,
-      realCell,
-      deltaCell,
-      stateCell,
-      element('td', {
-        text: `${formatNumber(matchup.turns.mean)} / ${formatNumber(matchup.rounds.mean)}`,
-      }),
-      element('td', { text: formatNumber(matchup.ttkRounds) }),
-      element('td', {
-        text: `${matchup.replicas.hero.triggered}/${matchup.replicas.hero.hits}/${matchup.replicas.hero.kills}`,
-      }),
-      element('td', {
-        text: `${matchup.replicas.enemy.triggered}/${matchup.replicas.enemy.hits}/${matchup.replicas.enemy.kills}`,
-      }),
-      element('td', { text: String(totalSpellCasts(matchup.spells)) }),
-      element('td', { text: `${mana.hero} / ${mana.enemy}` }),
-      element('td', {
-        text: `${matchup.damage.heroDealt} / ${matchup.damage.enemyDealt}`,
-      }),
-      detailCell,
-      adjustCell,
-    );
-    tableBody.append(row);
-
-    rowRefs.set(key, {
-      winsHero,
-      band,
-      target: targetCell,
-      real: realCell,
-      delta: deltaCell,
-      state: stateCell,
-    });
-
-    if (
-      expanded?.heroId === matchup.heroId &&
-      expanded?.enemyId === matchup.enemyId
-    ) {
-      tableBody.append(renderEditorRow(matchup.enemyId));
-    }
-  }
-}
-
-function displayFieldValue(enemyId: string, field: EnemyField): string {
+function displayEnemyField(enemyId: string, field: EnemyField): string {
   const template = findTemplate(workingCatalog, enemyId);
   if (!template) return '';
   const value = enemyFieldValue(template, field);
   return value === null ? '' : String(value);
 }
 
-function clearFieldError(enemyId: string, field: EnemyField): void {
-  const key = `${enemyId}:${field}`;
-  const input = fieldInputs.get(key);
-  input?.removeAttribute('aria-invalid');
-  const error = fieldErrors.get(key);
-  if (error) error.textContent = '';
+function showFieldError(refs: FieldRefs, message: string): void {
+  refs.input.setAttribute('aria-invalid', 'true');
+  refs.error.textContent = message;
 }
 
-function showFieldError(
-  enemyId: string,
-  field: EnemyField,
-  message: string,
-): void {
-  const key = `${enemyId}:${field}`;
-  fieldInputs.get(key)?.setAttribute('aria-invalid', 'true');
-  const error = fieldErrors.get(key);
-  if (error) error.textContent = message;
+function clearFieldError(refs: FieldRefs): void {
+  refs.input.removeAttribute('aria-invalid');
+  refs.error.textContent = '';
 }
 
-function fieldEditable(enemyId: string, field: EnemyField): boolean {
-  const template = findTemplate(workingCatalog, enemyId);
-  return template !== undefined && [
-    ...ENEMY_FIELD_ORDER,
-  ].includes(field);
-}
-
-function syncEnemyEditorValues(enemyId: string): void {
-  for (const field of ENEMY_FIELD_ORDER) {
-    const input = fieldInputs.get(`${enemyId}:${field}`);
-    if (!input) continue;
-    if (document.activeElement !== input) {
-      input.value = displayFieldValue(enemyId, field);
-    }
-    clearFieldError(enemyId, field);
+function setBlockActive(enemyId: string, active: boolean): void {
+  const block = combatBlocks.get(enemyId);
+  if (!block) return;
+  for (const refs of block.rows) {
+    refs.row.classList.toggle('is-block-active', active);
   }
-}
-
-function renderEditorRow(enemyId: string): HTMLTableRowElement {
-  const template = findTemplate(workingCatalog, enemyId);
-  const row = element('tr', {
-    className: 'bench-editor-row',
-    testId: `bench-editor-row-${enemyId}`,
-  });
-  const cell = element('td');
-  cell.colSpan = TABLE_HEADERS.length;
-  const editor = element('div', {
-    className: 'bench-editor',
-    testId: `bench-editor-${enemyId}`,
-  });
-
-  const heroNames = workingCatalog.roster.map((hero) => hero.name);
-  editor.append(
-    element('h3', {
-      text: `${template?.name ?? enemyId} · editor compartido`,
-    }),
-    element('p', {
-      className: 'bench-editor-warning',
-      text:
-        `Este enemigo es compartido: el cambio afecta a sus cuatro filas ` +
-        `(${heroNames.join(', ')}). No hay copias por fila.`,
-      testId: `bench-editor-shared-${enemyId}`,
-    }),
-  );
-
-  const grid = element('div', { className: 'bench-fields' });
-  for (const field of ENEMY_FIELD_ORDER) {
-    const label = element('label', { className: 'bench-field' });
-    label.append(element('span', { text: ENEMY_FIELD_LABELS[field] }));
-    const isSelect = (ENEMY_SELECT_FIELDS as ReadonlyArray<string>).includes(field);
-    let input: HTMLInputElement | HTMLSelectElement;
-
-    if (isSelect) {
-      const select = element('select', {
-        testId: `bench-field-${enemyId}-${field}`,
-      });
-      const emptyOption = element('option', {
-        text:
-          field === 'armorId'
-            ? 'Sin armadura'
-            : field === 'shieldId'
-              ? 'Sin escudo'
-              : 'Sin arma',
-      });
-      emptyOption.value = '';
-      select.append(emptyOption);
-      const options =
-        field === 'armorId'
-          ? workingCatalog.armors
-          : field === 'shieldId'
-            ? workingCatalog.shields
-            : workingCatalog.weapons;
-      for (const option of Object.values(options)) {
-        const node = element('option', { text: option.name });
-        node.value = option.id;
-        select.append(node);
-      }
-      input = select;
-    } else {
-      const number = element('input', {
-        testId: `bench-field-${enemyId}-${field}`,
-      });
-      number.type = 'number';
-      number.step = '1';
-      const limits = ENEMY_NUMERIC_LIMITS[field as keyof typeof ENEMY_NUMERIC_LIMITS];
-      number.min = String(limits.min);
-      number.max = String(limits.max);
-      input = number;
-    }
-
-    const key = `${enemyId}:${field}`;
-    fieldInputs.set(key, input);
-    input.value = displayFieldValue(enemyId, field);
-    input.setAttribute(
-      'aria-label',
-      `${ENEMY_FIELD_LABELS[field]} de ${template?.name ?? enemyId}`,
-    );
-
-    const error = element('p', {
-      className: 'field-error',
-      testId: `bench-field-error-${enemyId}-${field}`,
-    });
-    error.setAttribute('aria-live', 'polite');
-    fieldErrors.set(key, error);
-
-    const onFieldChange = (): void => {
-      const validation = validateEnemyField(field, input.value, CATALOG);
-      if (!validation.ok) {
-        showFieldError(enemyId, field, validation.message);
-        return;
-      }
-      clearFieldError(enemyId, field);
-      applyEnemyField(enemyId, field, validation.value);
-    };
-    input.addEventListener(isSelect ? 'change' : 'input', onFieldChange);
-    if (!isSelect) {
-      input.addEventListener('blur', () => {
-        (input as HTMLInputElement).value = displayFieldValue(enemyId, field);
-        clearFieldError(enemyId, field);
-      });
-    }
-
-    const resetFieldButton = element('button', {
-      className: 'button ghost bench-field-reset',
-      text: 'Restablecer',
-      testId: `bench-field-reset-${enemyId}-${field}`,
-    });
-    resetFieldButton.type = 'button';
-    resetFieldButton.addEventListener('click', () => resetEnemyField(enemyId, field));
-
-    label.append(input, resetFieldButton, error);
-    grid.append(label);
-  }
-  editor.append(grid);
-
-  const resetEnemyButton = element('button', {
-    className: 'button ghost',
-    text: `Restablecer ${template?.name ?? enemyId}`,
-    testId: `bench-enemy-reset-${enemyId}`,
-  });
-  resetEnemyButton.type = 'button';
-  resetEnemyButton.addEventListener('click', () => resetEnemyState(enemyId));
-  editor.append(resetEnemyButton);
-
-  cell.append(editor);
-  row.append(cell);
-  return row;
-}
-
-function syncTableValues(): void {
-  for (const matchup of results.matchups) {
-    const refs = rowRefs.get(matchupKey(matchup.heroId, matchup.enemyId));
-    if (!refs) continue;
-    const target = targets[matchup.enemyId] ?? 0;
-    const { delta, inside } = rowDelta(matchup);
-    refs.winsHero.textContent = `${matchup.heroWins} (${formatPercent(matchup.heroWinRate)})`;
-    refs.band.textContent = formatBand(matchup.insideBand, matchup.bandDelta);
-    refs.band.className = matchup.insideBand ? 'band-ok' : 'band-out';
-    refs.target.textContent = formatTarget(target);
-    refs.real.textContent = `${formatPercent(matchup.heroWinRate)}`;
-    refs.delta.textContent = formatDelta(delta);
-    refs.state.textContent = formatRowState(inside);
-    refs.state.className = inside ? 'state-ok' : 'state-out';
-  }
-}
-
-function renderDiagnosis(): void {
-  diagnosisGrid.replaceChildren();
-  diagnosisRefs.clear();
-
-  for (const entry of diagnosis) {
-    const card = element('article', {
-      className: 'diagnosis-card',
-      testId: `bench-diagnosis-${entry.enemyId}`,
-    });
-    const cardHeader = element('div', { className: 'diagnosis-header' });
-    cardHeader.append(element('h3', { text: unitName(workingCatalog, entry.enemyId) }));
-    const four = element('span', {
-      className: 'diagnosis-four',
-      testId: `bench-four-of-four-${entry.enemyId}`,
-    });
-    cardHeader.append(four);
-    card.append(cardHeader);
-
-    const targetRow = element('div', { className: 'target-row' });
-    const targetLabel = element('label', { className: 'target-label' });
-    targetLabel.append(element('span', { text: 'Objetivo' }));
-    const targetInput = element('input', {
-      testId: `bench-target-${entry.enemyId}`,
-    });
-    targetInput.type = 'number';
-    targetInput.min = '0';
-    targetInput.max = '100';
-    targetInput.step = '1';
-    targetInput.value = String(entry.target);
-    targetInput.setAttribute(
-      'aria-label',
-      `Objetivo de ${unitName(workingCatalog, entry.enemyId)}`,
-    );
-    targetLabel.append(targetInput);
-
-    const guide = element('span', {
-      className: 'target-guide',
-      testId: `bench-guide-${entry.enemyId}`,
-      text: `guía ${formatTarget(GUIDE_TARGETS[entry.enemyId] ?? entry.target)}`,
-    });
-    const targetReset = element('button', {
-      className: 'button ghost bench-target-reset',
-      text: 'Guía',
-      testId: `bench-target-reset-${entry.enemyId}`,
-    });
-    targetReset.type = 'button';
-    targetReset.addEventListener('click', () => {
-      targets = resetTarget(targets, entry.enemyId);
-      refreshDiagnosisOnly();
-    });
-
-    const targetError = element('p', {
-      className: 'field-error',
-      testId: `bench-target-error-${entry.enemyId}`,
-    });
-    targetError.setAttribute('aria-live', 'polite');
-
-    targetInput.addEventListener('input', () => {
-      const validation = validateTargetInput(targetInput.value);
-      if (!validation.ok) {
-        targetInput.setAttribute('aria-invalid', 'true');
-        targetError.textContent = validation.message;
-        return;
-      }
-      targetInput.removeAttribute('aria-invalid');
-      targetError.textContent = '';
-      targets = setBenchTarget(targets, entry.enemyId, validation.value);
-      refreshDiagnosisOnly();
-    });
-    targetInput.addEventListener('blur', () => {
-      targetInput.value = String(targets[entry.enemyId] ?? entry.target);
-      targetInput.removeAttribute('aria-invalid');
-      targetError.textContent = '';
-    });
-
-    targetRow.append(targetLabel, guide, targetReset, targetError);
-    card.append(targetRow);
-
-    const rows = element('ul', {
-      className: 'diagnosis-rows',
-      testId: `bench-diagnosis-rows-${entry.enemyId}`,
-    });
-    const problems = element('ul', {
-      className: 'diagnosis-problems',
-      testId: `bench-problems-${entry.enemyId}`,
-    });
-    card.append(rows, problems);
-    diagnosisGrid.append(card);
-
-    diagnosisRefs.set(entry.enemyId, {
-      four,
-      targetInput,
-      targetError,
-      guide,
-      rows,
-      problems,
-    });
-  }
-
-  syncDiagnosis();
-}
-
-function syncDiagnosis(): void {
-  for (const entry of diagnosis) {
-    const refs = diagnosisRefs.get(entry.enemyId);
-    if (!refs) continue;
-    refs.four.textContent = formatFourOfFour(entry, workingCatalog);
-    refs.four.className = entry.fourOfFour
-      ? 'diagnosis-four is-good'
-      : 'diagnosis-four is-bad';
-    if (document.activeElement !== refs.targetInput) {
-      refs.targetInput.value = String(entry.target);
-    }
-    refs.guide.textContent = `guía ${formatTarget(
-      GUIDE_TARGETS[entry.enemyId] ?? entry.target,
-    )}`;
-
-    refs.rows.replaceChildren(
-      ...entry.rows.map((row) => {
-        const item = element('li', {
-          testId: `bench-diagnosis-row-${row.heroId}-${entry.enemyId}`,
-        });
-        item.textContent =
-          `${unitName(workingCatalog, row.heroId)} · ` +
-          formatDiagnosisRow(
-            row.heroWinRate,
-            entry.target,
-            row.delta,
-            row.inside,
-          );
-        item.className = row.inside ? 'is-inside' : 'is-outside';
-        return item;
-      }),
-    );
-
-    if (entry.problems.length === 0) {
-      refs.problems.replaceChildren(
-        element('li', { className: 'is-empty', text: 'Sin avisos.' }),
-      );
-    } else {
-      refs.problems.replaceChildren(
-        ...entry.problems.map((problem) =>
-          element('li', { className: `problem-${problem.kind}`, text: problem.message }),
-        ),
-      );
-    }
-  }
-}
-
-function renderWeapons(): void {
-  weaponBody.replaceChildren();
-  weaponRefs.clear();
-
-  for (const weapon of weaponRows(workingCatalog)) {
-    const row = element('tr', {
-      testId: `bench-weapon-row-${weapon.id}`,
-    });
-    const accuracy = element('input', {
-      testId: `bench-weapon-${weapon.id}-accuracy`,
-    });
-    accuracy.type = 'number';
-    accuracy.step = '1';
-    accuracy.min = String(WEAPON_LIMITS.accuracy.min);
-    accuracy.max = String(WEAPON_LIMITS.accuracy.max);
-    accuracy.value = String(weapon.accuracy);
-    accuracy.setAttribute('aria-label', `Acierto de ${weapon.name}`);
-
-    const damage = element('input', {
-      testId: `bench-weapon-${weapon.id}-damage`,
-    });
-    damage.type = 'number';
-    damage.step = '1';
-    damage.min = String(WEAPON_LIMITS.damage.min);
-    damage.max = String(WEAPON_LIMITS.damage.max);
-    damage.value = String(weapon.damage);
-    damage.setAttribute('aria-label', `Daño de ${weapon.name}`);
-
-    const accuracyError = element('p', {
-      className: 'field-error',
-      testId: `bench-weapon-error-${weapon.id}-accuracy`,
-    });
-    accuracyError.setAttribute('aria-live', 'polite');
-    const damageError = element('p', {
-      className: 'field-error',
-      testId: `bench-weapon-error-${weapon.id}-damage`,
-    });
-    damageError.setAttribute('aria-live', 'polite');
-
-    const attach = (
-      field: WeaponField,
-      input: HTMLInputElement,
-      error: HTMLElement,
-    ): void => {
-      input.addEventListener('input', () => {
-        const validation = validateWeaponField(field, input.value);
-        if (!validation.ok) {
-          input.setAttribute('aria-invalid', 'true');
-          error.textContent = validation.message;
-          return;
-        }
-        input.removeAttribute('aria-invalid');
-        error.textContent = '';
-        applyWeaponField(weapon.id, field, validation.value);
-      });
-      input.addEventListener('blur', () => {
-        input.value = String(workingCatalog.weapons[weapon.id]?.[field] ?? '');
-        input.removeAttribute('aria-invalid');
-        error.textContent = '';
-      });
-    };
-    attach('accuracy', accuracy, accuracyError);
-    attach('damage', damage, damageError);
-
-    const users = element('td', {
-      testId: `bench-weapon-users-${weapon.id}`,
-      text: weapon.users.join(', '),
-    });
-    const accuracyReset = element('button', {
-      className: 'button ghost bench-field-reset',
-      text: 'Reset campo',
-      testId: `bench-weapon-field-reset-${weapon.id}-accuracy`,
-    });
-    accuracyReset.type = 'button';
-    accuracyReset.setAttribute('aria-label', `Restablecer acierto de ${weapon.name}`);
-    accuracyReset.addEventListener('click', () =>
-      resetWeaponFieldState(weapon.id, 'accuracy'),
-    );
-    const damageReset = element('button', {
-      className: 'button ghost bench-field-reset',
-      text: 'Reset campo',
-      testId: `bench-weapon-field-reset-${weapon.id}-damage`,
-    });
-    damageReset.type = 'button';
-    damageReset.setAttribute('aria-label', `Restablecer daño de ${weapon.name}`);
-    damageReset.addEventListener('click', () =>
-      resetWeaponFieldState(weapon.id, 'damage'),
-    );
-    const accuracyCell = element('td');
-    accuracyCell.append(accuracy, accuracyReset, accuracyError);
-    const damageCell = element('td');
-    damageCell.append(damage, damageReset, damageError);
-
-    const resetWeaponButton = element('button', {
-      className: 'button ghost',
-      text: 'Restablecer',
-      testId: `bench-weapon-reset-${weapon.id}`,
-    });
-    resetWeaponButton.type = 'button';
-    resetWeaponButton.setAttribute(
-      'aria-label',
-      `Restablecer arma ${weapon.name}`,
-    );
-    resetWeaponButton.addEventListener('click', () => resetWeaponState(weapon.id));
-    const resetCell = element('td');
-    resetCell.append(resetWeaponButton);
-
-    row.append(
-      element('td', {
-        text: `${weapon.name} (${weapon.id})`,
-      }),
-      accuracyCell,
-      damageCell,
-      users,
-      resetCell,
-    );
-    weaponBody.append(row);
-
-    weaponRefs.set(weapon.id, {
-      accuracy,
-      damage,
-      accuracyError,
-      damageError,
-      users,
-    });
-  }
-}
-
-function syncWeapons(): void {
-  for (const weapon of weaponRows(workingCatalog)) {
-    const refs = weaponRefs.get(weapon.id);
-    if (!refs) continue;
-    if (document.activeElement !== refs.accuracy) {
-      refs.accuracy.value = String(weapon.accuracy);
-    }
-    if (document.activeElement !== refs.damage) {
-      refs.damage.value = String(weapon.damage);
-    }
-    refs.accuracy.removeAttribute('aria-invalid');
-    refs.damage.removeAttribute('aria-invalid');
-    refs.accuracyError.textContent = '';
-    refs.damageError.textContent = '';
-    refs.users.textContent = weapon.users.join(', ');
-  }
-}
-
-function detailBlock(title: string, testId: string): HTMLElement {
-  const block = element('div', { className: 'detail-block', testId });
-  block.append(element('h3', { text: title }));
-  return block;
-}
-
-function detailTable(
-  headers: ReadonlyArray<string>,
-  rows: ReadonlyArray<ReadonlyArray<string>>,
-): HTMLTableElement {
-  const node = element('table', { className: 'detail-table' });
-  const head = element('thead');
-  const headRow = element('tr');
-  for (const header of headers) headRow.append(element('th', { text: header }));
-  head.append(headRow);
-  const body = element('tbody');
-  for (const cells of rows) {
-    const row = element('tr');
-    for (const cell of cells) row.append(element('td', { text: cell }));
-    body.append(row);
-  }
-  node.append(head, body);
-  return node;
-}
-
-function renderDetail(): void {
-  const matchup = selectedMatchup();
-  detailHost.replaceChildren();
-
-  const actions = detailBlock('Acciones por tipo', 'detail-actions');
-  actions.append(
-    detailTable(
-      ['Acción', 'Héroe', 'Enemigo'],
-      [
-        [
-          'Atacar',
-          String(matchup.actions.hero.attack),
-          String(matchup.actions.enemy.attack),
-        ],
-        [
-          'Hechizo',
-          String(matchup.actions.hero.spell),
-          String(matchup.actions.enemy.spell),
-        ],
-        [
-          'Mover',
-          String(matchup.actions.hero.move),
-          String(matchup.actions.enemy.move),
-        ],
-        [
-          'Esperar',
-          String(matchup.actions.hero.wait),
-          String(matchup.actions.enemy.wait),
-        ],
-      ],
-    ),
-  );
-
-  const spells = detailBlock('Hechizos por id', 'detail-spells');
-  const spellList = spellRows(matchup.spells);
-  if (spellList.length === 0) {
-    spells.append(element('p', { className: 'detail-empty', text: 'Sin hechizos lanzados.' }));
-  } else {
-    spells.append(
-      detailTable(
-        ['Id', 'Lanzados', 'Impactos', 'Fallos', 'Daño'],
-        spellList.map((spell) => [
-          spell.id,
-          String(spell.casts),
-          String(spell.hits),
-          String(spell.misses),
-          String(spell.damage),
-        ]),
-      ),
-    );
-  }
-
-  const mana = detailBlock('Maná', 'detail-mana');
-  mana.append(
-    detailTable(
-      ['', 'Héroe', 'Enemigo'],
-      [
-        ['Disponible', String(matchup.mana.hero.available), String(matchup.mana.enemy.available)],
-        ['Gastado', String(matchup.mana.hero.spent), String(matchup.mana.enemy.spent)],
-        ['No gastado', String(matchup.mana.hero.unspent), String(matchup.mana.enemy.unspent)],
-      ],
-    ),
-  );
-
-  const hp = detailBlock('PV restantes', 'detail-hp');
-  hp.append(
-    detailTable(
-      ['Métrica', 'Valor'],
-      [
-        ['PV medios del héroe', formatNumber(matchup.hp.heroRemaining)],
-        ['PV medios del enemigo', formatNumber(matchup.hp.enemyRemaining)],
-        ['PV medios del ganador', formatNumber(matchup.hp.winnerRemaining)],
-      ],
-    ),
-  );
-
-  const replicas = detailBlock('Réplicas', 'detail-replicas');
-  const totals = replicaTotals(matchup.replicas);
-  replicas.append(
-    detailTable(
-      ['', 'Héroe', 'Enemigo'],
-      [
-        ['Disparadas', String(matchup.replicas.hero.triggered), String(matchup.replicas.enemy.triggered)],
-        ['Impactos', String(matchup.replicas.hero.hits), String(matchup.replicas.enemy.hits)],
-        ['Fallos', String(matchup.replicas.hero.misses), String(matchup.replicas.enemy.misses)],
-        ['Muertes', String(matchup.replicas.hero.kills), String(matchup.replicas.enemy.kills)],
-        ['Daño', String(matchup.replicas.hero.damage), String(matchup.replicas.enemy.damage)],
-      ],
-    ),
-    element('p', {
-      className: 'detail-empty',
-      text: `Totales: ${totals.triggered} disparadas, ${totals.hits} impactos, ${totals.kills} muertes.`,
-    }),
-  );
-
-  const duration = detailBlock('Distribución de duración', 'detail-duration');
-  duration.append(
-    element('p', {
-      className: 'detail-empty',
-      text:
-        `Rondas media ${formatNumber(matchup.rounds.mean)} · mediana ${formatNumber(matchup.rounds.median)} · ` +
-        `mín ${matchup.rounds.min} · máx ${matchup.rounds.max}.`,
-    }),
-  );
-  const durationList = element('div', { className: 'duration-list' });
-  for (const entry of durationRows(matchup.rounds)) {
-    durationList.append(
-      element('p', {
-        className: 'duration-row',
-        text: `${entry.value} ${entry.value === 1 ? 'ronda' : 'rondas'} · ${entry.count}/${matchup.duels}`,
-      }),
-    );
-  }
-  duration.append(durationList);
-
-  const heading = element('h3', {
-    className: 'detail-title',
-    text: matchupTitle(workingCatalog, matchup),
-    testId: 'detail-title',
-  });
-  detailHost.append(heading, actions, spells, mana, hp, replicas, duration);
-}
-
-function currentExport(): BenchExport {
-  return buildBenchExport(results, workingCatalog, targets, overrides);
-}
-
-function renderExport(): void {
-  const payload = currentExport();
-  const text = benchExportJson(payload);
-  const bytes = new TextEncoder().encode(text).length;
-  exportSummary.textContent = formatBenchSummary(
-    payload,
-    overrides,
-    payload.diagnosis,
-    bytes,
-    workingCatalog,
-  );
-}
-
-function syncDerived(): void {
-  syncTableValues();
-  syncDiagnosis();
-  syncWeapons();
-  renderBalanceWarning();
-  renderDetail();
-  renderExport();
-}
-
-function renderAll(): void {
-  syncControls();
-  renderTable();
-  renderDiagnosis();
-  renderWeapons();
-  syncDerived();
-}
-
-/* Mutaciones de estado y recálculo diferido/síncrono. */
-
-function setOverrides(next: BenchOverrides): void {
-  overrides = pruneOverrides(CATALOG, next);
-  workingCatalog = createWorkingCatalog(CATALOG, overrides);
 }
 
 function selectionKey(selection: BenchSelection): string {
@@ -1290,7 +612,7 @@ function scheduleRecalc(selection: BenchSelection): void {
   recalcTimer = setTimeout(() => {
     recalcTimer = null;
     const count = flushRecalculation();
-    benchStatus.textContent = `Recalculado: ${count} filas afectadas.`;
+    benchStatus.textContent = formatRecalcStatus(count);
   }, RECALC_DELAY_MS);
 }
 
@@ -1329,7 +651,7 @@ function ensureRecalculated(): void {
   flushingPending = true;
   try {
     const count = flushRecalculation();
-    benchStatus.textContent = `Recalculado: ${count} filas afectadas.`;
+    benchStatus.textContent = formatRecalcStatus(count);
   } finally {
     flushingPending = false;
   }
@@ -1348,14 +670,14 @@ function recalculateNow(selection?: BenchSelection): MeasurementPayload {
     const affected = affectedRows(workingCatalog, selection).length;
     diagnosis = diagnoseBench(results.matchups, targets, workingCatalog);
     syncDerived();
-    benchStatus.textContent = `Recalculado: ${affected} filas afectadas.`;
+    benchStatus.textContent = formatRecalcStatus(affected);
     return results;
   }
 
   results = measureMatchups({ seed, duels, catalog: workingCatalog });
   diagnosis = diagnoseBench(results.matchups, targets, workingCatalog);
   syncDerived();
-  benchStatus.textContent = `Recalculado: ${results.matchups.length} filas.`;
+  benchStatus.textContent = formatRecalcStatus(results.matchups.length);
   return results;
 }
 
@@ -1372,12 +694,17 @@ function recomputeAll(message?: string): void {
   if (message) setStatus(controlsStatus, message);
 }
 
+function setOverrides(next: BenchOverrides): void {
+  overrides = pruneOverrides(CATALOG, next);
+  workingCatalog = createWorkingCatalog(CATALOG, overrides);
+}
+
 function applyEnemyField(
   enemyId: string,
   field: EnemyField,
   value: number | string | null,
 ): void {
-  if (!fieldEditable(enemyId, field)) return;
+  if (!findTemplate(CATALOG, enemyId)) return;
   setOverrides(withEnemyOverride(overrides, enemyId, enemyFieldPatch(field, value)));
   scheduleRecalc({ kind: 'enemy', enemyId });
 }
@@ -1393,40 +720,858 @@ function applyWeaponField(
   scheduleRecalc({ kind: 'weapon', weaponId });
 }
 
-function resetEnemyField(enemyId: string, field: EnemyField): void {
-  setOverrides(resetEnemyFieldOverride(overrides, enemyId, field));
-  syncEnemyEditorValues(enemyId);
-  scheduleRecalc({ kind: 'enemy', enemyId });
+function applyHeroField(
+  heroId: string,
+  field: HeroField,
+  value: number | string | null,
+): void {
+  if (!CATALOG.roster.some((hero) => hero.id === heroId)) return;
+  setOverrides(withHeroOverride(overrides, heroId, heroFieldPatch(field, value)));
+  scheduleRecalc({ kind: 'hero', heroId });
 }
 
-function resetEnemyState(enemyId: string): void {
-  setOverrides(resetEnemyOverride(overrides, enemyId));
-  targets = resetTarget(targets, enemyId);
-  syncEnemyEditorValues(enemyId);
+function refreshDiagnosisOnly(): void {
   diagnosis = diagnoseBench(results.matchups, targets, workingCatalog);
-  syncDiagnosis();
-  syncTableValues();
+  syncCombats();
+  renderDetail();
   renderExport();
-  scheduleRecalc({ kind: 'enemy', enemyId });
 }
 
-function resetWeaponState(weaponId: string): void {
-  setOverrides(resetWeaponOverride(overrides, weaponId));
-  syncWeapons();
-  scheduleRecalc({ kind: 'weapon', weaponId });
-}
-
-function resetWeaponFieldState(weaponId: string, field: WeaponField): void {
-  setOverrides(resetWeaponFieldOverride(overrides, weaponId, field));
-  const refs = weaponRefs.get(weaponId);
-  if (refs) {
-    const input = field === 'accuracy' ? refs.accuracy : refs.damage;
-    input.value = String(workingCatalog.weapons[weaponId]?.[field] ?? '');
-    input.removeAttribute('aria-invalid');
-    const error = field === 'accuracy' ? refs.accuracyError : refs.damageError;
-    error.textContent = '';
+function selectRow(heroId: string, enemyId: string): void {
+  selected = { heroId, enemyId };
+  const selectedKey = rowKey(selected);
+  for (const [key, refs] of combatRows) {
+    const isSelected = key === selectedKey;
+    refs.row.classList.toggle('is-selected', isSelected);
+    refs.row.setAttribute('aria-selected', String(isSelected));
   }
-  scheduleRecalc({ kind: 'weapon', weaponId });
+  renderDetail();
+  setStatus(
+    controlsStatus,
+    `Detalle: ${matchupTitle(workingCatalog, selectedMatchup())}.`,
+  );
+}
+
+function isInteractive(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  return (
+    target.tagName === 'INPUT' ||
+    target.tagName === 'SELECT' ||
+    target.tagName === 'OPTION' ||
+    target.tagName === 'BUTTON'
+  );
+}
+
+/* Construcción de la tabla de combates. */
+
+function buildTargetCell(enemyId: string): HTMLTableCellElement {
+  const cell = element('td', { className: 'shared-cell' });
+  const input = element('input', {
+    className: 'cell-input',
+    testId: `combats-target-${enemyId}`,
+  });
+  input.type = 'number';
+  input.min = '0';
+  input.max = '100';
+  input.step = '1';
+  input.value = String(targets[enemyId] ?? GUIDE_TARGETS[enemyId] ?? 0);
+  input.title = `Guía ${formatTarget(GUIDE_TARGETS[enemyId] ?? targets[enemyId] ?? 0)}`;
+  input.setAttribute(
+    'aria-label',
+    `Objetivo de ${unitName(workingCatalog, enemyId)} (compartido)`,
+  );
+
+  const error = element('p', {
+    className: 'field-error cell-error',
+    testId: `combats-target-error-${enemyId}`,
+  });
+  error.setAttribute('aria-live', 'polite');
+
+  input.addEventListener('input', () => {
+    const validation = validateTargetInput(input.value);
+    if (!validation.ok) {
+      input.setAttribute('aria-invalid', 'true');
+      error.textContent = validation.message;
+      return;
+    }
+    input.removeAttribute('aria-invalid');
+    error.textContent = '';
+    targets = setBenchTarget(targets, enemyId, validation.value);
+    refreshDiagnosisOnly();
+    benchStatus.textContent =
+      `Objetivo de ${unitName(workingCatalog, enemyId)}: diagnóstico actualizado; ` +
+      '0 filas medidas de nuevo.';
+  });
+  input.addEventListener('blur', () => {
+    input.value = String(targets[enemyId] ?? 0);
+    input.removeAttribute('aria-invalid');
+    error.textContent = '';
+  });
+
+  cell.append(input, error);
+  return cell;
+}
+
+function buildSharedFieldCell(
+  enemyId: string,
+  field: EnemyField,
+  label: string,
+): HTMLTableCellElement {
+  const cell = element('td', {
+    className: 'shared-cell',
+    testId: `combats-cell-${enemyId}-${field}`,
+  });
+  const template = findTemplate(workingCatalog, enemyId);
+  const isSelect =
+    field === 'armorId' || field === 'shieldId' || field === 'weaponId';
+  let input: HTMLInputElement | HTMLSelectElement;
+
+  if (isSelect) {
+    const emptyLabel =
+      field === 'armorId'
+        ? 'Sin armadura'
+        : field === 'shieldId'
+          ? 'Sin escudo'
+          : 'Sin arma';
+    const options =
+      field === 'armorId'
+        ? CATALOG.armors
+        : field === 'shieldId'
+          ? CATALOG.shields
+          : CATALOG.weapons;
+    const current = template ? enemyFieldValue(template, field) : null;
+    input = createSelect(
+      typeof current === 'string' ? current : null,
+      emptyLabel,
+      options,
+      `combats-field-${enemyId}-${field}`,
+    );
+  } else {
+    input = createNumberInput(
+      template ? enemyFieldValue(template, field) : null,
+      ENEMY_NUMERIC_LIMITS[field as keyof typeof ENEMY_NUMERIC_LIMITS],
+      `combats-field-${enemyId}-${field}`,
+    );
+  }
+  input.setAttribute(
+    'aria-label',
+    `${label} de ${template?.name ?? enemyId} (compartido)`,
+  );
+
+  const error = element('p', {
+    className: 'field-error cell-error',
+    testId: `combats-field-error-${enemyId}-${field}`,
+  });
+  error.setAttribute('aria-live', 'polite');
+  const refs: FieldRefs = { input, error };
+
+  const onFieldChange = (): void => {
+    const validation = validateEnemyField(field, input.value, CATALOG);
+    if (!validation.ok) {
+      showFieldError(refs, validation.message);
+      return;
+    }
+    clearFieldError(refs);
+    applyEnemyField(enemyId, field, validation.value);
+  };
+  input.addEventListener(isSelect ? 'change' : 'input', onFieldChange);
+  input.addEventListener('focus', () => setBlockActive(enemyId, true));
+  input.addEventListener('blur', () => {
+    if (input.getAttribute('aria-invalid') === 'true') {
+      input.value = displayEnemyField(enemyId, field);
+    }
+    clearFieldError(refs);
+    setBlockActive(enemyId, false);
+  });
+
+  cell.append(input, error);
+  const block = combatBlocks.get(enemyId);
+  if (block) block.fields.set(field, refs);
+  return cell;
+}
+
+function renderCombats(): void {
+  combatsBody.replaceChildren();
+  combatBlocks.clear();
+  combatRows.clear();
+
+  const blocks = groupMatchupsByEnemy(results.matchups, results.enemyOrder);
+  for (const block of blocks) {
+    const blockRefs: CombatBlockRefs = {
+      enemyId: block.enemyId,
+      four: element('span', {
+        className: 'four-of-four',
+        testId: `combats-four-${block.enemyId}`,
+      }),
+      problems: element('ul', {
+        className: 'block-problems',
+        testId: `combats-problems-${block.enemyId}`,
+      }),
+      targetInput: document.createElement('input'),
+      targetError: element('p'),
+      fields: new Map(),
+      rows: [],
+    };
+    combatBlocks.set(block.enemyId, blockRefs);
+
+    const enemyCell = element('td', {
+      className: 'shared-cell enemy-cell',
+    });
+    enemyCell.append(
+      element('strong', { text: unitName(workingCatalog, block.enemyId) }),
+      blockRefs.four,
+      blockRefs.problems,
+    );
+
+    const targetCell = buildTargetCell(block.enemyId);
+    const targetInput = targetCell.querySelector<HTMLInputElement>('input');
+    if (targetInput) blockRefs.targetInput = targetInput;
+    const targetError = targetCell.querySelector<HTMLElement>('.field-error');
+    if (targetError) blockRefs.targetError = targetError;
+
+    const statCells = ENEMY_TABLE_FIELDS.map(({ field, label }) =>
+      buildSharedFieldCell(block.enemyId, field, label),
+    );
+
+    block.rows.forEach((matchup, index) => {
+      const key = rowKey(matchup);
+      const row = element('tr', {
+        testId: `combats-row-${matchup.heroId}-${matchup.enemyId}`,
+      });
+      row.tabIndex = 0;
+      row.setAttribute('aria-selected', 'false');
+      row.addEventListener('click', (event) => {
+        if (isInteractive(event.target)) return;
+        selectRow(matchup.heroId, matchup.enemyId);
+      });
+      row.addEventListener('keydown', (event) => {
+        if (isInteractive(event.target)) return;
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        selectRow(matchup.heroId, matchup.enemyId);
+      });
+
+      const heroCell = element('td', {
+        className: 'hero-cell',
+        text: unitName(workingCatalog, matchup.heroId),
+      });
+      const winsHero = element('td', {
+        className: 'numeric-cell',
+        testId: `combats-wins-hero-${matchup.heroId}-${matchup.enemyId}`,
+      });
+      const winsEnemy = element('td', {
+        className: 'numeric-cell',
+        testId: `combats-wins-enemy-${matchup.heroId}-${matchup.enemyId}`,
+      });
+      const real = element('td', {
+        className: 'real-cell',
+        testId: `combats-real-${matchup.heroId}-${matchup.enemyId}`,
+      });
+
+      row.append(heroCell);
+      if (index === 0) {
+        enemyCell.rowSpan = block.rows.length;
+        targetCell.rowSpan = block.rows.length;
+        for (const cell of statCells) cell.rowSpan = block.rows.length;
+        row.append(enemyCell, winsHero, winsEnemy, targetCell, real, ...statCells);
+      } else {
+        row.append(winsHero, winsEnemy, real);
+      }
+      combatsBody.append(row);
+
+      const rowRefs: CombatRowRefs = { key, row, winsHero, winsEnemy, real };
+      blockRefs.rows.push(rowRefs);
+      combatRows.set(key, rowRefs);
+    });
+  }
+
+  syncCombats();
+}
+
+function renderBlockProblems(
+  host: HTMLElement,
+  entry: EnemyDiagnosis,
+): void {
+  const problems = entry.problems.filter(
+    (problem) =>
+      problem.kind === 'dispersion' || problem.kind === 'global-weapon',
+  );
+  host.replaceChildren(
+    ...problems.map((problem) =>
+      element('li', {
+        className: `problem-${problem.kind}`,
+        text: problem.message,
+      }),
+    ),
+  );
+}
+
+function syncCombats(): void {
+  const diagnosisByEnemy = new Map(
+    diagnosis.map((entry) => [entry.enemyId, entry] as const),
+  );
+  const matchupsByKey = new Map(
+    results.matchups.map((matchup) => [rowKey(matchup), matchup] as const),
+  );
+
+  for (const block of combatBlocks.values()) {
+    const entry = diagnosisByEnemy.get(block.enemyId);
+    if (entry) {
+      block.four.textContent = formatFourOfFour(entry, workingCatalog);
+      block.four.className = entry.fourOfFour
+        ? 'four-of-four is-good'
+        : 'four-of-four is-bad';
+      renderBlockProblems(block.problems, entry);
+    }
+
+    if (document.activeElement !== block.targetInput) {
+      block.targetInput.value = String(
+        targets[block.enemyId] ?? entry?.target ?? 0,
+      );
+    }
+
+    for (const [field, refs] of block.fields) {
+      if (document.activeElement !== refs.input) {
+        refs.input.value = displayEnemyField(block.enemyId, field);
+      }
+    }
+
+    for (const refs of block.rows) {
+      const matchup = matchupsByKey.get(refs.key);
+      if (!matchup) continue;
+      const diagnosed = entry?.rows.find(
+        (row) => row.heroId === matchup.heroId,
+      );
+      const delta = diagnosed?.delta ?? 0;
+      const inside = diagnosed?.inside ?? false;
+      refs.winsHero.textContent =
+        `${formatWins(matchup.heroWins, matchup.draws)} · ` +
+        formatPercent(matchup.heroWinRate);
+      refs.winsEnemy.textContent =
+        `${formatWins(matchup.enemyWins, matchup.draws)} · ` +
+        formatPercent(matchup.enemyWinRate);
+      refs.real.textContent = formatRealCell(
+        matchup.heroWinRate,
+        delta,
+        inside,
+      );
+      refs.real.className = inside
+        ? 'real-cell state-ok'
+        : 'real-cell state-out';
+    }
+  }
+
+  const selectedKey = rowKey(selected);
+  for (const [key, refs] of combatRows) {
+    const isSelected = key === selectedKey;
+    refs.row.classList.toggle('is-selected', isSelected);
+    refs.row.setAttribute('aria-selected', String(isSelected));
+  }
+}
+
+/* Tabla de armas. */
+
+function renderWeapons(): void {
+  weaponsBody.replaceChildren();
+  weaponRefs.clear();
+
+  for (const weapon of weaponRows(workingCatalog)) {
+    const row = element('tr', { testId: `weapons-row-${weapon.id}` });
+    const nameCell = element('td', { className: 'weapon-name-cell' });
+    nameCell.append(
+      element('span', { className: 'weapon-name', text: weapon.name }),
+      element('span', {
+        className: 'weapon-users',
+        testId: `weapon-users-${weapon.id}`,
+        text: formatWeaponUsers(weapon.users),
+      }),
+    );
+
+    const accuracy = createNumberInput(
+      weapon.accuracy,
+      WEAPON_LIMITS.accuracy,
+      `weapon-${weapon.id}-accuracy`,
+    );
+    accuracy.setAttribute('aria-label', `Acierto de ${weapon.name}`);
+    const damage = createNumberInput(
+      weapon.damage,
+      WEAPON_LIMITS.damage,
+      `weapon-${weapon.id}-damage`,
+    );
+    damage.setAttribute('aria-label', `Daño de ${weapon.name}`);
+
+    const accuracyError = element('p', {
+      className: 'field-error cell-error',
+      testId: `weapon-error-${weapon.id}-accuracy`,
+    });
+    accuracyError.setAttribute('aria-live', 'polite');
+    const damageError = element('p', {
+      className: 'field-error cell-error',
+      testId: `weapon-error-${weapon.id}-damage`,
+    });
+    damageError.setAttribute('aria-live', 'polite');
+
+    const attach = (
+      field: WeaponField,
+      input: HTMLInputElement,
+      error: HTMLElement,
+    ): void => {
+      const refs: FieldRefs = { input, error };
+      input.addEventListener('input', () => {
+        const validation = validateWeaponField(field, input.value);
+        if (!validation.ok) {
+          showFieldError(refs, validation.message);
+          return;
+        }
+        clearFieldError(refs);
+        applyWeaponField(weapon.id, field, validation.value);
+      });
+      input.addEventListener('blur', () => {
+        if (input.getAttribute('aria-invalid') === 'true') {
+          input.value = String(workingCatalog.weapons[weapon.id]?.[field] ?? '');
+        }
+        clearFieldError(refs);
+      });
+    };
+    attach('accuracy', accuracy, accuracyError);
+    attach('damage', damage, damageError);
+
+    const accuracyCell = element('td', { className: 'numeric-cell' });
+    accuracyCell.append(accuracy, accuracyError);
+    const damageCell = element('td', { className: 'numeric-cell' });
+    damageCell.append(damage, damageError);
+
+    row.append(nameCell, accuracyCell, damageCell);
+    weaponsBody.append(row);
+    weaponRefs.set(weapon.id, {
+      accuracy,
+      damage,
+      accuracyError,
+      damageError,
+      users: nameCell.querySelector<HTMLElement>('.weapon-users') as HTMLElement,
+    });
+  }
+}
+
+function syncWeapons(): void {
+  for (const weapon of weaponRows(workingCatalog)) {
+    const refs = weaponRefs.get(weapon.id);
+    if (!refs) continue;
+    if (document.activeElement !== refs.accuracy) {
+      refs.accuracy.value = String(weapon.accuracy);
+    }
+    if (document.activeElement !== refs.damage) {
+      refs.damage.value = String(weapon.damage);
+    }
+    refs.users.textContent = formatWeaponUsers(weapon.users);
+  }
+}
+
+/* Tabla de héroes. */
+
+function renderHeroes(): void {
+  heroesBody.replaceChildren();
+  heroRefs.clear();
+
+  for (const hero of CATALOG.roster) {
+    const row = element('tr', { testId: `heroes-row-${hero.id}` });
+    row.append(
+      element('td', {
+        className: 'hero-cell',
+        text: unitName(CATALOG, hero.id),
+      }),
+    );
+    const fields = new Map<HeroField, FieldRefs>();
+    let weaponHint = element('span', { className: 'weapon-hint' });
+
+    for (const { field, label } of HERO_TABLE_FIELDS) {
+      const cell = element('td', {
+        className:
+          field === 'weaponId' || field === 'armorId' || field === 'shieldId'
+            ? 'shared-cell'
+            : 'numeric-cell',
+        testId: `heroes-cell-${hero.id}-${field}`,
+      });
+      const value = heroFieldValue(hero, field);
+      const isSelect =
+        field === 'weaponId' || field === 'armorId' || field === 'shieldId';
+      let input: HTMLInputElement | HTMLSelectElement;
+
+      if (isSelect) {
+        const emptyLabel =
+          field === 'weaponId'
+            ? 'Sin arma'
+            : field === 'armorId'
+              ? 'Sin armadura'
+              : 'Sin escudo';
+        const options =
+          field === 'weaponId'
+            ? CATALOG.weapons
+            : field === 'armorId'
+              ? CATALOG.armors
+              : CATALOG.shields;
+        input = createSelect(
+          typeof value === 'string' ? value : null,
+          emptyLabel,
+          options,
+          `hero-field-${hero.id}-${field}`,
+        );
+      } else {
+        input = createNumberInput(
+          typeof value === 'number' ? value : null,
+          HERO_NUMERIC_LIMITS[field as keyof typeof HERO_NUMERIC_LIMITS],
+          `hero-field-${hero.id}-${field}`,
+        );
+      }
+      input.setAttribute(
+        'aria-label',
+        `${label} de ${hero.name}`,
+      );
+
+      const error = element('p', {
+        className: 'field-error cell-error',
+        testId: `hero-field-error-${hero.id}-${field}`,
+      });
+      error.setAttribute('aria-live', 'polite');
+      const refs: FieldRefs = { input, error };
+      fields.set(field, refs);
+
+      const onFieldChange = (): void => {
+        const validation = validateHeroField(field, input.value, CATALOG);
+        if (!validation.ok) {
+          showFieldError(refs, validation.message);
+          return;
+        }
+        clearFieldError(refs);
+        applyHeroField(hero.id, field, validation.value);
+      };
+      input.addEventListener(isSelect ? 'change' : 'input', onFieldChange);
+      input.addEventListener('blur', () => {
+        if (input.getAttribute('aria-invalid') === 'true') {
+          const current = findTemplate(workingCatalog, hero.id);
+          const currentValue = current ? heroFieldValue(current, field) : null;
+          input.value = currentValue === null ? '' : String(currentValue);
+        }
+        clearFieldError(refs);
+      });
+
+      if (field === 'weaponId') {
+        weaponHint = element('span', {
+          className: 'weapon-hint',
+          testId: `hero-weapon-hint-${hero.id}`,
+        });
+        cell.append(input, weaponHint, error);
+      } else {
+        cell.append(input, error);
+      }
+      row.append(cell);
+    }
+    heroesBody.append(row);
+    heroRefs.set(hero.id, { fields, weaponHint });
+  }
+}
+
+function heroWeaponHint(heroId: string): string {
+  const template = findTemplate(workingCatalog, heroId);
+  const weapon = template?.weaponId
+    ? workingCatalog.weapons[template.weaponId]
+    : null;
+  return formatWeaponBonus(weapon);
+}
+
+function syncHeroes(): void {
+  for (const hero of CATALOG.roster) {
+    const refs = heroRefs.get(hero.id);
+    if (!refs) continue;
+    const template = findTemplate(workingCatalog, hero.id);
+    if (!template) continue;
+    for (const [field, fieldRefs] of refs.fields) {
+      if (document.activeElement === fieldRefs.input) continue;
+      const value = heroFieldValue(template, field);
+      fieldRefs.input.value = value === null ? '' : String(value);
+    }
+    refs.weaponHint.textContent = heroWeaponHint(hero.id);
+  }
+}
+
+function syncAll(): void {
+  syncControls();
+  syncCombats();
+  syncWeapons();
+  syncHeroes();
+  renderBalanceWarning();
+  renderDetail();
+  renderExport();
+}
+
+function renderAll(): void {
+  syncAll();
+}
+
+function syncDerived(): void {
+  syncCombats();
+  syncWeapons();
+  syncHeroes();
+  renderBalanceWarning();
+  renderDetail();
+  renderExport();
+}
+
+/* Detalle del emparejamiento seleccionado. */
+
+function detailBlock(title: string, testId: string): HTMLElement {
+  const block = element('div', { className: 'detail-block', testId });
+  block.append(element('h3', { text: title }));
+  return block;
+}
+
+function detailTable(
+  headers: ReadonlyArray<string>,
+  rows: ReadonlyArray<ReadonlyArray<string>>,
+): HTMLTableElement {
+  const node = element('table', { className: 'detail-table' });
+  const head = element('thead');
+  const headRow = element('tr');
+  for (const header of headers) headRow.append(element('th', { text: header }));
+  head.append(headRow);
+  const body = element('tbody');
+  for (const cells of rows) {
+    const row = element('tr');
+    for (const cell of cells) row.append(element('td', { text: cell }));
+    body.append(row);
+  }
+  node.append(head, body);
+  return node;
+}
+
+function matchupDelta(matchup: MatchupResult): { delta: number; inside: boolean } {
+  const target = targets[matchup.enemyId] ?? 0;
+  const delta =
+    Math.round((matchup.heroWinRate - target + Number.EPSILON) * 10000) / 10000;
+  return { delta, inside: Math.abs(delta) <= MARGIN_PP };
+}
+
+function renderDetail(): void {
+  const matchup = selectedMatchup();
+  detailHost.replaceChildren();
+  const { delta, inside } = matchupDelta(matchup);
+
+  const result = detailBlock('Resultado', 'detail-result');
+  result.append(
+    detailTable(
+      ['Métrica', 'Valor'],
+      [
+        ['Banda 40–60 %', formatBand(matchup.insideBand, matchup.bandDelta)],
+        [
+          '% real · objetivo · delta',
+          `${formatPercent(matchup.heroWinRate)} · ${formatTarget(
+            targets[matchup.enemyId] ?? 0,
+          )} · ${formatDelta(delta)} · ${inside ? 'dentro' : 'fuera'}`,
+        ],
+        [
+          'Victorias héroe / enemigo / empates',
+          `${matchup.heroWins} / ${matchup.enemyWins} / ${matchup.draws}`,
+        ],
+        ['TTK (rondas)', formatNumber(matchup.ttkRounds)],
+        [
+          'Turnos / rondas medios',
+          `${formatNumber(matchup.turns.mean)} / ${formatNumber(matchup.rounds.mean)}`,
+        ],
+        [
+          'Daño héroe / enemigo',
+          `${matchup.damage.heroDealt} / ${matchup.damage.enemyDealt}`,
+        ],
+      ],
+    ),
+  );
+
+  const actions = detailBlock('Acciones por tipo', 'detail-actions');
+  actions.append(
+    detailTable(
+      ['Acción', 'Héroe', 'Enemigo'],
+      [
+        [
+          'Atacar',
+          String(matchup.actions.hero.attack),
+          String(matchup.actions.enemy.attack),
+        ],
+        [
+          'Hechizo',
+          String(matchup.actions.hero.spell),
+          String(matchup.actions.enemy.spell),
+        ],
+        [
+          'Mover',
+          String(matchup.actions.hero.move),
+          String(matchup.actions.enemy.move),
+        ],
+        [
+          'Esperar',
+          String(matchup.actions.hero.wait),
+          String(matchup.actions.enemy.wait),
+        ],
+      ],
+    ),
+  );
+
+  const spells = detailBlock('Hechizos por id', 'detail-spells');
+  const spellList = spellRows(matchup.spells);
+  if (spellList.length === 0) {
+    spells.append(
+      element('p', { className: 'detail-empty', text: 'Sin hechizos lanzados.' }),
+    );
+  } else {
+    spells.append(
+      detailTable(
+        ['Id', 'Lanzados', 'Impactos', 'Fallos', 'Daño'],
+        spellList.map((spell) => [
+          spell.id,
+          String(spell.casts),
+          String(spell.hits),
+          String(spell.misses),
+          String(spell.damage),
+        ]),
+      ),
+    );
+  }
+
+  const mana = detailBlock('Maná', 'detail-mana');
+  mana.append(
+    detailTable(
+      ['', 'Héroe', 'Enemigo'],
+      [
+        [
+          'Disponible',
+          String(matchup.mana.hero.available),
+          String(matchup.mana.enemy.available),
+        ],
+        [
+          'Gastado',
+          String(matchup.mana.hero.spent),
+          String(matchup.mana.enemy.spent),
+        ],
+        [
+          'No gastado',
+          String(matchup.mana.hero.unspent),
+          String(matchup.mana.enemy.unspent),
+        ],
+      ],
+    ),
+  );
+
+  const hp = detailBlock('PV restantes', 'detail-hp');
+  hp.append(
+    detailTable(
+      ['Métrica', 'Valor'],
+      [
+        ['PV medios del héroe', formatNumber(matchup.hp.heroRemaining)],
+        ['PV medios del enemigo', formatNumber(matchup.hp.enemyRemaining)],
+        ['PV medios del ganador', formatNumber(matchup.hp.winnerRemaining)],
+      ],
+    ),
+  );
+
+  const replicas = detailBlock('Réplicas', 'detail-replicas');
+  const totals = replicaTotals(matchup.replicas);
+  replicas.append(
+    detailTable(
+      ['', 'Héroe', 'Enemigo'],
+      [
+        [
+          'Disparadas',
+          String(matchup.replicas.hero.triggered),
+          String(matchup.replicas.enemy.triggered),
+        ],
+        [
+          'Impactos',
+          String(matchup.replicas.hero.hits),
+          String(matchup.replicas.enemy.hits),
+        ],
+        [
+          'Fallos',
+          String(matchup.replicas.hero.misses),
+          String(matchup.replicas.enemy.misses),
+        ],
+        [
+          'Muertes',
+          String(matchup.replicas.hero.kills),
+          String(matchup.replicas.enemy.kills),
+        ],
+        [
+          'Daño',
+          String(matchup.replicas.hero.damage),
+          String(matchup.replicas.enemy.damage),
+        ],
+      ],
+    ),
+    element('p', {
+      className: 'detail-empty',
+      text: `Totales: ${totals.triggered} disparadas, ${totals.hits} impactos, ${totals.kills} muertes.`,
+    }),
+  );
+
+  const duration = detailBlock('Distribución de duración', 'detail-duration');
+  duration.append(
+    element('p', {
+      className: 'detail-empty',
+      text:
+        `Rondas media ${formatNumber(matchup.rounds.mean)} · mediana ${formatNumber(matchup.rounds.median)} · ` +
+        `mín ${matchup.rounds.min} · máx ${matchup.rounds.max}.`,
+    }),
+  );
+  const durationList = element('div', { className: 'duration-list' });
+  for (const entry of durationRows(matchup.rounds)) {
+    durationList.append(
+      element('p', {
+        className: 'duration-row',
+        text: `${entry.value} ${entry.value === 1 ? 'ronda' : 'rondas'} · ${entry.count}/${matchup.duels}`,
+      }),
+    );
+  }
+  duration.append(durationList);
+
+  const heading = element('h3', {
+    className: 'detail-title',
+    text: matchupTitle(workingCatalog, matchup),
+    testId: 'detail-title',
+  });
+  detailHost.append(heading, result, actions, spells, mana, hp, replicas, duration);
+}
+
+/* Export reproducible. */
+
+function currentExport(): BenchExport {
+  return buildBenchExport(results, workingCatalog, targets, overrides);
+}
+
+function renderExport(): void {
+  const payload = currentExport();
+  const text = benchExportJson(payload);
+  const bytes = new TextEncoder().encode(text).length;
+  exportSummary.textContent = formatBenchSummary(
+    payload,
+    overrides,
+    payload.diagnosis,
+    bytes,
+    workingCatalog,
+  );
+}
+
+/* Resets por tabla y global; sin resets por campo en las celdas. */
+
+function clearCombatErrors(): void {
+  for (const block of combatBlocks.values()) {
+    for (const refs of block.fields.values()) clearFieldError(refs);
+    block.targetInput.removeAttribute('aria-invalid');
+    block.targetError.textContent = '';
+  }
+  for (const refs of weaponRefs.values()) {
+    clearFieldError({ input: refs.accuracy, error: refs.accuracyError });
+    clearFieldError({ input: refs.damage, error: refs.damageError });
+  }
+  for (const refs of heroRefs.values()) {
+    for (const fieldRefs of refs.fields.values()) clearFieldError(fieldRefs);
+  }
 }
 
 function resetAllState(): void {
@@ -1437,14 +1582,17 @@ function resetAllState(): void {
     heroId: HERO_ORDER[0] as string,
     enemyId: ENEMY_ORDER[0] as string,
   };
+  clearCombatErrors();
   recomputeAll();
   benchStatus.textContent =
-    'Banco restablecido: catálogo base y objetivos de guía; 12 filas medidas de nuevo.';
+    'Todo restablecido: catálogo base, guía de objetivos y 12 filas medidas de nuevo.';
 }
 
 function resetEnemiesState(): void {
   overrides = resetEnemyOverrides(overrides);
   targets = resetTargets();
+  workingCatalog = createWorkingCatalog(CATALOG, overrides);
+  clearCombatErrors();
   recomputeAll();
   benchStatus.textContent =
     'Enemigos restablecidos: catálogo base y objetivos de guía; 12 filas medidas de nuevo.';
@@ -1452,15 +1600,19 @@ function resetEnemiesState(): void {
 
 function resetWeaponsState(): void {
   overrides = resetWeaponOverrides(overrides);
+  workingCatalog = createWorkingCatalog(CATALOG, overrides);
+  clearCombatErrors();
   recomputeAll();
-  benchStatus.textContent =
+  weaponStatus.textContent =
     'Armas restablecidas: catálogo base; 12 filas medidas de nuevo.';
 }
 
 function resetHeroesState(): void {
   overrides = resetHeroOverrides(overrides);
+  workingCatalog = createWorkingCatalog(CATALOG, overrides);
+  clearCombatErrors();
   recomputeAll();
-  benchStatus.textContent =
+  heroStatus.textContent =
     'Héroes restablecidos: catálogo base; 12 filas medidas de nuevo.';
 }
 
@@ -1468,6 +1620,53 @@ function assertHero(heroId: string): void {
   if (!CATALOG.roster.some((hero) => hero.id === heroId)) {
     throw new RangeError(`Héroe desconocido: ${heroId}.`);
   }
+}
+
+function setEnemyFieldApi(
+  enemyId: string,
+  field: EnemyField,
+  value: unknown,
+): void {
+  if (!findTemplate(CATALOG, enemyId)) {
+    throw new RangeError(`Enemigo desconocido: ${enemyId}.`);
+  }
+  const validation = validateEnemyField(field, value, CATALOG);
+  if (!validation.ok) throw new RangeError(validation.message);
+  setOverrides(
+    withEnemyOverride(overrides, enemyId, enemyFieldPatch(field, validation.value)),
+  );
+  recalculateNow({ kind: 'enemy', enemyId });
+}
+
+function resetEnemyFieldApi(enemyId: string, field: EnemyField): void {
+  setOverrides(resetEnemyFieldOverride(overrides, enemyId, field));
+  recalculateNow({ kind: 'enemy', enemyId });
+}
+
+function setWeaponFieldApi(
+  weaponId: string,
+  field: WeaponField,
+  value: unknown,
+): void {
+  if (!workingCatalog.weapons[weaponId]) {
+    throw new RangeError(`Arma desconocida: ${weaponId}.`);
+  }
+  const validation = validateWeaponField(field, value);
+  if (!validation.ok) throw new RangeError(validation.message);
+  const patch =
+    field === 'accuracy'
+      ? { accuracy: validation.value }
+      : { damage: validation.value };
+  setOverrides(withWeaponOverride(overrides, weaponId, patch));
+  recalculateNow({ kind: 'weapon', weaponId });
+}
+
+function resetWeaponFieldApi(weaponId: string, field: WeaponField): void {
+  if (!workingCatalog.weapons[weaponId]) {
+    throw new RangeError(`Arma desconocida: ${weaponId}.`);
+  }
+  setOverrides(resetWeaponFieldOverride(overrides, weaponId, field));
+  recalculateNow({ kind: 'weapon', weaponId });
 }
 
 function setHeroFieldApi(
@@ -1490,17 +1689,27 @@ function resetHeroFieldApi(heroId: string, field: HeroField): void {
   recalculateNow({ kind: 'hero', heroId });
 }
 
-function resetHeroState(heroId: string): void {
+function resetEnemyApi(enemyId: string): void {
+  if (!findTemplate(CATALOG, enemyId)) {
+    throw new RangeError(`Enemigo desconocido: ${enemyId}.`);
+  }
+  setOverrides(resetEnemyOverride(overrides, enemyId));
+  targets = resetTarget(targets, enemyId);
+  recalculateNow({ kind: 'enemy', enemyId });
+}
+
+function resetWeaponApi(weaponId: string): void {
+  if (!workingCatalog.weapons[weaponId]) {
+    throw new RangeError(`Arma desconocida: ${weaponId}.`);
+  }
+  setOverrides(resetWeaponOverride(overrides, weaponId));
+  recalculateNow({ kind: 'weapon', weaponId });
+}
+
+function resetHeroApi(heroId: string): void {
   assertHero(heroId);
   setOverrides(resetHeroOverride(overrides, heroId));
   recalculateNow({ kind: 'hero', heroId });
-}
-
-function refreshDiagnosisOnly(): void {
-  diagnosis = diagnoseBench(results.matchups, targets, workingCatalog);
-  syncDiagnosis();
-  syncTableValues();
-  renderExport();
 }
 
 function downloadText(fileName: string, text: string): void {
@@ -1541,6 +1750,18 @@ resetAllButton.addEventListener('click', () => {
   resetAllState();
 });
 
+resetEnemiesButton.addEventListener('click', () => {
+  resetEnemiesState();
+});
+
+resetWeaponsButton.addEventListener('click', () => {
+  resetWeaponsState();
+});
+
+resetHeroesButton.addEventListener('click', () => {
+  resetHeroesState();
+});
+
 copyButton.addEventListener('click', async () => {
   ensureRecalculated();
   const payload = currentExport();
@@ -1579,38 +1800,6 @@ function currentSnapshot(): BenchSnapshot {
 function applyTarget(enemyId: string, value: unknown): void {
   targets = setBenchTarget(targets, enemyId, value);
   refreshDiagnosisOnly();
-}
-
-function setEnemyField(enemyId: string, field: EnemyField, value: unknown): void {
-  if (!findTemplate(CATALOG, enemyId)) {
-    throw new RangeError(`Enemigo desconocido: ${enemyId}.`);
-  }
-  const validation = validateEnemyField(field, value, CATALOG);
-  if (!validation.ok) throw new RangeError(validation.message);
-  setOverrides(withEnemyOverride(overrides, enemyId, enemyFieldPatch(field, validation.value)));
-  recalculateNow({ kind: 'enemy', enemyId });
-}
-
-function resetEnemyFieldApi(enemyId: string, field: EnemyField): void {
-  resetEnemyField(enemyId, field);
-  recalculateNow({ kind: 'enemy', enemyId });
-}
-
-function setWeaponField(
-  weaponId: string,
-  field: WeaponField,
-  value: unknown,
-): void {
-  if (!workingCatalog.weapons[weaponId]) {
-    throw new RangeError(`Arma desconocida: ${weaponId}.`);
-  }
-  const validation = validateWeaponField(field, value);
-  if (!validation.ok) throw new RangeError(validation.message);
-  const patch = field === 'accuracy'
-    ? { accuracy: validation.value }
-    : { damage: validation.value };
-  setOverrides(withWeaponOverride(overrides, weaponId, patch));
-  recalculateNow({ kind: 'weapon', weaponId });
 }
 
 const api: V2ExperimentApi = {
@@ -1657,31 +1846,25 @@ const api: V2ExperimentApi = {
   },
   getOverrides: () => overrides,
   resetEnemy: (enemyId) => {
-    resetEnemyState(enemyId);
-    recalculateNow({ kind: 'enemy', enemyId });
+    resetEnemyApi(enemyId);
   },
   resetWeapon: (weaponId) => {
-    resetWeaponState(weaponId);
-    recalculateNow({ kind: 'weapon', weaponId });
+    resetWeaponApi(weaponId);
   },
   resetWeaponField: (weaponId, field) => {
-    if (!workingCatalog.weapons[weaponId]) {
-      throw new RangeError(`Arma desconocida: ${weaponId}.`);
-    }
-    resetWeaponFieldState(weaponId, field);
-    recalculateNow({ kind: 'weapon', weaponId });
+    resetWeaponFieldApi(weaponId, field);
   },
   resetAll: () => {
     resetAllState();
   },
   setEnemyField: (enemyId, field, value) => {
-    setEnemyField(enemyId, field as EnemyField, value);
+    setEnemyFieldApi(enemyId, field as EnemyField, value);
   },
   resetEnemyField: (enemyId, field) => {
     resetEnemyFieldApi(enemyId, field as EnemyField);
   },
   setWeaponField: (weaponId, field, value) => {
-    setWeaponField(weaponId, field, value);
+    setWeaponFieldApi(weaponId, field, value);
   },
   setHeroField: (heroId, field, value) => {
     setHeroFieldApi(heroId, field as HeroField, value);
@@ -1690,7 +1873,7 @@ const api: V2ExperimentApi = {
     resetHeroFieldApi(heroId, field as HeroField);
   },
   resetHero: (heroId) => {
-    resetHeroState(heroId);
+    resetHeroApi(heroId);
   },
   resetEnemies: () => {
     resetEnemiesState();
@@ -1712,9 +1895,13 @@ const api: V2ExperimentApi = {
 
 window.__experiment = api as unknown as ExperimentTestApi;
 
+renderCombats();
+renderWeapons();
+renderHeroes();
 renderAll();
+selectRow(selected.heroId, selected.enemyId);
 setStatus(
   controlsStatus,
   `Semilla ${seed} · ${duels} duelos por emparejamiento · ${results.matchups.length} emparejamientos.`,
 );
-benchStatus.textContent = 'Listo. Edita un objetivo o un campo para recalcular.';
+benchStatus.textContent = 'Listo. Edita un stat compartido, un arma o un héroe.';
