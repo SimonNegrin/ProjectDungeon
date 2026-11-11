@@ -3,8 +3,8 @@ type: Task
 id: TASK-0070
 title: "EXP-003: tres tablas inline a ancho completo"
 description: Tabla de combates con stats compartidos, tabla de armas y tabla de héroes, con edición inline, celdas agrupadas, detalle ampliado, resets y ancho completo.
-status: draft
-task_status: backlog
+status: stable
+task_status: in_progress
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-017, R-018, R-019, R-020, T-004, T-005, T-006, T-007]
@@ -13,7 +13,7 @@ unlocks: [TASK-0071]
 created_at: 2026-11-11T22:35:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0070/
 priority: P1
 risk: medium
