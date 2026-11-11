@@ -1,0 +1,8 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts --grep 'QA visual'
+
+Running 2 tests using 2 workers
+
+  ✓  1 [chromium] › tests/e2e/experiment-bench.spec.ts:853:3 › QA visual 900x700: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.3s)
+  ✓  2 [chromium] › tests/e2e/experiment-bench.spec.ts:853:3 › QA visual 1280x720: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.3s)
+
+  2 passed (3.9s)

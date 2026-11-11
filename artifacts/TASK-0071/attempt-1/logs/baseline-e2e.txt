@@ -1,0 +1,262 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts tests/e2e/experiment-combat.spec.ts
+
+Running 11 tests using 4 workers
+
+  ✘   2 [chromium] › tests/e2e/experiment-bench.spec.ts:332:1 › editar el daño de un arma recalcula solo las filas de sus portadores (6.8s)
+  ✘   4 [chromium] › tests/e2e/experiment-bench.spec.ts:274:1 › cambiar el objetivo actualiza delta y 4-de-4 y se restaura a la guía (6.8s)
+  ✘   3 [chromium] › tests/e2e/experiment-bench.spec.ts:198:1 › editar el PV de un enemigo recalcula solo sus cuatro filas (30.4s)
+  ✘   1 [chromium] › tests/e2e/experiment-bench.spec.ts:393:1 › reset por enemigo y global devuelven la base y quitan los overrides del export (30.4s)
+  ✘   7 [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente (5.9s)
+  ✘   5 [chromium] › tests/e2e/experiment-bench.spec.ts:482:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas (30.5s)
+  ✘   6 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 1280x720: editor, armas, sin desbordamiento y foco visible (30.6s)
+  ✓   9 [chromium] › tests/e2e/experiment-combat.spec.ts:101:1 › cambiar semilla y duelos recalcula sin recargar (1.5s)
+  ✓  10 [chromium] › tests/e2e/experiment-combat.spec.ts:167:1 › misma semilla y duelos producen el mismo resultado y snapshot (679ms)
+  ✘   8 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 900x700: editor, armas, sin desbordamiento y foco visible (30.1s)
+  ✘  11 [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo (30.1s)
+
+
+  1) [chromium] › tests/e2e/experiment-bench.spec.ts:198:1 › editar el PV de un enemigo recalcula solo sus cuatro filas 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bench-adjust-guerrero-centinela')
+
+
+      205 |   expect(before.matchups).toHaveLength(12);
+      206 |
+    > 207 |   await page.getByTestId('bench-adjust-guerrero-centinela').click();
+          |                                                             ^
+      208 |   await expect(page.getByTestId('bench-editor-row-centinela')).toBeVisible();
+      209 |   await expect(page.getByTestId('bench-editor-shared-centinela')).toContainText(
+      210 |     'Guerrero, Pícaro, Mago, Clérigo',
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:207:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-editar-el-dd363-lcula-solo-sus-cuatro-filas-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-editar-el-dd363-lcula-solo-sus-cuatro-filas-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/experiment-bench.spec.ts:274:1 › cambiar el objetivo actualiza delta y 4-de-4 y se restaura a la guía 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator: getByTestId('bench-target-centinela')
+    Expected: "75"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveValue" getByTestId('bench-target-centinela') with timeout 5000ms
+      - waiting for getByTestId('bench-target-centinela')
+
+
+      282 |   const delta = page.getByTestId('bench-row-delta-guerrero-centinela');
+      283 |
+    > 284 |   await expect(targetInput).toHaveValue(String(GUIDE_TARGETS.centinela));
+          |                             ^
+      285 |   await expect(four).not.toHaveText('4/4 dentro');
+      286 |   const beforeDelta = ((await delta.textContent()) ?? '').trim();
+      287 |   expect(beforeDelta).toMatch(/pp$/);
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:284:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-cambiar-e-c1efd-e-4-y-se-restaura-a-la-guía-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-cambiar-e-c1efd-e-4-y-se-restaura-a-la-guía-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/experiment-bench.spec.ts:332:1 › editar el daño de un arma recalcula solo las filas de sus portadores 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByTestId('bench-weapon-users-espada')
+    Expected: "Guerrero, Centinela"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" getByTestId('bench-weapon-users-espada') with timeout 5000ms
+      - waiting for getByTestId('bench-weapon-users-espada')
+
+
+      338 |   const beforeByKey = byKey(before.matchups);
+      339 |
+    > 340 |   await expect(page.getByTestId('bench-weapon-users-espada')).toHaveText(
+          |                                                               ^
+      341 |     'Guerrero, Centinela',
+      342 |   );
+      343 |   await expect(page.getByTestId('bench-weapon-users-hacha')).toHaveText('Bruto');
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:340:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-editar-el-44ce6-las-filas-de-sus-portadores-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-editar-el-44ce6-las-filas-de-sus-portadores-chromium/error-context.md
+
+  4) [chromium] › tests/e2e/experiment-bench.spec.ts:393:1 › reset por enemigo y global devuelven la base y quitan los overrides del export 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bench-adjust-guerrero-centinela')
+
+
+      400 |
+      401 |   // Reset por enemigo tras editar su PV.
+    > 402 |   await page.getByTestId('bench-adjust-guerrero-centinela').click();
+          |                                                             ^
+      403 |   const hpInput = page.getByTestId('bench-field-centinela-maxHp');
+      404 |   await hpInput.fill('30');
+      405 |   await waitForBenchStatus(page, 'Recalculado: 4 filas afectadas.');
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:402:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-reset-por-71171-an-los-overrides-del-export-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-reset-por-71171-an-los-overrides-del-export-chromium/error-context.md
+
+  5) [chromium] › tests/e2e/experiment-bench.spec.ts:482:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bench-adjust-guerrero-centinela')
+
+
+      487 |   await expect(page.locator('.test-badge')).toHaveText('modo test determinista');
+      488 |
+    > 489 |   await page.getByTestId('bench-adjust-guerrero-centinela').click();
+          |                                                             ^
+      490 |   await page.getByTestId('bench-field-centinela-maxHp').fill('30');
+      491 |   await waitForBenchStatus(page, 'Recalculado: 4 filas afectadas.');
+      492 |
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:489:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-el-export-f730d-y-overridesId-deterministas-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-el-export-f730d-y-overridesId-deterministas-chromium/error-context.md
+
+  6) [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 1280x720: editor, armas, sin desbordamiento y foco visible 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bench-adjust-guerrero-centinela')
+
+
+      593 |     await openExperiment(page);
+      594 |
+    > 595 |     await page.getByTestId('bench-adjust-guerrero-centinela').click();
+          |                                                               ^
+      596 |     await expect(page.getByTestId('bench-editor-centinela')).toBeVisible();
+      597 |     // Objetivo 100 deja las filas del Centinela dentro y las de Bruto fuera:
+      598 |     // así la captura muestra ambos estados.
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:595:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-QA-visual-c7e0d-sbordamiento-y-foco-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-QA-visual-c7e0d-sbordamiento-y-foco-visible-chromium/error-context.md
+
+  7) [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 900x700: editor, armas, sin desbordamiento y foco visible 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('bench-adjust-guerrero-centinela')
+
+
+      593 |     await openExperiment(page);
+      594 |
+    > 595 |     await page.getByTestId('bench-adjust-guerrero-centinela').click();
+          |                                                               ^
+      596 |     await expect(page.getByTestId('bench-editor-centinela')).toBeVisible();
+      597 |     // Objetivo 100 deja las filas del Centinela dentro y las de Bruto fuera:
+      598 |     // así la captura muestra ambos estados.
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:595:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-QA-visual-8b425-sbordamiento-y-foco-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-QA-visual-8b425-sbordamiento-y-foco-visible-chromium/error-context.md
+
+  8) [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByTestId('matchup-rows').locator('tr')
+    Expected: 12
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByTestId('matchup-rows').locator('tr') with timeout 5000ms
+      - waiting for getByTestId('matchup-rows').locator('tr')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      89 |   await expect(page.getByTestId('seed-input')).toHaveValue(String(SEED));
+      90 |   await expect(page.getByTestId('duel-count')).toHaveValue('1000');
+    > 91 |   await expect(page.getByTestId('matchup-rows').locator('tr')).toHaveCount(12);
+         |                                                                ^
+      92 |   await expect(
+      93 |     page.getByTestId('matchup-band-guerrero-centinela'),
+      94 |   ).toContainText('fuera +40,0 pp');
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-combat.spec.ts:91:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-combat-el-índic-a9833-a-anuncia-balance-pendiente-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-combat-el-índic-a9833-a-anuncia-balance-pendiente-chromium/error-context.md
+
+  9) [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for getByTestId('matchup-select-picaro-bruto')
+
+
+      264 |   await openExperiment(page);
+      265 |
+    > 266 |   await page.getByTestId('matchup-select-picaro-bruto').click();
+          |                                                         ^
+      267 |   await expect(page.getByTestId('detail-title')).toHaveText('Pícaro vs Bruto');
+      268 |   await expect(page.getByTestId('detail-actions')).toContainText('Atacar');
+      269 |   await expect(page.getByTestId('detail-actions')).toContainText('Esperar');
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-combat.spec.ts:266:57
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-combat-el-detal-89b3f-a-no-llevan-marca-de-tiempo-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-combat-el-detal-89b3f-a-no-llevan-marca-de-tiempo-chromium/error-context.md
+
+  9 failed
+    [chromium] › tests/e2e/experiment-bench.spec.ts:198:1 › editar el PV de un enemigo recalcula solo sus cuatro filas 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:274:1 › cambiar el objetivo actualiza delta y 4-de-4 y se restaura a la guía 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:332:1 › editar el daño de un arma recalcula solo las filas de sus portadores 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:393:1 › reset por enemigo y global devuelven la base y quitan los overrides del export 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:482:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 1280x720: editor, armas, sin desbordamiento y foco visible 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 900x700: editor, armas, sin desbordamiento y foco visible 
+    [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente 
+    [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo 
+  2 passed (1.2m)
+[ELIFECYCLE] Command failed with exit code 1.
