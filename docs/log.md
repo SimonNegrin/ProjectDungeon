@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Experiment — EXP-003 v2 — brief de la mesa de combate ampliable: acciones, magia, réplica, escenarios de grupo y catálogos data-driven — [brief](design/exp-003-v2-brief.md)
 * 2026-11-11 — Requirement — REQ-026 — stable v5: revisada y aprobada por el usuario; economía de acciones cerrada y rebalanceo pendiente en EXP-003 — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
 * 2026-11-11 — Requirement — REQ-026 — cerradas las preguntas restantes: enemigos 2/1/2, tope 4 provisional, +1 como campo de equipo, ritmo secuencial, huida por MP, fin de turno manual, `Moverse` con un ataque por pulsación y IA que ataca hasta agotar o matar — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)
 * 2026-11-11 — Requirement — REQ-009/REQ-004 — bestiario con acciones 2/1/2 y `Moverse` sobre enemigo con un ataque por pulsación — [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)
