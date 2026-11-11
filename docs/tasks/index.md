@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **65**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -68,6 +68,7 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0060](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md) | Fase enemiga fuera de pantalla y movimiento reducido | `done` | REQ-017 | TASK-0057, TASK-0058, TASK-0059 | P2 |
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
+| [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 
 # review
 
@@ -141,4 +142,5 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0060 — Fase enemiga fuera de pantalla y movimiento reducido](TASK-0060-fase-enemiga-fuera-pantalla-reduced-motion.md)
 * [TASK-0061 — E2E y QA visual del feedback](TASK-0061-e2e-qa-visual-feedback.md)
 * [TASK-0062 — Arnés: sufijo de repetición en capturas E2E](TASK-0062-arnes-sufijo-repeticion-capturas.md)
+* [TASK-0065 — EXP-003 v2.0: manifest del índice](TASK-0065-exp-003-v2-manifest.md)
 

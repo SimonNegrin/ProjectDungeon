@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Task — TASK-0065 — cerrada: entrada EXP-003 del manifiesto actualizada a la v2.0 (título, descripción, pregunta y `ready`); docs 333, 903/903 tests y verify OK; índice revisado; fusión `c8fbc99` — [informe](../artifacts/TASK-0065/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0064 — cerrada: página v2 con semilla/duelos, 12 emparejamientos, detalle, export y API; 903/903 tests, docs OK, verify OK y 4/4 e2e; 12/12 fuera de banda (96,3–100 %); fusión `1a84c8d` — [informe](../artifacts/TASK-0064/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0063 — cerrada: motor v2.0 data-driven y 12×1.000 duelos; 62/62 tests, verify 887/887, docs OK; 12/12 fuera de banda 40–60 (96,3–100 %); fusión `3ac1df5` — [informe](../artifacts/TASK-0063/attempt-1/report.md)
 * 2026-11-11 — Requirement — REQ-027 — stable v2: revisada y aprobada por el usuario; dormido no atacable, regreso replica, sin aviso en el HUD, presentación sin texto y réplicas sin tope — [REQ-027](requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
