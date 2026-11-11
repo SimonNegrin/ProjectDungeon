@@ -26,6 +26,8 @@ import {
   totalSpellDamage,
   unitName,
 } from './ui';
+import type { BenchSnapshot, V2ExperimentApi } from './ui';
+import { emptyOverrides, overridesId, withHeroOverride } from './v2/bench';
 
 function fakeMatchup(rate: number, insideBand: boolean, delta: number): MatchupResult {
   return {
@@ -175,5 +177,39 @@ describe('export reproducible', () => {
     expect(first.catalogVersion).toBe(CATALOG.version);
     expect(first.matchups).toHaveLength(12);
     expect(first.variants[0].id).toBe('matchups');
+  });
+
+  it('el snapshot y la API admiten overrides y selección de héroe', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'guerrero', {
+      maxHp: 24,
+      magicLevel: 1,
+    });
+    const snapshot: BenchSnapshot = {
+      ...buildSnapshot(payload, {
+        heroId: 'guerrero',
+        enemyId: 'centinela',
+      }),
+      experiment: payload.experiment,
+      engine: payload.engine,
+      duels: payload.duels,
+      scenario: payload.scenario,
+      catalog: CATALOG,
+      targets: { centinela: 75, bruto: 30, cobarde: 85 },
+      overrides,
+      overridesId: overridesId(overrides),
+      diagnosis: [],
+    };
+    expect(snapshot.overrides.heroes.guerrero).toEqual({
+      maxHp: 24,
+      magicLevel: 1,
+    });
+
+    // El contrato de la API acepta una selección de héroe en `recalculate`.
+    const acceptsHeroSelection = (
+      api: Pick<V2ExperimentApi, 'recalculate'>,
+    ): boolean =>
+      api.recalculate({ kind: 'hero', heroId: 'guerrero' }).matchups.length ===
+      12;
+    expect(typeof acceptsHeroSelection).toBe('function');
   });
 });

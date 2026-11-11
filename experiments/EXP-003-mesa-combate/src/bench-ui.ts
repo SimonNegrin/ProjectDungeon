@@ -14,6 +14,7 @@ import type {
   BenchOverrides,
   EnemyDiagnosis,
   EnemyOverride,
+  HeroOverride,
   WeaponOverride,
 } from './v2/bench';
 import { findTemplate } from './v2/catalog';
@@ -72,6 +73,40 @@ export const WEAPON_FIELD_LABELS: Readonly<Record<WeaponField, string>> = {
   damage: 'Daño',
 };
 
+export const HERO_NUMERIC_FIELDS = [
+  'maxHp',
+  ...STAT_FIELDS,
+  'maxActions',
+  'magicLevel',
+] as const;
+export type HeroNumericField = (typeof HERO_NUMERIC_FIELDS)[number];
+
+export const HERO_SELECT_FIELDS = ['armorId', 'shieldId', 'weaponId'] as const;
+export type HeroSelectField = (typeof HERO_SELECT_FIELDS)[number];
+
+export type HeroField = HeroNumericField | HeroSelectField;
+
+export const HERO_FIELD_ORDER: ReadonlyArray<HeroField> = [
+  'maxHp',
+  ...STAT_FIELDS,
+  'maxActions',
+  'magicLevel',
+  ...HERO_SELECT_FIELDS,
+];
+
+export const HERO_FIELD_LABELS: Readonly<Record<HeroField, string>> = {
+  maxHp: 'PV máximos',
+  habilidad: 'Habilidad',
+  fuerza: 'Fuerza',
+  defensa: 'Defensa',
+  resistencia: 'Resistencia',
+  maxActions: 'Acciones',
+  magicLevel: 'Nivel de magia',
+  armorId: 'Armadura',
+  shieldId: 'Escudo',
+  weaponId: 'Arma inicial',
+};
+
 /** Rangos documentados de los campos numéricos del banco. */
 export const ENEMY_NUMERIC_LIMITS: Readonly<
   Record<EnemyNumericField, { readonly min: number; readonly max: number }>
@@ -91,6 +126,19 @@ export const WEAPON_LIMITS: Readonly<
   damage: { min: 0, max: 100 },
 };
 
+/** Rangos documentados de los campos numéricos de héroe. */
+export const HERO_NUMERIC_LIMITS: Readonly<
+  Record<HeroNumericField, { readonly min: number; readonly max: number }>
+> = {
+  maxHp: { min: 1, max: 999 },
+  habilidad: { min: -10, max: 20 },
+  fuerza: { min: -10, max: 20 },
+  defensa: { min: -10, max: 20 },
+  resistencia: { min: -10, max: 20 },
+  maxActions: { min: 0, max: 10 },
+  magicLevel: { min: 0, max: 4 },
+};
+
 export type FieldValidation =
   | { readonly ok: true; readonly value: number; readonly message: null }
   | { readonly ok: false; readonly value: null; readonly message: string };
@@ -104,6 +152,10 @@ export type SelectValidation =
   | { readonly ok: false; readonly value: null; readonly message: string };
 
 export function isStatField(field: EnemyField): field is StatField {
+  return (STAT_FIELDS as ReadonlyArray<string>).includes(field);
+}
+
+function isHeroStatField(field: HeroField): field is StatField {
   return (STAT_FIELDS as ReadonlyArray<string>).includes(field);
 }
 
@@ -151,6 +203,31 @@ export function validateEnemyField(
   if (isStatField(field) || field === 'maxHp' || field === 'maxActions') {
     const limits = ENEMY_NUMERIC_LIMITS[field];
     return parseInteger(raw, limits.min, limits.max, ENEMY_FIELD_LABELS[field]);
+  }
+
+  if (field === 'armorId') {
+    return validateSelect(raw, catalog.armors, 'armadura');
+  }
+  if (field === 'shieldId') {
+    return validateSelect(raw, catalog.shields, 'escudo');
+  }
+  return validateSelect(raw, catalog.weapons, 'arma');
+}
+
+/** Valida un campo numérico o de select de un héroe del catálogo. */
+export function validateHeroField(
+  field: HeroField,
+  raw: unknown,
+  catalog: Catalog,
+): FieldValidation | SelectValidation {
+  if (
+    isHeroStatField(field) ||
+    field === 'maxHp' ||
+    field === 'maxActions' ||
+    field === 'magicLevel'
+  ) {
+    const limits = HERO_NUMERIC_LIMITS[field];
+    return parseInteger(raw, limits.min, limits.max, HERO_FIELD_LABELS[field]);
   }
 
   if (field === 'armorId') {
@@ -284,6 +361,71 @@ export function resetEnemyFieldOverride(
   };
 }
 
+/** Valor efectivo de un campo en un héroe del catálogo de trabajo. */
+export function heroFieldValue(
+  template: CombatantTemplate,
+  field: HeroField,
+): number | string | null {
+  if (isHeroStatField(field)) return template.stats[field];
+  return template[field];
+}
+
+/** Construye el parche tipado que corresponde a un campo de héroe. */
+export function heroFieldPatch(
+  field: HeroField,
+  value: number | string | null,
+): HeroOverride {
+  if (isHeroStatField(field)) {
+    return { stats: { [field]: Number(value) } as Partial<Stats> };
+  }
+  if (field === 'maxHp') return { maxHp: Number(value) };
+  if (field === 'maxActions') return { maxActions: Number(value) };
+  if (field === 'magicLevel') return { magicLevel: Number(value) };
+  if (field === 'armorId') return { armorId: value === null ? null : String(value) };
+  if (field === 'shieldId') return { shieldId: value === null ? null : String(value) };
+  return { weaponId: value === null ? null : String(value) };
+}
+
+/**
+ * Elimina un campo del override de un héroe sin tocar los demás.
+ *
+ * No poda por sí sola: el llamador encadena `pruneOverrides` antes de guardar.
+ */
+export function resetHeroFieldOverride(
+  overrides: BenchOverrides,
+  heroId: string,
+  field: HeroField,
+): BenchOverrides {
+  const current = overrides.heroes[heroId];
+  if (!current) return overrides;
+
+  const next: {
+    stats?: Partial<Stats>;
+    maxHp?: number;
+    maxActions?: number;
+    magicLevel?: number;
+    armorId?: string | null;
+    shieldId?: string | null;
+    weaponId?: string | null;
+  } = { ...current };
+
+  if (isHeroStatField(field)) {
+    if (next.stats?.[field] !== undefined) {
+      const stats: MutableStats = { ...next.stats };
+      delete stats[field];
+      if (Object.keys(stats).length > 0) next.stats = stats;
+      else delete next.stats;
+    }
+  } else {
+    delete next[field];
+  }
+
+  return {
+    ...overrides,
+    heroes: { ...overrides.heroes, [heroId]: next },
+  };
+}
+
 /**
  * Elimina un campo del override de un arma sin tocar el otro.
  *
@@ -306,7 +448,7 @@ export function resetWeaponFieldOverride(
 
 /**
  * Normaliza el estado: sin campos iguales a la base, sin `{}` y sin
- * enemigos/armas desconocidos. No muta la entrada.
+ * enemigos/armas/héroes desconocidos. No muta la entrada.
  */
 export function pruneOverrides(
   base: Catalog,
@@ -379,7 +521,67 @@ export function pruneOverrides(
     if (Object.keys(next).length > 0) weapons[weaponId] = next;
   }
 
-  return { enemies, weapons };
+  const heroes: Record<string, HeroOverride> = {};
+  for (const [heroId, override] of Object.entries(overrides.heroes).sort(
+    ([left], [right]) => left.localeCompare(right),
+  )) {
+    const template = base.roster.find((hero) => hero.id === heroId);
+    if (!template) continue;
+
+    const next: {
+      stats?: Partial<Stats>;
+      maxHp?: number;
+      maxActions?: number;
+      magicLevel?: number;
+      armorId?: string | null;
+      shieldId?: string | null;
+      weaponId?: string | null;
+    } = {};
+
+    const stats: MutableStats = {};
+    for (const field of STAT_FIELDS) {
+      const value = override.stats?.[field];
+      if (value !== undefined && value !== template.stats[field]) {
+        stats[field] = value;
+      }
+    }
+    if (Object.keys(stats).length > 0) next.stats = stats;
+
+    if (override.maxHp !== undefined && override.maxHp !== template.maxHp) {
+      next.maxHp = override.maxHp;
+    }
+    if (
+      override.maxActions !== undefined &&
+      override.maxActions !== template.maxActions
+    ) {
+      next.maxActions = override.maxActions;
+    }
+    if (
+      override.magicLevel !== undefined &&
+      override.magicLevel !== template.magicLevel
+    ) {
+      next.magicLevel = override.magicLevel;
+    }
+    if (override.armorId !== undefined && override.armorId !== template.armorId) {
+      next.armorId = override.armorId;
+    }
+    if (
+      override.shieldId !== undefined &&
+      override.shieldId !== template.shieldId
+    ) {
+      next.shieldId = override.shieldId;
+    }
+    if (
+      override.weaponId !== undefined &&
+      override.weaponId !== template.weaponId
+    ) {
+      next.weaponId = override.weaponId;
+    }
+
+    if (Object.keys(next).length > 0) heroes[heroId] = next;
+  }
+
+  return { enemies, weapons, heroes };
 }
 
 /** Objetivo legible: `75 %`. */

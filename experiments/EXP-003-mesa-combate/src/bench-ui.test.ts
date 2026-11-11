@@ -9,16 +9,20 @@ import {
   formatFourOfFour,
   formatRowState,
   formatTarget,
+  heroFieldPatch,
+  heroFieldValue,
   pruneOverrides,
   resetEnemyFieldOverride,
+  resetHeroFieldOverride,
   resetWeaponFieldOverride,
   validateEnemyField,
+  validateHeroField,
   validateTargetInput,
   validateWeaponField,
   weaponRows,
   weaponUsers,
 } from './bench-ui';
-import type { EnemyField } from './bench-ui';
+import type { EnemyField, HeroField } from './bench-ui';
 import {
   CATALOG,
   GUIDE_TARGETS,
@@ -38,6 +42,7 @@ import {
   runMatchup,
   setTarget,
   withEnemyOverride,
+  withHeroOverride,
   withWeaponOverride,
 } from './v2/index';
 import type {
@@ -151,6 +156,85 @@ describe('validación de armas y objetivos', () => {
   });
 });
 
+describe('validación de campos de héroe', () => {
+  it('acepta PV, stats, acciones y magia dentro de sus rangos', () => {
+    expect(validateHeroField('maxHp', '1', CATALOG)).toEqual({
+      ok: true,
+      value: 1,
+      message: null,
+    });
+    expect(validateHeroField('maxHp', 999, CATALOG)).toEqual({
+      ok: true,
+      value: 999,
+      message: null,
+    });
+    expect(validateHeroField('habilidad', '-10', CATALOG)).toEqual({
+      ok: true,
+      value: -10,
+      message: null,
+    });
+    expect(validateHeroField('fuerza', 20, CATALOG)).toEqual({
+      ok: true,
+      value: 20,
+      message: null,
+    });
+    expect(validateHeroField('maxActions', 0, CATALOG)).toEqual({
+      ok: true,
+      value: 0,
+      message: null,
+    });
+    expect(validateHeroField('magicLevel', 4, CATALOG)).toEqual({
+      ok: true,
+      value: 4,
+      message: null,
+    });
+  });
+
+  it('rechaza valores fuera de rango, decimales y vacíos', () => {
+    for (const [field, raw] of [
+      ['maxHp', 0],
+      ['maxHp', 1000],
+      ['habilidad', -11],
+      ['fuerza', 21],
+      ['maxActions', -1],
+      ['maxActions', 11],
+      ['magicLevel', -1],
+      ['magicLevel', 5],
+      ['magicLevel', 1.5],
+      ['defensa', ''],
+      ['resistencia', Number.NaN],
+    ] as const) {
+      const validation = validateHeroField(field, raw, CATALOG);
+      expect(validation.ok).toBe(false);
+      if (!validation.ok) expect(validation.message).toBeTruthy();
+    }
+  });
+
+  it('valida armadura, escudo y arma inicial contra el catálogo', () => {
+    expect(validateHeroField('armorId', 'coraza', CATALOG)).toEqual({
+      ok: true,
+      value: 'coraza',
+      message: null,
+    });
+    expect(validateHeroField('shieldId', '', CATALOG)).toEqual({
+      ok: true,
+      value: null,
+      message: null,
+    });
+    expect(validateHeroField('weaponId', null, CATALOG)).toEqual({
+      ok: true,
+      value: null,
+      message: null,
+    });
+    expect(validateHeroField('weaponId', 'hacha', CATALOG)).toEqual({
+      ok: true,
+      value: 'hacha',
+      message: null,
+    });
+    expect(validateHeroField('armorId', 'mitral', CATALOG).ok).toBe(false);
+  });
+});
+
 describe('normalización de overrides', () => {
   it('elimina campos iguales a la base, entradas vacías y desconocidos', () => {
     const dirty: BenchOverrides = {
@@ -170,6 +254,16 @@ describe('normalización de overrides', () => {
         hacha: {},
         desconocida: { damage: 1 },
       },
+      heroes: {
+        guerrero: {
+          maxHp: 20,
+          stats: { habilidad: 1, fuerza: 2 },
+          magicLevel: 0,
+          weaponId: null,
+        },
+        mago: {},
+        desconocido: { maxHp: 1 },
+      },
     };
 
     const pruned = pruneOverrides(CATALOG, dirty);
@@ -178,10 +272,13 @@ describe('normalización de overrides', () => {
         centinela: { stats: { habilidad: 1 }, weaponId: null },
       },
       weapons: { espada: { damage: 4 } },
+      heroes: { guerrero: { stats: { fuerza: 2 }, weaponId: null } },
     });
     expect(pruned.enemies.bruto).toBeUndefined();
     expect(pruned.enemies.desconocido).toBeUndefined();
     expect(pruned.weapons.hacha).toBeUndefined();
+    expect(pruned.heroes.mago).toBeUndefined();
+    expect(pruned.heroes.desconocido).toBeUndefined();
   });
 
   it('elimina solo el campo pedido y deja listo el prune para el resto', () => {
@@ -222,6 +319,7 @@ describe('normalización de overrides', () => {
     expect(pruneOverrides(CATALOG, withoutAccuracy)).toEqual({
       enemies: {},
       weapons: { espada: { damage: 6 } },
+      heroes: {},
     });
 
     const withoutBoth = resetWeaponFieldOverride(
@@ -246,6 +344,79 @@ describe('normalización de overrides', () => {
     const bruto = working.bestiary.find((entry) => entry.id === 'bruto');
     expect(bruto && enemyFieldValue(bruto, 'defensa')).toBe(3);
     expect(bruto && enemyFieldValue(bruto, 'weaponId')).toBe('hacha');
+  });
+
+  it('elimina solo el campo pedido de un héroe y poda si queda vacío', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'guerrero', {
+      maxHp: 25,
+      stats: { defensa: 2, habilidad: 1 },
+      magicLevel: 2,
+      weaponId: null,
+    });
+    const withoutDefense = resetHeroFieldOverride(
+      overrides,
+      'guerrero',
+      'defensa',
+    );
+    expect(withoutDefense.heroes.guerrero).toEqual({
+      maxHp: 25,
+      stats: { habilidad: 1 },
+      magicLevel: 2,
+      weaponId: null,
+    });
+
+    let remaining = resetHeroFieldOverride(withoutDefense, 'guerrero', 'maxHp');
+    remaining = resetHeroFieldOverride(remaining, 'guerrero', 'habilidad');
+    remaining = resetHeroFieldOverride(remaining, 'guerrero', 'magicLevel');
+    remaining = resetHeroFieldOverride(remaining, 'guerrero', 'weaponId');
+    expect(pruneOverrides(CATALOG, remaining)).toEqual(emptyOverrides());
+    expect(resetHeroFieldOverride(overrides, 'picaro', 'maxHp')).toBe(overrides);
+  });
+
+  it('poda héroes iguales a la base y construye sus parches tipados', () => {
+    const unchanged = pruneOverrides(
+      CATALOG,
+      withHeroOverride(emptyOverrides(), 'guerrero', {
+        maxHp: 20,
+        stats: { habilidad: 1 },
+        magicLevel: 0,
+      }),
+    );
+    expect(unchanged).toEqual(emptyOverrides());
+
+    const patch = heroFieldPatch('fuerza', 3);
+    expect(patch).toEqual({ stats: { fuerza: 3 } });
+    expect(heroFieldPatch('magicLevel', 2)).toEqual({ magicLevel: 2 });
+    expect(heroFieldPatch('weaponId', null)).toEqual({ weaponId: null });
+    expect(heroFieldPatch('armorId', 'coraza')).toEqual({ armorId: 'coraza' });
+
+    const working = createWorkingCatalog(
+      CATALOG,
+      pruneOverrides(
+        CATALOG,
+        withHeroOverride(emptyOverrides(), 'mago', patch),
+      ),
+    );
+    const mago = working.roster.find((hero) => hero.id === 'mago');
+    expect(mago).toBeDefined();
+    if (!mago) throw new Error('Falta el mago en el catálogo de trabajo.');
+    expect(heroFieldValue(mago, 'fuerza')).toBe(3);
+    expect(heroFieldValue(mago, 'weaponId')).toBeNull();
+    const fields: ReadonlyArray<HeroField> = [
+      'maxHp',
+      'habilidad',
+      'fuerza',
+      'defensa',
+      'resistencia',
+      'maxActions',
+      'magicLevel',
+      'armorId',
+      'shieldId',
+      'weaponId',
+    ];
+    for (const field of fields) {
+      expect(heroFieldValue(mago, field)).not.toBeUndefined();
+    }
   });
 });
 
@@ -303,6 +474,17 @@ describe('formato de objetivo, delta y diagnóstico', () => {
       },
     };
     expect(weaponRows(custom).map((row) => row.id)).toContain('maza');
+
+    const withHeroWeapon = createWorkingCatalog(
+      CATALOG,
+      withHeroOverride(emptyOverrides(), 'mago', { weaponId: 'espada' }),
+    );
+    expect(
+      weaponRows(withHeroWeapon).find((row) => row.id === 'espada')?.users,
+    ).toEqual(['Guerrero', 'Mago', 'Centinela']);
+    expect(
+      weaponRows(withHeroWeapon).find((row) => row.id === 'daga')?.users,
+    ).toEqual(['Pícaro', 'Cobarde']);
   });
 });
 

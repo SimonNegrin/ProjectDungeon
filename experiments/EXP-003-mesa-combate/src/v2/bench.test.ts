@@ -17,16 +17,21 @@ import {
   measureMatchups,
   overridesId,
   recalculateMatchups,
+  resetEnemies,
   resetEnemyOverride,
+  resetHeroes,
+  resetHeroOverride,
   resetOverrides,
   resetTarget,
   resetTargets,
   resetWeaponOverride,
+  resetWeapons,
   rowKey,
   runMatchup,
   setTarget,
   validateTarget,
   withEnemyOverride,
+  withHeroOverride,
   withWeaponOverride,
   type BenchSelection,
   type MatchupResult,
@@ -193,6 +198,92 @@ describe('catálogo de trabajo', () => {
     expect(isOverridesEmpty(emptyOverrides())).toBe(true);
     expect(resetOverrides()).toEqual(emptyOverrides());
   });
+
+  it('aplica overrides de héroe sin mutar el catálogo base', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'guerrero', {
+      stats: { habilidad: 2, fuerza: 3 },
+      maxHp: 25,
+      maxActions: 3,
+      magicLevel: 1,
+      armorId: null,
+      shieldId: 'escudo',
+      weaponId: null,
+    });
+    const before = JSON.stringify(CATALOG);
+    const working = createWorkingCatalog(CATALOG, overrides);
+    const guerrero = working.roster.find((hero) => hero.id === 'guerrero');
+
+    expect(guerrero?.maxHp).toBe(25);
+    expect(guerrero?.maxActions).toBe(3);
+    expect(guerrero?.magicLevel).toBe(1);
+    expect(guerrero?.stats).toEqual({
+      habilidad: 2,
+      fuerza: 3,
+      defensa: 1,
+      resistencia: 1,
+    });
+    expect(guerrero?.armorId).toBeNull();
+    expect(guerrero?.shieldId).toBe('escudo');
+    expect(guerrero?.weaponId).toBeNull();
+    expect(working.roster.find((hero) => hero.id === 'picaro')).toEqual(
+      CATALOG.roster.find((hero) => hero.id === 'picaro'),
+    );
+    expect(CATALOG.roster.find((hero) => hero.id === 'guerrero')?.maxHp).toBe(
+      20,
+    );
+    expect(CATALOG.roster.find((hero) => hero.id === 'guerrero')?.weaponId).toBe(
+      'espada',
+    );
+    expect(JSON.stringify(CATALOG)).toBe(before);
+  });
+
+  it('mezcla overrides de héroe y restablece por héroe, tabla y global', () => {
+    const first = withHeroOverride(emptyOverrides(), 'mago', {
+      stats: { fuerza: 2 },
+    });
+    const second = withHeroOverride(first, 'mago', {
+      stats: { defensa: 1 },
+      maxHp: 15,
+      magicLevel: 2,
+    });
+    expect(first.heroes.mago).toEqual({ stats: { fuerza: 2 } });
+    expect(second.heroes.mago).toEqual({
+      stats: { fuerza: 2, defensa: 1 },
+      maxHp: 15,
+      magicLevel: 2,
+    });
+    expect(second).not.toBe(first);
+
+    const all = withWeaponOverride(
+      withEnemyOverride(second, 'bruto', { maxHp: 10 }),
+      'hacha',
+      { damage: 8 },
+    );
+    const withoutHero = resetHeroOverride(all, 'mago');
+    expect(withoutHero.heroes.mago).toBeUndefined();
+    expect(withoutHero.enemies.bruto).toEqual({ maxHp: 10 });
+    expect(withoutHero.weapons.hacha).toEqual({ damage: 8 });
+
+    const withoutWeapons = resetWeapons(all);
+    expect(withoutWeapons.weapons).toEqual({});
+    expect(withoutWeapons.enemies.bruto).toEqual({ maxHp: 10 });
+    expect(withoutWeapons.heroes.mago).toBeDefined();
+
+    const withoutEnemies = resetEnemies(all);
+    expect(withoutEnemies.enemies).toEqual({});
+    expect(withoutEnemies.weapons.hacha).toEqual({ damage: 8 });
+    expect(withoutEnemies.heroes.mago).toBeDefined();
+
+    const withoutHeroes = resetHeroes(all);
+    expect(withoutHeroes.heroes).toEqual({});
+    expect(withoutHeroes.enemies.bruto).toEqual({ maxHp: 10 });
+    expect(withoutHeroes.weapons.hacha).toEqual({ damage: 8 });
+
+    expect(isOverridesEmpty(all)).toBe(false);
+    expect(isOverridesEmpty(withHeroOverride(emptyOverrides(), 'mago', { maxHp: 9 }))).toBe(
+      false,
+    );
+  });
 });
 
 describe('filas afectadas', () => {
@@ -207,6 +298,21 @@ describe('filas afectadas', () => {
     ]);
     expect(rows.every((row) => row.enemyId === 'centinela')).toBe(true);
     expect(new Set(rows.map(rowKey)).size).toBe(4);
+  });
+
+  it('un héroe afecta a sus tres filas', () => {
+    const rows = affectedRows(CATALOG, { kind: 'hero', heroId: 'picaro' });
+    expect(rows).toHaveLength(3);
+    expect(rows.map((row) => row.heroId)).toEqual(['picaro', 'picaro', 'picaro']);
+    expect(rows.map((row) => row.enemyId)).toEqual([
+      'centinela',
+      'bruto',
+      'cobarde',
+    ]);
+    expect(new Set(rows.map(rowKey)).size).toBe(3);
+    expect(
+      affectedRows(CATALOG, { kind: 'hero', heroId: 'desconocido' }),
+    ).toHaveLength(0);
   });
 
   it('un arma afecta a todas las unidades que la equipan, sin duplicados', () => {
@@ -237,6 +343,26 @@ describe('filas afectadas', () => {
 
     const hacha = affectedRows(CATALOG, { kind: 'weapon', weaponId: 'hacha' });
     expect(hacha.every((row) => row.enemyId === 'bruto')).toBe(true);
+  });
+
+  it('un arma relee los usuarios del catálogo de trabajo y deduplica', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'mago', {
+      weaponId: 'espada',
+    });
+    const catalog = createWorkingCatalog(CATALOG, overrides);
+    const espada = affectedRows(catalog, {
+      kind: 'weapon',
+      weaponId: 'espada',
+    });
+
+    expect(espada).toHaveLength(8);
+    expect(new Set(espada.map(rowKey)).size).toBe(8);
+    expect(espada).toContainEqual({ heroId: 'mago', enemyId: 'centinela' });
+    expect(espada.filter((row) => row.heroId === 'mago')).toHaveLength(3);
+    expect(espada.filter((row) => row.enemyId === 'centinela')).toHaveLength(4);
+    expect(
+      affectedRows(catalog, { kind: 'weapon', weaponId: 'cuchillo' }),
+    ).toHaveLength(0);
   });
 });
 
@@ -316,6 +442,67 @@ describe('recálculo de filas afectadas', () => {
     }
     expect(changed).toBe(6);
     expect(untouched).toBe(6);
+  });
+
+  it('recalcula solo las tres filas del héroe y conserva el resto', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'mago', {
+      weaponId: 'espada',
+      stats: { fuerza: 2 },
+      magicLevel: 2,
+    });
+    const catalog = createWorkingCatalog(CATALOG, overrides);
+    const selection: BenchSelection = { kind: 'hero', heroId: 'mago' };
+    const recalculated = recalculateMatchups(BASE_PAYLOAD, catalog, selection);
+    const affected = new Set(affectedRows(catalog, selection).map(rowKey));
+
+    expect(affected.size).toBe(3);
+    expect(recalculated.seed).toBe(BASE_PAYLOAD.seed);
+    expect(recalculated.duels).toBe(BASE_PAYLOAD.duels);
+    expect(recalculated.matchups.map(rowKey)).toEqual(
+      BASE_PAYLOAD.matchups.map(rowKey),
+    );
+
+    let changed = 0;
+    let untouched = 0;
+    for (let index = 0; index < BASE_PAYLOAD.matchups.length; index += 1) {
+      const previous = BASE_PAYLOAD.matchups[index];
+      const next = recalculated.matchups[index];
+      if (affected.has(rowKey(previous))) {
+        changed += 1;
+        expect(next).toEqual(
+          runMatchup(
+            previous.heroId,
+            previous.enemyId,
+            BASE_PAYLOAD.seed,
+            BASE_PAYLOAD.duels,
+            catalog,
+          ),
+        );
+      } else {
+        untouched += 1;
+        expect(next).toBe(previous);
+      }
+    }
+    expect(changed).toBe(3);
+    expect(untouched).toBe(9);
+  });
+
+  it('cambiar el objetivo solo rehace el diagnóstico con las mismas mediciones', () => {
+    const before = diagnoseBench(BASE_PAYLOAD.matchups, createTargets(), CATALOG);
+    const targets = setTarget(createTargets(), 'centinela', 60);
+    const after = diagnoseBench(BASE_PAYLOAD.matchups, targets, CATALOG);
+
+    expect(after[0].target).toBe(60);
+    expect(after[0].rows[0].delta).not.toBe(before[0].rows[0].delta);
+    expect(after.map((entry) => entry.rows.map((row) => row.heroWinRate))).toEqual(
+      before.map((entry) => entry.rows.map((row) => row.heroWinRate)),
+    );
+    expect(BASE_PAYLOAD.matchups).toHaveLength(12);
+    expect(before[0].rows.map((row) => row.heroWinRate)).toEqual(
+      BASE_PAYLOAD.matchups
+        .filter((matchup) => matchup.enemyId === 'centinela')
+        .map((matchup) => matchup.heroWinRate),
+    );
   });
 
   it('dos mediciones con los mismos overrides producen el mismo payload', () => {
@@ -415,6 +602,28 @@ describe('diagnóstico 4-de-4', () => {
     }
   });
 
+  it('diagnostica con las armas y héroes del catálogo de trabajo', () => {
+    const overrides = withHeroOverride(emptyOverrides(), 'mago', {
+      weaponId: 'espada',
+    });
+    const catalog = createWorkingCatalog(CATALOG, overrides);
+    const diagnosis = diagnoseEnemy(
+      rated(centinela, [75, 75, 75, 75]),
+      75,
+      MARGIN_PP,
+      catalog,
+    );
+    const global = diagnosis.problems.find(
+      (problem) => problem.kind === 'global-weapon',
+    );
+    expect(global).toBeDefined();
+    if (global && global.kind === 'global-weapon') {
+      expect(global.weaponId).toBe('espada');
+      expect(global.heroIds).toEqual(['guerrero', 'mago']);
+      expect(global.message).toContain('Mago');
+    }
+  });
+
   it('diagnostica todos los enemigos en orden de aparición', () => {
     const diagnoses = diagnoseBench(BASE_PAYLOAD.matchups, createTargets());
     expect(diagnoses.map((diagnosis) => diagnosis.enemyId)).toEqual([
@@ -449,6 +658,39 @@ describe('export reproducible', () => {
     expect(exported.matchups).toBe(payload.matchups);
     expect(exported.matchups).toHaveLength(12);
     expect(exported.diagnosis).toHaveLength(3);
+  });
+
+  it('incluye overrides de héroe y un overridesId que cambia con el héroe', () => {
+    const heroOverrides = withHeroOverride(emptyOverrides(), 'guerrero', {
+      maxHp: 30,
+      weaponId: 'hacha',
+      magicLevel: 1,
+    });
+    const heroCatalog = createWorkingCatalog(CATALOG, heroOverrides);
+    const heroPayload = measureMatchups({
+      seed: 5,
+      duels: 8,
+      catalog: heroCatalog,
+    });
+    const heroExport = buildBenchExport(
+      heroPayload,
+      heroCatalog,
+      createTargets(),
+      heroOverrides,
+    );
+
+    expect(heroExport.overrides.heroes.guerrero).toEqual({
+      maxHp: 30,
+      weaponId: 'hacha',
+      magicLevel: 1,
+    });
+    expect(
+      heroExport.catalog.roster.find((hero) => hero.id === 'guerrero')?.maxHp,
+    ).toBe(30);
+    expect(heroExport.overridesId).toBe(overridesId(heroOverrides));
+    expect(heroExport.overridesId).not.toBe(overridesId(emptyOverrides()));
+    expect(heroExport.overridesId).not.toBe(overridesId(overrides));
+    expect(benchExportJson(heroExport)).toContain('"heroes"');
   });
 
   it('produce el mismo JSON con el mismo estado y sin marca de tiempo', () => {
@@ -490,17 +732,26 @@ describe('export reproducible', () => {
       'centinela',
       { stats: { defensa: 2, habilidad: 1 }, maxHp: 9 },
     );
-    const right = withEnemyOverride(
-      withWeaponOverride(emptyOverrides(), 'espada', {
-        damage: 4,
-        accuracy: 5,
-      }),
-      'centinela',
-      { maxHp: 9, stats: { habilidad: 1, defensa: 2 } },
+    const right = withHeroOverride(
+      withEnemyOverride(
+        withWeaponOverride(emptyOverrides(), 'espada', {
+          damage: 4,
+          accuracy: 5,
+        }),
+        'centinela',
+        { maxHp: 9, stats: { habilidad: 1, defensa: 2 } },
+      ),
+      'mago',
+      { magicLevel: 2, stats: { defensa: 1, fuerza: 2 } },
     );
-    expect(overridesId(left)).toBe(overridesId(right));
+    const leftWithHero = withHeroOverride(left, 'mago', {
+      stats: { fuerza: 2, defensa: 1 },
+      magicLevel: 2,
+    });
+    expect(overridesId(leftWithHero)).toBe(overridesId(right));
     expect(overridesId(left)).toMatch(/^[0-9a-f]{8}$/);
     expect(overridesId(left)).not.toBe(overridesId(emptyOverrides()));
+    expect(overridesId(leftWithHero)).not.toBe(overridesId(left));
   });
 
   it('distingue el nombre ajustado del base sin sobrescribir el export v2.0', () => {

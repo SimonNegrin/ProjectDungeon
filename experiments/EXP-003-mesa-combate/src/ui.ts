@@ -316,6 +316,12 @@ export interface V2ExperimentApi {
     field: 'accuracy' | 'damage',
     value: unknown,
   ): void;
+  setHeroField(heroId: string, field: string, value: unknown): void;
+  resetHeroField(heroId: string, field: string): void;
+  resetHero(heroId: string): void;
+  resetEnemies(): void;
+  resetWeapons(): void;
+  resetHeroes(): void;
   recalculate(selection?: BenchSelection): MeasurementPayload;
   getDiagnosis(): ReadonlyArray<EnemyDiagnosis>;
   getWorkingCatalog(): Catalog;
