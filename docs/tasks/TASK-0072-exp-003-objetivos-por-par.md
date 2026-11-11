@@ -4,7 +4,7 @@ id: TASK-0072
 title: "EXP-003: objetivos por par, diagnóstico y export"
 description: Objetivo editable por héroe–enemigo, guía heredada, 4-de-4 sin dispersión, API por par y export con targetsVersion 2.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-001, R-002, R-005, R-006, R-007, R-016, R-017, R-018, R-019, R-020, T-001, T-002, T-003, T-004, T-006, T-007, T-008, T-010, T-012]
