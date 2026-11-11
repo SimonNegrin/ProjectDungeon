@@ -3,8 +3,8 @@ type: Task
 id: TASK-0068
 title: "EXP-003: E2E y QA visual del banco de ajuste"
 description: Cubrir con E2E y QA visual los objetivos editables, el editor expandible, la tabla de armas, el recálculo afectado, el reset y el export del banco de ajuste.
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-003, R-004, R-005, R-007, R-008, R-011, R-012, T-002, T-003, T-005, T-008]
