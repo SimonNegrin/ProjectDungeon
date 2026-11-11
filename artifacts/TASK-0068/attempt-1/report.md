@@ -69,4 +69,7 @@ Ruta real `artifacts/TASK-0068/attempt-1/experiment-bench/screenshots/`
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Brief y UI discrepan sobre el nombre del export base. | Brief: `-bench-base`; `benchFileName` da el nombre v2.0. | Asertar lo real y documentarlo. | Ya pasó en TASK-0067 y volverá en cada E2E de export. | Corregir el brief o unificar en `benchExportFileName`. | Bajo. | `pending` |
+| Brief y UI discrepan sobre el nombre del export base. | Brief: `-bench-base`; `benchFileName` da el nombre v2.0. | Asertar lo real y documentarlo. | Ya pasó en TASK-0067 y volverá en cada E2E de export. | Corregir el brief o unificar en `benchExportFileName`. | Bajo. | `accepted` |
+
+Disposición del lead: `accepted`. El nombre histórico base es el comportamiento
+acordado en TASK-0067; el test fija lo real y no se cambia el motor ni la UI.

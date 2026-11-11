@@ -1,0 +1,17 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts tests/e2e/experiment-combat.spec.ts
+
+Running 11 tests using 4 workers
+
+  ✓   3 [chromium] › tests/e2e/experiment-bench.spec.ts:274:1 › cambiar el objetivo actualiza delta y 4-de-4 y se restaura a la guía (1.3s)
+  ✓   1 [chromium] › tests/e2e/experiment-bench.spec.ts:198:1 › editar el PV de un enemigo recalcula solo sus cuatro filas (1.8s)
+  ✓   2 [chromium] › tests/e2e/experiment-bench.spec.ts:332:1 › editar el daño de un arma recalcula solo las filas de sus portadores (1.9s)
+  ✓   5 [chromium] › tests/e2e/experiment-bench.spec.ts:482:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas (1.5s)
+  ✓   7 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 900x700: editor, armas, sin desbordamiento y foco visible (976ms)
+  ✓   6 [chromium] › tests/e2e/experiment-bench.spec.ts:585:3 › QA visual 1280x720: editor, armas, sin desbordamiento y foco visible (1.1s)
+  ✓   4 [chromium] › tests/e2e/experiment-bench.spec.ts:393:1 › reset por enemigo y global devuelven la base y quitan los overrides del export (3.2s)
+  ✓   8 [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente (1.2s)
+  ✓  10 [chromium] › tests/e2e/experiment-combat.spec.ts:167:1 › misma semilla y duelos producen el mismo resultado y snapshot (1.2s)
+  ✓   9 [chromium] › tests/e2e/experiment-combat.spec.ts:101:1 › cambiar semilla y duelos recalcula sin recargar (1.2s)
+  ✓  11 [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo (1.2s)
+
+  11 passed (6.0s)
