@@ -9,7 +9,7 @@ task_type: experiment
 requirement: REQ-027
 requirement_ids: [REQ-025, REQ-026, REQ-027]
 depends_on: [TASK-0063]
-unlocks: []
+unlocks: [TASK-0065]
 created_at: 2026-11-11T15:50:00Z
 completed_at: 2026-11-11T16:04:00Z
 assignee: task-runner
