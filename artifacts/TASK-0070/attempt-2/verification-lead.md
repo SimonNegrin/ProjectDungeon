@@ -5,7 +5,7 @@ description: Revisión del diff, re-ejecución de tests y comprobación de crite
 task: TASK-0070
 attempt: 2
 status: stable
-generated: { by: task-lead, at: 2026-11-11T22:20:00Z }
+generated: { by: task-lead, at: 2026-11-11T23:59:00Z }
 ---
 
 # Alcance revisado
