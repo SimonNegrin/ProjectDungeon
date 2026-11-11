@@ -3,12 +3,12 @@ type: Requirement Sheet
 id: REQ-015
 title: Roster de arquetipos
 description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
-status: draft
-version: 4
+status: stable
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-11T15:55:00Z
+updated_at: 2026-11-11T23:10:00Z
 related_tasks: [TASK-0055, TASK-0056]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
@@ -19,6 +19,13 @@ verified:
       arma futura, Cuchillo +4/1, dos variantes de sprite sin género, nombre
       editable, clérigo tanque sin curación y el método de balance por win %
       (héroe con iniciativa, 1v1, equipo básico).
+  - by: human:simon
+    at: 2026-11-11T23:10:00Z
+    note: >-
+      Cierra la hoja como stable v5: aprueba el roster revisado y acepta
+      aplazar las cuatro preguntas abiertas (objetivos de win % del bestiario,
+      ajuste de magia tras playtest, tercer arquetipo con 3 acciones y arma del
+      Clérigo); ninguna bloquea el cierre.
 ---
 
 # Contexto
@@ -159,6 +166,9 @@ son categorías de efecto, no afinidades por arquetipo.
 
 # Preguntas abiertas
 
+Ninguna bloquea el cierre de la hoja; quedan **aplazadas** a hojas futuras o al
+rebalanceo:
+
 - Los objetivos de win % del bestiario (hoja futura).
 - El ajuste de los niveles de magia tras playtest (valores v1 en `REQ-025`).
 - Si otro arquetipo recibirá 3 acciones tras el rebalanceo (el Pícaro ya tiene 3).
@@ -179,6 +189,7 @@ son categorías de efecto, no afinidades por arquetipo.
 | 2026-11-11 | Enmienda `REQ-026`: acciones por turno con 2 por defecto; valores por arquetipo pendientes. | human:simon | aceptada |
 | 2026-11-11 | Niveles de magia por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el resto 0. | human:simon | aceptada |
 | 2026-11-11 | Pícaro con 3 acciones desde el inicio; el resto 2 y el rebalanceo ajusta. | human:simon | aceptada; provisional v1 |
+| 2026-11-11 | Cierre de la hoja: el roster queda `stable` y las cuatro preguntas abiertas se aplazan a hojas futuras o al rebalanceo. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -187,4 +198,5 @@ son categorías de efecto, no afinidades por arquetipo.
 - [x] El usuario ha aprobado el Cuchillo, las dos variantes de sprite y el nombre editable.
 - [x] El usuario ha aprobado la magia como nivel único y el clérigo como apoyo.
 - [x] El usuario ha aprobado el método de balance por porcentaje de victorias.
+- [x] Las preguntas abiertas restantes quedan aplazadas y no bloquean el cierre.
 - [x] Los requisitos son verificables y el fuera de alcance está claro.
