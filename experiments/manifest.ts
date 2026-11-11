@@ -34,11 +34,11 @@ export const experiments: ExperimentManifestEntry[] = [
   },
   {
     id: 'EXP-003',
-    title: 'Mesa de combate configurable',
-    description: 'Roster editable, presets A/B/C/D, cálculo de ataque, duelo por semilla y export de la tabla elegida.',
-    question: '¿Qué valores de acierto, daño, escudo, armadura, PV y modificadores producen combates de 2-3 impactos, con roles de arma claros y sin que un enemigo aislado sea letal?',
+    title: 'Mesa de combate: acciones, magia y réplica (v2.0)',
+    description: 'Simulador data-driven de duelos 1v1 con catálogos, acciones, magia/maná y réplica; mide 1.000 duelos por emparejamiento y deja el balance pendiente de aprobación.',
+    question: '¿Qué valores de acciones, magia y réplica producen combates equilibrados y legibles en los escenarios del primer corte?',
     path: '/experiments/EXP-003-mesa-combate/',
-    status: 'decided',
+    status: 'ready',
   },
   {
     id: 'EXP-004',
