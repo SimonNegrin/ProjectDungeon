@@ -598,7 +598,7 @@ test('cambiar el objetivo actualiza delta y 4-de-4 sin relanzar duelos', async (
 
   const diagnosis = await readDiagnosis(page);
   const centinela = diagnosis.find((entry) => entry.enemyId === 'centinela');
-  expect(centinela?.target).toBe(100);
+  expect(centinela?.rows.every((row) => row.target === 100)).toBe(true);
   expect(centinela?.fourOfFour).toBe(true);
   expect(centinela?.rows).toHaveLength(4);
   expect(
@@ -785,9 +785,13 @@ test('el export incluye catálogo ajustado, objetivos, diagnóstico y overridesI
     expect(entry.rows).toHaveLength(4);
     expect(entry.total).toBe(4);
     expect(entry.margin).toBe(MARGIN_PP);
-    expect(entry.target).toBe(
-      GUIDE_TARGETS[entry.enemyId as keyof typeof GUIDE_TARGETS],
-    );
+    expect(
+      entry.rows.every(
+        (row) =>
+          row.target ===
+          GUIDE_TARGETS[entry.enemyId as keyof typeof GUIDE_TARGETS],
+      ),
+    ).toBe(true);
   }
   expect(first.matchups).toHaveLength(12);
 

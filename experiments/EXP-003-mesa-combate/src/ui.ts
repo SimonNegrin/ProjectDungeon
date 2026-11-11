@@ -299,8 +299,8 @@ export interface V2ExperimentApi {
   getDecision(): BenchExport;
   reset(): void;
   getTargets(): BenchTargets;
-  setTarget(enemyId: string, value: unknown): void;
-  resetTarget(enemyId: string): void;
+  setTarget(heroId: string, enemyId: string, value: unknown): void;
+  resetTarget(heroId: string, enemyId: string): void;
   getOverrides(): BenchOverrides;
   resetEnemy(enemyId: string): void;
   resetWeapon(weaponId: string): void;

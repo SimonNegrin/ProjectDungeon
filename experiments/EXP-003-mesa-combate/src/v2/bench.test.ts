@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   CATALOG,
-  DISPERSION_LIMIT_PP,
+  DEFAULT_TARGET,
   GUIDE_TARGETS,
   MARGIN_PP,
+  TARGETS_VERSION,
   affectedRows,
   benchExportFileName,
   benchExportJson,
@@ -13,12 +14,15 @@ import {
   diagnoseBench,
   diagnoseEnemy,
   emptyOverrides,
+  guideTargetFor,
   isOverridesEmpty,
+  isTargetsGuide,
   measureMatchups,
   overridesId,
   recalculateMatchups,
   resetEnemies,
   resetEnemyOverride,
+  resetEnemyTargets,
   resetHeroes,
   resetHeroOverride,
   resetOverrides,
@@ -29,11 +33,15 @@ import {
   rowKey,
   runMatchup,
   setTarget,
+  targetKey,
+  targetsId,
   validateTarget,
   withEnemyOverride,
   withHeroOverride,
   withWeaponOverride,
   type BenchSelection,
+  type BenchTargets,
+  type Catalog,
   type MatchupResult,
 } from './index';
 
@@ -53,13 +61,47 @@ function rated(
   }));
 }
 
-describe('objetivos por enemigo', () => {
-  it('parte de la guía 75/85/30 y de un margen de ±5 pp', () => {
+function targetsFor(
+  enemyId: string,
+  values: Readonly<Record<string, number>>,
+): BenchTargets {
+  let targets = createTargets();
+  for (const [heroId, value] of Object.entries(values)) {
+    targets = setTarget(targets, heroId, enemyId, value);
+  }
+  return targets;
+}
+
+describe('objetivos por par', () => {
+  it('parte de la guía 75/85/30 con las 12 claves en orden roster-major', () => {
     expect(GUIDE_TARGETS).toEqual({ centinela: 75, cobarde: 85, bruto: 30 });
     expect(MARGIN_PP).toBe(5);
-    expect(DISPERSION_LIMIT_PP).toBe(10);
-    expect(createTargets()).toEqual(GUIDE_TARGETS);
-    expect(createTargets()).not.toBe(GUIDE_TARGETS);
+    expect(DEFAULT_TARGET).toBe(50);
+    expect(TARGETS_VERSION).toBe(2);
+    expect(guideTargetFor('centinela')).toBe(75);
+    expect(guideTargetFor('desconocido')).toBe(50);
+    expect(targetKey('guerrero', 'centinela')).toBe('guerrero:centinela');
+
+    const targets = createTargets();
+    expect(Object.keys(targets)).toEqual([
+      'guerrero:centinela',
+      'guerrero:bruto',
+      'guerrero:cobarde',
+      'picaro:centinela',
+      'picaro:bruto',
+      'picaro:cobarde',
+      'mago:centinela',
+      'mago:bruto',
+      'mago:cobarde',
+      'clerigo:centinela',
+      'clerigo:bruto',
+      'clerigo:cobarde',
+    ]);
+    expect(Object.values(targets)).toEqual([
+      75, 30, 85, 75, 30, 85, 75, 30, 85, 75, 30, 85,
+    ]);
+    expect(targets).not.toBe(GUIDE_TARGETS);
+    expect(targets[targetKey('clerigo', 'cobarde')]).toBe(85);
   });
 
   it('acepta solo enteros de 0 a 100', () => {
@@ -85,22 +127,81 @@ describe('objetivos por enemigo', () => {
     }
   });
 
-  it('fija un objetivo sin mutar el anterior y rechaza valores inválidos', () => {
+  it('fija un par sin mutar el mapa ni los otros tres héroes', () => {
     const targets = createTargets();
-    const custom = setTarget(targets, 'centinela', 60);
-    expect(custom.centinela).toBe(60);
-    expect(targets.centinela).toBe(75);
-    expect(setTarget(targets, 'bruto', 0).bruto).toBe(0);
-    expect(setTarget(targets, 'bruto', 100).bruto).toBe(100);
-    expect(() => setTarget(targets, 'centinela', 101)).toThrow(RangeError);
-    expect(() => setTarget(targets, 'centinela', 75.5)).toThrow(RangeError);
+    const custom = setTarget(targets, 'guerrero', 'centinela', 60);
+    expect(custom[targetKey('guerrero', 'centinela')]).toBe(60);
+    expect(targets[targetKey('guerrero', 'centinela')]).toBe(75);
+    expect(custom[targetKey('picaro', 'centinela')]).toBe(75);
+    expect(custom[targetKey('clerigo', 'centinela')]).toBe(75);
+    expect(setTarget(targets, 'guerrero', 'bruto', 0)[targetKey('guerrero', 'bruto')]).toBe(0);
+    expect(() => setTarget(targets, 'guerrero', 'centinela', 101)).toThrow(
+      RangeError,
+    );
+    expect(() => setTarget(targets, 'guerrero', 'centinela', 75.5)).toThrow(
+      RangeError,
+    );
   });
 
-  it('restablece un objetivo y todos los objetivos a la guía', () => {
-    const targets = setTarget(createTargets(), 'centinela', 60);
-    expect(resetTarget(targets, 'centinela')).toEqual(createTargets());
-    expect(resetTargets()).toEqual(GUIDE_TARGETS);
-    expect(resetTargets()).not.toBe(GUIDE_TARGETS);
+  it('restablece un par, un enemigo completo y todos los pares', () => {
+    const modified = setTarget(
+      setTarget(
+        setTarget(createTargets(), 'guerrero', 'centinela', 60),
+        'picaro',
+        'centinela',
+        90,
+      ),
+      'guerrero',
+      'bruto',
+      10,
+    );
+
+    const onePair = resetTarget(modified, 'guerrero', 'centinela');
+    expect(onePair[targetKey('guerrero', 'centinela')]).toBe(75);
+    expect(onePair[targetKey('picaro', 'centinela')]).toBe(90);
+    expect(onePair[targetKey('guerrero', 'bruto')]).toBe(10);
+
+    const oneEnemy = resetEnemyTargets(modified, 'centinela');
+    for (const hero of CATALOG.roster) {
+      expect(oneEnemy[targetKey(hero.id, 'centinela')]).toBe(75);
+    }
+    expect(oneEnemy[targetKey('guerrero', 'bruto')]).toBe(10);
+
+    expect(resetTargets()).toEqual(createTargets());
+    expect(resetTargets()).not.toBe(createTargets());
+  });
+
+  it('hereda 50 para un enemigo sin guía y no muta GUIDE_TARGETS', () => {
+    const customEnemy = {
+      ...CATALOG.bestiary[0],
+      id: 'sin-guia',
+      name: 'Sin guía',
+    };
+    const customCatalog: Catalog = {
+      ...CATALOG,
+      bestiary: [...CATALOG.bestiary, customEnemy],
+    };
+    const before = JSON.stringify(GUIDE_TARGETS);
+    const targets = createTargets(customCatalog);
+
+    expect(Object.keys(targets)).toHaveLength(16);
+    for (const hero of customCatalog.roster) {
+      expect(targets[targetKey(hero.id, 'sin-guia')]).toBe(50);
+    }
+    expect(JSON.stringify(GUIDE_TARGETS)).toBe(before);
+    expect(GUIDE_TARGETS['sin-guia']).toBeUndefined();
+    expect(resetTargets(customCatalog)).toEqual(targets);
+    expect(resetTarget(createTargets(), 'guerrero', 'sin-guia')[
+      targetKey('guerrero', 'sin-guia')
+    ]).toBe(50);
+  });
+
+  it('detecta si un mapa es exactamente la guía', () => {
+    expect(isTargetsGuide(createTargets())).toBe(true);
+    expect(isTargetsGuide(setTarget(createTargets(), 'mago', 'bruto', 31))).toBe(
+      false,
+    );
+    expect(isTargetsGuide({ ...createTargets(), extra: 50 })).toBe(false);
   });
 });
 
@@ -489,10 +590,11 @@ describe('recálculo de filas afectadas', () => {
 
   it('cambiar el objetivo solo rehace el diagnóstico con las mismas mediciones', () => {
     const before = diagnoseBench(BASE_PAYLOAD.matchups, createTargets(), CATALOG);
-    const targets = setTarget(createTargets(), 'centinela', 60);
+    const targets = setTarget(createTargets(), 'guerrero', 'centinela', 60);
     const after = diagnoseBench(BASE_PAYLOAD.matchups, targets, CATALOG);
 
-    expect(after[0].target).toBe(60);
+    expect(after[0].rows[0].target).toBe(60);
+    expect(after[0].rows[1].target).toBe(75);
     expect(after[0].rows[0].delta).not.toBe(before[0].rows[0].delta);
     expect(after.map((entry) => entry.rows.map((row) => row.heroWinRate))).toEqual(
       before.map((entry) => entry.rows.map((row) => row.heroWinRate)),
@@ -529,15 +631,22 @@ describe('diagnóstico 4-de-4', () => {
   const centinela = rowsFor(BASE_PAYLOAD, 'centinela');
   const bruto = rowsFor(BASE_PAYLOAD, 'bruto');
 
-  it('calcula objetivo, delta, dentro/fuera, 4-de-4 y dispersión', () => {
+  it('usa el objetivo de cada fila, conserva héroe y delta y no calcula dispersión', () => {
+    const targets = targetsFor('centinela', {
+      guerrero: 65,
+      picaro: 75,
+      mago: 80,
+      clerigo: 70,
+    });
     const diagnosis = diagnoseEnemy(
       rated(centinela, [70, 80, 75, 90]),
-      75,
+      targets,
       5,
       CATALOG,
     );
     expect(diagnosis.enemyId).toBe('centinela');
-    expect(diagnosis.rows.map((row) => row.delta)).toEqual([-5, 5, 0, 15]);
+    expect(diagnosis.rows.map((row) => row.target)).toEqual([65, 75, 80, 70]);
+    expect(diagnosis.rows.map((row) => row.delta)).toEqual([5, 5, -5, 20]);
     expect(diagnosis.rows.map((row) => row.inside)).toEqual([
       true,
       true,
@@ -547,49 +656,70 @@ describe('diagnóstico 4-de-4', () => {
     expect(diagnosis.insideCount).toBe(3);
     expect(diagnosis.total).toBe(4);
     expect(diagnosis.fourOfFour).toBe(false);
-    expect(diagnosis.outside).toEqual([{ heroId: 'clerigo', delta: 15 }]);
-    expect(diagnosis.min).toBe(70);
-    expect(diagnosis.max).toBe(90);
-    expect(diagnosis.dispersion).toBe(20);
+    expect(diagnosis.outside).toEqual([{ heroId: 'clerigo', delta: 20 }]);
     expect(diagnosis.problems.map((problem) => problem.kind)).toEqual([
-      'dispersion',
       'outside',
       'global-weapon',
     ]);
+    expect(diagnosis).not.toHaveProperty('target');
+    expect(diagnosis).not.toHaveProperty('dispersion');
+    expect(diagnosis).not.toHaveProperty('min');
+    expect(diagnosis).not.toHaveProperty('max');
   });
 
-  it('marca 4-de-4 sin lanzar cuando todas las filas están dentro', () => {
-    const diagnosis = diagnoseEnemy(rated(centinela, [75, 75, 75, 75]), 75);
+  it('marca 4-de-4 con objetivos distintos aunque el rango real supere 10 pp', () => {
+    const targets = targetsFor('centinela', {
+      guerrero: 50,
+      picaro: 80,
+      mago: 60,
+      clerigo: 75,
+    });
+    const diagnosis = diagnoseEnemy(
+      rated(centinela, [50, 80, 60, 75]),
+      targets,
+    );
     expect(diagnosis.insideCount).toBe(4);
     expect(diagnosis.fourOfFour).toBe(true);
     expect(diagnosis.outside).toEqual([]);
-    expect(diagnosis.dispersion).toBe(0);
     expect(diagnosis.problems.map((problem) => problem.kind)).toEqual([
       'global-weapon',
     ]);
-    expect(() => diagnoseEnemy(rated(centinela, [70, 80, 75, 90]), 75)).not.toThrow();
+    expect(
+      diagnosis.problems.some(
+        (problem) => (problem.kind as string) === 'dispersion',
+      ),
+    ).toBe(false);
   });
 
-  it('no marca dispersión si es exactamente 10 pp', () => {
-    const diagnosis = diagnoseEnemy(rated(centinela, [65, 75, 70, 75]), 70);
-    expect(diagnosis.dispersion).toBe(10);
-    expect(diagnosis.fourOfFour).toBe(true);
-    expect(diagnosis.problems.map((problem) => problem.kind)).not.toContain(
-      'dispersion',
+  it('exige el objetivo de cada par y valida su rango', () => {
+    const targets = createTargets();
+    const missing = Object.fromEntries(
+      Object.entries(targets).filter(
+        ([key]) => key !== targetKey('mago', 'centinela'),
+      ),
     );
+    expect(() =>
+      diagnoseEnemy(rated(centinela, [75, 75, 75, 75]), missing),
+    ).toThrow('Sin objetivo para el par mago:centinela.');
+    expect(() =>
+      diagnoseEnemy(
+        rated(centinela, [75, 75, 75, 75]),
+        { ...targets, [targetKey('mago', 'centinela')]: 101 },
+      ),
+    ).toThrow(RangeError);
   });
 
   it('señala el arma global solo cuando un héroe también la equipa', () => {
     const brutoDiagnosis = diagnoseEnemy(
       rated(bruto, [30, 30, 30, 30]),
-      30,
+      createTargets(),
     );
     expect(brutoDiagnosis.fourOfFour).toBe(true);
     expect(brutoDiagnosis.problems).toEqual([]);
 
     const centinelaDiagnosis = diagnoseEnemy(
       rated(centinela, [75, 75, 75, 75]),
-      75,
+      createTargets(),
     );
     const global = centinelaDiagnosis.problems.find(
       (problem) => problem.kind === 'global-weapon',
@@ -609,7 +739,7 @@ describe('diagnóstico 4-de-4', () => {
     const catalog = createWorkingCatalog(CATALOG, overrides);
     const diagnosis = diagnoseEnemy(
       rated(centinela, [75, 75, 75, 75]),
-      75,
+      createTargets(catalog),
       MARGIN_PP,
       catalog,
     );
@@ -624,13 +754,16 @@ describe('diagnóstico 4-de-4', () => {
     }
   });
 
-  it('diagnostica todos los enemigos en orden de aparición', () => {
-    const diagnoses = diagnoseBench(BASE_PAYLOAD.matchups, createTargets());
+  it('diagnostica todos los enemigos en orden de aparición con el mapa por par', () => {
+    const targets = setTarget(createTargets(), 'guerrero', 'centinela', 60);
+    const diagnoses = diagnoseBench(BASE_PAYLOAD.matchups, targets);
     expect(diagnoses.map((diagnosis) => diagnosis.enemyId)).toEqual([
       'centinela',
       'bruto',
       'cobarde',
     ]);
+    expect(diagnoses[0].rows[0].target).toBe(60);
+    expect(diagnoses[0].rows[1].target).toBe(75);
     for (const diagnosis of diagnoses) {
       expect(diagnosis.total).toBe(4);
       expect(diagnosis.rows).toHaveLength(4);
@@ -648,9 +781,12 @@ describe('export reproducible', () => {
   const payload = measureMatchups({ seed: 9, duels: 12, catalog });
   const exported = buildBenchExport(payload, catalog, createTargets(), overrides);
 
-  it('incluye catálogo ajustado, objetivos, overrides, resultados y diagnóstico', () => {
+  it('incluye catálogo ajustado, objetivos por par, versión, id, overrides y diagnóstico', () => {
     expect(exported.catalog).toBe(catalog);
-    expect(exported.targets).toEqual(GUIDE_TARGETS);
+    expect(exported.targets).toEqual(createTargets());
+    expect(exported.targetsVersion).toBe(TARGETS_VERSION);
+    expect(exported.targetsId).toBe(targetsId(createTargets()));
+    expect(exported.targetsId).toMatch(/^[0-9a-f]{8}$/);
     expect(exported.overrides).toEqual(overrides);
     expect(exported.overridesId).toBe(overridesId(overrides));
     expect(exported.seed).toBe(9);
@@ -710,6 +846,8 @@ describe('export reproducible', () => {
     for (const key of [
       'catalog',
       'targets',
+      'targetsVersion',
+      'targetsId',
       'overrides',
       'overridesId',
       'diagnosis',
@@ -719,8 +857,33 @@ describe('export reproducible', () => {
     ]) {
       expect(parsed).toHaveProperty(key);
     }
+    expect(Object.keys(parsed.targets as Record<string, number>)).toHaveLength(12);
     expect(parsed).not.toHaveProperty('timestamp');
     expect(parsed).not.toHaveProperty('generatedAt');
+  });
+
+  it('deriva un targetsId determinista e insensible al orden de claves', () => {
+    const targets = createTargets();
+    const reordered = Object.fromEntries(Object.entries(targets).reverse());
+    expect(targetsId(targets)).toBe(targetsId(reordered));
+    expect(targetsId(targets)).toMatch(/^[0-9a-f]{8}$/);
+    const changed = setTarget(targets, 'guerrero', 'centinela', 60);
+    expect(targetsId(changed)).not.toBe(targetsId(targets));
+  });
+
+  it('cambiar un objetivo cambia targetsId y nombre, pero no overridesId', () => {
+    const targets = setTarget(createTargets(), 'guerrero', 'centinela', 60);
+    const changed = buildBenchExport(payload, catalog, targets, overrides);
+    expect(changed.targetsId).toBe(targetsId(targets));
+    expect(changed.targetsId).not.toBe(exported.targetsId);
+    expect(changed.overridesId).toBe(exported.overridesId);
+    expect(overridesId(overrides)).toBe(exported.overridesId);
+
+    const guideName = benchExportFileName(payload, overrides, createTargets());
+    const changedName = benchExportFileName(payload, overrides, targets);
+    expect(changedName).not.toBe(guideName);
+    expect(changedName).toContain(`-targets-${targetsId(targets)}`);
+    expect(guideName).not.toContain('-targets-');
   });
 
   it('identifica overrides por contenido canónico, sin depender del orden', () => {
@@ -754,15 +917,24 @@ describe('export reproducible', () => {
     expect(overridesId(leftWithHero)).not.toBe(overridesId(left));
   });
 
-  it('distingue el nombre ajustado del base sin sobrescribir el export v2.0', () => {
-    const adjusted = benchExportFileName(payload, overrides);
-    const base = benchExportFileName(payload, emptyOverrides());
+  it('distingue el nombre ajustado del base y de los objetivos personalizados', () => {
+    const guide = createTargets();
+    const custom = setTarget(guide, 'guerrero', 'centinela', 60);
+    const adjusted = benchExportFileName(payload, overrides, guide);
+    const base = benchExportFileName(payload, emptyOverrides(), guide);
     const legacy = `${payload.experiment}-${payload.engine}-seed-${payload.seed}-duels-${payload.duels}.json`;
-    expect(adjusted).toContain(overridesId(overrides));
+    expect(adjusted).toContain(`bench-overrides-${overridesId(overrides)}`);
+    expect(adjusted).not.toContain('-targets-');
     expect(base).toContain('bench-base');
+    expect(base).not.toContain('-targets-');
     expect(adjusted).not.toBe(base);
     expect(adjusted).not.toBe(legacy);
     expect(base).not.toBe(legacy);
     expect(adjusted.endsWith('.json')).toBe(true);
+
+    expect(benchExportFileName(payload, emptyOverrides(), custom)).toBe(
+      `${payload.experiment}-${payload.engine}-seed-${payload.seed}` +
+        `-duels-${payload.duels}-bench-base-targets-${targetsId(custom)}.json`,
+    );
   });
 });
