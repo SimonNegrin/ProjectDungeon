@@ -3,7 +3,7 @@
 
 
  Test Files  6 passed (6)
-      Tests  61 passed (61)
-   Start at  15:42:05
-   Duration  304ms (import 48%, transform 35%, tests 12%, worker 5%)
+      Tests  62 passed (62)
+   Start at  15:43:23
+   Duration  314ms (import 63%, tests 16%, transform 15%, worker 5%)
 

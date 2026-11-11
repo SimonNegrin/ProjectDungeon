@@ -133,4 +133,43 @@ describe('percepción y estados', () => {
       planEnemyAction(state.enemy, state.hero, CATALOG, state.scenario),
     ).toEqual({ type: 'return' });
   });
+
+  it('un perfil con castSpells lanza un hechizo de daño en alerta', () => {
+    const casterTemplate = {
+      ...CATALOG.bestiary[0],
+      id: 'lanzador',
+      name: 'Lanzador',
+      stats: { habilidad: 0, fuerza: -1, defensa: 0, resistencia: 0 },
+      maxHp: 12,
+      maxMp: 5,
+      magicLevel: 4,
+      maxActions: 2,
+      weaponId: null,
+      armorId: null,
+      shieldId: null,
+      profileId: 'perfil-lanzador',
+      vision: 6,
+    };
+    const catalog = {
+      ...CATALOG,
+      bestiary: [...CATALOG.bestiary, casterTemplate],
+      aiProfiles: {
+        ...CATALOG.aiProfiles,
+        'perfil-lanzador': {
+          ...CATALOG.aiProfiles['perfil-valiente'],
+          id: 'perfil-lanzador',
+          name: 'Lanzador',
+          castSpells: true,
+        },
+      },
+    };
+    const state = makeState(
+      { heroId: 'guerrero', enemyId: 'lanzador', heroPos: 3, enemyPos: 6 },
+      catalog,
+    );
+    patchUnit(state.enemy, { awareness: 'alert' });
+    expect(
+      planEnemyAction(state.enemy, state.hero, catalog, state.scenario),
+    ).toEqual({ type: 'cast', spellId: 'fuego-iv' });
+  });
 });

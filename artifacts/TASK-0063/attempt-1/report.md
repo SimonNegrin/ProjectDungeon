@@ -12,7 +12,7 @@ verified:
 
 # Estado
 
-`success`. Motor v2.0 en `experiments/EXP-003-mesa-combate/src/v2/`, 61 tests en
+`success`. Motor v2.0 en `experiments/EXP-003-mesa-combate/src/v2/`, 62 tests en
 verde y 12 × 1.000 duelos reproducibles. **Hallazgo: los 12 quedan fuera de la
 banda 40–60 % por arriba (96,3–100 %).** No se ha ajustado ningún valor de
 balance.
@@ -50,9 +50,9 @@ encima.
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `vitest run experiments/EXP-003-mesa-combate/src/v2` | 61/61, 6 archivos | `test-output.txt` |
+| `vitest run experiments/EXP-003-mesa-combate/src/v2` | 62/62, 6 archivos | `test-output.txt` |
 | `pnpm run docs:check` | OK | `docs-check-output.txt` |
-| `pnpm run verify` | OK: 886 tests, build y bundle | `verify-output.txt` |
+| `pnpm run verify` | OK: 887 tests, build y bundle | `verify-output.txt` |
 
 # Desviaciones
 
