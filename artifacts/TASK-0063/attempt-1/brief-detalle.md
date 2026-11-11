@@ -1,3 +1,13 @@
+---
+type: Task Brief Detail
+title: "TASK-0063: anexo de detalle del brief 1"
+description: Escenario, política del héroe, valores del catálogo, métricas y comandos del intento.
+task: TASK-0063
+attempt: 1
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:40:00Z }
+---
+
 # Detalle del brief — TASK-0063
 
 Anexo vinculante del brief. Si hay contradicción, mandan la tarea y los
