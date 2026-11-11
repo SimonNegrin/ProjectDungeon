@@ -19,8 +19,9 @@ QA visual. `verify` y la suite E2E completa pasan; sin cambios de producción.
 
 - `tests/e2e/experiment-bench.spec.ts`: 11 tests (3 previos; 8 nuevos/adaptados:
   objetivo por par, dos pares sin dispersión, resets, filtros, export y QA).
-- Commit `2f76f13`. Sin cambios en `experiments/**`, `src/**`, `index.html`,
-  `public/**` ni unitarios.
+- Restaurada la aserción de `overrides` vacío en el JSON base descargado.
+- Commits `2f76f13` y `508ee85`. Sin cambios en `experiments/**`, `src/**`,
+  `index.html`, `public/**` ni unitarios.
 
 # Tests
 
@@ -29,8 +30,7 @@ QA visual. `verify` y la suite E2E completa pasan; sin cambios de producción.
 | `pnpm run verify` | OK: 993 tests, tsc, build y bundle | `verify-output.txt` |
 | `E2E_ARTIFACTS_DIR=artifacts/TASK-0074/attempt-1 pnpm run test:e2e` | 109 passed; 11/11 del spec | `e2e-output.txt` |
 
-Sin `--repeat-each`; 5 rojos iniciales por testids/modelo antiguos, aserciones
-adaptadas sin debilitar.
+Sin `--repeat-each`; aserciones adaptadas sin debilitar.
 
 # Evidencia visual
 
@@ -40,13 +40,12 @@ adaptadas sin debilitar.
 - `experiment-bench/exports/`: `bench-base.json`,
   `bench-overrides-384541b3.json`, `...-targets-8d36362b.json`.
 
-A 1280 sin overflow; a 900 scroll interno; el vacío avisa y conserva el foco.
+A 1280 sin overflow; a 900 scroll interno; el vacío avisa y mantiene foco.
 
 # Desviaciones
 
 - Export: el brief decía «bench-base» sin overrides, pero se conserva
-  `EXP-003-v2.0-seed-1017-duels-1000.json` (`bench-ui.ts:668-675`); E2E adaptado,
-  producción intacta.
+  `EXP-003-v2.0-seed-1017-duels-1000.json` (`bench-ui.ts:668-675`); E2E adaptado.
 - `REQ-018-inventario-equipo.md` lo modificó otra sesión; no entró en el commit.
 
 # Problemas conocidos y preguntas abiertas
@@ -64,6 +63,6 @@ A 1280 sin overflow; a 900 scroll interno; el vacío avisa y conserva el foco.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2289 |
-| `report_bytes` | 2543 |
+| `report_bytes` | 2559 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

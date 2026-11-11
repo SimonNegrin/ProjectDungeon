@@ -88,11 +88,11 @@ $ vitest run
 
  Test Files  73 passed (73)
       Tests  993 passed (993)
-   Start at  23:38:49
-   Duration  13.14s (tests 90%, import 7%, transform 2%, worker 1%)
+   Start at  23:43:47
+   Duration  10.86s (tests 92%, import 6%, transform 2%, worker 1%)
 
-    Isolate  73 workers spawned · ~148ms startup each (spawn + environment, per file)
-             at least ~1.39s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  73 workers spawned · ~114ms startup each (spawn + environment, per file)
+             at least ~1.08s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -102,6 +102,6 @@ rendering chunks...
 computing gzip size...
 dist/index.html                17.12 kB │ gzip:  3.90 kB
 dist/assets/main-3vcR1QGj.js  138.70 kB │ gzip: 47.47 kB
-✓ built in 382ms
+✓ built in 338ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 10 dist files and 56 production modules; no forbidden markers.
