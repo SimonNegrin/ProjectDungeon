@@ -2,6 +2,10 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-028 — stable v3: objetivo editable por par héroe–enemigo con guía 75/85/30 heredada, 4-de-4 contra el objetivo de cada par, retirada del aviso de dispersión y filtros de texto por tabla (héroe y enemigo en Combates), solo de vista — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)
+* 2026-11-11 — Task — TASK-0072 — creada ready: objetivos por par, guía heredada, diagnóstico sin dispersión, API por par y export con `targetsVersion: 2` — [TASK-0072](tasks/TASK-0072-exp-003-objetivos-por-par.md)
+* 2026-11-11 — Task — TASK-0073 — creada backlog: filtros de héroe/enemigo en Combates, nombre y unidades en Armas y nombre en Héroes; depende de TASK-0072 — [TASK-0073](tasks/TASK-0073-exp-003-filtros-tablas.md)
+* 2026-11-11 — Task — TASK-0074 — creada backlog: E2E y QA visual de objetivos por par y filtros; depende de TASK-0073 — [TASK-0074](tasks/TASK-0074-exp-003-objetivos-filtros-e2e.md)
 * 2026-11-11 — Requirement — REQ-015 — stable v5: cerrada tras revisión; el roster queda aprobado e implementado y las cuatro preguntas abiertas se aplazan (objetivos del bestiario, magia tras playtest, tercer arquetipo con 3 acciones y arma del Clérigo) — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
 * 2026-11-11 — Experiment — EXP-003 — banco v2 documentado: tres tablas inline a ancho completo (combates, armas y héroes), stats de enemigo compartidos en celdas agrupadas, recálculo 4/3/todas sus filas, resets por tabla y export determinista; 974 tests y 106/106 E2E; el balance base sigue sin aprobar — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-11 — Task — TASK-0071 — cerrada: E2E y QA visual de las tres tablas inline (enemigo 4 filas, héroe 3, arma compartida sin duplicar, objetivo sin duelos, resets por tabla/global, export determinista y capturas 1280×720/900×700); 106/106 E2E, 974 tests y verify OK; ajuste CSS mínimo documentado; fusión `2e27a05` — [informe](../artifacts/TASK-0071/attempt-1/report.md)
