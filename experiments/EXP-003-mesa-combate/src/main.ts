@@ -14,6 +14,9 @@ import {
   benchFileName,
   enemyFieldPatch,
   enemyFieldValue,
+  filterCombatBlocks,
+  filterHeroes,
+  filterWeapons,
   formatBenchSummary,
   formatDelta,
   formatFourOfFour,
@@ -183,6 +186,35 @@ function createSelect(
   return select;
 }
 
+interface FilterField {
+  readonly field: HTMLLabelElement;
+  readonly input: HTMLInputElement;
+  readonly clear: HTMLButtonElement;
+}
+
+/** Campo de filtro de vista: etiqueta visible, búsqueda y botón de limpiar. */
+function createFilterField(
+  labelText: string,
+  testId: string,
+  clearTestId: string,
+): FilterField {
+  const field = element('label', { className: 'filter-field' });
+  field.append(element('span', { className: 'filter-label', text: labelText }));
+  const input = element('input', { className: 'filter-input', testId });
+  input.type = 'search';
+  input.autocomplete = 'off';
+  input.placeholder = `Buscar ${labelText.toLowerCase()}`;
+  const clear = element('button', {
+    className: 'filter-clear',
+    text: 'Limpiar',
+    testId: clearTestId,
+  });
+  clear.type = 'button';
+  clear.setAttribute('aria-label', `Limpiar filtro ${labelText.toLowerCase()}`);
+  field.append(input, clear);
+  return { field, input, clear };
+}
+
 const root = document.querySelector<HTMLElement>('#app');
 if (!root) throw new Error('No se encontró #app');
 
@@ -218,6 +250,11 @@ let selected = {
 };
 let pendingSelections: BenchSelection[] = [];
 let recalcTimer: ReturnType<typeof setTimeout> | null = null;
+
+/* Filtros solo de vista: fuera de overrides, targets, results, diagnosis y export. */
+const combatFilters = { hero: '', enemy: '' };
+let weaponFilter = '';
+let heroFilter = '';
 
 const RECALC_DELAY_MS = 280;
 
@@ -332,7 +369,22 @@ const resetEnemiesButton = element('button', {
   testId: 'bench-reset-enemies',
 });
 resetEnemiesButton.type = 'button';
-combatsToolbar.append(benchStatus, resetEnemiesButton);
+const combatHeroFilter = createFilterField(
+  'Héroe',
+  'combats-filter-hero',
+  'combats-filter-hero-clear',
+);
+const combatEnemyFilter = createFilterField(
+  'Enemigo',
+  'combats-filter-enemy',
+  'combats-filter-enemy-clear',
+);
+combatsToolbar.append(
+  combatHeroFilter.field,
+  combatEnemyFilter.field,
+  benchStatus,
+  resetEnemiesButton,
+);
 combatsPanel.append(combatsToolbar);
 
 const combatsScroll = element('div', { className: 'table-scroll' });
@@ -363,7 +415,14 @@ combatsTable.append(
 const combatsBody = element('tbody', { testId: 'combats-rows' });
 combatsTable.append(combatsBody);
 combatsScroll.append(combatsTable);
-combatsPanel.append(combatsScroll);
+const combatsFilterEmpty = element('p', {
+  className: 'filter-empty',
+  text: 'Sin resultados para el filtro.',
+  testId: 'combats-filter-empty',
+});
+combatsFilterEmpty.setAttribute('role', 'status');
+combatsFilterEmpty.hidden = true;
+combatsPanel.append(combatsScroll, combatsFilterEmpty);
 
 /* Tabla 2 · Armas: nombre con sus unidades, acierto y daño. */
 
@@ -390,7 +449,12 @@ const resetWeaponsButton = element('button', {
   testId: 'bench-reset-weapons',
 });
 resetWeaponsButton.type = 'button';
-weaponsToolbar.append(weaponStatus, resetWeaponsButton);
+const weaponFilterField = createFilterField(
+  'Arma o unidad',
+  'weapons-filter',
+  'weapons-filter-clear',
+);
+weaponsToolbar.append(weaponFilterField.field, weaponStatus, resetWeaponsButton);
 weaponsPanel.append(weaponsToolbar);
 
 const weaponsScroll = element('div', { className: 'table-scroll' });
@@ -402,7 +466,14 @@ weaponsTable.append(buildHead(WEAPON_COLUMNS));
 const weaponsBody = element('tbody', { testId: 'weapon-rows' });
 weaponsTable.append(weaponsBody);
 weaponsScroll.append(weaponsTable);
-weaponsPanel.append(weaponsScroll);
+const weaponsFilterEmpty = element('p', {
+  className: 'filter-empty',
+  text: 'Sin resultados para el filtro.',
+  testId: 'weapons-filter-empty',
+});
+weaponsFilterEmpty.setAttribute('role', 'status');
+weaponsFilterEmpty.hidden = true;
+weaponsPanel.append(weaponsScroll, weaponsFilterEmpty);
 
 /* Tabla 3 · Héroes: set completo y arma inicial con «sin arma». */
 
@@ -429,7 +500,12 @@ const resetHeroesButton = element('button', {
   testId: 'bench-reset-heroes',
 });
 resetHeroesButton.type = 'button';
-heroesToolbar.append(heroStatus, resetHeroesButton);
+const heroFilterField = createFilterField(
+  'Héroe',
+  'heroes-filter',
+  'heroes-filter-clear',
+);
+heroesToolbar.append(heroFilterField.field, heroStatus, resetHeroesButton);
 heroesPanel.append(heroesToolbar);
 
 const heroesScroll = element('div', { className: 'table-scroll' });
@@ -441,7 +517,14 @@ heroesTable.append(buildHead(HERO_COLUMNS));
 const heroesBody = element('tbody', { testId: 'hero-rows' });
 heroesTable.append(heroesBody);
 heroesScroll.append(heroesTable);
-heroesPanel.append(heroesScroll);
+const heroesFilterEmpty = element('p', {
+  className: 'filter-empty',
+  text: 'Sin resultados para el filtro.',
+  testId: 'heroes-filter-empty',
+});
+heroesFilterEmpty.setAttribute('role', 'status');
+heroesFilterEmpty.hidden = true;
+heroesPanel.append(heroesScroll, heroesFilterEmpty);
 
 const detailPanel = element('section', {
   className: 'panel detail-panel',
@@ -531,6 +614,7 @@ interface CombatBlockRefs {
 }
 
 interface WeaponRowRefs {
+  readonly row: HTMLTableRowElement;
   readonly accuracy: HTMLInputElement;
   readonly damage: HTMLInputElement;
   readonly accuracyError: HTMLElement;
@@ -539,6 +623,7 @@ interface WeaponRowRefs {
 }
 
 interface HeroRowRefs {
+  readonly row: HTMLTableRowElement;
   readonly fields: Map<HeroField, FieldRefs>;
   readonly weaponHint: HTMLElement;
 }
@@ -916,7 +1001,11 @@ function renderCombats(): void {
   combatBlocks.clear();
   combatRows.clear();
 
-  const blocks = groupMatchupsByEnemy(results.matchups, results.enemyOrder);
+  const blocks = filterCombatBlocks(
+    groupMatchupsByEnemy(results.matchups, results.enemyOrder),
+    combatFilters,
+    (id) => unitName(workingCatalog, id),
+  );
   for (const block of blocks) {
     const blockRefs: CombatBlockRefs = {
       enemyId: block.enemyId,
@@ -1097,6 +1186,8 @@ function syncCombats(): void {
     refs.row.classList.toggle('is-selected', isSelected);
     refs.row.setAttribute('aria-selected', String(isSelected));
   }
+
+  combatsFilterEmpty.hidden = combatBlocks.size > 0;
 }
 
 /* Tabla de armas. */
@@ -1174,6 +1265,7 @@ function renderWeapons(): void {
     row.append(nameCell, accuracyCell, damageCell);
     weaponsBody.append(row);
     weaponRefs.set(weapon.id, {
+      row,
       accuracy,
       damage,
       accuracyError,
@@ -1184,7 +1276,9 @@ function renderWeapons(): void {
 }
 
 function syncWeapons(): void {
-  for (const weapon of weaponRows(workingCatalog)) {
+  const rows = weaponRows(workingCatalog);
+  const visible = new Set(filterWeapons(rows, weaponFilter).map((row) => row.id));
+  for (const weapon of rows) {
     const refs = weaponRefs.get(weapon.id);
     if (!refs) continue;
     if (document.activeElement !== refs.accuracy) {
@@ -1194,7 +1288,9 @@ function syncWeapons(): void {
       refs.damage.value = String(weapon.damage);
     }
     refs.users.textContent = formatWeaponUsers(weapon.users);
+    refs.row.hidden = !visible.has(weapon.id);
   }
+  weaponsFilterEmpty.hidden = visible.size > 0;
 }
 
 /* Tabla de héroes. */
@@ -1297,7 +1393,7 @@ function renderHeroes(): void {
       row.append(cell);
     }
     heroesBody.append(row);
-    heroRefs.set(hero.id, { fields, weaponHint });
+    heroRefs.set(hero.id, { row, fields, weaponHint });
   }
 }
 
@@ -1325,6 +1421,9 @@ function heroWeaponHint(heroId: string): string {
 }
 
 function syncHeroes(): void {
+  const visible = new Set(
+    filterHeroes(CATALOG.roster, heroFilter).map((hero) => hero.id),
+  );
   for (const hero of CATALOG.roster) {
     const refs = heroRefs.get(hero.id);
     if (!refs) continue;
@@ -1336,7 +1435,9 @@ function syncHeroes(): void {
       fieldRefs.input.value = value === null ? '' : String(value);
     }
     refs.weaponHint.textContent = heroWeaponHint(hero.id);
+    refs.row.hidden = !visible.has(hero.id);
   }
+  heroesFilterEmpty.hidden = visible.size > 0;
 }
 
 function syncAll(): void {
@@ -1813,6 +1914,51 @@ resetWeaponsButton.addEventListener('click', () => {
 
 resetHeroesButton.addEventListener('click', () => {
   resetHeroesState();
+});
+
+/* Filtros: solo reconstruyen o alternan visibilidad; nunca miden. */
+
+combatHeroFilter.input.addEventListener('input', () => {
+  combatFilters.hero = combatHeroFilter.input.value;
+  renderCombats();
+});
+combatHeroFilter.clear.addEventListener('click', () => {
+  combatFilters.hero = '';
+  combatHeroFilter.input.value = '';
+  renderCombats();
+  combatHeroFilter.input.focus();
+});
+combatEnemyFilter.input.addEventListener('input', () => {
+  combatFilters.enemy = combatEnemyFilter.input.value;
+  renderCombats();
+});
+combatEnemyFilter.clear.addEventListener('click', () => {
+  combatFilters.enemy = '';
+  combatEnemyFilter.input.value = '';
+  renderCombats();
+  combatEnemyFilter.input.focus();
+});
+
+weaponFilterField.input.addEventListener('input', () => {
+  weaponFilter = weaponFilterField.input.value;
+  syncWeapons();
+});
+weaponFilterField.clear.addEventListener('click', () => {
+  weaponFilter = '';
+  weaponFilterField.input.value = '';
+  syncWeapons();
+  weaponFilterField.input.focus();
+});
+
+heroFilterField.input.addEventListener('input', () => {
+  heroFilter = heroFilterField.input.value;
+  syncHeroes();
+});
+heroFilterField.clear.addEventListener('click', () => {
+  heroFilter = '';
+  heroFilterField.input.value = '';
+  syncHeroes();
+  heroFilterField.input.focus();
 });
 
 copyButton.addEventListener('click', async () => {

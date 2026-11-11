@@ -787,6 +787,73 @@ export function groupMatchupsByEnemy<T extends { readonly enemyId: string }>(
   }));
 }
 
+/* Filtros de texto: solo capa de vista, sin medir ni mutar resultados. */
+
+/**
+ * Minúsculas, sin diacríticos y sin espacios en los extremos. «Clérigo» y
+ * «CLERIGO» producen la misma aguja; «ñ» se compara como «n».
+ */
+export function normalizeSearchText(value: string): string {
+  return String(value)
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+}
+
+/** Subcadena normalizada; una consulta vacía acepta cualquier texto. */
+export function matchesSearch(haystack: string, query: string): boolean {
+  const needle = normalizeSearchText(query);
+  if (needle === '') return true;
+  return normalizeSearchText(haystack).includes(needle);
+}
+
+/**
+ * Filtra bloques por nombre de héroe y de enemigo, conserva el orden y elimina
+ * los bloques sin filas visibles. Las filas devueltas son las mismas
+ * referencias de entrada; no muta los bloques ni el payload de resultados.
+ *
+ * El `rowspan` visible de cada bloque es `block.rows.length`.
+ */
+export function filterCombatBlocks<
+  T extends { readonly heroId: string; readonly enemyId: string },
+>(
+  blocks: ReadonlyArray<EnemyBlock<T>>,
+  filters: { readonly hero: string; readonly enemy: string },
+  nameOf: (id: string) => string,
+): ReadonlyArray<EnemyBlock<T>> {
+  return blocks
+    .map((block) => ({
+      enemyId: block.enemyId,
+      rows: block.rows.filter(
+        (row) =>
+          matchesSearch(nameOf(row.heroId), filters.hero) &&
+          matchesSearch(nameOf(row.enemyId), filters.enemy),
+      ),
+    }))
+    .filter((block) => block.rows.length > 0);
+}
+
+/** Armas cuyo nombre o alguna de sus unidades coincide con la consulta. */
+export function filterWeapons(
+  rows: ReadonlyArray<WeaponUsageRow>,
+  query: string,
+): ReadonlyArray<WeaponUsageRow> {
+  return rows.filter(
+    (row) =>
+      matchesSearch(row.name, query) ||
+      row.users.some((user) => matchesSearch(user, query)),
+  );
+}
+
+/** Héroes cuyo nombre coincide con la consulta. */
+export function filterHeroes(
+  heroes: ReadonlyArray<{ readonly id: string; readonly name: string }>,
+  query: string,
+): ReadonlyArray<{ readonly id: string; readonly name: string }> {
+  return heroes.filter((hero) => matchesSearch(hero.name, query));
+}
+
 /** «71,2 % · −3,8 pp · dentro»: % real, delta y estado en una sola celda. */
 export function formatRealCell(
   winRate: number,
