@@ -4,7 +4,7 @@ id: TASK-0069
 title: "EXP-003: motor y datos de las tres tablas"
 description: Overrides de héroe, bloques compartidos de enemigo, filas afectadas por enemigo/héroe/arma, diagnóstico y export reproducible para la mesa v2.
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 requirement: REQ-028
 requirement_ids: [R-002, R-003, R-004, R-005, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-017, R-018, R-019, R-020, T-001, T-002, T-003, T-006, T-007, T-008]
@@ -13,7 +13,7 @@ unlocks: [TASK-0070]
 created_at: 2026-11-11T22:35:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0069/
 priority: P1
 risk: medium

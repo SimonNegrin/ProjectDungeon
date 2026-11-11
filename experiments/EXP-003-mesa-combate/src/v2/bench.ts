@@ -102,6 +102,16 @@ export interface EnemyOverride {
   readonly weaponId?: string | null;
 }
 
+export interface HeroOverride {
+  readonly stats?: Partial<Stats>;
+  readonly maxHp?: number;
+  readonly maxActions?: number;
+  readonly magicLevel?: number;
+  readonly armorId?: string | null;
+  readonly shieldId?: string | null;
+  readonly weaponId?: string | null;
+}
+
 export interface WeaponOverride {
   readonly accuracy?: number;
   readonly damage?: number;
@@ -110,16 +120,18 @@ export interface WeaponOverride {
 export interface BenchOverrides {
   readonly enemies: Readonly<Record<string, EnemyOverride>>;
   readonly weapons: Readonly<Record<string, WeaponOverride>>;
+  readonly heroes: Readonly<Record<string, HeroOverride>>;
 }
 
 export function emptyOverrides(): BenchOverrides {
-  return { enemies: {}, weapons: {} };
+  return { enemies: {}, weapons: {}, heroes: {} };
 }
 
 export function isOverridesEmpty(overrides: BenchOverrides): boolean {
   return (
     Object.keys(overrides.enemies).length === 0 &&
-    Object.keys(overrides.weapons).length === 0
+    Object.keys(overrides.weapons).length === 0 &&
+    Object.keys(overrides.heroes).length === 0
   );
 }
 
@@ -142,6 +154,28 @@ export function withEnemyOverride(
   return {
     ...overrides,
     enemies: { ...overrides.enemies, [enemyId]: next },
+  };
+}
+
+/** Añade o mezcla el ajuste de un héroe sin mutar el estado anterior. */
+export function withHeroOverride(
+  overrides: BenchOverrides,
+  heroId: string,
+  patch: HeroOverride,
+): BenchOverrides {
+  const current = overrides.heroes[heroId] ?? {};
+  const stats =
+    current.stats || patch.stats
+      ? definedStats({ ...current.stats, ...patch.stats })
+      : undefined;
+  const next: HeroOverride = {
+    ...current,
+    ...patch,
+    ...(stats ? { stats } : {}),
+  };
+  return {
+    ...overrides,
+    heroes: { ...overrides.heroes, [heroId]: next },
   };
 }
 
@@ -176,6 +210,30 @@ export function resetWeaponOverride(
   const weapons: Record<string, WeaponOverride> = { ...overrides.weapons };
   delete weapons[weaponId];
   return { ...overrides, weapons };
+}
+
+export function resetHeroOverride(
+  overrides: BenchOverrides,
+  heroId: string,
+): BenchOverrides {
+  const heroes: Record<string, HeroOverride> = { ...overrides.heroes };
+  delete heroes[heroId];
+  return { ...overrides, heroes };
+}
+
+/** Restaura los overrides de enemigo sin tocar armas ni héroes. */
+export function resetEnemies(overrides: BenchOverrides): BenchOverrides {
+  return { ...overrides, enemies: {} };
+}
+
+/** Restaura los overrides de arma sin tocar enemigos ni héroes. */
+export function resetWeapons(overrides: BenchOverrides): BenchOverrides {
+  return { ...overrides, weapons: {} };
+}
+
+/** Restaura los overrides de héroe sin tocar enemigos ni armas. */
+export function resetHeroes(overrides: BenchOverrides): BenchOverrides {
+  return { ...overrides, heroes: {} };
 }
 
 /** Restaura catálogo y armas a la base. */
@@ -214,6 +272,25 @@ function applyEnemyOverride(
   };
 }
 
+function applyHeroOverride(
+  template: CombatantTemplate,
+  override: HeroOverride,
+): CombatantTemplate {
+  return {
+    ...template,
+    stats: { ...template.stats, ...definedStats(override.stats ?? {}) },
+    maxHp: override.maxHp ?? template.maxHp,
+    maxActions: override.maxActions ?? template.maxActions,
+    magicLevel: override.magicLevel ?? template.magicLevel,
+    armorId:
+      override.armorId !== undefined ? override.armorId : template.armorId,
+    shieldId:
+      override.shieldId !== undefined ? override.shieldId : template.shieldId,
+    weaponId:
+      override.weaponId !== undefined ? override.weaponId : template.weaponId,
+  };
+}
+
 function applyWeaponOverride(
   weapon: WeaponDefinition,
   override: WeaponOverride,
@@ -235,13 +312,14 @@ export function createWorkingCatalog(
   base: Catalog = CATALOG,
   overrides: BenchOverrides = emptyOverrides(),
 ): Catalog {
-  const mapTemplates = (
-    templates: ReadonlyArray<CombatantTemplate>,
-  ): CombatantTemplate[] =>
-    templates.map((template) => {
-      const override = overrides.enemies[template.id];
-      return override ? applyEnemyOverride(template, override) : template;
-    });
+  const roster = base.roster.map((template) => {
+    const override = overrides.heroes[template.id];
+    return override ? applyHeroOverride(template, override) : template;
+  });
+  const bestiary = base.bestiary.map((template) => {
+    const override = overrides.enemies[template.id];
+    return override ? applyEnemyOverride(template, override) : template;
+  });
 
   const weapons: Record<string, WeaponDefinition> = {};
   for (const [id, weapon] of Object.entries(base.weapons)) {
@@ -251,8 +329,8 @@ export function createWorkingCatalog(
 
   return {
     ...base,
-    roster: mapTemplates(base.roster),
-    bestiary: mapTemplates(base.bestiary),
+    roster,
+    bestiary,
     weapons,
     armors: { ...base.armors },
     shields: { ...base.shields },
@@ -268,7 +346,8 @@ export interface BenchRow {
 
 export type BenchSelection =
   | { readonly kind: 'enemy'; readonly enemyId: string }
-  | { readonly kind: 'weapon'; readonly weaponId: string };
+  | { readonly kind: 'weapon'; readonly weaponId: string }
+  | { readonly kind: 'hero'; readonly heroId: string };
 
 export function rowKey(row: BenchRow): string {
   return `${row.heroId}:${row.enemyId}`;
@@ -277,9 +356,9 @@ export function rowKey(row: BenchRow): string {
 /**
  * Filas afectadas en orden fijo, deduplicadas.
  *
- * Un enemigo afecta a sus cuatro filas. Un arma afecta a las filas de todas las
- * unidades que la equipan: los héroes aportan sus tres enemigos y los enemigos
- * sus cuatro héroes.
+ * Un enemigo afecta a sus cuatro filas. Un héroe, a sus tres enemigos. Un arma
+ * afecta a las filas de todas las unidades que la equipan: los héroes aportan
+ * sus tres enemigos y los enemigos sus cuatro héroes.
  */
 export function affectedRows(
   catalog: Catalog,
@@ -297,6 +376,14 @@ export function affectedRows(
 
   if (selection.kind === 'enemy') {
     for (const hero of catalog.roster) add(hero.id, selection.enemyId);
+    return rows;
+  }
+
+  if (selection.kind === 'hero') {
+    if (!catalog.roster.some((hero) => hero.id === selection.heroId)) {
+      return rows;
+    }
+    for (const enemy of catalog.bestiary) add(selection.heroId, enemy.id);
     return rows;
   }
 

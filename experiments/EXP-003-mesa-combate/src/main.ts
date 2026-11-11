@@ -17,15 +17,18 @@ import {
   formatFourOfFour,
   formatRowState,
   formatTarget,
+  heroFieldPatch,
   pruneOverrides,
   resetEnemyFieldOverride,
+  resetHeroFieldOverride,
   resetWeaponFieldOverride,
   validateEnemyField,
+  validateHeroField,
   validateTargetInput,
   validateWeaponField,
   weaponRows,
 } from './bench-ui';
-import type { EnemyField, WeaponField } from './bench-ui';
+import type { EnemyField, HeroField, WeaponField } from './bench-ui';
 import {
   DEFAULT_DUELS,
   DEFAULT_SEED,
@@ -46,13 +49,19 @@ import {
   emptyOverrides,
   overridesId,
   recalculateMatchups,
+  resetEnemies as resetEnemyOverrides,
   resetEnemyOverride,
+  resetHeroes as resetHeroOverrides,
+  resetHeroOverride,
   resetOverrides as resetAllOverrides,
   resetTarget,
+  resetTargets,
   resetWeaponOverride,
+  resetWeapons as resetWeaponOverrides,
   rowKey,
   setTarget as setBenchTarget,
   withEnemyOverride,
+  withHeroOverride,
   withWeaponOverride,
 } from './v2/bench';
 import type {
@@ -1266,9 +1275,9 @@ function setOverrides(next: BenchOverrides): void {
 }
 
 function selectionKey(selection: BenchSelection): string {
-  return selection.kind === 'enemy'
-    ? `enemy:${selection.enemyId}`
-    : `weapon:${selection.weaponId}`;
+  if (selection.kind === 'enemy') return `enemy:${selection.enemyId}`;
+  if (selection.kind === 'weapon') return `weapon:${selection.weaponId}`;
+  return `hero:${selection.heroId}`;
 }
 
 function scheduleRecalc(selection: BenchSelection): void {
@@ -1431,6 +1440,60 @@ function resetAllState(): void {
   recomputeAll();
   benchStatus.textContent =
     'Banco restablecido: catálogo base y objetivos de guía; 12 filas medidas de nuevo.';
+}
+
+function resetEnemiesState(): void {
+  overrides = resetEnemyOverrides(overrides);
+  targets = resetTargets();
+  recomputeAll();
+  benchStatus.textContent =
+    'Enemigos restablecidos: catálogo base y objetivos de guía; 12 filas medidas de nuevo.';
+}
+
+function resetWeaponsState(): void {
+  overrides = resetWeaponOverrides(overrides);
+  recomputeAll();
+  benchStatus.textContent =
+    'Armas restablecidas: catálogo base; 12 filas medidas de nuevo.';
+}
+
+function resetHeroesState(): void {
+  overrides = resetHeroOverrides(overrides);
+  recomputeAll();
+  benchStatus.textContent =
+    'Héroes restablecidos: catálogo base; 12 filas medidas de nuevo.';
+}
+
+function assertHero(heroId: string): void {
+  if (!CATALOG.roster.some((hero) => hero.id === heroId)) {
+    throw new RangeError(`Héroe desconocido: ${heroId}.`);
+  }
+}
+
+function setHeroFieldApi(
+  heroId: string,
+  field: HeroField,
+  value: unknown,
+): void {
+  assertHero(heroId);
+  const validation = validateHeroField(field, value, CATALOG);
+  if (!validation.ok) throw new RangeError(validation.message);
+  setOverrides(
+    withHeroOverride(overrides, heroId, heroFieldPatch(field, validation.value)),
+  );
+  recalculateNow({ kind: 'hero', heroId });
+}
+
+function resetHeroFieldApi(heroId: string, field: HeroField): void {
+  assertHero(heroId);
+  setOverrides(resetHeroFieldOverride(overrides, heroId, field));
+  recalculateNow({ kind: 'hero', heroId });
+}
+
+function resetHeroState(heroId: string): void {
+  assertHero(heroId);
+  setOverrides(resetHeroOverride(overrides, heroId));
+  recalculateNow({ kind: 'hero', heroId });
 }
 
 function refreshDiagnosisOnly(): void {
@@ -1619,6 +1682,24 @@ const api: V2ExperimentApi = {
   },
   setWeaponField: (weaponId, field, value) => {
     setWeaponField(weaponId, field, value);
+  },
+  setHeroField: (heroId, field, value) => {
+    setHeroFieldApi(heroId, field as HeroField, value);
+  },
+  resetHeroField: (heroId, field) => {
+    resetHeroFieldApi(heroId, field as HeroField);
+  },
+  resetHero: (heroId) => {
+    resetHeroState(heroId);
+  },
+  resetEnemies: () => {
+    resetEnemiesState();
+  },
+  resetWeapons: () => {
+    resetWeaponsState();
+  },
+  resetHeroes: () => {
+    resetHeroesState();
   },
   recalculate: (selection) => recalculateNow(selection),
   getDiagnosis: () => {
