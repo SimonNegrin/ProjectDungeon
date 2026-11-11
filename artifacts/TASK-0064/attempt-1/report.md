@@ -5,7 +5,7 @@ description: Página v2 de EXP-003 con controles, tabla, detalle, export y API d
 task: TASK-0064
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T16:10:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:57:00Z }
 artifacts: artifacts/TASK-0064/attempt-1/
 verified:
 ---
@@ -54,12 +54,13 @@ balance fijado.
 
 - Los 12 emparejamientos siguen fuera de banda; la tarea solo los mide.
 - `experiments/manifest.ts` y `experiment.md` aún describen la v1; no los toqué.
-  ¿Los actualiza `requirements-writer`?
+  Quedan para `requirements-writer` al cerrar el experimento; fuera del alcance
+  de esta tarea.
 
 # Fricción reutilizable
 
 | Síntoma | Evidencia | Workaround | Por qué se repite | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `test:e2e -- <spec>` corre todo | `playwright test --` + 98 tests | Quitar `--` | El brief usa `--` | Corregir el comando | Bajo | `pending` |
+| `test:e2e -- <spec>` corre todo | `playwright test --` + 98 tests | Quitar `--` | El brief usa `--` | Corregir el comando en futuros briefs; no es un defecto del producto | Bajo | `deferred`; owner `harness-keeper` vía `requirements-writer` |
 
-Handoff: brief 2791 B · informe 2544 B · sin overflow · `criteria_failed` 0.
+Handoff: brief 2791 B · informe 2701 B · sin overflow · `criteria_failed` 0.

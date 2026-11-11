@@ -59,7 +59,7 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0058](TASK-0058-feedback-combate-muerte.md) | Feedback de combate y muerte: impacto, fallo, daño y cadáver | `done` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0059](TASK-0059-feedback-inventario-percepcion-turno.md) | Feedback de inventario, percepción y turno | `done` | REQ-017 | TASK-0057 | P1 |
 | [TASK-0063](TASK-0063-exp-003-v2-motor-medicion.md) | EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición | `done` | REQ-027 | — | P1 |
-| [TASK-0064](TASK-0064-exp-003-v2-pagina-api-export.md) | EXP-003 v2.0: página, API y export de la mesa | `backlog` | REQ-027 | TASK-0063 | P1 |
+| [TASK-0064](TASK-0064-exp-003-v2-pagina-api-export.md) | EXP-003 v2.0: página, API y export de la mesa | `done` | REQ-027 | TASK-0063 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -76,7 +76,6 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0064 — EXP-003 v2.0: página, API y export de la mesa](TASK-0064-exp-003-v2-pagina-api-export.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
 # done
@@ -134,6 +133,7 @@ Total: **64**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0058 — Feedback de combate y muerte: impacto, fallo, daño y cadáver](TASK-0058-feedback-combate-muerte.md)
 * [TASK-0059 — Feedback de inventario, percepción y turno](TASK-0059-feedback-inventario-percepcion-turno.md)
 * [TASK-0063 — EXP-003 v2.0: motor data-driven, escenarios 1v1 y medición](TASK-0063-exp-003-v2-motor-medicion.md)
+* [TASK-0064 — EXP-003 v2.0: página, API y export de la mesa](TASK-0064-exp-003-v2-pagina-api-export.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

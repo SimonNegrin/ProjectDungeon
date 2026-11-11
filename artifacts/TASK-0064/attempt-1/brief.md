@@ -5,9 +5,9 @@ description: Página v2 de EXP-003 con controles, tabla, detalle, export y API d
 task: TASK-0064
 attempt: 1
 status: stable
-brief_bytes: 2788
+brief_bytes: 2791
 read_detail: false
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T19:10:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:52:00Z }
 ---
 
 # Objetivo
