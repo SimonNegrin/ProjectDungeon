@@ -1,0 +1,93 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts tests/e2e/experiment-combat.spec.ts
+
+Running 12 tests using 4 workers
+
+  ✓   1 [chromium] › tests/e2e/experiment-bench.spec.ts:548:1 › cambiar el objetivo actualiza delta y 4-de-4 sin relanzar duelos (2.2s)
+  ✘   3 [chromium] › tests/e2e/experiment-bench.spec.ts:279:1 › editar un stat del enemigo compartido recalcula sus cuatro filas y deja las demás intactas (2.2s)
+  ✘   2 [chromium] › tests/e2e/experiment-bench.spec.ts:363:1 › editar un stat o el arma inicial de un héroe recalcula sus tres filas y actualiza las unidades del arma (2.2s)
+  ✘   4 [chromium] › tests/e2e/experiment-bench.spec.ts:452:1 › editar el daño de un arma recalcula todas las filas donde se usa sin duplicar la compartida (2.1s)
+  ✓   7 [chromium] › tests/e2e/experiment-bench.spec.ts:844:3 › QA visual 900x700: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.7s)
+  ✓   8 [chromium] › tests/e2e/experiment-bench.spec.ts:844:3 › QA visual 1280x720: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.9s)
+  ✓   6 [chromium] › tests/e2e/experiment-bench.spec.ts:719:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas (3.1s)
+  ✓   5 [chromium] › tests/e2e/experiment-bench.spec.ts:618:1 › los resets por tabla y global restauran solo su parte y devuelven la base (4.5s)
+  ✓  11 [chromium] › tests/e2e/experiment-combat.spec.ts:167:1 › misma semilla y duelos producen el mismo resultado y snapshot (1.4s)
+  ✓   9 [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente (2.0s)
+  ✓  12 [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo (2.0s)
+  ✓  10 [chromium] › tests/e2e/experiment-combat.spec.ts:101:1 › cambiar semilla y duelos recalcula sin recargar (2.2s)
+
+
+  1) [chromium] › tests/e2e/experiment-bench.spec.ts:279:1 › editar un stat del enemigo compartido recalcula sus cuatro filas y deja las demás intactas 
+
+    Error: texto de guerrero:centinela
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not undefined
+
+      338 |   for (const key of affected) {
+      339 |     expect(afterByKey.get(key), `fila ${key}`).not.toEqual(beforeByKey.get(key));
+    > 340 |     expect(afterRows[key], `texto de ${key}`).not.toBe(beforeRows[key]);
+          |                                                   ^
+      341 |   }
+      342 |   for (const key of unaffected) {
+      343 |     expect(afterByKey.get(key), `fila ${key}`).toEqual(beforeByKey.get(key));
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:340:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-editar-un-4b36d-s-y-deja-las-demás-intactas-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-editar-un-4b36d-s-y-deja-las-demás-intactas-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/experiment-bench.spec.ts:363:1 › editar un stat o el arma inicial de un héroe recalcula sus tres filas y actualiza las unidades del arma 
+
+    Error: texto de guerrero:centinela
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not undefined
+
+      384 |       beforeByKey.get(key),
+      385 |     );
+    > 386 |     expect(afterHpRows[key], `texto de ${key}`).not.toBe(beforeRows[key]);
+          |                                                     ^
+      387 |   }
+      388 |   for (const heroId of HEROES.filter((heroId) => heroId !== 'guerrero')) {
+      389 |     for (const enemyId of ENEMIES) {
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:386:53
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-editar-un-9e2ee-aliza-las-unidades-del-arma-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-editar-un-9e2ee-aliza-las-unidades-del-arma-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/experiment-bench.spec.ts:452:1 › editar el daño de un arma recalcula todas las filas donde se usa sin duplicar la compartida 
+
+    Error: texto de guerrero:centinela
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not undefined
+
+      501 |   for (const key of affected) {
+      502 |     expect(afterByKey.get(key), `fila ${key}`).not.toEqual(beforeByKey.get(key));
+    > 503 |     expect(afterRows[key], `texto de ${key}`).not.toBe(beforeRows[key]);
+          |                                                   ^
+      504 |   }
+      505 |   for (const key of unaffected) {
+      506 |     expect(afterByKey.get(key), `fila ${key}`).toEqual(beforeByKey.get(key));
+        at /Users/simon/proyectdungeon/tests/e2e/experiment-bench.spec.ts:503:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/experiment-bench-editar-el-8e8c0--sin-duplicar-la-compartida-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/experiment-bench-editar-el-8e8c0--sin-duplicar-la-compartida-chromium/error-context.md
+
+  3 failed
+    [chromium] › tests/e2e/experiment-bench.spec.ts:279:1 › editar un stat del enemigo compartido recalcula sus cuatro filas y deja las demás intactas 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:363:1 › editar un stat o el arma inicial de un héroe recalcula sus tres filas y actualiza las unidades del arma 
+    [chromium] › tests/e2e/experiment-bench.spec.ts:452:1 › editar el daño de un arma recalcula todas las filas donde se usa sin duplicar la compartida 
+  9 passed (11.0s)
+[ELIFECYCLE] Command failed with exit code 1.
