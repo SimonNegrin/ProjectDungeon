@@ -11,7 +11,7 @@ requirement_ids: [R-005, R-006, R-015, R-019, R-021, R-022, R-023, R-024, T-004,
 depends_on: [TASK-0073]
 unlocks: []
 created_at: 2026-11-11T23:50:00Z
-completed_at: 2026-11-11T23:46:00Z
+completed_at: 2026-11-11T23:55:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0074/
@@ -21,7 +21,7 @@ review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T23:50:00Z }
 verified:
   - by: task-lead
-    at: 2026-11-11T23:46:00Z
+    at: 2026-11-11T23:55:00Z
     note: >-
       Diff completo revisado; `pnpm run verify` verde (73 archivos, 993 tests,
       tsc, vite y bundle) y `pnpm run test:e2e` verde (109 tests, 11/11 del
