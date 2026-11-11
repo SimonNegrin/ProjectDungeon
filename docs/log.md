@@ -2,6 +2,14 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-025 — stable v3: revisada y aprobada por el usuario; catálogo mínimo y valores provisionales v1 aceptados — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
+* 2026-11-11 — Requirement — REQ-021/REQ-025 — PV al volver de la resurrección: 60 % del máximo, redondeado hacia arriba (mínimo 1); parámetro del efecto en el catálogo — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Requirement — REQ-025 — aclarada la adjustabilidad del catálogo: coste final por hechizo, efecto parametrizado y tests que leen del catálogo; las fórmulas quedan como reglas compartidas — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
+* 2026-11-11 — Requirement — REQ-025 — cerradas las preguntas abiertas: nivel 0–4, maná nivel × 4, fórmula mágica con las capas del físico, catálogo mínimo de seis hechizos, curación a 2–3 casillas y resurrección nivel 4 — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
+* 2026-11-11 — Requirement — REQ-015 — niveles de magia por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; resto 0 — [REQ-015](requirements/REQ-015-roster-arquetipos.md)
+* 2026-11-11 — Requirement — REQ-021 — resurrección alineada a nivel 4 y 8 de maná; el objeto sigue provisional — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+* 2026-11-11 — Decision — ADR-019 — magia de nivel único, maná por turno, fórmula con las capas del combate físico y catálogo mínimo de seis hechizos — [ADR-019](decisions/ADR-019-magia-mana-hechizos.md)
+* 2026-11-11 — Docs — arquitectura/glosario/visión/alcance — magia 0–4, maná nivel × 4, fórmula mágica y catálogo mínimo; retirada la magia como horizonte — [arquitectura](design/architecture.md)
 * 2026-11-11 — Requirement — REQ-025 — creada (borrador): magia de nivel único, maná que se recarga por turno y hechizos accesibles por nivel — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
 * 2026-11-11 — Requirement — REQ-026/027 — creadas (borrador): acciones por turno (2 por defecto) y réplica al fallar cuerpo a cuerpo — [REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md), [REQ-027](requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
 * 2026-11-11 — Docs — visión/alcance/glosario — magia simple, maná por turno, acciones como atributo y réplica; retiradas las familias con nivel 1–4 — [vision](vision.md)

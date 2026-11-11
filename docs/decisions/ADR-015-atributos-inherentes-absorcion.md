@@ -9,6 +9,10 @@ decided_at: 2026-11-09T13:30:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T23:50:00Z }
 ---
 
+> **Nota de vigencia (2026-11-11).** La parte de magia de este ADR queda
+> sustituida por [ADR-019](ADR-019-magia-mana-hechizos.md): nivel único 0–4 y
+> maná por turno. El resto del esquema de atributos sigue vigente.
+
 # Contexto
 
 El combate de [ADR-012](ADR-012-combate-equipo-rng.md) usa tres modificadores por
@@ -36,7 +40,8 @@ RNG.
   - `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el empate falla.
   - `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`.
 - **Puntería y magia son slots sin efecto** en este corte. Puntería queda para
-  el ataque a distancia; magia admite varias familias con nivel 1–4.
+  el ataque a distancia; el sistema de magia se decide en
+  [ADR-019](ADR-019-magia-mana-hechizos.md).
 - **Fuente única**: los valores viven en el bestiario y en el roster de héroes;
   el motor y el host no duplican stats. El balance v1 se conserva con
   resistencia 0 y puntería 0.

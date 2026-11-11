@@ -60,9 +60,9 @@ experimento.
 - **Habilidades**: combate cuerpo a cuerpo, proyectiles físicos y mágicos,
   familias mágicas con efectos temporales y permanentes, teletransporte mediante
   magia y curación.
-- **Magia simple**: un nivel de magia único, maná que se recarga cada turno y
-  hechizos por familia accesibles por nivel. Cada hechizo cuesta maná y una
-  acción; máximo dos hechizos por turno.
+- **Magia simple**: un nivel de magia único 0–4, maná máximo nivel × 4 que se
+  recarga cada turno y hechizos por familia accesibles por nivel. Cada hechizo
+  cuesta maná y una acción; máximo dos hechizos por turno en el primer corte.
 - **Acciones**: varias acciones por turno, 2 por defecto, ajustables por arquetipo
   y por objetos. Atacar, interactuar y lanzar hechizos consumen acción; moverse y
   esperar no.
@@ -87,10 +87,11 @@ La muerte es un estado jugable, no una salida de la mesa.
 - El fantasma **no atraviesa muros**, pero sí personajes y enemigos; no puede
   terminar su movimiento en una casilla ocupada y los demás también pueden
   atravesarlo. No bloquea el paso de nadie.
-- La **resurrección** exige un mago vivo con el hechizo y recurso suficiente, o
-  un objeto de resurrección en el inventario de quien lo usa. Quien resucita debe
-  estar **adyacente a la casilla del cadáver**, y esa casilla no puede estar
-  ocupada por un vivo (aliado o enemigo). El fantasma no cuenta como ocupante.
+- La **resurrección** exige un lanzador vivo con nivel de magia 4 y maná
+  suficiente, o un objeto de resurrección en el inventario de quien lo usa.
+  Quien resucita debe estar **adyacente a la casilla del cadáver**, y esa casilla
+  no puede estar ocupada por un vivo (aliado o enemigo). El fantasma no cuenta
+  como ocupante.
 - El personaje **vuelve en la casilla del cadáver**, no en la del fantasma. Sin
   fuente de resurrección disponible, la muerte es definitiva.
 - Cada muerte pesa según el estado del grupo: perder al mago o al objeto de

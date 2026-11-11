@@ -66,8 +66,8 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   `REQ-018` y `REQ-020`.
 - Menú de pausa y guardado local: `REQ-024` en borrador; la persistencia deja de
   ser pregunta abierta.
-- Magia y maná: `REQ-025` en borrador; nivel único, maná por turno y resurrección
-  como hechizo.
+- Magia y maná: `REQ-025` está `stable`; nivel único, maná por turno, catálogo
+  mínimo de seis hechizos y resurrección como hechizo.
 - Economía de acciones: `REQ-026` en borrador; 2 acciones por defecto y rebalanceo
   pendiente.
 - Réplica cuerpo a cuerpo: `REQ-027` en borrador; se dispara con un ataque fallido.
@@ -150,17 +150,18 @@ Los valores concretos de la economía de turno son provisionales y viven en
   movimiento limitado y una acción por ronda.
 - El fantasma no atraviesa muros, sí personajes y enemigos, no puede terminar en
   una casilla ocupada y los demás también pueden atravesarlo; no bloquea el paso.
-- La resurrección requiere un mago vivo con el hechizo y maná suficiente, o un
-  objeto de resurrección en el inventario de quien lo usa. Quien resucita debe
-  estar adyacente a la casilla del cadáver, libre de vivos; el personaje vuelve en
-  esa casilla, no en la del fantasma. Sin fuente disponible, la muerte es
-  definitiva.
-- Los hechizos usan un recurso de **maná** derivado del nivel de magia, separado
-  del MP de movimiento. El maná se recarga completo cada turno y su máximo se
-  deriva del nivel. Cada hechizo cuesta maná y una acción; máximo 2 por turno.
-- Cada personaje tiene **un nivel de magia único**; las familias son categorías de
-  hechizo, no niveles. Cualquier lanzador con nivel suficiente usa cualquier
-  hechizo.
+- La resurrección requiere un lanzador vivo con nivel de magia 4 y maná
+  suficiente, o un objeto de resurrección en el inventario de quien lo usa.
+  Quien resucita debe estar adyacente a la casilla del cadáver, libre de vivos;
+  el personaje vuelve en esa casilla, no en la del fantasma. Sin fuente
+  disponible, la muerte es definitiva.
+- Los hechizos usan un recurso de **maná** derivado del nivel de magia (máximo
+  nivel × 4), separado del MP de movimiento. El maná se recarga completo cada
+  turno. Cada hechizo cuesta maná y una acción; máximo 2 por turno en el primer
+  corte, provisional hasta los objetos de acción.
+- Cada personaje tiene **un nivel de magia único 0–4**; las familias son
+  categorías de hechizo, no niveles. Cualquier lanzador con nivel suficiente usa
+  cualquier hechizo.
 - Las acciones por turno son el noveno atributo inherente: 2 por defecto, variables
   por arquetipo y por objetos con tope de 4. Atacar, interactuar y lanzar hechizos
   consumen una; moverse y esperar no.
@@ -184,8 +185,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Hotseat jugable; la pantalla de configuración (`REQ-016`, borrador) es
   preparación.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
-- Habilidades, magia, proyectiles, teletransporte y curación: horizonte con
-  `REQ-025` en borrador; implementación pendiente.
+- Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
+  muros mágicos: horizonte. La magia básica y la curación están en `REQ-025`;
+  implementación pendiente.
 - Puntos de habilidad y progresión: horizonte sin hoja aprobada. Las acciones por
   personaje ya tienen hoja (`REQ-026`), sin implementar.
 - Rebalanceo de combate por acciones y réplica: planificado en `REQ-026`; valores

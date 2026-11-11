@@ -81,6 +81,27 @@ equipo y RNG de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa
 y [ADR-012](../decisions/ADR-012-combate-equipo-rng.md) queda como historia; el
 balance v1 de enemigos y armas se conserva y el Guerrero usa resistencia 1.
 
+## Magia y maná
+
+La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
+`src/game/` y comparte el RNG y las capas de combate:
+
+- `spells.ts` es el catálogo de hechizos: id, familia, nivel mínimo, coste,
+  alcance, acierto, poder, objetivo, efecto y presentación. Es dato serializable
+  y fuente única; añadir un hechizo no toca el resolvedor.
+- `magic.ts` valida y resuelve hechizos con el RNG sembrado: acción, maná, nivel,
+  alcance, línea de visión y objetivo. Un rechazo no consume nada.
+- El ataque mágico reutiliza las capas de `combat.ts`: acierto con nivel de magia
+  + acierto del hechizo contra defensa + escudo; daño con poder del hechizo contra
+  resistencia + armadura. No hay una resistencia mágica separada.
+- `Unit` guarda `magicLevel` (0–4) y `mana { current, max }`; `max = nivel × 4` y
+  se recarga al inicio del turno junto a MP y acciones. El maná no altera el MP.
+- La curación y la resurrección son hechizos sin tirada de impacto; la
+  resurrección conserva las condiciones de
+  [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
+
+Ver [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md).
+
 # Percepción, alarma y huida
 
 La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas,

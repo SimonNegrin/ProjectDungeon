@@ -4,11 +4,11 @@ id: REQ-015
 title: Roster de arquetipos
 description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
 status: draft
-version: 2
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-11T15:25:00Z
+updated_at: 2026-11-11T15:30:00Z
 related_tasks: [TASK-0055, TASK-0056]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
@@ -53,7 +53,7 @@ enemigos y sus objetivos de balance van en una hoja futura.
 | R-005 | Nueva arma Cuchillo: +4 acierto / 1 daño; más fiable y menos dañina que la daga (+4/2). | El catálogo de armas incluye el Cuchillo con esos valores; la daga no cambia. |
 | R-006 | Cada arquetipo ofrece dos variantes de sprite seleccionables, sin etiqueta de género. | El roster declara dos variantes por arquetipo; la selección se hace en REQ-016. |
 | R-007 | Cada instancia de personaje tiene un nombre editable; por defecto, el del arquetipo. | El estado guarda el nombre; la pantalla de inicio permite editarlo. |
-| R-008 | Identidad mágica por **nivel único**: Mago con nivel alto, Guerrero mágico medio, Clérigo de apoyo y Cocinero con nivel bajo; el resto sin magia. Cualquier lanzador puede usar cualquier hechizo de su nivel. | La tabla de identidad recoge un nivel o «sin magia»; no hay familias con nivel propio. |
+| R-008 | Identidad mágica por **nivel único**: Mago 4 (alto), Clérigo 3 (medio), Guerrero mágico 2 (medio-bajo) y Cocinero 1 (bajo); el resto sin magia (0). Cualquier lanzador puede usar cualquier hechizo de su nivel o inferior. | La tabla de identidad recoge un nivel numérico o «sin magia»; no hay familias con nivel propio. |
 
 ## Stats inherentes (balance provisional v1)
 
@@ -63,10 +63,10 @@ enemigos y sus objetivos de balance van en una hoja futura.
 | Bárbaro | 0 | +3 | −1 | 0 | 24 | 5 | 0 | 0 | 2 |
 | Pícaro | +3 | 0 | +1 | 0 | 14 | 8 | 0 | 0 | 2 |
 | Arquero | +1 | 0 | 0 | 0 | 14 | 6 | +3 | 0 | 2 |
-| Mago | 0 | −1 | 0 | 0 | 12 | 5 | 0 | por decidir | 2 |
-| Clérigo | 0 | −1 | +3 | +2 | 18 | 5 | 0 | por decidir | 2 |
-| Guerrero mágico | +1 | 0 | +1 | 0 | 18 | 6 | 0 | por decidir | 2 |
-| Cocinero | +3 | −1 | 0 | 0 | 14 | 6 | 0 | por decidir | 2 |
+| Mago | 0 | −1 | 0 | 0 | 12 | 5 | 0 | 4 | 2 |
+| Clérigo | 0 | −1 | +3 | +2 | 18 | 5 | 0 | 3 | 2 |
+| Guerrero mágico | +1 | 0 | +1 | 0 | 18 | 6 | 0 | 2 | 2 |
+| Cocinero | +3 | −1 | 0 | 0 | 14 | 6 | 0 | 1 | 2 |
 | Agricultor | −1 | +3 | 0 | +1 | 22 | 4 | 0 | 0 | 2 |
 
 La escala es relativa al Guerrero (+1): `0` queda un punto por debajo, `−1` dos
@@ -74,10 +74,9 @@ por debajo y `+2/+3` por encima. Un modificador negativo se suma al total de su
 lado de la fórmula (equivale a restar 1 a la tirada de 1d6); el `max(1, …)` del
 daño sigue garantizando mínimo 1 en un impacto.
 
-`Mag` es el nivel de magia (entero único) y `Acc` las acciones por turno. El maná
-máximo se deriva del nivel de magia en `REQ-025` y no se duplica en esta tabla.
-Los niveles de magia de los arquetipos con hechizos quedan por decidir; 2 acciones
-es el valor por defecto de `REQ-026`.
+`Mag` es el nivel de magia (entero 0–4; 0 = sin magia) y `Acc` las acciones por
+turno. El maná máximo se deriva del nivel en `REQ-025` (nivel × 4) y no se
+duplica en esta tabla. 2 acciones es el valor por defecto de `REQ-026`.
 
 ## Equipo inicial
 
@@ -101,15 +100,15 @@ es el valor por defecto de `REQ-026`.
 | Bárbaro | Pega fuerte y encaja | sin magia |
 | Pícaro | Rápido y fiable | sin magia |
 | Arquero | Distancia (futuro) | sin magia |
-| Mago | Hechizos | alto (por decidir) |
-| Clérigo | Tanque de apoyo | medio (por decidir) |
-| Guerrero mágico | Guerrero algo más débil | medio-bajo (por decidir) |
-| Cocinero | Cuchillo y apoyo | bajo (por decidir) |
+| Mago | Hechizos | 4 (alto) |
+| Clérigo | Tanque de apoyo | 3 (medio) |
+| Guerrero mágico | Guerrero algo más débil | 2 (medio-bajo) |
+| Cocinero | Cuchillo y apoyo | 1 (bajo) |
 | Agricultor | Fuerza bruta | sin magia |
 
 Todos los lanzadores comparten el catálogo de hechizos: el nivel es el único
-requisito de acceso (`REQ-025`). Las familias (fuego, hielo, veneno, vida…) son
-categorías de efecto, no afinidades por arquetipo.
+requisito de acceso (`REQ-025`). Las familias (fuego, eléctrico, veneno, vida…)
+son categorías de efecto, no afinidades por arquetipo.
 
 # Cómo ajustar el balance (método)
 
@@ -160,9 +159,9 @@ categorías de efecto, no afinidades por arquetipo.
 # Preguntas abiertas
 
 - Los objetivos de win % del bestiario (hoja futura).
-- Los niveles de magia concretos por arquetipo (`REQ-025`).
+- El ajuste de los niveles de magia tras playtest (valores v1 en `REQ-025`).
 - Los valores de acciones por arquetipo (`REQ-026`).
-- Si el Clérigo curará en el futuro (identidad provisional: apoyo).
+- Si el Clérigo tendrá un ataque propio además de la curación (maza futura).
 
 # Decisiones
 
@@ -175,8 +174,9 @@ categorías de efecto, no afinidades por arquetipo.
 | 2026-11-09 | Nombre editable por instancia, por defecto el del arquetipo. | human:simon | aceptada |
 | 2026-11-09 | Magia vacía en combate; identidad registrada (Mago, Guerrero mágico, Cocinero). Clérigo tanque sin curación. | human:simon | sustituida el 2026-11-11 |
 | 2026-11-09 | Método de balance por win % esperado: héroe con iniciativa, 1v1, equipo básico, 1.000 duelos y ±2 %. | human:simon | aceptada |
-| 2026-11-11 | Enmienda `REQ-025`: magia como nivel único; los niveles por arquetipo quedan por decidir. | human:simon | aceptada |
+| 2026-11-11 | Enmienda `REQ-025`: magia como nivel único; los niveles por arquetipo se cierran en la fila siguiente. | human:simon | aceptada |
 | 2026-11-11 | Enmienda `REQ-026`: acciones por turno con 2 por defecto; valores por arquetipo pendientes. | human:simon | aceptada |
+| 2026-11-11 | Niveles de magia por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el resto 0. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

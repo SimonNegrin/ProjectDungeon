@@ -18,3 +18,4 @@
 * [ADR-016: permisos de task-lead para diseño y glosario](ADR-016-permisos-docs-diseno-glosario.md) - Tareas mixtas: el lead edita `docs/design` y glosario para reflejar requisitos aprobados; requisitos, arnés y plantillas siguen en `requirements-writer`.
 * [ADR-017: feedback visual dirigido por eventos](ADR-017-feedback-visual-eventos.md) - Cues deterministas en la timeline de presentación, estado visible retrasado hasta su evento, capas Canvas/DOM y cadáver de presentación.
 * [ADR-018: Harness Keeper](ADR-018-harness-keeper.md) - Agente primario para el arnés y la documentación, con auditoría bajo demanda y propiedad por ruta.
+* [ADR-019: magia, maná y hechizos](ADR-019-magia-mana-hechizos.md) - Nivel 0–4, maná nivel × 4, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos.

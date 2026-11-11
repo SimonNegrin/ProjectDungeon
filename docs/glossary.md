@@ -49,10 +49,10 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Acierto del arma** | Bonus del arma que se suma a la habilidad al resolver el impacto. |
 | **Daño del arma** | Bonus del arma que se suma a la fuerza al resolver el daño. |
 | **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
-| **Magia** | Atributo inherente de nivel entero único. Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
-| **Maná** | Recurso de hechizos separado del MP; su máximo deriva del nivel de magia y se recarga completo al inicio de cada turno. |
+| **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
+| **Maná** | Recurso de hechizos separado del MP; su máximo es nivel × 4 y se recarga completo al inicio de cada turno. |
 | **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto). Atacar, interactuar y lanzar hechizos consumen una; moverse y esperar no. |
-| **Hechizo** | Efecto mágico con nivel mínimo, coste de maná, alcance y familia; consume una acción y se limita a dos por turno. |
+| **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla; puede fallar, puede matar y no se encadena. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
 | **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
@@ -64,6 +64,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Feedback visual** | Presentación de un evento del motor mediante un cue: destello, sacudida, parpadeo, texto, banner u onda. No cambia reglas ni estado. |
 | **Beat** | Tiempo mínimo en que el input sigue bloqueado para que el ojo registre un evento; los textos y marcas pueden persistir más allá. |
 | **Cadáver** | Marca persistente en el tile donde murió una unidad. El de enemigo es presentación y no se interactúa; el de jugador es contenedor saqueable y origen del fantasma ([REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)). |
+| **Resurrección** | Vuelta a la vida de un jugador muerto como hechizo de nivel 4: exige nivel 4 y 8 de maná, adyacencia al cadáver y casilla sin vivos; el resucitado vuelve en la casilla del cadáver con el 60 % de su PV máximo, redondeado hacia arriba ([REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)). |
 | **Percepción** | Regla que decide si un enemigo ve a un jugador: visión 360°, radio por tipo y línea de visión de Bresenham; los muros bloquean y las unidades no. |
 | **Dormido** | Estado `dormant`: el enemigo no se mueve, no ataca y no patrulla hasta ver a un jugador, recibir daño o una alarma. |
 | **Alerta** | Estado `alert`: el enemigo persigue la última posición conocida y ataca si llega a adyacencia con acción. |
