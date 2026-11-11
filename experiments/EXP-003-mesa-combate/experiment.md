@@ -1,12 +1,12 @@
 ---
 type: Experiment
 id: EXP-003
-title: "Mesa de combate: acciones, magia y réplica (v2.0)"
-description: Simulador data-driven de duelos 1v1 con catálogos, acciones, magia/maná y réplica; mide 1.000 duelos por emparejamiento y deja el balance pendiente de aprobación.
+title: "Mesa de combate: acciones, magia, réplica y banco de ajuste (v2.0)"
+description: Simulador data-driven de duelos 1v1 con acciones, magia/maná, réplica y banco de ajuste de enemigos y armas; mide 1.000 duelos por emparejamiento y permite afinar objetivos sin aprobar el balance.
 status: stable
 experiment_status: ready
 question: ¿Qué valores de acciones, magia y réplica producen combates equilibrados y legibles en los escenarios del primer corte?
-related_requirements: [REQ-009, REQ-010, REQ-014, REQ-015, REQ-017, REQ-021, REQ-025, REQ-026, REQ-027]
+related_requirements: [REQ-009, REQ-010, REQ-014, REQ-015, REQ-017, REQ-021, REQ-025, REQ-026, REQ-027, REQ-028]
 related_decisions: [ADR-012, ADR-014, ADR-015, ADR-019, ADR-020]
 seed: 1017
 engine_version: v2.0
@@ -33,7 +33,7 @@ previous_decision:
     Tabla A de REQ-010, histórica; el balance v1 se sustituyó por la pasada
     provisional del 2026-11-09.
 created_at: 2026-11-08T16:37:43Z
-updated_at: 2026-11-11T19:30:00Z
+updated_at: 2026-11-11T21:30:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
   - by: human:simon
@@ -47,6 +47,13 @@ verified:
       v2.0: motor data-driven, 62 tests v2 y 903 tests de verify, resultados
       byte a byte estables y página/E2E 4/4. El balance no está aprobado: los
       12 emparejamientos quedan fuera de la banda 40–60 % por arriba.
+  - by: task-lead
+    at: 2026-11-11T21:30:00Z
+    note: >-
+      Banco de ajuste (REQ-028): catálogo de trabajo, objetivos editables,
+      diagnóstico 4-de-4, resets y export determinista; 945 tests de verify y
+      105/105 E2E, con 11/11 del banco y la mesa. No aprueba valores: los 12
+      emparejamientos base siguen fuera de la banda.
 ---
 
 # Propósito
@@ -70,10 +77,16 @@ en manos del usuario.
 ¿Qué valores de acciones, magia y réplica producen combates equilibrados y
 legibles en los escenarios del primer corte?
 
-La banda de aceptación es **40–60 % de victorias del héroe** (50 % ±10), con
+La banda de aceptación base es **40–60 % de victorias del héroe** (50 % ±10), con
 **±2 pp de tolerancia de simulación** y **héroe con iniciativa**. La comparación
 actual usa 38–62 para no confundir el error de muestreo con el objetivo; aun así
 los 12 emparejamientos quedan fuera.
+
+El **banco de ajuste** de [REQ-028](../../docs/requirements/REQ-028-ajuste-interactivo-balance.md)
+añade una segunda lectura: el usuario fija un objetivo por enemigo y la mesa
+muestra el delta y cuántas de sus cuatro filas quedan dentro de un margen de
+referencia de ±5 pp. Esos objetivos son una guía editable, no una nueva banda de
+aceptación. La guía inicial es 75 % Centinela, 85 % Cobarde y 30 % Bruto.
 
 # Hipótesis
 
@@ -97,6 +110,9 @@ los 12 emparejamientos quedan fuera.
 - Escenario de pasillo abstracto 1D de 8 casillas: héroe en 0, enemigo en 7,
   héroe con iniciativa. Moverse cuesta 1 MP por casilla; atacar y lanzar un
   hechizo cuestan 1 acción.
+- **Banco de ajuste (REQ-028):** objetivos editables por enemigo, editor
+  expandible de stats compartidos, tabla global de armas, diagnóstico 4-de-4,
+  resets y export reproducible. No cambia el motor ni las reglas.
 - Sin grupos, posiciones 2D, terreno, línea de visión ni arte. Eso es v2.1.
 
 # Cómo usarlo
@@ -106,14 +122,65 @@ los 12 emparejamientos quedan fuera.
 2. Ajusta semilla y duelos por emparejamiento; por defecto 1017 y 1.000.
 3. Lee la tabla de 12 emparejamientos y selecciona uno para ver acciones,
    hechizos, maná, daño, PV restantes y distribución de duración.
-4. Descarga o copia el JSON. La página no decide: exporta catálogo, escenario,
-   semilla y métricas.
-5. Para una ejecución determinista: `?test=1&seed=1017`.
-6. Reproducción por CLI:
-   `pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2`.
+4. En el **banco de ajuste**, pulsa «Ajustar» en una fila y edita el enemigo:
+   PV, habilidad, fuerza, defensa, resistencia, acciones, armadura, escudo y
+   arma. El enemigo es compartido: el cambio recalcula sus cuatro filas, no una
+   copia por fila.
+5. Cambia el **objetivo de victorias** de cada enemigo si lo necesitas. La guía
+   inicial es 75/85/30, pero es editable. La fila muestra objetivo, win % real,
+   delta y si está dentro del margen de referencia de ±5 pp; el panel del enemigo
+   muestra el 4-de-4 y qué héroe queda fuera.
+6. En la **tabla de armas**, edita acierto y daño de espada, hacha, daga o
+   cuchillo. El arma es global: la tabla indica qué unidades la usan y se
+   recalculan todas las filas afectadas.
+7. Usa los resets por campo, por enemigo, por arma o global para volver al
+   catálogo base y a la guía de objetivos.
+8. Descarga o copia el JSON. Sin overrides conserva el nombre base; con ajustes
+   usa `bench-overrides-<id>` e incluye catálogo ajustado, objetivos,
+   diagnóstico y semilla. La página no decide ni aprueba el balance.
+9. Para una ejecución determinista: `?test=1&seed=1017`.
+10. Reproducción por CLI:
+    `pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2`.
 
-La API de test `window.__experiment` expone `getSeed`, `setSeed`, `getDuels`,
-`setDuels`, `runAll`, `getResults`, `snapshot`, `getDecision` y `reset`.
+La API de test `window.__experiment` mantiene `getSeed`, `setSeed`, `getDuels`,
+`setDuels`, `runAll`, `getResults`, `snapshot`, `getDecision` y `reset`, y añade
+`getTargets`, `setTarget`, `resetTarget`, `getOverrides`, `resetEnemy`,
+`resetWeapon`, `resetWeaponField`, `resetAll`, `setEnemyField`,
+`resetEnemyField`, `setWeaponField`, `recalculate`, `getDiagnosis`,
+`getWorkingCatalog` y `getOverridesId`.
+
+# Banco de ajuste (REQ-028)
+
+El banco es una capa de edición sobre el catálogo base. No cambia el motor, las
+fórmulas ni el escenario: proyecta un **catálogo de trabajo** con overrides y
+vuelve a medir las filas afectadas con la misma semilla y los mismos duelos.
+
+- **Enemigo compartido:** editar un enemigo reconstruye sus cuatro filas
+  (Guerrero, Pícaro, Mago y Clérigo). No hay copias por emparejamiento.
+- **Armas globales:** acierto y daño se editan una vez para todos los que usan
+  el arma. La espada mueve 6 filas (Guerrero contra los tres enemigos y los
+  cuatro héroes contra Centinela, con la fila de Guerrero/Centinela compartida);
+  la daga, otras 6; el hacha, 4; el cuchillo no lo usa ningún combatiente de la
+  muestra y no mueve filas.
+- **Objetivos editables:** cada enemigo tiene un objetivo entero 0–100. La guía
+  inicial 75/85/30 no es normativa. El margen de referencia es ±5 pp.
+- **Diagnóstico:** por fila, objetivo, win % real, delta y dentro/fuera; por
+  enemigo, 4-de-4, mínimo, máximo y dispersión. Se avisa cuando la dispersión
+  entre héroes supera 10 pp (un bloque compartido no puede centrar las cuatro
+  filas) o cuando el arma del enemigo también la usa un héroe. Son avisos
+  informativos: no bloquean edición, export ni reset.
+- **Recálculo:** solo las filas afectadas, con retardo al escribir y estado
+  visible. En la máquina de referencia, 4 × 1.000 duelos tardan ~61 ms.
+- **Reset:** por campo, por enemigo, por arma y global; restaura catálogo base y
+  guía de objetivos.
+- **Export:** incluye catálogo ajustado, objetivos, overrides, diagnóstico y un
+  `overridesId` determinista sin marca de tiempo. Sin overrides conserva el
+  nombre histórico; con overrides usa `bench-overrides-<id>`.
+
+El banco **no aprueba el balance**. Los 12 emparejamientos base siguen entre
+96,3 % y 100 % de victorias del héroe, fuera de la banda 40–60 %. La mesa sirve
+para explorar candidatos y llevarse el export; la interpretación de si los
+objetivos elegidos suponen un problema se hace en la sesión de requisitos.
 
 # Modelo y reglas
 
@@ -145,6 +212,10 @@ Semilla **1017**, **1.000 duelos** por emparejamiento, catálogo
 `EXP-003-v2.0.0`, héroe con iniciativa. JSON reproducible:
 [`results/v2-seed-1017-duels-1000.json`](results/v2-seed-1017-duels-1000.json).
 Una segunda ejecución produce el mismo archivo byte a byte.
+
+Estos resultados son la medición del **catálogo base, sin overrides**. El banco
+de ajuste no los cambia ni los aprueba: parte de ellos y permite explorar
+candidatos. Ningún valor ajustado se ha fijado todavía.
 
 ## Victoria y duración
 
@@ -312,14 +383,28 @@ Evidencia v1: [JSON de decisión](results/decision-2026-11-08T17-18-00Z.json) y
   [detalle metodológico](../../artifacts/TASK-0063/attempt-1/report-detalle.md).
 - [Informe de TASK-0064](../../artifacts/TASK-0064/attempt-1/report.md) con la
   página, la API, el export y las capturas.
-- Tests: 62 tests v2 y 903 tests de `pnpm run verify`; E2E de la página 4/4.
+- [Informe de TASK-0066](../../artifacts/TASK-0066/attempt-1/report.md) con el
+  motor del banco, overrides, objetivos y diagnóstico.
+- [Informe de TASK-0067](../../artifacts/TASK-0067/attempt-1/report.md) y
+  [verificación independiente](../../artifacts/TASK-0067/attempt-1/verification-lead.md)
+  con la UI, los resets y el export.
+- [Informe de TASK-0068](../../artifacts/TASK-0068/attempt-1/report.md) y
+  [verificación independiente](../../artifacts/TASK-0068/attempt-1/verification-lead.md)
+  con E2E, QA visual y capturas.
+- Tests: 945 tests de `pnpm run verify` y 105/105 E2E; 11/11 de la mesa y el
+  banco. Recálculo de 4 × 1.000 duelos medido en ~61 ms.
 - Reproducción: `pnpm exec vitest run experiments/EXP-003-mesa-combate/src/v2`.
 
 # Siguientes pasos
 
-1. El usuario lee esta mesa y decide: aprobar la dirección de retune o pedir una
-   tabla candidata concreta.
-2. Si acepta, se ejecuta **v2.0b** con 2–3 tablas candidatas y el mismo motor.
-3. Solo después se actualizan los valores de REQ-015, REQ-025, REQ-026 y REQ-027.
+1. El usuario abre el **banco de ajuste**, fija los objetivos que quiera y
+   prueba stats de enemigos y armas hasta quedar conforme. Descarga el export
+   ajustado.
+2. Con ese export se analiza si los objetivos elegidos suponen un problema:
+   filas fuera del margen, dispersión entre héroes, arma global que mueve a los
+   dos bandos o un 4-de-4 que no cierra con un solo bloque.
+3. Solo después se decide si se ajusta el objetivo, el enemigo, el arma o un
+   héroe (fuera del alcance de REQ-028). Ningún valor se aprueba
+   automáticamente; la decisión sigue siendo del usuario.
 4. La v2.1 añade grupos 2v2, posiciones 2D y el bestiario completo; los estados
    alterados y las resistencias necesitan su propia hoja.

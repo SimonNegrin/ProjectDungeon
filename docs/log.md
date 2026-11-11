@@ -2,6 +2,11 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Requirement — REQ-028 — stable v2: tres tablas inline a ancho completo (combates, armas y héroes), enemigo compartido con celdas agrupadas, Acierto/Daño como stat propio, armas solo acierto/daño, set completo de héroes y recálculo enemigo 4 / héroe 3 / arma todas sus filas — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)
+* 2026-11-11 — Task — TASK-0069 — creada ready: motor y datos de las tres tablas (overrides de héroe, filas afectadas, diagnóstico y export) — [TASK-0069](tasks/TASK-0069-exp-003-tres-tablas-motor.md)
+* 2026-11-11 — Task — TASK-0070 — creada backlog: tres tablas inline a ancho completo; depende de TASK-0069 — [TASK-0070](tasks/TASK-0070-exp-003-tres-tablas-ui.md)
+* 2026-11-11 — Task — TASK-0071 — creada backlog: E2E y QA visual de las tres tablas; depende de TASK-0070 — [TASK-0071](tasks/TASK-0071-exp-003-tres-tablas-e2e.md)
+* 2026-11-11 — Experiment — EXP-003 — banco de ajuste documentado: objetivos editables por enemigo, guía 75/85/30 no normativa, stats compartidos, armas globales, diagnóstico 4-de-4, resets y export; 945 tests y 105/105 E2E; el balance base sigue sin aprobar — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
 * 2026-11-11 — Task — TASK-0068 — cerrada: E2E y QA visual del banco de ajuste (7 tests; enemigo/objetivo/arma, resets, export determinista y capturas 1280×720/900×700); verify 945/945 y test:e2e 105/105; fusión `656c047` — [informe](../artifacts/TASK-0068/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0067 — cerrada: UI del banco de ajuste con objetivos editables, editor compartido, tabla global de armas, diagnóstico 4-de-4, recálculo diferido de filas afectadas, resets y export; 945/945 tests, verify y E2E 4/4 OK; fusión `6c175c2` — [informe](../artifacts/TASK-0067/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0066 — cerrada: motor y datos del banco de ajuste (overlay sin mutar `CATALOG`, objetivos 75/85/30, filas afectadas, diagnóstico 4-de-4 con avisos y export determinista); 925/925 tests y verify OK; fusión `d240a0c` — [informe](../artifacts/TASK-0066/attempt-1/report.md)
