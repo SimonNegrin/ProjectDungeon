@@ -5,7 +5,7 @@ description: E2E y QA visual de las tres tablas inline de EXP-003.
 task: TASK-0071
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-11T22:40:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T23:05:00Z }
 artifacts: artifacts/TASK-0071/attempt-1/
 verified:
 ---
@@ -18,29 +18,31 @@ verified:
 # Cambios
 
 - `tests/e2e/experiment-bench.spec.ts`: reescrito para enemigo compartido,
-  héroe, arma, objetivo, resets, export y QA visual.
+  héroe, arma, objetivo, resets, export y QA visual. El export re-ejecuta
+  `runAll()` y exige los mismos `matchups` y el mismo JSON.
 - `tests/e2e/experiment-combat.spec.ts`: solo localizadores `matchup-*` →
   `combats-*`/detalle; aserciones de motor y export intactas.
 - `experiments/EXP-003-mesa-combate/src/experiment.css`: 11 líneas para evitar
-  recortes (ver desviaciones).
-- Commits: `8a17f7b` (CSS), `13be604` (tests); informe en commit posterior.
+  recortes.
+- Commits: `8a17f7b` (CSS), `13be604` (tests), `49e374a` (rerun); evidencias
+  después.
 
 # Tests
 
 | Comando | Timeout | Resultado | Evidencia |
 |---|---:|---|---|
-| Dos specs con `E2E_ARTIFACTS_DIR` | 180 s | 12/12, 10,4 s | `logs/e2e-iteration-final.txt` |
-| `pnpm run test:e2e` | 300 s | 106/106, 58,6 s | `test-output.txt` |
+| Dos specs con `E2E_ARTIFACTS_DIR` | 180 s | 12/12, 9,6 s | `logs/e2e-iteration-final-2.txt` |
+| `pnpm run test:e2e` | 300 s | 106/106, 59,9 s | `test-output.txt` |
 | `pnpm run verify` | 300 s | 974 tests, build y bundle OK | `verify-output.txt` |
 
 # Evidencia visual
 
 - `screenshots/bench-{before,after}-css-qa-{1280x720,900x700}-combates.png`.
 - `screenshots/bench-qa-1280x720-{combates,armas,heroes,foco,detalle,bloque}.png`
-  y `bench-qa-900x700-{combates,foco,viewport}.png`; detalle de combate en
+  y `bench-qa-900x700-{combates,foco,viewport}.png`; detalle:
   `combat-{tabla-12-emparejamientos,detalle-picaro-bruto}.png`.
 - Origen: `experiment-bench/screenshots/` y `experiment-combat/screenshots/`.
-  Mirar `% real` completo, victorias sin elipsis, scroll interno a 900 y foco.
+  Mirar `% real`, victorias sin elipsis, scroll a 900 y foco.
 
 # Desviaciones
 
@@ -52,8 +54,8 @@ verified:
 
 # Problemas conocidos y preguntas abiertas
 
-- Los `select` nativos truncan «Sin armadura»/«Sin escudo» en columnas
-  estrechas; al desplegar se lee la opción completa. No impide editar.
+- `select` nativos truncan «Sin armadura»/«Sin escudo»; al desplegar se lee la
+  opción.
 - A 900×700 combates y héroes exigen scroll interno, comportamiento pedido.
 - Sin preguntas abiertas.
 
@@ -66,6 +68,6 @@ Ninguna
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2204 |
-| `report_bytes` | 2560 |
+| `report_bytes` | 2553 |
 | `overflow` | `none` |
 | `criteria_failed` | `0` |

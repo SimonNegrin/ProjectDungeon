@@ -1,0 +1,18 @@
+$ playwright test tests/e2e/experiment-bench.spec.ts tests/e2e/experiment-combat.spec.ts
+
+Running 12 tests using 4 workers
+
+  ✓   1 [chromium] › tests/e2e/experiment-bench.spec.ts:557:1 › cambiar el objetivo actualiza delta y 4-de-4 sin relanzar duelos (1.7s)
+  ✓   3 [chromium] › tests/e2e/experiment-bench.spec.ts:282:1 › editar un stat del enemigo compartido recalcula sus cuatro filas y deja las demás intactas (2.0s)
+  ✓   4 [chromium] › tests/e2e/experiment-bench.spec.ts:459:1 › editar el daño de un arma recalcula todas las filas donde se usa sin duplicar la compartida (2.4s)
+  ✓   2 [chromium] › tests/e2e/experiment-bench.spec.ts:370:1 › editar un stat o el arma inicial de un héroe recalcula sus tres filas y actualiza las unidades del arma (2.4s)
+  ✓   7 [chromium] › tests/e2e/experiment-bench.spec.ts:863:3 › QA visual 1280x720: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.2s)
+  ✓   6 [chromium] › tests/e2e/experiment-bench.spec.ts:728:1 › el export incluye catálogo ajustado, objetivos, diagnóstico y overridesId deterministas (2.8s)
+  ✓   8 [chromium] › tests/e2e/experiment-bench.spec.ts:863:3 › QA visual 900x700: tres tablas a ancho completo, foco, detalle y dentro/fuera (2.8s)
+  ✓   5 [chromium] › tests/e2e/experiment-bench.spec.ts:627:1 › los resets por tabla y global restauran solo su parte y devuelven la base (4.4s)
+  ✓   9 [chromium] › tests/e2e/experiment-combat.spec.ts:61:1 › el índice lista EXP-003 y la cabecera anuncia balance pendiente (1.5s)
+  ✓  11 [chromium] › tests/e2e/experiment-combat.spec.ts:167:1 › misma semilla y duelos producen el mismo resultado y snapshot (1.4s)
+  ✓  10 [chromium] › tests/e2e/experiment-combat.spec.ts:101:1 › cambiar semilla y duelos recalcula sin recargar (2.0s)
+  ✓  12 [chromium] › tests/e2e/experiment-combat.spec.ts:260:1 › el detalle, el export y la descarga no llevan marca de tiempo (1.3s)
+
+  12 passed (9.6s)
