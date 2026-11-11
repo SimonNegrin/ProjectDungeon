@@ -20,12 +20,15 @@ duplica.
 | Agente | Modo | Entrada | Salida |
 |---|---|---|---|
 | `requirements-writer` | Primario | Conversación con el usuario | Requisitos, experimentos, tareas |
+| `harness-keeper` | Primario | Consulta o auditoría del usuario | Correcciones de arnés, documentación y flujo |
 | `task-lead` | Subagente | Tarea lista | Brief, verificación, tarea cerrada |
 | `task-runner` | Subagente | Brief del lead | Implementación, tests, artefactos, informe |
 
 `requirements-writer` lanza `task-lead`; `task-lead` lanza `task-runner`
-(`subagent_depth: 2`). El usuario es la autoridad creativa: ningún agente decide
-cómo se ve, se escucha, se juega o se siente.
+(`subagent_depth: 2`). `harness-keeper` se invoca manualmente cuando el usuario
+quiere una consulta o una auditoría; no hay auditoría periódica ni al cerrar
+hito. El usuario es la autoridad creativa: ningún agente decide cómo se ve, se
+escucha, se juega o se siente.
 
 Reglas de sesión:
 
@@ -37,6 +40,8 @@ Reglas de sesión:
   el cambio de agente o `/requirement` cuando falten.
 - Si ya hay una tarea `ready`, el siguiente paso es `task-lead`; no se implementa
   directamente.
+- Para consultas o cambios de arnés, documentación o flujo, usa
+  `harness-keeper`; no los aplica `requirements-writer`.
 - Una sesión por requisito o milestone; una por tarea o intento.
 - Fuera de la creación de tareas o de su ejecución, ningún agente edita archivos
   por iniciativa propia: propone el cambio y pide confirmación. Si el árbol tiene
@@ -187,7 +192,7 @@ se escala.
 | Duda creativa | Usuario | Preguntar o experimentar. |
 | Requisito ambiguo o tarea grande | `requirements-writer` | Aclarar, versionar o dividir. |
 | Test roto sin causa clara | `task-lead` | Investigar; si no, escalar. |
-| Fricción de arnés | `requirements-writer` | Triar; el usuario decide si cambia reglas. |
+| Fricción de arnés | `harness-keeper` | Triar; corregir lo de bajo riesgo y proponer el resto. El usuario decide si cambia reglas. |
 
 Un bloqueo se devuelve con: tarea, intento, qué se intentó, qué falló, evidencia,
 hipótesis descartadas, opciones, decisión necesaria y riesgo de cada opción.
@@ -233,8 +238,8 @@ el `--` literal no funciona.
 
 # Fricción y propuestas
 
-El runner observa, el lead tria, `requirements-writer` escribe y el usuario
-decide las reglas.
+El runner observa, el lead tria, `requirements-writer` escribe el producto,
+`harness-keeper` escribe el arnés y el usuario decide las reglas.
 
 - `task-runner` reporta fricción reutilizable con evidencia y disposición
   `pending`; no edita `docs/` ni la usa para desbloquear.
@@ -242,11 +247,14 @@ decide las reglas.
   en su alcance —incluidos `docs/design/**` y `docs/glossary.md` para reflejar
   requisitos aprobados ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md))—
   y eleva el resto con evidencia.
-- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo
-  con log; consulta al usuario si cambia reglas, permisos, gates, coste o
-  comportamiento de los agentes.
-- Las propuestas no urgentes se revisan en lote al cerrar un hito o en el
-  playtest. Ninguna queda abierta sin disposición ni dueño.
+- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo de
+  producto con log; consulta al usuario si cambia reglas o alcance.
+- `harness-keeper` aplica correcciones factuales y cambios de bajo riesgo de
+  arnés y documentación con log; consulta al usuario si cambia reglas, permisos,
+  gates, coste o comportamiento de agentes
+  ([ADR-018](../decisions/ADR-018-harness-keeper.md)).
+- Las propuestas no urgentes se revisan en lote cuando el usuario invoca a
+  `harness-keeper`. Ninguna queda abierta sin disposición ni dueño.
 
 # Comandos de apoyo
 

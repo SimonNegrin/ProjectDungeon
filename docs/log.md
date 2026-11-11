@@ -1,8 +1,16 @@
 # Historial del bundle
 
+## 2026-11-11
+
+* 2026-11-11 — Decision — ADR-018 — Harness Keeper: agente primario para arnés y documentación, propiedad por ruta y auditoría manual sin cadencia obligatoria — [ADR-018](decisions/ADR-018-harness-keeper.md)
+* 2026-11-11 — Harness — harness-keeper — creado el agente; `requirements-writer` deja de editar `docs/harness`, plantillas y `AGENTS.md`; actualizados workflow, AGENTS, README y validador — [agente](../.opencode/agents/harness-keeper.md)
+
 ## 2026-11-10
 
 * 2026-11-10 — Harness — requirements-writer — comunicación más concisa: 120 palabras o 6 líneas por respuesta, una pregunta por mensaje, máximo 3 opciones y sin recapitular salvo el resumen previo a la hoja; aplicado al agente y a la skill `requirements-interview` — [agente](../.opencode/agents/requirements-writer.md)
+* 2026-11-10 — Requirement — REQ-018 — creada (borrador): inventario personal, ocho huecos de equipo y sustitución del modelo de tres armas de REQ-010; abiertas capacidad, coste de equipar y piezas secundarias — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+* 2026-11-10 — Requirement — REQ-019 — creada (borrador): traits de objetos equipados con modificadores de stats y especiales cuerpo etéreo, robo de vida y área; abiertas semántica, stacking y corte inicial — [REQ-019](requirements/REQ-019-traits-objetos.md)
+* 2026-11-10 — Requirement — REQ-020 — creada (borrador): cofres y cadáveres como contenedores, transferencia y botín determinista; enmienda REQ-017 y alcance; abiertas interacción, drop y colocación — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
 * 2026-11-10 — Task — TASK-0062 — done: sufijo `repeatEachIndex` en capturas E2E, prueba del helper y QA visual sin workaround; `test:e2e` 98/98, `verify` 825/825 y `--repeat-each=3` con tres rutas; fusión `7846784` — [informe](../artifacts/TASK-0062/attempt-1/report.md)
 * 2026-11-10 — Harness — visual-qa — corregido el comportamiento de `--repeat-each`: pasada 0 en `<spec>/`, pasadas 1..N-1 en `<spec>/repeat-N/`, sufijo con `repeatEachIndex`; eliminado el workaround manual — [visual-qa](harness/visual-qa.md)
 * 2026-11-10 — Task — TASK-0062 — review: helper con sufijo `repeatEachIndex` y prueba propia; `test:e2e` 98/98, `verify` 825/825, `docs:check` 308 y `--repeat-each=3` con tres rutas; pendiente decisión de cierre — [informe](../artifacts/TASK-0062/attempt-1/report.md)

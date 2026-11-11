@@ -23,6 +23,8 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
   2. Comprueba si hay un requisito aceptado y una tarea que cubran el cambio.
   3. Si no los hay, detente y pide al usuario cambiar a `requirements-writer` o
      ejecutar `/requirement` antes de continuar.
+- `harness-keeper` es primario y se usa para consultas y cambios de arnés,
+  documentación o flujo. Se invoca manualmente; no hay auditoría obligatoria.
 - Si ya existe una tarea `ready`, el siguiente paso es `task-lead`; no se
   implementa directamente.
 - Una sesión por requisito o milestone.
@@ -32,6 +34,9 @@ Lee primero [docs/index.md](docs/index.md) y, según la tarea,
 - El agente por defecto es `requirements-writer`.
 - No se escribe código de juego sin una tarea aceptada.
 - El usuario tiene la última palabra sobre decisiones creativas.
+- `harness-keeper` es dueño de `docs/harness/**`, `docs/templates/**`,
+  `AGENTS.md`, `.opencode/**` y `opencode.jsonc`; `requirements-writer` del resto
+  del producto. `task-lead` actualiza tareas, decisiones, diseño y glosario.
 - Las decisiones técnicas se documentan en `docs/decisions/` y no se consultan
   salvo que sean irreversibles, caras o afecten a la sensación de juego.
 - Toda la documentación nueva debe ser Markdown con frontmatter OKF.

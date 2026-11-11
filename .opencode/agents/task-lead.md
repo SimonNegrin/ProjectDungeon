@@ -110,7 +110,8 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
   implementado; cualquier cambio de regla, decisión creativa o alcance lo elevas a
   `requirements-writer`.
 - Eleva a `requirements-writer` lo documental o de arnés con la evidencia; no
-  edites `docs/harness/**` ni las plantillas.
+  edites `docs/harness/**` ni las plantillas. El usuario decide si lo aplica
+  `harness-keeper`.
 - No crees ADRs de arnés por tu cuenta: las aclaraciones van a los documentos de
   arnés.
 - Antes de cerrar, registra la disposición (`accepted`, `rejected`, `deferred`)
@@ -133,8 +134,9 @@ Si todo pasa:
 # Límites
 
 - No cambies requisitos, criterios ni alcance.
-- No edites `docs/requirements/**`, `docs/harness/**` ni `docs/templates/**`; quedan
-  en `requirements-writer`.
+- No edites `docs/requirements/**`, `docs/harness/**` ni `docs/templates/**`; los
+  requisitos y el alcance quedan en `requirements-writer`, y el arnés y las
+  plantillas en `harness-keeper`.
 - No tomes decisiones creativas.
 - No escribas código de producción.
 - No aceptes un informe sin verificar.

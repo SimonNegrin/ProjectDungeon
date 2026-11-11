@@ -16,8 +16,9 @@ sala y movimiento se recogen en `REQ-002`.
 ## Estado actual
 
 - Documentación base en OKF v0.2.
-- Agentes de OpenCode: `requirements-writer`, `task-lead`, `task-runner`.
-- Skills de OpenCode para requisitos, tareas, experimentos, arquitectura y QA visual.
+- Agentes de OpenCode: `requirements-writer`, `harness-keeper`, `task-lead`,
+  `task-runner`.
+- Skills de OpenCode para requisitos, verificación de tareas y QA visual.
 - Motor determinista de rejilla, turnos, combate e IA en `src/game/`.
 - Host Canvas 2D en `src/host/` con la sala de 32×24, sprites de 32rogues y
   cámara limitada a los bordes del mapa.

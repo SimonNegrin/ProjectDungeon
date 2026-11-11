@@ -41,6 +41,12 @@ if (!agents.has('requirements-writer')) {
 if (agents.get('requirements-writer')?.data.mode !== 'primary') {
   errors.push('requirements-writer debe ser primary');
 }
+if (!agents.has('harness-keeper')) {
+  errors.push('Falta el agente harness-keeper');
+}
+if (agents.get('harness-keeper')?.data.mode !== 'primary') {
+  errors.push('harness-keeper debe ser primary');
+}
 for (const id of ['task-lead', 'task-runner']) {
   if (!agents.has(id)) errors.push(`Falta el agente ${id}`);
   if (agents.get(id)?.data.mode !== 'subagent') {

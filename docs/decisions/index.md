@@ -17,3 +17,4 @@
 * [ADR-015: atributos inherentes y resistencia en la absorción](ADR-015-atributos-inherentes-absorcion.md) - Ocho atributos por personaje, habilidad/fuerza como modificadores y resistencia en la capa de absorción con la armadura como bonus.
 * [ADR-016: permisos de task-lead para diseño y glosario](ADR-016-permisos-docs-diseno-glosario.md) - Tareas mixtas: el lead edita `docs/design` y glosario para reflejar requisitos aprobados; requisitos, arnés y plantillas siguen en `requirements-writer`.
 * [ADR-017: feedback visual dirigido por eventos](ADR-017-feedback-visual-eventos.md) - Cues deterministas en la timeline de presentación, estado visible retrasado hasta su evento, capas Canvas/DOM y cadáver de presentación.
+* [ADR-018: Harness Keeper](ADR-018-harness-keeper.md) - Agente primario para el arnés y la documentación, con auditoría bajo demanda y propiedad por ruta.
