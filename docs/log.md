@@ -2,6 +2,7 @@
 
 ## 2026-11-11
 
+* 2026-11-11 — Task — TASK-0068 — cerrada: E2E y QA visual del banco de ajuste (7 tests; enemigo/objetivo/arma, resets, export determinista y capturas 1280×720/900×700); verify 945/945 y test:e2e 105/105; fusión `656c047` — [informe](../artifacts/TASK-0068/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0067 — cerrada: UI del banco de ajuste con objetivos editables, editor compartido, tabla global de armas, diagnóstico 4-de-4, recálculo diferido de filas afectadas, resets y export; 945/945 tests, verify y E2E 4/4 OK; fusión `6c175c2` — [informe](../artifacts/TASK-0067/attempt-1/report.md)
 * 2026-11-11 — Task — TASK-0066 — cerrada: motor y datos del banco de ajuste (overlay sin mutar `CATALOG`, objetivos 75/85/30, filas afectadas, diagnóstico 4-de-4 con avisos y export determinista); 925/925 tests y verify OK; fusión `d240a0c` — [informe](../artifacts/TASK-0066/attempt-1/report.md)
 * 2026-11-11 — Requirement — REQ-028 — stable v1: mesa de ajuste con objetivos editables por enemigo, stats compartidos, armas globales, editor expandible, diagnóstico 4-de-4 y export; guía 75/85/30 no normativa y análisis posterior de problemas — [REQ-028](requirements/REQ-028-ajuste-interactivo-balance.md)

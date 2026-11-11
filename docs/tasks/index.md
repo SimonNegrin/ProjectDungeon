@@ -62,7 +62,7 @@ Total: **68**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0064](TASK-0064-exp-003-v2-pagina-api-export.md) | EXP-003 v2.0: página, API y export de la mesa | `done` | REQ-027 | TASK-0063 | P1 |
 | [TASK-0066](TASK-0066-exp-003-banco-ajuste-motor.md) | EXP-003: motor y datos del banco de ajuste | `done` | REQ-028 | — | P1 |
 | [TASK-0067](TASK-0067-exp-003-banco-ajuste-ui.md) | EXP-003: UI del banco de ajuste | `done` | REQ-028 | TASK-0066 | P1 |
-| [TASK-0068](TASK-0068-exp-003-banco-ajuste-e2e.md) | EXP-003: E2E y QA visual del banco de ajuste | `ready` | REQ-028 | TASK-0067 | P1 |
+| [TASK-0068](TASK-0068-exp-003-banco-ajuste-e2e.md) | EXP-003: E2E y QA visual del banco de ajuste | `done` | REQ-028 | TASK-0067 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -72,10 +72,6 @@ Total: **68**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
-
-# ready
-
-* [TASK-0068 — EXP-003: E2E y QA visual del banco de ajuste](TASK-0068-exp-003-banco-ajuste-e2e.md)
 
 # review
 
@@ -144,6 +140,7 @@ Total: **68**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0064 — EXP-003 v2.0: página, API y export de la mesa](TASK-0064-exp-003-v2-pagina-api-export.md)
 * [TASK-0066 — EXP-003: motor y datos del banco de ajuste](TASK-0066-exp-003-banco-ajuste-motor.md)
 * [TASK-0067 — EXP-003: UI del banco de ajuste](TASK-0067-exp-003-banco-ajuste-ui.md)
+* [TASK-0068 — EXP-003: E2E y QA visual del banco de ajuste](TASK-0068-exp-003-banco-ajuste-e2e.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
