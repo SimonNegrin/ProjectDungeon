@@ -35,15 +35,15 @@ export const SHIELDS: Readonly<Record<string, ShieldDefinition>> = {
 };
 
 export const AI_PROFILES: Readonly<Record<string, AIProfile>> = {
-  valiente: {
-    id: 'valiente',
+  'perfil-valiente': {
+    id: 'perfil-valiente',
     name: 'Valiente',
     fleeThreshold: null,
     castSpells: false,
     spellPriority: 'power',
   },
-  cobarde: {
-    id: 'cobarde',
+  'perfil-cobarde': {
+    id: 'perfil-cobarde',
     name: 'Cobarde',
     fleeThreshold: 0.4,
     castSpells: false,
@@ -148,7 +148,7 @@ export const ROSTER: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 0,
     alarmRadius: 0,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
   },
   {
     id: 'picaro',
@@ -165,7 +165,7 @@ export const ROSTER: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 0,
     alarmRadius: 0,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
   },
   {
     id: 'mago',
@@ -182,7 +182,7 @@ export const ROSTER: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 0,
     alarmRadius: 0,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
   },
   {
     id: 'clerigo',
@@ -199,7 +199,7 @@ export const ROSTER: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 0,
     alarmRadius: 0,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
   },
 ];
 
@@ -219,7 +219,7 @@ export const BESTIARY: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 6,
     alarmRadius: 5,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
     enemyType: 'centinela',
   },
   {
@@ -237,7 +237,7 @@ export const BESTIARY: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 4,
     alarmRadius: 5,
-    profileId: 'valiente',
+    profileId: 'perfil-valiente',
     enemyType: 'bruto',
   },
   {
@@ -255,7 +255,7 @@ export const BESTIARY: ReadonlyArray<CombatantTemplate> = [
     marksmanship: 0,
     vision: 5,
     alarmRadius: 5,
-    profileId: 'cobarde',
+    profileId: 'perfil-cobarde',
     enemyType: 'cobarde',
   },
 ];

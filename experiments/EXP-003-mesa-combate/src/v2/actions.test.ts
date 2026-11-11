@@ -266,7 +266,7 @@ describe('selección de hechizos', () => {
     const mago = createUnit(templateFor(CATALOG, 'mago'), 3);
     const target = createUnit(templateFor(CATALOG, 'centinela'), 5);
     expect(
-      pickEnemySpell(mago, target, CATALOG, CATALOG.aiProfiles.valiente),
+      pickEnemySpell(mago, target, CATALOG, CATALOG.aiProfiles['perfil-valiente']),
     ).toBeNull();
     expect(
       pickEnemySpell(
@@ -274,7 +274,7 @@ describe('selección de hechizos', () => {
         target,
         CATALOG,
         {
-          ...CATALOG.aiProfiles.valiente,
+          ...CATALOG.aiProfiles['perfil-valiente'],
           castSpells: true,
         },
       ),

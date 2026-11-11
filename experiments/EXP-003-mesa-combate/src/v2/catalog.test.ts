@@ -34,6 +34,19 @@ describe('catálogo v2.0', () => {
     }
   });
 
+  it('no repite ids entre tablas del catálogo', () => {
+    const ids = [
+      ...CATALOG.roster.map((entry) => entry.id),
+      ...CATALOG.bestiary.map((entry) => entry.id),
+      ...Object.keys(CATALOG.weapons),
+      ...Object.keys(CATALOG.armors),
+      ...Object.keys(CATALOG.shields),
+      ...Object.keys(CATALOG.spells),
+      ...Object.keys(CATALOG.aiProfiles),
+    ];
+    expect(uniqueCount(ids)).toBe(ids.length);
+  });
+
   it('contiene los cuatro héroes del primer corte', () => {
     expect(CATALOG.roster.map((entry) => entry.id)).toEqual([
       'guerrero',
@@ -115,8 +128,8 @@ describe('catálogo v2.0', () => {
   });
 
   it('declara perfiles de IA como datos', () => {
-    expect(CATALOG.aiProfiles.valiente.fleeThreshold).toBeNull();
-    expect(CATALOG.aiProfiles.cobarde.fleeThreshold).toBeGreaterThan(0);
+    expect(CATALOG.aiProfiles['perfil-valiente'].fleeThreshold).toBeNull();
+    expect(CATALOG.aiProfiles['perfil-cobarde'].fleeThreshold).toBeGreaterThan(0);
     for (const profile of Object.values(CATALOG.aiProfiles)) {
       expect(typeof profile.castSpells).toBe('boolean');
       expect(['power', 'cost']).toContain(profile.spellPriority);
