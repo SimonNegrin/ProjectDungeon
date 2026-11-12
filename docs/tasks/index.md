@@ -69,7 +69,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0072](TASK-0072-exp-003-objetivos-por-par.md) | EXP-003: objetivos por par, diagnóstico y export | `done` | REQ-028 | — | P1 |
 | [TASK-0073](TASK-0073-exp-003-filtros-tablas.md) | EXP-003: filtros de las tres tablas | `done` | REQ-028 | TASK-0072 | P1 |
 | [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `done` | REQ-028 | TASK-0073 | P1 |
-| [TASK-0076](TASK-0076-motor-contador-acciones-costes.md) | Motor: contador de acciones y costes por comando | `review` | REQ-026 | — | P1 |
+| [TASK-0076](TASK-0076-motor-contador-acciones-costes.md) | Motor: contador de acciones y costes por comando | `done` | REQ-026 | — | P1 |
 | [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `backlog` | REQ-026 | TASK-0076 | P1 |
 | [TASK-0078](TASK-0078-host-contador-acciones-fin-turno.md) | Host: contador de acciones, fin de turno y beats | `backlog` | REQ-026 | TASK-0077 | P1 |
 | [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `backlog` | REQ-027 | TASK-0078 | P1 |
@@ -88,10 +88,6 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
-
-# review
-
-* [TASK-0076 — Motor: contador de acciones y costes por comando](TASK-0076-motor-contador-acciones-costes.md)
 
 # backlog
 
@@ -172,6 +168,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0072 — EXP-003: objetivos por par, diagnóstico y export](TASK-0072-exp-003-objetivos-por-par.md)
 * [TASK-0073 — EXP-003: filtros de las tres tablas](TASK-0073-exp-003-filtros-tablas.md)
 * [TASK-0074 — EXP-003: E2E y QA visual de objetivos por par y filtros](TASK-0074-exp-003-objetivos-filtros-e2e.md)
+* [TASK-0076 — Motor: contador de acciones y costes por comando](TASK-0076-motor-contador-acciones-costes.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

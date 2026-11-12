@@ -4,14 +4,14 @@ id: TASK-0076
 title: "Motor: contador de acciones y costes por comando"
 description: "Sustituir la acción booleana por un contador por unidad con máximo, restauración por turno, coste declarado por comando, ataque repetible y fin de turno manual."
 status: stable
-task_status: review
+task_status: done
 task_type: feature
 requirement: REQ-026
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-013, T-001, T-002, T-003, T-007, T-008, T-013]
 depends_on: []
 unlocks: [TASK-0077]
 created_at: 2026-11-12T14:30:00Z
-completed_at:
+completed_at: 2026-11-12T17:38:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0076/
@@ -26,6 +26,11 @@ verified:
       Verificación independiente: `pnpm run verify` OK (74 archivos, 1004 tests),
       build y bundle OK; diff y criterios revisados. Estado `review`: falta la
       aprobación humana por `review_required`.
+  - by: human:simon
+    at: 2026-11-12T17:38:00Z
+    note: >-
+      Aprobación humana de la tarea verificada. Fusión en `main` `f8481f9`
+      (merge `--no-ff` de `task/TASK-0076`, sin force-push).
 ---
 
 # Objetivo
@@ -53,28 +58,28 @@ moverse, recoger, cambiar de arma y cerrar el turno no gastan acción.
 
 # Criterios de aceptación
 
-- [ ] `Unit.actions` guarda `{ max, remaining }`; `remaining` baja con cada
+- [x] `Unit.actions` guarda `{ max, remaining }`; `remaining` baja con cada
       comando de coste 1 y vuelve a `max` al empezar el turno de la unidad, junto
       a MP. El gasto no persiste entre turnos.
-- [ ] `actions.max` sale del atributo inherente de acciones (2 por defecto,
+- [x] `actions.max` sale del atributo inherente de acciones (2 por defecto,
       Pícaro 3) más `actionsBonus` del equipo, con recorte determinista a 4; un
       objeto de prueba con +2 se recorta al tope. Enemigos: Centinela 2,
       Bruto 1, Cobarde 2.
-- [ ] Atacar cuesta 1 acción y se puede repetir contra el mismo objetivo u otro;
+- [x] Atacar cuesta 1 acción y se puede repetir contra el mismo objetivo u otro;
       sin acciones se rechaza con `no-action` sin cambiar estado, RNG ni eventos.
-- [ ] `Moverse` y `MoveTo` gastan MP y 0 acciones; `PickUp` sigue costando 1 MP
+- [x] `Moverse` y `MoveTo` gastan MP y 0 acciones; `PickUp` sigue costando 1 MP
       y 0 acciones; `SelectWeapon`, `EndTurn` y `Restart` cuestan 0.
-- [ ] `MoveTo` sobre un enemigo se resuelve como movimiento con MP más **un**
+- [x] `MoveTo` sobre un enemigo se resuelve como movimiento con MP más **un**
       ataque de 1 acción por comando; no encadena ataques. Si no queda acción,
       solo se mueve; si ya es adyacente, ataca una vez.
-- [ ] Gastar la última acción no termina el turno ni cambia de fase; el jugador
+- [x] Gastar la última acción no termina el turno ni cambia de fase; el jugador
       sigue pudiendo moverse y cierra con `E`.
-- [ ] La serialización, el snapshot y el debug exponen `actions.max` y
+- [x] La serialización, el snapshot y el debug exponen `actions.max` y
       `actions.remaining`; no queda `actionAvailable` como fuente de verdad.
-- [ ] Tests actualizados de `REQ-009`, `REQ-010` y `REQ-017`; tests nuevos de dos
+- [x] Tests actualizados de `REQ-009`, `REQ-010` y `REQ-017`; tests nuevos de dos
       ataques, Pícaro 3, ataque + interacción, movimiento y recogida sin acción,
       fin de turno manual, restauración y tope. `pnpm run verify` pasa.
-- [ ] Sin cambios en contenedores, soltar objetos, hechizos, réplica ni valores
+- [x] Sin cambios en contenedores, soltar objetos, hechizos, réplica ni valores
       de balance.
 
 # Plan de test
@@ -89,9 +94,9 @@ moverse, recoger, cambiar de arma y cerrar el turno no gastan acción.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0076/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA en la rama `task/TASK-0076`
+- [x] Informe en `artifacts/TASK-0076/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA en la rama `task/TASK-0076`
 
 # Restricciones
 
