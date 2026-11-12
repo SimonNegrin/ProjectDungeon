@@ -22,20 +22,23 @@ verified:
   resurrección; reutiliza `resolveHit`/`resolveDamage`, equipo, LOS y RNG; tope
   2 por unidad y turno.
 - `types.ts`: comando `CastSpell`, evento `SpellCast`, motivos nuevos y
-  `Unit.spellsCast`; `engine.ts` valida fase; `turn.ts` reinicia el cupo;
-  `roster.ts` y enemigos nacen con 0.
+  `Unit.spellsCast`; `engine.ts` valida fase y restringe el lanzador a
+  `state.players`; `turn.ts` reinicia el cupo; `roster.ts` y enemigos nacen con 0.
 - `combat.ts` exporta la reacción de daño para reutilizarla sin réplica;
   `hud.ts`/`motion.ts` solo reciben casos mínimos de compilación.
-- Tests en `tests/unit/game/magic.test.ts` (36). Commits `9fcb3ea` (motor) y
-  `eb562ea` (tests). Sin cambios en `docs/`, dependencias ni estado.
+- Tests en `tests/unit/game/magic.test.ts` (37). Commits `9fcb3ea` (motor),
+  `eb562ea` (tests) y `e926383` (corrección). Sin cambios en `docs/`,
+  dependencias ni estado.
+- Corrección de verificación: `CastSpell` con `unitId` enemigo en fase de
+  jugador se rechaza por `unknown-unit` sin consumir nada, igual que `Attack`.
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run verify` | verde: 1090/1090, build y bundle | `verify-output.txt` |
-| `pnpm run test` | verde: 1090/1090 (78 archivos) | `test-output.txt` |
-| `vitest run magic.test.ts` | verde: 36/36 | `logs/magic-tests.txt` |
+| `pnpm run verify` | verde: 1091/1091, build y bundle | `verify-output.txt` |
+| `pnpm run test` | verde: 1091/1091 (78 archivos) | `test-output.txt` |
+| `vitest run magic.test.ts` | verde: 37/37 | `logs/magic-tests.txt` |
 | `pnpm run test:e2e` | no aplica: sin UI ni render | — |
 
 Cubre las capas de combate con valores del catálogo, fuego/eléctrico, curación,
@@ -44,7 +47,7 @@ resurrección, muros frente a unidades, tope, recarga, determinismo, no
 
 # Evidencia visual
 
-No aplica: sin HUD, input, arte ni audio; lo cubre `TASK-0083`.
+No aplica: sin UI ni render; lo cubre `TASK-0083`.
 
 # Desviaciones
 
@@ -70,8 +73,6 @@ No aplica: sin HUD, input, arte ni audio; lo cubre `TASK-0083`.
   `REQ-021`/`REQ-025` no lo dicen; hoy solo cambia el PV.
 - Una unidad resucitada en el mismo turno conserva su `spellsCast` anterior hasta
   su siguiente turno.
-- `docs:check` avisa de que brief (4032 B) e informe superan el objetivo de
-  2560 B; ambos quedan bajo el tope de 4096 B y el comando pasa.
 
 # Fricción reutilizable
 
@@ -84,6 +85,6 @@ No aplica: sin HUD, input, arte ni audio; lo cubre `TASK-0083`.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4032 |
-| `report_bytes` | 4014 |
+| `report_bytes` | 4084 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
