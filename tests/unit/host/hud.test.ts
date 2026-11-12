@@ -46,7 +46,8 @@ describe('modelo del HUD', () => {
     expect(model).toMatchObject({
       playerHp: `${state.players[0].hp}/${state.players[0].maxHp}`,
       playerMp: `${state.players[0].mp}/${state.players[0].maxMp}`,
-      action: 'Sí',
+      action: '2/2',
+      actionSuggestion: null,
       phase: 'Jugador',
       enemyHp: `${state.enemies[0].hp}/${state.enemies[0].maxHp}`,
       turn: 'Turno 1',
@@ -178,19 +179,23 @@ describe('modelo del HUD', () => {
     );
   });
 
-  it('actualiza la vida del enemigo y la acción tras un ataque', () => {
+  it('actualiza la vida del enemigo y el contador de acciones 2/2→1/2→0/2', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
       rng: rngForDice([6, 1, 2, 1]),
     });
 
+    expect(buildHudModel(state).action).toBe('2/2');
+
     const afterFirst = attack(state);
+    expect(buildHudModel(afterFirst).action).toBe('1/2');
+
     const next = attack(afterFirst);
     const model = buildHudModel(next);
 
     expect(model.enemyHp).toBe(`${next.enemies[0].hp}/${next.enemies[0].maxHp}`);
-    expect(model.action).toBe('No');
+    expect(model.action).toBe('0/2');
     expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
   });
 
@@ -208,8 +213,43 @@ describe('modelo del HUD', () => {
     expect(model.turn).toBe('Turno 2');
     expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
     expect(model.playerMp).toBe(`${next.players[0].mp}/${next.players[0].maxMp}`);
-    expect(model.action).toBe('Sí');
+    expect(model.action).toBe('2/2');
     expect(model.status).toBe('En juego');
+  });
+
+  it('sugiere terminar solo con 0 acciones, sin MP y en fase de jugador', () => {
+    const exhausted = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          mp: 0,
+          actions: 0,
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    expect(buildHudModel(exhausted).actionSuggestion).toBe(
+      'Sin acciones ni MP: pulsa E para terminar el turno',
+    );
+
+    const withMp = {
+      ...exhausted,
+      players: [{ ...exhausted.players[0], mp: 1 }],
+    };
+    expect(buildHudModel(withMp).actionSuggestion).toBeNull();
+
+    const withAction = {
+      ...exhausted,
+      players: [{ ...exhausted.players[0], actions: { ...exhausted.players[0].actions, remaining: 1 } }],
+    };
+    expect(buildHudModel(withAction).actionSuggestion).toBeNull();
+
+    expect(buildHudModel({ ...exhausted, phase: 'enemy' }).actionSuggestion).toBeNull();
+    expect(buildHudModel({ ...exhausted, status: 'victory' }).actionSuggestion).toBeNull();
   });
 
   it('muestra el overlay de victoria cuando el enemigo muere', () => {
@@ -259,6 +299,7 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Jugador: (4, 4)');
     expect(text).toContain('Identidad: player-1 · Arquetipo —');
     expect(text).toContain('MP 6/6');
+    expect(text).toContain('Acciones 2/2');
     expect(text).toContain('Enemigo: (15, 15)');
     expect(text).toContain('Fase: Jugador · Turno 1');
     expect(text).toContain('Cursor: (4, 4) jugador · camino 0');
@@ -437,7 +478,7 @@ describe('modelo del overlay de debug', () => {
         : `${ARMORS[BESTIARY.sentinel.equipment.armorId].name} +${ARMORS[BESTIARY.sentinel.equipment.armorId].armor}`;
     const equipment = lines.filter((line) => line.startsWith('Equipo enemigo'));
     expect(equipment).toEqual([
-      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Atributos +0 habilidad · +0 fuerza · +0 defensa · +0 resistencia`,
+      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Atributos +0 habilidad · +0 fuerza · +0 defensa · +0 resistencia · Acciones 2/2`,
     ]);
   });
 

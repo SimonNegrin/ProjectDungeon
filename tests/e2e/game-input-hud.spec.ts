@@ -76,7 +76,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expectHud(page, {
     playerHp: '20/20',
     playerMp: '6/6',
-    action: 'Sí',
+    action: '2/2',
     phase: 'Jugador',
     enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
   });
@@ -138,7 +138,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(
     afterMoveTo.lastEvents.filter((event) => event.type === 'UnitMoved'),
   ).toHaveLength(2);
-  await expectHud(page, { playerMp: '4/6', action: 'Sí' });
+  await expectHud(page, { playerMp: '4/6', action: '2/2' });
 
   // R reinicia al estado inicial y recoloca el cursor sobre el jugador.
   await page.keyboard.press('r');
@@ -156,7 +156,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     y: initial.players[0].y,
     state: 'player',
   });
-  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: '2/2' });
 
   // Movimiento por destino de 3 pasos hacia el oeste.
   for (let step = 0; step < 3; step += 1) {
@@ -210,7 +210,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
   await expectHud(page, {
     enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
-    action: 'Sí',
+    action: '2/2',
   });
 
   const rejected = await page.evaluate(() =>
@@ -286,9 +286,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
       }),
     ]),
   );
-  // Durante el beat del ataque la acción aparece consumida; al asentar vuelve
-  // a estar disponible. Se comprueba en el cue, de forma determinista.
-  await expect(page.getByTestId('hud-action')).toHaveText('No');
+  // Durante el beat del ataque queda 1/2; el contador no cae a 0 hasta el
+  // segundo ataque. Se comprueba en el cue, de forma determinista.
+  await expect(page.getByTestId('hud-action')).toHaveText('1/2');
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
     `${playerAttack!.targetHp}/${durableEnemy.maxHp}`,
   );
@@ -328,7 +328,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expectHud(page, {
     playerHp: `${afterEndTurn.players[0].hp}/20`,
     playerMp: '6/6',
-    action: 'Sí',
+    action: '2/2',
     phase: 'Jugador',
   });
 
@@ -380,7 +380,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   });
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
-  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: '2/2' });
 
   // F1 abre y cierra el overlay de debug sin alterar la partida.
   await page.keyboard.press('F1');
@@ -457,7 +457,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     state: 'player',
   });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
-  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: 'Sí' });
+  await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: '2/2' });
 
   // F2 genera una semilla nueva y regenera el mapa sin cerrar el debug.
   await page.keyboard.press('F1');

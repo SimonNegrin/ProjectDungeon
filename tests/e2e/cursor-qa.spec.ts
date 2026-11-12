@@ -332,7 +332,7 @@ test('Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acc
   await expect(page.getByTestId('hud-player-mp')).toHaveText(
     `${start.players[0].mp - cost}/6`,
   );
-  await expect(page.getByTestId('hud-action')).toHaveText('Sí');
+  await expect(page.getByTestId('hud-action')).toHaveText('2/2');
 
   // El camino se recalcula al mover al jugador y al mover el cursor.
   const nextStep = reachableVisibleTiles(moved, {
@@ -647,7 +647,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
       event.type === 'AttackPerformed' && event.attackerId === 'player-1',
   );
   expect(attack).toBeDefined();
-  expect(afterAttack.players[0].actions.remaining).toBe(1);
+  expect(afterAttack.players[0].actions.remaining).toBe(0);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);

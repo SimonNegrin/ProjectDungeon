@@ -677,7 +677,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
 
   await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
-  await expect(page.getByTestId('hud-action')).toHaveText('Sí');
+  await expect(page.getByTestId('hud-action')).toHaveText('2/2');
   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
@@ -728,7 +728,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
     `${playerAttack!.targetHp}/${initialEnemy.maxHp}`,
   );
-  await expect(page.getByTestId('hud-action')).toHaveText('No');
+  await expect(page.getByTestId('hud-action')).toHaveText('1/2');
 
   expect(consoleErrors).toEqual([]);
 });
