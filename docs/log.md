@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Harness — AGENTS — recortado de 4,5 a 1,9 KB: handoffs, timeouts y flujo quedan en el workflow; invariantes, propiedad de rutas y cifras de handoff se mantienen — [AGENTS](../AGENTS.md)
 * 2026-11-12 — Task — TASK-0075 — done: aviso de líneas no canónicas en docs/log.md sin cambios en el resto del arnés — [TASK-0075](tasks/TASK-0075-arnes-validacion-log.md)
 * 2026-11-12 — Harness — permisos — allowlist de `shell`: `awk`, `sort`, `uniq`, `comm` y `cut`; `find`, `mv`, `sed -i`, `xargs` y `echo` siguen pidiendo permiso para no abrir escrituras ni ejecución vía redirección — [config](../opencode.jsonc)
 * 2026-11-12 — Planning — TASK-0075 — ready: aviso de `docs:check` para entradas de log sin formato canónico, con prueba negativa y log restaurado; sin cambios de topes — [TASK-0075](tasks/TASK-0075-arnes-validacion-log.md)
