@@ -70,7 +70,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0073](TASK-0073-exp-003-filtros-tablas.md) | EXP-003: filtros de las tres tablas | `done` | REQ-028 | TASK-0072 | P1 |
 | [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `done` | REQ-028 | TASK-0073 | P1 |
 | [TASK-0076](TASK-0076-motor-contador-acciones-costes.md) | Motor: contador de acciones y costes por comando | `done` | REQ-026 | — | P1 |
-| [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `backlog` | REQ-026 | TASK-0076 | P1 |
+| [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `ready` | REQ-026 | TASK-0076 | P1 |
 | [TASK-0078](TASK-0078-host-contador-acciones-fin-turno.md) | Host: contador de acciones, fin de turno y beats | `backlog` | REQ-026 | TASK-0077 | P1 |
 | [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `backlog` | REQ-027 | TASK-0078 | P1 |
 | [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `backlog` | REQ-027 | TASK-0079 | P1 |

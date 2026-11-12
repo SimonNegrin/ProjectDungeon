@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Planning — TASK-0077 — ready: IA enemiga encadenada por acciones del bestiario, estados de percepción y huida; dependencia TASK-0076 `done` — [TASK-0077](tasks/TASK-0077-motor-ia-acciones-encadenadas.md)
 * 2026-11-12 — Task — TASK-0076 — done: contador de acciones por unidad (`max`/`remaining`), restauración por turno, coste declarado por comando, ataque repetible y `MoveTo` de un ataque; `actionAvailable` eliminado; verify 74 archivos/1004 tests, build y bundle OK; fusión `f8481f9` — [informe](../artifacts/TASK-0076/attempt-1/report.md)
 * 2026-11-12 — Planning — REQ-025/REQ-026/REQ-027 — milestone «economía de turno y magia» planificado en TASK-0076 a TASK-0084: acciones, réplica, magia y propuesta de rebalanceo; TASK-0076 ready y el resto en cadena — [TASK-0076](tasks/TASK-0076-motor-contador-acciones-costes.md)
 * 2026-11-12 — Playtest — TASK-0049/TASK-0051 — G4 dado por cumplido por `human:simon` sin notas por ítem: TASK-0049 se apoya en el uso posterior de `growth` y TASK-0051 se cierra como QA de una versión histórica, con el balance v1 superado por REQ-026 — [checklist TASK-0049](../artifacts/TASK-0049/attempt-1/playtest/checklist.md)

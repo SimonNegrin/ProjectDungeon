@@ -4,7 +4,7 @@ id: TASK-0077
 title: "Motor: IA enemiga con acciones encadenadas"
 description: "Encadenar las acciones por tipo de enemigo de forma determinista: en alerta moverse con MP y atacar hasta agotar acciones o matar, sin atacar dormido o en regreso y atacando acorralado al huir."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-026
 requirement_ids: [R-006, R-012, T-004, T-008]
