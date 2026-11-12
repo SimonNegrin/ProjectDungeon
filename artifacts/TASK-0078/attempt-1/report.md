@@ -62,13 +62,13 @@ su beat y el contador baja 2→1→0.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Un brief en `artifacts/TASK-*/attempt-*` con enlaces `../../docs/...` bloquea `docs:check` | `verify-output.txt` (primera ejecución): «enlace local roto» en `brief.md` | Corregir la ruta relativa a `../../../docs/...` | Cualquier brief generado en artifacts puede repetir la profundidad incorrecta | Snippet de enlace en la plantilla o que el validador resuelva desde `artifacts/` | Bajo; no cambia criterios | `pending` |
+| Un brief en `artifacts/TASK-*/attempt-*` con enlaces `../../docs/...` bloquea `docs:check` | `verify-output.txt` (primera ejecución): «enlace local roto» en `brief.md` | Corregir la ruta relativa a `../../../docs/...` | Cualquier brief generado en artifacts puede repetir la profundidad incorrecta | Snippet de enlace en la plantilla o que el validador resuelva desde `artifacts/` | Bajo; no cambia criterios | `deferred` a `harness-keeper` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2535 |
-| `report_bytes` | 3033 |
+| `report_bytes` | 3053 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
