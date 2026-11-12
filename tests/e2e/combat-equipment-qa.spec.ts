@@ -476,12 +476,16 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
 
   const beforeEndTurn = await snapshot(page);
   const endTurn = await dispatchFrozen(page, { type: 'EndTurn' });
-  const enemyAttack = endTurn.events.find(
+  const enemyAttacks = endTurn.events.filter(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
   );
+  const enemyAttack = enemyAttacks[0];
   expect(enemyAttack, 'La fase enemiga debe atacar').toBeDefined();
   expect(enemyAttack!.hit).toBe(true);
+  // El encadenado gasta todas las acciones del tipo: un ataque por acción.
+  expect(enemyAttacks).toHaveLength(beforeEndTurn.enemies[0].actions.max);
+  const enemyDamage = enemyAttacks.reduce((total, attack) => total + attack.damage, 0);
   await advanceToCue(page, 'attack');
   await page.evaluate(() => window.__game!.advance(40));
   await expect(page.getByTestId('damage-feedback')).toHaveText(
@@ -502,10 +506,11 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(afterEndTurn.turn).toBe(beforeEndTurn.turn + 1);
   expect(afterEndTurn.phase).toBe('player');
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
+    hp: beforeEndTurn.players[0].hp - enemyDamage,
     mp: afterEndTurn.players[0].maxMp,
     actions: { remaining: 2 },
   });
+  expect(afterEndTurn.enemies[0].actions.remaining).toBe(0);
   await expect(page.getByTestId('hud-player-hp')).toHaveText(
     `${afterEndTurn.players[0].hp}/20`,
   );

@@ -502,16 +502,20 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   expect(afterEndTurn.lastEvents.map((event) => event.type)).toEqual(
     expect.arrayContaining(['EnemyPhaseStarted', 'PlayerTurnStarted']),
   );
-  const enemyAttack = afterEndTurn.lastEvents.find(
+  const enemyAttacks = afterEndTurn.lastEvents.filter(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
   );
+  const enemyAttack = enemyAttacks[0];
   expect(enemyAttack).toBeDefined();
+  expect(enemyAttacks).toHaveLength(beforeEndTurn.enemies[0].actions.max);
+  const enemyDamage = enemyAttacks.reduce((total, attack) => total + attack.damage, 0);
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
+    hp: beforeEndTurn.players[0].hp - enemyDamage,
     mp: 6,
     actions: { remaining: 2 },
   });
+  expect(afterEndTurn.enemies[0].actions.remaining).toBe(0);
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,
     y: afterEndTurn.players[0].y,
