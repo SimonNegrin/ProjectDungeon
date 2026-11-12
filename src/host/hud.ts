@@ -187,6 +187,11 @@ function eventLabel(event: GameEvent): string {
       return event.hit
         ? `${event.attackerId}→${event.targetId} -${event.damage} (HP ${event.targetHp})`
         : `${event.attackerId}→${event.targetId} fallo (HP ${event.targetHp})`;
+    case 'ReplicaPerformed':
+      // Stub de exhaustividad (TASK-0079); la presentación llega en TASK-0080.
+      return event.hit
+        ? `${event.attackerId} replica ${event.damage} (HP ${event.targetHp})`
+        : `${event.attackerId} replica y falla`;
     case 'UnitDied':
       return `${event.unitId} muere`;
     case 'TurnEnded':
