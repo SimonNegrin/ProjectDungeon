@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Task — TASK-0077 — done: la IA enemiga encadena acciones por tipo (Centinela 2, Bruto 1, Cobarde 2), ataca hasta agotar o matar, no ataca dormida o en regreso y el cobarde solo ataca acorralado; verify 1012 tests y E2E 108/109 (fallo preexistente de TASK-0076); fusión `cb49df2` — [informe](../artifacts/TASK-0077/attempt-2/report.md)
 * 2026-11-12 — Planning — TASK-0077 — ready: IA enemiga encadenada por acciones del bestiario, estados de percepción y huida; dependencia TASK-0076 `done` — [TASK-0077](tasks/TASK-0077-motor-ia-acciones-encadenadas.md)
 * 2026-11-12 — Task — TASK-0076 — done: contador de acciones por unidad (`max`/`remaining`), restauración por turno, coste declarado por comando, ataque repetible y `MoveTo` de un ataque; `actionAvailable` eliminado; verify 74 archivos/1004 tests, build y bundle OK; fusión `f8481f9` — [informe](../artifacts/TASK-0076/attempt-1/report.md)
 * 2026-11-12 — Planning — REQ-025/REQ-026/REQ-027 — milestone «economía de turno y magia» planificado en TASK-0076 a TASK-0084: acciones, réplica, magia y propuesta de rebalanceo; TASK-0076 ready y el resto en cadena — [TASK-0076](tasks/TASK-0076-motor-contador-acciones-costes.md)

@@ -70,7 +70,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0073](TASK-0073-exp-003-filtros-tablas.md) | EXP-003: filtros de las tres tablas | `done` | REQ-028 | TASK-0072 | P1 |
 | [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `done` | REQ-028 | TASK-0073 | P1 |
 | [TASK-0076](TASK-0076-motor-contador-acciones-costes.md) | Motor: contador de acciones y costes por comando | `done` | REQ-026 | — | P1 |
-| [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `ready` | REQ-026 | TASK-0076 | P1 |
+| [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `done` | REQ-026 | TASK-0076 | P1 |
 | [TASK-0078](TASK-0078-host-contador-acciones-fin-turno.md) | Host: contador de acciones, fin de turno y beats | `backlog` | REQ-026 | TASK-0077 | P1 |
 | [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `backlog` | REQ-027 | TASK-0078 | P1 |
 | [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `backlog` | REQ-027 | TASK-0079 | P1 |
@@ -91,7 +91,6 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0077 — Motor: IA enemiga con acciones encadenadas](TASK-0077-motor-ia-acciones-encadenadas.md)
 * [TASK-0078 — Host: contador de acciones, fin de turno y beats](TASK-0078-host-contador-acciones-fin-turno.md)
 * [TASK-0079 — Motor: réplica tras fallo cuerpo a cuerpo](TASK-0079-motor-replica-cuerpo-a-cuerpo.md)
 * [TASK-0080 — Host y docs: réplica visible y ADR](TASK-0080-host-docs-replica-visible.md)
@@ -169,6 +168,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0073 — EXP-003: filtros de las tres tablas](TASK-0073-exp-003-filtros-tablas.md)
 * [TASK-0074 — EXP-003: E2E y QA visual de objetivos por par y filtros](TASK-0074-exp-003-objetivos-filtros-e2e.md)
 * [TASK-0076 — Motor: contador de acciones y costes por comando](TASK-0076-motor-contador-acciones-costes.md)
+* [TASK-0077 — Motor: IA enemiga con acciones encadenadas](TASK-0077-motor-ia-acciones-encadenadas.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
