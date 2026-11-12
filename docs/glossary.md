@@ -55,7 +55,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Recoger y soltar** | Manejo de un objeto del suelo desde el panel de personaje: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
 | **Contenedor** | Cofre o cadáver con inventario propio; abrir o registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo». |
 | **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
-| **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla; exige arma equipada, puede fallar, puede matar y no se encadena. |
+| **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla. Solo replica quien está vivo, adyacente y con arma equipada, y está alerta, regresando o huyendo acorralado; un dormido nunca replica. Es una tirada nueva con la misma fórmula y RNG, puede fallar o matar, no gasta acción, maná ni MP y no se encadena. Solo existe en melé: ni a distancia ni mágica. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
 | **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
 | **Equipo** | Conjunto de objetos equipados por una unidad en sus ocho huecos: arma, escudo, armadura, casco, botas, guantes, collar y un anillo. El equipo puesto no ocupa la mochila ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |

@@ -4,7 +4,7 @@ id: TASK-0080
 title: "Host y docs: réplica visible y ADR"
 description: "Presentar la réplica con la animación de ataque girada hacia el atacante, sin texto, con cue propio y su excepción de ritmo; actualizar glosario, arquitectura, ADR y enmiendas."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-027
 requirement_ids: [R-007, T-006, T-007, T-008]
@@ -13,7 +13,7 @@ unlocks: [TASK-0081]
 created_at: 2026-11-12T14:50:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0080/
 priority: P1
 risk: medium

@@ -128,6 +128,28 @@ vive en `src/game/` y es determinista:
 
 Ver [ADR-020](../decisions/ADR-020-economia-acciones.md).
 
+## Réplica
+
+La réplica de [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+vive en `src/game/combat.ts` y se presenta en el host:
+
+- `resolveAttack` emite `AttackPerformed` y, si el ataque es melé, falla y el
+  defensor es elegible, resuelve una tirada nueva y emite `ReplicaPerformed` con
+  el defensor como `attackerId` y el atacante original como `targetId`.
+- `canReplicate` valida vivo, adyacente, arma equipada y estado (alerta,
+  regresando o huyendo acorralado); un dormido nunca replica. No hay cadena.
+- La reacción es atómica y no crea estado pendiente; el evento lleva impacto,
+  daño, PV resultante y tiradas, y el host no recalcula reglas.
+- `motion.ts` crea un cue `replica` con beat propio de
+  `FEEDBACK_CONFIG.beats.replica` y datos de atacante/objetivo. No emite texto.
+- `world-effects.ts` reutiliza la reacción de ataque con la embestida del
+  defensor hacia el atacante; impacto con destello y retroceso, fallo con
+  esquiva. `presentationState` retrasa los PV del objetivo hasta el cue.
+- El debug expone el cue con su `hit`; el HUD no muestra aviso, probabilidad ni
+  indicador de réplica.
+
+Ver [ADR-022](../decisions/ADR-022-replica-cuerpo-a-cuerpo.md).
+
 # Percepción, alarma y huida
 
 La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas,
