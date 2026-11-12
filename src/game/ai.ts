@@ -1,3 +1,4 @@
+import { hasAction } from './actions';
 import { isAlive, isInside, isWallAt } from './grid';
 import {
   DIRECTIONS,
@@ -392,7 +393,7 @@ function planFlee(state: GameState, enemy: Unit): EnemyPlan {
  * - si no hay paso que acerque, espera.
  */
 export function planEnemyAction(state: GameState, enemy: Unit): EnemyPlan {
-  if (enemy.hp <= 0 || !enemy.actionAvailable) {
+  if (enemy.hp <= 0 || !hasAction(enemy)) {
     return { type: 'wait' };
   }
   if (enemy.awareness === 'dormant') {

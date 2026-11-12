@@ -87,7 +87,7 @@ describe('enemy AI', () => {
       throw new Error('se esperaba un ataque');
     }
     expect(result.state.players[0].hp).toBe(state.players[0].hp - attack.damage);
-    expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, actionAvailable: false });
+    expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, actions: { remaining: 1 } });
   });
 
   it('gasta todo el MP del tipo avanzando por BFS en una fase', () => {

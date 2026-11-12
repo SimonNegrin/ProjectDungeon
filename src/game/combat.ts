@@ -1,3 +1,4 @@
+import { hasAction, spendAction } from './actions';
 import { BESTIARY } from './bestiary';
 import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive } from './grid';
@@ -82,7 +83,7 @@ export function resolveAttack(
   if (target.faction === attacker.faction) {
     return { ok: false, reason: 'same-faction' };
   }
-  if (!attacker.actionAvailable) {
+  if (!hasAction(attacker)) {
     return { ok: false, reason: 'no-action' };
   }
   if (!isAdjacent(attacker, target)) {
@@ -129,7 +130,7 @@ export function resolveAttack(
   }
 
   const targetHp = Math.max(0, target.hp - damage);
-  const nextAttacker: Unit = { ...attacker, actionAvailable: false };
+  const nextAttacker: Unit = spendAction(attacker);
   const nextTarget: Unit = { ...target, hp: targetHp };
 
   const players = state.players.map((unit) => {

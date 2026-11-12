@@ -1,5 +1,6 @@
 import {
   BESTIARY,
+  MAX_ACTIONS,
   createRoomGrid,
   createRng,
   PLAYER_MAX_HP,
@@ -31,6 +32,7 @@ const PLAYER_STATS: UnitStats = {
   resistencia: 0,
   punteria: 0,
   magia: [],
+  acciones: 2,
 };
 
 const NEUTRAL_STATS: UnitStats = {
@@ -40,6 +42,7 @@ const NEUTRAL_STATS: UnitStats = {
   resistencia: 0,
   punteria: 0,
   magia: [],
+  acciones: 2,
 };
 
 export interface UnitOptions {
@@ -56,7 +59,10 @@ export interface UnitOptions {
   readonly maxHp?: number;
   readonly mp?: number;
   readonly maxMp?: number;
-  readonly actionAvailable?: boolean;
+  /** Acciones restantes; por defecto, todas las del máximo. */
+  readonly actions?: number;
+  /** Máximo explícito; por defecto, inherente + bonus recortado a 4. */
+  readonly actionsMax?: number;
   readonly stats?: Partial<UnitStats>;
   readonly equipment?: UnitEquipment;
   readonly weapons?: readonly WeaponId[];
@@ -76,6 +82,16 @@ export function makeUnit(options: UnitOptions): Unit {
     options.maxHp ?? (isPlayer ? PLAYER_MAX_HP : definition?.maxHp ?? FIXTURE_ENEMY_MAX_HP);
   const maxMp =
     options.maxMp ?? (isPlayer ? PLAYER_MAX_MP : definition?.maxMp ?? FIXTURE_ENEMY_MAX_MP);
+  const stats: UnitStats = {
+    ...(isPlayer ? PLAYER_STATS : definition?.stats ?? NEUTRAL_STATS),
+    ...options.stats,
+  };
+  const equipment: UnitEquipment =
+    options.equipment ??
+    definition?.equipment ?? { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' };
+  const maxActions =
+    options.actionsMax ??
+    Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + (equipment.actionsBonus ?? 0)));
 
   return {
     id: options.id,
@@ -89,14 +105,9 @@ export function makeUnit(options: UnitOptions): Unit {
     maxHp,
     mp: options.mp ?? maxMp,
     maxMp,
-    actionAvailable: options.actionAvailable ?? true,
-    stats: {
-      ...(isPlayer ? PLAYER_STATS : definition?.stats ?? NEUTRAL_STATS),
-      ...options.stats,
-    },
-    equipment:
-      options.equipment ??
-      definition?.equipment ?? { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+    actions: { max: maxActions, remaining: options.actions ?? maxActions },
+    stats,
+    equipment,
     weapons: options.weapons ?? [definition?.equipment.weaponId ?? 'sword'],
     awareness: options.awareness ?? 'alert',
     fleeing: options.fleeing ?? false,

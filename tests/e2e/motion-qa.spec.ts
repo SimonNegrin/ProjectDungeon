@@ -678,7 +678,7 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
     phase: 'player',
     status: 'playing',
   });
-  expect(afterEndTurn.players[0].actionAvailable).toBe(true);
+  expect(afterEndTurn.players[0].actions.remaining).toBe(2);
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,
     y: afterEndTurn.players[0].y,
@@ -721,14 +721,14 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   expect(afterAttack.enemies[0].hp).toBe(
     adjacent.enemies[0].hp - firstAttack!.damage,
   );
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
 
   // El beat del ataque descarta la intención siguiente: se completa antes de E.
   await settle(page);
   await page.keyboard.press('e');
   const nextTurn = await settle(page);
   expect(nextTurn.turn).toBe(adjacent.turn + 1);
-  expect(nextTurn.players[0].actionAvailable).toBe(true);
+  expect(nextTurn.players[0].actions.remaining).toBe(2);
   // La presentación del turno anterior ya está completa: no queda cue de
   // ataque ni destello activo que pueda contaminar la captura del recorrido.
   expect((await snapshot(page)).animation.cues).toEqual([]);

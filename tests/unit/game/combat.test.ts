@@ -54,7 +54,7 @@ describe('combat', () => {
     });
 
     expect(result.state.enemies[0].hp).toBe(targetHp);
-    expect(result.state.players[0].actionAvailable).toBe(false);
+    expect(result.state.players[0].actions.remaining).toBe(1);
     expect(result.state.phase).toBe('player');
     expect(result.events).toEqual([
       {
@@ -101,18 +101,18 @@ describe('combat', () => {
     });
 
     expect(result.state.enemies[0].hp).toBe(state.enemies[0].maxHp);
-    expect(result.state.players[0].actionAvailable).toBe(true);
+    expect(result.state.players[0].actions.remaining).toBe(2);
     expect(result.state.rng).toBe(rngBefore);
     expect(result.events).toEqual([
       { type: 'CommandRejected', commandType: 'Attack', reason: 'target-not-adjacent' },
     ]);
   });
 
-  it('solo permite una acción por turno', () => {
+  it('permite dos ataques con la misma fórmula y rechaza el tercero sin acción', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice(PLAYER_HIT),
+      rng: rngForDice([...PLAYER_HIT, ...PLAYER_HIT]),
     });
 
     const damage = expectedDamage(state.players[0], state.enemies[0], 2, 1);
@@ -126,10 +126,25 @@ describe('combat', () => {
       unitId: 'player-1',
       targetId: 'enemy-1',
     });
+    const third = reduce(second.state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
 
     expect(first.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage);
-    expect(second.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage);
+    expect(first.state.players[0].actions.remaining).toBe(1);
+    expect(second.state.enemies[0].hp).toBe(state.enemies[0].maxHp - damage * 2);
+    expect(second.state.players[0].actions.remaining).toBe(0);
     expect(second.events).toEqual([
+      expect.objectContaining({
+        type: 'AttackPerformed',
+        damage,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      }),
+    ]);
+    expect(third.state).toBe(second.state);
+    expect(third.events).toEqual([
       { type: 'CommandRejected', commandType: 'Attack', reason: 'no-action' },
     ]);
   });
@@ -156,7 +171,7 @@ describe('combat', () => {
       x: 5,
       y: 4,
       mp: PLAYER_MAX_MP - 1,
-      actionAvailable: false,
+      actions: { remaining: 1 },
     });
     expect(moved.events).toHaveLength(1);
     expect(moved.events[0].type).toBe('UnitMoved');
@@ -298,7 +313,7 @@ describe('combat', () => {
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(result.state.players[0].hp).toBe(state.players[0].hp - damage);
-    expect(result.state.enemies[0].actionAvailable).toBe(false);
+    expect(result.state.enemies[0].actions.remaining).toBe(1);
     expect(result.events).toContainEqual({
       type: 'AttackPerformed',
       attackerId: 'enemy-1',
@@ -794,6 +809,7 @@ describe('equipo y modificadores', () => {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 2,
       ...overrides,
     });
 

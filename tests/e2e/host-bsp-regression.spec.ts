@@ -123,7 +123,7 @@ test('BSP inyectado: arranque, cámara, cursor, movimiento y combate', async ({
   const attack = result.events.find((event) => event.type === 'AttackPerformed');
   expect(attack, 'El ataque debe producirse').toBeDefined();
   const afterAttack = await snapshot(page);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.enemies[0].hp).toBeLessThanOrEqual(enemy.hp);
   await save(page, 'bsp-regression-combat', testInfo);
 

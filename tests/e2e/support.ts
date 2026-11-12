@@ -702,7 +702,7 @@ export async function approachEnemy(
       // acerca, se elimina con `MoveTo` (que ataca al llegar) antes de que
       // acumule golpes.
       // El objetivo del helper se excluye para que el test lo ataque después.
-      if (player.actionAvailable) {
+      if (player.actions.remaining > 0) {
         const chaser = snap.enemies
           .filter((candidate) => candidate.hp > 0 && candidate.id !== enemy.id)
           .map((candidate) => ({
@@ -730,7 +730,7 @@ export async function approachEnemy(
 
       // Tras atacar, el MP restante se emplea en alejarse: un enemigo alertado
       // recorre 4 tiles y no conviene terminar la fase a su alcance.
-      if (!player.actionAvailable && player.mp > 0) {
+      if (player.actions.remaining === 0 && player.mp > 0) {
         const living = snap.enemies.filter((candidate) => candidate.hp > 0);
         const distanceToAll = (x: number, y: number): number =>
           living.reduce(
@@ -963,7 +963,7 @@ export async function defeatAllEnemies(
         if (distance < best || (distance === best && enemy.id < target.id)) target = enemy;
       }
 
-      if (player.actionAvailable && chebyshev(player, target) === 1) {
+      if (player.actions.remaining > 0 && chebyshev(player, target) === 1) {
         const attack = game.dispatch({
           type: 'Attack',
           unitId: player.id,
@@ -978,7 +978,7 @@ export async function defeatAllEnemies(
         }
       }
 
-      if (player.actionAvailable && player.mp > 0) {
+      if (player.actions.remaining > 0 && player.mp > 0) {
         const move = game.dispatch({
           type: 'MoveTo',
           unitId: player.id,
@@ -988,7 +988,7 @@ export async function defeatAllEnemies(
         if (!move.events.some((event) => event.type === 'CommandRejected')) continue;
       }
 
-      if (!player.actionAvailable) retreat();
+      if (player.actions.remaining === 0) retreat();
       const end = game.dispatch({ type: 'EndTurn' });
       events.push(...end.events);
     }
@@ -1096,7 +1096,7 @@ export async function ensureAdjacentWithMp(
     if (distance !== 1) {
       throw new Error(`El jugador no está adyacente al enemigo (distancia ${distance}).`);
     }
-    if (player.mp >= minimumMp && player.actionAvailable) return snap;
+    if (player.mp >= minimumMp && player.actions.remaining > 0) return snap;
     await endTurn(page);
   }
 

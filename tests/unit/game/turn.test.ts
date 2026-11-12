@@ -26,7 +26,7 @@ function expectedDamage(
 describe('turn phase', () => {
   it('EndTurn ejecuta la fase enemiga y restaura MP y acción del jugador', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, mp: 0, actionAvailable: false })],
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, mp: 0, actions: 0 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 10, y: 5 })],
       rng: rngForDice([6, 1, 3, 3]),
     });
@@ -38,14 +38,14 @@ describe('turn phase', () => {
     expect(result.state.turn).toBe(2);
     expect(result.state.players[0]).toMatchObject({
       mp: 6,
-      actionAvailable: true,
+      actions: { remaining: 2 },
       hp: state.players[0].hp - damage,
     });
     expect(result.state.enemies[0]).toMatchObject({
       x: 6,
       y: 5,
       mp: 0,
-      actionAvailable: false,
+      actions: { remaining: 1 },
     });
     expect(result.events.map((event) => event.type)).toEqual([
       'TurnEnded',
@@ -69,7 +69,7 @@ describe('turn phase', () => {
           x: 10,
           y: 5,
           mp: 0,
-          actionAvailable: false,
+          actions: 0,
         }),
       ],
     });
@@ -77,7 +77,7 @@ describe('turn phase', () => {
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(result.state.enemies[0]).toMatchObject({ x: 14, y: 5, mp: 0 });
-    expect(result.state.enemies[0].actionAvailable).toBe(true);
+    expect(result.state.enemies[0].actions.remaining).toBe(2);
   });
 
   it('ejecuta la fase completa con varios enemigos en orden de índice', () => {

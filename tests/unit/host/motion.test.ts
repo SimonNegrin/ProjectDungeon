@@ -302,7 +302,7 @@ describe('estado derivado para HUD y render', () => {
         x: 5,
         y: 2,
         mp: 3,
-        actionAvailable: false,
+        actions: 0,
       }),
     ],
     enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 2, hp: 0 })],
@@ -359,8 +359,8 @@ describe('estado derivado para HUD y render', () => {
     const before = presentationState(finalState, timeline, attack.atMs - 1);
     const after = presentationState(finalState, timeline, attack.atMs);
 
-    expect(before.players[0].actionAvailable).toBe(true);
-    expect(after.players[0].actionAvailable).toBe(false);
+    expect(before.players[0].actions.remaining).toBe(2);
+    expect(after.players[0].actions.remaining).toBe(0);
   });
 
   it('la fase enemiga se secuencia y PlayerTurnStarted devuelve el turno', () => {
@@ -384,7 +384,7 @@ describe('estado derivado para HUD y render', () => {
     const atEnd = presentationState(restored, timeline, timeline.totalMs);
     expect(atEnd.phase).toBe('player');
     expect(atEnd.turn).toBe(2);
-    expect(atEnd.players[0].actionAvailable).toBe(true);
+    expect(atEnd.players[0].actions.remaining).toBe(2);
   });
 
   it('con tiempo final el estado derivado coincide con el estado del motor', () => {
@@ -412,7 +412,7 @@ describe('estado derivado para HUD y render', () => {
           x: 5,
           y: 2,
           mp: 2,
-          actionAvailable: false,
+          actions: 0,
         }),
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 2 })],
@@ -425,10 +425,10 @@ describe('estado derivado para HUD y render', () => {
     });
 
     const atStart = presentationState(restored, timeline, 0, initialState);
-    expect(atStart.players[0]).toMatchObject({ mp: 2, actionAvailable: false });
+    expect(atStart.players[0]).toMatchObject({ mp: 2, actions: { remaining: 0 } });
 
     const atEnd = presentationState(restored, timeline, timeline.totalMs, initialState);
-    expect(atEnd.players[0]).toMatchObject({ mp: 6, actionAvailable: true });
+    expect(atEnd.players[0]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
   });
 
   it('no muta el estado de entrada', () => {

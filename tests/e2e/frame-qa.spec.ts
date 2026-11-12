@@ -714,7 +714,7 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await screenshot(page, 'attack', testInfo);
 
   expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.lastEvents).toEqual(
     expect.arrayContaining([
       expect.objectContaining({

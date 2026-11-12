@@ -42,6 +42,8 @@ export interface UnitStats {
   readonly resistencia: number;
   readonly punteria: number;
   readonly magia: readonly MagicSchool[];
+  /** Acciones por turno inherentes al personaje (REQ-026). */
+  readonly acciones: number;
 }
 
 /** Equipo equipado, serializable y estable por ID de catálogo. */
@@ -52,6 +54,16 @@ export interface UnitEquipment {
   readonly armorId: ArmorId | null;
   /** `null` = sin escudo. */
   readonly shieldId: ShieldId | null;
+  /** Acciones extra que aporta el equipo; se recortan con el tope (REQ-026). */
+  readonly actionsBonus?: number;
+}
+
+/** Contador de acciones por turno de una unidad (REQ-026). */
+export interface Actions {
+  /** Máximo restaurado al empezar el turno. */
+  readonly max: number;
+  /** Acciones todavía disponibles en este turno. */
+  readonly remaining: number;
 }
 
 /** RNG de combate serializable: misma semilla y contador, misma secuencia. */
@@ -75,7 +87,7 @@ export interface Unit {
   readonly maxHp: number;
   readonly mp: number;
   readonly maxMp: number;
-  readonly actionAvailable: boolean;
+  readonly actions: Actions;
   readonly stats: UnitStats;
   readonly equipment: UnitEquipment;
   /** Armas llevadas; la equipada es `equipment.weaponId`. */

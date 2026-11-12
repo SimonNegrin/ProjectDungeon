@@ -21,7 +21,7 @@ describe('GameSession con MoveTo', () => {
       x: 5,
       y: 5,
       mp: 3,
-      actionAvailable: true,
+      actions: { remaining: 2 },
     });
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
@@ -56,7 +56,7 @@ describe('GameSession con MoveTo', () => {
       x: 5,
       y: 5,
       mp: 0,
-      actionAvailable: false,
+      actions: { remaining: 1 },
     });
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',

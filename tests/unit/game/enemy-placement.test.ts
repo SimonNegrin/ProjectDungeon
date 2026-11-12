@@ -99,7 +99,10 @@ describe('colocación inicial de los cuatro enemigos', () => {
         maxHp: definition.maxHp,
         mp: definition.maxMp,
         maxMp: definition.maxMp,
-        actionAvailable: true,
+        actions: {
+          max: definition.stats.acciones,
+          remaining: definition.stats.acciones,
+        },
         stats: definition.stats,
         equipment: definition.equipment,
         weapons: [definition.equipment.weaponId],
