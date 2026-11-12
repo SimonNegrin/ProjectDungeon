@@ -25,35 +25,29 @@ permissions:
     resource: "explore"
     effect: allow
   - action: shell
-    resource: "*"
-    effect: ask
-  - action: shell
-    resource: "pnpm run docs:*"
+    resource: "git add *"
     effect: allow
   - action: shell
-    resource: "pnpm run config:check"
+    resource: "git commit *"
     effect: allow
   - action: shell
-    resource: "pnpm run tasks:*"
+    resource: "git branch -d *"
     effect: allow
   - action: shell
-    resource: "git status*"
+    resource: "git push origin main"
     effect: allow
   - action: shell
-    resource: "git diff*"
+    resource: "git push --tags"
     effect: allow
   - action: shell
-    resource: "git log*"
+    resource: "pnpm run build"
     effect: allow
   - action: shell
-    resource: "rg *"
-    effect: allow
+    resource: "git push --force*"
+    effect: deny
   - action: shell
-    resource: "wc *"
-    effect: allow
-  - action: shell
-    resource: "du *"
-    effect: allow
+    resource: "git reset --hard *"
+    effect: deny
 ---
 
 # Rol

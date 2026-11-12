@@ -15,7 +15,8 @@ verificación. El usuario ve builds y experimentos, no deberes técnicos.
 # Agentes
 
 Los roles y permisos viven en `.opencode/agents/`; este documento no los
-duplica.
+duplica. El `ask` ancho y la allowlist compartida de lectura están en
+`opencode.jsonc`; cada agente añade solo sus deltas de escritura.
 
 | Agente | Modo | Entrada | Salida |
 |---|---|---|---|

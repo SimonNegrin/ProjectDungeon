@@ -34,22 +34,10 @@ permissions:
     resource: "explore"
     effect: allow
   - action: shell
-    resource: "*"
-    effect: ask
-  - action: shell
-    resource: "pnpm run docs:*"
+    resource: "git add *"
     effect: allow
   - action: shell
-    resource: "pnpm run tasks:*"
-    effect: allow
-  - action: shell
-    resource: "git status*"
-    effect: allow
-  - action: shell
-    resource: "git diff*"
-    effect: allow
-  - action: shell
-    resource: "git log*"
+    resource: "git commit *"
     effect: allow
 ---
 

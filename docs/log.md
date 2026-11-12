@@ -4,6 +4,7 @@
 
 * 2026-11-12 — Infra — repo — publicado en `git@github.com:SimonNegrin/ProjectDungeon.git` (remoto `origin`, `main` en `a7dc9e4`, 583 commits, historial completo); sin secretos ni blobs > 20 MB; `.git` de 110 MB por capturas de `artifacts/` — [remote](https://github.com/SimonNegrin/ProjectDungeon)
 * 2026-11-12 — Harness — workflow — regla de push: `main` se publica al cerrar cada tarea verificada, las ramas `task/*` quedan locales y un hito no añade push; se borran las 73 ramas `task/*` fusionadas — [git](harness/workflow.md#git)
+* 2026-11-12 — Harness — permisos — allowlist compartida de `shell` en `opencode.jsonc` (lectura de archivos y consulta de git) y deltas por agente: escritura git para los primarios y push solo para `harness-keeper`; `find`, `rm`, `git merge` y force-push siguen pidiendo permiso o se deniegan — [config](../opencode.jsonc)
 
 ## 2026-11-11
 
