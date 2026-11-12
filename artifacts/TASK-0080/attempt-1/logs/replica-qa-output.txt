@@ -1,0 +1,8 @@
+$ playwright test tests/e2e/replica-qa.spec.ts
+
+Running 2 tests using 2 workers
+
+  ✓  1 [chromium] › tests/e2e/replica-qa.spec.ts:62:3 › réplica: fallo, giro y secuencia sin texto (900×700) (1.5s)
+  ✓  2 [chromium] › tests/e2e/replica-qa.spec.ts:62:3 › réplica: fallo, giro y secuencia sin texto (1280×720) (1.5s)
+
+  2 passed (3.0s)

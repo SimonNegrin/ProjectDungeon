@@ -1,0 +1,143 @@
+Propuesta de documentación para TASK-0080
+=========================================
+
+Motivo: el runner no puede editar docs/ (permiso denegado). El lead o el
+requirements-writer aplican estos cambios. No se ha modificado ningún archivo
+de docs/ ni de docs/requirements/.
+
+1) docs/glossary.md — sustituir la fila «Réplica»
+---------------------------------------------------
+| **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla. Solo replica quien está vivo, adyacente y con arma equipada, y está alerta, regresando o huyendo acorralado; un dormido nunca replica. Es una tirada nueva con la misma fórmula y RNG, puede fallar o matar, no gasta acción, maná ni MP y no se encadena. Solo existe en melé: ni a distancia ni mágica. |
+
+2) docs/design/turn-economy.md
+------------------------------
+2.1) Sustituir el aviso de vigencia por:
+> **Aviso de vigencia (2026-11-12).** La sección de acción se actualiza con
+> `REQ-026`: varias acciones por turno, Pícaro 3, enemigos 2/1/2 y tope 4
+> provisional. La réplica de `REQ-027` ya está implementada y tiene sección
+> propia. La magia de `REQ-025` sigue como referencia hasta que se implemente.
+
+2.2) Añadir tras «# Acción»:
+
+# Réplica
+
+Decidida en [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+y registrada en [ADR-022](../decisions/ADR-022-replica-cuerpo-a-cuerpo.md).
+
+- Solo se dispara tras un ataque **cuerpo a cuerpo fallido**. Un impacto no
+  genera réplica.
+- **Coste 0**: no gasta acción, MP ni maná y no comparte el tope de 4 acciones.
+- **Elegibilidad**: defensor vivo, adyacente, con arma equipada y alerta,
+  regresando o huyendo acorralado; un dormido nunca replica. Sin arma, a
+  distancia o con ataque mágico no hay réplica.
+- **Tirada nueva** con la misma fórmula y RNG; puede impactar, fallar o matar.
+  No reutiliza la tirada del ataque fallido y no encadena otra réplica.
+- **Sin estado pendiente**: es una reacción atómica; cargar una partida no
+  reproduce réplicas.
+- **Presentación**: reutiliza la animación de ataque, girada desde el defensor
+  hacia el atacante original, sin texto propio. Tiene cue propio de 300 ms.
+- **Ritmo**: el fallo (300 ms) y la réplica (300 ms) forman una acción compuesta
+  de 600 ms. Se declara la excepción al techo de 1,3 s: la reacción no se mide
+  como una segunda acción independiente; si la réplica mata, la muerte encadena
+  su beat terminal como cualquier impacto letal.
+
+2.3) En la tabla «Feedback visual», añadir:
+| Réplica | Misma animación girada hacia el atacante, sin texto | 300 ms |
+y en la lista de reglas:
+| Réplica (`ReplicaPerformed`) | 300 ms, sin texto propio; los PV del objetivo bajan en su cue. |
+
+3) docs/design/architecture.md — añadir tras «## Economía de acciones»
+-----------------------------------------------------------------------
+# Réplica
+
+La réplica de [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+vive en `src/game/combat.ts` y se presenta en el host:
+
+- `resolveAttack` emite `AttackPerformed` y, si el ataque es melé, falla y el
+  defensor es elegible, resuelve una tirada nueva y emite `ReplicaPerformed` con
+  el defensor como `attackerId` y el atacante original como `targetId`.
+- `canReplicate` valida vivo, adyacente, arma equipada y estado (alerta,
+  regresando o huyendo acorralado); un dormido nunca replica. No hay cadena.
+- La reacción es atómica y no crea estado pendiente; el evento lleva impacto,
+  daño, PV resultante y tiradas, y el host no recalcula reglas.
+- `motion.ts` crea un cue `replica` con beat propio de
+  `FEEDBACK_CONFIG.beats.replica` y datos de atacante/objetivo. No emite texto.
+- `world-effects.ts` reutiliza la reacción de ataque con la embestida del
+  defensor hacia el atacante; impacto con destello y retroceso, fallo con
+  esquiva. `presentationState` retrasa los PV del objetivo hasta el cue.
+- El debug expone el cue con su `hit`; el HUD no muestra aviso, probabilidad ni
+  indicador de réplica.
+
+4) docs/decisions/ADR-022-replica-cuerpo-a-cuerpo.md (nuevo)
+------------------------------------------------------------
+---
+type: ADR
+title: "ADR-022: réplica cuerpo a cuerpo"
+description: Reacción gratuita e inmediata tras un fallo de melé, con tirada nueva, elegibilidad acotada, sin cadena, cue propio y animación de ataque girada sin texto.
+status: stable
+decision_status: accepted
+decided_by: [human:simon]
+decided_at: 2026-11-11T16:20:00Z
+generated: { by: deepseek/v4.1-flash, at: 2026-11-12T21:45:00Z }
+---
+
+# Contexto
+
+Fallar un ataque cuerpo a cuerpo era un turno perdido sin consecuencia. `REQ-027`
+decide que el defensor pueda responder en el acto, gratis y sin cadena, y
+`TASK-0079` implementó la regla. Faltaba fijar la presentación y el ritmo: la
+reacción debe leerse sin texto y sin añadir un estado pendiente.
+
+# Decisión
+
+- **Disparo**: solo un ataque cuerpo a cuerpo fallido abre réplica. Un impacto no.
+- **Elegibilidad**: defensor vivo, adyacente, con arma equipada y alerta,
+  regresando o huyendo acorralado; un dormido nunca replica. Sin arma, a
+  distancia o con ataque mágico no hay réplica.
+- **Tirada nueva**: misma fórmula y RNG, sin reutilizar la tirada fallida; puede
+  impactar, fallar o matar. No hay cadena.
+- **Coste 0**: no gasta acción, MP ni maná y no comparte el tope de 4 acciones.
+- **Atomicidad**: `resolveAttack` resuelve y emite `ReplicaPerformed` antes de la
+  siguiente acción; no hay estado pendiente que guardar o reanudar.
+- **Presentación**: la animación de ataque se reutiliza girada desde el defensor
+  hacia el atacante original, sin etiqueta, número ni banner propios. El `Fallo`
+  del ataque original se conserva y el daño se lee en la barra de PV.
+- **Cue y ritmo**: `ReplicaPerformed` tiene cue propio y beat de 300 ms
+  (`FEEDBACK_CONFIG.beats.replica`). Fallo (300) + réplica (300) = 600 ms. Se
+  declara la excepción al techo de 1,3 s: la reacción no se mide como una acción
+  independiente; si encadena muerte, se aplica la excepción terminal.
+- **Accesibilidad**: con `prefers-reduced-motion` el estado final se aplica sin
+  tween, el orden de eventos no cambia y no queda cue activo.
+
+# Consecuencias
+
+- El jugador aprende el riesgo de atacar a un enemigo con buena defensa sin un
+  indicador en el HUD.
+- La fase enemiga puede alargarse 300 ms por cada fallo con réplica; el balance
+  lo mide `EXP-003` v2.
+- El HUD y el guardado no necesitan campos nuevos: la réplica es un evento.
+- El test de tiradas de `REQ-010` se acota a ataques sin réplica.
+- Las réplicas letales consumen las acciones restantes del atacante muerto y, si
+  es el jugador, terminan la partida.
+
+# Alternativas descartadas
+
+- **Texto o banner propio**: duplicaría la lectura del fallo y añadiría ruido.
+- **Sprite o frames nuevos**: el lenguaje visual reutiliza la animación de ataque.
+- **Réplica como acción o estado pendiente**: rompe la inmediatez y el guardado.
+- **Cadena de réplicas**: puede crear bucles y no aporta legibilidad.
+- **Aviso o probabilidad en el HUD**: convierte el riesgo en una decisión
+  explícita que el usuario no quiere mostrar.
+
+5) docs/decisions/index.md — añadir al final
+--------------------------------------------
+* [ADR-022: réplica cuerpo a cuerpo](ADR-022-replica-cuerpo-a-cuerpo.md) - Reacción gratuita e inmediata tras un fallo de melé, tirada nueva, sin cadena, cue propio y animación de ataque girada sin texto.
+
+6) docs/requirements/REQ-017 — anotación pendiente (no editar desde el runner)
+------------------------------------------------------------------------------
+`REQ-027` declara la enmienda a `REQ-017` (fila en la matriz, beat y excepción
+al techo). `REQ-009` y `REQ-010` ya tienen su nota de verificación; `REQ-017` no.
+Falta que el usuario/requirements-writer añada una nota de verificación en su
+frontmatter y la fila `ReplicaPerformed` (300 ms, animación de ataque girada,
+sin texto, excepción declarada al techo). No se propone una firma humana: la
+decisión ya está en REQ-027 y la nota debe aprobarla quien corresponda.
