@@ -73,7 +73,10 @@ function mixedFeedbackState(): GameState {
         y: adjacent.y,
         home: { ...adjacent },
         mp: attackerTemplate.maxMp,
-        actionAvailable: true,
+        actions: {
+          ...attackerTemplate.actions,
+          remaining: attackerTemplate.actions.max,
+        },
         awareness: 'alert',
         fleeing: false,
         lastKnown: { x: player.x, y: player.y },
@@ -87,7 +90,10 @@ function mixedFeedbackState(): GameState {
         y: 4,
         home: { x: 5, y: 4 },
         mp: waiterTemplate.maxMp,
-        actionAvailable: true,
+        actions: {
+          ...waiterTemplate.actions,
+          remaining: waiterTemplate.actions.max,
+        },
         awareness: 'dormant',
         fleeing: false,
         lastKnown: null,

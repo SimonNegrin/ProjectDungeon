@@ -1025,13 +1025,16 @@ export function presentationState(
     );
     if (attack || initialPlayer) {
       const occurred = attack ? attack.atMs <= elapsed + EPSILON : false;
-      const actionAvailable = playerTurn
-        ? player.actionAvailable
+      const actions = playerTurn
+        ? player.actions
         : occurred
-          ? false
-          : (initialPlayer?.actionAvailable ?? true);
+          ? { ...player.actions, remaining: 0 }
+          : (initialPlayer?.actions ?? {
+              ...player.actions,
+              remaining: player.actions.max,
+            });
       players = players.map((unit) =>
-        unit.id === player.id ? { ...unit, actionAvailable } : unit,
+        unit.id === player.id ? { ...unit, actions } : unit,
       );
     }
   }

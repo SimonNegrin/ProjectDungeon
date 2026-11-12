@@ -84,7 +84,7 @@ describe('sesión de juego', () => {
     expect(session.state.players[0]).toMatchObject({
       hp: initial.players[0].hp - damage,
       mp: initial.players[0].maxMp,
-      actionAvailable: true,
+      actions: { remaining: 2 },
     });
   });
 
@@ -108,7 +108,7 @@ describe('sesión de juego', () => {
       },
     ]);
     expect(session.state.enemies[0]).toMatchObject({ hp: targetHp });
-    expect(session.state.players[0].actionAvailable).toBe(false);
+    expect(session.state.players[0].actions.remaining).toBe(1);
     expect(buildHudModel(session.state).enemyHp).toBe(
       `${targetHp}/${initial.enemies[0].maxHp}`,
     );

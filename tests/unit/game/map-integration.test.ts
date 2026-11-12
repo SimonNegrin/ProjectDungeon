@@ -201,7 +201,7 @@ describe('createInitialState con un MapGenerator inyectado', () => {
     expect(attack.state.enemies[0].hp).toBe(
       enemy.maxHp - attackDamage(attack.events),
     );
-    expect(attack.state.players[0].actionAvailable).toBe(false);
+    expect(attack.state.players[0].actions.remaining).toBe(1);
 
     const endTurn = reduce(
       { ...attack.state, rng: rngForDice([6, 1, 3, 3]) },

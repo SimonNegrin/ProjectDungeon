@@ -3,7 +3,7 @@ import type { MagicSchool, UnitStats } from '../../../src/game/index';
 import { makeUnit } from './helpers';
 
 describe('estado de atributos', () => {
-  it('serializa los ocho atributos y una magia multi-familia de nivel 1–4', () => {
+  it('serializa los atributos inherentes, incluidas las acciones, y una magia multi-familia de nivel 1–4', () => {
     const magia: readonly MagicSchool[] = [
       { familia: 'fuego', nivel: 1 },
       { familia: 'hielo', nivel: 2 },
@@ -17,6 +17,7 @@ describe('estado de atributos', () => {
       resistencia: 4,
       punteria: 5,
       magia,
+      acciones: 2,
     };
     const unit = makeUnit({
       id: 'player-1',

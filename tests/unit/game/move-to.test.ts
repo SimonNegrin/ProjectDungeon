@@ -25,7 +25,7 @@ function expectedDamage(
   );
 }
 
-function playerAt(x: number, y: number, patch: { mp?: number; actionAvailable?: boolean } = {}) {
+function playerAt(x: number, y: number, patch: { mp?: number; actions?: number } = {}) {
   return makeUnit({ id: 'player-1', faction: 'player', x, y, ...patch });
 }
 
@@ -51,7 +51,7 @@ describe('MoveTo', () => {
       x: 5,
       y: 5,
       mp: 3,
-      actionAvailable: true,
+      actions: { remaining: 2 },
     });
     expect(result.state.phase).toBe('player');
     expect(result.state.turn).toBe(1);
@@ -87,7 +87,7 @@ describe('MoveTo', () => {
     expect(result.state.players[0]).toMatchObject({
       ...plan.path[1],
       mp: 0,
-      actionAvailable: true,
+      actions: { remaining: 2 },
     });
     expect(result.state.players[0]).not.toMatchObject({ x: 6, y: 5 });
     expect(result.state.turn).toBe(1);
@@ -236,7 +236,7 @@ describe('MoveTo', () => {
         x: 5,
         y: 5,
         mp: 0,
-        actionAvailable: false,
+        actions: { remaining: 1 },
       });
       expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, hp: targetHp });
       expect(result.state.players[0]).not.toMatchObject({ x: 6, y: 6 });
@@ -285,7 +285,7 @@ describe('MoveTo', () => {
 
     it('alcanzable sin acción solo se mueve al tile de ataque', () => {
       const state = makeState({
-        players: [playerAt(2, 2, { mp: 3, actionAvailable: false })],
+        players: [playerAt(2, 2, { mp: 3, actions: 0 })],
         enemies: [enemyAt(6, 6)],
       });
 
@@ -299,7 +299,7 @@ describe('MoveTo', () => {
         x: 5,
         y: 5,
         mp: 0,
-        actionAvailable: false,
+        actions: { remaining: 0 },
       });
       expect(result.state.enemies[0].hp).toBe(10);
       expect(result.events.map((event) => event.type)).toEqual([
@@ -325,7 +325,7 @@ describe('MoveTo', () => {
         x: 4,
         y: 4,
         mp: 0,
-        actionAvailable: true,
+        actions: { remaining: 2 },
       });
       expect(result.state.enemies[0].hp).toBe(10);
       expect(result.events.map((event) => event.type)).toEqual([
@@ -353,7 +353,7 @@ describe('MoveTo', () => {
         x: 5,
         y: 5,
         mp: state.players[0].maxMp,
-        actionAvailable: false,
+        actions: { remaining: 1 },
       });
       expect(result.state.enemies[0].hp).toBe(targetHp);
       expect(result.events).toEqual([
@@ -371,7 +371,7 @@ describe('MoveTo', () => {
 
     it('adyacente sin acción no hace nada y rechaza no-action', () => {
       const state = makeState({
-        players: [playerAt(5, 5, { actionAvailable: false })],
+        players: [playerAt(5, 5, { actions: 0 })],
         enemies: [enemyAt(6, 5)],
       });
 

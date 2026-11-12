@@ -166,6 +166,7 @@ function cloneUnit(unit: Unit): Unit {
     stats: { ...unit.stats, magia: unit.stats.magia.map((family) => ({ ...family })) },
     equipment: { ...unit.equipment },
     weapons: [...unit.weapons],
+    actions: { ...unit.actions },
     home: { ...unit.home },
     lastKnown: unit.lastKnown ? { ...unit.lastKnown } : null,
   };

@@ -84,10 +84,11 @@ describe('bestiario', () => {
     expect(JSON.parse(JSON.stringify(BESTIARY))).toEqual(BESTIARY);
   });
 
-  it('declara los ocho atributos de REQ-014 por tipo, con PV y MP incluidos', () => {
+  it('declara los atributos inherentes de REQ-014 por tipo, incluidas las acciones', () => {
     for (const type of ENEMY_TYPES) {
       const definition = BESTIARY[type];
       expect(Object.keys(definition.stats).sort()).toEqual([
+        'acciones',
         'defensa',
         'fuerza',
         'habilidad',
@@ -106,6 +107,12 @@ describe('bestiario', () => {
       const roundTrip = JSON.parse(JSON.stringify(definition.stats));
       expect(roundTrip).toEqual(definition.stats);
     }
+  });
+
+  it('declara acciones por tipo 2/1/2 (REQ-026)', () => {
+    expect(BESTIARY.sentinel.stats.acciones).toBe(2);
+    expect(BESTIARY.brute.stats.acciones).toBe(1);
+    expect(BESTIARY.coward.stats.acciones).toBe(2);
   });
 
   it('usa un radio de alarma común y el papel de cada tipo en PV y MP', () => {    const alarms = Object.values(BESTIARY).map((definition) => definition.alarm);

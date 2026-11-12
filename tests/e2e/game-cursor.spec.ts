@@ -145,7 +145,7 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
     x: beforeReject.players[0].x + 1,
     y: beforeReject.players[0].y,
     mp: beforeReject.players[0].mp - 1,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(moved.cursor).toMatchObject({
     x: moved.players[0].x,
@@ -245,7 +245,7 @@ test('humo del cursor sobre enemigo: marca de objetivo y ataque con F', async ({
   );
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.cursor).toMatchObject({
     x: enemyTile.cursor.x,
     y: enemyTile.cursor.y,

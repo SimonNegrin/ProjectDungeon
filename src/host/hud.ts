@@ -138,7 +138,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     archetype: archetypeLabel(player),
     playerHp: formatHp(player),
     playerMp: formatMp(player),
-    action: boolLabel(player?.actionAvailable),
+    action: boolLabel(player ? player.actions.remaining > 0 : undefined),
     phase: phaseLabel(state),
     enemyHp: formatHp(enemy),
     weapon: weaponLabel(player),
@@ -401,7 +401,7 @@ export function buildDebugModel(
 
   return {
     lines: [
-      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player?.actionAvailable)}`,
+      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player ? player.actions.remaining > 0 : undefined)}`,
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
       equipmentDebugLine(player),

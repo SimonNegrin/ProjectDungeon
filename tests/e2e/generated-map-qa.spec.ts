@@ -867,7 +867,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
     maxHp: 20,
     mp: 6,
     maxMp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterRestart.turn).toBe(1);
   expect(afterRestart.phase).toBe('player');
@@ -891,7 +891,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
     y: afterF2.spawns!.player.y,
     hp: 20,
     mp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterF2.enemies[0]).toMatchObject({
     x: afterF2.spawns!.enemy.x,

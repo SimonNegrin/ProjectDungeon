@@ -38,7 +38,7 @@ describe('movement', () => {
         x: 10 + dx,
         y: 10 + dy,
         mp: PLAYER_MAX_MP - MOVE_COST,
-        actionAvailable: true,
+        actions: { remaining: 2 },
       });
       expect(result.events).toEqual([
         {

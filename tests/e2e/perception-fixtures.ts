@@ -83,7 +83,7 @@ function placePlayer(state: GameState, x: number, y: number): GameState {
         y,
         home: { x, y },
         mp: player.maxMp,
-        actionAvailable: true,
+        actions: { ...player.actions, remaining: player.actions.max },
       },
     ],
   };
@@ -106,7 +106,7 @@ function placeEnemy(
             y,
             home: { x, y },
             mp: enemy.maxMp,
-            actionAvailable: true,
+            actions: { ...enemy.actions, remaining: enemy.actions.max },
             ...patch,
           }
         : enemy,
@@ -217,7 +217,7 @@ export function corralledState(): GameState {
         y: 5,
         home: { x: 5, y: 5 },
         mp: player.maxMp,
-        actionAvailable: true,
+        actions: { ...player.actions, remaining: player.actions.max },
       },
     ],
     enemies: [
@@ -228,7 +228,7 @@ export function corralledState(): GameState {
         home: { x: 6, y: 5 },
         hp: 2,
         mp: coward.maxMp,
-        actionAvailable: true,
+        actions: { ...coward.actions, remaining: coward.actions.max },
         awareness: 'alert',
         fleeing: true,
         lastKnown: { x: 5, y: 5 },

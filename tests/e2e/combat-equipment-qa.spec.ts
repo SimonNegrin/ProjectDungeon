@@ -268,9 +268,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   await settle(page);
   const afterPickup = await snapshot(page);
   expect(afterPickup.players[0].mp).toBe(beforePickup.players[0].mp - 1);
-  expect(afterPickup.players[0].actionAvailable).toBe(
-    beforePickup.players[0].actionAvailable,
-  );
+  expect(afterPickup.players[0].actions).toEqual(beforePickup.players[0].actions);
   expect(afterPickup.players[0].equipment.weaponId).toBe('axe');
   expect(afterPickup.players[0].weapons).toEqual(['sword', 'axe']);
   expect(afterPickup.weapons).toHaveLength(1);
@@ -301,9 +299,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   await settle(page);
   const afterDagger = await snapshot(page);
   expect(afterDagger.players[0].mp).toBe(beforeDagger.players[0].mp - 1);
-  expect(afterDagger.players[0].actionAvailable).toBe(
-    beforeDagger.players[0].actionAvailable,
-  );
+  expect(afterDagger.players[0].actions).toEqual(beforeDagger.players[0].actions);
   expect(afterDagger.players[0].equipment.weaponId).toBe('dagger');
   expect(afterDagger.players[0].weapons).toEqual(['sword', 'axe', 'dagger']);
   expect(afterDagger.weapons).toEqual([]);
@@ -322,7 +318,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
     expect(afterSwitch.players[0].equipment.weaponId).toBe(weaponId);
     expect(afterSwitch.players[0]).toMatchObject({
       mp: beforeSwitch.players[0].mp,
-      actionAvailable: beforeSwitch.players[0].actionAvailable,
+      actions: beforeSwitch.players[0].actions,
       x: beforeSwitch.players[0].x,
       y: beforeSwitch.players[0].y,
     });
@@ -451,7 +447,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   );
 
   const afterAttack = await snapshot(page);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.players[0].mp).toBe(beforeAttack.players[0].mp);
   expect(afterAttack.turn).toBe(beforeAttack.turn);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
@@ -508,7 +504,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(afterEndTurn.players[0]).toMatchObject({
     hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
     mp: afterEndTurn.players[0].maxMp,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   await expect(page.getByTestId('hud-player-hp')).toHaveText(
     `${afterEndTurn.players[0].hp}/20`,
@@ -535,7 +531,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
     if (result.snapshot.status !== 'playing') {
       expect(result.snapshot.turn).toBe(beforeKill.turn);
       expect(result.snapshot.players[0].mp).toBe(beforeKill.players[0].mp);
-      expect(result.snapshot.players[0].actionAvailable).toBe(false);
+      expect(result.snapshot.players[0].actions.remaining).toBe(1);
       break;
     }
     const end = await dispatchCommand(page, { type: 'EndTurn' });
@@ -613,7 +609,7 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
 
   const afterAttack = await snapshot(page);
   expect(afterAttack.turn).toBe(beforeAttack.turn);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
     `${attack!.targetHp}/${enemy.maxHp}`,
@@ -681,7 +677,7 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
     `${enemy.hp}/${enemy.maxHp}`,
   );
   const afterMiss = await snapshot(page);
-  expect(afterMiss.players[0].actionAvailable).toBe(false);
+  expect(afterMiss.players[0].actions.remaining).toBe(1);
   expect(afterMiss.players[0].mp).toBe(beforeMiss.players[0].mp);
   expect(afterMiss.turn).toBe(beforeMiss.turn);
   expect(afterMiss.enemies[0].hp).toBe(enemy.hp);
@@ -833,7 +829,7 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
       expect(after.phase).toBe('player');
       expect(after.players[0]).toMatchObject({
         mp: after.players[0].maxMp,
-        actionAvailable: true,
+        actions: { remaining: 2 },
       });
       expect(
         result.events.filter((event) => event.type === 'PlayerTurnStarted'),
@@ -871,7 +867,7 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   expect(restarted.players[0]).toMatchObject({
     hp: 20,
     mp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   await expect(page.getByTestId('overlay-defeat')).toBeHidden();
 

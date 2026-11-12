@@ -58,7 +58,7 @@ function enemyAtColumn(enemyX: number): GameState {
         y: 2,
         home: { x: 1, y: 2 },
         mp: player.maxMp,
-        actionAvailable: true,
+        actions: { ...player.actions, remaining: player.actions.max },
       },
     ],
     enemies: [
@@ -69,7 +69,7 @@ function enemyAtColumn(enemyX: number): GameState {
         y: 2,
         home: { x: enemyX, y: 2 },
         mp: template.maxMp,
-        actionAvailable: true,
+        actions: { ...template.actions, remaining: template.actions.max },
         awareness: 'alert',
         fleeing: false,
         lastKnown: { x: 1, y: 2 },

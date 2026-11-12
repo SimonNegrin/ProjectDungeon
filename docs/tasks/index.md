@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -69,6 +69,15 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0072](TASK-0072-exp-003-objetivos-por-par.md) | EXP-003: objetivos por par, diagnóstico y export | `done` | REQ-028 | — | P1 |
 | [TASK-0073](TASK-0073-exp-003-filtros-tablas.md) | EXP-003: filtros de las tres tablas | `done` | REQ-028 | TASK-0072 | P1 |
 | [TASK-0074](TASK-0074-exp-003-objetivos-filtros-e2e.md) | EXP-003: E2E y QA visual de objetivos por par y filtros | `done` | REQ-028 | TASK-0073 | P1 |
+| [TASK-0076](TASK-0076-motor-contador-acciones-costes.md) | Motor: contador de acciones y costes por comando | `review` | REQ-026 | — | P1 |
+| [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `backlog` | REQ-026 | TASK-0076 | P1 |
+| [TASK-0078](TASK-0078-host-contador-acciones-fin-turno.md) | Host: contador de acciones, fin de turno y beats | `backlog` | REQ-026 | TASK-0077 | P1 |
+| [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `backlog` | REQ-027 | TASK-0078 | P1 |
+| [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `backlog` | REQ-027 | TASK-0079 | P1 |
+| [TASK-0081](TASK-0081-motor-nivel-magia-mana.md) | Motor: nivel de magia y maná por turno | `backlog` | REQ-025 | TASK-0080 | P1 |
+| [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `backlog` | REQ-025 | TASK-0081 | P1 |
+| [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `backlog` | REQ-025 | TASK-0082 | P1 |
+| [TASK-0084](TASK-0084-balance-acciones-magia-replica.md) | Balance: propuesta con acciones, magia y réplica | `backlog` | REQ-026 | TASK-0083 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -80,8 +89,20 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 
+# review
+
+* [TASK-0076 — Motor: contador de acciones y costes por comando](TASK-0076-motor-contador-acciones-costes.md)
+
 # backlog
 
+* [TASK-0077 — Motor: IA enemiga con acciones encadenadas](TASK-0077-motor-ia-acciones-encadenadas.md)
+* [TASK-0078 — Host: contador de acciones, fin de turno y beats](TASK-0078-host-contador-acciones-fin-turno.md)
+* [TASK-0079 — Motor: réplica tras fallo cuerpo a cuerpo](TASK-0079-motor-replica-cuerpo-a-cuerpo.md)
+* [TASK-0080 — Host y docs: réplica visible y ADR](TASK-0080-host-docs-replica-visible.md)
+* [TASK-0081 — Motor: nivel de magia y maná por turno](TASK-0081-motor-nivel-magia-mana.md)
+* [TASK-0082 — Motor: catálogo y resolución de hechizos](TASK-0082-motor-catalogo-hechizos.md)
+* [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)
+* [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
 # done

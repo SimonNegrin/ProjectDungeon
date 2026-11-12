@@ -6,6 +6,7 @@
  * mágica es texto sin efecto en combate y `stats.magia` siempre queda vacío.
  */
 
+import { createActions } from './actions';
 import type { Position, Unit, UnitEquipment, UnitStats } from './types';
 
 export type ArchetypeId =
@@ -49,6 +50,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 1,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
     futureWeapon: null,
@@ -68,6 +70,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: 'axe', armorId: null, shieldId: null },
     futureWeapon: null,
@@ -87,6 +90,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 3,
     },
     equipment: { weaponId: 'dagger', armorId: null, shieldId: null },
     futureWeapon: null,
@@ -106,6 +110,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 3,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: null },
     futureWeapon: 'arco',
@@ -125,6 +130,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: null },
     futureWeapon: 'bastón',
@@ -144,6 +150,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 2,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: null, armorId: 'armor', shieldId: 'shield' },
     futureWeapon: 'maza',
@@ -163,6 +170,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: null, armorId: 'armor', shieldId: null },
     futureWeapon: 'espada mágica',
@@ -182,6 +190,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 0,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: 'knife', armorId: null, shieldId: null },
     futureWeapon: null,
@@ -201,6 +210,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       resistencia: 1,
       punteria: 0,
       magia: [],
+      acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: 'shield' },
     futureWeapon: 'guadaña',
@@ -244,7 +254,7 @@ export function createPlayerFromArchetype(
     maxHp: entry.maxHp,
     mp: entry.maxMp,
     maxMp: entry.maxMp,
-    actionAvailable: true,
+    actions: createActions(entry.stats, entry.equipment),
     stats: entry.stats,
     equipment: entry.equipment,
     weapons: weaponId === null ? [] : [weaponId],

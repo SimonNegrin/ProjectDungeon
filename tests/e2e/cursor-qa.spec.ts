@@ -40,7 +40,10 @@ async function openGame(page: Page): Promise<void> {
  * jugador durante el trayecto y mantiene el combate y las aserciones sobre el
  * estado real.
  */
-async function openAdjacentEnemy(page: Page): Promise<GameSnapshot> {
+async function openAdjacentEnemy(
+  page: Page,
+  enemyPatch: Partial<GameSnapshot['enemies'][number]> = {},
+): Promise<GameSnapshot> {
   await page.setViewportSize({ width: 1280, height: 720 });
   const base = await openBspState(page, SEED);
   const enemy = base.enemies[0];
@@ -55,7 +58,7 @@ async function openAdjacentEnemy(page: Page): Promise<GameSnapshot> {
   if (!beside) throw new Error('Enemy-1 no tiene una casilla libre adyacente');
   return openBspState(page, SEED, undefined, {
     player: beside,
-    enemies: [enemy],
+    enemies: [{ ...enemy, ...enemyPatch }],
   });
 }
 
@@ -313,7 +316,7 @@ test('Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acc
     x: target.x,
     y: target.y,
     mp: start.players[0].mp - cost,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(moved.turn).toBe(start.turn);
   expect(moved.status).toBe('playing');
@@ -374,7 +377,7 @@ test('Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado', a
     x: expected.x,
     y: expected.y,
     mp: 0,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(moved.turn).toBe(start.turn);
   expect(moved.enemies[0].hp).toBe(enemyHp);
@@ -469,7 +472,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
     x: selected.players[0].x,
     y: selected.players[0].y,
     mp: selected.players[0].mp,
-    actionAvailable: false,
+    actions: { remaining: 1 },
   });
   expect(afterF.cursor).toMatchObject({
     x: selected.cursor.x,
@@ -507,7 +510,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   expect(afterEndTurn.players[0]).toMatchObject({
     hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
     mp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,
@@ -597,7 +600,7 @@ test('enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse atac
     x: attackTile!.x,
     y: attackTile!.y,
     mp: beforeMoveTo.players[0].mp - cost,
-    actionAvailable: false,
+    actions: { remaining: 1 },
   });
   expect(afterMoveTo.enemies[0].hp).toBe(beforeMoveTo.enemies[0].hp - 1);
   expect(afterMoveTo.cursor).toMatchObject({
@@ -626,11 +629,13 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
   page,
 }) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openAdjacentEnemy(page);
+  await openAdjacentEnemy(page, { hp: 20, maxHp: 20 });
   await ensureAdjacentWithMp(page, 2);
 
   const adjacent = await snapshot(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
+  await page.keyboard.press('f');
+  await settle(page);
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
   const attack = afterAttack.lastEvents.find(
@@ -638,7 +643,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
       event.type === 'AttackPerformed' && event.attackerId === 'player-1',
   );
   expect(attack).toBeDefined();
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
 
   expect(await moveAwayFromEnemy(page)).toBe(true);
@@ -658,7 +663,7 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
     x: attackTile.x,
     y: attackTile.y,
     mp: planned.players[0].mp - steps,
-    actionAvailable: false,
+    actions: { remaining: 0 },
   });
   expect(moved.enemies[0].hp).toBe(planned.enemies[0].hp);
   expect(moved.lastEvents.some((event) => event.type === 'AttackPerformed')).toBe(false);
@@ -673,12 +678,14 @@ test('enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin da
 
 test('enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa', async ({ page }) => {
   const consoleErrors = trackConsoleErrors(page);
-  await openAdjacentEnemy(page);
+  await openAdjacentEnemy(page, { hp: 20, maxHp: 20 });
   const adjacent = await snapshot(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
   await page.keyboard.press('f');
+  await settle(page);
+  await page.keyboard.press('f');
   const beforeReject = await snapshot(page);
-  expect(beforeReject.players[0].actionAvailable).toBe(false);
+  expect(beforeReject.players[0].actions.remaining).toBe(0);
   expect(distance(beforeReject.players[0], beforeReject.enemies[0])).toBe(1);
   // El ataque anterior sigue en su beat: se completa antes de probar el rechazo.
   await settle(page);
@@ -736,7 +743,7 @@ test('enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar', asyn
     x: expected.x,
     y: expected.y,
     mp: 0,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(moved.enemies[0].hp).toBe(planned.enemies[0].hp);
   expect(moved.lastEvents.some((event) => event.type === 'AttackPerformed')).toBe(false);

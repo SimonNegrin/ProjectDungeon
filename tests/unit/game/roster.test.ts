@@ -24,6 +24,7 @@ interface ExpectedArchetype {
     defensa: number,
     resistencia: number,
     punteria: number,
+    acciones: number,
   ];
 }
 
@@ -32,55 +33,55 @@ const EXPECTED: Readonly<Record<ArchetypeId, ExpectedArchetype>> = {
     name: 'Guerrero',
     maxHp: 20,
     maxMp: 6,
-    stats: [1, 1, 1, 1, 0],
+    stats: [1, 1, 1, 1, 0, 2],
   },
   barbarian: {
     name: 'Bárbaro',
     maxHp: 24,
     maxMp: 5,
-    stats: [0, 3, -1, 0, 0],
+    stats: [0, 3, -1, 0, 0, 2],
   },
   rogue: {
     name: 'Pícaro',
     maxHp: 14,
     maxMp: 8,
-    stats: [3, 0, 1, 0, 0],
+    stats: [3, 0, 1, 0, 0, 3],
   },
   archer: {
     name: 'Arquero',
     maxHp: 14,
     maxMp: 6,
-    stats: [1, 0, 0, 0, 3],
+    stats: [1, 0, 0, 0, 3, 2],
   },
   mage: {
     name: 'Mago',
     maxHp: 12,
     maxMp: 5,
-    stats: [0, -1, 0, 0, 0],
+    stats: [0, -1, 0, 0, 0, 2],
   },
   cleric: {
     name: 'Clérigo',
     maxHp: 18,
     maxMp: 5,
-    stats: [0, -1, 3, 2, 0],
+    stats: [0, -1, 3, 2, 0, 2],
   },
   spellblade: {
     name: 'Guerrero mágico',
     maxHp: 18,
     maxMp: 6,
-    stats: [1, 0, 1, 0, 0],
+    stats: [1, 0, 1, 0, 0, 2],
   },
   cook: {
     name: 'Cocinero',
     maxHp: 14,
     maxMp: 6,
-    stats: [3, -1, 0, 0, 0],
+    stats: [3, -1, 0, 0, 0, 2],
   },
   farmer: {
     name: 'Agricultor',
     maxHp: 22,
     maxMp: 4,
-    stats: [-1, 3, 0, 1, 0],
+    stats: [-1, 3, 0, 1, 0, 2],
   },
 };
 
@@ -92,6 +93,7 @@ function statsOf(entry: (typeof ROSTER)[ArchetypeId]): readonly number[] {
     stats.defensa,
     stats.resistencia,
     stats.punteria,
+    stats.acciones,
   ];
 }
 
@@ -195,7 +197,7 @@ describe('personaje desde arquetipo', () => {
       maxHp: ROSTER.cook.maxHp,
       mp: ROSTER.cook.maxMp,
       maxMp: ROSTER.cook.maxMp,
-      actionAvailable: true,
+      actions: { max: 2, remaining: 2 },
       stats: ROSTER.cook.stats,
       equipment: ROSTER.cook.equipment,
       weapons: ['knife'],
@@ -290,7 +292,7 @@ describe('jugador por defecto (REQ-015 T-003)', () => {
       hit: true,
     });
     expect(result.state.rng).not.toBe(adjacent.rng);
-    expect(result.state.players[0].actionAvailable).toBe(false);
+    expect(result.state.players[0].actions.remaining).toBe(1);
   });
 });
 
@@ -316,7 +318,7 @@ describe('ataque sin arma', () => {
     expect(result.state).toBe(state);
     expect(JSON.stringify(state)).toBe(before);
     expect(result.state.rng).toBe(state.rng);
-    expect(result.state.players[0].actionAvailable).toBe(true);
+    expect(result.state.players[0].actions.remaining).toBe(2);
     expect(result.events).toEqual([
       { type: 'CommandRejected', commandType: 'Attack', reason: 'unarmed' },
     ]);
@@ -346,7 +348,7 @@ describe('ataque sin arma', () => {
     });
     const unarmedWithoutAction = {
       ...withoutAction,
-      players: [{ ...withoutAction.players[0], actionAvailable: false }],
+      players: [{ ...withoutAction.players[0], actions: { ...withoutAction.players[0].actions, remaining: 0 } }],
     };
 
     expect(resolveAttack(far, 'player-1', 'enemy-1')).toEqual({

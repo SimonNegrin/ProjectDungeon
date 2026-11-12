@@ -127,7 +127,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     x: initial.players[0].x + 2,
     y: initial.players[0].y,
     mp: initial.players[0].mp - 2,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterMoveTo.cursor).toMatchObject({
     x: initial.players[0].x + 2,
@@ -148,7 +148,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     y: initial.players[0].y,
     hp: 20,
     mp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterRestart.cursor).toMatchObject({
     x: initial.players[0].x,
@@ -266,7 +266,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   );
   await expect(page.getByTestId('damage-feedback')).toBeVisible();
   expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
-  expect(afterAttack.players[0].actionAvailable).toBe(false);
+  expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.cursor).toMatchObject({
     x: adjacent.enemies[0].x,
     y: adjacent.enemies[0].y,
@@ -307,7 +307,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterEndTurn.players[0]).toMatchObject({
     hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
     mp: 6,
-    actionAvailable: true,
+    actions: { remaining: 2 },
   });
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,

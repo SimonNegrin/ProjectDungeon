@@ -185,7 +185,8 @@ describe('modelo del HUD', () => {
       rng: rngForDice([6, 1, 2, 1]),
     });
 
-    const next = attack(state);
+    const afterFirst = attack(state);
+    const next = attack(afterFirst);
     const model = buildHudModel(next);
 
     expect(model.enemyHp).toBe(`${next.enemies[0].hp}/${next.enemies[0].maxHp}`);
@@ -218,7 +219,8 @@ describe('modelo del HUD', () => {
       rng: rngForDice([6, 1, 2, 1]),
     });
 
-    const next = attack(state);
+    const afterFirst = attack(state);
+    const next = attack(afterFirst);
     const model = buildHudModel(next);
 
     expect(model.enemyHp).toBe(`0/${next.enemies[0].maxHp}`);

@@ -1,3 +1,4 @@
+import { createActions, hasAction } from './actions';
 import { isAlive } from './grid';
 import { commitMove, validateMove } from './movement';
 import { applyTerminal, resolveEndTurn } from './turn';
@@ -50,7 +51,7 @@ function createEnemy(
     maxHp: definition.maxHp,
     mp: definition.maxMp,
     maxMp: definition.maxMp,
-    actionAvailable: true,
+    actions: createActions(definition.stats, definition.equipment),
     stats: definition.stats,
     equipment: definition.equipment,
     weapons:
@@ -333,7 +334,7 @@ function reduceMoveTo(
 
   // Ya adyacente: atacar sin moverse ni gastar MP.
   if (plan.path.length === 0) {
-    if (!unit.actionAvailable) {
+    if (!hasAction(unit)) {
       return reject(state, command, 'no-action');
     }
 
@@ -356,7 +357,7 @@ function reduceMoveTo(
   const events: GameEvent[] = [...execution.events];
   const reachedAttackTile = steps.length === plan.path.length;
 
-  if (reachedAttackTile && unit.actionAvailable) {
+  if (reachedAttackTile && hasAction(unit)) {
     const result = attackWithTerminal(execution.state, events, unit.id, enemy.id);
     if ('ok' in result) return reject(state, command, result.reason);
     return result;

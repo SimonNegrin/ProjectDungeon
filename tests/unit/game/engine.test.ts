@@ -63,7 +63,7 @@ describe('engine state', () => {
       maxHp: PLAYER_MAX_HP,
       mp: PLAYER_MAX_MP,
       maxMp: PLAYER_MAX_MP,
-      actionAvailable: true,
+      actions: { max: 2, remaining: 2 },
     });
     expect(state.enemies[0]).toMatchObject({
       id: 'enemy-1',
@@ -73,7 +73,7 @@ describe('engine state', () => {
       maxHp: BESTIARY.sentinel.maxHp,
       mp: BESTIARY.sentinel.maxMp,
       maxMp: BESTIARY.sentinel.maxMp,
-      actionAvailable: true,
+      actions: { max: 2, remaining: 2 },
     });
     expect(PLAYER_MAX_MP).toBe(6);
     expect(state.phase).toBe('player');
@@ -209,7 +209,7 @@ interface WeaponStateOptions {
   readonly weapons?: readonly WeaponId[];
   readonly equipped?: WeaponId;
   readonly mp?: number;
-  readonly actionAvailable?: boolean;
+  readonly actions?: number;
   readonly player?: Position;
   readonly enemy?: Position;
   readonly rng?: RngState;
@@ -234,7 +234,10 @@ function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
         x: playerPosition.x,
         y: playerPosition.y,
         mp: options.mp ?? base.players[0].mp,
-        actionAvailable: options.actionAvailable ?? true,
+        actions: {
+          ...base.players[0].actions,
+          remaining: options.actions ?? base.players[0].actions.max,
+        },
         weapons: options.weapons ?? ['sword'],
         equipment: {
           ...base.players[0].equipment,
@@ -278,7 +281,7 @@ describe('recogida y cambio de armas', () => {
     expect(result.state).not.toBe(state);
     expect(result.state.players[0]).toMatchObject({
       mp: PLAYER_MAX_MP - PICKUP_COST,
-      actionAvailable: true,
+      actions: { remaining: 2 },
       weapons: ['sword', 'axe'],
       equipment: { weaponId: 'axe' },
     });
@@ -346,7 +349,7 @@ describe('recogida y cambio de armas', () => {
       weapons: ['sword', 'axe', 'dagger'],
       equipped: 'sword',
       mp: 4,
-      actionAvailable: false,
+      actions: 0,
     });
 
     const toAxe = reduce(state, { type: 'SelectWeapon', unitId: 'player-1', slot: 2 });
@@ -354,7 +357,7 @@ describe('recogida y cambio de armas', () => {
     expect(toAxe.state.players[0]).toMatchObject({
       equipment: { weaponId: 'axe' },
       mp: 4,
-      actionAvailable: false,
+      actions: { remaining: 0 },
       weapons: ['sword', 'axe', 'dagger'],
     });
 
@@ -366,7 +369,7 @@ describe('recogida y cambio de armas', () => {
     expect(toDagger.state.players[0]).toMatchObject({
       equipment: { weaponId: 'dagger' },
       mp: 4,
-      actionAvailable: false,
+      actions: { remaining: 0 },
     });
 
     const toSword = reduce(toDagger.state, {
@@ -443,7 +446,7 @@ describe('recogida y cambio de armas', () => {
     );
     expect(attack.state.players[0]).toMatchObject({
       equipment: { weaponId: 'axe' },
-      actionAvailable: false,
+      actions: { remaining: 1 },
     });
   });
 

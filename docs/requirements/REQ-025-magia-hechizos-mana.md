@@ -9,7 +9,7 @@ decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:00:00Z
 updated_at: 2026-11-11T15:40:00Z
-related_tasks: []
+related_tasks: [TASK-0081, TASK-0082, TASK-0083]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:00:00Z }
 verified:
   - by: human:simon

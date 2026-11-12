@@ -65,7 +65,7 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
     ]);
 
     const mpBefore = afterSecond.players[0].mp;
-    const actionBefore = afterSecond.players[0].actionAvailable;
+    const actionsBefore = afterSecond.players[0].actions;
     const switched = reduce(afterSecond, {
       type: 'SelectWeapon',
       unitId: 'player-1',
@@ -74,7 +74,7 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
 
     expect(switched.players[0].equipment.weaponId).toBe(first.weaponId);
     expect(switched.players[0].mp).toBe(mpBefore);
-    expect(switched.players[0].actionAvailable).toBe(actionBefore);
+    expect(switched.players[0].actions).toEqual(actionsBefore);
     expect(buildHudModel(switched).weapon).toBe(
       `${WEAPONS[first.weaponId].name} +${WEAPONS[first.weaponId].accuracy}/+${WEAPONS[first.weaponId].damage}`,
     );

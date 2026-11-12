@@ -16,13 +16,13 @@ import {
   type GameState,
   type Unit,
 } from '../../../src/game/index';
-import { makeGridWithWalls, makeState, makeUnit } from './helpers';
+import { makeGridWithWalls, makeState, makeUnit, type UnitOptions } from './helpers';
 
 function enemyOf(
   type: EnemyType,
   x: number,
   y: number,
-  patch: Partial<Unit> = {},
+  patch: Partial<UnitOptions> = {},
 ): Unit {
   return makeUnit({
     id: 'enemy-1',
@@ -35,7 +35,7 @@ function enemyOf(
   });
 }
 
-function playerAt(x: number, y: number, patch: Partial<Unit> = {}): Unit {
+function playerAt(x: number, y: number, patch: Partial<UnitOptions> = {}): Unit {
   return makeUnit({ id: 'player-1', faction: 'player', x, y, ...patch });
 }
 
@@ -137,7 +137,7 @@ describe('detección tras cada paso', () => {
       alertTurns: 0,
       hasShouted: true,
     });
-    expect(result.state.players[0]).toMatchObject({ mp: 5, actionAvailable: true });
+    expect(result.state.players[0]).toMatchObject({ mp: 5, actions: { remaining: 2 } });
   });
 
   it('MoveTo de 3 pasos emite la detección en el paso correcto', () => {
@@ -175,7 +175,7 @@ describe('detección tras cada paso', () => {
       x: 6,
       y: 5,
       mp: 3,
-      actionAvailable: true,
+      actions: { remaining: 2 },
     });
   });
 

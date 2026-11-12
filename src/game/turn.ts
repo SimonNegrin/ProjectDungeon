@@ -1,3 +1,4 @@
+import { hasAction, restoreActions } from './actions';
 import { planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
 import { isAlive } from './grid';
@@ -43,7 +44,9 @@ export function restorePlayerTurn(state: GameState): GameState {
     ...state,
     phase: 'player',
     players: state.players.map((unit) =>
-      isAlive(unit) ? { ...unit, mp: unit.maxMp, actionAvailable: true } : unit,
+      isAlive(unit)
+        ? restoreActions({ ...unit, mp: unit.maxMp })
+        : unit,
     ),
   };
 }
@@ -53,7 +56,9 @@ export function restoreEnemyTurn(state: GameState): GameState {
     ...state,
     phase: 'enemy',
     enemies: state.enemies.map((unit) =>
-      isAlive(unit) ? { ...unit, mp: unit.maxMp, actionAvailable: true } : unit,
+      isAlive(unit)
+        ? restoreActions({ ...unit, mp: unit.maxMp })
+        : unit,
     ),
   };
 }
@@ -130,7 +135,7 @@ function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
 
     if (plan.attackTargetId) {
       const attacker = next.enemies.find((candidate) => candidate.id === enemy.id);
-      if (attacker && isAlive(attacker) && attacker.actionAvailable) {
+      if (attacker && isAlive(attacker) && hasAction(attacker)) {
         const attack = resolveAttack(next, enemy.id, plan.attackTargetId);
         if (attack.ok) {
           next = attack.state;
