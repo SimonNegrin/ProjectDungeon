@@ -56,6 +56,9 @@ turno ni agrupe ataques. El HUD y el debug exponen acciones máximas y restantes
 - [ ] El E2E verifica dos ataques seguidos, el contador bajando de 2 a 0, el
       cierre con `E`, la sugerencia y la ausencia de auto-terminación.
 - [ ] `pnpm run verify` y la QA visual pasan; capturas 1280×720 y 900×700.
+- [ ] Se corrige la aserción de `cursor-qa` «enemigo alcanzable sin acción»:
+      tras dos `F` el contador de acciones queda en 0, no en 1 (regresión de
+      TASK-0076); el test conserva su intención y el E2E completo queda verde.
 - [ ] Sin cambios en las fórmulas, en el contador del motor ni en los valores de
       balance.
 

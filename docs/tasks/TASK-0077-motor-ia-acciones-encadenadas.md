@@ -43,8 +43,8 @@ verified:
       bundle); E2E focalizados 19/20. El único fallo es la aserción de
       `cursor-qa` «enemigo alcanzable sin acción», que tras dos pulsaciones de
       `F` espera 1 acción y recibe 0; procede de TASK-0076 (commit `169ca54`) y
-      no del encadenado. Corrección pendiente de decisión: incluirla en
-      TASK-0078 o abrir una tarea de corrección.
+      no del encadenado. Corrección asignada a TASK-0078 por decisión del
+      usuario.
 ---
 
 # Objetivo
