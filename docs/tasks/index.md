@@ -75,7 +75,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `done` | REQ-027 | TASK-0078 | P1 |
 | [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `done` | REQ-027 | TASK-0079 | P1 |
 | [TASK-0081](TASK-0081-motor-nivel-magia-mana.md) | Motor: nivel de magia y maná por turno | `done` | REQ-025 | TASK-0080 | P1 |
-| [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `backlog` | REQ-025 | TASK-0081 | P1 |
+| [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `ready` | REQ-025 | TASK-0081 | P1 |
 | [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `backlog` | REQ-025 | TASK-0082 | P1 |
 | [TASK-0084](TASK-0084-balance-acciones-magia-replica.md) | Balance: propuesta con acciones, magia y réplica | `backlog` | REQ-026 | TASK-0083 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
