@@ -1,5 +1,9 @@
 # Historial del bundle
 
+## 2026-11-12
+
+* 2026-11-12 — Infra — repo — publicado en `git@github.com:SimonNegrin/ProjectDungeon.git` (remoto `origin`, `main` en `a7dc9e4`, 583 commits, historial completo); sin secretos ni blobs > 20 MB; `.git` de 110 MB por capturas de `artifacts/` — [remote](https://github.com/SimonNegrin/ProjectDungeon)
+
 ## 2026-11-11
 
 * 2026-11-11 — Experiment — EXP-003 — banco v3 documentado: objetivo editable por par héroe–enemigo con guía heredada, 4-de-4 sin dispersión, filtros de las tres tablas y export con `targetsVersion: 2` y `targetsId`; 993 tests y 109/109 E2E; el balance base sigue sin aprobar — [EXP-003](../experiments/EXP-003-mesa-combate/experiment.md)
