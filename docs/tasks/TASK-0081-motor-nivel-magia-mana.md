@@ -4,7 +4,7 @@ id: TASK-0081
 title: "Motor: nivel de magia y maná por turno"
 description: "Migrar la magia a un nivel único 0–4 por personaje y añadir maná máximo nivel × 4 que se recarga al inicio de cada turno, con niveles del roster y enemigos sin magia."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-001, R-003, R-004, T-001, T-005, T-008, T-009, T-010]
