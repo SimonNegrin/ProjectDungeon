@@ -4,7 +4,7 @@ id: TASK-0076
 title: "Motor: contador de acciones y costes por comando"
 description: "Sustituir la acción booleana por un contador por unidad con máximo, restauración por turno, coste declarado por comando, ataque repetible y fin de turno manual."
 status: stable
-task_status: in_progress
+task_status: review
 task_type: feature
 requirement: REQ-026
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-013, T-001, T-002, T-003, T-007, T-008, T-013]
@@ -20,6 +20,12 @@ risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T14:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-12T17:40:00Z
+    note: >-
+      Verificación independiente: `pnpm run verify` OK (74 archivos, 1004 tests),
+      build y bundle OK; diff y criterios revisados. Estado `review`: falta la
+      aprobación humana por `review_required`.
 ---
 
 # Objetivo

@@ -49,13 +49,13 @@ No aplica; HUD/beats son TASK-0078.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `docs:check` exige frontmatter a `brief-detalle.md` | `verify-output.txt` (fallo previo) | Añadir cabecera OKF | La plantilla solo define `brief.md`; el anexo puede romper verify | Documentarlo o eximir el anexo | Bajo | `pending` |
+| `docs:check` exige frontmatter a `brief-detalle.md` | `verify-output.txt` (fallo previo) | Añadir cabecera OKF | La plantilla solo define `brief.md`; el anexo puede romper verify | Documentarlo o eximir el anexo | Bajo | `deferred` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 1536 |
-| `report_bytes` | 2013 |
+| `report_bytes` | 2014 |
 | `overflow` | `brief-detalle` |
 | `criteria_failed` | 0 |
