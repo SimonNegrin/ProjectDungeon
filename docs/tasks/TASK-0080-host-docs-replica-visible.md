@@ -4,14 +4,14 @@ id: TASK-0080
 title: "Host y docs: réplica visible y ADR"
 description: "Presentar la réplica con la animación de ataque girada hacia el atacante, sin texto, con cue propio y su excepción de ritmo; actualizar glosario, arquitectura, ADR y enmiendas."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-027
 requirement_ids: [R-007, T-006, T-007, T-008]
 depends_on: [TASK-0079]
 unlocks: [TASK-0081]
 created_at: 2026-11-12T14:50:00Z
-completed_at:
+completed_at: 2026-11-12T22:00:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0080/
@@ -20,6 +20,31 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T14:50:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-12T22:00:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0080` (host `b98f0ff`, E2E y
+      capturas `d493251`, docs del lead `7837ff6`, merge `9beb893`). Diff
+      completo revisado: solo `src/host/`, tests y artefactos; `src/game/`,
+      `package.json` y `pnpm-lock.yaml` intactos. `pnpm run verify` re-ejecutado
+      OK (1044/1044, docs, config, tsc, build y bundle) y `pnpm run test:e2e`
+      OK (112/112). Criterios comprobados: cue propio `replica` con beat de 300
+      ms, datos de atacante/objetivo, sin texto ni banner; animación de ataque
+      girada (embestida del defensor hacia el atacante, unitario dx −3 y
+      capturas a zoom); PV del objetivo retrasados a su cue, incluido golpe
+      letal; orden fallo → réplica → siguiente ataque; reduced motion sin tween
+      ni cue activo; cuatro capturas 1280×720 y 900×700 en
+      `tests/e2e/replica-qa/screenshots/`; HUD sin aviso ni probabilidad. Las
+      cinco expectativas E2E obsoletas se actualizaron con comentario del motivo,
+      sin borrar ni relajar aserciones; las derrotas a 80 turnos acotan el
+      escenario con jugador desarmado y `motion-qa` amplía la vida del objetivo
+      en el fixture, no en el bestiario. Glosario, economía de turno,
+      arquitectura, ADR-022 e índice actualizados; `docs:check` OK. Desviación
+      documentada: la fila literal de `ReplicaPerformed` en la matriz de
+      `REQ-017` no se editó por propiedad de `requirements-writer`; la enmienda
+      está declarada en `REQ-027`, con fila equivalente en `ADR-022` y
+      `turn-economy`, y queda elevada como fricción `deferred`. Sin decisión
+      creativa abierta.
 ---
 
 # Objetivo
