@@ -4,14 +4,14 @@ id: TASK-0051
 title: "Host, E2E y QA visual del balance provisional v1"
 description: Actualizar expectativas E2E y QA visual (HP, alarma 5, MP 5/4/6 y armas 3/5/2), verificar el host y dejar capturas y playtest.
 status: stable
-task_status: review
+task_status: done
 task_type: qa
 requirement: REQ-010
 requirement_ids: [R-007, R-008, R-009, T-008]
 depends_on: [TASK-0050]
 unlocks: []
 created_at: 2026-11-09T12:00:00Z
-completed_at:
+completed_at: 2026-11-12T16:55:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0051/
@@ -37,6 +37,15 @@ verified:
       armas 3/5/2 y centinela «Sin armadura»; MP 5/4/6 se verifica en
       catálogo/unitarias y en la huida con 6 MP. Queda para el usuario el
       playtest de sensación y sus notas, por eso la tarea sigue en `review`.
+  - by: task-lead
+    at: 2026-11-12T16:55:00Z
+    note: >-
+      G4 (playtest) dado por cumplido por decisión del usuario (`human:simon`)
+      el 2026-11-12, sin notas de sensación por ítem. Cierre como QA verificada
+      de una versión histórica, no como aprobación del balance: el balance
+      provisional v1 queda superado por REQ-026. Registro en
+      `artifacts/TASK-0051/attempt-1/playtest.md#registro`. Cierre documental
+      sobre la verificación del 2026-11-09T22:30:00Z; no se re-ejecutó nada.
 ---
 
 # Objetivo
@@ -58,12 +67,12 @@ regresiones: HP 6/8/5, alarma 5, MP 5/4/6, armas 3/5/2 y centinela sin armadura.
 
 # Criterios de aceptación
 
-- [ ] HUD, debug y avisos muestran HP 6/8/5, alarma 5, MP 5/4/6 y armas 3/5/2;
+- [x] HUD, debug y avisos muestran HP 6/8/5, alarma 5, MP 5/4/6 y armas 3/5/2;
       el centinela aparece sin armadura.
-- [ ] E2E de alarma a 5/6 y colocación ≤5/>5; huida del cobarde con 5 PV y
+- [x] E2E de alarma a 5/6 y colocación ≤5/>5; huida del cobarde con 5 PV y
       6 MP; daños y HP nuevos.
-- [ ] `pnpm run test:e2e` y `pnpm run verify` pasan; sin tests debilitados.
-- [ ] Capturas 1280×720 y notas de playtest en `artifacts/TASK-0051/`.
+- [x] `pnpm run test:e2e` y `pnpm run verify` pasan; sin tests debilitados.
+- [x] Capturas 1280×720 y notas de playtest en `artifacts/TASK-0051/`.
 
 # Plan de test
 
@@ -74,11 +83,11 @@ regresiones: HP 6/8/5, alarma 5, MP 5/4/6, armas 3/5/2 y centinela sin armadura.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0051/attempt-1/report.md`.
-- [ ] `test:e2e` y `verify` en `attempt-1/`.
-- [ ] Capturas en `attempt-1/screenshots/`.
-- [ ] Playtest en `attempt-1/playtest.md`.
-- [ ] Commit SHA en la rama `task/TASK-0051`.
+- [x] Informe en `artifacts/TASK-0051/attempt-1/report.md`.
+- [x] `test:e2e` y `verify` en `attempt-1/`.
+- [x] Capturas en `attempt-1/screenshots/`.
+- [x] Playtest en `attempt-1/playtest.md`.
+- [x] Commit SHA en la rama `task/TASK-0051`.
 
 # Comandos
 

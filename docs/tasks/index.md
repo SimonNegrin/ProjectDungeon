@@ -42,7 +42,7 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0040](TASK-0040-exp-004-salas-irregulares.md) | EXP-004: comparador de generadores de salas irregulares | `done` | REQ-011 | — | P1 |
 | [TASK-0041](TASK-0041-exp-004-puertas-spawn-enemigos.md) | EXP-004: puertas, acceso de spawn y presupuesto de enemigos | `done` | REQ-011 | — | P1 |
 | [TASK-0050](TASK-0050-motor-balance-provisional-v1.md) | Motor: balance provisional v1 (bestiario y armas) | `done` | REQ-010 | — | P1 |
-| [TASK-0051](TASK-0051-host-e2e-qa-balance-v1.md) | Host, E2E y QA visual del balance provisional v1 | `review` | REQ-010 | TASK-0050 | P1 |
+| [TASK-0051](TASK-0051-host-e2e-qa-balance-v1.md) | Host, E2E y QA visual del balance provisional v1 | `done` | REQ-010 | TASK-0050 | P1 |
 | [TASK-0042](TASK-0042-exp-004-distribucion-emboscadas-salida.md) | EXP-004: distribución orgánica, emboscadas y salida de nivel | `done` | REQ-012 | — | P1 |
 | [TASK-0043](TASK-0043-motor-modelo-mapa-produccion.md) | Motor: modelo de mapa de producción con máscaras y spawn de grupo | `done` | REQ-011 | — | P1 |
 | [TASK-0044](TASK-0044-motor-nucleo-salas-pasillos-puertas.md) | Motor: núcleo compartido de salas, pasillos y puertas | `done` | REQ-011 | TASK-0043 | P1 |
@@ -50,7 +50,7 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0046](TASK-0046-motor-variante-growth-defecto.md) | Motor: variante growth y generador por defecto | `done` | REQ-011 | TASK-0045 | P1 |
 | [TASK-0047](TASK-0047-arnes-build-produccion-guarda-bundle.md) | Arnés: build de producción separado y guarda de bundle | `done` | REQ-011 | TASK-0046 | P1 |
 | [TASK-0048](TASK-0048-host-render-spawn-puertas-salida.md) | Host: render de máscaras, puertas, spawn, entrada/salida y enemigos | `done` | REQ-011 | TASK-0046 | P1 |
-| [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `review` | REQ-011 | TASK-0047, TASK-0048 | P1 |
+| [TASK-0049](TASK-0049-e2e-qa-playtest-growth.md) | E2E, QA visual y playtest de growth por defecto | `done` | REQ-011 | TASK-0047, TASK-0048 | P1 |
 | [TASK-0053](TASK-0053-motor-esquema-atributos-resistencia.md) | Motor: esquema de ocho atributos y resistencia en la absorción | `done` | REQ-014 | — | P1 |
 | [TASK-0054](TASK-0054-host-docs-esquema-adr-015.md) | Host y docs: nombres nuevos del esquema y ADR-015 | `done` | REQ-014 | TASK-0053 | P1 |
 | [TASK-0055](TASK-0055-motor-roster-cuchillo-nombre.md) | Motor: catálogo de roster, Cuchillo y nombre de personaje | `done` | REQ-015 | TASK-0053 | P1 |
@@ -79,11 +79,6 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
-
-# review
-
-* [TASK-0051 — Host, E2E y QA visual del balance provisional v1](TASK-0051-host-e2e-qa-balance-v1.md)
-* [TASK-0049 — E2E, QA visual y playtest de growth por defecto](TASK-0049-e2e-qa-playtest-growth.md)
 
 # backlog
 
@@ -129,6 +124,7 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0040 — EXP-004: comparador de generadores de salas irregulares](TASK-0040-exp-004-salas-irregulares.md)
 * [TASK-0041 — EXP-004: puertas, acceso de spawn y presupuesto de enemigos](TASK-0041-exp-004-puertas-spawn-enemigos.md)
 * [TASK-0050 — Motor: balance provisional v1 (bestiario y armas)](TASK-0050-motor-balance-provisional-v1.md)
+* [TASK-0051 — Host, E2E y QA visual del balance provisional v1](TASK-0051-host-e2e-qa-balance-v1.md)
 * [TASK-0042 — EXP-004: distribución orgánica, emboscadas y salida de nivel](TASK-0042-exp-004-distribucion-emboscadas-salida.md)
 * [TASK-0043 — Motor: modelo de mapa de producción con máscaras y spawn de grupo](TASK-0043-motor-modelo-mapa-produccion.md)
 * [TASK-0044 — Motor: núcleo compartido de salas, pasillos y puertas](TASK-0044-motor-nucleo-salas-pasillos-puertas.md)
@@ -136,6 +132,7 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0046 — Motor: variante growth y generador por defecto](TASK-0046-motor-variante-growth-defecto.md)
 * [TASK-0047 — Arnés: build de producción separado y guarda de bundle](TASK-0047-arnes-build-produccion-guarda-bundle.md)
 * [TASK-0048 — Host: render de máscaras, puertas, spawn, entrada/salida y enemigos](TASK-0048-host-render-spawn-puertas-salida.md)
+* [TASK-0049 — E2E, QA visual y playtest de growth por defecto](TASK-0049-e2e-qa-playtest-growth.md)
 * [TASK-0053 — Motor: esquema de ocho atributos y resistencia en la absorción](TASK-0053-motor-esquema-atributos-resistencia.md)
 * [TASK-0054 — Host y docs: nombres nuevos del esquema y ADR-015](TASK-0054-host-docs-esquema-adr-015.md)
 * [TASK-0055 — Motor: catálogo de roster, Cuchillo y nombre de personaje](TASK-0055-motor-roster-cuchillo-nombre.md)

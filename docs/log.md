@@ -7,6 +7,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 * 2026-11-12 — Playtest — TASK-0049/TASK-0051 — G4 dado por cumplido por `human:simon` sin notas por ítem: TASK-0049 se apoya en el uso posterior de `growth` y TASK-0051 se cierra como QA de una versión histórica, con el balance v1 superado por REQ-026 — [checklist TASK-0049](../artifacts/TASK-0049/attempt-1/playtest/checklist.md)
 * 2026-11-12 — Task — TASK-0049 — done: E2E, QA visual y playtest de growth por defecto; verify 732, E2E 76/76 y repeat-each 228/228 verificados el 2026-11-09; fusión `64ce30c` — [informe](../artifacts/TASK-0049/attempt-1/report.md)
+* 2026-11-12 — Task — TASK-0051 — done (QA de versión histórica): HP 6/8/5, alarma 5, MP 5/4/6 y armas 3/5/2; E2E 76/76, repeat 18/18 y verify 734/734; fusión `8e39d6e` — [informe](../artifacts/TASK-0051/attempt-1/report.md)
 
 * 2026-11-12 — Requirement — REQ-019 — stable v2: primer corte de traits con modificadores de los nueve atributos, stacking por suma con especiales únicos y suelos, robo de vida al 50 % del daño efectivo y ataque circular de 3×3 sin centro ni daño amigo; cuatro piezas por cofres y cuerpo etéreo aplazado — [REQ-019](requirements/REQ-019-traits-objetos.md)
 * 2026-11-12 — Harness — AGENTS — recortado de 4,5 a 1,9 KB: handoffs, timeouts y flujo quedan en el workflow; invariantes, propiedad de rutas y cifras de handoff se mantienen — [AGENTS](../AGENTS.md)

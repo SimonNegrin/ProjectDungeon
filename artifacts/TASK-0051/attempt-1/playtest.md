@@ -40,6 +40,10 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-09T22:20:00Z }
 
 # Registro
 
-- Fecha:
-- Notas de human:simon:
-- Decisión: pendiente; este documento no aprueba el balance.
+- Fecha: 2026-11-12.
+- Decisión: `human:simon` da el playtest por cumplido el 2026-11-12 y cierra
+  G4, sin notas de sensación por ítem.
+- Alcance: la tarea se cierra como QA verificada de una versión histórica; el
+  balance provisional v1 queda obsoleto y superado por
+  [REQ-026](../../../docs/requirements/REQ-026-economia-acciones-rebalanceo.md).
+  Este documento no aprueba el balance.
