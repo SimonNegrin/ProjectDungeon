@@ -93,6 +93,10 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
   y fuente única; añadir un hechizo no toca el resolvedor.
 - `magic.ts` valida y resuelve hechizos con el RNG sembrado: acción, maná, nivel,
   alcance, línea de visión y objetivo. Un rechazo no consume nada.
+- El comando `CastSpell` apunta a una casilla y resuelve el objetivo por facción;
+  `Unit.spellsCast` cuenta los hechizos del turno (tope 2) y se reinicia con MP,
+  acciones y maná. El evento `SpellCast` lleva impacto, daño, curación o PV de
+  retorno para que el host no recalcule reglas.
 - El ataque mágico reutiliza las capas de `combat.ts`: acierto con nivel de magia
   + acierto del hechizo contra defensa + escudo; daño con poder del hechizo contra
   resistencia + armadura. No hay una resistencia mágica separada.
