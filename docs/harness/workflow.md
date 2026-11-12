@@ -3,7 +3,7 @@ type: Workflow
 title: Flujo de trabajo
 description: Requisitos, experimentos, tareas, agentes, handoffs, gates y timeouts.
 status: stable
-generated: { by: deepseek/v4.1-flash, at: 2026-11-08T11:46:23Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-12T11:20:14Z }
 ---
 
 # Objetivo
@@ -229,12 +229,24 @@ el `--` literal no funciona.
 
 # Git
 
-- Un repositorio desde el primer día.
+- Un repositorio desde el primer día; `origin` apunta a GitHub.
 - Una rama por tarea: `task/TASK-XXXX`. `task-runner` trabaja en ella y
   `task-lead` fusiona solo tras verificar.
 - Commits pequeños con el ID de tarea; el informe incluye el commit SHA.
 - Se trabaja secuencialmente: sin worktrees ni tareas en paralelo hasta que haya
   necesidad real y las tareas sean disjuntas.
+- `origin/main` se publica al cerrar cada tarea verificada: un push al final del
+  cierre, cuando el merge, la tarea, el tablero y el log ya están en `main`.
+- Las ramas `task/*` no se publican por defecto; son locales y se borran tras el
+  merge. Se publican solo si la tarea debe sobrevivir a un cambio de máquina o
+  de sesión de más de un día, y entonces siguen siendo desechables.
+- Cerrar un requisito o milestone no añade push: basta comprobar
+  `git status -sb` sin `ahead`. Un tag anotado (`req-0XX`, `milestone-N`) es
+  opcional y se publica con `git push --tags` solo si se quiere marcar el punto.
+- Si el push falla, no bloquea el cierre: se anota en la tarea y se reintenta en
+  el cierre siguiente; `main` no acumula más de una tarea sin publicar.
+- Sin force-push a `main`. Las ramas fusionadas se borran con
+  `git branch --merged main`.
 
 # Fricción y propuestas
 
