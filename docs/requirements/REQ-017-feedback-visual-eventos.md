@@ -4,11 +4,11 @@ id: REQ-017
 title: Feedback visual de eventos y ritmo pausado
 description: Todo evento del motor tiene una respuesta visual perceptible, con un beat pausado, un techo de tiempo y un cadáver persistente, sin cambiar las reglas.
 status: stable
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T00:45:43Z
-updated_at: 2026-11-10T21:37:55Z
+updated_at: 2026-11-12T21:55:00Z
 related_tasks: [TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061]
 amends: [REQ-006, REQ-008]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:45:43Z }
@@ -125,6 +125,7 @@ más vivo: **más rápido que en 1986, más lento que en 2026**.
 | `UnitMoved` | Paso + pausa + MP + puntos de camino (ya existe) | 125 + 70 ms | — |
 | `AttackPerformed` impacto | Embestida, destello blanco, retroceso, `-N`, tick de PV, sacudida de sprite | 320 ms | Texto 1000 ms |
 | `AttackPerformed` fallo | Embestida, esquiva/escudo, `Fallo` gris | 300 ms | Texto 1000 ms |
+| `ReplicaPerformed` | Embestida del defensor girada hacia el atacante, sin texto ni banner propios; el PV se lee en la barra | 300 ms | — |
 | `UnitDied` | Destello, 3 parpadeos, disolución, sacudida | 900 ms | Cadáver persistente |
 | `PickUp` | Parpadeo del arma, banner `+ <Arma>`, slot pulsado | 350 ms | Banner 800 ms |
 | `SelectWeapon` | Slot pulsado, banner con nombre, cambio de arma en mano | 250 ms | Banner 800 ms |
@@ -233,6 +234,7 @@ sin cambiar las reglas:
 | 2026-11-10 | Silencios solo en transiciones redundantes: `TurnEnded` calla cuando le sigue `EnemyPhaseStarted`. | human:simon | aceptada |
 | 2026-11-10 | Cadáver persistente, solo presentación en este corte; el saqueo futuro tendrá su propia hoja. | human:simon | aceptada |
 | 2026-11-11 | Enmienda `REQ-021`: el cadáver de jugador es contenedor saqueable y origen del fantasma; el de enemigo sigue solo como presentación en este corte. | human:simon | aceptada |
+| 2026-11-12 | Enmienda `REQ-027`: `ReplicaPerformed` con cue propio de 300 ms, animación de ataque girada hacia el atacante, sin texto ni banner, y excepción al techo de 1,3 s en `ADR-022`. | human:simon | aceptada |
 | 2026-11-10 | El sprite de cadáver se reserva para muertes reales y se retira de la decoración ambiental. | human:simon | aceptada |
 | 2026-11-10 | Separar reglas creativas (REQ-017) e implementación (ADR-017). | human:simon | aceptada |
 

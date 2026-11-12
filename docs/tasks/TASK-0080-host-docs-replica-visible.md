@@ -45,6 +45,14 @@ verified:
       está declarada en `REQ-027`, con fila equivalente en `ADR-022` y
       `turn-economy`, y queda elevada como fricción `deferred`. Sin decisión
       creativa abierta.
+  - by: requirements-writer
+    at: 2026-11-12T21:56:00Z
+    note: >-
+      Cierra la fricción `deferred`: REQ-017 v2 añade la fila literal de
+      `ReplicaPerformed` a la matriz (cue de 300 ms, animación de ataque girada,
+      sin texto ni banner) y la decisión de enmienda por REQ-027; `docs:check`
+      OK. Re-verificado en `main`: verify 1044/1044, E2E 112/112, capturas
+      revisadas y HUD sin indicador de réplica. El criterio 3 queda completo.
 ---
 
 # Objetivo
