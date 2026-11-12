@@ -99,6 +99,7 @@ describe('colocación inicial de los cuatro enemigos', () => {
         maxHp: definition.maxHp,
         mp: definition.maxMp,
         maxMp: definition.maxMp,
+        mana: { current: 0, max: 0 },
         actions: {
           max: definition.stats.acciones,
           remaining: definition.stats.acciones,

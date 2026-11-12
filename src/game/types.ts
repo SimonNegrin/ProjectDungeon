@@ -22,14 +22,8 @@ export interface Position {
   readonly y: number;
 }
 
-/** Nivel de una familia de magia (REQ-014 R-007): siempre de 1 a 4. */
-export type MagicLevel = 1 | 2 | 3 | 4;
-
-/** Familia de magia con su nivel; el efecto aún no existe (REQ-014 R-007). */
-export interface MagicSchool {
-  readonly familia: string;
-  readonly nivel: MagicLevel;
-}
+/** Nivel de magia único por personaje (REQ-025 R-001): siempre de 0 a 4. */
+export type MagicLevel = 0 | 1 | 2 | 3 | 4;
 
 /**
  * Atributos inherentes de un personaje (REQ-014 R-001). PV y MP viven en sus
@@ -41,9 +35,18 @@ export interface UnitStats {
   readonly defensa: number;
   readonly resistencia: number;
   readonly punteria: number;
-  readonly magia: readonly MagicSchool[];
+  /** Nivel de magia único (REQ-025 R-001); 0 significa sin magia. */
+  readonly magicLevel: MagicLevel;
   /** Acciones por turno inherentes al personaje (REQ-026). */
   readonly acciones: number;
+}
+
+/** Maná de hechizos (REQ-025 R-003), separado del MP de movimiento. */
+export interface Mana {
+  /** Maná disponible en el turno actual. */
+  readonly current: number;
+  /** Máximo del turno: `magicLevel × 4`. */
+  readonly max: number;
 }
 
 /** Equipo equipado, serializable y estable por ID de catálogo. */
@@ -87,6 +90,8 @@ export interface Unit {
   readonly maxHp: number;
   readonly mp: number;
   readonly maxMp: number;
+  /** Maná de hechizos, independiente del MP (REQ-025). */
+  readonly mana: Mana;
   readonly actions: Actions;
   readonly stats: UnitStats;
   readonly equipment: UnitEquipment;

@@ -2,6 +2,7 @@ import { hasAction, restoreActions } from './actions';
 import { planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
 import { isAlive } from './grid';
+import { restoreMana } from './mana';
 import { commitMove, validateMove } from './movement';
 import { refreshEnemyAwareness } from './perception';
 import type { GameEvent, GameState, GameStatus, Unit } from './types';
@@ -45,7 +46,7 @@ export function restorePlayerTurn(state: GameState): GameState {
     phase: 'player',
     players: state.players.map((unit) =>
       isAlive(unit)
-        ? restoreActions({ ...unit, mp: unit.maxMp })
+        ? restoreActions(restoreMana({ ...unit, mp: unit.maxMp }))
         : unit,
     ),
   };
@@ -57,7 +58,7 @@ export function restoreEnemyTurn(state: GameState): GameState {
     phase: 'enemy',
     enemies: state.enemies.map((unit) =>
       isAlive(unit)
-        ? restoreActions({ ...unit, mp: unit.maxMp })
+        ? restoreActions(restoreMana({ ...unit, mp: unit.maxMp }))
         : unit,
     ),
   };

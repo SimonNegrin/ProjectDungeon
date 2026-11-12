@@ -21,7 +21,7 @@ function stats(acciones: number): UnitStats {
     defensa: 1,
     resistencia: 0,
     punteria: 0,
-    magia: [],
+    magicLevel: 0,
     acciones,
   };
 }
