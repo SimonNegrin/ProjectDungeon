@@ -221,6 +221,9 @@ export function collectDamageFeedbacks(
  * Convierte los ataques en feedback legible sin recalcular reglas: el impacto,
  * el daño y el HP salen del evento del motor. Un fallo se comunica con texto
  * (`Fallo`), no solo con color o animación.
+ *
+ * `ReplicaPerformed` no produce texto (REQ-027): la reacción se lee por la
+ * animación girada y el daño por la barra de PV.
  */
 export function collectAttackFeedbacks(
   events: readonly GameEvent[],

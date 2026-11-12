@@ -188,7 +188,7 @@ function eventLabel(event: GameEvent): string {
         ? `${event.attackerId}→${event.targetId} -${event.damage} (HP ${event.targetHp})`
         : `${event.attackerId}→${event.targetId} fallo (HP ${event.targetHp})`;
     case 'ReplicaPerformed':
-      // Stub de exhaustividad (TASK-0079); la presentación llega en TASK-0080.
+      // Texto del overlay de debug; la réplica no muestra texto en el juego.
       return event.hit
         ? `${event.attackerId} replica ${event.damage} (HP ${event.targetHp})`
         : `${event.attackerId} replica y falla`;

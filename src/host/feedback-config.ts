@@ -14,6 +14,12 @@ export const FEEDBACK_CONFIG = {
     attackHit: 320,
     /** Fallo: misma embestida, esquiva/escudo y texto gris. */
     attackMiss: 300,
+    /**
+     * Réplica (REQ-027): la animación de ataque del defensor hacia el atacante
+     * original, sin texto propio. Excepción declarada al techo de 1,3 s de
+     * REQ-017: fallo (300) + réplica (300) queda por debajo del techo.
+     */
+    replica: 300,
     death: 900,
     pickup: 350,
     selectWeapon: 250,

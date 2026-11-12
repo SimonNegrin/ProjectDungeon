@@ -80,6 +80,7 @@ export interface MotionTimelineEvent {
 export type FeedbackCueKind =
   | 'move'
   | 'attack'
+  | 'replica'
   | 'death'
   | 'pickup'
   | 'select-weapon'
@@ -257,9 +258,9 @@ function beatForEvent(
       return event.hit
         ? FEEDBACK_CONFIG.beats.attackHit
         : FEEDBACK_CONFIG.beats.attackMiss;
-    // Stub de TASK-0079: la presentación de la réplica llega en TASK-0080.
+    // La réplica reutiliza la animación de ataque con un beat propio (REQ-027).
     case 'ReplicaPerformed':
-      return 0;
+      return FEEDBACK_CONFIG.beats.replica;
     case 'UnitDied':
       return FEEDBACK_CONFIG.beats.death;
     case 'TurnEnded':
@@ -305,11 +306,10 @@ function cueDurationMs(event: PresentationEvent, beatMs: number): number {
 
 /**
  * `TurnEnded` es la única excepción silenciosa histórica: calla cuando le sigue
- * `EnemyPhaseStarted` para no duplicar el banner de fase. La réplica tampoco
- * tiene cue todavía (stub de TASK-0079; TASK-0080 añade el suyo).
+ * `EnemyPhaseStarted` para no duplicar el banner de fase. La réplica tiene cue
+ * propio (REQ-027) y nunca se silencia.
  */
 function hasCue(event: PresentationEvent, next: PresentationEvent | undefined): boolean {
-  if (event.type === 'ReplicaPerformed') return false;
   return !(event.type === 'TurnEnded' && next?.type === 'EnemyPhaseStarted');
 }
 
@@ -350,15 +350,29 @@ function cueForEvent(
         },
       };
     }
-    case 'ReplicaPerformed':
-      // Stub de exhaustividad (TASK-0079): `hasCue` no lo emite; TASK-0080
-      // implementará el cue y la animación.
+    case 'ReplicaPerformed': {
+      // Misma animación y datos que el ataque, pero sin texto propio: el
+      // `Fallo` del ataque original se conserva y el daño se lee en los PV.
+      // `attackerId` es quien replica y `targetId`, el atacante original.
+      const state = finalState ?? initialState;
+      const anchor = anchorFor(event.targetId, state);
+      const attacker = unitTile(state, event.attackerId);
       return {
         ...base,
-        kind: 'attack',
-        anchor: anchorFor(event.targetId, finalState ?? initialState),
-        data: {},
+        kind: 'replica',
+        anchor,
+        data: {
+          attackerId: event.attackerId,
+          targetId: event.targetId,
+          hit: event.hit,
+          damage: event.damage,
+          targetHp: event.targetHp,
+          rolls: { ...event.rolls },
+          ...(attacker ? { attacker } : {}),
+          ...(anchor.tile ? { target: anchor.tile } : {}),
+        },
       };
+    }
     case 'UnitDied':
       return {
         ...base,
@@ -903,6 +917,34 @@ function lastEventOfType<K extends GameEvent['type']>(
 }
 
 /**
+ * Vida previa de cada ataque o réplica, reconstruida hacia delante desde el
+ * estado inicial. Evita que un golpe letal con daño sobrante infle los PV al
+ * deshacerlo (0 + 4 no es 3). Sin estado inicial se conserva el cálculo inverso.
+ */
+function hpBeforeEvents(
+  timeline: MotionTimeline,
+  initialState: GameState | undefined,
+): Map<number, number> | null {
+  if (!initialState) return null;
+  const hp = new Map<string, number>();
+  for (const unit of [...initialState.players, ...initialState.enemies]) {
+    hp.set(unit.id, unit.hp);
+  }
+  const before = new Map<number, number>();
+  for (let index = 0; index < timeline.events.length; index += 1) {
+    const event = timeline.events[index].event;
+    if (event.type !== 'AttackPerformed' && event.type !== 'ReplicaPerformed') {
+      continue;
+    }
+    const current = hp.get(event.targetId);
+    if (current === undefined) continue;
+    before.set(index, current);
+    hp.set(event.targetId, event.targetHp);
+  }
+  return before;
+}
+
+/**
  * Deshace las acciones de los ataques que aún no han ocurrido. El estado final
  * ya las consumió todas; devolver una por cada ataque futuro reconstruye la
  * secuencia real (2→1→0) sin agruparlas en el primer beat.
@@ -941,19 +983,26 @@ export function presentationState(
   let enemies = state.enemies;
   let map = state.map;
 
-  // Deshacer en orden inverso los ataques que aún no han ocurrido restaura la
-  // vida previa de cada objetivo, incluso con varios ataques encadenados.
+  // Deshacer en orden inverso los ataques y réplicas que aún no han ocurrido
+  // restaura la vida previa de cada objetivo, incluso con varios encadenados.
+  // La réplica retrasa los PV de su objetivo (jugador o enemigo) hasta su cue.
+  const hpBefore = hpBeforeEvents(timeline, initialState);
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
-    if (entry.event.type !== 'AttackPerformed' || entry.atMs <= elapsed + EPSILON) {
+    if (
+      entry.event.type !== 'AttackPerformed' &&
+      entry.event.type !== 'ReplicaPerformed'
+    ) {
       continue;
     }
+    if (entry.atMs <= elapsed + EPSILON) continue;
     const { targetId, targetHp, damage } = entry.event;
+    const restoredHp = hpBefore?.get(index) ?? targetHp + damage;
     players = players.map((unit) =>
-      unit.id === targetId ? { ...unit, hp: targetHp + damage } : unit,
+      unit.id === targetId ? { ...unit, hp: restoredHp } : unit,
     );
     enemies = enemies.map((unit) =>
-      unit.id === targetId ? { ...unit, hp: targetHp + damage } : unit,
+      unit.id === targetId ? { ...unit, hp: restoredHp } : unit,
     );
   }
 
