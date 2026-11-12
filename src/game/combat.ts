@@ -114,7 +114,7 @@ function withUnits(state: GameState, updates: readonly Unit[]): GameState {
  * Reacciones de un enemigo que recibe un impacto: despertar, alarma y huida del
  * cobarde. La réplica usa el mismo camino que un ataque normal.
  */
-function applyEnemyHitReaction(
+export function applyEnemyHitReaction(
   state: GameState,
   events: GameEvent[],
   target: Unit,

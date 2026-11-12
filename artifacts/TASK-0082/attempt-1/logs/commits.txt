@@ -1,0 +1,4 @@
+e926383 fix(TASK-0082): restringe CastSpell al lanzador jugador
+263b119 docs(TASK-0082): informe del intento 1
+eb562ea test(TASK-0082): cubre catálogo, rechazos atómicos y efectos mágicos
+9fcb3ea feat(TASK-0082): catálogo de hechizos y resolvedor mágico

@@ -4,7 +4,7 @@ id: TASK-0082
 title: "Motor: catálogo y resolución de hechizos"
 description: "Catálogo data-driven de seis hechizos y resolvedor mágico con validación atómica de acción, maná, nivel, alcance, LOS y objetivo; ataque con las capas del físico, curación y resurrección."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-002, R-005, R-006, R-007, R-008, R-009, R-010, R-012, R-013, T-002, T-003, T-004, T-006, T-008, T-011]

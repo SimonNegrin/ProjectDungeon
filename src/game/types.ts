@@ -2,6 +2,7 @@ import type { EnemyType } from './bestiary';
 import type { ArmorId, ShieldId, WeaponId } from './equipment';
 import type { GeneratedMap } from './map';
 import type { ArchetypeId } from './roster';
+import type { SpellId } from './spells';
 
 export type Tile = 'floor' | 'wall';
 export type Faction = 'player' | 'enemy';
@@ -93,6 +94,8 @@ export interface Unit {
   /** Maná de hechizos, independiente del MP (REQ-025). */
   readonly mana: Mana;
   readonly actions: Actions;
+  /** Hechizos lanzados en el turno actual; se reinicia al empezar el turno. */
+  readonly spellsCast: number;
   readonly stats: UnitStats;
   readonly equipment: UnitEquipment;
   /** Armas llevadas; la equipada es `equipment.weaponId`. */
@@ -129,6 +132,7 @@ export type CommandType =
   | 'Attack'
   | 'PickUp'
   | 'SelectWeapon'
+  | 'CastSpell'
   | 'EndTurn'
   | 'Restart';
 
@@ -150,6 +154,16 @@ export type Command =
   | { readonly type: 'PickUp'; readonly unitId: string }
   /** Cambia al hueco de arma `slot` (1-3), gratis y sin gastar acción. */
   | { readonly type: 'SelectWeapon'; readonly unitId: string; readonly slot: number }
+  /**
+   * Lanza un hechizo del catálogo contra una casilla (REQ-025). El resolvedor
+   * busca allí el enemigo, aliado o cadáver que exija el hechizo.
+   */
+  | {
+      readonly type: 'CastSpell';
+      readonly unitId: string;
+      readonly spellId: SpellId;
+      readonly target: Position;
+    }
   | { readonly type: 'EndTurn' }
   | { readonly type: 'Restart' };
 
@@ -180,7 +194,19 @@ export type RejectionReason =
   /** `SelectWeapon`: el hueco no existe o no tiene arma. */
   | 'invalid-slot'
   /** `Attack`: la unidad no tiene arma equipada. */
-  | 'unarmed';
+  | 'unarmed'
+  /** `CastSpell`: el id no existe en el catálogo. */
+  | 'unknown-spell'
+  /** `CastSpell`: maná insuficiente para el coste final del hechizo. */
+  | 'no-mana'
+  /** `CastSpell`: el nivel de magia no alcanza el mínimo del hechizo. */
+  | 'insufficient-level'
+  /** `CastSpell`: el objetivo está fuera del alcance del hechizo. */
+  | 'out-of-range'
+  /** `CastSpell`: un muro intermedio bloquea la línea de visión. */
+  | 'no-line-of-sight'
+  /** `CastSpell`: ya se lanzaron dos hechizos en este turno. */
+  | 'spell-limit';
 
 /** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
 export interface AttackRolls {
@@ -206,6 +232,43 @@ export type GameEvent =
       readonly damage: number;
       readonly targetHp: number;
       readonly rolls: AttackRolls;
+    }
+  /**
+   * Hechizo de ataque resuelto (REQ-025 R-012). Lleva impacto, daño, PV
+   * resultante y tiradas para que `TASK-0083` lo presente sin recalcular.
+   */
+  | {
+      readonly type: 'SpellCast';
+      readonly casterId: string;
+      readonly spellId: SpellId;
+      readonly targetId: string;
+      readonly target: Position;
+      readonly effect: 'damage';
+      readonly hit: boolean;
+      readonly damage: number;
+      readonly targetHp: number;
+      readonly rolls: AttackRolls;
+    }
+  /** Hechizo de curación: `healing` es lo curado de verdad, sin sobrepasar el máximo. */
+  | {
+      readonly type: 'SpellCast';
+      readonly casterId: string;
+      readonly spellId: SpellId;
+      readonly targetId: string;
+      readonly target: Position;
+      readonly effect: 'heal';
+      readonly healing: number;
+      readonly targetHp: number;
+    }
+  /** Hechizo de resurrección: `targetHp` es el PV con el que vuelve el jugador. */
+  | {
+      readonly type: 'SpellCast';
+      readonly casterId: string;
+      readonly spellId: SpellId;
+      readonly targetId: string;
+      readonly target: Position;
+      readonly effect: 'resurrect';
+      readonly targetHp: number;
     }
   /**
    * Réplica inmediata del defensor tras un fallo cuerpo a cuerpo (REQ-027).

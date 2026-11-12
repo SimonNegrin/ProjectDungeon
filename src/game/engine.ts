@@ -3,6 +3,7 @@ import { isAlive } from './grid';
 import { commitMove, validateMove } from './movement';
 import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
+import { castSpell } from './magic';
 import { planCursorTarget, type CursorBlockedReason } from './path';
 import { detectEnemiesAfterStep } from './perception';
 import { GrowthMapGenerator } from './chambers/variants/growth';
@@ -54,6 +55,7 @@ function createEnemy(
     maxMp: definition.maxMp,
     mana: createMana(definition.stats.magicLevel),
     actions: createActions(definition.stats, definition.equipment),
+    spellsCast: 0,
     stats: definition.stats,
     equipment: definition.equipment,
     weapons:
@@ -394,6 +396,39 @@ function reduceAttack(
   return { state: next, events };
 }
 
+/**
+ * `CastSpell` valida la fase en el motor, como el resto de comandos, y delega
+ * la resolución atómica en `magic.castSpell`. Un rechazo devuelve el estado
+ * original sin consumir acción, maná, RNG ni cupo.
+ */
+function reduceCastSpell(
+  state: GameState,
+  command: Extract<Command, { type: 'CastSpell' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+
+  const caster = state.players.find((player) => player.id === command.unitId);
+  if (!caster) {
+    return reject(state, command, 'unknown-unit');
+  }
+
+  const result = castSpell(
+    state,
+    caster.id,
+    command.spellId,
+    command.target,
+  );
+  if (!result.ok) {
+    return reject(state, command, result.reason);
+  }
+
+  const events: GameEvent[] = [...result.events];
+  const next = applyTerminal(result.state, events);
+  return { state: next, events };
+}
+
 function reducePickUp(
   state: GameState,
   command: Extract<Command, { type: 'PickUp' }>,
@@ -523,6 +558,8 @@ export function reduce(state: GameState, command: Command): ReduceResult {
       return reducePickUp(state, command);
     case 'SelectWeapon':
       return reduceSelectWeapon(state, command);
+    case 'CastSpell':
+      return reduceCastSpell(state, command);
     case 'EndTurn':
       if (state.phase !== 'player') {
         return reject(state, command, 'wrong-phase');

@@ -187,6 +187,18 @@ function eventLabel(event: GameEvent): string {
       return event.hit
         ? `${event.attackerId}→${event.targetId} -${event.damage} (HP ${event.targetHp})`
         : `${event.attackerId}→${event.targetId} fallo (HP ${event.targetHp})`;
+    case 'SpellCast': {
+      // Texto del overlay de debug; TASK-0083 añade el feedback de juego.
+      const result =
+        event.effect === 'damage'
+          ? event.hit
+            ? `impacto ${event.damage} (HP ${event.targetHp})`
+            : `fallo (HP ${event.targetHp})`
+          : event.effect === 'heal'
+            ? `cura ${event.healing} (HP ${event.targetHp})`
+            : `resucita (HP ${event.targetHp})`;
+      return `${event.casterId} lanza ${event.spellId}: ${result}`;
+    }
     case 'ReplicaPerformed':
       // Texto del overlay de debug; la réplica no muestra texto en el juego.
       return event.hit

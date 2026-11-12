@@ -258,6 +258,7 @@ export function createPlayerFromArchetype(
     maxMp: entry.maxMp,
     mana: createMana(entry.stats.magicLevel),
     actions: createActions(entry.stats, entry.equipment),
+    spellsCast: 0,
     stats: entry.stats,
     equipment: entry.equipment,
     weapons: weaponId === null ? [] : [weaponId],
