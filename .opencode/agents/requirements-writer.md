@@ -117,6 +117,9 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 # Herramientas
 
 - Usa pnpm, no npm ni npx.
+- Para buscar archivos usa `rg --files -g '*patrón*' [ruta]` o `git ls-files`;
+  `find` pide permiso porque `-exec` y `-delete` caben en cualquier forma del
+  comando ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
 - Todo comando de shell debe llevar un timeout explícito.
 - No dejes procesos en background; si necesitas uno, que sea un servidor con
   puerto fijo y cierre posterior.

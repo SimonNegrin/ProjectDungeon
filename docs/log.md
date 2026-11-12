@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Harness — permisos — `find` sigue fuera de la allowlist porque `-exec` y `-delete` caben en cualquier forma del comando; sustitutos `rg --files -g` y `git ls-files` en [workflow](harness/workflow.md#shell-y-autorización) — [config](../opencode.jsonc)
+
 * 2026-11-12 — Task — TASK-0078 — done: contador de acciones restantes/máximas en HUD y debug, cierre manual con `E` con sugerencia sin auto-terminación, beats separados por ataque 2→1→0 y aserción de `cursor-qa` corregida a 0; verify 1014/1014 y E2E 110/110; fusión `944f5fe` — [informe](../artifacts/TASK-0078/attempt-1/report.md)
 * 2026-11-12 — Harness — permisos — allowlist de `shell`: `pnpm run test:e2e *` y `pnpm exec playwright test *` con argumentos, más los literales `echo ---` y `echo ===E2E===` sin avisos; descartados `node -e`, `echo *` y `pnpm exec *` por ejecución arbitraria y redirección; regla de separadores en [workflow](harness/workflow.md#shell-y-autorización) — [config](../opencode.jsonc)
 

@@ -240,6 +240,11 @@ comandos para no pedir permiso a cada paso.
   permite porque con redirección es una escritura.
 - Para inspeccionar JSON, `cat` o `jq .scripts package.json`; `node -e` no se
   permite porque equivale a ejecución arbitraria.
+- `find` queda fuera a propósito: `-exec` y `-delete` caben en cualquier forma
+  del comando, así que una regla estrecha no sería segura. Sustitutos ya
+  permitidos: `rg --files -g '*patrón*' [ruta]` para cualquier archivo (con
+  `--hidden` si buscas desde la raíz y el directorio empieza por punto) y
+  `git ls-files` para lo versionado.
 - E2E: `pnpm run test:e2e` y `pnpm exec playwright test` están permitidos con
   argumentos; `pnpm exec *` sigue pidiendo permiso.
 
