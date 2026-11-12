@@ -26,7 +26,7 @@ verified:
       Verificación independiente en `task/TASK-0082` (código `e926383`, informe
       `16a5887`, docs y verificación `9a12cad`, merge `0d1c785`). `pnpm run
       verify` OK (1091/1091, docs, config, tsc, build y bundle), `docs:check` OK
-      (413 documentos, 84 tareas) y `pnpm run test:e2e` OK (112/112, extra).
+      (414 documentos, 84 tareas) y `pnpm run test:e2e` OK (112/112, extra).
       Criterios 1–9 comprobados: catálogo data-driven de seis hechizos; rechazo
       atómico sin consumo ni RNG; 1 acción y coste final con tope 2 por
       unidad/turno; ataque con capas del físico, empate falla y sin réplica;
