@@ -77,4 +77,4 @@ Avisos (77):
 - artifacts/TASK-0070/attempt-1/brief.md: handoff de 3806 B; objetivo ≤2560 B
 - artifacts/TASK-0070/attempt-1/report.md: handoff de 3283 B; objetivo ≤2560 B
 - artifacts/TASK-0070/attempt-2/report.md: handoff de 2727 B; objetivo ≤2560 B
-OK: 380 documentos, 75 tareas, 5 experimentos.
+OK: 381 documentos, 75 tareas, 5 experimentos.
