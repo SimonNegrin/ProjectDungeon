@@ -27,3 +27,12 @@ No marcar como aprobado desde el arnés; lo completa el usuario.
       tapar la partida.
 - [ ] **8 semillas:** repetir con al menos 8 semillas y anotar caverna/pasillo
       ancho si aparecen.
+
+# Registro
+
+- Fecha: 2026-11-12.
+- Decisión: `human:simon` da el playtest por cumplido el 2026-11-12, sin notas
+  de sensación por ítem.
+- Apoyo: el uso continuado de `growth` en builds posteriores respalda el corte
+  jugado con esta configuración.
+- Los ítems del checklist quedan sin marcar: no se afirmó nada sobre ellos.
