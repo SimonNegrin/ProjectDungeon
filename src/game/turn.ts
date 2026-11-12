@@ -40,14 +40,20 @@ export function applyTerminal(state: GameState, events: GameEvent[]): GameState 
   return { ...state, status };
 }
 
+/** Restaura MP, maná, acciones y cupo de hechizos al empezar el turno. */
+function restoreTurnResources(unit: Unit): Unit {
+  return {
+    ...restoreActions(restoreMana({ ...unit, mp: unit.maxMp })),
+    spellsCast: 0,
+  };
+}
+
 export function restorePlayerTurn(state: GameState): GameState {
   return {
     ...state,
     phase: 'player',
     players: state.players.map((unit) =>
-      isAlive(unit)
-        ? restoreActions(restoreMana({ ...unit, mp: unit.maxMp }))
-        : unit,
+      isAlive(unit) ? restoreTurnResources(unit) : unit,
     ),
   };
 }
@@ -57,9 +63,7 @@ export function restoreEnemyTurn(state: GameState): GameState {
     ...state,
     phase: 'enemy',
     enemies: state.enemies.map((unit) =>
-      isAlive(unit)
-        ? restoreActions(restoreMana({ ...unit, mp: unit.maxMp }))
-        : unit,
+      isAlive(unit) ? restoreTurnResources(unit) : unit,
     ),
   };
 }

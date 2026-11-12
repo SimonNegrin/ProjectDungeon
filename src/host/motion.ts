@@ -258,6 +258,9 @@ function beatForEvent(
       return event.hit
         ? FEEDBACK_CONFIG.beats.attackHit
         : FEEDBACK_CONFIG.beats.attackMiss;
+    // TASK-0083 define el beat y el cue de hechizos; aquí no hay presentación.
+    case 'SpellCast':
+      return 0;
     // La réplica reutiliza la animación de ataque con un beat propio (REQ-027).
     case 'ReplicaPerformed':
       return FEEDBACK_CONFIG.beats.replica;
@@ -318,7 +321,7 @@ function cueForEvent(
   atMs: number,
   beatMs: number,
   options: BuildTimelineOptions,
-): FeedbackCue {
+): FeedbackCue | null {
   const finalState = options.finalState;
   const initialState = options.initialState;
   const base = {
@@ -471,6 +474,9 @@ function cueForEvent(
         anchor: { unitId: null, tile: null },
         data: { commandType: event.commandType, reason: event.reason },
       };
+    case 'SpellCast':
+      // Sin cue hasta TASK-0083; el evento sí viaja en la timeline.
+      return null;
     case 'UnitMoved':
       // El builder trata el movimiento por separado para conservar sus fases.
       return {
@@ -538,7 +544,8 @@ export function buildMotionTimeline(
 
       timedEvents.push({ atMs, event });
       if (hasCue(event, next)) {
-        cues.push(cueForEvent(event, atMs, beatMs, options));
+        const cue = cueForEvent(event, atMs, beatMs, options);
+        if (cue) cues.push(cue);
       }
       beats.push({
         eventType: event.type,
