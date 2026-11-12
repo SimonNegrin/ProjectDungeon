@@ -4,7 +4,7 @@ id: TASK-0079
 title: "Motor: réplica tras fallo cuerpo a cuerpo"
 description: "Resolver una réplica inmediata del defensor cuando falla un ataque cuerpo a cuerpo con arma, con la misma fórmula y RNG, sin coste ni cadena y con posible muerte del atacante."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-027
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, T-001, T-002, T-003, T-004, T-005, T-007]
