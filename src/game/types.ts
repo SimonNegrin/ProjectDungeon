@@ -202,6 +202,19 @@ export type GameEvent =
       readonly targetHp: number;
       readonly rolls: AttackRolls;
     }
+  /**
+   * Réplica inmediata del defensor tras un fallo cuerpo a cuerpo (REQ-027).
+   * `attackerId` es quien replica; `targetId`, el atacante original.
+   */
+  | {
+      readonly type: 'ReplicaPerformed';
+      readonly attackerId: string;
+      readonly targetId: string;
+      readonly hit: boolean;
+      readonly damage: number;
+      readonly targetHp: number;
+      readonly rolls: AttackRolls;
+    }
   | { readonly type: 'UnitDied'; readonly unitId: string }
   | { readonly type: 'TurnEnded'; readonly turn: number }
   | { readonly type: 'EnemyPhaseStarted'; readonly turn: number }

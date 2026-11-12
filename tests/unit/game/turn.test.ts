@@ -51,6 +51,7 @@ describe('turn phase', () => {
       actions: { remaining: 0 },
     });
     expect(attacks).toHaveLength(2);
+    // El segundo ataque enemigo falla y abre la réplica del jugador (REQ-027).
     expect(result.events.map((event) => event.type)).toEqual([
       'TurnEnded',
       'EnemyPhaseStarted',
@@ -60,6 +61,7 @@ describe('turn phase', () => {
       'UnitMoved',
       'AttackPerformed',
       'AttackPerformed',
+      'ReplicaPerformed',
       'PlayerTurnStarted',
     ]);
   });
@@ -139,7 +141,17 @@ describe('turn phase', () => {
 
   it('varios enemigos adyacentes atacan en la misma fase', () => {
     const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      // Defensor sin arma: este test fija el orden y el daño de los ataques
+      // enemigos; la réplica se cubre en `replica.test.ts` (REQ-027).
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          equipment: { weaponId: null, armorId: 'armor', shieldId: 'shield' },
+        }),
+      ],
       enemies: [
         makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 }),
         makeUnit({ id: 'enemy-2', faction: 'enemy', x: 5, y: 6 }),

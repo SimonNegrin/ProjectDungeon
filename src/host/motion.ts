@@ -257,6 +257,9 @@ function beatForEvent(
       return event.hit
         ? FEEDBACK_CONFIG.beats.attackHit
         : FEEDBACK_CONFIG.beats.attackMiss;
+    // Stub de TASK-0079: la presentación de la réplica llega en TASK-0080.
+    case 'ReplicaPerformed':
+      return 0;
     case 'UnitDied':
       return FEEDBACK_CONFIG.beats.death;
     case 'TurnEnded':
@@ -301,10 +304,12 @@ function cueDurationMs(event: PresentationEvent, beatMs: number): number {
 }
 
 /**
- * `TurnEnded` es la única excepción silenciosa aprobada: calla cuando le sigue
- * `EnemyPhaseStarted` para no duplicar el banner de fase.
+ * `TurnEnded` es la única excepción silenciosa histórica: calla cuando le sigue
+ * `EnemyPhaseStarted` para no duplicar el banner de fase. La réplica tampoco
+ * tiene cue todavía (stub de TASK-0079; TASK-0080 añade el suyo).
  */
 function hasCue(event: PresentationEvent, next: PresentationEvent | undefined): boolean {
+  if (event.type === 'ReplicaPerformed') return false;
   return !(event.type === 'TurnEnded' && next?.type === 'EnemyPhaseStarted');
 }
 
@@ -345,6 +350,15 @@ function cueForEvent(
         },
       };
     }
+    case 'ReplicaPerformed':
+      // Stub de exhaustividad (TASK-0079): `hasCue` no lo emite; TASK-0080
+      // implementará el cue y la animación.
+      return {
+        ...base,
+        kind: 'attack',
+        anchor: anchorFor(event.targetId, finalState ?? initialState),
+        data: {},
+      };
     case 'UnitDied':
       return {
         ...base,

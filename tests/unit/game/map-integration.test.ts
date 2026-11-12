@@ -204,7 +204,16 @@ describe('createInitialState con un MapGenerator inyectado', () => {
     expect(attack.state.players[0].actions.remaining).toBe(1);
 
     const endTurn = reduce(
-      { ...attack.state, rng: rngForDice([6, 1, 3, 3]) },
+      {
+        ...attack.state,
+        // El defensor queda sin arma para aislar el flujo de mapa del evento de
+        // réplica (REQ-027); la réplica tiene sus propios tests.
+        players: attack.state.players.map((unit) => ({
+          ...unit,
+          equipment: { ...unit.equipment, weaponId: null },
+        })),
+        rng: rngForDice([6, 1, 3, 3]),
+      },
       { type: 'EndTurn' },
     );
     expect(endTurn.events.map((event) => event.type)).toContain('EnemyPhaseStarted');

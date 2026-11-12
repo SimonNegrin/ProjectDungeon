@@ -1012,9 +1012,21 @@ describe('secuencia del RNG', () => {
       makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
       makeUnit({ id: 'player-2', faction: 'player', x: 6, y: 6 }),
     ];
+    // Objetivo sin arma: el fallo no abre réplica y este test conserva el
+    // contrato de tiradas de REQ-010 (REQ-027 acota el caso).
     const state = makeState({
       players,
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 100, maxHp: 100 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          hp: 100,
+          maxHp: 100,
+          equipment: { weaponId: null, armorId: 'armor', shieldId: 'shield' },
+        }),
+      ],
       rng: rngForDice([1, 6, 5, 5, 1, 1]),
     });
 
