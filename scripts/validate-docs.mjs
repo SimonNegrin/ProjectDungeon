@@ -270,7 +270,13 @@ for (const concept of concepts) {
 
 const logPath = `${repoRoot}/docs/log.md`;
 for (const [index, line] of readFileSync(logPath, 'utf8').split('\n').entries()) {
-  if (!/^\* \d{4}-\d{2}-\d{2} — /.test(line)) continue;
+  if (!line.startsWith('* ')) continue;
+  if (!/^\* \d{4}-\d{2}-\d{2} — /.test(line)) {
+    warn(
+      `docs/log.md:${index + 1}: entrada de log no canónica; se espera "* YYYY-MM-DD — Tipo — ID — resultado — enlace"`,
+    );
+    continue;
+  }
   if (line.length > LOG_LINE_MAX) {
     error(
       `docs/log.md:${index + 1}: entrada de log de ${line.length} caracteres; el tope es ${LOG_LINE_MAX}`,
