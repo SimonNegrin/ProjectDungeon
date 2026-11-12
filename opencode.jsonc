@@ -44,6 +44,10 @@
     { "action": "shell", "resource": "pnpm run docs:*", "effect": "allow" },
     { "action": "shell", "resource": "pnpm run config:check", "effect": "allow" },
     { "action": "shell", "resource": "pnpm run tasks:*", "effect": "allow" },
-    { "action": "shell", "resource": "pnpm run verify", "effect": "allow" }
+    { "action": "shell", "resource": "pnpm run verify", "effect": "allow" },
+    { "action": "shell", "resource": "pnpm run test:e2e *", "effect": "allow" },
+    { "action": "shell", "resource": "pnpm exec playwright test *", "effect": "allow" },
+    { "action": "shell", "resource": "echo ---", "effect": "allow" },
+    { "action": "shell", "resource": "echo ===E2E===", "effect": "allow" }
   ]
 }

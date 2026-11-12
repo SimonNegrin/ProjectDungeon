@@ -228,6 +228,21 @@ Playwright arranca y cierra Vite con su `webServer`; es la forma preferida de
 levantar el servidor para E2E. Para flags, `pnpm run test:e2e --repeat-each=3`;
 el `--` literal no funciona.
 
+# Shell y autorización
+
+La allowlist vive en `opencode.jsonc`; aquí solo se explica cómo componer
+comandos para no pedir permiso a cada paso.
+
+- Cada subcomando de un compuesto (`&&`, `;`, `|`) se autoriza por separado:
+  `echo '---' && pnpm run verify` pasa si cada parte está permitida.
+- Los separadores de salida los pone el texto de la respuesta, no `echo` dentro
+  del comando. Solo hay literales `echo ---` y `echo ===E2E===`; `echo *` no se
+  permite porque con redirección es una escritura.
+- Para inspeccionar JSON, `cat` o `jq .scripts package.json`; `node -e` no se
+  permite porque equivale a ejecución arbitraria.
+- E2E: `pnpm run test:e2e` y `pnpm exec playwright test` están permitidos con
+  argumentos; `pnpm exec *` sigue pidiendo permiso.
+
 # Git
 
 - Un repositorio desde el primer día; `origin` apunta a GitHub.
