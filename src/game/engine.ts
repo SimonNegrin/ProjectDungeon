@@ -409,9 +409,14 @@ function reduceCastSpell(
     return reject(state, command, 'wrong-phase');
   }
 
+  const caster = state.players.find((player) => player.id === command.unitId);
+  if (!caster) {
+    return reject(state, command, 'unknown-unit');
+  }
+
   const result = castSpell(
     state,
-    command.unitId,
+    caster.id,
     command.spellId,
     command.target,
   );

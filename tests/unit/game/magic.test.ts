@@ -234,6 +234,22 @@ describe('validación atómica del lanzamiento', () => {
     expectRejected(deadState, dead, 'dead-unit');
   });
 
+  it('rechaza que un enemigo lance en fase de jugador sin consumir nada', () => {
+    const state = makeState({
+      players: [mage()],
+      enemies: [dummy()],
+    });
+    const result = reduce(state, {
+      type: 'CastSpell',
+      unitId: 'enemy-1',
+      spellId: FIRE.id,
+      target: { x: 8, y: 5 },
+    });
+
+    expectRejected(state, result, 'unknown-unit');
+    expect(result.state.enemies[0]).toBe(state.enemies[0]);
+  });
+
   it('rechaza fuera de la fase del jugador', () => {
     const state = makeState({
       players: [mage()],
