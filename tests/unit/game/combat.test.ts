@@ -311,9 +311,11 @@ describe('combat', () => {
     const damage = expectedDamage(state.enemies[0], state.players[0], 3, 3);
 
     const result = reduce(state, { type: 'EndTurn' });
+    const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
 
     expect(result.state.players[0].hp).toBe(state.players[0].hp - damage);
-    expect(result.state.enemies[0].actions.remaining).toBe(1);
+    expect(result.state.enemies[0].actions.remaining).toBe(0);
+    expect(attacks).toHaveLength(2);
     expect(result.events).toContainEqual({
       type: 'AttackPerformed',
       attackerId: 'enemy-1',

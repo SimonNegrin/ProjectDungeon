@@ -82,12 +82,26 @@ describe('enemy AI', () => {
     });
 
     const result = reduce(state, { type: 'EndTurn' });
-    const attack = result.events.find((event) => event.type === 'AttackPerformed');
+    const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
+    expect(attacks).toHaveLength(2);
+    const attack = attacks[0];
     if (!attack || attack.type !== 'AttackPerformed') {
       throw new Error('se esperaba un ataque');
     }
+    expect(attack).toMatchObject({
+      attackerId: 'enemy-1',
+      targetId: 'player-1',
+      hit: true,
+      damage: 2,
+      targetHp: state.players[0].hp - 2,
+    });
+    expect(attacks[1]).toMatchObject({ hit: false, damage: 0 });
     expect(result.state.players[0].hp).toBe(state.players[0].hp - attack.damage);
-    expect(result.state.enemies[0]).toMatchObject({ x: 6, y: 6, actions: { remaining: 1 } });
+    expect(result.state.enemies[0]).toMatchObject({
+      x: 6,
+      y: 6,
+      actions: { remaining: 0 },
+    });
   });
 
   it('gasta todo el MP del tipo avanzando por BFS en una fase', () => {
@@ -186,11 +200,12 @@ describe('alerta con todos los MP', () => {
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
 
     expect(moves).toHaveLength(4);
-    expect(attacks).toHaveLength(1);
+    expect(attacks).toHaveLength(2);
     expect(result.state.enemies[0]).toMatchObject({
       x: 6,
       y: 10,
       mp: state.enemies[0].maxMp - moves.length,
+      actions: { remaining: 0 },
     });
     expect(result.state.players[0].hp).toBeLessThan(state.players[0].hp);
   });

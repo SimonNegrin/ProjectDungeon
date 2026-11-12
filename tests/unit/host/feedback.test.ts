@@ -70,6 +70,12 @@ describe('feedback de ataque', () => {
         x: 5,
         y: 5,
       },
+      {
+        targetId: 'player-1',
+        damage: 0,
+        x: 5,
+        y: 5,
+      },
     ]);
   });
 

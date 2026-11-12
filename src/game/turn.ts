@@ -72,6 +72,20 @@ function replaceEnemy(state: GameState, enemy: Unit): GameState {
   };
 }
 
+function findEnemy(state: GameState, unitId: string): Unit | undefined {
+  return state.enemies.find((candidate) => candidate.id === unitId);
+}
+
+function findUnit(state: GameState, unitId: string): Unit | undefined {
+  return (
+    state.players.find((candidate) => candidate.id === unitId) ??
+    findEnemy(state, unitId)
+  );
+}
+
+/** Tope defensivo: evita que un plan sin progreso bloquee la fase. */
+const MAX_CHAINED_PLANS = 16;
+
 /**
  * Un enemigo en regreso que acaba de llegar a su puesto queda dormido en la
  * misma fase. Devuelve `undefined` si no hay transición.
@@ -106,52 +120,81 @@ function settleReturning(
   };
 }
 
-function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
-  const plan = planEnemyAction(state, enemy);
-
-  if (plan.type === 'attack') {
-    const attack = resolveAttack(state, enemy.id, plan.targetId);
-    if (!attack.ok) {
-      return { state, events: [{ type: 'EnemyWaited', unitId: enemy.id }] };
-    }
-    return { state: attack.state, events: attack.events };
+/** Aplica un ataque del enemigo; devuelve `undefined` si el ataque no es válido. */
+function chainAttack(
+  state: GameState,
+  enemyId: string,
+  targetId: string,
+): TurnResult | undefined {
+  const attack = resolveAttack(state, enemyId, targetId);
+  if (!attack.ok) {
+    return undefined;
   }
+  return { state: attack.state, events: attack.events };
+}
 
-  if (plan.type === 'move') {
-    const events: GameEvent[] = [];
-    let next = state;
+function targetIsDown(state: GameState, targetId: string): boolean {
+  const target = findUnit(state, targetId);
+  return target === undefined || target.hp <= 0;
+}
 
+/**
+ * Ejecuta la cola de acciones de un enemigo con el contador de REQ-026:
+ * replanifica mientras le queden acciones, gasta una por ataque y no ataca al
+ * moverse si está huyendo. La cola termina al esperar, morir, quedarse sin
+ * acciones, no avanzar o matar al objetivo atacado.
+ */
+function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
+  const events: GameEvent[] = [];
+  let next = state;
+
+  for (let planCount = 0; planCount < MAX_CHAINED_PLANS; planCount += 1) {
+    const current = findEnemy(next, enemy.id);
+    if (!current || !isAlive(current) || !hasAction(current)) break;
+
+    const plan = planEnemyAction(next, current);
+    if (plan.type === 'wait') break;
+
+    if (plan.type === 'attack') {
+      const result = chainAttack(next, current.id, plan.targetId);
+      if (!result) break;
+      next = result.state;
+      events.push(...result.events);
+      if (targetIsDown(next, plan.targetId)) break;
+      continue;
+    }
+
+    let moved = false;
     for (const step of plan.steps) {
-      const current = next.enemies.find((candidate) => candidate.id === enemy.id);
-      if (!current || !isAlive(current)) break;
+      const mover = findEnemy(next, enemy.id);
+      if (!mover || !isAlive(mover)) break;
 
-      const validation = validateMove(next, current, step.dx, step.dy);
+      const validation = validateMove(next, mover, step.dx, step.dy);
       if (!validation.ok) break;
 
-      const moved = commitMove(next, current, step.dx, step.dy);
-      next = moved.state;
-      events.push(...moved.events);
+      const stepResult = commitMove(next, mover, step.dx, step.dy);
+      next = stepResult.state;
+      events.push(...stepResult.events);
+      moved = true;
     }
 
-    if (plan.attackTargetId) {
-      const attacker = next.enemies.find((candidate) => candidate.id === enemy.id);
-      if (attacker && isAlive(attacker) && hasAction(attacker)) {
-        const attack = resolveAttack(next, enemy.id, plan.attackTargetId);
-        if (attack.ok) {
-          next = attack.state;
-          events.push(...attack.events);
-        }
-      }
-    }
+    if (!moved) break;
 
-    if (events.length === 0) {
-      events.push({ type: 'EnemyWaited', unitId: enemy.id });
-    }
+    // Huir solo gasta MP mientras huye; ataca únicamente acorralado (plan de ataque).
+    if (current.fleeing || !plan.attackTargetId) continue;
 
-    return { state: next, events };
+    const result = chainAttack(next, enemy.id, plan.attackTargetId);
+    if (!result) break;
+    next = result.state;
+    events.push(...result.events);
+    if (targetIsDown(next, plan.attackTargetId)) break;
   }
 
-  return { state, events: [{ type: 'EnemyWaited', unitId: enemy.id }] };
+  if (events.length === 0) {
+    events.push({ type: 'EnemyWaited', unitId: enemy.id });
+  }
+
+  return { state: next, events };
 }
 
 /**
