@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Task — TASK-0077 — verificación independiente: verify 1012/1012 y E2E focalizados 19/20; el único fallo es una aserción errónea de TASK-0076 en `cursor-qa` (espera 1 acción tras dos ataques), ajena al encadenado; pendiente decidir si se corrige en TASK-0078 o en una tarea propia — [TASK-0077](tasks/TASK-0077-motor-ia-acciones-encadenadas.md)
 * 2026-11-12 — Task — TASK-0077 — done: la IA enemiga encadena acciones por tipo (Centinela 2, Bruto 1, Cobarde 2), ataca hasta agotar o matar, no ataca dormida o en regreso y el cobarde solo ataca acorralado; verify 1012 tests y E2E 108/109 (fallo preexistente de TASK-0076); fusión `cb49df2` — [informe](../artifacts/TASK-0077/attempt-2/report.md)
 * 2026-11-12 — Planning — TASK-0077 — ready: IA enemiga encadenada por acciones del bestiario, estados de percepción y huida; dependencia TASK-0076 `done` — [TASK-0077](tasks/TASK-0077-motor-ia-acciones-encadenadas.md)
 * 2026-11-12 — Task — TASK-0076 — done: contador de acciones por unidad (`max`/`remaining`), restauración por turno, coste declarado por comando, ataque repetible y `MoveTo` de un ataque; `actionAvailable` eliminado; verify 74 archivos/1004 tests, build y bundle OK; fusión `f8481f9` — [informe](../artifacts/TASK-0076/attempt-1/report.md)

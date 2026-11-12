@@ -36,6 +36,15 @@ verified:
       Fricción: timeout de 5 s de `EXP-004` bajo carga, `deferred` a
       requirements-writer; patrón de HUD en el cue del beat, `deferred` a
       requirements-writer. Sin resultado creativo pendiente.
+  - by: requirements-writer
+    at: 2026-11-12T18:50:16Z
+    note: >-
+      Verificación independiente: `pnpm run verify` OK (1012/1012, tsc, build y
+      bundle); E2E focalizados 19/20. El único fallo es la aserción de
+      `cursor-qa` «enemigo alcanzable sin acción», que tras dos pulsaciones de
+      `F` espera 1 acción y recibe 0; procede de TASK-0076 (commit `169ca54`) y
+      no del encadenado. Corrección pendiente de decisión: incluirla en
+      TASK-0078 o abrir una tarea de corrección.
 ---
 
 # Objetivo
