@@ -73,7 +73,7 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0077](TASK-0077-motor-ia-acciones-encadenadas.md) | Motor: IA enemiga con acciones encadenadas | `done` | REQ-026 | TASK-0076 | P1 |
 | [TASK-0078](TASK-0078-host-contador-acciones-fin-turno.md) | Host: contador de acciones, fin de turno y beats | `done` | REQ-026 | TASK-0077 | P1 |
 | [TASK-0079](TASK-0079-motor-replica-cuerpo-a-cuerpo.md) | Motor: réplica tras fallo cuerpo a cuerpo | `done` | REQ-027 | TASK-0078 | P1 |
-| [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `backlog` | REQ-027 | TASK-0079 | P1 |
+| [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `ready` | REQ-027 | TASK-0079 | P1 |
 | [TASK-0081](TASK-0081-motor-nivel-magia-mana.md) | Motor: nivel de magia y maná por turno | `backlog` | REQ-025 | TASK-0080 | P1 |
 | [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `backlog` | REQ-025 | TASK-0081 | P1 |
 | [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `backlog` | REQ-025 | TASK-0082 | P1 |
@@ -89,9 +89,12 @@ Total: **84**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 
-# backlog
+# ready
 
 * [TASK-0080 — Host y docs: réplica visible y ADR](TASK-0080-host-docs-replica-visible.md)
+
+# backlog
+
 * [TASK-0081 — Motor: nivel de magia y maná por turno](TASK-0081-motor-nivel-magia-mana.md)
 * [TASK-0082 — Motor: catálogo y resolución de hechizos](TASK-0082-motor-catalogo-hechizos.md)
 * [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)

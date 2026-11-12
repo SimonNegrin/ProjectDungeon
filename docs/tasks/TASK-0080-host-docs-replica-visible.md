@@ -4,7 +4,7 @@ id: TASK-0080
 title: "Host y docs: réplica visible y ADR"
 description: "Presentar la réplica con la animación de ataque girada hacia el atacante, sin texto, con cue propio y su excepción de ritmo; actualizar glosario, arquitectura, ADR y enmiendas."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-027
 requirement_ids: [R-007, T-006, T-007, T-008]
@@ -61,6 +61,11 @@ documentada en glosario, arquitectura y ADR.
       solo lo que falte. `docs:check` pasa.
 - [ ] `pnpm run verify` y el E2E pasan; los tests de `REQ-010` y `REQ-017`
       conservan su intención.
+- [ ] Las cinco expectativas E2E que TASK-0079 dejó obsoletas se actualizan al
+      comportamiento aprobado, con el motivo en el test: orden con
+      `ReplicaPerformed` entre el fallo y la acción siguiente, derrota que ya no
+      se alcanza a 80 turnos y secuencias de daño. Cada cambio acota el escenario
+      o corrige la expectativa; ninguna aserción se elimina ni se relaja.
 
 # Plan de test
 

@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Planning — TASK-0080 — ready: réplica visible con giro, cue propio, reduced motion, QA visual y ADR; asume la actualización de las 5 expectativas E2E obsoletas de TASK-0079 sin debilitarlas — [TASK-0080](tasks/TASK-0080-host-docs-replica-visible.md)
+
 * 2026-11-12 — Planning — TASK-0079 — ready: réplica tras fallo cuerpo a cuerpo con la misma fórmula y RNG, sin coste ni cadena; REQ-027 aceptada y dependencia TASK-0078 `done`; handoff a `task-lead` — [TASK-0079](tasks/TASK-0079-motor-replica-cuerpo-a-cuerpo.md)
 
 * 2026-11-12 — Task — TASK-0079 — done: réplica cuerpo a cuerpo verificada con 1033/1033 en `verify`; E2E 105/110 con expectativas obsoletas por la nueva regla, diferidas a TASK-0080; fusión `7dd6afa` — [informe](../artifacts/TASK-0079/attempt-1/report.md)
