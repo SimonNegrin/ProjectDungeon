@@ -13,10 +13,10 @@ Fijar unos valores jugables para el primer prototipo local. No son definitivos:
 están pensados para poder probar el loop y ajustarlos después con experimentos y
 playtests.
 
-> **Aviso de vigencia (2026-11-11).** La sección de acción se actualiza con
+> **Aviso de vigencia (2026-11-12).** La sección de acción se actualiza con
 > `REQ-026`: varias acciones por turno, Pícaro 3, enemigos 2/1/2 y tope 4
-> provisional. La magia de `REQ-025` y la réplica de `REQ-027` siguen como
-> referencia hasta que se implementen.
+> provisional. La réplica de `REQ-027` ya está implementada y tiene sección
+> propia. La magia de `REQ-025` sigue como referencia hasta que se implemente.
 
 # Rejilla y movimiento
 
@@ -55,6 +55,28 @@ playtests.
 - El turno **no termina solo** al gastar las acciones: se cierra con `E`. El HUD
   sugiere terminar cuando no quedan acciones ni MP útil.
 - Al empezar un turno se restauran MP, acciones y maná.
+
+# Réplica
+
+Decidida en [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
+y registrada en [ADR-022](../decisions/ADR-022-replica-cuerpo-a-cuerpo.md).
+
+- Solo se dispara tras un ataque **cuerpo a cuerpo fallido**. Un impacto no
+  genera réplica.
+- **Coste 0**: no gasta acción, MP ni maná y no comparte el tope de 4 acciones.
+- **Elegibilidad**: defensor vivo, adyacente, con arma equipada y alerta,
+  regresando o huyendo acorralado; un dormido nunca replica. Sin arma, a
+  distancia o con ataque mágico no hay réplica.
+- **Tirada nueva** con la misma fórmula y RNG; puede impactar, fallar o matar.
+  No reutiliza la tirada del ataque fallido y no encadena otra réplica.
+- **Sin estado pendiente**: es una reacción atómica; cargar una partida no
+  reproduce réplicas.
+- **Presentación**: reutiliza la animación de ataque, girada desde el defensor
+  hacia el atacante original, sin texto propio. Tiene cue propio de 300 ms.
+- **Ritmo**: el fallo (300 ms) y la réplica (300 ms) forman una acción compuesta
+  de 600 ms. Se declara la excepción al techo de 1,3 s: la reacción no se mide
+  como una segunda acción independiente; si la réplica mata, la muerte encadena
+  su beat terminal como cualquier impacto letal.
 
 # Movimiento por destino
 
@@ -118,7 +140,8 @@ motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado
 | Muerte | 900 ms; deja cadáver persistente. |
 | Fin de partida | 800 ms antes del overlay. |
 | Reinicio | 250 ms. |
-| Acción sin desplazamiento | ≤1,3 s, salvo secuencia terminal. |
+| Réplica | 300 ms; misma animación girada, sin texto propio; PV en su cue. |
+| Acción sin desplazamiento | ≤1,3 s, salvo secuencia terminal o fallo con réplica. |
 | Enemigo fuera de pantalla | 150 ms, sin cámara ni tween por tile. |
 | Movimiento | 125/70 sin cambios. |
 

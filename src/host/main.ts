@@ -343,7 +343,9 @@ async function boot(): Promise<void> {
       unitId: cue.anchor.unitId,
       startMs: cue.atMs,
       durationMs: cue.durationMs,
-      ...(cue.kind === 'attack' ? { hit: cue.data.hit === true } : {}),
+      ...(cue.kind === 'attack' || cue.kind === 'replica'
+        ? { hit: cue.data.hit === true }
+        : {}),
     }));
     return {
       animating: true,
@@ -569,6 +571,10 @@ async function boot(): Promise<void> {
           }
           break;
         }
+        case 'ReplicaPerformed':
+          // REQ-027: la réplica no añade texto propio; conserva el `Fallo` del
+          // ataque original y su daño se lee en la barra de PV.
+          break;
         case 'PickUp':
         case 'SelectWeapon':
         case 'EnemyPhaseStarted':

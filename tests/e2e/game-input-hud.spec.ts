@@ -409,7 +409,48 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   // Derrota determinista: acercarse para que los enemigos despierten y dejar
   // pasar turnos enemigos con dispatch(EndTurn).
-  await approachEnemy(page);
+  //
+  // REQ-027: la réplica del jugador armado mata a los enemigos que fallan y la
+  // derrota deja de alcanzarse. Se acota el escenario con el jugador desarmado
+  // por el hook de setup (sin tocar reglas): no puede replicar y un centinela
+  // alerta adyacente consume sus turnos. El resto del loop no cambia.
+  const defeatBase = await snapshot(page);
+  const defeatPlayer = defeatBase.players[0];
+  const beside = [
+    { x: defeatPlayer.x, y: defeatPlayer.y - 1 },
+    { x: defeatPlayer.x + 1, y: defeatPlayer.y },
+    { x: defeatPlayer.x, y: defeatPlayer.y + 1 },
+    { x: defeatPlayer.x - 1, y: defeatPlayer.y },
+  ].find((cell) => {
+    if (cell.x < 0 || cell.y < 0) return false;
+    if (cell.x >= defeatBase.grid.width || cell.y >= defeatBase.grid.height) {
+      return false;
+    }
+    return (
+      defeatBase.grid.tiles[cell.y * defeatBase.grid.width + cell.x] === 'floor'
+    );
+  });
+  expect(beside, 'El jugador debe tener una casilla libre adyacente').toBeDefined();
+  const sentinel = defeatBase.enemies[0];
+  await openBspState(page, 279837264, undefined, {
+    playerEquipment: { ...defeatPlayer.equipment, weaponId: null },
+    playerWeapons: [],
+    enemies: [
+      {
+        ...sentinel,
+        x: beside!.x,
+        y: beside!.y,
+        home: { ...beside! },
+        mp: sentinel.maxMp,
+        actions: { ...sentinel.actions, remaining: sentinel.actions.max },
+        awareness: 'alert',
+        fleeing: false,
+        lastKnown: { x: defeatPlayer.x, y: defeatPlayer.y },
+        alertTurns: 0,
+        hasShouted: true,
+      },
+    ],
+  });
   let defeatReached = false;
   for (let turn = 0; turn < 80; turn += 1) {
     const status = await page.evaluate(() => {

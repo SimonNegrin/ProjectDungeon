@@ -217,7 +217,7 @@ export function worldEffectsAt(
   const map = new Map<string, MutableEffect>();
   for (const cue of activeCues(timeline, elapsed)) {
     const t = elapsed - cue.atMs;
-    if (cue.kind === 'attack') applyAttack(map, cue, t);
+    if (cue.kind === 'attack' || cue.kind === 'replica') applyAttack(map, cue, t);
     else if (cue.kind === 'death') applyDeath(map, cue, t);
     else if (cue.kind === 'spotted') applySpotted(map, cue, t);
   }

@@ -696,18 +696,25 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
   await openGame(page);
-  // Se conservan el bruto (objetivo, con los PV del bestiario) y enemy-2 (para
-  // que la muerte del primero no cierre la partida) con el jugador ya adyacente;
-  // así la IA de 4 MP no mata al jugador durante el trayecto y el objetivo
-  // aguanta los dos golpes que ensaya el test sin tocar valores del bestiario.
+  // Se conservan el bruto (objetivo) y enemy-2 (para que la muerte del primero
+  // no cierre la partida) con el jugador ya adyacente; así la IA de 4 MP no
+  // mata al jugador durante el trayecto. REQ-027 añade un tercer golpe: la
+  // réplica del jugador en la fase enemiga. El objetivo usa una vida ampliada
+  // (sin tocar bestiario ni reglas) para que el último ataque no sea letal y el
+  // texto `-N` conserve su persistencia tras la animación.
   const base = await snapshot(page);
   const targetEnemy = base.enemies.find((enemy) => enemy.enemyType === 'brute');
   if (!targetEnemy) throw new Error('La partida BSP debe incluir un bruto');
+  const durableTarget = {
+    ...targetEnemy,
+    hp: targetEnemy.maxHp + 4,
+    maxHp: targetEnemy.maxHp + 4,
+  };
   const beside = floorNeighbor(base, targetEnemy);
   expect(beside, 'El bruto debe tener una casilla libre adyacente').toBeDefined();
   const adjacent = await openBspState(page, SEED, SEED_URL, {
     player: beside!,
-    enemies: [targetEnemy, base.enemies[1]],
+    enemies: [durableTarget, base.enemies[1]],
   });
   await installFreeze(page);
   await moveCursorTo(page, adjacent.enemies[0].x, adjacent.enemies[0].y);
@@ -747,7 +754,11 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
     Math.abs(retreated.players[0].y - retreated.enemies[0].y),
   );
   expect(distance).toBeGreaterThanOrEqual(2);
-  expect(retreated.enemies[0].hp).toBe(afterAttack.enemies[0].hp);
+  // REQ-027: en la fase enemiga el enemigo falló y el jugador replicó, así que
+  // los PV bajaron antes de retirarse. La referencia se toma al cerrar el turno
+  // y se conserva la intención: retirarse no cambia la vida de nadie.
+  expect(nextTurn.enemies[0].hp).toBeLessThan(afterAttack.enemies[0].hp);
+  expect(retreated.enemies[0].hp).toBe(nextTurn.enemies[0].hp);
 
   await moveCursorTo(page, retreated.enemies[0].x, retreated.enemies[0].y);
   const planned = await snapshot(page);
