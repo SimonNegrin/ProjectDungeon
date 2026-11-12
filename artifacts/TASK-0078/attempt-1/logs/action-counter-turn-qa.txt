@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/action-counter-turn-qa.spec.ts:82:1 › dos ataques, cierre manual con E, sugerencia y movimiento sin acciones (2.5s)
+
+  1 passed (4.5s)
