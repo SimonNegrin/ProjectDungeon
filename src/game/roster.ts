@@ -3,10 +3,12 @@
  *
  * Es la fuente única de stats, equipo, variantes e identidad del roster. El
  * motor y el host leen de aquí; no deben duplicar estos valores. La identidad
- * mágica es texto sin efecto en combate y `stats.magia` siempre queda vacío.
+ * mágica es texto sin efecto en combate; el nivel único vive en
+ * `stats.magicLevel` y determina el maná (REQ-025).
  */
 
 import { createActions } from './actions';
+import { createMana } from './mana';
 import type { Position, Unit, UnitEquipment, UnitStats } from './types';
 
 export type ArchetypeId =
@@ -49,7 +51,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 1,
       resistencia: 1,
       punteria: 0,
-      magia: [],
+      magicLevel: 0,
       acciones: 2,
     },
     equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
@@ -69,7 +71,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: -1,
       resistencia: 0,
       punteria: 0,
-      magia: [],
+      magicLevel: 0,
       acciones: 2,
     },
     equipment: { weaponId: 'axe', armorId: null, shieldId: null },
@@ -89,7 +91,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 1,
       resistencia: 0,
       punteria: 0,
-      magia: [],
+      magicLevel: 0,
       acciones: 3,
     },
     equipment: { weaponId: 'dagger', armorId: null, shieldId: null },
@@ -109,7 +111,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 0,
       resistencia: 0,
       punteria: 3,
-      magia: [],
+      magicLevel: 0,
       acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: null },
@@ -129,7 +131,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 0,
       resistencia: 0,
       punteria: 0,
-      magia: [],
+      magicLevel: 4,
       acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: null },
@@ -149,7 +151,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 3,
       resistencia: 2,
       punteria: 0,
-      magia: [],
+      magicLevel: 3,
       acciones: 2,
     },
     equipment: { weaponId: null, armorId: 'armor', shieldId: 'shield' },
@@ -169,7 +171,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 1,
       resistencia: 0,
       punteria: 0,
-      magia: [],
+      magicLevel: 2,
       acciones: 2,
     },
     equipment: { weaponId: null, armorId: 'armor', shieldId: null },
@@ -189,7 +191,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 0,
       resistencia: 0,
       punteria: 0,
-      magia: [],
+      magicLevel: 1,
       acciones: 2,
     },
     equipment: { weaponId: 'knife', armorId: null, shieldId: null },
@@ -209,7 +211,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       defensa: 0,
       resistencia: 1,
       punteria: 0,
-      magia: [],
+      magicLevel: 0,
       acciones: 2,
     },
     equipment: { weaponId: null, armorId: null, shieldId: 'shield' },
@@ -254,6 +256,7 @@ export function createPlayerFromArchetype(
     maxHp: entry.maxHp,
     mp: entry.maxMp,
     maxMp: entry.maxMp,
+    mana: createMana(entry.stats.magicLevel),
     actions: createActions(entry.stats, entry.equipment),
     stats: entry.stats,
     equipment: entry.equipment,

@@ -96,8 +96,9 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
 - El ataque mágico reutiliza las capas de `combat.ts`: acierto con nivel de magia
   + acierto del hechizo contra defensa + escudo; daño con poder del hechizo contra
   resistencia + armadura. No hay una resistencia mágica separada.
-- `Unit` guarda `magicLevel` (0–4) y `mana { current, max }`; `max = nivel × 4` y
-  se recarga al inicio del turno junto a MP y acciones. El maná no altera el MP.
+- `mana.ts` implementa el recurso de este corte: `UnitStats.magicLevel` (0–4) y
+  `Unit.mana { current, max }`; `max = nivel × 4` y se recarga al inicio del
+  turno junto a MP y acciones. El maná no altera el MP.
 - La curación y la resurrección son hechizos sin tirada de impacto; la
   resurrección conserva las condiciones de
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).

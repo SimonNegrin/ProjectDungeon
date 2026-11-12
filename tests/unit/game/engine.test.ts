@@ -63,6 +63,7 @@ describe('engine state', () => {
       maxHp: PLAYER_MAX_HP,
       mp: PLAYER_MAX_MP,
       maxMp: PLAYER_MAX_MP,
+      mana: { current: 0, max: 0 },
       actions: { max: 2, remaining: 2 },
     });
     expect(state.enemies[0]).toMatchObject({
@@ -73,6 +74,7 @@ describe('engine state', () => {
       maxHp: BESTIARY.sentinel.maxHp,
       mp: BESTIARY.sentinel.maxMp,
       maxMp: BESTIARY.sentinel.maxMp,
+      mana: { current: 0, max: 0 },
       actions: { max: 2, remaining: 2 },
     });
     expect(PLAYER_MAX_MP).toBe(6);
@@ -140,7 +142,7 @@ describe('engine state', () => {
         defensa: 1,
         resistencia: 1,
         punteria: 0,
-        magia: [],
+        magicLevel: 0,
       },
       equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
       weapons: ['sword'],

@@ -18,6 +18,8 @@ interface ExpectedArchetype {
   readonly name: string;
   readonly maxHp: number;
   readonly maxMp: number;
+  /** Nivel de magia único de REQ-025; 0 = sin magia. */
+  readonly magicLevel: number;
   readonly stats: readonly [
     habilidad: number,
     fuerza: number,
@@ -33,54 +35,63 @@ const EXPECTED: Readonly<Record<ArchetypeId, ExpectedArchetype>> = {
     name: 'Guerrero',
     maxHp: 20,
     maxMp: 6,
+    magicLevel: 0,
     stats: [1, 1, 1, 1, 0, 2],
   },
   barbarian: {
     name: 'Bárbaro',
     maxHp: 24,
     maxMp: 5,
+    magicLevel: 0,
     stats: [0, 3, -1, 0, 0, 2],
   },
   rogue: {
     name: 'Pícaro',
     maxHp: 14,
     maxMp: 8,
+    magicLevel: 0,
     stats: [3, 0, 1, 0, 0, 3],
   },
   archer: {
     name: 'Arquero',
     maxHp: 14,
     maxMp: 6,
+    magicLevel: 0,
     stats: [1, 0, 0, 0, 3, 2],
   },
   mage: {
     name: 'Mago',
     maxHp: 12,
     maxMp: 5,
+    magicLevel: 4,
     stats: [0, -1, 0, 0, 0, 2],
   },
   cleric: {
     name: 'Clérigo',
     maxHp: 18,
     maxMp: 5,
+    magicLevel: 3,
     stats: [0, -1, 3, 2, 0, 2],
   },
   spellblade: {
     name: 'Guerrero mágico',
     maxHp: 18,
     maxMp: 6,
+    magicLevel: 2,
     stats: [1, 0, 1, 0, 0, 2],
   },
   cook: {
     name: 'Cocinero',
     maxHp: 14,
     maxMp: 6,
+    magicLevel: 1,
     stats: [3, -1, 0, 0, 0, 2],
   },
   farmer: {
     name: 'Agricultor',
     maxHp: 22,
     maxMp: 4,
+    magicLevel: 0,
     stats: [-1, 3, 0, 1, 0, 2],
   },
 };
@@ -112,7 +123,7 @@ describe('roster de arquetipos', () => {
       expect(entry.maxHp, id).toBe(expected.maxHp);
       expect(entry.maxMp, id).toBe(expected.maxMp);
       expect(statsOf(entry), id).toEqual(expected.stats);
-      expect(entry.stats.magia, id).toEqual([]);
+      expect(entry.stats.magicLevel, id).toBe(expected.magicLevel);
     }
   });
 
@@ -164,7 +175,9 @@ describe('roster de arquetipos', () => {
     expect(rosterEntry('cleric').magic).toContain('sin curación');
     for (const entry of Object.values(ROSTER)) {
       expect(entry.magic.length).toBeGreaterThan(0);
-      expect(entry.stats.magia).toEqual([]);
+      expect(Number.isInteger(entry.stats.magicLevel)).toBe(true);
+      expect(entry.stats.magicLevel).toBeGreaterThanOrEqual(0);
+      expect(entry.stats.magicLevel).toBeLessThanOrEqual(4);
     }
   });
 
@@ -197,6 +210,7 @@ describe('personaje desde arquetipo', () => {
       maxHp: ROSTER.cook.maxHp,
       mp: ROSTER.cook.maxMp,
       maxMp: ROSTER.cook.maxMp,
+      mana: { current: 4, max: 4 },
       actions: { max: 2, remaining: 2 },
       stats: ROSTER.cook.stats,
       equipment: ROSTER.cook.equipment,
@@ -254,6 +268,8 @@ describe('jugador por defecto (REQ-015 T-003)', () => {
     expect(player.maxHp).toBe(ROSTER.warrior.maxHp);
     expect(player.mp).toBe(ROSTER.warrior.maxMp);
     expect(player.maxMp).toBe(ROSTER.warrior.maxMp);
+    expect(player.stats.magicLevel).toBe(0);
+    expect(player.mana).toEqual({ current: 0, max: 0 });
     expect({ x: player.x, y: player.y }).toEqual(spawn);
     expect(player.x === 0 && player.y === 0).toBe(false);
     expect(player.home).toEqual(spawn);

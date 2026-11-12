@@ -9,6 +9,7 @@ import { GrowthMapGenerator } from './chambers/variants/growth';
 import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
+import { createMana } from './mana';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import { createPlayerFromArchetype } from './roster';
 import {
@@ -51,6 +52,7 @@ function createEnemy(
     maxHp: definition.maxHp,
     mp: definition.maxMp,
     maxMp: definition.maxMp,
+    mana: createMana(definition.stats.magicLevel),
     actions: createActions(definition.stats, definition.equipment),
     stats: definition.stats,
     equipment: definition.equipment,

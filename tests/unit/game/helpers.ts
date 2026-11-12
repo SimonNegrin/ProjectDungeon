@@ -1,6 +1,7 @@
 import {
   BESTIARY,
   MAX_ACTIONS,
+  createMana,
   createRoomGrid,
   createRng,
   PLAYER_MAX_HP,
@@ -12,6 +13,8 @@ import {
   type Faction,
   type GameState,
   type Grid,
+  type MagicLevel,
+  type Mana,
   type Phase,
   type Position,
   type RngState,
@@ -31,7 +34,7 @@ const PLAYER_STATS: UnitStats = {
   defensa: 1,
   resistencia: 0,
   punteria: 0,
-  magia: [],
+  magicLevel: 0,
   acciones: 2,
 };
 
@@ -41,7 +44,7 @@ const NEUTRAL_STATS: UnitStats = {
   defensa: 0,
   resistencia: 0,
   punteria: 0,
-  magia: [],
+  magicLevel: 0,
   acciones: 2,
 };
 
@@ -59,6 +62,10 @@ export interface UnitOptions {
   readonly maxHp?: number;
   readonly mp?: number;
   readonly maxMp?: number;
+  /** Nivel de magia explícito; por defecto, el de los stats base. */
+  readonly magicLevel?: MagicLevel;
+  /** Maná explícito; por defecto, completo según el nivel. */
+  readonly mana?: Mana;
   /** Acciones restantes; por defecto, todas las del máximo. */
   readonly actions?: number;
   /** Máximo explícito; por defecto, inherente + bonus recortado a 4. */
@@ -84,6 +91,7 @@ export function makeUnit(options: UnitOptions): Unit {
     options.maxMp ?? (isPlayer ? PLAYER_MAX_MP : definition?.maxMp ?? FIXTURE_ENEMY_MAX_MP);
   const stats: UnitStats = {
     ...(isPlayer ? PLAYER_STATS : definition?.stats ?? NEUTRAL_STATS),
+    ...(options.magicLevel !== undefined ? { magicLevel: options.magicLevel } : {}),
     ...options.stats,
   };
   const equipment: UnitEquipment =
@@ -105,6 +113,7 @@ export function makeUnit(options: UnitOptions): Unit {
     maxHp,
     mp: options.mp ?? maxMp,
     maxMp,
+    mana: options.mana ?? createMana(stats.magicLevel),
     actions: { max: maxActions, remaining: options.actions ?? maxActions },
     stats,
     equipment,

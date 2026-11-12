@@ -1,0 +1,2 @@
+$ node scripts/check-bundle.mjs
+check:bundle: OK — scanned 10 dist files and 58 production modules; no forbidden markers.

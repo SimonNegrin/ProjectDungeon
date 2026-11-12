@@ -77,7 +77,7 @@ describe('bestiario', () => {
       expect(definition.stats.defensa).toBeGreaterThanOrEqual(0);
       expect(definition.stats.resistencia).toBeGreaterThanOrEqual(0);
       expect(definition.stats.punteria).toBeGreaterThanOrEqual(0);
-      expect(definition.stats.magia).toEqual([]);
+      expect(definition.stats.magicLevel).toBe(0);
       expect(enemyDefinition(type)).toBe(definition);
     }
 
@@ -92,17 +92,13 @@ describe('bestiario', () => {
         'defensa',
         'fuerza',
         'habilidad',
-        'magia',
+        'magicLevel',
         'punteria',
         'resistencia',
       ]);
       expect(definition.maxHp).toBeGreaterThan(0);
       expect(definition.maxMp).toBeGreaterThan(0);
-
-      for (const family of definition.stats.magia) {
-        expect(family.nivel).toBeGreaterThanOrEqual(1);
-        expect(family.nivel).toBeLessThanOrEqual(4);
-      }
+      expect(definition.stats.magicLevel).toBe(0);
 
       const roundTrip = JSON.parse(JSON.stringify(definition.stats));
       expect(roundTrip).toEqual(definition.stats);

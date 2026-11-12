@@ -163,7 +163,8 @@ export interface DebugSnapshotSource {
 function cloneUnit(unit: Unit): Unit {
   return {
     ...unit,
-    stats: { ...unit.stats, magia: unit.stats.magia.map((family) => ({ ...family })) },
+    stats: { ...unit.stats },
+    mana: { ...unit.mana },
     equipment: { ...unit.equipment },
     weapons: [...unit.weapons],
     actions: { ...unit.actions },
