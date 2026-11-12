@@ -6,6 +6,7 @@ import type {
   GameState,
   Position,
   RejectionReason,
+  Unit,
 } from '../game/types';
 import type { WeaponId } from '../game/equipment';
 import { clampCamera, type Camera } from './camera';
@@ -888,6 +889,30 @@ function lastEventOfType<K extends GameEvent['type']>(
 }
 
 /**
+ * Deshace las acciones de los ataques que aún no han ocurrido. El estado final
+ * ya las consumió todas; devolver una por cada ataque futuro reconstruye la
+ * secuencia real (2→1→0) sin agruparlas en el primer beat.
+ */
+function withFutureActions(
+  unit: Unit,
+  timeline: MotionTimeline,
+  elapsed: number,
+): Unit {
+  let remaining = unit.actions.remaining;
+  for (const entry of timeline.events) {
+    if (
+      entry.event.type === 'AttackPerformed' &&
+      entry.event.attackerId === unit.id &&
+      entry.atMs > elapsed + EPSILON
+    ) {
+      remaining = Math.min(unit.actions.max, remaining + 1);
+    }
+  }
+  if (remaining === unit.actions.remaining) return unit;
+  return { ...unit, actions: { ...unit.actions, remaining } };
+}
+
+/**
  * Estado derivado para HUD y render: parte del estado final del motor y
  * deshace los eventos que todavía no han ocurrido a `elapsed`. No muta el
  * estado de entrada.
@@ -917,6 +942,9 @@ export function presentationState(
       unit.id === targetId ? { ...unit, hp: targetHp + damage } : unit,
     );
   }
+
+  players = players.map((unit) => withFutureActions(unit, timeline, elapsed));
+  enemies = enemies.map((unit) => withFutureActions(unit, timeline, elapsed));
 
   // La recogida y el cambio de arma se aplican al acabar su beat, no al
   // empezar el cue (R-011/R-012). Hasta entonces se conserva el inventario, el
@@ -1019,24 +1047,22 @@ export function presentationState(
       );
     }
 
-    const attack = timeline.events.find(
-      (entry) =>
-        entry.event.type === 'AttackPerformed' && entry.event.attackerId === player.id,
-    );
-    if (attack || initialPlayer) {
-      const occurred = attack ? attack.atMs <= elapsed + EPSILON : false;
-      const actions = playerTurn
-        ? player.actions
-        : occurred
-          ? { ...player.actions, remaining: 0 }
-          : (initialPlayer?.actions ?? {
-              ...player.actions,
-              remaining: player.actions.max,
-            });
-      players = players.map((unit) =>
-        unit.id === player.id ? { ...unit, actions } : unit,
-      );
+    let actions = player.actions;
+    if (!playerTurn && initialPlayer) {
+      const attacksOccurred = timeline.events.filter(
+        (entry) =>
+          entry.event.type === 'AttackPerformed' &&
+          entry.event.attackerId === player.id &&
+          entry.atMs <= elapsed + EPSILON,
+      ).length;
+      actions = {
+        ...initialPlayer.actions,
+        remaining: Math.max(0, initialPlayer.actions.remaining - attacksOccurred),
+      };
     }
+    players = players.map((unit) =>
+      unit.id === player.id ? { ...unit, actions } : unit,
+    );
   }
 
   const enemyPhase = lastEventOfType(timeline, 'EnemyPhaseStarted', elapsed);

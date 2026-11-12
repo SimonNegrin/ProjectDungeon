@@ -4,7 +4,7 @@ id: TASK-0078
 title: "Host: contador de acciones, fin de turno y beats"
 description: "Mostrar acciones restantes/máximas en HUD y debug, mantener el cierre manual con E con sugerencia sin auto-terminar y presentar un beat por acción en secuencia."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-026
 requirement_ids: [R-001, R-008, T-006, T-007, T-008]

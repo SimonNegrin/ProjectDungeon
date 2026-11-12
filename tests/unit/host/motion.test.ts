@@ -302,7 +302,7 @@ describe('estado derivado para HUD y render', () => {
         x: 5,
         y: 2,
         mp: 3,
-        actions: 0,
+        actions: 1,
       }),
     ],
     enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 2, hp: 0 })],
@@ -360,7 +360,67 @@ describe('estado derivado para HUD y render', () => {
     const after = presentationState(finalState, timeline, attack.atMs);
 
     expect(before.players[0].actions.remaining).toBe(2);
-    expect(after.players[0].actions.remaining).toBe(0);
+    expect(after.players[0].actions.remaining).toBe(1);
+  });
+
+  it('dos ataques seguidos conservan su beat y bajan las acciones 2→1→0', () => {
+    const twoAttacks: GameEvent[] = [
+      { type: 'PlayerTurnStarted', turn: 1 },
+      {
+        type: 'AttackPerformed',
+        attackerId: 'player-1',
+        targetId: 'enemy-1',
+        hit: true,
+        damage: 5,
+        targetHp: 5,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      },
+      {
+        type: 'AttackPerformed',
+        attackerId: 'player-1',
+        targetId: 'enemy-1',
+        hit: true,
+        damage: 5,
+        targetHp: 0,
+        rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      },
+      { type: 'UnitDied', unitId: 'enemy-1' },
+    ];
+    const exhausted = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 2,
+          mp: 3,
+          actions: 0,
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 2, hp: 0 })],
+      status: 'victory',
+    });
+    const timeline = buildMotionTimeline(twoAttacks);
+    const attackEntries = timeline.events.filter(
+      (entry) => entry.event.type === 'AttackPerformed',
+    );
+
+    expect(attackEntries.map((entry) => entry.event.type)).toEqual([
+      'AttackPerformed',
+      'AttackPerformed',
+    ]);
+    const attackBeats = timeline.beats.filter(
+      (beat) => beat.eventType === 'AttackPerformed',
+    );
+    expect(attackBeats).toHaveLength(2);
+    expect(attackBeats[1].atMs).toBeGreaterThanOrEqual(attackBeats[0].endMs);
+    expect(presentationState(exhausted, timeline, 0).players[0].actions.remaining).toBe(2);
+    expect(
+      presentationState(exhausted, timeline, attackEntries[0].atMs).players[0].actions.remaining,
+    ).toBe(1);
+    expect(
+      presentationState(exhausted, timeline, attackEntries[1].atMs).players[0].actions.remaining,
+    ).toBe(0);
   });
 
   it('la fase enemiga se secuencia y PlayerTurnStarted devuelve el turno', () => {

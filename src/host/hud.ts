@@ -30,7 +30,10 @@ export interface HudModel {
   readonly archetype: string;
   readonly playerHp: string;
   readonly playerMp: string;
+  /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
+  /** Sugerencia discreta de terminar el turno; `null` si no aplica. */
+  readonly actionSuggestion: string | null;
   readonly phase: string;
   readonly enemyHp: string;
   /** Arma equipada con sus valores del catálogo. */
@@ -62,6 +65,22 @@ function formatHp(unit: Unit | undefined): string {
 
 function formatMp(unit: Unit | undefined): string {
   return unit ? `${unit.mp}/${unit.maxMp}` : '—/—';
+}
+
+function formatActions(unit: Unit | undefined): string {
+  return unit ? `${unit.actions.remaining}/${unit.actions.max}` : '—/—';
+}
+
+/**
+ * El turno solo se cierra con `E`; esta pista no bloquea ni envía ningún
+ * comando. Aparece únicamente cuando el jugador ya no puede actuar ni moverse.
+ */
+function actionSuggestion(state: GameState): string | null {
+  const player = state.players[0];
+  if (!player) return null;
+  if (state.phase !== 'player' || state.status !== 'playing') return null;
+  if (player.actions.remaining > 0 || player.mp > 0) return null;
+  return 'Sin acciones ni MP: pulsa E para terminar el turno';
 }
 
 function phaseLabel(state: GameState): string {
@@ -138,7 +157,8 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     archetype: archetypeLabel(player),
     playerHp: formatHp(player),
     playerMp: formatMp(player),
-    action: boolLabel(player ? player.actions.remaining > 0 : undefined),
+    action: formatActions(player),
+    actionSuggestion: actionSuggestion(state),
     phase: phaseLabel(state),
     enemyHp: formatHp(enemy),
     weapon: weaponLabel(player),
@@ -340,7 +360,7 @@ function enemyEquipmentLines(state: GameState): readonly string[] {
   if (alive.length === 0) return ['Equipo enemigo: ninguno'];
   return alive.map(
     (enemy) =>
-      `Equipo enemigo ${enemy.id}: ${weaponLabel(enemy)} · ${shieldLabel(enemy)} · ${armorLabel(enemy)} · Atributos ${statsLabel(enemy)}`,
+      `Equipo enemigo ${enemy.id}: ${weaponLabel(enemy)} · ${shieldLabel(enemy)} · ${armorLabel(enemy)} · Atributos ${statsLabel(enemy)} · Acciones ${formatActions(enemy)}`,
   );
 }
 
@@ -401,9 +421,9 @@ export function buildDebugModel(
 
   return {
     lines: [
-      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acción ${boolLabel(player ? player.actions.remaining > 0 : undefined)}`,
+      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acciones ${formatActions(player)}`,
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
-      `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)}`,
+      `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)} · Acciones ${formatActions(enemy)}`,
       equipmentDebugLine(player),
       ...enemyEquipmentLines(state),
       ...enemyPerceptionLines(state),
@@ -503,6 +523,7 @@ export function createHudView(root: ParentNode): HudView {
   const playerHp = requireElement(root, 'hud-player-hp');
   const playerMp = requireElement(root, 'hud-player-mp');
   const action = requireElement(root, 'hud-action');
+  const actionSuggestion = requireElement(root, 'hud-suggestion');
   const phase = requireElement(root, 'hud-phase');
   const enemyHp = requireElement(root, 'hud-enemy-hp');
   const turn = requireElement(root, 'hud-turn');
@@ -535,6 +556,8 @@ export function createHudView(root: ParentNode): HudView {
       playerHp.textContent = model.playerHp;
       playerMp.textContent = model.playerMp;
       action.textContent = model.action;
+      actionSuggestion.textContent = model.actionSuggestion ?? '';
+      actionSuggestion.hidden = model.actionSuggestion === null;
       phase.textContent = model.phase;
       enemyHp.textContent = model.enemyHp;
       turn.textContent = model.turn;

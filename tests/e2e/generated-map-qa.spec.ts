@@ -827,7 +827,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   }
   await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
-  await expect(page.getByTestId('hud-action')).toHaveText('Sí');
+  await expect(page.getByTestId('hud-action')).toHaveText('2/2');
   await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
   await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
