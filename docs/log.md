@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Task — TASK-0081 — done: nivel de magia único 0–4 y maná nivel × 4 con recarga por turno; 1054/1054 verify, 112/112 E2E y docs:check OK; snapshot/debug clonan el maná y el roster queda Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; fusión `f3363c4` — [informe](../artifacts/TASK-0081/attempt-1/report.md)
 * 2026-11-12 — Task — TASK-0080 — verificación independiente: verify 1044/1044 y E2E 112/112; cue propio de 300 ms, giro del defensor, sin texto ni banner y sin indicador en el HUD; cinco expectativas E2E actualizadas sin debilitarlas; capturas 1280×720 y 900×700 revisadas — [TASK-0080](tasks/TASK-0080-host-docs-replica-visible.md)
 * 2026-11-12 — Requirement — REQ-017 — v2: fila de `ReplicaPerformed` con cue de 300 ms, animación girada y sin texto, más la enmienda por REQ-027; cierra la fricción `deferred` de TASK-0080 — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md)
 * 2026-11-12 — Fricción — EXP-004 — el barrido A/B/C × 200 semillas rozó el timeout de 5 s bajo carga (5978 ms) y falló una vez en `verify`; pasa aislado (20/20); pendiente de revisar el timeout propio, para `harness-keeper` — [EXP-004](../experiments/EXP-004-salas-irregulares/)

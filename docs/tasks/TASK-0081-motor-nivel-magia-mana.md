@@ -4,22 +4,42 @@ id: TASK-0081
 title: "Motor: nivel de magia y maná por turno"
 description: "Migrar la magia a un nivel único 0–4 por personaje y añadir maná máximo nivel × 4 que se recarga al inicio de cada turno, con niveles del roster y enemigos sin magia."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-001, R-003, R-004, T-001, T-005, T-008, T-009, T-010]
 depends_on: [TASK-0080]
 unlocks: [TASK-0082]
 created_at: 2026-11-12T14:55:00Z
-completed_at:
+completed_at: 2026-11-12T23:35:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0081/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T14:55:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-12T23:35:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0081` (código `5dab41c`, informe
+      `929e10e`, docs y verificación `81043b3`, merge `f3363c4`). Diff completo
+      revisado: solo `src/game/`, `src/host/debug.ts`, tests, arquitectura y
+      artefactos; `package.json`, `pnpm-lock.yaml`, acciones, réplica y MP
+      intactos. `pnpm run verify` re-ejecutado OK (1054/1054, docs, config, tsc,
+      build y bundle), `docs:check` OK (410 documentos, 84 tareas) y
+      `pnpm run test:e2e` OK (112/112, extra). Criterios comprobados: nivel único
+      0–4 sin `MagicSchool`/`stats.magia`; maná 0/4/8/12/16 con fórmula única y
+      separado del MP; recarga al inicio del turno solo en vivas; roster Mago 4,
+      Clérigo 3, Guerrero mágico 2, Cocinero 1 y enemigos 0; snapshot/debug
+      clonan `mana` y la serialización conserva ambos campos; tests migrados sin
+      debilitar aserciones y `mana.test.ts` cubre nivel 0, recálculo, recarga,
+      gasto entre turnos y determinismo. Sin contradicciones operativas en
+      REQ-014/015/021; arquitectura matizada a `UnitStats.magicLevel` y
+      `mana.ts`. Los dos `verify` fallidos del runner fueron el flake de
+      `EXP-004/spawn.test.ts`, que no se reprodujo en la re-ejecución; queda como
+      fricción `deferred`. Sin decisión creativa abierta.
 ---
 
 # Objetivo
