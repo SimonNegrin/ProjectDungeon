@@ -142,17 +142,29 @@ test('TASK-0039: el cobarde acorralado ataca en vez de esperar', async ({
   await page.keyboard.press('e');
   await settle(page);
   const after = await snapshot(page);
-  const attack = attackEvent(after.lastEvents);
+  const enemyAttacks = after.lastEvents.filter(
+    (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+      event.type === 'AttackPerformed' && event.attackerId === 'enemy-4',
+  );
+  const attack = enemyAttacks[0];
   expect(attack).toBeDefined();
   expect(attack!.attackerId).toBe('enemy-4');
   expect(attack!.targetId).toBe('player-1');
-  expect(enemyOf(after, 'enemy-4')).toMatchObject({ x: 6, y: 5, fleeing: true });
+  // Acorralado encadena una acción de ataque por acción disponible.
+  expect(enemyAttacks).toHaveLength(BESTIARY.coward.stats.acciones);
+  expect(enemyOf(after, 'enemy-4')).toMatchObject({
+    x: 6,
+    y: 5,
+    fleeing: true,
+    actions: { remaining: 0 },
+  });
   expect(
     after.lastEvents.some(
       (event) => event.type === 'UnitMoved' && event.unitId === 'enemy-4',
     ),
   ).toBe(false);
-  expect(after.players[0].hp).toBe(20 - attack!.damage);
+  const enemyDamage = enemyAttacks.reduce((total, hit) => total + hit.damage, 0);
+  expect(after.players[0].hp).toBe(20 - enemyDamage);
   expect(after.players[0].hp).toBeLessThan(20);
   await screenshot(page, testInfo, 'acorralado');
   expect(consoleErrors).toEqual([]);

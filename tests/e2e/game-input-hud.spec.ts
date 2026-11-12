@@ -3,6 +3,7 @@ import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameEvent } from '../../src/game/types';
 import {
+  advanceToCue,
   approachEnemy,
   defeatAllEnemies,
   findVisibleTile,
@@ -226,8 +227,11 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
 
   // Preparación determinista del combate con comandos reales. Solo enemy-1:
   // el resto de la guardia, con su MP por tipo, hace inviable la victoria
-  // scriptada; las comprobaciones de este test no cambian.
-  await openBspState(page, 279837264, undefined, { enemies: [startEnemy] });
+  // scriptada; las comprobaciones de este test no cambian. La vida ampliada
+  // evita que el RNG desplazado por el encadenado mate al enemigo de un golpe
+  // antes de la fase enemiga.
+  const durableEnemy = { ...startEnemy, hp: 20, maxHp: 20 };
+  await openBspState(page, 279837264, undefined, { enemies: [durableEnemy] });
   await approachEnemy(page);
   const adjacent = await snapshot(page);
   expect(
@@ -253,6 +257,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   // Ataque directo con F: daño, acción usada, feedback y cursor estable.
   await page.keyboard.press('f');
   const afterAttack = await snapshot(page);
+  await advanceToCue(page, 'attack');
   expect(
     afterAttack.animation.cues.find((cue) => cue.kind === 'attack'),
   ).toMatchObject({ kind: 'attack', hit: true });
@@ -281,10 +286,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
       }),
     ]),
   );
-  await expectHud(page, {
-    enemyHp: `${playerAttack!.targetHp}/${startEnemy.maxHp}`,
-    action: 'No',
-  });
+  // Durante el beat del ataque la acción aparece consumida; al asentar vuelve
+  // a estar disponible. Se comprueba en el cue, de forma determinista.
+  await expect(page.getByTestId('hud-action')).toHaveText('No');
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
+    `${playerAttack!.targetHp}/${durableEnemy.maxHp}`,
+  );
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.
@@ -299,16 +306,20 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(eventTypes).toContain('PlayerTurnStarted');
   expect(afterEndTurn.phase).toBe('player');
   expect(afterEndTurn.turn).toBe(beforeEndTurn.turn + 1);
-  const enemyAttack = afterEndTurn.lastEvents.find(
+  const enemyAttacks = afterEndTurn.lastEvents.filter(
     (event): event is Extract<GameEvent, { type: 'AttackPerformed' }> =>
       event.type === 'AttackPerformed' && event.attackerId === 'enemy-1',
   );
-  expect(enemyAttack).toBeDefined();
+  expect(enemyAttacks.length).toBeGreaterThan(0);
+  // El encadenado gasta todas las acciones del tipo en la fase enemiga.
+  expect(enemyAttacks).toHaveLength(beforeEndTurn.enemies[0].actions.max);
+  const enemyDamage = enemyAttacks.reduce((total, attack) => total + attack.damage, 0);
   expect(afterEndTurn.players[0]).toMatchObject({
-    hp: beforeEndTurn.players[0].hp - enemyAttack!.damage,
+    hp: beforeEndTurn.players[0].hp - enemyDamage,
     mp: 6,
     actions: { remaining: 2 },
   });
+  expect(afterEndTurn.enemies[0].actions.remaining).toBe(0);
   expect(afterEndTurn.cursor).toMatchObject({
     x: afterEndTurn.players[0].x,
     y: afterEndTurn.players[0].y,

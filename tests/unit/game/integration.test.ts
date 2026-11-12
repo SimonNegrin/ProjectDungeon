@@ -75,8 +75,9 @@ describe('game loop integration', () => {
     });
     const firstHit = expectedDamage(state.players[0], state.enemies[0], 2, 3);
     const enemyHit = expectedDamage(state.enemies[0], state.players[0], 3, 2);
-    const secondHit = expectedDamage(state.players[0], state.enemies[0], 5, 2);
-    const playerHp = state.players[0].hp - enemyHit;
+    const secondEnemyHit = expectedDamage(state.enemies[0], state.players[0], 5, 2);
+    const secondHit = expectedDamage(state.players[0], state.enemies[0], 6, 2);
+    const playerHp = state.players[0].hp - enemyHit - secondEnemyHit;
     const enemyHp = state.enemies[0].hp - firstHit;
 
     const result = run(state, loopCommands);
@@ -110,15 +111,22 @@ describe('game loop integration', () => {
         attackerId: 'enemy-1',
         hit: true,
         damage: enemyHit,
-        targetHp: playerHp,
+        targetHp: state.players[0].hp - enemyHit,
         rolls: { attack: 2, shield: 2, damage: 3, armor: 2 },
+      },
+      {
+        attackerId: 'enemy-1',
+        hit: true,
+        damage: secondEnemyHit,
+        targetHp: playerHp,
+        rolls: { attack: 5, shield: 3, damage: 5, armor: 2 },
       },
       {
         attackerId: 'player-1',
         hit: true,
         damage: secondHit,
         targetHp: 0,
-        rolls: { attack: 5, shield: 3, damage: 5, armor: 2 },
+        rolls: { attack: 5, shield: 1, damage: 6, armor: 2 },
       },
     ]);
 
@@ -127,6 +135,7 @@ describe('game loop integration', () => {
       'AttackPerformed',
       'TurnEnded',
       'EnemyPhaseStarted',
+      'AttackPerformed',
       'AttackPerformed',
       'PlayerTurnStarted',
       'UnitMoved',

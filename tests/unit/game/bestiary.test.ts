@@ -222,10 +222,15 @@ describe('ataque enemigo con el resolvedor compartido', () => {
       rng: rngForDice([6, 1, 1, 1]),
     });
     const expectedDamage = damageWith(state.enemies[0], state.players[0], 1, 1);
+    const secondDamage = damageWith(state.enemies[0], state.players[0], 4, 1);
 
     const result = reduce(state, { type: 'EndTurn' });
+    const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
 
-    expect(result.state.players[0].hp).toBe(state.players[0].hp - expectedDamage);
+    expect(attacks).toHaveLength(BESTIARY.sentinel.stats.acciones);
+    expect(result.state.players[0].hp).toBe(
+      state.players[0].hp - expectedDamage - secondDamage,
+    );
     expect(result.events).toContainEqual({
       type: 'AttackPerformed',
       attackerId: 'enemy-1',
