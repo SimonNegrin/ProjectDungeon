@@ -127,6 +127,8 @@ test('TASK-0061: reducido conserva texto, banner y marca sin tween y con el mism
     'TurnEnded',
     'EnemyPhaseStarted',
     'AttackPerformed',
+    // REQ-027: el ataque enemigo falla y el jugador replica en el mismo beat.
+    'ReplicaPerformed',
     'EnemyWaited',
     'PlayerTurnStarted',
   ]);

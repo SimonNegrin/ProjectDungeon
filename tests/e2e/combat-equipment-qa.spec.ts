@@ -650,6 +650,10 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   await advanceToCue(page, 'attack');
   await page.evaluate(() => window.__game!.advance(40));
   await screenshot(page, 'attack-miss', testInfo);
+  // REQ-027: el fallo no añade texto de réplica; el segundo nodo de daño sigue
+  // oculto. La réplica del jugador llega en la fase enemiga y se comprueba en su
+  // cue con la misma condición.
+  await expect(page.getByTestId('damage-feedback-2')).toBeHidden();
   await settle(page);
   const miss = attackEvent(missResult.events);
   expect(miss).toBeDefined();
@@ -687,17 +691,35 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   expect(afterMiss.turn).toBe(beforeMiss.turn);
   expect(afterMiss.enemies[0].hp).toBe(enemy.hp);
 
-  const end = await dispatchCommand(page, { type: 'EndTurn' });
+  // REQ-027: en la fase enemiga el enemigo falla y el jugador replica. Se
+  // muestrea el cue de réplica con el reloj de presentación: no añade texto
+  // propio; cualquier texto visible sigue siendo el `Fallo` del ataque original.
+  const end = await dispatchFrozen(page, { type: 'EndTurn' });
+  expect(
+    end.events.filter((event) => event.type === 'ReplicaPerformed'),
+  ).toHaveLength(1);
+  await advanceToCue(page, 'replica');
+  await page.evaluate(() => window.__game!.advance(40));
+  const replicaTexts = await page
+    .locator('[data-damage-text]:visible')
+    .allTextContents();
+  expect(replicaTexts.every((text) => text === 'Fallo')).toBe(true);
+  await expect(page.getByTestId('damage-feedback-2')).toBeHidden();
+  await screenshot(page, 'attack-miss-replica', testInfo);
   await settle(page);
   expect(end.events.filter((event) => event.type === 'CommandRejected')).toEqual([]);
   const afterTurn = await snapshot(page);
   await moveCursorTo(page, afterTurn.enemies[0].x, afterTurn.enemies[0].y);
-  const hitResult = await dispatchCommand(page, {
+  // REQ-027: el segundo ataque puede encadenar muerte y fin de partida; se
+  // muestrea su cue con el reloj de presentación para no depender del rAF real.
+  // Un impacto normal sigue mostrando `-N`; la réplica no añade texto.
+  const hitResult = await dispatchFrozen(page, {
     type: 'Attack',
     unitId: 'player-1',
     targetId: afterTurn.enemies[0].id,
   });
-  await settle(page);
+  await advanceToCue(page, 'attack');
+  await page.evaluate(() => window.__game!.advance(40));
   const hit = attackEvent(hitResult.events);
   expect(hit).toBeDefined();
   expect(hit!.hit).toBe(true);
@@ -706,6 +728,7 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   );
   await expect(page.getByTestId('damage-feedback')).toHaveText(`-${hit!.damage}`);
   await expect(page.getByTestId('damage-feedback')).toHaveAttribute('data-result', 'hit');
+  await settle(page);
 
   expect(consoleErrors).toEqual([]);
 });
@@ -810,8 +833,32 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   const initial = await snapshot(page);
   expect(initial.status).toBe('playing');
 
-  // Acercarse para despertar a los enemigos; después se dejan pasar turnos.
-  await approachEnemy(page);
+  // REQ-027: la réplica del jugador armado mata a los enemigos que fallan y la
+  // derrota deja de alcanzarse. Se acota el escenario con el jugador desarmado
+  // por el hook de setup (sin tocar reglas): no puede replicar y un centinela
+  // alerta adyacente consume sus turnos. Se conservan las aserciones del loop.
+  const player = initial.players[0];
+  const beside = floorNeighbor(initial, player.x, player.y);
+  expect(beside, 'El jugador debe tener una casilla libre adyacente').toBeDefined();
+  const sentinel = initial.enemies[0];
+  const scopedEnemy = {
+    ...sentinel,
+    x: beside!.x,
+    y: beside!.y,
+    home: { ...beside! },
+    mp: sentinel.maxMp,
+    actions: { ...sentinel.actions, remaining: sentinel.actions.max },
+    awareness: 'alert' as const,
+    fleeing: false,
+    lastKnown: { x: player.x, y: player.y },
+    alertTurns: 0,
+    hasShouted: true,
+  };
+  await openBspState(page, REFERENCE_SEED, undefined, {
+    playerEquipment: { ...player.equipment, weaponId: null },
+    playerWeapons: [],
+    enemies: [scopedEnemy],
+  });
   let defeatReached = false;
   for (let turn = 0; turn < 80; turn += 1) {
     const before = await snapshot(page);

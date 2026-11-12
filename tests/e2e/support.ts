@@ -111,6 +111,13 @@ export function findVisibleTile(
 export interface BspStateOptions {
   /** Reposiciona al jugador y reinicia su origen, sin tocar el mapa. */
   readonly player?: Position;
+  /**
+   * Sustituye el equipo del primer jugador. Los tests de escenario acotado lo
+   * usan para dejarlo desarmado sin tocar las reglas ni el estado del motor.
+   */
+  readonly playerEquipment?: GameState['players'][number]['equipment'];
+  /** Sustituye el inventario del primer jugador (p. ej. vaciarlo). */
+  readonly playerWeapons?: GameState['players'][number]['weapons'];
   /** Sustituye las unidades enemigas del estado cargado. */
   readonly enemies?: GameState['enemies'];
   /** Fija el RNG de combate para un resultado determinista. */
@@ -138,6 +145,20 @@ export async function openBspState(
       players: [
         { ...player, x: options.player.x, y: options.player.y, home: { ...options.player } },
       ],
+    };
+  }
+  if (options.playerEquipment || options.playerWeapons) {
+    state = {
+      ...state,
+      players: state.players.map((unit, index) =>
+        index === 0
+          ? {
+              ...unit,
+              equipment: options.playerEquipment ?? unit.equipment,
+              weapons: options.playerWeapons ?? unit.weapons,
+            }
+          : unit,
+      ),
     };
   }
   if (options.enemies) state = { ...state, enemies: options.enemies };
