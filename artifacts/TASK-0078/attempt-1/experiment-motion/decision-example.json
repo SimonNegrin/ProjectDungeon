@@ -1,0 +1,23 @@
+{
+  "experiment": "EXP-002",
+  "question": "¿Qué duración de paso, pausa por tile y tratamiento de la diagonal hacen que recorrer el camino se sienta ágil y legible?",
+  "seed": 279837264,
+  "decision": "B",
+  "notes": "Medio se siente equilibrado; la diagonal a velocidad constante se lee mejor.",
+  "decidedAt": "2026-11-12T19:16:31.203Z",
+  "preset": "B",
+  "scenario": "long",
+  "stepMs": 125,
+  "pauseMs": 50,
+  "diagonal": "constant-speed",
+  "parameters": {
+    "preset": "B",
+    "scenario": "long",
+    "stepMs": 125,
+    "pauseMs": 50,
+    "diagonal": "constant-speed",
+    "seed": 279837264,
+    "notes": "Medio se siente equilibrado; la diagonal a velocidad constante se lee mejor.",
+    "decidedAt": "2026-11-12T19:16:31.203Z"
+  }
+}

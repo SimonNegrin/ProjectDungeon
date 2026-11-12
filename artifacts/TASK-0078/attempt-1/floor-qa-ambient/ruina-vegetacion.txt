@@ -1,0 +1,5 @@
+TASK-0024 sala de ruina o vegetación
+seed=279837264
+room=4 ambient=vegetation palette=vegetation
+second p1=(16,17) 36.00,38.00,31.00
+decals=7 mixed=2 dominant=grass,plant,mushroom,pebbles

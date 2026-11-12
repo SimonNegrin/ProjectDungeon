@@ -1,0 +1,11 @@
+TASK-0024 determinismo de ambiente y decoración
+reference_seed=279837264
+alternate_seed=279837265
+same_seed_palettes_identical=true
+same_seed_decoration_identical=true
+same_seed_canvas_identical=true
+reference_ambients=0:mixed 1:humid 2:death 3:ruin 4:vegetation 5:mixed 6:humid 7:death 8:ruin
+alternate_ambients=0:humid 1:death 2:ruin 3:vegetation 4:mixed 5:humid 6:death 7:ruin 8:vegetation
+decorations reference=130 alternate=129
+alternate_shot_bytes=55224 sha256=1b5091d21225cea9171c90a8768b6cc5a3c4eb5fdbfa7e44754d3a0a010fd013
+damero_parity_global=true base_common=#0d1519
