@@ -71,8 +71,10 @@ El combate vive en `src/game/` y es puro y determinista:
   contador; la misma semilla y los mismos comandos dan la misma secuencia.
 - Los eventos `AttackPerformed` incluyen impacto, daño, PV resultante y tiradas;
   el host no recalcula reglas.
-- El jugador y los enemigos comparten el mismo resolvedor. La recogida (`G`,
-  1 MP) y el cambio de arma (`1`-`3`, gratis) son comandos del motor.
+- El jugador y los enemigos comparten el mismo resolvedor. La recogida y el
+  cambio de arma son comandos del motor; desde [REQ-018](../requirements/REQ-018-inventario-equipo.md)
+  la tecla `G` y el cambio con `1`-`3` desaparecen y la gestión pasa por el panel
+  abierto con `I`.
 
 Ver [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md),
 [REQ-015](../requirements/REQ-015-roster-arquetipos.md) y
@@ -244,6 +246,23 @@ El corte anterior queda en
 - **Capa**: HUD en DOM, no dibujado en Canvas; el Canvas no es accesible por sí
   solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
   para los eventos importantes. No se depende solo del color.
+- **Panel de personaje** ([REQ-018](../requirements/REQ-018-inventario-equipo.md)):
+  DOM sobre el marco 16:9, nunca dibujado en Canvas. Reutiliza nodos estables y
+  `data-testid`; los iconos de objeto salen de `items.png` como fondo CSS
+  posicionado. El modal se abre fuera del bucle de render, lee el snapshot al
+  abrirse y se refresca con los eventos del motor. La navegación es por teclado
+  con foco atrapado, `role="dialog"`, `aria-modal` y `Escape` para cerrar.
+- **Panel y timeline** ([ADR-017](../decisions/ADR-017-feedback-visual-eventos.md)):
+  el panel no añade eventos ni cues propios. Los comandos que lanza (recoger,
+  equipar, soltar) siguen produciendo sus beats de mundo, y el panel se refresca
+  con el **estado de presentación**, no con el snapshot final, para no adelantarse
+  al evento. Sus transiciones CSS usan una configuración propia y son instantáneas
+  en modo test y con `prefers-reduced-motion`.
+- **Panel y feedback de mundo**: el modal es interfaz, no feedback. Puede tapar el
+  mapa; la regla de ADR-017 de no tapar rejilla, cursor ni camino se aplica al
+  feedback de mundo, que sigue sin dibujarse sobre el panel.
+- **Audio**: fuera de ADR-017 por decisión del usuario. Cuando entre, tendrá su
+  propio ADR y consumirá los mismos cues, sin cambiar el motor ni la timeline.
 - **Orden de dibujo**: limpiar, base de suelo con la paleta de la sala, decals,
   camino/cursor, entidades, efectos y overlay de debug.
 - **Debug y test**: `?debug=1`, `?test=1&seed=...`, `window.__game` y paso manual

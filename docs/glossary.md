@@ -52,13 +52,16 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
 | **Maná** | Recurso de hechizos separado del MP; su máximo es nivel × 4 y se recarga completo al inicio de cada turno. |
 | **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto, Pícaro 3; tope 4 provisional). Atacar, interactuar y lanzar hechizos consumen una; moverse, recoger/soltar del suelo, esperar y terminar el turno no. |
-| **Recoger y soltar** | Manejo de un objeto del suelo: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa. |
+| **Recoger y soltar** | Manejo de un objeto del suelo desde el panel de personaje: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
 | **Contenedor** | Cofre o cadáver con inventario propio; abrir o registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo». |
 | **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla; exige arma equipada, puede fallar, puede matar y no se encadena. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
 | **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
-| **Equipo** | Arma, escudo y armadura de una unidad, guardados por IDs en el estado. |
+| **Equipo** | Conjunto de objetos equipados por una unidad en sus ocho huecos: arma, escudo, armadura, casco, botas, guantes, collar y un anillo. El equipo puesto no ocupa la mochila ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
+| **Mochila** | Inventario personal de un personaje: ocho huecos por defecto, parámetro del modelo; no se comparte y no apila equipo. Consumibles, munición y llaves, cuando existan, viven aquí y nunca ocupan hueco de equipo. |
+| **Hueco** | Ranura de equipo o de mochila que contiene como máximo un objeto. Ocho de equipo y ocho de mochila por personaje; un objeto está exactamente en uno. |
+| **Panel de personaje** | Vista modal sobre el mapa, abierta con `I`, que reúne equipo, mochila y objetos del suelo del tile del jugador; desde ella se equipa, desequipa, recoge y suelta. `G` ya no existe ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
 | **Damero** | Patrón de suelo de dos colores planos generados por código que alternan por tile; la paridad es global `(x + y) % 2` y no se reinicia por sala. |
 | **Paleta de sala** | Par de colores del damero: una base común para la mazmorra y un segundo tono curado por sala. Se asigna por contraste con el ambiente, no por imitación. |
 | **Ambiente decorativo** | Familia dominante de decoración de una sala: humedad, muerte/combate, ruina, vegetación o mixta. Se materializa en focos locales con mezcla. |

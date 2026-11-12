@@ -20,3 +20,4 @@
 * [ADR-018: Harness Keeper](ADR-018-harness-keeper.md) - Agente primario para el arnés y la documentación, con auditoría bajo demanda y propiedad por ruta.
 * [ADR-019: magia, maná y hechizos](ADR-019-magia-mana-hechizos.md) - Nivel 0–4, maná nivel × 4, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos.
 * [ADR-020: economía de acciones](ADR-020-economia-acciones.md) - 2 acciones por defecto (Pícaro 3), enemigos 2/1/2, tope 4 provisional, fin de turno manual y AI encadenada.
+* [ADR-021: inventario, huecos de equipo y panel único](ADR-021-inventario-equipo.md) - Ocho huecos de equipo y ocho de mochila, localización única por instancia, catálogo como fuente, operaciones atómicas y un solo panel abierto con `I`.

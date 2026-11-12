@@ -57,9 +57,9 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 
 - `REQ-001` a `REQ-015` y `REQ-017`: implementadas o `stable`, con playtest
   pendiente en `REQ-009`.
-- `REQ-016` (pantalla de inicio), `REQ-018` (inventario y equipo), `REQ-019`
-  (traits de objetos) y `REQ-020` (cofres y cadáveres saqueables): **borrador**;
-  `REQ-018` a `REQ-020` sin tareas.
+- `REQ-016` (pantalla de inicio), `REQ-019` (traits de objetos) y `REQ-020`
+  (cofres y cadáveres saqueables): **borrador**; `REQ-018` está `stable` v2 y los
+  tres siguen sin tareas.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
   ordenar con `REQ-018`/`REQ-020`.
 - HUD lateral: `REQ-022` (jugador) y `REQ-023` (cursor) en borrador; dependen de
@@ -195,9 +195,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   personaje ya tienen hoja (`REQ-026`), sin implementar.
 - Rebalanceo de combate por acciones y réplica: planificado en `REQ-026`; valores
   aún no recalculados.
-- Puertas con llave y cofres implementados; `REQ-020` sigue en borrador.
-- Inventario, equipo y traits implementados; `REQ-018` y `REQ-019` siguen en
+- Puertas con llave y cofres: definidos, no implementados; `REQ-020` sigue en
   borrador.
+- Inventario, equipo y traits: `REQ-018` está `stable` v2 y sin implementar;
+  `REQ-019` sigue en borrador.
 - Estructura de run (roguelike), muerte permanente y encadenado funcional de
   niveles: sin definir.
 - Saqueo de cadáveres: definido como objetivo de la muerte jugable, sin

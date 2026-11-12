@@ -44,9 +44,12 @@ playtests.
   sumar +1 hasta un **tope de 4**, provisional.
 - Atacar, interactuar (puertas, cofres, cadáveres) y lanzar hechizos consumen
   **1 acción**; atacar se puede repetir. Moverse, recoger o soltar del suelo,
-  esperar y terminar el turno **no** consumen acción.
-- Recoger o soltar del suelo cuesta **1 MP**. Abrir o registrar un contenedor
-  cuesta **1 acción** y requiere adyacencia; transferir es gratis.
+  equipar o desequipar, esperar y terminar el turno **no** consumen acción.
+- Recoger o soltar del suelo, y equipar o desequipar, cuestan **1 MP**. Abrir o
+  registrar un contenedor cuesta **1 acción** y requiere adyacencia; transferir es
+  gratis. Equipar desde un contenedor cuesta igualmente 1 MP.
+- Equipo, mochila y objetos del suelo se gestionan en un único panel modal abierto
+  con `I`; ver [REQ-018](../requirements/REQ-018-inventario-equipo.md).
 - `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por
   pulsación**; no encadena todos los ataques.
 - El turno **no termina solo** al gastar las acciones: se cierra con `E`. El HUD
@@ -183,10 +186,14 @@ añade +1 de resistencia (0 → 1). El roster de
 [REQ-015](../requirements/REQ-015-roster-arquetipos.md) es la fuente única de
 stats y equipo de los héroes.
 
-El Guerrero empieza con la espada, el escudo y la armadura. El hacha y la daga
-están en el mapa: `G` recoge la del tile por 1 MP sin gastar acción y la equipa;
-`1`-`3` cambia de arma sin coste. En este corte solo existe ataque cuerpo a
-cuerpo; el alcance a distancia queda como valor futuro.
+El Guerrero empieza con la espada, el escudo y la armadura; los huecos
+secundarios arrancan vacíos y el equipo inicial de cada arquetipo es la tabla de
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md). El hacha y la daga están
+en el mapa. El juego tiene ocho huecos de equipo y ocho de mochila por personaje;
+el arma se cambia **solo** desde el panel abierto con `I`, cuesta 1 MP y no gasta
+acción; `G` ya no existe y la recogida también se hace desde el panel
+([REQ-018](../requirements/REQ-018-inventario-equipo.md)). En este corte solo
+existe ataque cuerpo a cuerpo; el alcance a distancia queda como valor futuro.
 
 # Orden de turnos
 
@@ -233,6 +240,7 @@ Flujo de una fase enemiga:
 | `WASD` / flechas | Mover el cursor un tile en 4 direcciones. |
 | `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
 | `F` | Atacar al enemigo bajo el cursor si está adyacente. |
+| `I` | Abrir o cerrar el panel de personaje: equipo, mochila y suelo del tile. |
 | `E` | Terminar turno. |
 | `R` | Reiniciar la sala. |
 | `F1` | Alternar overlay de debug. |

@@ -2,13 +2,13 @@
 type: Requirement Sheet
 id: REQ-010
 title: "Combate con equipo: acierto, escudo y armadura"
-description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1.
+description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1. El inventario de tres armas, la recogida con G y el cambio con 1-3 quedan enmendados por REQ-018.
 status: stable
-version: 6
+version: 7
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T16:18:04Z
-updated_at: 2026-11-11T16:15:00Z
+updated_at: 2026-11-11T19:00:00Z
 related_tasks: [TASK-0025, TASK-0026, TASK-0027, TASK-0028, TASK-0029, TASK-0030]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
@@ -51,17 +51,38 @@ Este corte introduce un combate roguelike con equipo y dos capas de azar:
   propios. El jugador empieza con +1/+1/+1; los enemigos tienen los suyos. El
   modelo deja espacio a puntería, magia y otras habilidades futuras.
 - **Equipo:** arma, armadura y escudo. El jugador empieza con una espada, una
-  armadura y un escudo; puede recoger un hacha y una daga.
+  armadura y un escudo; puede recoger un hacha y una daga. *(Desde `REQ-018` son
+  objetos de hueco y se pueden cambiar.)*
 
 La hoja queda en **stable**: el modelo está decidido y los valores vigentes son
 el **balance provisional v1** de esta v5 (PV 6/8/5, armas 3/5/2 y centinela sin
 armadura), que sustituye a la tabla A de `EXP-003` (semilla 1017, 1.000 duelos).
 La facilidad observada en duelos 1 contra 1 es esperada para este corte; el
 peligro se busca con varios enemigos y la alarma. No incluye críticos, ataques a
-distancia, inventario completo, intercambio de objetos ni loot de enemigos. La
+distancia, loot de enemigos ni intercambio de objetos; el inventario y el equipo
+por huecos se enmiendan abajo. La
 huida del perfil cobarde depende de esta hoja; el balance provisional fija su
 probabilidad y `REQ-009` conserva el resto de su alcance. Los números se
 reajustarán cuando se amplíe el bestiario y el catálogo de armas.
+
+# Enmienda de alcance (REQ-018, 2026-11-11)
+
+Una sola enmienda, y solo de inventario y equipo:
+
+- [REQ-018](REQ-018-inventario-equipo.md) sustituye el **inventario de tres
+  armas** (R-006 y T-004), la **recogida con `G`** y su **auto-equipado**, el
+  **cambio con `1`-`3`**, el **equipo fijo de armadura y escudo** (R-004) y la
+  pista de `G` del host (T-006).
+- Ahora la recogida, el equipo y la mochila se gestionan en un panel abierto con
+  `I`; recoger y equipar cuestan 1 MP y no gastan acción; el arma se cambia desde
+  el panel.
+- **Todo lo demás sigue vigente**: fórmulas de impacto y daño, dados, empates con
+  `>`, armas y sus valores, modificadores, bestiario, balance provisional v1,
+  huida del cobarde, RNG sembrado y condiciones de victoria.
+- El equipo inicial por arquetipo vive en
+  [REQ-015](REQ-015-roster-arquetipos.md) y los ocho huecos en `REQ-018`. Las
+  filas afectadas llevan una nota al final; no se reescriben para no borrar el
+  histórico de lo aprobado.
 
 # Objetivos de experiencia
 
@@ -81,13 +102,13 @@ reajustarán cuando se amplíe el bestiario y el catálogo de armas.
 | R-001 | El impacto se resuelve con `mod. acierto + acierto del arma + 1d6 > mod. defensa + escudo + 1d6`. Si son iguales, falla. | Tests de las 36 combinaciones; con modificadores iguales el impacto es 15/36 (41,7 %); un +1 lo sube a 21/36 (58,3 %). |
 | R-002 | El daño se resuelve con `max(1, (mod. daño + daño del arma + 1d6) − (armadura + 1d6))`. El escudo no reduce daño; la armadura no evita impactos. | Un impacto del jugador con espada contra armadura 0 hace 1-10 (media 5,03); contra armadura 2 hace 1-8 (media 3,28). El escudo del objetivo no cambia el daño. |
 | R-003 | Hay tres armas melee con acierto y daño propios: espada +3/3, hacha +2/5 y daga +4/2. No hay críticos en este corte. | La tabla es la única fuente de valores; el hacha hace más daño y acierta menos; la daga acierta más y hace menos daño. |
-| R-004 | La armadura y el escudo son equipo separado. El escudo suma a la defensa; la armadura resta al daño recibido. El jugador empieza con armadura 1 y escudo 1; no los cambia en este corte. | La defensa del jugador es `+1 + 1 + 1d6`; su armadura es 1 + 1d6 contra daño. Quitar el escudo sube el impacto recibido; quitar la armadura sube el daño recibido. |
+| R-004 | La armadura y el escudo son equipo separado. El escudo suma a la defensa; la armadura resta al daño recibido. El jugador empieza con armadura 1 y escudo 1; no los cambia en este corte. *(Enmienda REQ-018: son objetos de hueco y se pueden cambiar; el Guerrero conserva armadura 1 y escudo 1 al empezar.)* | La defensa del jugador es `+1 + 1 + 1d6`; su armadura es 1 + 1d6 contra daño. Quitar el escudo sube el impacto recibido; quitar la armadura sube el daño recibido. |
 | R-005 | El jugador empieza con la espada. En el mapa hay un hacha y una daga, fijas por semilla, en salas distintas, alcanzables y fuera de la sala inicial. | La semilla de referencia coloca las dos armas en salas distintas; ninguna está en la sala de aparición, en una puerta o en un muro; se pueden recoger. |
-| R-006 | La recogida es con `G` si el jugador está sobre el arma; cuesta 1 MP, no la acción. El arma se equipa sola. El cambio entre las armas llevadas es gratis con `1`-`3`; hay tres huecos. | `G` recoge, gasta 1 MP y equipa; con 0 MP se rechaza; `1`-`3` cambia sin gastar acción ni MP; no se puede llevar una cuarta. |
+| R-006 | La recogida es con `G` si el jugador está sobre el arma; cuesta 1 MP, no la acción. El arma se equipa sola. El cambio entre las armas llevadas es gratis con `1`-`3`; hay tres huecos. *(Enmienda REQ-018: `I` abre el panel, la recogida va a la mochila y el cambio de arma cuesta 1 MP; el coste de 1 MP por recoger se mantiene.)* | `G` recoge, gasta 1 MP y equipa; con 0 MP se rechaza; `1`-`3` cambia sin gastar acción ni MP; no se puede llevar una cuarta. **Sustituido por REQ-018** (panel con `I`). |
 | R-007 | Los enemigos usan la misma fórmula y las mismas categorías de equipo. Cada tipo tiene arma, escudo, armadura, vida, modificadores, visión, alarma, MP y perfil. | El centinela, el bruto y el cobarde usan la tabla de bestiario; el bruto es el tanque y el cobarde huye según `REQ-009`. |
 | R-008 | Un enemigo básico (centinela) muere en 1-2 impactos con la espada; el hacha es más rápida pero menos fiable y la daga es fiable pero sufre contra armadura. El bruto es el tanque. | Con el balance provisional v1, el centinela cae en ~1,75 ataques de espada, ~1,38 de hacha y ~2,00 de daga; el bruto en ~3,42, ~2,34 y ~4,17. |
 | R-009 | El cobarde huye cuando un golpe le quita al menos el 40 % de su vida máxima y sobrevive; si se acorrala, lucha. No desaparece ni se rinde. | Con 5 PV, el umbral es 2 de daño. La probabilidad de huida real (sobreviviendo al golpe) es espada 41,7 %, hacha 25,0 % y daga 44,4 % contra armadura 0; el cobarde a menudo muere antes de poder huir. Acorralado, ataca. |
-| R-010 | El feedback distingue impacto y fallo, y muestra el daño resultante. El HUD muestra el arma equipada, el escudo y la armadura; la vida del enemigo bajo el cursor y el resto en `F1`. | Un ataque produce "Fallo" o "−N" sobre el objetivo; el HUD refleja el equipo; en juego normal no se muestran los dados. |
+| R-010 | El feedback distingue impacto y fallo, y muestra el daño resultante. El HUD muestra el arma equipada, el escudo y la armadura; la vida del enemigo bajo el cursor y el resto en `F1`. *(Enmienda REQ-018: el HUD de equipo pasa a los ocho huecos; el feedback de ataque no cambia.)* | Un ataque produce "Fallo" o "−N" sobre el objetivo; el HUD refleja el equipo; en juego normal no se muestran los dados. |
 | R-011 | El azar es reproducible: misma semilla y mismas acciones producen las mismas tiradas. | Dos partidas con la misma semilla y los mismos comandos dan los mismos impactos y daños; no se usa `Math.random`. |
 | R-012 | La condición de victoria y derrota no cambia: no quedan enemigos vivos o no quedan jugadores vivos. | El combate nuevo no altera `evaluateStatus`; un enemigo huido sigue contando como vivo. |
 | R-013 | Cada personaje tiene modificadores propios de acierto, daño y defensa. El jugador empieza con +1/+1/+1; los enemigos tienen los de la tabla. El modelo admite futuras habilidades como puntería o magia sin cambiar las fórmulas. | Cambiar un modificador cambia el combate sin tocar la fórmula; los modificadores son datos serializables; la tabla es la única fuente de valores. |
@@ -191,9 +212,9 @@ Decisiones de esta pasada:
 | T-001 | El combate vive en un módulo puro de `src/game/` que resuelve el impacto y el daño con dados. Orden de tiradas: ataque, escudo; si impacta, daño y armadura. No conoce DOM, Canvas, red ni relojes. | Tests unitarios importan el módulo sin DOM; un fallo sin réplica consume dos tiradas y un impacto cuatro; un fallo con réplica añade las tiradas del defensor en el orden ataque → réplica; el resultado incluye tiradas, impacto, daño y eventos. |
 | T-002 | El estado guarda un RNG sembrado y serializable. La semilla de combate se deriva de la semilla de la partida; `window.__game.snapshot()` lo expone en solo lectura. | Misma semilla y comandos dan la misma secuencia; el snapshot no permite mutar el RNG; no se usa `Math.random`. |
 | T-003 | El equipo y los modificadores son datos, no código: catálogo de armas, armaduras y escudos con IDs; el bestiario declara por tipo PV, visión, alarma, MP máximo, modificadores y equipo; cada unidad tiene equipo equipado, inventario de armas y modificadores. El modelo admite futuras habilidades y tipos nuevos. | Cambiar una estadística en el catálogo o en el bestiario cambia el combate sin tocar la fórmula; los IDs son estables; el inventario, los modificadores y el MP máximo son serializables; no hay valores de balance duplicados fuera de los catálogos. |
-| T-004 | Las armas del mapa son entidades con posición e ID; `G` recoge la del tile del jugador, gasta 1 MP, la equipa y la elimina del mapa. `1`-`3` cambia de arma sin coste de acción ni MP. | Recoger dos veces la misma arma no duplica; el inventario no pasa de tres; con 0 MP se rechaza; el cambio no consume MP ni acción. |
+| T-004 | Las armas del mapa son entidades con posición e ID; `G` recoge la del tile del jugador, gasta 1 MP, la equipa y la elimina del mapa. `1`-`3` cambia de arma sin coste de acción ni MP. *(Enmienda REQ-018: recoger sigue costando 1 MP, la tecla es `I` y el objeto va a la mochila; `1`-`3` desaparece.)* | Recoger dos veces la misma arma no duplica; el inventario no pasa de tres; con 0 MP se rechaza; el cambio no consume MP ni acción. **Sustituido por REQ-018.** |
 | T-005 | La IA y los enemigos usan el mismo cálculo y el mismo catálogo. Los enemigos no cambian de arma ni recogen objetos en este corte. | El daño y el impacto de un enemigo salen de su equipo y sus modificadores; la IA no tiene una fórmula paralela. |
-| T-006 | El host presenta el arma equipada, el escudo, la armadura y los modificadores en el HUD, dibuja las armas del mapa, muestra la pista de `G`, y produce feedback de impacto/fallo y daño. `F1` muestra las tiradas, el equipo y la vida de todos. | El HUD coincide con el estado; la pista aparece solo sobre un arma; el feedback no tapa el mapa; `F1` muestra los dados. |
+| T-006 | El host presenta el arma equipada, el escudo, la armadura y los modificadores en el HUD, dibuja las armas del mapa, muestra la pista del objeto bajo el jugador, y produce feedback de impacto/fallo y daño. `F1` muestra las tiradas, el equipo y la vida de todos. *(Enmienda REQ-018: el equipo y la pista los presenta el panel de personaje.)* | El HUD coincide con el estado; la pista aparece solo sobre un arma; el feedback no tapa el mapa; `F1` muestra los dados. |
 | T-007 | La colocación de las dos armas es determinista por semilla y se deriva del mapa: salas distintas, alcanzables, fuera de la sala inicial y sin caer en muros, puertas ni apariciones. | La semilla de referencia cumple las restricciones; otra semilla también; no se usa `Math.random`. |
 | T-008 | Tests nuevos: 36 combinaciones de impacto, distribución de daño con mínimo 1, secuencia condicional de tiradas, modificadores de personaje, equipo, recogida y cambio, huida del cobarde, IA, determinismo del RNG, distribución de impacto y no regresión. Los tests de balance comprueban propiedades (rangos) y leen del catálogo, no números exactos frágiles. No se borran ni debilitan tests existentes. | `pnpm run verify` pasa; los tests existentes conservan su intención; la distribución medida queda dentro de ±2 puntos de la teórica; un cambio de valor en el catálogo no obliga a reescribir los tests de propiedades. |
 | T-009 | Se actualizan la sección de combate de `docs/design/turn-economy.md`, el glosario y la arquitectura; se registra `ADR-012` para el combate con equipo, modificadores y RNG sembrado. | `pnpm run docs:check` pasa; el ADR existe y está enlazado; no quedan valores fijos contradictorios. |
@@ -231,6 +252,9 @@ Decisiones de esta pasada:
   banco de pruebas en
   [EXP-003](../../experiments/EXP-003-mesa-combate/experiment.md).
 - **ADR-012 (a crear):** combate con equipo, modificadores y RNG sembrado.
+- [REQ-018](REQ-018-inventario-equipo.md): sustituye el inventario de tres armas,
+  la recogida con `G`, el cambio con `1`-`3` y el equipo fijo de armadura y
+  escudo. Las fórmulas, las armas y el balance de esta hoja no cambian.
 - Implementación: [TASK-0026](../tasks/TASK-0026-motor-combate-equipo-modificadores.md)
   (motor), [TASK-0027](../tasks/TASK-0027-equipo-armas-mapa-recogida.md)
   (equipo y recogida), [TASK-0028](../tasks/TASK-0028-bestiario-combate-ataque-enemigo.md)
@@ -247,7 +271,8 @@ Decisiones de esta pasada:
 - Ataques a distancia, arcos, magia, habilidades y estados alterados. El modelo
   de modificadores deja espacio, pero no se implementan.
 - Inventario completo, equipo equipado/no equipado, intercambio entre jugadores,
-  comercio, crafting, durabilidad y peso.
+  comercio, crafting, durabilidad y peso. *(El inventario y el equipo por huecos
+  pasan a [REQ-018](REQ-018-inventario-equipo.md).)*
 - Loot de enemigos, cofres y objetos consumibles; las armas del mapa son las dos
   fijas de este corte.
 - Más piezas de armadura (casco, guantes, botas) y escudos de varias categorías.
@@ -292,6 +317,7 @@ bajo el cursor y el resto en `F1`.
 | 2026-11-09 | Centinela sin armadura; conserva el escudo. | human:simon | aceptada (provisional) |
 | 2026-11-09 | El balance es provisional, se reajustará y debe ser barato de cambiar: valores solo en los catálogos y tests por propiedades. | human:simon | aceptada |
 | 2026-11-11 | El test de tiradas se acota a ataques sin réplica; la réplica añade sus propias tiradas y el orden es ataque → réplica. | human:simon | aceptada |
+| 2026-11-11 | Enmienda de alcance por `REQ-018`: se sustituyen el inventario de tres armas, la recogida con `G` y su auto-equipado, el cambio con `1`-`3`, el equipo fijo de armadura y escudo y la pista de `G`. Fórmulas, armas, bestiario y balance no cambian. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -315,3 +341,6 @@ bajo el cursor y el resto en `F1`.
 - [x] El usuario ha aceptado que el cobarde sea frágil y que estos números se
       reajusten en la futura ampliación de bestiario y armas.
 - [x] Los requisitos son verificables en su totalidad.
+- [x] La enmienda de alcance por `REQ-018` está registrada (v7): cambia el
+      inventario, la recogida y el cambio de arma; las fórmulas y el balance no
+      cambian.

@@ -2,16 +2,23 @@
 type: Requirement Sheet
 id: REQ-018
 title: Inventario y equipo por personaje
-description: "Modelo de objetos, inventario personal y ocho huecos de equipo; sustituye el modelo de tres armas de REQ-010. Borrador: capacidad, coste de equipar y aporte de piezas secundarias pendientes."
-status: draft
-version: 1
+description: "Ocho huecos de equipo, ocho de mochila y un panel único de gestión; equipar y recoger cuestan 1 MP, el catálogo inicial se limita a armas, escudos y armaduras, y el arma solo se cambia desde el panel. Sustituye el modelo de tres armas y la recogida con G de REQ-010."
+status: stable
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-10T20:00:00Z
+updated_at: 2026-11-11T19:30:00Z
 related_tasks: []
-generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:00:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
+  - by: human:simon
+    at: 2026-11-11T19:30:00Z
+    note: >-
+      Lee y aprueba la v2: ocho huecos de equipo y ocho de mochila, panel único
+      con `I` (sin `G`), 1 MP por equipar y recoger sin gastar acción, piezas
+      secundarias aplazadas a REQ-019, equipo inicial de REQ-015, dos manos con
+      escudo e intercambio con la mochila llena.
 ---
 
 # Contexto
@@ -33,8 +40,9 @@ cómo se guardan los objetos y cómo se suman sus stats. No define los efectos
 especiales de los objetos ([REQ-019](REQ-019-traits-objetos.md)) ni los cofres y
 el saqueo ([REQ-020](REQ-020-cofres-saqueo.md)).
 
-Es un **borrador**: recoge lo decidido y deja abiertas las decisiones que faltan
-para cerrarla.
+La **v2 cierra** las decisiones que quedaban abiertas: capacidad, coste de
+equipar, aporte de las piezas secundarias, flujo de recogida y equipo inicial.
+La hoja queda **stable** tras la revisión del texto.
 
 # Objetivos de experiencia
 
@@ -42,59 +50,79 @@ para cerrarla.
 - Que elegir objeto sea una decisión: arma, escudo, armadura y accesorios cambian
   el combate.
 - Que recoger y equipar no sea una pelea con la interfaz.
+- Que la mochila obligue a decidir qué se deja atrás y a repartir con el grupo.
 - Que el inventario sea personal y comprensible en hotseat.
 - Que el modelo aguante traits, cofres y contenido futuro sin rehacerse.
+
+# Enmienda a documentos vigentes
+
+- [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): su recogida con `G`, el
+  auto-equipado y el cambio con `1`-`3` quedan sustituidos por `I` y el panel de
+  esta hoja. La armadura y el escudo fijos pasan a ser objetos de hueco.
+- [REQ-026](REQ-026-economia-acciones-rebalanceo.md): recoger y soltar siguen
+  costando 1 MP y ninguna acción; esta hoja solo cambia la tecla y el destino, que
+  pasa a ser la mochila.
+- [REQ-015](REQ-015-roster-arquetipos.md): su tabla de equipo inicial se mantiene
+  sin cambios; esta hoja fija que los cinco huecos secundarios arrancan vacíos.
+- [REQ-022](REQ-022-hud-izquierdo-jugador.md): la columna izquierda puede mostrar
+  un resumen; la vista interactiva completa es el panel modal de esta hoja. La
+  relación entre ambos se resuelve al implementar `REQ-022`.
+- [Economía de turno](../design/turn-economy.md): la tabla de controles cambia `G`
+  por `I` y se añade el coste de equipar.
+- [ADR-021](../decisions/ADR-021-inventario-equipo.md): se registra el modelo de
+  inventario, huecos y panel único.
 
 # Requisitos creativos (decididos)
 
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | Cada personaje tiene un inventario personal además de su equipo. | El estado de cada personaje distingue inventario y equipo; el inventario no es compartido por defecto. |
-| R-002 | Cada personaje tiene ocho huecos de equipo: arma, escudo, armadura, casco, botas, guantes, collar y un anillo. | El panel de personaje muestra los ocho huecos; cada uno acepta solo su categoría. |
+| R-002 | Cada personaje tiene ocho huecos de equipo: arma, escudo, armadura, casco, botas, guantes, collar y **un** anillo. | El panel muestra los ocho huecos; cada uno acepta solo su categoría; hay un único hueco de anillo. |
 | R-003 | El hueco de arma admite armas a una mano o a dos manos. Un arma a dos manos anula el escudo. | Con un arma a dos manos no se puede llevar escudo; con un arma a una mano, sí. |
-| R-004 | El primer corte incluye equipo y accesorios: armas melee a una y dos manos, escudos, armaduras, cascos, botas, guantes, collares y anillos. | El catálogo inicial solo contiene esas categorías. |
+| R-004 | El catálogo de este corte incluye armas melee a una y dos manos, escudos y armaduras corporales. Casco, botas, guantes, collar y anillo llegan con `REQ-019`. | El catálogo inicial solo contiene esas tres categorías; los cinco huecos secundarios existen y se muestran vacíos. |
 | R-005 | Quedan fuera del primer corte los consumibles, la magia, las llaves, la munición y las monedas. | Esos objetos no aparecen en el catálogo ni en el inventario de este corte. |
-| R-006 | El inventario y el equipo son por personaje; no hay una bolsa compartida por defecto. | Cada personaje tiene su propio inventario; los cofres de `REQ-020` serán el almacenamiento común. |
-| R-007 | Equipar y desequipar mueve el objeto entre inventario y hueco, sin duplicarlo ni perderlo. | Un objeto está exactamente en un sitio; el número total de objetos no cambia. |
-| R-008 | Si el hueco está ocupado, el objeto anterior vuelve al inventario. Si no cabe, la operación se rechaza y nada cambia. | El intercambio es atómico; el inventario no se desborda. |
-| R-009 | El modelo de tres armas de `REQ-010` queda sustituido por el inventario y los ocho huecos. | No conviven la lista de tres armas y el inventario; el cambio de arma se hace desde el equipo. |
-
-# Decisiones de contenido pendientes
-
-Estas decisiones afectan a la sensación de juego y no están cerradas. Se dejan
-como preguntas para la sesión de cierre.
-
-- **Capacidad del inventario:** 12 huecos, ilimitado o bolsa compartida.
-- **Coste de equipar/desequipar:** 1 MP, gratis o acción del turno.
-- **Aporte de las piezas secundarias:** armadura, traits o mezcla.
-- **Flujo de recogida:** `G` al inventario o auto-equipar; teclas y pantalla.
-- **Equipo inicial por arquetipo:** solo arma temática o también ropa básica.
-- **Cambio con arma a dos manos:** el escudo vuelve al inventario, se rechaza o
-  se guarda en un hueco reservado.
+| R-006 | Consumibles, munición y llaves, cuando existan, viven en la mochila, se usan desde ella y **nunca** ocupan hueco de equipo. | Ninguno de esos objetos admite un hueco de equipo; el modelo los representa como objetos de mochila. |
+| R-007 | El inventario y el equipo son por personaje; no hay una bolsa compartida. | Cada personaje tiene su propio inventario; los cofres de `REQ-020` serán el almacenamiento común. |
+| R-008 | Equipar y desequipar mueve el objeto entre inventario y hueco, sin duplicarlo ni perderlo. | Un objeto está exactamente en un sitio; el número total de objetos no cambia. |
+| R-009 | Si el hueco está ocupado, el objeto anterior vuelve a la mochila. Si no cabe, la operación se rechaza y nada cambia. **Cuando el objeto entrante sale de la propia mochila, el intercambio siempre cabe**: el hueco que libera es el que ocupa el saliente. | La validación se hace sobre el estado resultante, no sobre el inicial: mochila llena con la espada guardada y una daga equipada → equipar la espada intercambia, no rechaza. El intercambio es atómico; la mochila no se desborda. |
+| R-010 | La mochila tiene **8 huecos personales**; la capacidad es un parámetro del modelo, no una constante fija. | Un personaje con la mochila llena no puede recoger más; cambiar el parámetro cambia la validación sin tocar la interfaz. |
+| R-011 | El equipo equipado no ocupa huecos de mochila: son ocho y ocho independientes. | Un personaje puede llevar ocho objetos puestos y hasta ocho guardados. |
+| R-012 | Equipar y desequipar cuestan **1 MP** y no gastan acción, en cualquier situación, con o sin enemigos alertados, y también al hacerlo desde un contenedor. | El contador de acciones no cambia; con 0 MP se rechaza; la regla no depende del estado de alarma. |
+| R-013 | Recoger y soltar cuestan **1 MP** y no gastan acción. Con la mochila llena, recoger se rechaza sin mover nada. | Recoger con la mochila llena no altera ni el suelo ni la mochila; soltar libera un hueco. |
+| R-014 | El equipo no se apila: dos espadas iguales son dos instancias y ocupan dos huecos. No hay durabilidad ni afijos en este corte. | El número de objetos y de huecos ocupados coinciden; no existe una pila de equipo. |
+| R-015 | La gestión de equipo y mochila ocurre en un **único panel modal** sobre el mapa, abierto con `I`. El panel reúne el equipo, la mochila y los objetos del suelo del tile del jugador. | `I` abre el panel siempre, haya o no objetos en el suelo; si no hay, la zona del suelo no aparece. |
+| R-016 | Desde el panel se equipa, se desequipa, se recoge y se suelta. `G` desaparece y no recoge por sí mismo. | No queda ninguna acción de recogida fuera del panel; recoger mueve el objeto del suelo a la mochila. |
+| R-017 | El cambio de arma se hace **solo** desde el panel: no hay atajos de cambio rápido ni ranuras `1`-`3`. | Un ataque siempre usa el arma equipada en el hueco; cambiarla exige abrir el panel y pagar 1 MP. |
+| R-018 | El equipo inicial es exactamente la tabla de [REQ-015](REQ-015-roster-arquetipos.md): arma temática y, si corresponde, armadura y escudo. Los cinco huecos secundarios arrancan vacíos. | El Guerrero empieza con espada, armadura 1 y escudo 1; ningún arquetipo empieza con casco, botas, guantes, collar ni anillo. |
+| R-019 | Al equipar un arma a dos manos con escudo puesto, el escudo vuelve a la mochila. Si no cabe, se rechaza el cambio completo. Equipar un escudo con un arma a dos manos puesta se rechaza; no se desequipa el arma automáticamente. | El estado nunca contiene arma a dos manos y escudo a la vez; el rechazo no deja cambios parciales; el escudo no se niega en silencio ni desequipa el arma. |
+| R-020 | Repartir objetos entre jugadores se hace dejando en el suelo y recogiendo. No hay traspaso directo en este corte. | Un jugador suelta (1 MP) y otro recoge (1 MP); no existe un comando de entrega entre personajes. |
 
 # Requisitos técnicos
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| T-001 | El catálogo de objetos es dato, no código: ID estable, nombre, categoría, hueco, manos, modificadores de stats, traits (vacío en este corte), sprite y descripción. | Cambiar un valor del catálogo cambia el juego sin tocar fórmulas; los IDs son estables; el catálogo es la única fuente de valores. |
-| T-002 | Cada objeto del mundo es una instancia con ID propio y una localización única: inventario, hueco de equipo, contenedor o suelo. | El snapshot expone la localización; no hay objetos duplicados ni huérfanos. |
-| T-003 | El inventario y el equipo son serializables; la capacidad es un parámetro del modelo, no una constante dispersa. | Cambiar la capacidad cambia la validación sin tocar la UI ni el motor. |
+| T-001 | El catálogo de objetos es dato, no código: ID estable, nombre, categoría, hueco, manos, modificadores de stats, traits (reservado, sin uso en este corte), sprite y descripción. Los objetos sin efecto no entran en el catálogo. | Cambiar un valor del catálogo cambia el juego sin tocar fórmulas; los IDs son estables; el catálogo es la única fuente de valores. |
+| T-002 | Cada objeto del mundo es una instancia con ID propio y una localización única: mochila, hueco de equipo, contenedor o suelo. | El snapshot expone la localización; no hay objetos duplicados ni huérfanos. |
+| T-003 | El inventario y el equipo son serializables; la capacidad de mochila es un parámetro del modelo con valor 8 por defecto, no una constante dispersa. | Cambiar la capacidad cambia la validación sin tocar la UI ni el motor; el guardado la reconstruye. |
 | T-004 | Hay un único punto de agregación de stats efectivos: inherentes de [REQ-014](REQ-014-atributos-inherentes-personajes.md) + modificadores del equipo + traits cuando existan. | Combate y UI leen los stats efectivos; no hay una suma paralela en el host. |
-| T-005 | Equipar, desequipar y recoger son operaciones atómicas: validan hueco, categoría, manos y capacidad antes de mover; si fallan, no dejan cambios parciales. | Tests de invariantes: no se duplica, no se pierde y no se supera la capacidad. |
-| T-006 | La regla de dos manos se aplica en el modelo: un arma a dos manos ocupa el hueco de arma y bloquea el escudo; el intento de llevar ambos se rechaza o resuelve según la decisión de contenido. | El modelo no permite un estado con arma a dos manos y escudo equipados. |
+| T-005 | Equipar, desequipar, recoger y soltar son operaciones atómicas: validan hueco, categoría, manos y capacidad antes de mover; si fallan, no dejan cambios parciales. La capacidad se valida sobre el estado resultante: si el objeto entrante viene de la mochila, su hueco cuenta como libre. | Tests de invariantes: no se duplica, no se pierde y no se supera la capacidad; el intercambio con la mochila llena no se rechaza. |
+| T-006 | La regla de dos manos se aplica en el modelo: un arma a dos manos ocupa el hueco de arma y bloquea el escudo; el escudo vuelve a la mochila y, si no cabe, la operación se rechaza entera. Equipar un escudo con un arma a dos manos puesta se rechaza sin desequipar el arma. | El modelo no permite un estado con arma a dos manos y escudo equipados; no hay pérdida de objetos en el rechazo; ambos lados del conflicto se comportan igual. |
 | T-007 | El motor sigue siendo puro: sin DOM, sin red y sin relojes; el host presenta y traduce input. | `src/game/` no importa `src/host/`; los tests del motor corren sin DOM. |
-| T-008 | El host presenta el panel de personaje, el inventario, los huecos, los tooltips y el HUD de equipo; el input permite navegar, equipar, desequipar y recoger. | La UI coincide con el estado; se puede jugar solo con teclado; el snapshot de debug expone inventario y equipo. |
-| T-009 | El arte de objetos sale de `items.png` mediante el mapa de `items.txt` ([ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md)); el catálogo referencia el sprite, no lo incrusta. | Cada objeto del catálogo tiene sprite; cambiar el pack no cambia la lógica. |
-| T-010 | Tests nuevos: catálogo, instancias, capacidad, equipar/desequipar, intercambio de hueco, dos manos/escudo, agregación de stats, serialización y E2E de la UI. No se debilitan tests existentes. | `pnpm run verify` pasa; los tests de `REQ-010` conservan su intención. |
-| T-011 | Se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura; se registra un ADR de inventario y equipo. | `pnpm run docs:check` pasa; no quedan referencias al inventario de tres armas como modelo vigente. |
-| T-012 | Sin dependencias nuevas, sin red y sin persistencia entre sesiones. | `package.json` y `pnpm-lock.yaml` no cambian; no hay llamadas de red. |
+| T-008 | El host presenta un panel modal **en DOM** sobre el marco 16:9, nunca dibujado en Canvas, con tres zonas: equipo, mochila y suelo del tile del jugador. La zona de suelo se omite si está vacía. | El panel coincide con el estado; se puede gestionar todo solo con teclado; hay foco visible y comparación antes de equipar; el Canvas sigue siendo solo el mundo. |
+| T-009 | El input del panel es `I`: abre siempre en el turno del jugador activo, cierra con `Escape` y bloquea los comandos del mapa mientras está abierto. Abrir el panel no cuesta MP ni acción; los costes se cobran al confirmar cada operación. El panel se refresca con el estado de presentación, no con el snapshot final. | Con el panel abierto, el mapa no acepta comandos; no se abre en fase enemiga ni durante una animación; `G` no existe; el panel no muestra un objeto recogido antes de su cue. |
+| T-010 | El snapshot de debug expone mochila, equipo por hueco, capacidad y objetos del suelo. | La UI y `F1` leen del mismo estado; no hay listas duplicadas. |
+| T-011 | El arte de objetos sale de `items.png` mediante el mapa de `items.txt` ([ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md)); el catálogo referencia el sprite, no lo incrusta. | Cada objeto del catálogo tiene sprite; cambiar el pack no cambia la lógica. |
+| T-012 | Tests nuevos: catálogo, instancias, capacidad 8 y rechazo con la mochila llena, intercambio con la mochila llena, equipar/desequipar, intercambio de hueco, dos manos/escudo por ambos lados, agregación de stats, serialización, panel con suelo vacío y E2E del panel. No se debilitan tests existentes. | `pnpm run verify` pasa; los tests de `REQ-010` conservan su intención y se actualizan donde `G` deja de existir. |
+| T-013 | Se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura; se registra [ADR-021](../decisions/ADR-021-inventario-equipo.md). | `pnpm run docs:check` pasa; no queda `G` ni el inventario de tres armas como modelo vigente. |
+| T-014 | Sin dependencias nuevas, sin red y sin persistencia entre sesiones. | `package.json` y `pnpm-lock.yaml` no cambian; no hay llamadas de red. |
 
 # Requisitos no funcionales
 
-- **Rendimiento:** inventarios pequeños y operaciones O(n); el coste no debe
+- **Rendimiento:** mochilas de ocho objetos y operaciones O(n); el coste no debe
   afectar al objetivo de 60 fps ni al render.
 - **Accesibilidad:** navegación completa por teclado, foco visible, texto legible
-  y información que no dependa solo del color o del icono.
+  y información que no dependa solo del color o del icono; la zona de suelo
+  anuncia si está vacía, no solo la oculta.
 - **Compatibilidad:** Chromium de escritorio como objetivo; Firefox y Safari
   recientes como deseables.
 - **Seguridad:** sin datos personales, sin red y sin nuevas dependencias.
@@ -103,27 +131,39 @@ como preguntas para la sesión de cierre.
 
 # Dependencias
 
-- [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): equipo, armas y recogida
-  vigentes; esta hoja sustituye su inventario de tres armas y su equipo fijo.
+- [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): combate, armas y recogida
+  vigentes; esta hoja sustituye su inventario de tres armas, su equipo fijo y su
+  tecla de recogida.
 - [REQ-014](REQ-014-atributos-inherentes-personajes.md): nueve atributos y capa de
   absorción; el equipo aporta modificadores sobre ellos.
-- [REQ-015](REQ-015-roster-arquetipos.md): arquetipos, arma temática y nombre;
-  el equipo inicial por arquetipo se decide en esta hoja.
+- [REQ-015](REQ-015-roster-arquetipos.md): arquetipos, arma temática, equipo
+  inicial y nombre; esta hoja conserva su tabla de equipo.
+- [REQ-026](REQ-026-economia-acciones-rebalanceo.md): recoger y soltar cuestan
+  1 MP y ninguna acción; esta hoja añade el coste de equipar y el panel.
+- [REQ-022](REQ-022-hud-izquierdo-jugador.md): columna del jugador activo; el
+  panel modal complementa su resumen.
 - [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md): arte placeholder
   y licencia del pack.
 - [ADR-014](../decisions/ADR-014-balance-provisional-fuente-unica.md): valores en
   catálogos y balance provisional; el equipo nuevo exigirá una pasada de ajuste.
 - [ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md): esquema de
   atributos y resistencia como absorción.
+- [ADR-021](../decisions/ADR-021-inventario-equipo.md): inventario, huecos y
+  panel único.
 - **Sucesoras:** `REQ-019` (traits de objetos) y `REQ-020` (cofres y saqueo).
 
 # Fuera de alcance
 
 - Los efectos especiales de los objetos y el sistema de traits (`REQ-019`).
 - Cofres, cadáveres saqueables y transferencia (`REQ-020`).
-- Consumibles, pociones, comida, pergaminos, magia, llaves, munición y monedas.
+- Consumibles, pociones, comida, pergaminos, magia, llaves, munición y monedas:
+  su contenido no entra, aunque el modelo ya reserva su sitio en la mochila.
 - Arcos, ballestas y bastones: dependen de puntería y magia.
-- Crafting, durabilidad, peso, rareza, afijos, comercio y tienda.
+- Apilado de objetos, crafting, durabilidad, peso, rareza, afijos, comercio y
+  tienda.
+- Traspaso directo de objetos entre jugadores y cualquier forma de bolsa común.
+- Atajos de cambio rápido de arma y ranuras `1`-`3`.
+- Audio y sonido del panel: fuera de ADR-017 y pendiente de su propio ADR.
 - Rebalanceo completo de equipo y bestiario; este corte fija el modelo y un
   catálogo mínimo. Los números se ajustan con el método de `ADR-014`.
 - Implementación de hotseat, red, QR, persistencia y guardado.
@@ -131,36 +171,16 @@ como preguntas para la sesión de cierre.
 
 # Preguntas abiertas
 
-1. **Capacidad del inventario.** ¿12 huecos por personaje, ilimitado o bolsa
-   compartida? La propuesta es 12 huecos personales y cofres como almacenamiento
-   común; así el inventario no se convierte en una lista infinita y los cofres
-   tienen función.
-2. **Coste de equipar y desequipar.** ¿1 MP sin gastar la acción, gratis siempre
-   o acción del turno? La propuesta es 1 MP y gratis cuando ningún enemigo está
-   alertado. Soltar un objeto equipado ya está cerrado en `REQ-026`: cuesta 1 MP
-   y lo desequipa en la misma operación.
-3. **Aporte de casco, botas y guantes.** ¿Suman armadura, dan sobre todo traits o
-   mezcla? La propuesta es armadura corporal como absorción principal y piezas
-   secundarias con poca armadura o traits.
-4. **Flujo de recogida y UI.** ¿`G` manda al inventario y una pantalla aparte
-   equipa, o se auto-equipa como en `REQ-010`? ¿Qué teclas abren inventario y
-   equipo? ¿Hay comparación de objeto antes de equipar?
-5. **Equipo inicial por arquetipo.** ¿Cada personaje empieza solo con su arma
-   temática, o también con ropa, casco, botas y guantes básicos? ¿El Guerrero
-   conserva la armadura 1 y el escudo 1 de `REQ-010`?
-6. **Arma a dos manos y escudo.** Al equipar un arma a dos manos con escudo
-   puesto, ¿el escudo vuelve al inventario, se rechaza el cambio o se guarda en
-   un hueco reservado? ¿Qué pasa si el inventario está lleno?
-7. **Instancias y duplicados.** ¿Dos espadas iguales son dos instancias distintas?
-   ¿Los objetos de equipo se apilan? La propuesta es no apilar equipo y no tener
-   durabilidad ni afijos en este corte.
-8. **Acceso en hotseat.** ¿Solo el jugador activo puede abrir su inventario? ¿La
-   pantalla pausa la partida? ¿Qué ve el resto de jugadores?
-9. **Calendario.** Se propuso implementar este hito después de cerrar hotseat,
-   pero hotseat aún no tiene hoja de requisitos ni tareas. Confirmar si los
-   objetos van antes o después cuando exista esa hoja.
-10. **Catálogo inicial y arte.** ¿Qué subconjunto de `items.png` entra en el
-    primer catálogo y qué sprite de `items.txt` corresponde a cada objeto?
+1. **Calendario.** Se propuso implementar este hito después de cerrar hotseat,
+   pero hotseat aún no tiene hoja de requisitos ni tareas. Confirmar el orden
+   cuando exista esa hoja.
+2. **Visibilidad en hotseat.** Quién puede ver la mochila del jugador activo y si
+   el panel se comporta igual para el resto. Se resuelve con la hoja de hotseat.
+3. **Catálogo concreto.** Qué armas, escudos y armaduras entran en el primer
+   catálogo y qué sprite de `items.txt` les corresponde. Es una decisión de datos
+   que se fija al implementar, con `ADR-006` como referencia.
+4. **Ajuste de la capacidad.** Ocho huecos es el valor inicial; si en playtest se
+   queda corto o largo, se cambia el parámetro sin rehacer el modelo.
 
 # Decisiones
 
@@ -172,15 +192,34 @@ como preguntas para la sesión de cierre.
 | 2026-11-10 | Inventario y equipo por personaje; sin bolsa compartida por defecto. | human:simon | aceptada |
 | 2026-11-10 | Definir en orden `REQ-018` → `REQ-019` → `REQ-020`; aplicar `REQ-018` → `REQ-020` → `REQ-019`. | human:simon | aceptada |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
+| 2026-11-11 | Mochila de **8 huecos personales**, parámetro modificable; el equipo puesto no cuenta. | human:simon | aceptada |
+| 2026-11-11 | Equipar y desequipar cuestan **1 MP** y no gastan acción, siempre y también desde contenedor; sin condición de alerta. | human:simon | aceptada |
+| 2026-11-11 | Casco, botas, guantes, collar y anillo solo aportan traits; en este corte ninguna pieza secundaria entra en el catálogo (enmienda R-004). | human:simon | aceptada |
+| 2026-11-11 | Un **único** hueco de anillo; los ocho huecos no cambian. | human:simon | aceptada |
+| 2026-11-11 | Un solo panel modal abierto con `I`: equipo, mochila y suelo del tile. Se descarta `G`. | human:simon | aceptada |
+| 2026-11-11 | Recoger y soltar cuestan 1 MP y no gastan acción; con la mochila llena, recoger se rechaza. | human:simon | aceptada |
+| 2026-11-11 | El cambio de arma se hace solo desde el panel; sin atajos ni ranuras `1`-`3`. | human:simon | aceptada |
+| 2026-11-11 | Equipo inicial: solo la tabla de `REQ-015`; los cinco huecos secundarios arrancan vacíos. | human:simon | aceptada |
+| 2026-11-11 | Arma a dos manos con escudo: el escudo vuelve a la mochila y, si no cabe, se rechaza el cambio completo. | human:simon | aceptada |
+| 2026-11-11 | Con la mochila llena, equipar un objeto guardado **intercambia**: el hueco que libera el entrante es el que ocupa el saliente. No se rechaza. | human:simon | aceptada |
+| 2026-11-11 | Equipar un escudo mientras hay un arma a dos manos puesta se rechaza; no se desequipa el arma automáticamente. | human:simon | aceptada |
+| 2026-11-11 | El equipo no se apila; cada pieza es una instancia; sin durabilidad ni afijos. | human:simon | aceptada |
+| 2026-11-11 | Consumibles, munición y llaves viven en la mochila y se usan desde ella; sin contenido en este corte. | human:simon | aceptada |
+| 2026-11-11 | Repartir objetos entre jugadores se hace soltando al suelo y recogiendo; el traspaso directo se aplaza a hotseat. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
-- [ ] El usuario ha aprobado la capacidad del inventario.
-- [ ] El usuario ha aprobado el coste de equipar y desequipar.
-- [ ] El usuario ha aprobado el aporte de casco, botas y guantes.
-- [ ] El usuario ha aprobado el flujo de recogida y la UI.
-- [ ] El usuario ha aprobado el equipo inicial por arquetipo.
-- [ ] El usuario ha resuelto el cambio de arma a dos manos con escudo.
-- [ ] Los requisitos son verificables.
-- [ ] Las dependencias están claras.
-- [ ] Se puede generar un grafo de tareas.
+- [x] El usuario ha aprobado la capacidad del inventario.
+- [x] El usuario ha aprobado el coste de equipar y desequipar.
+- [x] El usuario ha aprobado el aporte de casco, botas y guantes.
+- [x] El usuario ha aprobado el flujo de recogida y la UI.
+- [x] El usuario ha aprobado el equipo inicial por arquetipo.
+- [x] El usuario ha resuelto el cambio de arma a dos manos con escudo.
+- [x] El usuario ha aprobado el apilado, el anillo único y el destino de
+      consumibles, munición y llaves.
+- [x] El usuario ha aprobado el intercambio con la mochila llena y el rechazo de
+      equipar un escudo con arma a dos manos.
+- [x] Los requisitos son verificables.
+- [x] Las dependencias están claras.
+- [x] Se puede generar un grafo de tareas.
+- [x] El usuario ha revisado el texto de la v2 y la hoja pasa a `stable`.
