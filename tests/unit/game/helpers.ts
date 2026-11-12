@@ -68,6 +68,8 @@ export interface UnitOptions {
   readonly mana?: Mana;
   /** Acciones restantes; por defecto, todas las del máximo. */
   readonly actions?: number;
+  /** Hechizos ya lanzados en el turno; por defecto, 0. */
+  readonly spellsCast?: number;
   /** Máximo explícito; por defecto, inherente + bonus recortado a 4. */
   readonly actionsMax?: number;
   readonly stats?: Partial<UnitStats>;
@@ -115,6 +117,7 @@ export function makeUnit(options: UnitOptions): Unit {
     maxMp,
     mana: options.mana ?? createMana(stats.magicLevel),
     actions: { max: maxActions, remaining: options.actions ?? maxActions },
+    spellsCast: options.spellsCast ?? 0,
     stats,
     equipment,
     weapons: options.weapons ?? [definition?.equipment.weaponId ?? 'sword'],
