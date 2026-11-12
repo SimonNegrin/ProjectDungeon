@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-12
 
+* 2026-11-12 — Planning — TASK-0075 — ready: aviso de `docs:check` para entradas de log sin formato canónico, con prueba negativa y log restaurado; sin cambios de topes — [TASK-0075](tasks/TASK-0075-arnes-validacion-log.md)
 * 2026-11-12 — Harness — log — movidas las 73 entradas de formato largo (41,5 KB) a [historial detallado](log-detalle.md) y corregido el encabezado duplicado del 2026-11-10; el índice baja de 92 a 52 KB; el validador sigue sin avisar de entradas no canónicas (fricción abierta) — [log-detalle](log-detalle.md)
 * 2026-11-12 — Infra — repo — publicado en `git@github.com:SimonNegrin/ProjectDungeon.git` (remoto `origin`, `main` en `a7dc9e4`, 583 commits, historial completo); sin secretos ni blobs > 20 MB; `.git` de 110 MB por capturas de `artifacts/` — [remote](https://github.com/SimonNegrin/ProjectDungeon)
 * 2026-11-12 — Harness — workflow — regla de push: `main` se publica al cerrar cada tarea verificada, las ramas `task/*` quedan locales y un hito no añade push; se borran las 73 ramas `task/*` fusionadas — [git](harness/workflow.md#git)
