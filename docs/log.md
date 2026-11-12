@@ -228,3 +228,4 @@ con formato largo, están en [historial detallado](log-detalle.md).
 * 2026-11-08 — Planning — TASK-0021 — ready: host, damero y decoración plana determinista; sin cambios en src/game — [TASK-0021](tasks/TASK-0021-host-damero-decoracion.md)
 * 2026-11-08 — Planning — TASK-0022 — backlog: E2E y QA visual; depende de TASK-0021 — [TASK-0022](tasks/TASK-0022-e2e-qa-damero-decoracion.md)
 * 2026-11-08 — Harness — ADR-009 — recorte aplicado: 4 documentos + índice, 3 skills, handoffs como deltas y topes desde TASK-0021; agentes y gates intactos; fusión `deb44a7` — [ADR-009](decisions/ADR-009-recorte-arnes.md)
+* 2026-11-12 — Task — TASK-0075 — done: aviso de líneas no canónicas en docs/log.md sin cambios en el resto del arnés — [TASK-0075](tasks/TASK-0075-arnes-validacion-log.md)

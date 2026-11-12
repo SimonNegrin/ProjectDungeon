@@ -78,11 +78,7 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0061](TASK-0061-e2e-qa-visual-feedback.md) | E2E y QA visual del feedback | `done` | REQ-017 | TASK-0058, TASK-0059, TASK-0060 | P2 |
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
-| [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `ready` | HARNESS | — | P2 |
-
-# ready
-
-* [TASK-0075 — Arnés: validar el formato del log en docs:check](TASK-0075-arnes-validacion-log.md)
+| [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 
 # review
 
@@ -166,4 +162,5 @@ Total: **75**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0061 — E2E y QA visual del feedback](TASK-0061-e2e-qa-visual-feedback.md)
 * [TASK-0062 — Arnés: sufijo de repetición en capturas E2E](TASK-0062-arnes-sufijo-repeticion-capturas.md)
 * [TASK-0065 — EXP-003 v2.0: manifest del índice](TASK-0065-exp-003-v2-manifest.md)
+* [TASK-0075 — Arnés: validar el formato del log en docs:check](TASK-0075-arnes-validacion-log.md)
 

@@ -54,7 +54,7 @@ docs/log.md` vacío. Las 203 entradas canónicas no generan avisos nuevos.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `task-runner` no puede editar `scripts/**` aunque el brief lo pida | `.opencode/agents/task-runner.md:5-8` deniega `edit` en `*`; `scripts/**` no está allowlisted | Escribir desde shell (permitido) | Toda tarea de arnés que toque `scripts/` choca igual | Allowlistar `scripts/**` en `edit` o asignar a `harness-keeper` | Bajo; el shell ya permite el bypass | `pending` |
+| `task-runner` no puede editar `scripts/**` aunque el brief lo pida | `.opencode/agents/task-runner.md:5-8` deniega `edit` en `*`; `scripts/**` no está allowlisted | Escribir desde shell (permitido) | Toda tarea de arnés que toque `scripts/` choca igual | Allowlistar `scripts/**` en `edit` o asignar a `harness-keeper` | Bajo; el shell ya permite el bypass | `deferred` (escalado a harness-keeper; fuera del alcance de TASK-0075) |
 
 
 # Métricas de handoff

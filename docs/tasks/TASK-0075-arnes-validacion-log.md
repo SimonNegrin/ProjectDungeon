@@ -3,22 +3,34 @@ type: Task
 id: TASK-0075
 title: "Arnés: validar el formato del log en docs:check"
 description: "Avisar de entradas de docs/log.md sin formato canónico para que el índice no vuelva a llenarse de párrafos largos."
-status: draft
-task_status: ready
+status: stable
+task_status: done
 task_type: harness
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
 unlocks: []
 created_at: 2026-11-12T12:30:00Z
-completed_at:
+completed_at: 2026-11-12T13:20:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0075/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T12:30:00Z }
+verified:
+  - by: task-lead
+    at: 2026-11-12T13:20:00Z
+    note: >-
+      Diff completo revisado (solo `scripts/validate-docs.mjs`). Re-ejecutados
+      `pnpm run docs:check` (77 avisos, 0 errores), `pnpm run config:check` y
+      `pnpm run verify` (73 archivos, 993 tests, tsc, vite y bundle), todos en
+      verde. Prueba negativa repetida por el lead: línea no canónica en
+      `docs/log.md:231` con aviso correcto y restauración con
+      `git status --porcelain docs/log.md` vacío; línea canónica de 465
+      caracteres devuelve error de tope (exit 1) y no aviso. Sin cambios en
+      `src/`, `tests/`, `docs/log.md` ni `docs/log-detalle.md`.
 ---
 
 # Objetivo
@@ -40,18 +52,18 @@ otro formato esquiva el tope de 400 caracteres.
 
 # Criterios de aceptación
 
-- [ ] `validate-docs.mjs` emite un aviso con ruta y número de línea para cada
+- [x] `validate-docs.mjs` emite un aviso con ruta y número de línea para cada
       línea de `docs/log.md` que empiece por `* ` y no cumpla
       `/^\* \d{4}-\d{2}-\d{2} — /`.
-- [ ] Las 202 entradas actuales no generan avisos nuevos: la salida sigue en 77
+- [x] Las 202 entradas actuales no generan avisos nuevos: la salida sigue en 77
       avisos y 0 errores.
-- [ ] El tope de 400 caracteres mantiene su comportamiento: error solo en
+- [x] El tope de 400 caracteres mantiene su comportamiento: error solo en
       entradas canónicas.
-- [ ] Prueba negativa: con una línea `* **Test**: …` añadida temporalmente, el
+- [x] Prueba negativa: con una línea `* **Test**: …` añadida temporalmente, el
       aviso aparece con su número de línea; el fichero se restaura y
       `git status --porcelain docs/log.md` queda vacío.
-- [ ] `pnpm run docs:check`, `pnpm run config:check` y `pnpm run verify` pasan.
-- [ ] Sin cambios en `src/`, `tests/`, `docs/log.md`, `docs/log-detalle.md` ni
+- [x] `pnpm run docs:check`, `pnpm run config:check` y `pnpm run verify` pasan.
+- [x] Sin cambios en `src/`, `tests/`, `docs/log.md`, `docs/log-detalle.md` ni
       otros documentos.
 
 # Plan de test
