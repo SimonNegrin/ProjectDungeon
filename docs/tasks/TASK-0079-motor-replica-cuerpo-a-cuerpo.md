@@ -4,22 +4,48 @@ id: TASK-0079
 title: "Motor: réplica tras fallo cuerpo a cuerpo"
 description: "Resolver una réplica inmediata del defensor cuando falla un ataque cuerpo a cuerpo con arma, con la misma fórmula y RNG, sin coste ni cadena y con posible muerte del atacante."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-027
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, T-001, T-002, T-003, T-004, T-005, T-007]
 depends_on: [TASK-0078]
 unlocks: [TASK-0080]
 created_at: 2026-11-12T14:45:00Z
-completed_at:
+completed_at: 2026-11-12T19:49:04Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0079/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T14:45:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-12T19:49:04Z
+    note: >-
+      Verificación independiente en `task/TASK-0079` (implementación `33fbd8d`,
+      evidencia `1ada583`, merge `7dd6afa`). Diff completo revisado: motor,
+      tipos, stubs mínimos de exhaustividad en `src/host/{motion,hud}.ts` y
+      tests; sin cambios de balance, catálogos, `package.json`/lock, docs ni
+      imports de `experiments/`. Criterios comprobados uno a uno: impacto sin
+      réplica; fallo con réplica inmediata y tiradas nuevas; dos fallos/dos
+      réplicas; réplica letal con fin de partida y sin acción siguiente;
+      ausencia de cadena y de estado pendiente; elegibilidad por arma, estado,
+      huida/acorralamiento, regreso y tipo; evento `ReplicaPerformed` con
+      atacante, objetivo, impacto, daño, PV y tiradas; IA que no cambia de
+      objetivo; 19 tests nuevos en `replica.test.ts` y ajustes acotados de
+      `combat`, `turn` y `map-integration` que conservan su intención. Sin tests
+      borrados, saltados ni debilitados (1033 = 1014 + 19). `pnpm run verify`
+      re-ejecutado OK: 75 archivos, 1033/1033, `docs:check`, `config:check`,
+      `tsc`, build y bundle. E2E no aplica por la ficha; ejecutado como
+      comprobación extra: 105/110, con 5 expectativas obsoletas causadas por la
+      regla aprobada (secuencias de eventos/RNG y dos escenarios de derrota a 80
+      turnos); quedan asignadas a `TASK-0080`, cuyo criterio exige el E2E verde.
+      El «dormido no atacable en melé» se trata como regla emergente (acercarse
+      lo despierta) para conservar los tests de daño/alarma de `REQ-009`; un
+      dormido nunca replica. Fricción: añadir `GameEvent` obliga a stubs
+      exhaustivos en el host aunque la tarea no toque presentación; se eleva a
+      `requirements-writer`/`harness-keeper`. Sin decisión creativa abierta.
 ---
 
 # Objetivo
@@ -77,9 +103,9 @@ la réplica mata al atacante, este pierde las acciones que le quedaban.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0079/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA en la rama `task/TASK-0079`
+- [x] Informe en `artifacts/TASK-0079/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA en la rama `task/TASK-0079`
 
 # Restricciones
 

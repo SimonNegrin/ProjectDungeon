@@ -7,6 +7,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 * 2026-11-12 — Planning — TASK-0079 — ready: réplica tras fallo cuerpo a cuerpo con la misma fórmula y RNG, sin coste ni cadena; REQ-027 aceptada y dependencia TASK-0078 `done`; handoff a `task-lead` — [TASK-0079](tasks/TASK-0079-motor-replica-cuerpo-a-cuerpo.md)
 
+* 2026-11-12 — Task — TASK-0079 — done: réplica cuerpo a cuerpo verificada con 1033/1033 en `verify`; E2E 105/110 con expectativas obsoletas por la nueva regla, diferidas a TASK-0080; fusión `7dd6afa` — [informe](../artifacts/TASK-0079/attempt-1/report.md)
+
 * 2026-11-12 — Harness — permisos — `find` sigue fuera de la allowlist porque `-exec` y `-delete` caben en cualquier forma del comando; sustitutos `rg --files -g` y `git ls-files` en [workflow](harness/workflow.md#shell-y-autorización) — [config](../opencode.jsonc)
 
 * 2026-11-12 — Task — TASK-0078 — done: contador de acciones restantes/máximas en HUD y debug, cierre manual con `E` con sugerencia sin auto-terminación, beats separados por ataque 2→1→0 y aserción de `cursor-qa` corregida a 0; verify 1014/1014 y E2E 110/110; fusión `944f5fe` — [informe](../artifacts/TASK-0078/attempt-1/report.md)
