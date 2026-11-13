@@ -212,7 +212,7 @@ describe('mapeo de teclado a intenciones del host', () => {
   });
 
   it('ignora teclas no gestionadas', () => {
-    expect(translate('q')).toEqual({
+    expect(translate('z')).toEqual({
       type: 'ignored',
       reason: 'unmapped',
     });
@@ -243,6 +243,84 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(isManagedKey('3')).toBe(true);
     expect(isManagedKey('q')).toBe(false);
     expect(isManagedKey('4')).toBe(false);
+  });
+});
+
+describe('selección de hechizos con teclado', () => {
+  const state = makeState();
+  const cursor = { x: 6, y: 6 };
+
+  function menu(open: boolean, index = 0, selectedId: 'electric-1' | null = null) {
+    return { open, index, selectedId };
+  }
+
+  it('Q abre y cierra la lista; exige fase de jugador y jugador activo', () => {
+    expect(translateKey({ key: 'q' }, state, cursor)).toEqual({
+      type: 'spell-menu-toggle',
+    });
+    expect(translateKey({ key: 'Q' }, { ...state, phase: 'enemy' }, cursor)).toEqual({
+      type: 'ignored',
+      reason: 'wrong-phase',
+    });
+    expect(
+      translateKey(
+        { key: 'q' },
+        { ...state, players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 })] },
+        cursor,
+      ),
+    ).toEqual({ type: 'ignored', reason: 'no-active-player' });
+  });
+
+  it('con la lista abierta navega, elige con 1-6 y lanza con Enter', () => {
+    const open = { spellMenu: menu(true, 0) };
+
+    expect(translateKey({ key: 'ArrowDown' }, state, cursor, open)).toEqual({
+      type: 'spell-menu-move',
+      delta: 1,
+    });
+    expect(translateKey({ key: 'w' }, state, cursor, open)).toEqual({
+      type: 'spell-menu-move',
+      delta: -1,
+    });
+    expect(translateKey({ key: '3' }, state, cursor, open)).toEqual({
+      type: 'spell-menu-select',
+      spellId: 'electric-3',
+    });
+    expect(translateKey({ key: '6' }, state, cursor, open)).toEqual({
+      type: 'spell-menu-select',
+      spellId: 'resurrection-4',
+    });
+    expect(translateKey({ key: 'Enter' }, state, cursor, open)).toEqual({
+      type: 'spell-cast',
+      spellId: 'electric-1',
+      unitId: 'player-1',
+      target: { x: 6, y: 6 },
+    });
+    expect(translateKey({ key: 'Escape' }, state, cursor, open)).toEqual({
+      type: 'spell-menu-close',
+    });
+    expect(translateKey({ key: 'd' }, state, cursor, open)).toEqual({
+      type: 'ignored',
+      reason: 'spell-menu-open',
+    });
+  });
+
+  it('cerrada, X lanza el seleccionado y Esc lo deselecciona', () => {
+    const selected = { spellMenu: menu(false, 0, 'electric-1') };
+
+    expect(translateKey({ key: 'x' }, state, cursor, selected)).toEqual({
+      type: 'spell-cast',
+      spellId: 'electric-1',
+      unitId: 'player-1',
+      target: { x: 6, y: 6 },
+    });
+    expect(translateKey({ key: 'Escape' }, state, cursor, selected)).toEqual({
+      type: 'spell-deselect',
+    });
+    expect(translateKey({ key: 'x' }, state, cursor)).toEqual({
+      type: 'notice',
+      notice: 'no-spell-selected',
+    });
   });
 });
 

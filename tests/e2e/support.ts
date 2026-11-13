@@ -181,6 +181,29 @@ export async function openBspState(
 }
 
 /**
+ * Abre el host en modo test y carga un estado serializable construido en Node.
+ * El estado puede no traer `map`; el host ya maneja esa ausencia en HUD y
+ * debug. Solo se usa para escenarios de presentación, nunca para reglas.
+ */
+export async function openState(
+  page: Page,
+  state: GameState,
+  seed: number = DEFAULT_MAP_SEED,
+): Promise<GameSnapshot> {
+  const target = new URL(`/?seed=${seed}&test=1`, 'http://127.0.0.1:4173');
+  await page.goto(`${target.pathname}${target.search}`);
+  await page.waitForFunction(
+    () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
+  );
+  const loaded = await page.evaluate(
+    (next) => window.__game!.setup!(next),
+    JSON.parse(JSON.stringify(state)),
+  );
+  await settle(page);
+  return loaded;
+}
+
+/**
  * Carga el BSP de referencia y deja únicamente al enemigo pedido. Los tests que
  * preparan un combate necesitan un estado controlado sin que el resto de la
  * guardia converja durante el trayecto; no cambia aserciones ni reglas.
