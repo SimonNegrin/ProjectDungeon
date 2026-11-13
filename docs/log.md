@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0092 — done: E2E de arma nueva, bandas normal/resistente/muy resistente, mínimo 1, armadura/escudo, LOS y F1, hechizos eléctrico/mágico y curación sin desglose; 123/123 E2E y 1189/1189 verify; capturas 1280×720 y 900×700; EXP-004 falló una vez por timeout bajo carga y pasó aislado; fusión `1f06019` — [informe](../artifacts/TASK-0092/attempt-1/report.md)
+
 * 2026-11-13 — Task — TASK-0090 — done: 19 tests nuevos de matriz de bandas, paquetes, hechizos, determinismo y no regresión de REQ-010/014/025/027; coste de dos paquetes +0,04–0,20 µs con semilla `1017`; verify 1189/1189; fusión `954e4cb` — [informe](../artifacts/TASK-0090/attempt-1/report.md)
 
 * 2026-11-13 — Requirement — REQ-030 — borrador: contorno de alcance de hechizos recortado por muros y LOS al recorrer la lista y al apuntar con `X`; fuera los avisos de rechazo y el sonido; P-001 a P-007 abiertas, incluida la de si «solo adversario» es regla nueva o el rechazo actual — [REQ-030](requirements/REQ-030-alcance-visible-hechizos.md)
