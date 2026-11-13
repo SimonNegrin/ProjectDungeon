@@ -51,6 +51,25 @@ export interface DamagePacket {
 }
 
 /**
+ * Desglose de solo lectura de un paquete ya resuelto (REQ-029 T-007): cantidad
+ * base, dados de daño y resistencia, bruto previo a la banda, banda aplicada,
+ * multiplicador y daño final tras `floor` y recorte a 0. Es aditivo: el total
+ * del evento se conserva en `damage`.
+ */
+export interface DamagePacketBreakdown {
+  readonly type: DamageType;
+  readonly amount: number;
+  readonly damageRoll: number;
+  readonly resistanceRoll: number;
+  /** Daño antes de aplicar la banda y el recorte a 0. */
+  readonly raw: number;
+  readonly band: ResistanceBand;
+  readonly multiplier: number;
+  /** Daño final del paquete, ya con banda, `floor` y recorte a 0. */
+  readonly damage: number;
+}
+
+/**
  * Atributos inherentes de un personaje (REQ-014 R-001). PV y MP viven en sus
  * campos actuales de `Unit`; el equipo no define ninguno de estos valores.
  */
@@ -257,6 +276,8 @@ export type GameEvent =
       readonly damage: number;
       readonly targetHp: number;
       readonly rolls: AttackRolls;
+      /** Desglose por paquete, en el orden declarado; vacío si falla. */
+      readonly damageBreakdown: readonly DamagePacketBreakdown[];
     }
   /**
    * Hechizo de ataque resuelto (REQ-025 R-012). Lleva impacto, daño, PV
@@ -273,6 +294,8 @@ export type GameEvent =
       readonly damage: number;
       readonly targetHp: number;
       readonly rolls: AttackRolls;
+      /** Desglose por paquete; vacío si falla. Curación y resurrección no lo declaran. */
+      readonly damageBreakdown: readonly DamagePacketBreakdown[];
     }
   /** Hechizo de curación: `healing` es lo curado de verdad, sin sobrepasar el máximo. */
   | {
@@ -307,6 +330,8 @@ export type GameEvent =
       readonly damage: number;
       readonly targetHp: number;
       readonly rolls: AttackRolls;
+      /** Desglose por paquete; vacío si falla. */
+      readonly damageBreakdown: readonly DamagePacketBreakdown[];
     }
   | { readonly type: 'UnitDied'; readonly unitId: string }
   | { readonly type: 'TurnEnded'; readonly turn: number }

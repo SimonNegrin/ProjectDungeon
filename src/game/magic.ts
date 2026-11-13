@@ -18,6 +18,7 @@ import { rollDie } from './rng';
 import { findSpell, type SpellDefinition } from './spells';
 import type {
   AttackRolls,
+  DamagePacketBreakdown,
   GameEvent,
   GameState,
   Position,
@@ -226,6 +227,7 @@ function resolveMagicAttack(
 
   let rng = shieldRoll.rng;
   let damage = 0;
+  let damageBreakdown: readonly DamagePacketBreakdown[] = [];
   let rolls: AttackRolls = {
     attack: attackRoll.die,
     shield: shieldRoll.die,
@@ -237,6 +239,7 @@ function resolveMagicAttack(
     const resolved = resolvePackets([packet], 0, 0, victim.stats.resistencia, rng);
     rng = resolved.rng;
     damage = resolved.total;
+    damageBreakdown = resolved.breakdown;
     rolls = { ...rolls, damage: resolved.rolls[0].damage, armor: resolved.rolls[0].resistance };
   }
 
@@ -258,6 +261,7 @@ function resolveMagicAttack(
       damage,
       targetHp,
       rolls,
+      damageBreakdown,
     },
   ];
 

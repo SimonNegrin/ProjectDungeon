@@ -12,6 +12,7 @@
 import { rollDie } from './rng';
 import type {
   DamagePacket,
+  DamagePacketBreakdown,
   DamageType,
   ResistanceBand,
   ResistanceProfile,
@@ -43,6 +44,35 @@ export interface PacketRolls {
   readonly resistance: number;
 }
 
+/** Resultado interno de un paquete: bruto, banda, multiplicador y daño final. */
+interface PacketResolution {
+  readonly raw: number;
+  readonly band: ResistanceBand;
+  readonly multiplier: number;
+  readonly damage: number;
+}
+
+/** Calcula el detalle de un paquete sin recortar al mínimo global del ataque. */
+function resolvePacketParts(
+  packet: DamagePacket,
+  strength: number,
+  armor: number,
+  band: ResistanceBand,
+  damageDie: number,
+  resistanceDie: number,
+): PacketResolution {
+  const raw = isPhysical(packet.type)
+    ? packet.amount + strength + damageDie - (armor + resistanceDie)
+    : packet.amount + damageDie - resistanceDie;
+  const multiplier = BAND_MULTIPLIERS[band];
+  return {
+    raw,
+    band,
+    multiplier,
+    damage: Math.max(0, Math.floor(Math.max(0, raw) * multiplier)),
+  };
+}
+
 /**
  * Daño de un paquete con dados ya conocidos, sin aplicar el mínimo global.
  * Devuelve el daño recortado a 0 tras aplicar la banda con `floor`.
@@ -55,10 +85,8 @@ export function resolvePacket(
   damageDie: number,
   resistanceDie: number,
 ): number {
-  const raw = isPhysical(packet.type)
-    ? packet.amount + strength + damageDie - (armor + resistanceDie)
-    : packet.amount + damageDie - resistanceDie;
-  return Math.max(0, Math.floor(Math.max(0, raw) * BAND_MULTIPLIERS[band]));
+  return resolvePacketParts(packet, strength, armor, band, damageDie, resistanceDie)
+    .damage;
 }
 
 export interface ResolvePacketsResult {
@@ -66,6 +94,8 @@ export interface ResolvePacketsResult {
   readonly total: number;
   /** Dados por paquete, en orden fijo. */
   readonly rolls: readonly PacketRolls[];
+  /** Desglose de cada paquete, en el mismo orden que `rolls`. */
+  readonly breakdown: readonly DamagePacketBreakdown[];
   readonly rng: RngState;
 }
 
@@ -84,6 +114,7 @@ export function resolvePackets(
   let current = rng;
   let total = 0;
   const rolls: PacketRolls[] = [];
+  const breakdown: DamagePacketBreakdown[] = [];
 
   for (const packet of packets) {
     const damageRoll = rollDie(current);
@@ -95,7 +126,7 @@ export function resolvePackets(
       resistance: resistanceRoll.die,
     });
 
-    total += resolvePacket(
+    const resolved = resolvePacketParts(
       packet,
       strength,
       armor,
@@ -103,7 +134,18 @@ export function resolvePackets(
       damageRoll.die,
       resistanceRoll.die,
     );
+    total += resolved.damage;
+    breakdown.push({
+      type: packet.type,
+      amount: packet.amount,
+      damageRoll: damageRoll.die,
+      resistanceRoll: resistanceRoll.die,
+      raw: resolved.raw,
+      band: resolved.band,
+      multiplier: resolved.multiplier,
+      damage: resolved.damage,
+    });
   }
 
-  return { total: Math.max(1, total), rolls, rng: current };
+  return { total: Math.max(1, total), rolls, breakdown, rng: current };
 }
