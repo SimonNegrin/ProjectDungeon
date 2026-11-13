@@ -19,6 +19,16 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 > entero si no cabe ([REQ-018](../requirements/REQ-018-inventario-equipo.md),
 > R-021).
 
+> **Cierre de implementación (2026-11-13).** Lo descrito arriba está implementado
+> en TASK-0093 a TASK-0098: instancias y operaciones atómicas (TASK-0094), panel
+> único con `I` y `Escape` (TASK-0095), arte y debug (TASK-0096), glosario,
+> arquitectura y notas de vigencia (TASK-0097) y E2E/QA visual (TASK-0098).
+> [REQ-018](../requirements/REQ-018-inventario-equipo.md) v5 enmienda R-004: este
+> corte solo trae armas a una mano; la regla de dos manos vive en el modelo y sus
+> unitarios, y la primera arma a dos manos jugable es la maza de
+> [REQ-019](../requirements/REQ-019-traits-objetos.md), cuya v3 añade a T-013 el
+> E2E de dos manos con escudo diferido.
+
 # Contexto
 
 El equipo de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)

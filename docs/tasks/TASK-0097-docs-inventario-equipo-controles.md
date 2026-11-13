@@ -4,11 +4,11 @@ id: TASK-0097
 title: "Docs: inventario, equipo, controles y vigencia"
 description: "Actualizar glosario, economía de turno, arquitectura y las notas de vigencia de REQ-010 y REQ-026 con el modelo de instancias, mochila, huecos, panel `I` y costes de 1 MP, sin tocar reglas."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-018
 requirement_ids: [T-013]
-depends_on: [TASK-0095, TASK-0096]
+depends_on: [TASK-0095, TASK-0096, TASK-0098]
 unlocks: []
 created_at: 2026-11-13T19:22:51Z
 completed_at:
@@ -32,13 +32,26 @@ vigentes.
 # Contexto
 
 - Modelo y operaciones en TASK-0094; panel e input en TASK-0095; sprites y debug
-  en TASK-0096.
+  en TASK-0096; E2E y QA visual en TASK-0098.
 - `docs/glossary.md`, `docs/design/turn-economy.md` y
   `docs/design/architecture.md` son de autoría compartida con el lead.
 - [REQ-018](../requirements/REQ-018-inventario-equipo.md#requisitos-técnicos)
   T-013; [ADR-021](../decisions/ADR-021-inventario-equipo.md) ya existe.
 - La tabla de controles y las fórmulas son la fuente que leen los agentes: no se
   reescriben reglas, solo se refleja lo implementado.
+- **REQ-018 v5 enmendó R-004:** este corte solo trae armas a una mano. La regla de
+  dos manos vive en el modelo y sus unitarios; la primera arma a dos manos
+  jugable es la maza de REQ-019. La nota de vigencia de ADR-021 debe recogerlo.
+- **REQ-019 v3 añadió a T-013** el E2E de dos manos con escudo, diferido desde
+  REQ-018 v5.
+- **Limitación visual conocida y aceptada:** a 1280×720 el cuerpo del panel mide
+  692 px de contenido para 508 visibles, y a 900×700 692/454 (1090/454 con la
+  mochila llena). El panel hace scroll interno y el desglose de stats no cabe
+  entero; es un límite de layout, no un fallo de reglas. Documéntalo en
+  arquitectura como limitación, no como algo resuelto.
+- **Índice:** `docs/requirements/index.md` aún describe REQ-018 como v4 y
+  REQ-019 como v2 «en curso»; actualiza solo versión, estado y descripción, sin
+  tocar reglas ni alcance.
 
 # Criterios de aceptación
 

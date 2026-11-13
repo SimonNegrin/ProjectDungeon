@@ -185,6 +185,41 @@ vive en `src/game/combat.ts` y se presenta en el host:
 
 Ver [ADR-022](../decisions/ADR-022-replica-cuerpo-a-cuerpo.md).
 
+# Inventario y equipo
+
+El inventario y el equipo de [REQ-018](../requirements/REQ-018-inventario-equipo.md)
+viven en `src/game/` y comparten una regla de propiedad: cada objeto está
+exactamente en un sitio.
+
+- **Catálogo único**: `src/game/equipment.ts` expone `ITEMS` como
+  `Record<ItemId, ItemDefinition>` con ID estable, categoría, hueco, manos,
+  modificadores, traits, sprite y descripción. `WEAPONS`, `ARMORS` y `SHIELDS`
+  son vistas de ese catálogo; añadir un objeto no toca las operaciones.
+- **Instancias con localización única**: `src/game/inventory.ts` define
+  `ItemInstance` (ID propio e `itemId`) y deriva su sitio de la contención en
+  `Unit.inventory.items`, `Unit.equipment`, `GameState.groundItems` o
+  `GameState.containers`; `ItemLocation` y `locateInstance` no mantienen listas
+  paralelas. `pickUpItem`, `equipItem`, `unequipItem` y `dropItem` son puros y
+  atómicos: validan antes de mover, cuestan 1 MP y no gastan acción. `Container`
+  existe como tipo; los cofres jugables llegan con
+  [REQ-020](../requirements/REQ-020-cofres-saqueo.md).
+- **Punto único de stats efectivos**: `src/game/stats.ts` agrega atributos
+  inherentes, modificadores del equipo y traits con `aggregateEffectiveStats` y
+  `effectiveStats`. Combate, hechizos, IA y HUD leen ese perfil; el host no suma
+  valores de equipo por su cuenta.
+- **Separación motor/host del panel**: `src/host/inventory-panel.ts` es el modelo
+  puro que convierte el estado en filas, comparaciones y comandos sin tocar el
+  DOM; `src/host/inventory-panel-view.ts` es la vista DOM del modal, con filas
+  estables, foco atrapado y `Escape`/`I` gestionados por el host. El host solo
+  despacha el comando confirmado: costes y rechazos vienen del motor.
+- **Límite visual conocido**: a 1280×720 el cuerpo del panel mide 692 px de
+  contenido para 508 px visibles, y a 900×700 mide 692/454 (1090/454 con la
+  mochila llena). El panel hace scroll interno y el desglose de stats no cabe
+  entero. Es un límite de layout aceptado, no un fallo de reglas ni algo
+  resuelto en este corte.
+
+Ver [ADR-021](../decisions/ADR-021-inventario-equipo.md).
+
 # Percepción, alarma y huida
 
 La percepción vive en `src/game/perception.ts`, es pura y no conoce DOM, Canvas,
