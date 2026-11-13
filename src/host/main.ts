@@ -36,6 +36,14 @@ import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
 import { isManagedKey, translateKey } from './input';
 import {
+  INITIAL_SPELL_MENU,
+  moveSpellSelection,
+  SPELL_ORDER,
+  spellIndex,
+  type SpellMenuSelection,
+} from './spell-menu';
+import { createSpellMenuView } from './spell-menu-view';
+import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
   MAP_VIEWPORT,
@@ -92,11 +100,13 @@ function isEditableTarget(target: EventTarget | null): boolean {
 }
 
 /** Instancia de texto de daño anclada al mundo y gobernada por el reloj. */
+type DamageTextResult = 'hit' | 'miss' | 'heal' | 'revive';
+
 interface DamageTextInstance {
   readonly text: string;
   /** Desglose por tipo bajo el total; vacío si no aplica. */
   readonly detail: string;
-  readonly hit: boolean;
+  readonly result: DamageTextResult;
   readonly target: Position;
   readonly attacker: Position;
   remainingMs: number;
@@ -211,7 +221,7 @@ function createDamageFeedbackView(
 
         node.hidden = false;
         node.textContent = text.text;
-        node.dataset.result = text.hit ? 'hit' : 'miss';
+        node.dataset.result = text.result;
         node.style.left = left;
         node.style.top = top;
         node.style.opacity = opacity;
@@ -299,6 +309,8 @@ async function boot(): Promise<void> {
   let assets: SceneAssets | undefined;
   let cursor = cursorAtPlayer(session.state.players[0]);
   let cursorStatus = deriveCursorStatus(session.state, cursor);
+  /** Lista modal de hechizos; vive solo en el host. */
+  let spellMenu: SpellMenuSelection = { ...INITIAL_SPELL_MENU };
   /** Detectores que iniciaron un episodio con `EnemySpotted`. */
   let spottedUnits: ReadonlySet<string> = new Set<string>();
 
@@ -317,6 +329,7 @@ async function boot(): Promise<void> {
   let textLastFrameTime: number | undefined;
 
   const hudView = createHudView(gameRoot);
+  const spellMenuView = createSpellMenuView(gameRoot);
   const debugView = createDebugView(gameRoot);
   const feedbackView = createDamageFeedbackView(frame, {
     reducedMotion: prefersReducedMotion,
@@ -387,7 +400,9 @@ async function boot(): Promise<void> {
       unitId: cue.anchor.unitId,
       startMs: cue.atMs,
       durationMs: cue.durationMs,
-      ...(cue.kind === 'attack' || cue.kind === 'replica'
+      ...(cue.kind === 'attack' ||
+      cue.kind === 'replica' ||
+      cue.kind === 'spell'
         ? { hit: cue.data.hit === true }
         : {}),
     }));
@@ -434,6 +449,7 @@ async function boot(): Promise<void> {
       hudView.update(display, displayCursor, {
         weaponPulseMs: slotPulse?.durationMs ?? null,
       });
+      spellMenuView.update(display, spellMenu);
       cursorView.update(displayCursor, camera);
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
       spotView.update(state, camera, viewport, spottedUnits);
@@ -463,6 +479,7 @@ async function boot(): Promise<void> {
       });
     }
     hudView.update(state, cursorStatus, { weaponPulseMs: null });
+    spellMenuView.update(state, spellMenu);
     cursorView.update(cursorStatus, camera);
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
     spotView.update(state, camera, viewport, spottedUnits);
@@ -525,7 +542,7 @@ async function boot(): Promise<void> {
 
   const addDamageText = (
     text: string,
-    hit: boolean,
+    result: DamageTextResult,
     target: Position,
     attacker: Position,
     detail: string,
@@ -534,7 +551,7 @@ async function boot(): Promise<void> {
       {
         text,
         detail,
-        hit,
+        result,
         target: { ...target },
         attacker: { ...attacker },
         remainingMs: FEEDBACK_CONFIG.texts.damageMs,
@@ -610,10 +627,39 @@ async function boot(): Promise<void> {
           if (cue?.data.target && cue.data.attacker) {
             addDamageText(
               cue.data.text ?? (attackEvent.hit ? `-${attackEvent.damage}` : 'Fallo'),
-              attackEvent.hit,
+              attackEvent.hit ? 'hit' : 'miss',
               cue.data.target,
               cue.data.attacker,
               attackEvent.hit ? formatBreakdown(attackEvent.damageBreakdown) : '',
+            );
+          }
+          break;
+        }
+        case 'SpellCast': {
+          const spellEvent = entry.event;
+          const cue = active.timeline.cues.find(
+            (candidate) =>
+              candidate.kind === 'spell' &&
+              candidate.atMs === entry.atMs &&
+              candidate.data.targetId === spellEvent.targetId,
+          );
+          if (cue?.data.target && cue.data.attacker && cue.data.text) {
+            const result: DamageTextResult =
+              spellEvent.effect === 'heal'
+                ? 'heal'
+                : spellEvent.effect === 'resurrect'
+                  ? 'revive'
+                  : spellEvent.hit
+                    ? 'hit'
+                    : 'miss';
+            addDamageText(
+              cue.data.text,
+              result,
+              cue.data.target,
+              cue.data.attacker,
+              spellEvent.effect === 'damage' && spellEvent.hit
+                ? formatBreakdown(spellEvent.damageBreakdown)
+                : '',
             );
           }
           break;
@@ -780,6 +826,7 @@ async function boot(): Promise<void> {
   const setupState = (state: GameState, generator?: MapGenerator): void => {
     cancelAnimation();
     clearTransientFeedback();
+    spellMenu = { ...INITIAL_SPELL_MENU };
     session.load(state, generator);
     lastEvents = [];
     noticeView.clear();
@@ -809,6 +856,7 @@ async function boot(): Promise<void> {
       cancelAnimation();
       // El reinicio limpia cualquier cue pendiente y funde 250 ms (R-018).
       clearTransientFeedback();
+      spellMenu = { ...INITIAL_SPELL_MENU };
       debugView.close();
       noticeView.clear();
       spotView.clear();
@@ -859,6 +907,7 @@ async function boot(): Promise<void> {
   const regenerate = (): void => {
     cancelAnimation();
     clearTransientFeedback();
+    spellMenu = { ...INITIAL_SPELL_MENU };
     session.regenerate(nextSeed(session.seed));
     lastEvents = [];
     noticeView.clear();
@@ -916,6 +965,7 @@ async function boot(): Promise<void> {
 
     const intent = translateKey(event, session.state, cursor, {
       animating: animation !== null,
+      spellMenu,
     });
     if (intent.type === 'cursor') {
       cursor = moveCursor(
@@ -938,6 +988,58 @@ async function boot(): Promise<void> {
     }
     if (intent.type === 'new-seed') {
       regenerate();
+      return;
+    }
+    if (intent.type === 'spell-menu-toggle') {
+      spellMenu = spellMenu.open
+        ? { ...spellMenu, open: false }
+        : {
+            ...spellMenu,
+            open: true,
+            index:
+              spellMenu.selectedId === null
+                ? spellMenu.index
+                : Math.max(0, spellIndex(spellMenu.selectedId)),
+          };
+      render();
+      return;
+    }
+    if (intent.type === 'spell-menu-close') {
+      spellMenu = { ...spellMenu, open: false };
+      render();
+      return;
+    }
+    if (intent.type === 'spell-menu-move') {
+      spellMenu = {
+        ...spellMenu,
+        index: moveSpellSelection(spellMenu.index, intent.delta, SPELL_ORDER.length),
+      };
+      render();
+      return;
+    }
+    if (intent.type === 'spell-menu-select') {
+      spellMenu = {
+        ...spellMenu,
+        open: true,
+        index: Math.max(0, spellIndex(intent.spellId)),
+        selectedId: intent.spellId,
+      };
+      render();
+      return;
+    }
+    if (intent.type === 'spell-deselect') {
+      spellMenu = { ...INITIAL_SPELL_MENU };
+      render();
+      return;
+    }
+    if (intent.type === 'spell-cast') {
+      spellMenu = { ...spellMenu, open: false, selectedId: intent.spellId };
+      applyCommand({
+        type: 'CastSpell',
+        unitId: intent.unitId,
+        spellId: intent.spellId,
+        target: { x: intent.target.x, y: intent.target.y },
+      });
       return;
     }
     if (intent.type === 'command') {
