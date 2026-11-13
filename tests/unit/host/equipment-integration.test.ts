@@ -39,6 +39,26 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
     expect(buildHudModel(picked).weaponHint).toBeNull();
   });
 
+  it('recoger el martillo nuevo muestra su nombre del catálogo en pista y HUD', () => {
+    const base = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+    });
+    const hammer = (base.map?.weapons ?? []).find(
+      (weapon) => weapon.weaponId === 'hammer',
+    );
+    if (!hammer) throw new Error('La semilla de referencia debe colocar el martillo');
+
+    const onHammer = stateOnWeapon(base, hammer);
+    expect(buildHudModel(onHammer).weaponHint).toBe('G recoger Martillo');
+    expect(buildHudModel(onHammer).weaponHint).not.toContain('hammer');
+
+    const picked = reduce(onHammer, { type: 'PickUp', unitId: 'player-1' }).state;
+
+    expect(picked.players[0].equipment.weaponId).toBe('hammer');
+    expect(buildHudModel(picked).weapon).toBe('Martillo +2/+4');
+  });
+
   it('cambiar de hueco actualiza el HUD sin gastar MP ni acción', () => {
     const base = createInitialState({
       seed: 279837264,

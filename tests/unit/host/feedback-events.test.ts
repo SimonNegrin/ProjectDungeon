@@ -32,6 +32,41 @@ function stateWithEnemy(
 }
 
 describe('banners de inventario, fase y turno', () => {
+  it('los banners de las armas nuevas leen el nombre del catálogo', () => {
+    const state = makeState();
+    const pickup = buildMotionTimeline(
+      [
+        {
+          type: 'PickUp',
+          unitId: 'player-1',
+          weaponId: 'electric-sword',
+          slot: 2,
+        } satisfies PresentationEvent,
+      ],
+      { finalState: state },
+    );
+    const select = buildMotionTimeline(
+      [
+        {
+          type: 'SelectWeapon',
+          unitId: 'player-1',
+          weaponId: 'arcane-dagger',
+          slot: 3,
+        } satisfies PresentationEvent,
+      ],
+      { finalState: state },
+    );
+
+    expect(bannerForCue(pickup.cues[0])).toMatchObject({
+      text: '+ Espada electrizada',
+      kind: 'pickup',
+    });
+    expect(bannerForCue(select.cues[0])).toMatchObject({
+      text: 'Daga arcana',
+      kind: 'select-weapon',
+    });
+  });
+
   it('la recogida anuncia + <Arma> y el cambio de arma muestra su nombre', () => {
     const state = makeState();
     const pickup = buildMotionTimeline(

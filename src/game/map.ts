@@ -159,6 +159,9 @@ export const MAP_WEAPON_SPECS: readonly {
 }[] = [
   { id: 'weapon-axe', weaponId: 'axe' },
   { id: 'weapon-dagger', weaponId: 'dagger' },
+  // TASK-0087: el martillo es la única arma nueva que entra al mapa. Va al
+  // final para no consumir antes el PRNG de colocación de las existentes.
+  { id: 'weapon-hammer', weaponId: 'hammer' },
 ];
 
 export interface GeneratedMap {
@@ -624,9 +627,11 @@ export interface PlaceMapWeaponsOptions {
 }
 
 /**
- * Coloca el hacha y la daga de forma determinista a partir de la semilla y del
- * mapa: dos salas distintas, fuera de la sala inicial, alcanzables desde la
- * aparición del jugador y sin caer en muro, puerta ni aparición.
+ * Coloca las armas de `MAP_WEAPON_SPECS` (hacha, daga y martillo) de forma
+ * determinista a partir de la semilla y del mapa: preferentemente una sala
+ * distinta por arma (fuera de la sala inicial), alcanzables desde la aparición
+ * del jugador y sin caer en muro, puerta ni aparición. En mapas con menos salas
+ * útiles que armas se reutiliza una sala con celdas distintas.
  *
  * Usa un `mulberry32` derivado de la semilla con una sal propia. No consume ni
  * reordena la secuencia del generador BSP ni la del RNG de combate. El parámetro
@@ -648,21 +653,32 @@ export function placeMapWeapons(
   );
   const placed: MapWeapon[] = [];
 
-  for (const spec of MAP_WEAPON_SPECS) {
+  // Primero se busca una sala libre por arma. Solo si el mapa tiene menos salas
+  // útiles que armas (p. ej. una caverna de tres salas) se reutiliza una sala
+  // ya ocupada, siempre en una celda distinta. El PRNG no cambia por ello.
+  const candidatesFor = (
+    allowUsedRooms: boolean,
+  ): Array<{ readonly room: Room; readonly cells: readonly Position[] }> => {
     const candidates: Array<{ readonly room: Room; readonly cells: readonly Position[] }> = [];
-
     for (const room of map.rooms) {
       if (room.id === initialRoom?.id) continue;
-      if (usedRoomIds.has(room.id)) continue;
+      if (!allowUsedRooms && usedRoomIds.has(room.id)) continue;
       const cells = eligibleWeaponCells(map, room, distances, blockedKeys);
       if (cells.length > 0) candidates.push({ room, cells });
     }
+    return candidates;
+  };
+
+  for (const spec of MAP_WEAPON_SPECS) {
+    let candidates = candidatesFor(false);
+    if (candidates.length === 0) candidates = candidatesFor(true);
 
     if (candidates.length === 0) break;
 
     const candidate = candidates[Math.floor(rng() * candidates.length)];
     const cell = candidate.cells[Math.floor(rng() * candidate.cells.length)];
     usedRoomIds.add(candidate.room.id);
+    blockedKeys.add(`${cell.x},${cell.y}`);
     placed.push({ id: spec.id, weaponId: spec.weaponId, x: cell.x, y: cell.y });
   }
 

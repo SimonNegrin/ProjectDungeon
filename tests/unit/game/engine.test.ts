@@ -294,6 +294,54 @@ describe('recogida y cambio de armas', () => {
     expect(JSON.parse(JSON.stringify(result.state))).toEqual(result.state);
   });
 
+  it('recoge el martillo nuevo y lo auto-equipa con las reglas vivas', () => {
+    const state = stateWithWeapon({ weapon: 'hammer' });
+
+    const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.players[0]).toMatchObject({
+      mp: PLAYER_MAX_MP - PICKUP_COST,
+      actions: { remaining: 2 },
+      weapons: ['sword', 'hammer'],
+      equipment: { weaponId: 'hammer' },
+    });
+    expect(result.state.map?.weapons).toEqual([]);
+  });
+
+  it('cambia a la espada electrizada y a la daga arcana por slot sin gastar recursos', () => {
+    const state = stateWithWeapon({
+      weapons: ['sword', 'electric-sword', 'arcane-dagger'],
+      equipped: 'sword',
+      mp: 0,
+      actions: 0,
+    });
+
+    const toElectric = reduce(state, {
+      type: 'SelectWeapon',
+      unitId: 'player-1',
+      slot: 2,
+    });
+    expect(toElectric.events).toEqual([]);
+    expect(toElectric.state.players[0]).toMatchObject({
+      equipment: { weaponId: 'electric-sword' },
+      mp: 0,
+      actions: { remaining: 0 },
+      weapons: ['sword', 'electric-sword', 'arcane-dagger'],
+    });
+
+    const toArcane = reduce(toElectric.state, {
+      type: 'SelectWeapon',
+      unitId: 'player-1',
+      slot: 3,
+    });
+    expect(toArcane.state.players[0]).toMatchObject({
+      equipment: { weaponId: 'arcane-dagger' },
+      mp: 0,
+      actions: { remaining: 0 },
+    });
+  });
+
   it('con 0 MP rechaza la recogida sin tocar el mapa ni el inventario', () => {
     const state = stateWithWeapon({ weapon: 'axe', mp: 0 });
 

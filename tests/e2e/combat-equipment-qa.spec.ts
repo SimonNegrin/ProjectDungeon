@@ -228,13 +228,15 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(player.weapons).toEqual(['sword']);
   expect(player.stats).toEqual(ROSTER.warrior.stats);
   expect(player.stats.resistencia).toEqual(ROSTER.warrior.stats.resistencia);
-  expect(initial.weapons).toHaveLength(2);
+  expect(initial.weapons).toHaveLength(3);
 
   const axe = initial.weapons.find((weapon) => weapon.weaponId === 'axe');
   const dagger = initial.weapons.find((weapon) => weapon.weaponId === 'dagger');
+  const hammer = initial.weapons.find((weapon) => weapon.weaponId === 'hammer');
   expect(axe, 'La semilla debe colocar el hacha').toBeDefined();
   expect(dagger, 'La semilla debe colocar la daga').toBeDefined();
-  expect(new Set([axe!.id, dagger!.id]).size).toBe(2);
+  expect(hammer, 'La semilla debe colocar el martillo').toBeDefined();
+  expect(new Set([axe!.id, dagger!.id, hammer!.id]).size).toBe(3);
 
   const spawnRoom = roomAt(initial, player.x, player.y);
   expect(spawnRoom).toBeDefined();
@@ -261,7 +263,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(neighbor, 'El hacha debe tener una casilla libre al lado').toBeDefined();
   await walkTo(page, neighbor!.x, neighbor!.y);
   const nearAxe = await snapshot(page);
-  expect(nearAxe.weapons).toHaveLength(2);
+  expect(nearAxe.weapons).toHaveLength(3);
   expect(nearAxe.players[0].equipment.weaponId).toBe('sword');
   await screenshot(page, 'weapon-in-map', testInfo);
 
@@ -279,7 +281,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(afterPickup.players[0].actions).toEqual(beforePickup.players[0].actions);
   expect(afterPickup.players[0].equipment.weaponId).toBe('axe');
   expect(afterPickup.players[0].weapons).toEqual(['sword', 'axe']);
-  expect(afterPickup.weapons).toHaveLength(1);
+  expect(afterPickup.weapons).toHaveLength(2);
   expect(afterPickup.weapons.some((weapon) => weapon.id === axe!.id)).toBe(false);
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudEquipment(page, afterPickup);
@@ -297,7 +299,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
     weapons: ['sword', 'axe'],
     equipment: { weaponId: 'axe' },
   });
-  expect(afterRepeated.weapons).toHaveLength(1);
+  expect(afterRepeated.weapons).toHaveLength(2);
   await expect(page.getByTestId('hud-message')).toBeHidden();
 
   await walkTo(page, dagger!.x, dagger!.y);
@@ -310,7 +312,8 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(afterDagger.players[0].actions).toEqual(beforeDagger.players[0].actions);
   expect(afterDagger.players[0].equipment.weaponId).toBe('dagger');
   expect(afterDagger.players[0].weapons).toEqual(['sword', 'axe', 'dagger']);
-  expect(afterDagger.weapons).toEqual([]);
+  expect(afterDagger.weapons).toHaveLength(1);
+  expect(afterDagger.weapons[0].weaponId).toBe('hammer');
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudEquipment(page, afterDagger);
 
