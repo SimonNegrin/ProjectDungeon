@@ -8,6 +8,14 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T14:55:00Z }
 artifacts: artifacts/TASK-0090/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T14:56:48Z
+    note: >-
+      Verificado en la fusión `954e4cb`: `pnpm run verify` 1189/1189 y 141/141
+      tests focalizados. Benchmark de coste reproducido con semilla `1017`:
+      1 paquete ~0,61 µs y 2 paquetes ~0,65 µs, muy por debajo de 16,67 ms.
+      Sin cambios en `src/` ni tests existentes; ningún test borrado, saltado o
+      debilitado.
 ---
 
 # Estado
@@ -68,6 +76,6 @@ Ninguna.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2862 |
-| `report_bytes` | 2715 |
+| `report_bytes` | 3108 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

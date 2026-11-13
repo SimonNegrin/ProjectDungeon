@@ -4,22 +4,37 @@ id: TASK-0090
 title: "Verificación: matriz de tipos, regresión y coste por ataque"
 description: "Cubrir con tests la matriz de bandas, paquetes, armas y hechizos, comprobar la no regresión de REQ-010, REQ-014, REQ-025 y REQ-027 y medir el coste de un ataque de dos paquetes."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: test
 requirement: REQ-029
 requirement_ids: [T-009, T-012]
 depends_on: [TASK-0086, TASK-0087, TASK-0088]
 unlocks: [TASK-0091]
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T14:56:48Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0090/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T14:56:48Z
+    note: >-
+      Verificación independiente en `task/TASK-0090` (tests `a99e0bd`, informe
+      `27a0be0`, fusión `954e4cb`). Diff completo revisado: solo el test nuevo y
+      artefactos; sin cambios en `src/`, contenido, dependencias ni docs.
+      `pnpm run verify` re-ejecutado OK (86 archivos, 1189/1189; docs:check,
+      config:check, tsc, build y check:bundle) y 141/141 tests focalizados de
+      los seis archivos. Benchmark de coste reproducido con semilla `1017`:
+      1 paquete ~0,61 µs y 2 paquetes ~0,65 µs (×1,06; la ejecución del runner
+      dio ×1,37), muy por debajo de 16,67 ms. Ningún test borrado, saltado ni
+      debilitado; los siete criterios se cumplen. Observación menor: el test de
+      REQ-014 se titula «nueve atributos» pero comprueba siete claves de `stats`
+      más PV/MP del Guerrero; la cobertura de los nueve ya existe en
+      `roster.test.ts` y `bestiary.test.ts`, sin impacto.
 ---
 
 # Objetivo
@@ -40,22 +55,22 @@ retrocedido y que el coste de un ataque de dos paquetes esté medido y registrad
 
 # Criterios de aceptación
 
-- [ ] Hay tests para cada banda, armadura solo física, fuerza solo física, ataque
+- [x] Hay tests para cada banda, armadura solo física, fuerza solo física, ataque
       con paquete físico y elemental, recorte a 0, mínimo 1 global, máximo de
       paquetes y validación del catálogo.
-- [ ] Hay tests de hechizo eléctrico y de fuego (banda correcta), curación sin
+- [x] Hay tests de hechizo eléctrico y de fuego (banda correcta), curación sin
       paquete y nivel de magia que no cambia el tipo ni el daño.
-- [ ] El determinismo se comprueba con la misma semilla y comandos; el desglose y
+- [x] El determinismo se comprueba con la misma semilla y comandos; el desglose y
       la secuencia del RNG coinciden.
-- [ ] Los tests de balance comprueban propiedades y leen del catálogo; cambiar una
+- [x] Los tests de balance comprueban propiedades y leen del catálogo; cambiar una
       banda o una cantidad no obliga a reescribir fórmulas de test.
-- [ ] La no regresión de `REQ-010` (impacto y escudo), `REQ-014` (nueve
+- [x] La no regresión de `REQ-010` (impacto y escudo), `REQ-014` (nueve
       atributos), `REQ-025` (maná, acceso y tope) y `REQ-027` (réplica) queda
       cubierta; no se borran, saltan ni debilitan tests.
-- [ ] El coste de un ataque de dos paquetes se mide antes y después: dos tiradas
+- [x] El coste de un ataque de dos paquetes se mide antes y después: dos tiradas
       de daño y dos de resistencia como máximo; el objetivo de 60 fps no se
       degrada y la medición queda en el informe.
-- [ ] `pnpm run verify` pasa; cualquier defecto encontrado se corrige en el
+- [x] `pnpm run verify` pasa; cualquier defecto encontrado se corrige en el
       alcance del motor o se reporta como bloqueo, sin relajar el test.
 
 # Plan de test
@@ -68,10 +83,10 @@ retrocedido y que el coste de un ataque de dos paquetes esté medido y registrad
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0090/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify` y de los tests focalizados
-- [ ] Medición de coste con el comando y la semilla usados
-- [ ] Commit SHA en la rama `task/TASK-0090`
+- [x] Informe en `artifacts/TASK-0090/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` y de los tests focalizados
+- [x] Medición de coste con el comando y la semilla usados
+- [x] Commit SHA en la rama `task/TASK-0090`
 
 # Restricciones
 

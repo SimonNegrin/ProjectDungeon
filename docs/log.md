@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0090 — done: 19 tests nuevos de matriz de bandas, paquetes, hechizos, determinismo y no regresión de REQ-010/014/025/027; coste de dos paquetes +0,04–0,20 µs con semilla `1017`; verify 1189/1189; fusión `954e4cb` — [informe](../artifacts/TASK-0090/attempt-1/report.md)
+
 * 2026-11-13 — Requirement — REQ-030 — borrador: contorno de alcance de hechizos recortado por muros y LOS al recorrer la lista y al apuntar con `X`; fuera los avisos de rechazo y el sonido; P-001 a P-007 abiertas, incluida la de si «solo adversario» es regla nueva o el rechazo actual — [REQ-030](requirements/REQ-030-alcance-visible-hechizos.md)
 
 * 2026-11-13 — Task — TASK-0083 — done: selección de hechizo y objetivo con teclado, HUD de magia/maná y feedback de impacto, curación, resurrección y rechazos; 1170/1170 verify, 116/116 E2E y docs:check OK; capturas 1280×720 y 900×700; sin cambios en `src/game/**`; fusión `d92f059` — [informe](../artifacts/TASK-0083/attempt-1/report.md)
