@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:00:00Z
-updated_at: 2026-11-13T18:00:00Z
+updated_at: 2026-11-13T16:37:46Z
 related_tasks: [TASK-0081, TASK-0082, TASK-0083]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:00:00Z }
 verified:
@@ -19,6 +19,12 @@ verified:
       hechizos, fórmula mágica con las capas del físico, curación a 2–3 casillas y
       resurrección de nivel 4 con 60 % del PV máximo.
 ---
+
+> **Estado de implementación (2026-11-13).** Nivel de magia, maná, catálogo,
+> resolvedor, HUD y feedback implementados y verificados en TASK-0081 a
+> TASK-0083. La **resurrección jugable** sigue pendiente del flujo de fantasma,
+> derrota y cadáver de [REQ-021](REQ-021-muerte-fantasma-resurreccion.md); el
+> hechizo ya existe y se prueba con estados sintéticos.
 
 > **Nota de vigencia (2026-11-13).** La fórmula mágica y el catálogo se enmendan
 > por [REQ-029](REQ-029-tipos-dano-resistencias.md) y

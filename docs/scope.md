@@ -10,13 +10,15 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-11T10:05:00Z }
 
 El prototipo actual es un dungeon crawler de un jugador con teclado: mazmorra
 generada, turnos, combate con equipo, percepción y feedback visual. La base está
-cerrada: `REQ-001` a `REQ-010` y `REQ-017` están implementadas; `REQ-009`,
-`REQ-011`, `REQ-012` y `REQ-013` están `stable` con playtest pendiente o en curso.
+cerrada: `REQ-001` a `REQ-015` y `REQ-017` están implementadas o `stable`, con
+`REQ-009` pendiente de playtest. La economía de acciones, la réplica, la magia y
+los tipos de daño están implementadas (`REQ-025`, `REQ-026`, `REQ-027` y
+`REQ-029`).
 
-El trabajo inmediato es cerrar el generador denso y la exploración
-(`TASK-0043` a `TASK-0049`), el feedback visual (`TASK-0057` a `TASK-0061`) y
-preparar la fase 2: esquema de atributos, roster y pantalla de inicio
-(`TASK-0053` a `TASK-0056`; `REQ-016` en borrador).
+El trabajo inmediato es cerrar la resurrección jugable y el saqueo
+(`REQ-018`, `REQ-020` y `REQ-021`), y después el HUD lateral y el guardado
+(`REQ-022`, `REQ-023` y `REQ-024`). `REQ-030` (alcance visible de hechizos)
+queda en borrador.
 
 # Horizonte
 
@@ -42,8 +44,10 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.9 | Suelo programático por sala y decoración ambiental (REQ-008) | Completada; TASK-0023 y TASK-0024 cerradas |
 | 1.10 | Combate con equipo: acierto, defensa y daño variable (REQ-010) | Completada; tabla A de EXP-003; TASK-0026 a TASK-0030 cerradas |
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
-| 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Decidido: `growth` por defecto; EXP-004 cerrado en TASK-0042; producción planificada en TASK-0043 a TASK-0049 |
-| 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Planificada: TASK-0057 a TASK-0061 |
+| 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Completada; `growth` por defecto, EXP-004 cerrado y TASK-0043 a TASK-0049 cerradas |
+| 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
+| 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
+| 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
 | 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador (REQ-016) |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
@@ -57,21 +61,22 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 
 - `REQ-001` a `REQ-015` y `REQ-017`: implementadas o `stable`, con playtest
   pendiente en `REQ-009`.
-- `REQ-016` (pantalla de inicio), `REQ-019` (traits de objetos) y `REQ-020`
-  (cofres y cadáveres saqueables): **borrador**; `REQ-018` está `stable` v2 y los
-  tres siguen sin tareas.
+- Magia y maná: `REQ-025` implementada en TASK-0081 a TASK-0083; la resurrección
+  jugable sigue pendiente de `REQ-021`.
+- Economía de acciones: `REQ-026` implementada en TASK-0076 a TASK-0078. Quedan
+  pendientes soltar objetos y contenedores (R-010/R-011), que dependen de
+  `REQ-018`/`REQ-020`, y el rebalanceo de TASK-0084, aplazado.
+- Réplica cuerpo a cuerpo: `REQ-027` implementada en TASK-0079 y TASK-0080.
+- Tipos de daño: `REQ-029` implementada y verificada en TASK-0085 a TASK-0092;
+  perfiles y armas v1 son estimados y el ajuste fino se aplaza a roster y
+  bestiario completos.
+- `REQ-018` (inventario y equipo) y `REQ-019` (traits) están `stable` y sin
+  tareas; `REQ-020` (cofres y cadáveres) sigue en borrador.
+- `REQ-016` (pantalla de inicio), `REQ-022` (HUD izquierdo), `REQ-023` (detalle
+  del cursor), `REQ-024` (pausa y guardado) y `REQ-030` (alcance visible de
+  hechizos) están en borrador.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
   ordenar con `REQ-018`/`REQ-020`.
-- HUD lateral: `REQ-022` (jugador) y `REQ-023` (cursor) en borrador; dependen de
-  `REQ-018` y `REQ-020`.
-- Menú de pausa y guardado local: `REQ-024` en borrador; la persistencia deja de
-  ser pregunta abierta.
-- Magia y maná: `REQ-025` está `stable`; nivel único, maná por turno, catálogo
-  mínimo de seis hechizos y resurrección como hechizo.
-- Economía de acciones: `REQ-026` está `stable` v5; reglas cerradas y rebalanceo
-  pendiente con `EXP-003`.
-- Réplica cuerpo a cuerpo: `REQ-027` está `stable` v2; se dispara con un ataque
-  fallido con arma equipada; el dormido no es atacable en melé.
 
 # Primer hito jugable
 
@@ -192,16 +197,16 @@ Los valores concretos de la economía de turno son provisionales y viven en
   preparación.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
-  muros mágicos: horizonte. La magia básica y la curación están en `REQ-025`;
-  implementación pendiente.
+  muros mágicos: horizonte. La magia básica y la curación están implementadas en
+  `REQ-025`; la resurrección jugable depende de `REQ-021`.
 - Puntos de habilidad y progresión: horizonte sin hoja aprobada. Las acciones por
-  personaje ya tienen hoja (`REQ-026`), sin implementar.
-- Rebalanceo de combate por acciones y réplica: planificado en `REQ-026`; valores
-  aún no recalculados.
+  personaje están implementadas en `REQ-026`.
+- Rebalanceo de combate por acciones, magia y réplica: TASK-0084 queda aplazada;
+  el ajuste fino espera a roster y bestiario completos, según `REQ-029`.
 - Puertas con llave y cofres: definidos, no implementados; `REQ-020` sigue en
   borrador.
-- Inventario, equipo y traits: `REQ-018` está `stable` v2 y sin implementar;
-  `REQ-019` sigue en borrador.
+- Inventario, equipo y traits: `REQ-018` y `REQ-019` están `stable` v2 y sin
+  implementar.
 - Ajuste fino de tipos y perfiles con roster y bestiario completos: `REQ-029`
   deja valores estimados para probar; el mecanismo iterable de fortalezas y
   debilidades se diseñará cuando ambos estén cerrados.

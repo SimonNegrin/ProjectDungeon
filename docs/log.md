@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Milestone — REQ-029 — cerrada: tipos de daño, paquetes y bandas implementados y verificados en TASK-0085 a TASK-0092; playtest de legibilidad confirmado; ajuste fino aplazado a roster y bestiario completos — [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)
+* 2026-11-13 — Milestone — REQ-025/REQ-027 — cerradas: magia (TASK-0081 a TASK-0083) y réplica (TASK-0079/0080) implementadas y verificadas; resurrección jugable pendiente de REQ-021 — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
+* 2026-11-13 — Docs — scope e índice — reflejan el cierre de REQ-025/027/029 y el estado parcial de REQ-026: TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/020; corrige los `updated_at` futuros de REQ-010/014/015 — [scope](scope.md)
+* 2026-11-13 — Planning — TASK-0084/TASK-0052 — bloqueadas: 0084 por el cambio de modelo de REQ-029 y el ajuste fino aplazado; 0052 por obsoleta tras EXP-003 v2 — [TASK-0084](tasks/TASK-0084-balance-acciones-magia-replica.md)
 * 2026-11-13 — Harness — Permisos — el prompt de `requirements-writer` descarta `sed -i`, `mv`, `mkdir`, `touch` y bucles `for` con variables: la allowlist no los cubre y la sesión esperaba aprobación aunque `edit` sí está permitido en `docs/**`; `updated_at` con hora real — [requirements-writer](../.opencode/agents/requirements-writer.md)
 
 * 2026-11-13 — Task — TASK-0091 — done: turn-economy con paquetes, bandas, 7 armas y perfiles; arquitectura con resolvedor único y magia tipada; glosario con perfil y distinción daño mágico/nivel; notas de vigencia de REQ-010/014/015/025; docs:check 447 y verify 1189/1189; fusión `a3cb72b` — [informe](../artifacts/TASK-0091/attempt-1/report.md)

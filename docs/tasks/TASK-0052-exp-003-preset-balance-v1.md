@@ -4,7 +4,7 @@ id: TASK-0052
 title: "EXP-003: preset de balance provisional v1"
 description: Actualizar el catálogo y el roster de EXP-003 al balance v1 y sus tests, sin reescribir la decisión histórica de la tabla A.
 status: draft
-task_status: backlog
+task_status: blocked
 task_type: experiment
 requirement: REQ-010
 requirement_ids: [R-003, R-008, T-008]
@@ -21,6 +21,9 @@ review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-09T12:00:00Z }
 verified:
 ---
+
+> **Obsoleta (2026-11-13).** El balance v1 fue sustituido por EXP-003 v2 y por
+> REQ-029. Se conserva como referencia histórica; no ejecutar.
 
 # Objetivo
 

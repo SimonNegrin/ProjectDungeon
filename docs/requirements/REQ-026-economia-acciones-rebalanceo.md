@@ -8,7 +8,7 @@ version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:05:00Z
-updated_at: 2026-11-11T16:05:00Z
+updated_at: 2026-11-13T16:37:46Z
 related_tasks: [TASK-0076, TASK-0077, TASK-0078, TASK-0084]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:05:00Z }
 verified:
@@ -19,6 +19,13 @@ verified:
       2/1/2, tope 4 provisional, fin de turno manual, un ataque por pulsación y
       rebalanceo con EXP-003.
 ---
+
+> **Estado de implementación (2026-11-13).** Contador de acciones, costes por
+> comando, ataque repetible, fin de turno manual, IA encadenada y HUD
+> implementados en TASK-0076 a TASK-0078. Quedan pendientes **soltar objetos y
+> contenedores** (R-010/R-011), que dependen de REQ-018 y REQ-020, y el
+> **rebalanceo** de TASK-0084, aplazado hasta roster y bestiario completos por
+> [REQ-029](REQ-029-tipos-dano-resistencias.md).
 
 # Contexto
 
@@ -122,8 +129,11 @@ eje de poder.
 
 # Preguntas abiertas
 
-Ninguna. Las decisiones de esta versión están registradas en la tabla siguiente.
-El rebalanceo de valores queda como tarea de `EXP-003`.
+Ninguna bloquea las reglas. TASK-0084 queda bloqueada: [REQ-029](REQ-029-tipos-dano-resistencias.md)
+sustituyó el modelo de daño y aplazó el ajuste fino hasta roster y bestiario
+completos. R-010/R-011 (soltar y contenedores) dependen de
+[REQ-018](REQ-018-inventario-equipo.md) y
+[REQ-020](REQ-020-cofres-saqueo.md).
 
 # Decisiones
 

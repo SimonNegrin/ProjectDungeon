@@ -4,7 +4,7 @@ id: TASK-0084
 title: "Balance: propuesta con acciones, magia y réplica"
 description: "Ejecutar la mesa EXP-003 v2 con los valores implementados de acciones, magia y réplica, medir 1.000 duelos por emparejamiento y entregar una tabla propuesta sin aplicar valores."
 status: stable
-task_status: backlog
+task_status: blocked
 task_type: experiment
 requirement: REQ-026
 requirement_ids: [R-009, T-005, T-008]
@@ -21,6 +21,10 @@ review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T15:10:00Z }
 verified:
 ---
+
+> **Bloqueada (2026-11-13).** REQ-029 sustituyó el modelo de daño único y aplazó
+> el ajuste fino hasta roster y bestiario completos. No ejecutar hasta replantear
+> la medición con la mesa actualizada.
 
 # Objetivo
 

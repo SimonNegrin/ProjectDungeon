@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:10:00Z
-updated_at: 2026-11-11T16:20:00Z
+updated_at: 2026-11-13T16:37:46Z
 related_tasks: [TASK-0079, TASK-0080]
 amends: [REQ-009, REQ-010]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:10:00Z }
@@ -20,6 +20,10 @@ verified:
       replica, sin aviso en el HUD, presentación con la animación de ataque y sin
       texto, réplicas independientes del tope y −1 aplazado.
 ---
+
+> **Cierre (2026-11-13).** Implementada y verificada en TASK-0079 y TASK-0080:
+> resolución de la réplica, elegibilidad, evento propio, presentación con giro,
+> glosario y ADR. Sin cambios posteriores.
 
 # Contexto
 

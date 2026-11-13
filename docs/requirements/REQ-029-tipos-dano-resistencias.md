@@ -8,7 +8,7 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-12T12:00:00Z
-updated_at: 2026-11-13T12:30:00Z
+updated_at: 2026-11-13T16:37:46Z
 related_tasks: [TASK-0085, TASK-0086, TASK-0087, TASK-0088, TASK-0089, TASK-0090, TASK-0091, TASK-0092]
 related_requirements: [REQ-009, REQ-010, REQ-014, REQ-015, REQ-017, REQ-023, REQ-025, REQ-026, REQ-027]
 related_decisions: [ADR-023]
@@ -22,6 +22,12 @@ verified:
       ajuste fino aplazado a roster y bestiario completos. Las tareas se crean en
       una sesión aparte.
 ---
+
+> **Cierre (2026-11-13).** Implementada y verificada en TASK-0085 a TASK-0092:
+> paquetes tipados, perfiles de banda, armas nuevas, desglose de eventos, HUD y
+> QA visual. El playtest de legibilidad fue confirmado por el usuario. Los
+> perfiles y las armas v1 quedan como valores estimados; el ajuste fino se
+> aplaza a roster y bestiario completos.
 
 # Contexto
 
