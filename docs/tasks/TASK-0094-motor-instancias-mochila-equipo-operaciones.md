@@ -4,22 +4,45 @@ id: TASK-0094
 title: "Motor: instancias, mochila, equipo y operaciones atómicas"
 description: "Convertir armas y equipo en instancias con localización única, dar a cada personaje ocho huecos y ocho de mochila, agregar stats efectivos en un solo punto y resolver equipar, desequipar, recoger y soltar como operaciones atómicas de 1 MP."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-001, R-003, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-018, R-019, R-020, R-021, T-002, T-003, T-004, T-005, T-006]
 depends_on: [TASK-0093]
 unlocks: [TASK-0095, TASK-0096]
 created_at: 2026-11-13T19:22:51Z
-completed_at:
+completed_at: 2026-11-13T20:22:17Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0094/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:22:51Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T20:22:17Z
+    note: >-
+      Verificación independiente en `task/TASK-0094` (implementación `4fe4372`,
+      correcciones `d827c18`, evidencia `307e7b7`) y sobre `main` fusionado
+      (`a173d85`). Revisado el diff completo: modelo en
+      `src/game/{inventory,stats,types,engine,combat,magic,roster,actions}.ts`,
+      host mínimo y tests; sin cambios de requisitos, alcance, balance ni
+      dependencias. Reejecutados los focalizados (94/94 en seis archivos) y
+      `pnpm run verify` por defecto en `main` (1225/1225; docs, config, tsc,
+      build y bundle), con salida en `artifacts/TASK-0094/attempt-1/verify-lead.txt`.
+      Criterios comprobados uno a uno: instancias/localización única, 8 huecos y
+      mochila paramétrica, equipo inicial de REQ-015, stats efectivos en un punto,
+      cuatro operaciones de 1 MP/0 acciones, validación sobre el estado resultante,
+      dos manos con escudo por ambos lados, suelo/contenedor, sin apilado,
+      serialización y puente `G`/`1`-`3`. Corregidos en revisión el origen de
+      suelo por ID, el test de serialización de stats eliminado, la validación
+      del mapa growth y los IDs duplicados de fixtures. E2E/Playwright queda
+      aplazado a TASK-0098 según el plan; los specs previos solo se adaptaron
+      para `tsc`. La pasada por defecto en `main` dio 1225/1225 y una repetición
+      posterior flaqueó solo por el timeout conocido de EXP-004;
+      `VITEST_MAX_WORKERS=1` confirmó 1225/1225. Evidencia `verify-lead.txt` y
+      `verify-lead-serial.txt`.
 ---
 
 # Objetivo

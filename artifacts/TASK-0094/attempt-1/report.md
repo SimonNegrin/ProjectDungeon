@@ -8,12 +8,17 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T20:21:00Z }
 artifacts: artifacts/TASK-0094/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T20:22:17Z
+    note: >-
+      Lead: verify 1225/1225 en main `a173d85`; 94/94 focalizados; E2E en
+      TASK-0098.
 ---
 
 # Estado
 
-`success`. Implementados instancias, mochila y equipo; `pnpm run verify` pasa con
-workers por defecto tras corregir la revisión independiente del lead.
+`success`. Implementados instancias, mochila y equipo; `pnpm run verify` pasa y
+la confirmación serial cubre el flake conocido de EXP-004.
 
 # Cambios
 
@@ -40,13 +45,12 @@ workers por defecto tras corregir la revisión independiente del lead.
 | `pnpm exec vitest run` (focalizados, 4 archivos tocados) | 69/69 | `focused-test-output.txt` |
 | `pnpm exec vitest run` (suite completa) | 1225/1225 | `test-output.txt` |
 | `pnpm run verify` (workers por defecto) | OK | `verify-output.txt` |
-| `VITEST_MAX_WORKERS=1 pnpm run verify` | OK (runs previos) | `verify-output-4.txt` |
+| `pnpm run verify` (lead, main) | OK 1225/1225 | `verify-lead.txt` |
+| `VITEST_MAX_WORKERS=1 pnpm run verify` (lead, main) | OK 1225/1225 | `verify-lead-serial.txt` |
 | EXP-004 aislado | 20/20 | `logs/exp-004-isolated.txt` |
 
-Cobertura nueva: localización/IDs únicos, dos objetos en el mismo tile por ID,
-capacidad 8 y alternativa, intercambio con mochila llena, suelo y contenedor,
-contenedor lleno, rechazos atómicos, dos manos por ambos lados, soltar equipado,
-sin apilado, coste 1 MP/0 acciones, serialización y agregación sintética.
+Cobertura: localización/IDs, dos objetos por tile, capacidad, intercambio,
+suelo/contenedor, dos manos, soltar, sin apilado, coste, serialización y stats.
 
 # Evidencia visual
 
@@ -62,9 +66,11 @@ sin apilado, coste 1 MP/0 acciones, serialización y agregación sintética.
 
 # Problemas conocidos y preguntas abiertas
 
-- EXP-004 `spawn.test.ts` (barrido de 200 semillas) superó los 5 s en ejecuciones
-  previas bajo carga; la última pasada por defecto y la aislada pasan. No se
-  modificó el test ni el arnés; queda como flake conocido.
+- EXP-004 `spawn.test.ts` (barrido de 200 semillas) supera intermitentemente los
+  5 s bajo carga. La pasada por defecto del lead en `main` dio 1225/1225; una
+  repetición posterior falló solo por ese timeout (1224/1225) y
+  `VITEST_MAX_WORKERS=1` confirmó 1225/1225. Flake conocido; evidencia en
+  `verify-lead*.txt`.
 - `src/game/` sigue puro; no hay importaciones de `src/host/`.
 
 # Fricción reutilizable
@@ -78,6 +84,6 @@ sin apilado, coste 1 MP/0 acciones, serialización y agregación sintética.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3132 |
-| `report_bytes` | 3928 |
+| `report_bytes` | 4086 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

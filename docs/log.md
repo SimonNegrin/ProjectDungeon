@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0094 — done: instancias con localización única, 8 huecos y mochila paramétrica, stats efectivos en un punto y operaciones atómicas de 1 MP; puente `G`/`1`-`3`; verify 1225/1225 en `main`; fusión `a173d85` — [informe](../artifacts/TASK-0094/attempt-1/report.md)
+
 * 2026-11-13 — Planning — TASK-0094 — ready: modelo de instancias con localización única, 8 huecos de equipo y 8 de mochila, agregación de stats efectivos en un punto y operaciones atómicas de 1 MP; dependencia TASK-0093 `done` y REQ-018 aceptada; handoff a `task-lead` — [TASK-0094](tasks/TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
 
 * 2026-11-13 — Task — TASK-0093 — done: catálogo `ITEMS` con `ItemDefinition`, validación y vistas `WEAPONS`/`ARMORS`/`SHIELDS` derivadas sin cambiar valores; recortes contra `items.txt` y el PNG real; verify 1200/1200 y 77/77 focalizados; fusión `5dd5634` — [informe](../artifacts/TASK-0093/attempt-1/report.md)

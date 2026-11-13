@@ -87,7 +87,7 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0091](TASK-0091-docs-formulas-bandas-vigencia.md) | Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025 | `done` | REQ-029 | TASK-0089, TASK-0090 | P1 |
 | [TASK-0092](TASK-0092-e2e-qa-tipos-dano-bandas.md) | E2E y QA visual de tipos de daño, bandas y desglose | `done` | REQ-029 | TASK-0087, TASK-0089 | P1 |
 | [TASK-0093](TASK-0093-motor-catalogo-objetos-definiciones.md) | Motor: catálogo de objetos y definiciones de equipo | `done` | REQ-018 | — | P1 |
-| [TASK-0094](TASK-0094-motor-instancias-mochila-equipo-operaciones.md) | Motor: instancias, mochila, equipo y operaciones atómicas | `in_progress` | REQ-018 | TASK-0093 | P1 |
+| [TASK-0094](TASK-0094-motor-instancias-mochila-equipo-operaciones.md) | Motor: instancias, mochila, equipo y operaciones atómicas | `done` | REQ-018 | TASK-0093 | P1 |
 | [TASK-0095](TASK-0095-host-panel-inventario-equipo.md) | Host: panel modal de inventario y equipo con `I` | `backlog` | REQ-018 | TASK-0094 | P1 |
 | [TASK-0098](TASK-0098-e2e-qa-inventario-equipo.md) | E2E y QA visual del inventario y el equipo | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
@@ -102,10 +102,6 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `backlog` | REQ-018 | TASK-0094 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P2 |
-
-# in_progress
-
-* [TASK-0094 — Motor: instancias, mochila, equipo y operaciones atómicas](TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
 
 # blocked
 
@@ -203,6 +199,7 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0091 — Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025](TASK-0091-docs-formulas-bandas-vigencia.md)
 * [TASK-0092 — E2E y QA visual de tipos de daño, bandas y desglose](TASK-0092-e2e-qa-tipos-dano-bandas.md)
 * [TASK-0093 — Motor: catálogo de objetos y definiciones de equipo](TASK-0093-motor-catalogo-objetos-definiciones.md)
+* [TASK-0094 — Motor: instancias, mochila, equipo y operaciones atómicas](TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
