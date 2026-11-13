@@ -68,7 +68,7 @@ Ninguno que bloquee. Los valores estimados de bandas llegan en TASK-0086.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief de `task-lead` usa enlaces relativos `../requirements/…` que el validador marca rotos al residir en `artifacts/TASK-NNNN/attempt-N/` | `docs:check` falla con 3 «enlace local roto» antes de tocar código | Reescribir a `../../../docs/…` | Todo brief con enlaces a `docs/` fallará igual si se copia desde la plantilla de tarea | Generar los enlaces del brief con `../../../docs/…` o documentarlo en `docs/templates/task.md` | Bajo | `pending` |
+| El brief de `task-lead` usa enlaces relativos `../requirements/…` que el validador marca rotos al residir en `artifacts/TASK-NNNN/attempt-N/` | `docs:check` falla con 3 «enlace local roto» antes de tocar código | Reescribir a `../../../docs/…` | Todo brief con enlaces a `docs/` fallará igual si se copia desde la plantilla de tarea | Generar los enlaces del brief con `../../../docs/…` o documentarlo en `docs/templates/task.md` | Bajo | `accepted` (owner: `harness-keeper`, vía `requirements-writer`) |
 
 # Métricas de handoff
 
