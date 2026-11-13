@@ -4,22 +4,42 @@ id: TASK-0097
 title: "Docs: inventario, equipo, controles y vigencia"
 description: "Actualizar glosario, economía de turno, arquitectura y las notas de vigencia de REQ-010 y REQ-026 con el modelo de instancias, mochila, huecos, panel `I` y costes de 1 MP, sin tocar reglas."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: docs
 requirement: REQ-018
 requirement_ids: [T-013]
 depends_on: [TASK-0095, TASK-0096, TASK-0098]
 unlocks: []
 created_at: 2026-11-13T19:22:51Z
-completed_at:
+completed_at: 2026-11-13T21:39:15Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0097/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:22:51Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T21:39:15Z
+    note: >-
+      Verificación independiente en `main` tras fusionar `task/TASK-0097`
+      (implementación `572a756`, evidencia `c89fd68`, merge `b78047b`). Diff
+      completo revisado: solo `docs/glossary.md`, `docs/design/{architecture,turn-economy}.md`,
+      `docs/decisions/ADR-021-inventario-equipo.md`,
+      `docs/requirements/{REQ-010,REQ-026,index}.md`, la ficha, TASK-0098 y
+      `artifacts/TASK-0097/**`; sin `src/**`, `tests/**`, `docs/harness/**`,
+      plantillas ni `AGENTS.md`. Reejecutados `pnpm run docs:check` (OK, 471
+      documentos) y `pnpm run verify` (1249/1249, build y bundle). Criterios
+      revisados uno a uno: glosario con los términos y nombres del código;
+      `turn-economy` con `I`/`Escape` y sin `G` ni `1`-`3` vigentes; arquitectura
+      con catálogo, instancias/localización, stats en un punto y separación
+      motor/host, más el límite visual 692/508 y 692/454 (1090/454) como límite
+      aceptado; ADR-021 con cierre TASK-0093 a TASK-0098, REQ-018 v5/R-004 y
+      REQ-019 v3/T-013; REQ-010 y REQ-026 con la sustitución y el estado de
+      R-010/R-011; índice con REQ-018 v5 y REQ-019 v3. Sin cambios de reglas,
+      valores, costes ni alcance y sin tests tocados. Fricción del `edit`
+      denegado en `task-runner` elevada a `harness-keeper`.
 ---
 
 # Objetivo

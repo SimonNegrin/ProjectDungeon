@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0097 — done: glosario, `I`/`Escape`, arquitectura del catálogo, instancias, stats y panel, y vigencia de REQ-010/REQ-026, ADR-021 e índice; límite visual documentado como aceptado; docs:check 471 documentos y verify 1249/1249; fusión `b78047b` — [informe](../artifacts/TASK-0097/attempt-1/report.md)
+
 * 2026-11-13 — Task — TASK-0098 — done: E2E del panel con teclado, equipar/desequipar, recoger/soltar, mochila llena, sin MP y ausencia de `G`/`1`-`3`, con sprites, `F1` y capturas 1280×720 / 900×700; E2E de dos manos diferido a REQ-019 T-013; verify 1249/1249 y E2E 131/131 — [informe](../artifacts/TASK-0098/attempt-1/report.md)
 
 * 2026-11-13 — Planning — REQ-018 v5 / TASK-0098 — enmienda R-004 aceptada: este corte no trae arma a dos manos jugable; el E2E de dos manos con escudo se traslada a REQ-019 T-013 (v3) y TASK-0098 retira ese criterio y su captura; sin cambios en el modelo — [REQ-018](requirements/REQ-018-inventario-equipo.md), [TASK-0098](tasks/TASK-0098-e2e-qa-inventario-equipo.md)
