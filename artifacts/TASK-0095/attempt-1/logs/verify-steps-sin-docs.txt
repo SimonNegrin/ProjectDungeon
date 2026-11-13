@@ -1,0 +1,26 @@
+$ node scripts/validate-opencode.mjs
+OK: 4 agentes, 3 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  89 passed (89)
+      Tests  1237 passed (1237)
+   Start at  20:39:46
+   Duration  11.37s (tests 89%, import 8%, transform 2%, worker 1%)
+
+    Isolate  89 workers spawned · ~119ms startup each (spawn + environment, per file)
+             at least ~1.39s faster with isolate: false — reuses workers across files instead of one per file
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 71 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                28.11 kB │ gzip:  5.61 kB
+dist/assets/main-CQlBNcAK.js  177.84 kB │ gzip: 59.20 kB
+✓ built in 411ms
+$ node scripts/check-bundle.mjs
+check:bundle: OK — scanned 12 dist files and 68 production modules; no forbidden markers.

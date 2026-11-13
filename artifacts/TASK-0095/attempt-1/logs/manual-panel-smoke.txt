@@ -1,0 +1,33 @@
+Comprobación manual con Playwright/Chromium headless (no forma parte de la suite;
+la cobertura E2E llega en TASK-0098). Vite en 127.0.0.1:4174, seed 279837264,
+viewport 1280×720.
+
+Guion: abrir con I, recorrer con Tab/Shift+Tab/flechas, confirmar Desequipar con
+Enter, cerrar con Escape, mover el cursor y pulsar G.
+
+Salida (resumen exacto del script):
+
+{
+  "opened": true,
+  "focusedInside": true,
+  "focusInsideAfterTab": true,
+  "groundHidden": true,
+  "dialogRole": "dialog",
+  "modal": "true",
+  "weaponName": "Espada",
+  "mpBefore": 6,
+  "mpAfterUnequip": 5,
+  "weaponBefore": "sword",
+  "weaponAfter": null,
+  "weaponAfterText": "Vacío",
+  "backpackAfter": ["sword"],
+  "equippedMessageHidden": true,
+  "closed": true,
+  "cursorMoved": true,
+  "gChangedState": false,
+  "consoleErrors": []
+}
+
+Captura: screenshots/panel-abierto-1280x720.png
+Nota: el desglose de stats queda por debajo del pliegue a 720 px y se alcanza con
+el scroll interno del panel; el total es visible sin desplazarse.

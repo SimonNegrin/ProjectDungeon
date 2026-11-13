@@ -472,6 +472,166 @@
         opacity: 0;
         white-space: nowrap;
       }
+      /* Panel modal de personaje: DOM sobre el marco, nunca Canvas. */
+      .inventory-panel {
+        position: absolute;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        background: rgba(3, 6, 10, 0.86);
+        overflow: auto;
+      }
+      .inventory-panel-body {
+        width: min(100%, 820px);
+        max-height: 100%;
+        overflow: auto;
+        padding: 14px 16px;
+        background: rgba(5, 9, 14, 0.97);
+        border: 1px solid rgba(127, 179, 213, 0.55);
+        border-radius: 10px;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+      }
+      .inventory-panel-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 6px 14px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 6px;
+      }
+      .inventory-panel-title {
+        margin: 0;
+        color: var(--accent);
+        font-size: 1rem;
+        letter-spacing: 0.04em;
+      }
+      .inventory-panel-mp {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .inventory-panel-help {
+        margin: 6px 0 10px;
+        color: var(--muted);
+        font-size: 0.72rem;
+        line-height: 1.4;
+      }
+      .inventory-panel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 10px 14px;
+        align-items: start;
+      }
+      .inventory-section-title {
+        margin: 0 0 4px;
+        color: var(--ink);
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+      }
+      .inventory-list {
+        display: grid;
+        gap: 4px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .inventory-row {
+        padding: 4px 6px;
+        background: rgba(13, 20, 29, 0.82);
+        border: 1px solid var(--line);
+        border-radius: 5px;
+      }
+      .inventory-row[data-empty="true"] {
+        opacity: 0.62;
+      }
+      .inventory-row-header {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 2px 10px;
+        font-size: 0.78rem;
+      }
+      .inventory-row-name {
+        color: var(--ink);
+        font-weight: 700;
+      }
+      .inventory-row-detail {
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+      .inventory-row-traits,
+      .inventory-row-comparison {
+        margin: 2px 0 0;
+        color: var(--muted);
+        font-size: 0.7rem;
+        line-height: 1.35;
+      }
+      .inventory-row-comparison {
+        color: #cfe3f5;
+      }
+      .inventory-row-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+      }
+      .inventory-action,
+      .inventory-panel-close {
+        padding: 3px 9px;
+        color: var(--ink);
+        background: rgba(127, 179, 213, 0.18);
+        border: 1px solid rgba(127, 179, 213, 0.55);
+        border-radius: 4px;
+        font: inherit;
+        font-size: 0.74rem;
+        cursor: pointer;
+      }
+      .inventory-action:hover,
+      .inventory-panel-close:hover {
+        background: rgba(127, 179, 213, 0.32);
+      }
+      .inventory-action:focus-visible,
+      .inventory-panel-close:focus-visible {
+        outline: 2px solid #ffd166;
+        outline-offset: 2px;
+      }
+      .inventory-panel-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+      }
+      .inventory-stats {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid var(--line);
+      }
+      .inventory-stats-total {
+        margin: 0 0 4px;
+        color: var(--ink);
+        font-size: 0.76rem;
+        line-height: 1.4;
+      }
+      .inventory-stats-list {
+        display: grid;
+        gap: 2px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+      .inventory-stats-row strong {
+        color: var(--ink);
+      }
+      .inventory-message {
+        margin: 8px 0 0;
+        color: #ffd166;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
       .overlay {
         position: absolute;
         inset: 0;
@@ -637,6 +797,69 @@
             ></div>
             <div class="frame-effects" data-testid="frame-effects" aria-hidden="true"></div>
             <div class="screen-fade" data-testid="screen-fade" aria-hidden="true" hidden></div>
+
+            <section
+              class="inventory-panel"
+              data-testid="inventory-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="inventory-title"
+              hidden
+            >
+              <div class="inventory-panel-body">
+                <header class="inventory-panel-header">
+                  <h2 class="inventory-panel-title" id="inventory-title">
+                    Personaje · <span data-testid="inventory-player"></span>
+                  </h2>
+                  <p class="inventory-panel-mp">MP <span data-testid="inventory-mp"></span></p>
+                </header>
+                <p class="inventory-panel-help">
+                  Tab/Shift+Tab y flechas para moverte · Enter para confirmar · Cada operación cuesta 1 MP
+                </p>
+                <div class="inventory-panel-grid">
+                  <section aria-label="Equipo">
+                    <h3 class="inventory-section-title">Equipo</h3>
+                    <ul class="inventory-list" data-testid="inventory-equipment"></ul>
+                  </section>
+                  <section aria-label="Mochila">
+                    <h3 class="inventory-section-title">
+                      Mochila <span data-testid="inventory-backpack-count"></span>
+                    </h3>
+                    <ul class="inventory-list" data-testid="inventory-backpack"></ul>
+                  </section>
+                  <section
+                    aria-label="Objetos del suelo"
+                    data-testid="inventory-ground-section"
+                    hidden
+                  >
+                    <h3 class="inventory-section-title">Suelo</h3>
+                    <p class="inventory-panel-help" data-testid="inventory-ground-hint" hidden></p>
+                    <ul class="inventory-list" data-testid="inventory-ground"></ul>
+                  </section>
+                </div>
+                <section class="inventory-stats" aria-label="Stats efectivos" data-testid="inventory-stats">
+                  <h3 class="inventory-section-title">Stats efectivos</h3>
+                  <p class="inventory-stats-total" data-testid="inventory-stats-total"></p>
+                  <ul class="inventory-stats-list" data-testid="inventory-stats-rows"></ul>
+                </section>
+                <p
+                  class="inventory-message"
+                  data-testid="inventory-message"
+                  role="status"
+                  aria-live="polite"
+                  hidden
+                ></p>
+                <footer class="inventory-panel-footer">
+                  <button
+                    type="button"
+                    class="inventory-panel-close"
+                    data-testid="inventory-close"
+                  >
+                    Cerrar · Esc
+                  </button>
+                </footer>
+              </div>
+            </section>
 
             <section
               class="overlay"

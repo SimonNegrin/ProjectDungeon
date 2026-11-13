@@ -34,7 +34,9 @@ import {
 } from './feedback-overlay-view';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
-import { isManagedKey, translateKey } from './input';
+import { canOpenCharacterPanel, isManagedKey, translateKey } from './input';
+import { rejectionMessage } from './inventory-panel';
+import { createInventoryPanelView } from './inventory-panel-view';
 import {
   INITIAL_SPELL_MENU,
   moveSpellSelection,
@@ -311,6 +313,10 @@ async function boot(): Promise<void> {
   let cursorStatus = deriveCursorStatus(session.state, cursor);
   /** Lista modal de hechizos; vive solo en el host. */
   let spellMenu: SpellMenuSelection = { ...INITIAL_SPELL_MENU };
+  /** Panel de personaje: modal DOM que bloquea los comandos del mapa. */
+  let panelOpen = false;
+  /** Motivo del último rechazo del panel; se limpia al confirmar otro cambio. */
+  let panelMessage: string | null = null;
   /** Detectores que iniciaron un episodio con `EnemySpotted`. */
   let spottedUnits: ReadonlySet<string> = new Set<string>();
 
@@ -330,6 +336,10 @@ async function boot(): Promise<void> {
 
   const hudView = createHudView(gameRoot);
   const spellMenuView = createSpellMenuView(gameRoot);
+  const inventoryPanelView = createInventoryPanelView(frame, {
+    onCommand: (action) => dispatchPanelCommand(action.command),
+    onClose: () => closePanel(),
+  });
   const debugView = createDebugView(gameRoot);
   const feedbackView = createDamageFeedbackView(frame, {
     reducedMotion: prefersReducedMotion,
@@ -450,6 +460,8 @@ async function boot(): Promise<void> {
         weaponPulseMs: slotPulse?.durationMs ?? null,
       });
       spellMenuView.update(display, spellMenu);
+      // El panel lee el estado de presentación: no adelanta el objeto de un cue.
+      inventoryPanelView.update(display);
       cursorView.update(displayCursor, camera);
       debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
       spotView.update(state, camera, viewport, spottedUnits);
@@ -480,6 +492,7 @@ async function boot(): Promise<void> {
     }
     hudView.update(state, cursorStatus, { weaponPulseMs: null });
     spellMenuView.update(state, spellMenu);
+    inventoryPanelView.update(state);
     cursorView.update(cursorStatus, camera);
     debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
     spotView.update(state, camera, viewport, spottedUnits);
@@ -827,6 +840,9 @@ async function boot(): Promise<void> {
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
+    panelOpen = false;
+    panelMessage = null;
+    inventoryPanelView.close();
     session.load(state, generator);
     lastEvents = [];
     noticeView.clear();
@@ -857,6 +873,9 @@ async function boot(): Promise<void> {
       // El reinicio limpia cualquier cue pendiente y funde 250 ms (R-018).
       clearTransientFeedback();
       spellMenu = { ...INITIAL_SPELL_MENU };
+      panelOpen = false;
+      panelMessage = null;
+      inventoryPanelView.close();
       debugView.close();
       noticeView.clear();
       spotView.clear();
@@ -903,11 +922,53 @@ async function boot(): Promise<void> {
     return result;
   };
 
+  /**
+   * Abre el panel fuera del bucle de render. La elegibilidad la decide
+   * `translateKey`/`canOpenCharacterPanel`; aquí solo se evita duplicar el modal.
+   */
+  const openPanel = (): void => {
+    if (panelOpen || !canOpenCharacterPanel(session.state)) return;
+    panelOpen = true;
+    panelMessage = null;
+    inventoryPanelView.open(session.state);
+    render();
+  };
+
+  const closePanel = (): void => {
+    if (!panelOpen) return;
+    panelOpen = false;
+    panelMessage = null;
+    inventoryPanelView.close();
+    render();
+  };
+
+  /**
+   * Comando confirmado desde el panel. Se despacha solo al confirmar y pasa por
+   * el mismo camino que el teclado; el motivo de rechazo se muestra en el
+   * propio panel. Durante un beat no se aceptan más operaciones.
+   */
+  const dispatchPanelCommand = (command: Command): void => {
+    if (!panelOpen || animation !== null) return;
+    if (session.state.phase !== 'player' || session.state.status !== 'playing') {
+      return;
+    }
+    const result = applyCommand(command);
+    const rejected = result.events.find(
+      (event): event is Extract<GameEvent, { type: 'CommandRejected' }> =>
+        event.type === 'CommandRejected',
+    );
+    panelMessage = rejected ? rejectionMessage(rejected.reason) : null;
+    inventoryPanelView.setMessage(panelMessage);
+  };
+
   /** `F2`: semilla nueva en el host, sin tocar el motor ni cerrar el debug. */
   const regenerate = (): void => {
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
+    panelOpen = false;
+    panelMessage = null;
+    inventoryPanelView.close();
     session.regenerate(nextSeed(session.seed));
     lastEvents = [];
     noticeView.clear();
@@ -961,6 +1022,22 @@ async function boot(): Promise<void> {
   window.addEventListener('keydown', (event) => {
     if (isEditableTarget(event.target)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+    // Panel modal: solo se interpreta el cierre. No se hace `preventDefault`
+    // del resto para no romper `Enter`/`Espacio` de los botones nativos ni `Tab`.
+    if (panelOpen) {
+      const intent = translateKey(event, session.state, cursor, {
+        animating: animation !== null,
+        spellMenu,
+        panelOpen: true,
+      });
+      if (intent.type === 'panel-close') {
+        event.preventDefault();
+        closePanel();
+      }
+      return;
+    }
+
     if (isManagedKey(event.key)) event.preventDefault();
 
     const intent = translateKey(event, session.state, cursor, {
@@ -1040,6 +1117,14 @@ async function boot(): Promise<void> {
         spellId: intent.spellId,
         target: { x: intent.target.x, y: intent.target.y },
       });
+      return;
+    }
+    if (intent.type === 'panel-open') {
+      openPanel();
+      return;
+    }
+    if (intent.type === 'panel-close') {
+      closePanel();
       return;
     }
     if (intent.type === 'command') {
