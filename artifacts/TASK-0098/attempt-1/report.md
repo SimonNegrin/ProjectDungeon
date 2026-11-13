@@ -76,7 +76,7 @@ aserciones legacy; se realinearon sin borrar casos.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El criterio E2E de dos manos exige un objeto que el catálogo difiere a REQ-019/020. | `src/game/equipment.ts`; `docs/tasks/TASK-0093...md`; `tests/unit/game/inventory.test.ts` | Unitarios con catálogo sintético | Afecta a cualquier QA visual de dos manos antes de REQ-019 | Añadir la pieza en su tarea o enmendar el criterio | Bajo | `pending` |
+| El criterio E2E de dos manos exige un objeto que el catálogo difiere a REQ-019/020. | `src/game/equipment.ts`; `docs/tasks/TASK-0093...md`; `tests/unit/game/inventory.test.ts` | Unitarios con catálogo sintético | Afecta a cualquier QA visual de dos manos antes de REQ-019 | Añadir la pieza en su tarea o enmendar el criterio | Bajo | `accepted`: resuelto con REQ-018 v5 (R-004) y REQ-019 v3 (T-013); sin cambio de arnés |
 
 # Métricas de handoff
 
