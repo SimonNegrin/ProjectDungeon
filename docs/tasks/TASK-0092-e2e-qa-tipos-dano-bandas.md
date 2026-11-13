@@ -4,7 +4,7 @@ id: TASK-0092
 title: "E2E y QA visual de tipos de daño, bandas y desglose"
 description: "Verificar en navegador el ciclo completo: conseguir un arma nueva, atacar enemigos con bandas distintas, leer el total y el desglose, consultar bandas con y sin línea de visión y comprobar el mínimo 1."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: qa
 requirement: REQ-029
 requirement_ids: [R-010, T-008, T-009]
