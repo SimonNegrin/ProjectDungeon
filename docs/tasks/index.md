@@ -82,7 +82,7 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0086](TASK-0086-motor-perfiles-resistencia-roster-bestiario.md) | Motor: perfiles de resistencia v1 de roster, bestiario y familias | `done` | REQ-029 | TASK-0085 | P1 |
 | [TASK-0087](TASK-0087-motor-armas-nuevas-colocacion.md) | Motor: martillo, espada electrizada, daga arcana y colocación determinista | `done` | REQ-029 | TASK-0085 | P1 |
 | [TASK-0088](TASK-0088-motor-eventos-desglose-dano.md) | Motor: desglose por paquete en eventos de ataque, réplica y hechizo | `done` | REQ-029 | TASK-0085, TASK-0086 | P1 |
-| [TASK-0089](TASK-0089-host-cursor-bandas-feedback-dano.md) | Host: bandas en el detalle del cursor y desglose de daño | `backlog` | REQ-029 | TASK-0086, TASK-0088 | P1 |
+| [TASK-0089](TASK-0089-host-cursor-bandas-feedback-dano.md) | Host: bandas en el detalle del cursor y desglose de daño | `ready` | REQ-029 | TASK-0086, TASK-0088 | P1 |
 | [TASK-0090](TASK-0090-verificacion-matriz-tipos-regresion-coste.md) | Verificación: matriz de tipos, regresión y coste por ataque | `backlog` | REQ-029 | TASK-0086, TASK-0087, TASK-0088 | P1 |
 | [TASK-0091](TASK-0091-docs-formulas-bandas-vigencia.md) | Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025 | `backlog` | REQ-029 | TASK-0089, TASK-0090 | P1 |
 | [TASK-0092](TASK-0092-e2e-qa-tipos-dano-bandas.md) | E2E y QA visual de tipos de daño, bandas y desglose | `backlog` | REQ-029 | TASK-0087, TASK-0089 | P1 |
@@ -97,11 +97,14 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 
+# ready
+
+* [TASK-0089 — Host: bandas en el detalle del cursor y desglose de daño](TASK-0089-host-cursor-bandas-feedback-dano.md)
+
 # backlog
 
 * [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
-* [TASK-0089 — Host: bandas en el detalle del cursor y desglose de daño](TASK-0089-host-cursor-bandas-feedback-dano.md)
 * [TASK-0090 — Verificación: matriz de tipos, regresión y coste por ataque](TASK-0090-verificacion-matriz-tipos-regresion-coste.md)
 * [TASK-0091 — Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025](TASK-0091-docs-formulas-bandas-vigencia.md)
 * [TASK-0092 — E2E y QA visual de tipos de daño, bandas y desglose](TASK-0092-e2e-qa-tipos-dano-bandas.md)
