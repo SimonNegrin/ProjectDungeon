@@ -71,7 +71,7 @@ acción y cue pendiente sin adelanto.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `docs:check` bloquea verify por metadatos de tareas y entradas de log del lead, no por el código | `verify-output.txt`: 2 errores en `docs/tasks/TASK-0095` y `docs/log.md` | Verificar el resto de pasos por separado y devolver `blocked` | Cualquier task-runner sin propiedad sobre `docs/` choca con el mismo gate | `harness-keeper`/lead: validar el brief antes de lanzar y separar entradas largas del log | Bajo; no cambia reglas ni tests | `pending` |
+| `docs:check` bloquea verify por metadatos de tareas y entradas de log del lead, no por el código | `verify-output.txt`: 2 errores en `docs/tasks/TASK-0095` y `docs/log.md` | Verificar el resto de pasos por separado y devolver `blocked` | Cualquier task-runner sin propiedad sobre `docs/` choca con el mismo gate | `harness-keeper`/lead: validar el brief antes de lanzar y separar entradas largas del log | Bajo; no cambia reglas ni tests | `deferred (harness-keeper)` |
 
 # Métricas de handoff
 

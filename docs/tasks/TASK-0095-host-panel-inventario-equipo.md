@@ -4,14 +4,14 @@ id: TASK-0095
 title: "Host: panel modal de inventario y equipo con `I`"
 description: "Añadir el panel DOM sobre el mapa con equipo, mochila y objetos del suelo, navegación completa por teclado, foco visible, comparación de stats y traits, cobro al confirmar, y retirar `G` y `1`-`3` del input."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-015, R-016, R-017, T-008, T-009]
 depends_on: [TASK-0094]
-unlocks: [TASK-0097, TASK-0098]
+unlocks: [TASK-0096, TASK-0097, TASK-0098]
 created_at: 2026-11-13T19:22:51Z
-completed_at:
+completed_at: 2026-11-13T20:45:52Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0095/
@@ -20,6 +20,31 @@ risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:22:51Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T20:45:52Z
+    note: >-
+      Verificación independiente en `task/TASK-0095` sobre la implementación
+      `c37f3d4` (evidencia `13a01c5`, informe `d7d44af`). Revisado el diff
+      completo: `src/host/{inventory-panel,inventory-panel-view,input,hud,main}.ts`,
+      `index.html`, tests de input/HUD/panel e integración; sin cambios en
+      `src/game/`, reglas, costes, catálogo ni dependencias, y sin tocar
+      requisitos ni criterios. Reejecutados los focalizados (73/73 en cuatro
+      archivos) y `pnpm run verify` (1237/1237; docs, config, tsc, build y
+      bundle), con salida en `artifacts/TASK-0095/attempt-1/logs/verify-lead.txt`.
+      Pasada E2E focalizada `game-input-hud.spec.ts` (1/1) como no regresión;
+      E2E del panel queda en TASK-0098 según el plan. Comprobado en navegador:
+      `I` abre sin gastar MP ni acción, `Escape` cierra, foco atrapado y visible,
+      orden de tabulación equipo → suelo → cerrar, equipar desde el suelo cobra
+      1 MP sin gastar acción y actualiza stats, un rechazo sin MP no mueve nada
+      y muestra «Sin MP para esta operación», y `I` no abre en fase enemiga.
+      Criterios revisados uno a uno, incluida la zona de suelo omitida si está
+      vacía, `G`/`1`-`3` fuera de input y ayuda, y refresco con estado de
+      presentación. Se corrigieron el `unlocks` de TASK-0096 y la entrada larga
+      de `docs/log.md` que bloqueaban `docs:check`; la fricción de validar
+      metadatos antes de lanzar queda diferida a `harness-keeper`. Limitación
+      conocida: con varios objetos en el mismo tile, `PickUp` toma el primero y
+      el panel lo advierte; equipar sí elige la fila concreta.
+
 ---
 
 # Objetivo
