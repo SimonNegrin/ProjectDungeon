@@ -1,5 +1,6 @@
 import { hasAction, spendAction } from './actions';
 import { BESTIARY } from './bestiary';
+import { resolvePackets } from './damage';
 import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive, isInside, isOccupied, isWallAt } from './grid';
 import { noteDamage, raiseAlarm } from './perception';
@@ -36,7 +37,12 @@ export function resolveHit(
   return attackBonus + attackDie > defenseBonus + shieldDie;
 }
 
-/** Daño: la absorción (resistencia + armadura) resta a la tirada; mínimo 1. */
+/**
+ * Fórmula de daño único histórica (ADR-015). Conservada únicamente como
+ * referencia pura para el cross-check de `EXP-003` (que compara su modelo con
+ * la producción de antes de REQ-029). El motor ya no la usa: el daño real se
+ * resuelve con `resolvePackets` en `damage.ts`.
+ */
 export function resolveDamage(
   damageBonus: number,
   absorption: number,
@@ -56,15 +62,15 @@ interface Strike {
 }
 
 /**
- * Tirada de ataque con la fórmula de REQ-010. Es la única implementación:
- * ataque y réplica la comparten. Consume dos tiradas si falla y cuatro si
- * impacta; no muta la entrada.
+ * Tirada de ataque con la fórmula de REQ-010 y el resolvedor de paquetes de
+ * REQ-029. Es la única implementación: ataque y réplica la comparten. Consume
+ * dos tiradas si falla y, si impacta, dos por paquete (daño y resistencia) en
+ * orden fijo; no muta la entrada.
  */
 function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
   const weapon = weaponFor(attacker.equipment.weaponId!);
   const armor = armorValue(target.equipment.armorId);
   const shield = shieldValue(target.equipment.shieldId);
-  const absorption = target.stats.resistencia + armor;
 
   const attackRoll = rollDie(state.rng);
   const shieldRoll = rollDie(attackRoll.rng);
@@ -85,16 +91,18 @@ function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
   };
 
   if (hit) {
-    const damageRoll = rollDie(rng);
-    const armorRoll = rollDie(damageRoll.rng);
-    rng = armorRoll.rng;
-    damage = resolveDamage(
-      attacker.stats.fuerza + weapon.damage,
-      absorption,
-      damageRoll.die,
-      armorRoll.die,
+    const resolved = resolvePackets(
+      weapon.damagePackets,
+      attacker.stats.fuerza,
+      armor,
+      target.stats.resistencia,
+      rng,
     );
-    rolls = { ...rolls, damage: damageRoll.die, armor: armorRoll.die };
+    rng = resolved.rng;
+    damage = resolved.total;
+    // Los eventos conservan el total y el desglose llega en TASK-0088; aquí
+    // `damage`/`armor` reflejan los dados del primer paquete (único en este corte).
+    rolls = { ...rolls, damage: resolved.rolls[0].damage, armor: resolved.rolls[0].resistance };
   }
 
   return { hit, damage, targetHp: Math.max(0, target.hp - damage), rolls, rng };
@@ -220,8 +228,8 @@ export type AttackResult =
  * Ataque básico genérico para jugadores y enemigos. No comprueba la fase:
  * esa decisión pertenece al motor. No muta el estado de entrada.
  *
- * Orden de tiradas: ataque, escudo; si impacta, daño y armadura. Un fallo
- * consume dos tiradas y un impacto cuatro.
+ * Orden de tiradas: ataque, escudo; si impacta, por paquete en orden fijo, daño
+ * y resistencia. Un fallo consume dos tiradas y un impacto dos por paquete.
  *
  * En melé (`kind` por defecto), un fallo abre una réplica inmediata del
  * defensor si es elegible (REQ-027): tirada nueva con la misma fórmula, gratis,

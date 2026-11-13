@@ -7,7 +7,7 @@
  * requiere tocar `magic.ts`.
  */
 
-import type { MagicLevel } from './types';
+import type { DamagePacket, MagicLevel } from './types';
 
 export type SpellId =
   | 'electric-1'
@@ -36,7 +36,7 @@ export interface SpellRange {
 
 /**
  * Efecto parametrizado. El resolvedor despacha por `kind`, nunca por id:
- * - `damage` usa `power` (raíz) en la capa de daño.
+ * - `damage` usa `damagePacket` (tipo + cantidad) en el resolvedor compartido.
  * - `heal` cura `amount` sin superar el PV máximo.
  * - `resurrect` devuelve `ceil(hpRatio × PV máximo)`, mínimo `minHp`.
  */
@@ -69,8 +69,12 @@ export interface SpellDefinition {
   readonly range: SpellRange;
   /** Bono de acierto del hechizo; el nivel de magia se suma aparte. */
   readonly accuracy: number;
-  /** Poder de daño; 0 en hechizos sin ataque. */
-  readonly power: number;
+  /**
+   * Paquete de daño del hechizo (REQ-029 T-006). Los eléctricos causan
+   * eléctrico y los de fuego, mágico (hasta que exista el trait de quemadura).
+   * Curación y resurrección no declaran paquete: `null`.
+   */
+  readonly damagePacket: DamagePacket | null;
   readonly target: SpellTarget;
   readonly effect: SpellEffect;
   readonly presentation: SpellPresentation;
@@ -86,7 +90,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 2,
     range: { min: 1, max: 3 },
     accuracy: 2,
-    power: 2,
+    damagePacket: { type: 'electric', amount: 2 },
     target: 'enemy',
     effect: { kind: 'damage' },
     presentation: { cue: 'bolt', label: 'proyectil eléctrico' },
@@ -99,7 +103,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 4,
     range: { min: 1, max: 3 },
     accuracy: 0,
-    power: 5,
+    damagePacket: { type: 'magic', amount: 5 },
     target: 'enemy',
     effect: { kind: 'damage' },
     presentation: { cue: 'bolt', label: 'proyectil de fuego' },
@@ -112,7 +116,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 6,
     range: { min: 1, max: 4 },
     accuracy: 3,
-    power: 4,
+    damagePacket: { type: 'electric', amount: 4 },
     target: 'enemy',
     effect: { kind: 'damage' },
     presentation: { cue: 'bolt', label: 'proyectil eléctrico' },
@@ -125,7 +129,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 8,
     range: { min: 1, max: 4 },
     accuracy: 1,
-    power: 8,
+    damagePacket: { type: 'magic', amount: 8 },
     target: 'enemy',
     effect: { kind: 'damage' },
     presentation: { cue: 'bolt', label: 'proyectil de fuego' },
@@ -138,7 +142,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 6,
     range: { min: 2, max: 3 },
     accuracy: 0,
-    power: 0,
+    damagePacket: null,
     target: 'ally',
     effect: { kind: 'heal', amount: 4 },
     presentation: { cue: 'healing', label: 'curación' },
@@ -151,7 +155,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     cost: 8,
     range: { min: 1, max: 1 },
     accuracy: 0,
-    power: 0,
+    damagePacket: null,
     target: 'corpse',
     effect: { kind: 'resurrect', hpRatio: 0.6, minHp: 1 },
     presentation: { cue: 'revival', label: 'resurrección' },

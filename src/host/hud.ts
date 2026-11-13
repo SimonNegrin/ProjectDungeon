@@ -3,6 +3,7 @@ import {
   SHIELDS,
   armorValue,
   shieldValue,
+  weaponDamage,
   weaponFor,
 } from '../game/equipment';
 import type { GameEvent, GameState, Position, Unit } from '../game/types';
@@ -40,7 +41,7 @@ export interface HudModel {
   readonly weapon: string;
   readonly shield: string;
   readonly armor: string;
-  /** Atributos inherentes del jugador (REQ-014): habilidad, fuerza, defensa y resistencia. */
+  /** Atributos inherentes del jugador (REQ-014): habilidad, fuerza y defensa. */
   readonly stats: string;
   /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyHp: string;
@@ -106,7 +107,7 @@ function weaponLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
   if (unit.equipment.weaponId === null) return 'Sin arma';
   const weapon = weaponFor(unit.equipment.weaponId);
-  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
 }
 
 function shieldLabel(unit: Unit | undefined): string {
@@ -123,8 +124,10 @@ function armorLabel(unit: Unit | undefined): string {
 
 function statsLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
-  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
+  const { habilidad, fuerza, defensa } = unit.stats;
+  // La resistencia es ahora un perfil por tipo (REQ-029); las bandas visibles
+  // llegan en TASK-0089 y no se muestran aquí.
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
 }
 
 function archetypeLabel(unit: Unit | undefined): string {

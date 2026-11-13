@@ -9,13 +9,9 @@
  */
 
 import { hasAction, spendAction } from './actions';
-import {
-  applyEnemyHitReaction,
-  findUnit,
-  resolveDamage,
-  resolveHit,
-} from './combat';
-import { armorValue, shieldValue } from './equipment';
+import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
+import { resolvePackets } from './damage';
+import { shieldValue } from './equipment';
 import { isAlive, isOccupied } from './grid';
 import { hasLineOfSight } from './perception';
 import { rollDie } from './rng';
@@ -202,10 +198,12 @@ export function castSpell(
 }
 
 /**
- * Tirada mágica con las mismas capas que el físico: el nivel de magia y el
- * acierto del hechizo se oponen a defensa + escudo; el poder del hechizo se
- * opone a resistencia + armadura. Un fallo consume dos tiradas y un impacto
- * cuatro. Sin réplica: la reacción del enemigo es solo despertar/alarma/huida.
+ * Tirada mágica con el resolvedor compartido de paquetes (REQ-029 T-004/T-006):
+ * el nivel de magia y el acierto del hechizo se oponen a defensa + escudo; el
+ * paquete del hechizo se resuelve contra el perfil de resistencia del objetivo.
+ * Mágico y eléctrico ignoran fuerza y armadura. Un fallo consume dos tiradas y
+ * un impacto dos por paquete. Sin réplica: la reacción del enemigo es solo
+ * despertar/alarma/huida.
  */
 function resolveMagicAttack(
   state: GameState,
@@ -214,6 +212,8 @@ function resolveMagicAttack(
   spell: SpellDefinition,
 ): SpellCastResult {
   if (spell.effect.kind !== 'damage') return reject('unknown-spell');
+  const packet = spell.damagePacket;
+  if (packet === null) return reject('unknown-spell');
 
   const attackRoll = rollDie(state.rng);
   const shieldRoll = rollDie(attackRoll.rng);
@@ -234,16 +234,10 @@ function resolveMagicAttack(
   };
 
   if (hit) {
-    const damageRoll = rollDie(rng);
-    const armorRoll = rollDie(damageRoll.rng);
-    rng = armorRoll.rng;
-    damage = resolveDamage(
-      spell.power,
-      victim.stats.resistencia + armorValue(victim.equipment.armorId),
-      damageRoll.die,
-      armorRoll.die,
-    );
-    rolls = { ...rolls, damage: damageRoll.die, armor: armorRoll.die };
+    const resolved = resolvePackets([packet], 0, 0, victim.stats.resistencia, rng);
+    rng = resolved.rng;
+    damage = resolved.total;
+    rolls = { ...rolls, damage: resolved.rolls[0].damage, armor: resolved.rolls[0].resistance };
   }
 
   const targetHp = Math.max(0, victim.hp - damage);
