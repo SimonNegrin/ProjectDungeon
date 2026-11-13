@@ -19,6 +19,7 @@ import {
   type WeaponId,
 } from '../../../src/game/index';
 import {
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeState,
   makeUnit,
@@ -236,6 +237,12 @@ describe('ataque enemigo con el resolvedor compartido', () => {
       damage: expectedDamage,
       targetHp: state.players[0].hp - expectedDamage,
       rolls: { attack: 6, shield: 1, damage: 1, armor: 1 },
+      damageBreakdown: expectedSinglePacketBreakdown(
+        state.enemies[0],
+        state.players[0],
+        1,
+        1,
+      ),
     });
   });
 });

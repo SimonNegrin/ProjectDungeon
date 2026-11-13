@@ -144,6 +144,7 @@ describe('configuración y construcción de la timeline', () => {
       damage: 5,
       targetHp: 0,
       rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      damageBreakdown: [],
     };
     const died: GameEvent = { type: 'UnitDied', unitId: 'enemy-1' };
     const ended: GameEvent = { type: 'GameEnded', status: 'victory' };
@@ -247,6 +248,7 @@ describe('reloj de presentación y cámara', () => {
       damage: 4,
       targetHp: 2,
       rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      damageBreakdown: [],
     };
     const timeline = buildMotionTimeline([attack]);
     const world = { width: 20 * TILE_SIZE, height: 20 * TILE_SIZE };
@@ -317,6 +319,7 @@ describe('estado derivado para HUD y render', () => {
     damage: 5,
     targetHp: 0,
     rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+    damageBreakdown: [],
   };
   const events: GameEvent[] = [
     ...THREE_STRAIGHT,
@@ -374,6 +377,7 @@ describe('estado derivado para HUD y render', () => {
         damage: 5,
         targetHp: 5,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: [],
       },
       {
         type: 'AttackPerformed',
@@ -383,6 +387,7 @@ describe('estado derivado para HUD y render', () => {
         damage: 5,
         targetHp: 0,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: [],
       },
       { type: 'UnitDied', unitId: 'enemy-1' },
     ];

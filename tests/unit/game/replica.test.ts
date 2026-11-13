@@ -8,6 +8,7 @@ import {
 } from '../../../src/game/index';
 import {
   advanceRng,
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeState,
   makeUnit,
@@ -111,6 +112,12 @@ describe('réplica tras fallo cuerpo a cuerpo', () => {
       damage,
       targetHp: playerHp - damage,
       rolls: { attack: 6, shield: 1, damage: 3, armor: 3 },
+      damageBreakdown: expectedSinglePacketBreakdown(
+        state.enemies[0],
+        state.players[0],
+        3,
+        3,
+      ),
     });
     expect(result.state.players[0].hp).toBe(playerHp - damage);
     expect(result.state.players[0].actions.remaining).toBe(1);
@@ -139,6 +146,7 @@ describe('réplica tras fallo cuerpo a cuerpo', () => {
         damage: 0,
         targetHp: state.enemies[0].hp,
         rolls: { attack: 1, shield: 6, damage: null, armor: null },
+        damageBreakdown: [],
       },
       {
         type: 'ReplicaPerformed',
@@ -148,6 +156,7 @@ describe('réplica tras fallo cuerpo a cuerpo', () => {
         damage: 0,
         targetHp: before.hp,
         rolls: { attack: 1, shield: 6, damage: null, armor: null },
+        damageBreakdown: [],
       },
     ]);
     // Cuatro tiradas: dos del fallo y dos de la réplica; no hay tercera.

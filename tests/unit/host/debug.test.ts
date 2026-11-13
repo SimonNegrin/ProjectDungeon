@@ -672,6 +672,44 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(result.snapshot.rng.seed).toBe(before.rng.seed);
   });
 
+  it('clona el desglose de daño del snapshot y del dispatch', () => {
+    const api = setup(
+      makeState({
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+        rng: rngForDice([6, 1, 2, 1]),
+      }),
+    );
+
+    const result = api.dispatch({
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+    const last = result.snapshot.lastEvents[0];
+    if (last.type !== 'AttackPerformed') throw new Error('se esperaba AttackPerformed');
+    expect(last.damageBreakdown).toHaveLength(1);
+    expect(last.damageBreakdown[0].damage).toBe(4);
+    expect(result.events).toEqual(result.snapshot.lastEvents);
+    expect(result.events[0]).not.toBe(last);
+
+    (last.damageBreakdown as unknown as { damage: number }[])[0].damage = 999;
+    (last.damageBreakdown as unknown as { damage: number }[]).push({ damage: 999 });
+
+    const fresh = api.snapshot();
+    const freshEvent = fresh.lastEvents[0];
+    if (freshEvent.type !== 'AttackPerformed') {
+      throw new Error('se esperaba AttackPerformed');
+    }
+    expect(freshEvent.damageBreakdown).toHaveLength(1);
+    expect(freshEvent.damageBreakdown[0].damage).toBe(4);
+
+    const dispatched = result.events[0];
+    if (dispatched.type !== 'AttackPerformed') throw new Error('se esperaba AttackPerformed');
+    expect(dispatched.damageBreakdown).toHaveLength(1);
+    expect(dispatched.damageBreakdown[0].damage).toBe(4);
+  });
+
   it('clona stats, mana, equipment, weapons y actions de cada unidad', () => {
     const { api, session } = combatSetup();
     const snapshot = api.snapshot();

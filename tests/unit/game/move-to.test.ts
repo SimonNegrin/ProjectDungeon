@@ -5,6 +5,7 @@ import {
   type Unit,
 } from '../../../src/game/index';
 import {
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeGridWithWalls,
   makeState,
@@ -252,6 +253,12 @@ describe('MoveTo', () => {
         damage,
         targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.players[0],
+          state.enemies[0],
+          2,
+          1,
+        ),
       });
     });
 
@@ -363,6 +370,12 @@ describe('MoveTo', () => {
           damage,
           targetHp,
           rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+          damageBreakdown: expectedSinglePacketBreakdown(
+            state.players[0],
+            state.enemies[0],
+            2,
+            1,
+          ),
         },
       ]);
     });

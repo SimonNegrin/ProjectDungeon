@@ -20,6 +20,7 @@ function attack(hit: boolean): GameEvent {
     rolls: hit
       ? { attack: 6, shield: 1, damage: 2, armor: 1 }
       : { attack: 1, shield: 6, damage: null, armor: null },
+    damageBreakdown: [],
   };
 }
 

@@ -38,6 +38,7 @@ function hitAttack(damage = 5, targetHp = 0): GameEvent {
     damage,
     targetHp,
     rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+    damageBreakdown: [],
   };
 }
 

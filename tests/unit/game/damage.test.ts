@@ -66,6 +66,96 @@ describe('resolvedor de paquetes', () => {
       { type: 'slash', damage: 4, resistance: 2 },
       { type: 'electric', damage: 3, resistance: 5 },
     ]);
+    expect(result.breakdown).toEqual([
+      {
+        type: 'slash',
+        amount: 3,
+        damageRoll: 4,
+        resistanceRoll: 2,
+        raw: 5,
+        band: 'normal',
+        multiplier: 1,
+        damage: 5,
+      },
+      {
+        type: 'electric',
+        amount: 1,
+        damageRoll: 3,
+        resistanceRoll: 5,
+        raw: -1,
+        band: 'resistant',
+        multiplier: 0.5,
+        damage: 0,
+      },
+    ]);
+    const sum = result.breakdown.reduce((total, packet) => total + packet.damage, 0);
+    expect(result.total).toBe(Math.max(1, sum));
+  });
+
+  it('el desglose conserva el orden declarado y refleja cada banda', () => {
+    const packet: DamagePacket = { type: 'slash', amount: 5 };
+
+    for (const [band, multiplier, damage] of [
+      ['vulnerable', 1.5, 7],
+      ['normal', 1, 5],
+      ['resistant', 0.5, 2],
+      ['very-resistant', 0.25, 1],
+    ] as const) {
+      const result = resolvePackets([packet], 0, 0, { slash: band }, rngForDice([1, 1]));
+      expect(result.breakdown).toEqual([
+        {
+          type: 'slash',
+          amount: 5,
+          damageRoll: 1,
+          resistanceRoll: 1,
+          raw: 5,
+          band,
+          multiplier,
+          damage,
+        },
+      ]);
+      expect(result.total).toBe(damage);
+    }
+
+    const ordered = resolvePackets(
+      [
+        { type: 'electric', amount: 1 },
+        { type: 'slash', amount: 3 },
+      ],
+      0,
+      0,
+      { electric: 'vulnerable' },
+      rngForDice([2, 1, 4, 2]),
+    );
+    expect(ordered.breakdown.map((entry) => entry.type)).toEqual([
+      'electric',
+      'slash',
+    ]);
+  });
+
+  it('el desglose conserva el bruto negativo y recorta el paquete a 0', () => {
+    const result = resolvePackets(
+      [{ type: 'slash', amount: 1 }],
+      0,
+      20,
+      { slash: 'vulnerable' },
+      rngForDice([6, 1]),
+    );
+
+    // bruto = 1 + 6 − (20 + 1) = −14; el recorte a 0 precede a la banda.
+    expect(result.breakdown).toEqual([
+      {
+        type: 'slash',
+        amount: 1,
+        damageRoll: 6,
+        resistanceRoll: 1,
+        raw: -14,
+        band: 'vulnerable',
+        multiplier: 1.5,
+        damage: 0,
+      },
+    ]);
+    expect(result.total).toBe(1);
   });
 
   it('aplica el mínimo 1 global aunque todos los paquetes queden a 0', () => {

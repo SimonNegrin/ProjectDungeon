@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
+  BAND_MULTIPLIERS,
   MAX_SPELLS_PER_TURN,
   SPELLS,
   bandFor,
@@ -118,6 +119,30 @@ function attackDamage(
   if (packet === null) throw new Error('hechizo sin paquete de daño');
   const band = bandFor(victim.stats.resistencia, packet.type);
   return Math.max(1, resolvePacket(packet, 0, 0, band, damageDie, resistanceDie));
+}
+
+/** Desglose esperado del paquete mágico o eléctrico del hechizo. */
+function attackBreakdown(
+  spell: SpellDefinition,
+  victim: Unit,
+  damageDie: number,
+  resistanceDie: number,
+) {
+  const packet = spell.damagePacket;
+  if (packet === null) throw new Error('hechizo sin paquete de daño');
+  const band = bandFor(victim.stats.resistencia, packet.type);
+  return [
+    {
+      type: packet.type,
+      amount: packet.amount,
+      damageRoll: damageDie,
+      resistanceRoll: resistanceDie,
+      raw: packet.amount + damageDie - resistanceDie,
+      band,
+      multiplier: BAND_MULTIPLIERS[band],
+      damage: resolvePacket(packet, 0, 0, band, damageDie, resistanceDie),
+    },
+  ];
 }
 
 function hits(
@@ -405,8 +430,65 @@ describe('ataque mágico', () => {
         damage,
         targetHp: victim.hp - damage,
         rolls: { attack: dice[0], shield: dice[1], damage: dice[2], armor: dice[3] },
+        damageBreakdown: attackBreakdown(FIRE, victim, dice[2], dice[3]),
       },
     ]);
+  });
+
+  it('el desglose del hechizo refleja tipo, banda y total como suma', () => {
+    const dice = [6, 1, 3, 2] as const;
+
+    for (const spell of [FIRE, ELECTRIC]) {
+      const victim = dummy();
+      const state = makeState({
+        players: [mage()],
+        enemies: [victim],
+        rng: rngForDice(dice),
+      });
+
+      const result = cast(state, spell, { x: victim.x, y: victim.y });
+      const event = result.events[0];
+      if (event.type !== 'SpellCast' || event.effect !== 'damage') {
+        throw new Error('se esperaba SpellCast de daño');
+      }
+
+      expect(event.damageBreakdown).toEqual(
+        attackBreakdown(spell, victim, dice[2], dice[3]),
+      );
+      expect(event.damageBreakdown[0].type).toBe(spell.damagePacket!.type);
+      const sum = event.damageBreakdown.reduce(
+        (total, packet) => total + packet.damage,
+        0,
+      );
+      expect(event.damage).toBe(Math.max(1, sum));
+    }
+  });
+
+  it('el desglose eléctrico aplica la banda del objetivo', () => {
+    const dice = [6, 1, 3, 2] as const;
+    const resistant = dummy({
+      stats: { defensa: 1, resistencia: { electric: 'resistant' } },
+    });
+    const state = makeState({
+      players: [mage()],
+      enemies: [resistant],
+      rng: rngForDice(dice),
+    });
+
+    const result = cast(state, ELECTRIC, { x: resistant.x, y: resistant.y });
+    const event = result.events[0];
+    if (event.type !== 'SpellCast' || event.effect !== 'damage') {
+      throw new Error('se esperaba SpellCast de daño');
+    }
+
+    expect(event.damageBreakdown).toEqual(
+      attackBreakdown(ELECTRIC, resistant, dice[2], dice[3]),
+    );
+    expect(event.damageBreakdown[0]).toMatchObject({
+      type: 'electric',
+      band: 'resistant',
+      multiplier: 0.5,
+    });
   });
 
   it('el empate falla y no tira daño', () => {
@@ -437,6 +519,7 @@ describe('ataque mágico', () => {
         damage: 0,
         targetHp: victim.hp,
         rolls: { attack: attackDie, shield: shieldDie, damage: null, armor: null },
+        damageBreakdown: [],
       },
     ]);
   });

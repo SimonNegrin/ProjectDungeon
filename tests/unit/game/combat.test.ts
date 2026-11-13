@@ -22,6 +22,7 @@ import {
 } from '../../../src/game/index';
 import {
   advanceRng,
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeState,
   makeUnit,
@@ -69,6 +70,12 @@ describe('combat', () => {
         damage,
         targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.players[0],
+          state.enemies[0],
+          2,
+          1,
+        ),
       },
     ]);
   });
@@ -145,6 +152,12 @@ describe('combat', () => {
         type: 'AttackPerformed',
         damage,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.players[0],
+          state.enemies[0],
+          2,
+          1,
+        ),
       }),
     ]);
     expect(third.state).toBe(second.state);
@@ -251,6 +264,12 @@ describe('combat', () => {
         damage,
         targetHp: 0,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.players[0],
+          state.enemies[0],
+          2,
+          1,
+        ),
       },
       { type: 'UnitDied', unitId: 'enemy-1' },
       { type: 'GameEnded', status: 'victory' },
@@ -328,6 +347,12 @@ describe('combat', () => {
       damage,
       targetHp: state.players[0].hp - damage,
       rolls: { attack: 6, shield: 1, damage: 3, armor: 3 },
+      damageBreakdown: expectedSinglePacketBreakdown(
+        state.enemies[0],
+        state.players[0],
+        3,
+        3,
+      ),
     });
   });
 
@@ -694,6 +719,50 @@ describe('bandas de resistencia', () => {
     expect(tough.damage).toBe(expectedSinglePacketDamage(attacker, resistant, 3, 1));
     expect(soft.damage).toBeGreaterThan(tough.damage);
     expect(tough.damage).toBeGreaterThanOrEqual(1);
+  });
+
+  it('el evento expone la banda, el multiplicador y el total como suma de paquetes', () => {
+    const attacker = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
+
+    for (const [band, multiplier] of [
+      ['vulnerable', 1.5],
+      ['normal', 1],
+      ['resistant', 0.5],
+      ['very-resistant', 0.25],
+    ] as const) {
+      const target = makeUnit({
+        id: 'enemy-1',
+        faction: 'enemy',
+        x: 6,
+        y: 5,
+        stats: { resistencia: { slash: band } },
+      });
+      const state = makeState({
+        players: [attacker],
+        enemies: [target],
+        rng: rngForDice([6, 1, 3, 1]),
+      });
+
+      const result = resolveAttack(state, 'player-1', 'enemy-1');
+      if (!result.ok) throw new Error(result.reason);
+      const event = result.events[0];
+      if (event.type !== 'AttackPerformed') throw new Error('se esperaba AttackPerformed');
+
+      expect(event.damageBreakdown).toHaveLength(1);
+      expect(event.damageBreakdown[0]).toMatchObject({
+        type: 'slash',
+        damageRoll: 3,
+        resistanceRoll: 1,
+        band,
+        multiplier,
+      });
+      expect(event.damageBreakdown[0]).toEqual(
+        expectedSinglePacketBreakdown(attacker, target, 3, 1)[0],
+      );
+
+      const sum = event.damageBreakdown.reduce((total, packet) => total + packet.damage, 0);
+      expect(event.damage).toBe(Math.max(1, sum));
+    }
   });
 });
 
