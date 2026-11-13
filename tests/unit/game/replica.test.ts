@@ -292,9 +292,9 @@ describe('réplica tras fallo cuerpo a cuerpo', () => {
     expect(hydrated).toEqual(result.state);
     // Un comando sin efecto no vuelve a emitir la reacción ya resuelta.
     const next = reduce(hydrated, {
-      type: 'SelectWeapon',
+      type: 'UnequipItem',
       unitId: 'player-1',
-      slot: 1,
+      slot: 'armor',
     });
     expect(next.events).toEqual([]);
     expect(types(next.events)).not.toContain('ReplicaPerformed');

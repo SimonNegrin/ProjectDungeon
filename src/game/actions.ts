@@ -1,4 +1,4 @@
-import type { Actions, Unit, UnitEquipment, UnitStats } from './types';
+import type { Actions, Unit, UnitStats } from './types';
 
 /** Acciones por turno de una unidad sin bonificaciones (REQ-026). */
 export const DEFAULT_ACTIONS = 2;
@@ -9,15 +9,14 @@ export const DEFAULT_ACTIONS = 2;
  */
 export const MAX_ACTIONS = 4;
 
-/** `max` = atributo inherente + `actionsBonus` del equipo, recortado al tope. */
-export function actionsMax(stats: UnitStats, equipment: UnitEquipment): number {
-  const bonus = equipment.actionsBonus ?? 0;
-  return Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + bonus));
+/** `max` = atributo inherente + bonus del equipo, recortado al tope. */
+export function actionsMax(stats: UnitStats, actionsBonus = 0): number {
+  return Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + actionsBonus));
 }
 
 /** Crea el contador de una unidad nueva con todas las acciones disponibles. */
-export function createActions(stats: UnitStats, equipment: UnitEquipment): Actions {
-  const max = actionsMax(stats, equipment);
+export function createActions(stats: UnitStats, actionsBonus = 0): Actions {
+  const max = actionsMax(stats, actionsBonus);
   return { max, remaining: max };
 }
 

@@ -5,12 +5,12 @@ import {
   SPELLS,
   bandFor,
   createRng,
+  effectiveStats,
   findSpell,
   manaMaxFor,
   reduce,
   resolveHit,
   resolvePacket,
-  shieldValue,
   type Command,
   type GameState,
   type RejectionReason,
@@ -154,7 +154,7 @@ function hits(
 ): boolean {
   return resolveHit(
     caster.stats.magicLevel + spell.accuracy,
-    victim.stats.defensa + shieldValue(victim.equipment.shieldId),
+    victim.stats.defensa + effectiveStats(victim).evasion,
     attackDie,
     shieldDie,
   );

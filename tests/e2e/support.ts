@@ -2,8 +2,21 @@ import { expect, type Page } from '@playwright/test';
 import { BspMapGenerator } from '../../src/game/bsp';
 import { BESTIARY } from '../../src/game/bestiary';
 import { createInitialState } from '../../src/game/engine';
+import {
+  equipmentFromLegacy,
+  inventoryFromIds,
+  type LegacyEquipmentInput,
+} from '../../src/game/inventory';
+import type { ItemId } from '../../src/game/equipment';
 import { DEFAULT_MAP_SEED, type MapGenerator } from '../../src/game/map';
-import type { Command, GameEvent, GameState, Position } from '../../src/game/types';
+import type {
+  Command,
+  EquipmentSlots,
+  GameEvent,
+  GameState,
+  Position,
+  UnitEquipment,
+} from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
 
@@ -112,12 +125,12 @@ export interface BspStateOptions {
   /** Reposiciona al jugador y reinicia su origen, sin tocar el mapa. */
   readonly player?: Position;
   /**
-   * Sustituye el equipo del primer jugador. Los tests de escenario acotado lo
-   * usan para dejarlo desarmado sin tocar las reglas ni el estado del motor.
+   * Sustituye el equipo del primer jugador. Acepta los ocho huecos nuevos o la
+   * forma legacy (arma/armadura/escudo) que usan los E2E anteriores.
    */
-  readonly playerEquipment?: GameState['players'][number]['equipment'];
-  /** Sustituye el inventario del primer jugador (p. ej. vaciarlo). */
-  readonly playerWeapons?: GameState['players'][number]['weapons'];
+  readonly playerEquipment?: EquipmentSlots | UnitEquipment;
+  /** Sustituye la mochila del primer jugador con estos IDs legacy. */
+  readonly playerWeapons?: readonly ItemId[];
   /** Sustituye las unidades enemigas del estado cargado. */
   readonly enemies?: GameState['enemies'];
   /** Fija el RNG de combate para un resultado determinista. */
@@ -154,8 +167,19 @@ export async function openBspState(
         index === 0
           ? {
               ...unit,
-              equipment: options.playerEquipment ?? unit.equipment,
-              weapons: options.playerWeapons ?? unit.weapons,
+              equipment:
+                options.playerEquipment === undefined
+                  ? unit.equipment
+                  : 'weapon' in options.playerEquipment
+                    ? options.playerEquipment
+                    : equipmentFromLegacy(
+                        unit.id,
+                        options.playerEquipment as LegacyEquipmentInput,
+                      ),
+              inventory:
+                options.playerWeapons === undefined
+                  ? unit.inventory
+                  : inventoryFromIds(unit.id, options.playerWeapons),
             }
           : unit,
       ),

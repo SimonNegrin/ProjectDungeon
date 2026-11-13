@@ -1,4 +1,4 @@
-import type { WeaponId } from '../game/equipment';
+import type { ItemId } from '../game/equipment';
 import type { Position } from '../game/types';
 import { FEEDBACK_CONFIG } from './feedback-config';
 import { activeCues, type FeedbackCue, type MotionTimeline } from './motion';
@@ -283,27 +283,27 @@ export function alarmEffectAt(
 }
 
 /** Parpadeo del arma recogida: tres frames encendidos y tres apagados. */
-export interface PickupWeaponEffect {
-  readonly weaponId: WeaponId;
+export interface PickupItemEffect {
+  readonly itemId: ItemId;
   readonly tileX: number;
   readonly tileY: number;
-  /** `false` en los frames apagados; el arma sigue en la rejilla. */
+  /** `false` en los frames apagados; el objeto sigue en la rejilla. */
   readonly visible: boolean;
 }
 
-export function pickupWeaponEffectAt(
+export function pickupItemEffectAt(
   timeline: MotionTimeline,
   elapsed: number,
-): PickupWeaponEffect | null {
+): PickupItemEffect | null {
   for (const cue of activeCues(timeline, elapsed)) {
-    if (cue.kind !== 'pickup' || !cue.data.weaponId) continue;
+    if (cue.kind !== 'pickup' || !cue.data.itemId) continue;
     const tile = cue.anchor.tile;
     if (!tile) return null;
     const frames = FEEDBACK_CONFIG.effects.pickupBlinkFrames * 2;
     const t = elapsed - cue.atMs;
     const frame = Math.floor(t / (cue.durationMs / frames));
     return {
-      weaponId: cue.data.weaponId,
+      itemId: cue.data.itemId,
       tileX: tile.x,
       tileY: tile.y,
       visible: frame % 2 === 0,

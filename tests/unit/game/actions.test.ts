@@ -43,18 +43,11 @@ describe('contador de acciones', () => {
   });
 
   it('suma el bonus del equipo y recorta al tope de 4', () => {
-    const equipment = {
-      weaponId: 'sword' as const,
-      armorId: null,
-      shieldId: null,
-      actionsBonus: 2,
-    };
+    const actionsBonus = 2;
 
-    expect(createActions(stats(2), equipment)).toEqual({ max: 4, remaining: 4 });
-    expect(
-      createActions(stats(2), { ...equipment, actionsBonus: 5 }).max,
-    ).toBe(MAX_ACTIONS);
-    expect(createActions(stats(3), equipment).max).toBe(MAX_ACTIONS);
+    expect(createActions(stats(2), actionsBonus)).toEqual({ max: 4, remaining: 4 });
+    expect(createActions(stats(2), actionsBonus + 3).max).toBe(MAX_ACTIONS);
+    expect(createActions(stats(3), actionsBonus).max).toBe(MAX_ACTIONS);
   });
 
   it('serializa actions.max y actions.remaining en el estado', () => {
@@ -149,21 +142,20 @@ describe('contador de acciones', () => {
         },
       ],
       enemies: [],
-      map: {
-        ...base.map!,
-        weapons: [
-          { id: 'weapon-test', weaponId: 'axe', x: player.x, y: player.y },
-        ],
-      },
+      groundItems: [
+        { id: 'item-test-axe', itemId: 'axe', x: player.x, y: player.y },
+      ],
     };
 
     const picked = reduce(pickupState, { type: 'PickUp', unitId: 'player-1' });
     expect(picked.state.players[0]).toMatchObject({
       mp: 5,
       actions: { remaining: 0 },
-      equipment: { weaponId: 'axe' },
+      equipment: { weapon: { itemId: 'sword' } },
     });
-    expect(picked.state.players[0].weapons).toEqual(['sword', 'axe']);
+    expect(
+      picked.state.players[0].inventory.items.filter((item) => item !== null),
+    ).toEqual([{ id: 'item-test-axe', itemId: 'axe' }]);
   });
 
   it('atacar y después interactuar con el suelo es posible con acciones restantes', () => {
@@ -180,10 +172,7 @@ describe('contador de acciones', () => {
         },
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      map: {
-        ...base.map!,
-        weapons: [{ id: 'weapon-test', weaponId: 'axe', x: 5, y: 5 }],
-      },
+      groundItems: [{ id: 'item-test-axe', itemId: 'axe', x: 5, y: 5 }],
       rng: rngForDice(PLAYER_HIT),
     };
 
@@ -199,7 +188,7 @@ describe('contador de acciones', () => {
     expect(picked.state.players[0]).toMatchObject({
       mp: 5,
       actions: { remaining: 1 },
-      equipment: { weaponId: 'axe' },
+      equipment: { weapon: { itemId: 'sword' } },
     });
   });
 

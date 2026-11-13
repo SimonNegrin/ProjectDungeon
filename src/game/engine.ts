@@ -1,5 +1,14 @@
 import { createActions, hasAction } from './actions';
 import { isAlive } from './grid';
+import {
+  createInventory,
+  dropItem,
+  equipItem,
+  equipmentFromLegacy,
+  pickUpItem,
+  unequipItem,
+  type InventorySource,
+} from './inventory';
 import { commitMove, validateMove } from './movement';
 import { applyTerminal, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
@@ -14,9 +23,7 @@ import { createMana } from './mana';
 import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
 import { createPlayerFromArchetype } from './roster';
 import {
-  MAX_WEAPONS,
   MOVE_COST,
-  PICKUP_COST,
   type Command,
   type GameEvent,
   type GameState,
@@ -40,6 +47,7 @@ function createEnemy(
   home: Position = position,
 ): Unit {
   const definition = BESTIARY[type];
+  const equipment = equipmentFromLegacy(id, definition.equipment);
 
   return {
     id,
@@ -54,12 +62,11 @@ function createEnemy(
     mp: definition.maxMp,
     maxMp: definition.maxMp,
     mana: createMana(definition.stats.magicLevel),
-    actions: createActions(definition.stats, definition.equipment),
+    actions: createActions(definition.stats),
     spellsCast: 0,
     stats: definition.stats,
-    equipment: definition.equipment,
-    weapons:
-      definition.equipment.weaponId === null ? [] : [definition.equipment.weaponId],
+    equipment,
+    inventory: createInventory(),
     awareness: 'dormant',
     fleeing: false,
     home: { x: home.x, y: home.y },
@@ -83,17 +90,27 @@ function buildInitialState(
   seed: number,
   options: MapOptions | undefined,
 ): GameState {
-  const map: GeneratedMap = generator.generate(seed, options);
-  const mapEnemies = map.enemies;
+  const generated: GeneratedMap = generator.generate(seed, options);
+  const mapEnemies = generated.enemies;
   // BSP no aporta `map.enemies`; su colocación histórica de 4 fichas sigue
   // viva como fallback. Un generador que sí los aporta (growth) los consume.
-  const placement = mapEnemies === undefined ? placeMapEnemies(map) : null;
+  const placement = mapEnemies === undefined ? placeMapEnemies(generated) : null;
 
-  const playerPosition = map.spawns.party?.[0] ?? map.spawns.player;
+  const playerPosition = generated.spawns.party?.[0] ?? generated.spawns.player;
+  // El mapa conserva las armas como dato de generación, pero el estado solo
+  // expone la verdad nueva: instancias en el suelo.
+  const { weapons: generatedWeapons = [], ...map } = generated;
+  const groundItems = generatedWeapons.map((weapon) => ({
+    id: `item-${weapon.id}`,
+    itemId: weapon.weaponId,
+    x: weapon.x,
+    y: weapon.y,
+  }));
 
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
+    groundItems,
     players: [
       createPlayerFromArchetype('warrior', {
         id: 'player-1',
@@ -429,109 +446,101 @@ function reduceCastSpell(
   return { state: next, events };
 }
 
+/** Valida fase y unidad viva; las operaciones de inventario cobran el MP. */
+function inventoryUnit(
+  state: GameState,
+  command: Command,
+  unitId: string,
+): { readonly ok: true; readonly unit: Unit } | { readonly ok: false; readonly result: ReduceResult } {
+  if (state.phase !== 'player') {
+    return { ok: false, result: reject(state, command, 'wrong-phase') };
+  }
+  const unit = state.players.find((player) => player.id === unitId);
+  if (!unit) {
+    return { ok: false, result: reject(state, command, 'unknown-unit') };
+  }
+  if (!isAlive(unit)) {
+    return { ok: false, result: reject(state, command, 'dead-unit') };
+  }
+  return { ok: true, unit };
+}
+
+function reduceInventory(
+  state: GameState,
+  command: Command,
+  operation: () => { ok: true; state: GameState } | { ok: false; reason: RejectionReason },
+): ReduceResult {
+  const result = operation();
+  if (!result.ok) return reject(state, command, result.reason);
+  return { state: result.state, events: [] };
+}
+
 function reducePickUp(
   state: GameState,
   command: Extract<Command, { type: 'PickUp' }>,
 ): ReduceResult {
-  if (state.phase !== 'player') {
-    return reject(state, command, 'wrong-phase');
-  }
-
-  const unit = state.players.find((player) => player.id === command.unitId);
-  if (!unit) {
-    return reject(state, command, 'unknown-unit');
-  }
-  if (!isAlive(unit)) {
-    return reject(state, command, 'dead-unit');
-  }
-
-  const map = state.map;
-  if (!map) {
-    return reject(state, command, 'no-weapon');
-  }
-
-  const weapon = map.weapons?.find(
-    (candidate) => candidate.x === unit.x && candidate.y === unit.y,
-  );
-  if (!weapon) {
-    return reject(state, command, 'no-weapon');
-  }
-  if (unit.mp < PICKUP_COST) {
-    return reject(state, command, 'no-mp');
-  }
-
-  const alreadyOwned = unit.weapons.includes(weapon.weaponId);
-  if (!alreadyOwned && unit.weapons.length >= MAX_WEAPONS) {
-    return reject(state, command, 'inventory-full');
-  }
-
-  const nextUnit: Unit = {
-    ...unit,
-    mp: unit.mp - PICKUP_COST,
-    weapons: alreadyOwned ? unit.weapons : [...unit.weapons, weapon.weaponId],
-    equipment: { ...unit.equipment, weaponId: weapon.weaponId },
-  };
-
-  return {
-    state: {
-      ...state,
-      players: state.players.map((candidate) =>
-        candidate.id === unit.id ? nextUnit : candidate,
-      ),
-      map: {
-        ...map,
-        weapons: (map.weapons ?? []).filter((candidate) => candidate.id !== weapon.id),
-      },
-    },
-    events: [],
-  };
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+  return reduceInventory(state, command, () => pickUpItem(state, checked.unit.id));
 }
 
+function reduceEquipItem(
+  state: GameState,
+  command: Extract<Command, { type: 'EquipItem' }>,
+): ReduceResult {
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+
+  const source: InventorySource =
+    command.from === 'backpack'
+      ? { kind: 'backpack', index: command.index }
+      : command.from === 'ground'
+        ? { kind: 'ground', itemId: command.itemId }
+        : {
+            kind: 'container',
+            containerId: command.containerId,
+            itemId: command.itemId,
+          };
+  return reduceInventory(state, command, () => equipItem(state, checked.unit.id, source));
+}
+
+function reduceUnequipItem(
+  state: GameState,
+  command: Extract<Command, { type: 'UnequipItem' }>,
+): ReduceResult {
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+  return reduceInventory(state, command, () =>
+    unequipItem(state, checked.unit.id, command.slot),
+  );
+}
+
+function reduceDropItem(
+  state: GameState,
+  command: Extract<Command, { type: 'DropItem' }>,
+): ReduceResult {
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+  const source =
+    command.from === 'backpack'
+      ? { kind: 'backpack' as const, index: command.index }
+      : { kind: 'slot' as const, slot: command.slot };
+  return reduceInventory(state, command, () => dropItem(state, checked.unit.id, source));
+}
+
+/** Puente hasta TASK-0095: `1`-`3` equipan los tres primeros huecos. */
 function reduceSelectWeapon(
   state: GameState,
   command: Extract<Command, { type: 'SelectWeapon' }>,
 ): ReduceResult {
-  if (state.phase !== 'player') {
-    return reject(state, command, 'wrong-phase');
-  }
-
-  const unit = state.players.find((player) => player.id === command.unitId);
-  if (!unit) {
-    return reject(state, command, 'unknown-unit');
-  }
-  if (!isAlive(unit)) {
-    return reject(state, command, 'dead-unit');
-  }
-  if (
-    !Number.isInteger(command.slot) ||
-    command.slot < 1 ||
-    command.slot > MAX_WEAPONS
-  ) {
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+  if (!Number.isInteger(command.slot) || command.slot < 1 || command.slot > 3) {
     return reject(state, command, 'invalid-slot');
   }
-
-  const weaponId = unit.weapons[command.slot - 1];
-  if (!weaponId) {
-    return reject(state, command, 'invalid-slot');
-  }
-  if (unit.equipment.weaponId === weaponId) {
-    return { state, events: [] };
-  }
-
-  const nextUnit: Unit = {
-    ...unit,
-    equipment: { ...unit.equipment, weaponId },
-  };
-
-  return {
-    state: {
-      ...state,
-      players: state.players.map((candidate) =>
-        candidate.id === unit.id ? nextUnit : candidate,
-      ),
-    },
-    events: [],
-  };
+  return reduceInventory(state, command, () =>
+    equipItem(state, checked.unit.id, { kind: 'backpack', index: command.slot - 1 }),
+  );
 }
 
 /**
@@ -556,6 +565,12 @@ export function reduce(state: GameState, command: Command): ReduceResult {
       return reduceAttack(state, command);
     case 'PickUp':
       return reducePickUp(state, command);
+    case 'EquipItem':
+      return reduceEquipItem(state, command);
+    case 'UnequipItem':
+      return reduceUnequipItem(state, command);
+    case 'DropItem':
+      return reduceDropItem(state, command);
     case 'SelectWeapon':
       return reduceSelectWeapon(state, command);
     case 'CastSpell':

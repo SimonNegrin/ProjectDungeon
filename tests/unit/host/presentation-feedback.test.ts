@@ -236,7 +236,7 @@ describe('estado visible retrasado hasta su cue', () => {
 
   it('la recogida mantiene arma, inventario y MP hasta su cue', () => {
     const session = new GameSession({ seed: 279837264, generator: new BspMapGenerator() });
-    const weapon = session.state.map?.weapons?.[0];
+    const weapon = session.state.groundItems?.[0];
     if (!weapon) throw new Error('La semilla de referencia debe colocar armas');
 
     const initialState: GameState = {
@@ -267,21 +267,21 @@ describe('estado visible retrasado hasta su cue', () => {
       initialState,
     );
 
-    // R-011: el arma sigue en el suelo y el inventario no cambia al empezar el
-    // cue; el cambio se ve al acabar el beat.
-    expect(before.players[0].weapons).toEqual(initialState.players[0].weapons);
+    // El objeto sigue en el suelo y la mochila no cambia al empezar el cue; el
+    // cambio se ve al acabar el beat.
+    expect(before.players[0].inventory).toEqual(initialState.players[0].inventory);
     expect(before.players[0].equipment).toEqual(initialState.players[0].equipment);
     expect(before.players[0].mp).toBe(initialState.players[0].mp);
-    expect(before.map?.weapons).toEqual(initialState.map?.weapons);
-    expect(duringCue.players[0].weapons).toEqual(initialState.players[0].weapons);
+    expect(before.groundItems).toEqual(initialState.groundItems);
+    expect(duringCue.players[0].inventory).toEqual(initialState.players[0].inventory);
     expect(duringCue.players[0].equipment).toEqual(initialState.players[0].equipment);
     expect(duringCue.players[0].mp).toBe(initialState.players[0].mp);
-    expect(duringCue.map?.weapons).toEqual(initialState.map?.weapons);
+    expect(duringCue.groundItems).toEqual(initialState.groundItems);
 
-    expect(after.players[0].weapons).toEqual(result.state.players[0].weapons);
+    expect(after.players[0].inventory).toEqual(result.state.players[0].inventory);
     expect(after.players[0].equipment).toEqual(result.state.players[0].equipment);
     expect(after.players[0].mp).toBe(result.state.players[0].mp);
-    expect(after.map?.weapons).toEqual(result.state.map?.weapons);
+    expect(after.groundItems).toEqual(result.state.groundItems);
   });
 
   it('el cambio de arma se aplica al final del beat, no al inicio', () => {
@@ -292,15 +292,28 @@ describe('estado visible retrasado hasta su cue', () => {
           faction: 'player',
           x: 4,
           y: 4,
-          weapons: ['sword', 'axe'],
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
+              { id: 'item-player-1-backpack-axe', itemId: 'axe' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
           equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
         }),
       ],
     });
     const command = {
-      type: 'SelectWeapon' as const,
+      type: 'EquipItem' as const,
       unitId: 'player-1',
-      slot: 2,
+      from: 'backpack' as const,
+      index: 1,
     };
     const result = reduce(initialState, command);
     const presentation = buildPresentationEvents(
@@ -325,9 +338,9 @@ describe('estado visible retrasado hasta su cue', () => {
       initialState,
     );
 
-    expect(before.players[0].equipment.weaponId).toBe('sword');
-    expect(duringCue.players[0].equipment.weaponId).toBe('sword');
-    expect(after.players[0].equipment.weaponId).toBe('axe');
+    expect(before.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(duringCue.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(after.players[0].equipment.weapon?.itemId).toBe('axe');
   });
 
   it('fase enemiga, fin de partida y alarma usan el atMs secuenciado', () => {
@@ -464,7 +477,19 @@ describe('eventos de presentación del host', () => {
           faction: 'player',
           x: 4,
           y: 4,
-          weapons: ['sword', 'axe'],
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
+              { id: 'item-player-1-backpack-axe', itemId: 'axe' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
           equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
         }),
       ],
@@ -480,13 +505,20 @@ describe('eventos de presentación del host', () => {
     );
     expect(selected.events).toEqual([]);
     expect(selectedEvents).toEqual([
-      { type: 'SelectWeapon', unitId: 'player-1', weaponId: 'axe', slot: 2 },
+      { type: 'SelectWeapon', unitId: 'player-1', itemId: 'axe', slot: 2 },
     ]);
 
-    const same = { type: 'SelectWeapon' as const, unitId: 'player-1', slot: 1 };
-    const sameResult = reduce(initialState, same);
+    // Desequipar no añade cue sintético: el builder solo modela recogida y
+    // equipo, y no inventa eventos para comandos sin presentación propia.
+    const unequip = { type: 'UnequipItem' as const, unitId: 'player-1', slot: 'armor' as const };
+    const unequipResult = reduce(initialState, unequip);
     expect(
-      buildPresentationEvents(same, initialState, sameResult.state, sameResult.events),
+      buildPresentationEvents(
+        unequip,
+        initialState,
+        unequipResult.state,
+        unequipResult.events,
+      ),
     ).toEqual([]);
 
     const rejected = reduce(initialState, {

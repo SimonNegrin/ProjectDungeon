@@ -1,3 +1,4 @@
+import { ITEMS, type WeaponId } from '../game/equipment';
 import type { GameState, Unit } from '../game/types';
 import type { Door, DoorStyle, Exit } from '../game/map';
 import {
@@ -23,7 +24,7 @@ import {
 import { wallTileFor } from './wall';
 import type {
   AlarmWaveEffect,
-  PickupWeaponEffect,
+  PickupItemEffect,
   UnitWorldEffect,
   WorldEffects,
 } from './world-effects';
@@ -48,8 +49,8 @@ export interface RenderOptions {
   readonly effects?: WorldEffects;
   /** Onda expansiva de alarma desde el emisor. */
   readonly alarm?: AlarmWaveEffect | null;
-  /** Arma recogida: el frame apagado conserva el arma pero no la dibuja. */
-  readonly pickupWeapon?: PickupWeaponEffect | null;
+  /** Objeto recogido: el frame apagado lo conserva pero no lo dibuja. */
+  readonly pickupItem?: PickupItemEffect | null;
   /** Capa de `F1`: máscaras, límites, spawn, salida, pasillos y puntos calientes. */
   readonly debug?: boolean;
 }
@@ -820,21 +821,29 @@ export function renderScene(
     drawExit(ctx, state.map.exit, assets, range, tileSize);
   }
 
-  // Armas del mapa: formas planas provisionales entre decals/muros y unidades.
-  // Durante la recogida el arma sigue en el suelo y parpadea: el frame apagado
-  // no la dibuja, pero el estado conserva su tile hasta el final del beat.
-  for (const weapon of state.map?.weapons ?? []) {
-    if (weapon.x < range.minX || weapon.x > range.maxX) continue;
-    if (weapon.y < range.minY || weapon.y > range.maxY) continue;
+  // Objetos del suelo: por ahora solo las armas tienen forma plana provisional.
+  // Durante la recogida el objeto sigue en el suelo y parpadea: el frame apagado
+  // no lo dibuja, pero el estado conserva su tile hasta el final del beat.
+  const pickupItem = options.pickupItem ?? null;
+  for (const item of state.groundItems ?? []) {
+    if (ITEMS[item.itemId].category !== 'weapon') continue;
+    if (item.x < range.minX || item.x > range.maxX) continue;
+    if (item.y < range.minY || item.y > range.maxY) continue;
     if (
-      options.pickupWeapon?.weaponId === weapon.weaponId &&
-      options.pickupWeapon.tileX === weapon.x &&
-      options.pickupWeapon.tileY === weapon.y &&
-      !options.pickupWeapon.visible
+      pickupItem?.itemId === item.itemId &&
+      pickupItem.tileX === item.x &&
+      pickupItem.tileY === item.y &&
+      !pickupItem.visible
     ) {
       continue;
     }
-    drawWeaponShape(ctx, weapon.weaponId, weapon.x * tileSize, weapon.y * tileSize, tileSize);
+    drawWeaponShape(
+      ctx,
+      item.itemId as WeaponId,
+      item.x * tileSize,
+      item.y * tileSize,
+      tileSize,
+    );
   }
 
   for (const enemy of state.enemies) {

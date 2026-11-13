@@ -215,8 +215,8 @@ describe('personaje desde arquetipo', () => {
       mana: { current: 4, max: 4 },
       actions: { max: 2, remaining: 2 },
       stats: ROSTER.cook.stats,
-      equipment: ROSTER.cook.equipment,
-      weapons: ['knife'],
+      equipment: { weapon: { itemId: 'knife' }, armor: null, shield: null },
+      inventory: { capacity: 8 },
       home: { x: 3, y: 4 },
     });
   });
@@ -224,8 +224,8 @@ describe('personaje desde arquetipo', () => {
   it('los arquetipos sin arma parten sin armas equipadas', () => {
     const archer = createPlayerFromArchetype('archer');
 
-    expect(archer.equipment.weaponId).toBeNull();
-    expect(archer.weapons).toEqual([]);
+    expect(archer.equipment.weapon).toBeNull();
+    expect(archer.inventory.items.filter((item) => item !== null)).toEqual([]);
     expect(archer.nombre).toBe('Arquero');
   });
 
@@ -267,8 +267,17 @@ describe('jugador por defecto (REQ-015 T-003)', () => {
     for (const type of ['slash', 'blunt', 'pierce', 'magic', 'electric'] as const) {
       expect(bandFor(player.stats.resistencia, type), type).toBe('normal');
     }
-    expect(player.equipment).toEqual(ROSTER.warrior.equipment);
-    expect(player.weapons).toEqual(['sword']);
+    expect(player.equipment).toMatchObject({
+      weapon: { itemId: 'sword' },
+      armor: { itemId: 'armor' },
+      shield: { itemId: 'shield' },
+      head: null,
+      feet: null,
+      hands: null,
+      neck: null,
+      ring: null,
+    });
+    expect(player.inventory.items.filter((item) => item !== null)).toEqual([]);
     expect(player.hp).toBe(ROSTER.warrior.maxHp);
     expect(player.maxHp).toBe(ROSTER.warrior.maxHp);
     expect(player.mp).toBe(ROSTER.warrior.maxMp);

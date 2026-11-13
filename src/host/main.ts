@@ -75,7 +75,7 @@ import { createSpotMarkerView } from './spot-view';
 import { createViewportVisibility } from './visibility';
 import {
   alarmEffectAt,
-  pickupWeaponEffectAt,
+  pickupItemEffectAt,
   worldEffectsAt,
 } from './world-effects';
 
@@ -440,7 +440,7 @@ async function boot(): Promise<void> {
           dyingUnitIds: dyingUnitIds(animation.timeline, elapsed),
           effects: worldEffectsAt(animation.timeline, elapsed),
           alarm: alarmEffectAt(animation.timeline, elapsed),
-          pickupWeapon: pickupWeaponEffectAt(animation.timeline, elapsed),
+          pickupItem: pickupItemEffectAt(animation.timeline, elapsed),
           debug: debugView.isOpen(),
         });
       }

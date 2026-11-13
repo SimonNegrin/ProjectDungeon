@@ -60,11 +60,11 @@ const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number 
   arrowright: { dx: 1, dy: 0 },
 };
 
-/** Teclas 1-3 que seleccionan un hueco de arma. */
-const WEAPON_SLOTS: Readonly<Record<string, number>> = {
-  '1': 1,
-  '2': 2,
-  '3': 3,
+/** Teclas 1-3 que equipan los tres primeros huecos de la mochila. */
+const BACKPACK_SLOTS: Readonly<Record<string, number>> = {
+  '1': 0,
+  '2': 1,
+  '3': 2,
 };
 
 const MANAGED_KEYS = new Set([
@@ -233,12 +233,17 @@ export function translateKey(
     return command({ type: 'PickUp', unitId: player.id });
   }
 
-  const slot = WEAPON_SLOTS[key];
-  if (slot !== undefined) {
+  const backpackIndex = BACKPACK_SLOTS[key];
+  if (backpackIndex !== undefined) {
     if (state.phase !== 'player') return ignored('wrong-phase');
     const player = findActivePlayer(state);
     if (!player) return ignored('no-active-player');
-    return command({ type: 'SelectWeapon', unitId: player.id, slot });
+    return command({
+      type: 'EquipItem',
+      unitId: player.id,
+      from: 'backpack',
+      index: backpackIndex,
+    });
   }
 
   if (key === 'enter' || key === ' ' || key === 'spacebar') {

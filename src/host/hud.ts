@@ -1,12 +1,6 @@
-import {
-  ARMORS,
-  SHIELDS,
-  armorValue,
-  shieldValue,
-  weaponDamage,
-  weaponFor,
-} from '../game/equipment';
-import type { GameEvent, GameState, Position, Unit } from '../game/types';
+import { ITEMS } from '../game/equipment';
+import { effectiveStats } from '../game/stats';
+import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { rosterEntry } from '../game/roster';
 import { alarmRadius, hasLineOfSight, visionRadius } from '../game/perception';
 import {
@@ -127,26 +121,32 @@ function signed(value: number): string {
 
 function weaponLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
-  if (unit.equipment.weaponId === null) return 'Sin arma';
-  const weapon = weaponFor(unit.equipment.weaponId);
-  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
+  const profile = effectiveStats(unit);
+  if (profile.weapon === null) return 'Sin arma';
+  const damage = profile.weapon.damagePackets.reduce(
+    (total, packet) => total + packet.amount,
+    0,
+  );
+  return `${profile.weapon.name} ${signed(profile.accuracy)}/${signed(damage)}`;
 }
 
 function shieldLabel(unit: Unit | undefined): string {
-  if (!unit || unit.equipment.shieldId === null) return 'Sin escudo';
-  const shield = SHIELDS[unit.equipment.shieldId];
-  return `${shield.name} ${signed(shieldValue(unit.equipment.shieldId))}`;
+  if (!unit) return 'Sin escudo';
+  const profile = effectiveStats(unit);
+  if (profile.shield === null) return 'Sin escudo';
+  return `${profile.shield.name} ${signed(profile.evasion)}`;
 }
 
 function armorLabel(unit: Unit | undefined): string {
-  if (!unit || unit.equipment.armorId === null) return 'Sin armadura';
-  const armor = ARMORS[unit.equipment.armorId];
-  return `${armor.name} ${signed(armorValue(unit.equipment.armorId))}`;
+  if (!unit) return 'Sin armadura';
+  const profile = effectiveStats(unit);
+  if (profile.armor === null) return 'Sin armadura';
+  return `${profile.armor.name} ${signed(profile.absorption)}`;
 }
 
 function statsLabel(unit: Unit | undefined): string {
   if (!unit) return '—';
-  const { habilidad, fuerza, defensa } = unit.stats;
+  const { habilidad, fuerza, defensa } = effectiveStats(unit).stats;
   // La resistencia es ahora un perfil por tipo (REQ-029); las bandas visibles
   // llegan en TASK-0089 y no se muestran aquí.
   return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
@@ -180,10 +180,13 @@ function cursorEnemyBands(
   return sees ? profileRows(enemy.stats.resistencia) : null;
 }
 
-function weaponAtPlayer(state: GameState, player: Unit | undefined) {
+function itemAtPlayer(
+  state: GameState,
+  player: Unit | undefined,
+): GroundItem | undefined {
   if (!player) return undefined;
-  return state.map?.weapons?.find(
-    (weapon) => weapon.x === player.x && weapon.y === player.y,
+  return (state.groundItems ?? []).find(
+    (item) => item.x === player.x && item.y === player.y,
   );
 }
 
@@ -191,7 +194,7 @@ function weaponAtPlayer(state: GameState, player: Unit | undefined) {
 export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = state.players[0];
   const enemy = state.enemies[0];
-  const mapWeapon = weaponAtPlayer(state, player);
+  const groundItem = itemAtPlayer(state, player);
   const cursorEnemy = enemyAt(state, cursor);
 
   return {
@@ -213,9 +216,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     cursorEnemyMagic: formatMagic(cursorEnemy),
     cursorEnemyMana: formatMana(cursorEnemy),
     cursorEnemyBands: cursorEnemyBands(state, cursorEnemy, cursor),
-    weaponHint: mapWeapon
-      ? `G recoger ${weaponFor(mapWeapon.weaponId).name}`
-      : null,
+    weaponHint: groundItem ? `G recoger ${ITEMS[groundItem.itemId].name}` : null,
     turn: `Turno ${state.turn}`,
     status: statusLabel(state),
     keys: KEYS_HELP,

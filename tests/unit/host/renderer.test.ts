@@ -647,10 +647,7 @@ describe('render de armas del mapa', () => {
     return {
       state: {
         ...base,
-        map: {
-          ...base.map,
-          weapons: [{ id: `weapon-${weaponId}`, weaponId, x, y }],
-        },
+        groundItems: [{ id: `item-weapon-${weaponId}`, itemId: weaponId, x, y }],
       },
       x,
       y,
@@ -770,7 +767,7 @@ describe('render de armas del mapa', () => {
     const { state, x, y, camera } = stateWithWeapon('dagger');
     const hidden = createFakeContext();
     renderScene(hidden.ctx, state, assets, camera, VIEWPORT, 32, {
-      pickupWeapon: { weaponId: 'dagger', tileX: x, tileY: y, visible: false },
+      pickupItem: { itemId: 'dagger', tileX: x, tileY: y, visible: false },
     });
     expect(
       hidden.ops.some(
@@ -781,11 +778,11 @@ describe('render de armas del mapa', () => {
             op.style === WEAPON_SHAPE_COLORS.guard),
       ),
     ).toBe(false);
-    expect(state.map?.weapons?.[0]).toMatchObject({ x, y, weaponId: 'dagger' });
+    expect(state.groundItems?.[0]).toMatchObject({ x, y, itemId: 'dagger' });
 
     const visible = createFakeContext();
     renderScene(visible.ctx, state, assets, camera, VIEWPORT, 32, {
-      pickupWeapon: { weaponId: 'dagger', tileX: x, tileY: y, visible: true },
+      pickupItem: { itemId: 'dagger', tileX: x, tileY: y, visible: true },
     });
     expect(
       visible.ops.some(

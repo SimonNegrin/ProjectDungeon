@@ -1,102 +1,104 @@
 import { describe, expect, it } from 'vitest';
 import { BspMapGenerator, reduce, createInitialState } from '../../../src/game/index';
-import { WEAPONS, weaponDamage } from '../../../src/game/equipment';
+import { ITEMS, WEAPONS, weaponDamage } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 
-function stateOnWeapon(
+function stateOnItem(
   state: GameState,
-  weapon: { readonly x: number; readonly y: number },
+  item: { readonly x: number; readonly y: number },
 ): GameState {
   return {
     ...state,
-    players: [{ ...state.players[0], x: weapon.x, y: weapon.y }],
+    players: [{ ...state.players[0], x: item.x, y: item.y }],
   };
 }
 
-describe('integración de recogida y cambio de arma con el HUD', () => {
-  it('recoger actualiza el HUD, el inventario y el arma equipada', () => {
+function backpackItemIds(state: GameState): readonly string[] {
+  return state.players[0].inventory.items
+    .filter((item) => item !== null)
+    .map((item) => item.itemId);
+}
+
+describe('integración de recogida y equipo con el HUD', () => {
+  it('recoger actualiza el HUD y la mochila sin auto-equipar', () => {
     const base = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
-    const weapons = base.map?.weapons ?? [];
-    expect(weapons.length).toBeGreaterThan(0);
-    const weapon = weapons[0];
+    const items = base.groundItems ?? [];
+    expect(items.length).toBeGreaterThan(0);
+    const item = items[0];
 
-    const onWeapon = stateOnWeapon(base, weapon);
-    expect(buildHudModel(onWeapon).weaponHint).toBe(
-      `G recoger ${WEAPONS[weapon.weaponId].name}`,
+    const onItem = stateOnItem(base, item);
+    expect(buildHudModel(onItem).weaponHint).toBe(
+      `G recoger ${ITEMS[item.itemId].name}`,
     );
 
-    const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' }).state;
+    const picked = reduce(onItem, { type: 'PickUp', unitId: 'player-1' }).state;
 
-    expect(picked.players[0].equipment.weaponId).toBe(weapon.weaponId);
-    expect(picked.players[0].weapons).toEqual(['sword', weapon.weaponId]);
+    expect(picked.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(backpackItemIds(picked)).toEqual([item.itemId]);
     expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${weaponDamage(WEAPONS[weapon.weaponId])}`,
+      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
     );
     expect(buildHudModel(picked).weaponHint).toBeNull();
   });
 
-  it('recoger el martillo nuevo muestra su nombre del catálogo en pista y HUD', () => {
+  it('recoger el martillo nuevo muestra su nombre del catálogo en pista', () => {
     const base = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
-    const hammer = (base.map?.weapons ?? []).find(
-      (weapon) => weapon.weaponId === 'hammer',
+    const hammer = (base.groundItems ?? []).find(
+      (item) => item.itemId === 'hammer',
     );
     if (!hammer) throw new Error('La semilla de referencia debe colocar el martillo');
 
-    const onHammer = stateOnWeapon(base, hammer);
+    const onHammer = stateOnItem(base, hammer);
     expect(buildHudModel(onHammer).weaponHint).toBe('G recoger Martillo');
     expect(buildHudModel(onHammer).weaponHint).not.toContain('hammer');
 
     const picked = reduce(onHammer, { type: 'PickUp', unitId: 'player-1' }).state;
-
-    expect(picked.players[0].equipment.weaponId).toBe('hammer');
-    expect(buildHudModel(picked).weapon).toBe('Martillo +2/+4');
+    expect(picked.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(backpackItemIds(picked)).toEqual(['hammer']);
   });
 
-  it('cambiar de hueco actualiza el HUD sin gastar MP ni acción', () => {
+  it('equipar desde la mochila actualiza el HUD, cuesta 1 MP y no gasta acción', () => {
     const base = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
-    const weapons = base.map?.weapons ?? [];
-    expect(weapons.length).toBeGreaterThanOrEqual(2);
+    const items = base.groundItems ?? [];
+    expect(items.length).toBeGreaterThanOrEqual(2);
 
-    const first = weapons[0];
-    const afterFirst = reduce(stateOnWeapon(base, first), {
+    const first = items[0];
+    const afterFirst = reduce(stateOnItem(base, first), {
       type: 'PickUp',
       unitId: 'player-1',
     }).state;
-    const second = (afterFirst.map?.weapons ?? [])[0];
-    const afterSecond = reduce(stateOnWeapon(afterFirst, second), {
+    const second = (afterFirst.groundItems ?? [])[0];
+    const afterSecond = reduce(stateOnItem(afterFirst, second), {
       type: 'PickUp',
       unitId: 'player-1',
     }).state;
 
-    expect(afterSecond.players[0].weapons).toEqual([
-      'sword',
-      first.weaponId,
-      second.weaponId,
-    ]);
+    expect(backpackItemIds(afterSecond)).toEqual([first.itemId, second.itemId]);
 
     const mpBefore = afterSecond.players[0].mp;
     const actionsBefore = afterSecond.players[0].actions;
-    const switched = reduce(afterSecond, {
-      type: 'SelectWeapon',
+    const equipped = reduce(afterSecond, {
+      type: 'EquipItem',
       unitId: 'player-1',
-      slot: 2,
+      from: 'backpack',
+      index: 0,
     }).state;
 
-    expect(switched.players[0].equipment.weaponId).toBe(first.weaponId);
-    expect(switched.players[0].mp).toBe(mpBefore);
-    expect(switched.players[0].actions).toEqual(actionsBefore);
-    expect(buildHudModel(switched).weapon).toBe(
-      `${WEAPONS[first.weaponId].name} +${WEAPONS[first.weaponId].accuracy}/+${weaponDamage(WEAPONS[first.weaponId])}`,
+    expect(equipped.players[0].equipment.weapon?.itemId).toBe(first.itemId);
+    expect(equipped.players[0].mp).toBe(mpBefore - 1);
+    expect(equipped.players[0].actions).toEqual(actionsBefore);
+    expect(buildHudModel(equipped).weapon).toBe(
+      `${WEAPONS[first.itemId as keyof typeof WEAPONS].name} +${WEAPONS[first.itemId as keyof typeof WEAPONS].accuracy}/+${weaponDamage(WEAPONS[first.itemId as keyof typeof WEAPONS])}`,
     );
   });
 });

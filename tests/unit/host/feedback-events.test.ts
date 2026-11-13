@@ -39,7 +39,7 @@ describe('banners de inventario, fase y turno', () => {
         {
           type: 'PickUp',
           unitId: 'player-1',
-          weaponId: 'electric-sword',
+          itemId: 'electric-sword',
           slot: 2,
         } satisfies PresentationEvent,
       ],
@@ -50,7 +50,7 @@ describe('banners de inventario, fase y turno', () => {
         {
           type: 'SelectWeapon',
           unitId: 'player-1',
-          weaponId: 'arcane-dagger',
+          itemId: 'arcane-dagger',
           slot: 3,
         } satisfies PresentationEvent,
       ],
@@ -74,7 +74,7 @@ describe('banners de inventario, fase y turno', () => {
         {
           type: 'PickUp',
           unitId: 'player-1',
-          weaponId: 'dagger',
+          itemId: 'dagger',
           slot: 2,
         } satisfies PresentationEvent,
       ],
@@ -85,7 +85,7 @@ describe('banners de inventario, fase y turno', () => {
         {
           type: 'SelectWeapon',
           unitId: 'player-1',
-          weaponId: 'axe',
+          itemId: 'axe',
           slot: 2,
         } satisfies PresentationEvent,
       ],
@@ -144,7 +144,7 @@ describe('pulso de la ranura del arma', () => {
       {
         type: 'PickUp',
         unitId: 'player-1',
-        weaponId: 'dagger',
+        itemId: 'dagger',
         slot: 2,
       } satisfies PresentationEvent,
     ]);
@@ -160,7 +160,7 @@ describe('pulso de la ranura del arma', () => {
       {
         type: 'SelectWeapon',
         unitId: 'player-1',
-        weaponId: 'axe',
+        itemId: 'axe',
         slot: 1,
       } satisfies PresentationEvent,
     ]);

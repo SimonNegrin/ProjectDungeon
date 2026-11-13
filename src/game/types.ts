@@ -1,5 +1,11 @@
 import type { EnemyType } from './bestiary';
-import type { ArmorId, ShieldId, WeaponId } from './equipment';
+import type { ArmorId, EquipmentSlot, ShieldId, WeaponId } from './equipment';
+import type {
+  Container,
+  EquipmentSlots,
+  GroundItem,
+  Inventory,
+} from './inventory';
 import type { GeneratedMap } from './map';
 import type { ArchetypeId } from './roster';
 import type { SpellId } from './spells';
@@ -94,7 +100,11 @@ export interface Mana {
   readonly max: number;
 }
 
-/** Equipo equipado, serializable y estable por ID de catálogo. */
+/**
+ * Equipo inicial legacy (roster y bestiario). Es solo una forma de entrada para
+ * construir los ocho huecos de `Unit.equipment`; nunca es la verdad de una
+ * unidad. Las instancias nuevas viven en `inventory.ts`.
+ */
 export interface UnitEquipment {
   /** `null` = sin arma; la unidad no puede atacar. */
   readonly weaponId: WeaponId | null;
@@ -141,9 +151,10 @@ export interface Unit {
   /** Hechizos lanzados en el turno actual; se reinicia al empezar el turno. */
   readonly spellsCast: number;
   readonly stats: UnitStats;
-  readonly equipment: UnitEquipment;
-  /** Armas llevadas; la equipada es `equipment.weaponId`. */
-  readonly weapons: readonly WeaponId[];
+  /** Ocho huecos de equipo con instancia o `null` (REQ-018 R-002). */
+  readonly equipment: EquipmentSlots;
+  /** Mochila personal; capacidad paramétrica y equipo puesto fuera de ella. */
+  readonly inventory: Inventory;
   /** Percepción del enemigo; los jugadores usan `alert` como valor estable. */
   readonly awareness: Awareness;
   /** Huida activa del perfil cobarde (REQ-009; comportamiento en TASK-0037). */
@@ -162,6 +173,13 @@ export interface GameState {
   readonly grid: Grid;
   /** Mapa generado que dio lugar a `grid`. Siempre presente en `createInitialState`. */
   readonly map?: GeneratedMap;
+  /**
+   * Objetos en el suelo. Sustituyen a `map.weapons` como verdad; el mapa solo
+   * conserva sus armas como dato de generación.
+   */
+  readonly groundItems?: readonly GroundItem[];
+  /** Contenedores sintéticos (sin cofres jugables en este corte). */
+  readonly containers?: readonly Container[];
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   readonly phase: Phase;
@@ -175,6 +193,10 @@ export type CommandType =
   | 'MoveTo'
   | 'Attack'
   | 'PickUp'
+  | 'EquipItem'
+  | 'UnequipItem'
+  | 'DropItem'
+  /** Alias legacy de `EquipItem` desde los tres primeros huecos de mochila. */
   | 'SelectWeapon'
   | 'CastSpell'
   | 'EndTurn'
@@ -194,9 +216,48 @@ export type Command =
       readonly target: Position;
     }
   | { readonly type: 'Attack'; readonly unitId: string; readonly targetId: string }
-  /** Recoge el arma del mapa que ocupa la unidad (1 MP, sin gastar acción). */
+  /** Recoge a la mochila el objeto del tile (1 MP, sin gastar acción). */
   | { readonly type: 'PickUp'; readonly unitId: string }
-  /** Cambia al hueco de arma `slot` (1-3), gratis y sin gastar acción. */
+  /** Equipa desde la mochila, el suelo del tile o un contenedor abierto. */
+  | {
+      readonly type: 'EquipItem';
+      readonly unitId: string;
+      readonly from: 'backpack';
+      readonly index: number;
+    }
+  | {
+      readonly type: 'EquipItem';
+      readonly unitId: string;
+      readonly from: 'ground';
+      readonly itemId: string;
+    }
+  | {
+      readonly type: 'EquipItem';
+      readonly unitId: string;
+      readonly from: 'container';
+      readonly containerId: string;
+      readonly itemId: string;
+    }
+  /** Pasa un hueco de equipo a la mochila. */
+  | {
+      readonly type: 'UnequipItem';
+      readonly unitId: string;
+      readonly slot: EquipmentSlot;
+    }
+  /** Suelta al suelo un objeto de la mochila o de un hueco de equipo. */
+  | {
+      readonly type: 'DropItem';
+      readonly unitId: string;
+      readonly from: 'backpack';
+      readonly index: number;
+    }
+  | {
+      readonly type: 'DropItem';
+      readonly unitId: string;
+      readonly from: 'slot';
+      readonly slot: EquipmentSlot;
+    }
+  /** Alias legacy: equipa desde el hueco de mochila `slot - 1` (1-3). */
   | { readonly type: 'SelectWeapon'; readonly unitId: string; readonly slot: number }
   /**
    * Lanza un hechizo del catálogo contra una casilla (REQ-025). El resolvedor
@@ -231,12 +292,18 @@ export type RejectionReason =
   | 'no-path'
   /** `MoveTo`: destino no accionable (por ejemplo, el propio tile del jugador). */
   | 'invalid-target'
-  /** `PickUp`: no hay un arma del mapa en el tile de la unidad. */
-  | 'no-weapon'
-  /** `PickUp`: el inventario ya tiene los tres huecos ocupados. */
+  /** `PickUp`/`EquipItem`/`DropItem`: no hay objeto en el origen. */
+  | 'no-item'
+  /** La mochila no tiene hueco para el objeto resultante. */
   | 'inventory-full'
-  /** `SelectWeapon`: el hueco no existe o no tiene arma. */
+  /** El hueco no existe, está fuera de rango o no tiene objeto. */
   | 'invalid-slot'
+  /** Un objeto no puede ocupar ese tipo de hueco. */
+  | 'wrong-slot'
+  /** `EquipItem`: un escudo no cabe mientras hay un arma a dos manos. */
+  | 'two-handed'
+  /** `EquipItem`: contenedor inexistente. */
+  | 'unknown-container'
   /** `Attack`: la unidad no tiene arma equipada. */
   | 'unarmed'
   /** `CastSpell`: el id no existe en el catálogo. */
@@ -377,7 +444,13 @@ export const ROOM_HEIGHT = 20;
 export const PLAYER_MAX_HP = 20;
 export const PLAYER_MAX_MP = 6;
 export const MOVE_COST = 1;
-/** Huecos de arma que puede llevar una unidad. */
-export const MAX_WEAPONS = 3;
-/** Coste en MP de recoger un arma del mapa. */
+/** Coste en MP de recoger, equipar, desequipar o soltar (REQ-018/REQ-026). */
 export const PICKUP_COST = 1;
+
+export type {
+  Container,
+  EquipmentSlots,
+  GroundItem,
+  Inventory,
+  ItemInstance,
+} from './inventory';

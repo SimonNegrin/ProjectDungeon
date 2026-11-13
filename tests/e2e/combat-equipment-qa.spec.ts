@@ -5,10 +5,9 @@ import {
   ARMORS,
   SHIELDS,
   WEAPONS,
-  armorValue,
-  shieldValue,
   weaponDamage,
 } from '../../src/game/equipment';
+import { effectiveStats } from '../../src/game/stats';
 import { bandFor, resolvePacket } from '../../src/game/damage';
 import { ROSTER } from '../../src/game/roster';
 import type { GameEvent, Unit } from '../../src/game/types';
@@ -134,19 +133,23 @@ function signed(value: number): string {
 }
 
 function weaponLabel(unit: Unit): string {
-  const weapon = WEAPONS[unit.equipment.weaponId!];
+  const weaponId = unit.equipment.weapon?.itemId;
+  if (weaponId === undefined) return 'Sin arma';
+  const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
   return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
 }
 
 function shieldLabel(unit: Unit): string {
-  if (unit.equipment.shieldId === null) return 'Sin escudo';
-  const shield = SHIELDS[unit.equipment.shieldId];
+  const shieldId = unit.equipment.shield?.itemId;
+  if (shieldId === undefined) return 'Sin escudo';
+  const shield = SHIELDS[shieldId as keyof typeof SHIELDS];
   return `${shield.name} ${signed(shield.defense)}`;
 }
 
 function armorLabel(unit: Unit): string {
-  if (unit.equipment.armorId === null) return 'Sin armadura';
-  const armor = ARMORS[unit.equipment.armorId];
+  const armorId = unit.equipment.armor?.itemId;
+  if (armorId === undefined) return 'Sin armadura';
+  const armor = ARMORS[armorId as keyof typeof ARMORS];
   return `${armor.name} ${signed(armor.armor)}`;
 }
 
@@ -264,7 +267,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   await walkTo(page, neighbor!.x, neighbor!.y);
   const nearAxe = await snapshot(page);
   expect(nearAxe.weapons).toHaveLength(3);
-  expect(nearAxe.players[0].equipment.weaponId).toBe('sword');
+  expect(nearAxe.players[0].equipment.weapon?.itemId).toBe('sword');
   await screenshot(page, 'weapon-in-map', testInfo);
 
   await walkTo(page, axe!.x, axe!.y);
@@ -279,7 +282,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   const afterPickup = await snapshot(page);
   expect(afterPickup.players[0].mp).toBe(beforePickup.players[0].mp - 1);
   expect(afterPickup.players[0].actions).toEqual(beforePickup.players[0].actions);
-  expect(afterPickup.players[0].equipment.weaponId).toBe('axe');
+  expect(afterPickup.players[0].equipment.weapon?.itemId).toBe('axe');
   expect(afterPickup.players[0].weapons).toEqual(['sword', 'axe']);
   expect(afterPickup.weapons).toHaveLength(2);
   expect(afterPickup.weapons.some((weapon) => weapon.id === axe!.id)).toBe(false);
@@ -310,7 +313,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   const afterDagger = await snapshot(page);
   expect(afterDagger.players[0].mp).toBe(beforeDagger.players[0].mp - 1);
   expect(afterDagger.players[0].actions).toEqual(beforeDagger.players[0].actions);
-  expect(afterDagger.players[0].equipment.weaponId).toBe('dagger');
+  expect(afterDagger.players[0].equipment.weapon?.itemId).toBe('dagger');
   expect(afterDagger.players[0].weapons).toEqual(['sword', 'axe', 'dagger']);
   expect(afterDagger.weapons).toHaveLength(1);
   expect(afterDagger.weapons[0].weaponId).toBe('hammer');
@@ -326,7 +329,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
     await page.keyboard.press(String(slot));
     await settle(page);
     const afterSwitch = await snapshot(page);
-    expect(afterSwitch.players[0].equipment.weaponId).toBe(weaponId);
+    expect(afterSwitch.players[0].equipment.weapon?.itemId).toBe(weaponId);
     expect(afterSwitch.players[0]).toMatchObject({
       mp: beforeSwitch.players[0].mp,
       actions: beforeSwitch.players[0].actions,
@@ -435,14 +438,14 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(attack!.rolls.damage).not.toBeNull();
   expect(attack!.rolls.armor).not.toBeNull();
   const playerUnit = adjacent.players[0];
-  const playerWeapon = WEAPONS[playerUnit.equipment.weaponId!];
+  const playerWeapon = WEAPONS[playerUnit.equipment.weapon!.itemId as keyof typeof WEAPONS];
   expect(
     playerUnit.stats.habilidad +
       playerWeapon.accuracy +
       attack!.rolls.attack,
   ).toBeGreaterThan(
     enemy.stats.defensa +
-      shieldValue(enemy.equipment.shieldId) +
+      effectiveStats(enemy).evasion +
       attack!.rolls.shield,
   );
   const packet = playerWeapon.damagePackets[0];
@@ -453,7 +456,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
       resolvePacket(
         packet,
         playerUnit.stats.fuerza,
-        armorValue(enemy.equipment.armorId),
+        effectiveStats(enemy).absorption,
         band,
         attack!.rolls.damage!,
         attack!.rolls.armor!,
@@ -690,11 +693,11 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
   const missAttacker = adjacent.players[0];
   expect(
     missAttacker.stats.habilidad +
-      WEAPONS[missAttacker.equipment.weaponId!].accuracy +
+      WEAPONS[missAttacker.equipment.weapon!.itemId as keyof typeof WEAPONS].accuracy +
       miss!.rolls.attack,
   ).toBeLessThanOrEqual(
     enemy.stats.defensa +
-      shieldValue(enemy.equipment.shieldId) +
+      effectiveStats(enemy).evasion +
       miss!.rolls.shield,
   );
   await expect(page.getByTestId('hud-enemy-hp')).toHaveText(

@@ -4,7 +4,7 @@ import { FEEDBACK_CONFIG } from '../../../src/host/feedback-config';
 import { buildMotionTimeline } from '../../../src/host/motion';
 import {
   alarmEffectAt,
-  pickupWeaponEffectAt,
+  pickupItemEffectAt,
   worldEffectsAt,
 } from '../../../src/host/world-effects';
 import { makeState, makeUnit } from '../game/helpers';
@@ -210,7 +210,7 @@ describe('efectos de percepción, alarma y recogida', () => {
         {
           type: 'PickUp',
           unitId: 'player-1',
-          weaponId: 'dagger',
+          itemId: 'dagger',
           slot: 2,
         },
       ],
@@ -220,12 +220,12 @@ describe('efectos de percepción, alarma y recogida', () => {
     const segment = cue.durationMs / (FEEDBACK_CONFIG.effects.pickupBlinkFrames * 2);
 
     const frames = [0, 1, 2, 3, 4, 5].map(
-      (index) => pickupWeaponEffectAt(timeline, cue.atMs + index * segment + 1)?.visible,
+      (index) => pickupItemEffectAt(timeline, cue.atMs + index * segment + 1)?.visible,
     );
     expect(frames).toEqual([true, false, true, false, true, false]);
-    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.weaponId).toBe('dagger');
-    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.tileX).toBe(5);
-    expect(pickupWeaponEffectAt(timeline, cue.atMs)?.tileY).toBe(5);
-    expect(pickupWeaponEffectAt(timeline, cue.atMs + cue.durationMs)).toBeNull();
+    expect(pickupItemEffectAt(timeline, cue.atMs)?.itemId).toBe('dagger');
+    expect(pickupItemEffectAt(timeline, cue.atMs)?.tileX).toBe(5);
+    expect(pickupItemEffectAt(timeline, cue.atMs)?.tileY).toBe(5);
+    expect(pickupItemEffectAt(timeline, cue.atMs + cue.durationMs)).toBeNull();
   });
 });

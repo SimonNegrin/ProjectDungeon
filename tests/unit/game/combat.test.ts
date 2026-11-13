@@ -5,16 +5,16 @@ import {
   PLAYER_MAX_MP,
   SHIELDS,
   WEAPONS,
-  armorValue,
   bandFor,
   createRng,
+  effectiveStats,
+  equipmentFromLegacy,
   reduce,
   resolveAttack,
   resolveHit,
   resolvePacket,
   resolvePackets,
   rollDie,
-  shieldValue,
   weaponDamage,
   type RngState,
   type Unit,
@@ -520,10 +520,10 @@ describe('fórmulas de impacto y daño', () => {
       x: 6,
       y: 5,
     });
-    const attackBonus =
-      player.stats.habilidad + WEAPONS[player.equipment.weaponId!].accuracy;
-    const defense =
-      enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
+    const playerProfile = effectiveStats(player);
+    const enemyProfile = effectiveStats(enemy);
+    const attackBonus = player.stats.habilidad + playerProfile.accuracy;
+    const defense = enemy.stats.defensa + enemyProfile.evasion;
     let hits = 0;
 
     for (let attackDie = 1; attackDie <= 6; attackDie += 1) {
@@ -662,8 +662,8 @@ describe('bandas de resistencia', () => {
         x: 6,
         y: 5,
       });
-      const packet = WEAPONS[player.equipment.weaponId!].damagePackets[0];
-      const armor = armorValue(enemy.equipment.armorId);
+      const packet = effectiveStats(player).damagePackets[0];
+      const armor = effectiveStats(enemy).absorption;
 
       expect(bandFor(enemy.stats.resistencia, packet.type)).toBe('normal');
       for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
@@ -795,7 +795,16 @@ describe('equipo y modificadores', () => {
 
     function damageWith(weaponId: 'sword' | 'axe' | 'dagger'): number {
       const state = makeState({
-        players: [{ ...base, equipment: { ...base.equipment, weaponId } }],
+        players: [
+          {
+            ...base,
+            equipment: equipmentFromLegacy('player-1', {
+              weaponId,
+              armorId: null,
+              shieldId: null,
+            }),
+          },
+        ],
         enemies: [enemy],
         rng: rngForDice([6, 1, 3, 1]),
       });
@@ -806,7 +815,16 @@ describe('equipo y modificadores', () => {
 
     for (const weaponId of ['sword', 'axe', 'dagger'] as const) {
       const state = makeState({
-        players: [{ ...base, equipment: { ...base.equipment, weaponId } }],
+        players: [
+          {
+            ...base,
+            equipment: equipmentFromLegacy('player-1', {
+              weaponId,
+              armorId: null,
+              shieldId: null,
+            }),
+          },
+        ],
         enemies: [enemy],
       });
       expect(damageWith(weaponId)).toBe(
@@ -846,7 +864,7 @@ describe('equipo y modificadores', () => {
     expect(withArmour.damage).toBe(expectedDamage(attacker, armoured, 3, 1));
     expect(withoutArmour.damage).toBe(expectedDamage(attacker, unarmoured, 3, 1));
     expect(withoutArmour.damage - withArmour.damage).toBe(
-      armorValue(armoured.equipment.armorId),
+      effectiveStats(armoured).absorption,
     );
     expect(withArmour.hit).toBe(true);
     expect(withoutArmour.hit).toBe(true);

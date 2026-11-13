@@ -6,6 +6,8 @@ import {
   createRng,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
+  equipmentFromLegacy,
+  inventoryFromIds,
   isOccupied,
   isWallAt,
   normalizeSeed,
@@ -146,16 +148,32 @@ describe('engine state', () => {
         punteria: 0,
         magicLevel: 0,
       },
-      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
-      weapons: ['sword'],
+      equipment: {
+        weapon: { itemId: 'sword' },
+        armor: { itemId: 'armor' },
+        shield: { itemId: 'shield' },
+        head: null,
+        feet: null,
+        hands: null,
+        neck: null,
+        ring: null,
+      },
+      inventory: { capacity: 8 },
     });
+    expect(
+      state.players[0].inventory.items.filter((item) => item !== null),
+    ).toEqual([]);
     expect(state.enemies[0]).toMatchObject({
       enemyType: 'sentinel',
       hp: BESTIARY.sentinel.maxHp,
       maxHp: BESTIARY.sentinel.maxHp,
       stats: BESTIARY.sentinel.stats,
-      equipment: BESTIARY.sentinel.equipment,
-      weapons: [BESTIARY.sentinel.equipment.weaponId],
+      equipment: {
+        weapon: { itemId: BESTIARY.sentinel.equipment.weaponId },
+        armor: null,
+        shield: { itemId: BESTIARY.sentinel.equipment.shieldId },
+      },
+      inventory: { capacity: 8 },
     });
   });
 
@@ -211,7 +229,7 @@ describe('engine state', () => {
 interface WeaponStateOptions {
   readonly weapon?: WeaponId;
   readonly weapons?: readonly WeaponId[];
-  readonly equipped?: WeaponId;
+  readonly equipped?: WeaponId | null;
   readonly mp?: number;
   readonly actions?: number;
   readonly player?: Position;
@@ -220,7 +238,7 @@ interface WeaponStateOptions {
 }
 
 /**
- * Estado de referencia con el jugador sobre un arma del mapa en el tile
+ * Estado de referencia con el jugador sobre un objeto del suelo en el tile
  * indicado. Mantiene el mapa y los spawns reales de la semilla de referencia.
  */
 function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
@@ -242,11 +260,12 @@ function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
           ...base.players[0].actions,
           remaining: options.actions ?? base.players[0].actions.max,
         },
-        weapons: options.weapons ?? ['sword'],
-        equipment: {
-          ...base.players[0].equipment,
-          weaponId: options.equipped ?? 'sword',
-        },
+        inventory: inventoryFromIds('player-1', options.weapons ?? []),
+        equipment: equipmentFromLegacy('player-1', {
+          weaponId: options.equipped === undefined ? 'sword' : options.equipped,
+          armorId: 'armor',
+          shieldId: 'shield',
+        }),
       },
     ],
     enemies: [
@@ -256,25 +275,28 @@ function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
         y: enemyPosition.y,
       },
     ],
-    map: {
-      ...map,
-      weapons: options.weapon
-        ? [
-            {
-              id: 'weapon-test',
-              weaponId: options.weapon,
-              x: playerPosition.x,
-              y: playerPosition.y,
-            },
-          ]
-        : [],
-    },
+    groundItems: options.weapon
+      ? [
+          {
+            id: 'item-weapon-test',
+            itemId: options.weapon,
+            x: playerPosition.x,
+            y: playerPosition.y,
+          },
+        ]
+      : [],
     rng: options.rng ?? base.rng,
   };
 }
 
-describe('recogida y cambio de armas', () => {
-  it('G recoge, gasta 1 MP, conserva la acción, auto-equipa y elimina el arma', () => {
+function backpackItems(state: GameState): readonly string[] {
+  return state.players[0].inventory.items
+    .filter((item) => item !== null)
+    .map((item) => item.itemId);
+}
+
+describe('recogida, equipo y operaciones de inventario', () => {
+  it('G recoge a la mochila, gasta 1 MP, conserva la acción y no auto-equipa', () => {
     const state = stateWithWeapon({ weapon: 'axe' });
     const before = JSON.stringify(state);
 
@@ -286,15 +308,15 @@ describe('recogida y cambio de armas', () => {
     expect(result.state.players[0]).toMatchObject({
       mp: PLAYER_MAX_MP - PICKUP_COST,
       actions: { remaining: 2 },
-      weapons: ['sword', 'axe'],
-      equipment: { weaponId: 'axe' },
+      equipment: { weapon: { itemId: 'sword' } },
     });
-    expect(result.state.map?.weapons).toEqual([]);
+    expect(backpackItems(result.state)).toEqual(['axe']);
+    expect(result.state.groundItems).toEqual([]);
     expect(result.state.rng).toEqual(state.rng);
     expect(JSON.parse(JSON.stringify(result.state))).toEqual(result.state);
   });
 
-  it('recoge el martillo nuevo y lo auto-equipa con las reglas vivas', () => {
+  it('recoge el martillo a la mochila sin cambiar el arma equipada', () => {
     const state = stateWithWeapon({ weapon: 'hammer' });
 
     const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
@@ -303,46 +325,47 @@ describe('recogida y cambio de armas', () => {
     expect(result.state.players[0]).toMatchObject({
       mp: PLAYER_MAX_MP - PICKUP_COST,
       actions: { remaining: 2 },
-      weapons: ['sword', 'hammer'],
-      equipment: { weaponId: 'hammer' },
+      equipment: { weapon: { itemId: 'sword' } },
     });
-    expect(result.state.map?.weapons).toEqual([]);
+    expect(backpackItems(result.state)).toEqual(['hammer']);
+    expect(result.state.groundItems).toEqual([]);
   });
 
-  it('cambia a la espada electrizada y a la daga arcana por slot sin gastar recursos', () => {
+  it('equipa desde la mochila por hueco con 1 MP y sin gastar acción', () => {
     const state = stateWithWeapon({
       weapons: ['sword', 'electric-sword', 'arcane-dagger'],
       equipped: 'sword',
-      mp: 0,
+      mp: 4,
       actions: 0,
     });
 
     const toElectric = reduce(state, {
-      type: 'SelectWeapon',
+      type: 'EquipItem',
       unitId: 'player-1',
-      slot: 2,
+      from: 'backpack',
+      index: 1,
     });
     expect(toElectric.events).toEqual([]);
     expect(toElectric.state.players[0]).toMatchObject({
-      equipment: { weaponId: 'electric-sword' },
-      mp: 0,
+      equipment: { weapon: { itemId: 'electric-sword' } },
+      mp: 3,
       actions: { remaining: 0 },
-      weapons: ['sword', 'electric-sword', 'arcane-dagger'],
     });
 
     const toArcane = reduce(toElectric.state, {
-      type: 'SelectWeapon',
+      type: 'EquipItem',
       unitId: 'player-1',
-      slot: 3,
+      from: 'backpack',
+      index: 2,
     });
     expect(toArcane.state.players[0]).toMatchObject({
-      equipment: { weaponId: 'arcane-dagger' },
-      mp: 0,
+      equipment: { weapon: { itemId: 'arcane-dagger' } },
+      mp: 2,
       actions: { remaining: 0 },
     });
   });
 
-  it('con 0 MP rechaza la recogida sin tocar el mapa ni el inventario', () => {
+  it('con 0 MP rechaza la recogida sin tocar el suelo ni la mochila', () => {
     const state = stateWithWeapon({ weapon: 'axe', mp: 0 });
 
     const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
@@ -351,41 +374,48 @@ describe('recogida y cambio de armas', () => {
     expect(result.events).toEqual([
       { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-mp' },
     ]);
-    expect(state.players[0].weapons).toEqual(['sword']);
-    expect(state.map?.weapons).toHaveLength(1);
+    expect(backpackItems(state)).toEqual([]);
+    expect(state.groundItems).toHaveLength(1);
   });
 
-  it('sin arma en el tile del jugador rechaza no-weapon', () => {
+  it('sin objeto en el tile del jugador rechaza no-item', () => {
     const state = stateWithWeapon();
 
     const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
 
     expect(result.state).toBe(state);
     expect(result.events).toEqual([
-      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-weapon' },
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-item' },
     ]);
   });
 
-  it('recoger dos veces no duplica el arma', () => {
+  it('recoger dos veces no duplica la instancia', () => {
     const first = reduce(stateWithWeapon({ weapon: 'axe' }), {
       type: 'PickUp',
       unitId: 'player-1',
     });
     const second = reduce(first.state, { type: 'PickUp', unitId: 'player-1' });
 
-    expect(first.state.players[0].weapons).toEqual(['sword', 'axe']);
+    expect(backpackItems(first.state)).toEqual(['axe']);
     expect(second.events).toEqual([
-      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-weapon' },
+      { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-item' },
     ]);
-    expect(second.state.players[0].weapons).toEqual(['sword', 'axe']);
-    expect(second.state.map?.weapons).toEqual([]);
+    expect(backpackItems(second.state)).toEqual(['axe']);
+    expect(second.state.groundItems).toEqual([]);
   });
 
-  it('no admite una cuarta arma distinta', () => {
-    const state = stateWithWeapon({
-      weapon: 'dagger',
-      weapons: ['sword', 'axe', 'axe'],
-    });
+  it('no admite una novena instancia con la mochila llena', () => {
+    const full = [
+      'sword',
+      'axe',
+      'dagger',
+      'knife',
+      'hammer',
+      'electric-sword',
+      'arcane-dagger',
+      'sword',
+    ] as const;
+    const state = stateWithWeapon({ weapon: 'dagger', weapons: full });
 
     const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
 
@@ -393,10 +423,10 @@ describe('recogida y cambio de armas', () => {
     expect(result.events).toEqual([
       { type: 'CommandRejected', commandType: 'PickUp', reason: 'inventory-full' },
     ]);
-    expect(result.state.map?.weapons).toHaveLength(1);
+    expect(result.state.groundItems).toHaveLength(1);
   });
 
-  it('1-3 cambia de arma sin gastar MP ni acción', () => {
+  it('1-3 equipan los tres primeros huecos de mochila con 1 MP y sin acción', () => {
     const state = stateWithWeapon({
       weapons: ['sword', 'axe', 'dagger'],
       equipped: 'sword',
@@ -407,10 +437,9 @@ describe('recogida y cambio de armas', () => {
     const toAxe = reduce(state, { type: 'SelectWeapon', unitId: 'player-1', slot: 2 });
     expect(toAxe.events).toEqual([]);
     expect(toAxe.state.players[0]).toMatchObject({
-      equipment: { weaponId: 'axe' },
-      mp: 4,
+      equipment: { weapon: { itemId: 'axe' } },
+      mp: 3,
       actions: { remaining: 0 },
-      weapons: ['sword', 'axe', 'dagger'],
     });
 
     const toDagger = reduce(toAxe.state, {
@@ -419,8 +448,8 @@ describe('recogida y cambio de armas', () => {
       slot: 3,
     });
     expect(toDagger.state.players[0]).toMatchObject({
-      equipment: { weaponId: 'dagger' },
-      mp: 4,
+      equipment: { weapon: { itemId: 'dagger' } },
+      mp: 2,
       actions: { remaining: 0 },
     });
 
@@ -429,22 +458,30 @@ describe('recogida y cambio de armas', () => {
       unitId: 'player-1',
       slot: 1,
     });
-    expect(toSword.state.players[0].equipment.weaponId).toBe('sword');
+    expect(toSword.state.players[0]).toMatchObject({
+      equipment: { weapon: { itemId: 'sword' } },
+      mp: 1,
+    });
   });
 
   it('rechaza huecos vacíos o fuera de rango', () => {
     const state = stateWithWeapon({ weapons: ['sword'] });
 
-    for (const slot of [0, 2, 3, 4]) {
+    for (const [slot, reason] of [
+      [0, 'invalid-slot'],
+      [2, 'no-item'],
+      [3, 'no-item'],
+      [4, 'invalid-slot'],
+    ] as const) {
       const result = reduce(state, { type: 'SelectWeapon', unitId: 'player-1', slot });
       expect(result.state).toBe(state);
       expect(result.events, `hueco ${slot}`).toEqual([
-        { type: 'CommandRejected', commandType: 'SelectWeapon', reason: 'invalid-slot' },
+        { type: 'CommandRejected', commandType: 'SelectWeapon', reason },
       ]);
     }
   });
 
-  it('el enemigo no recoge objetos ni cambia de arma', () => {
+  it('el enemigo no recoge objetos ni equipa desde mochila', () => {
     const state = stateWithWeapon({ weapon: 'axe' });
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'enemy-1' });
@@ -452,13 +489,14 @@ describe('recogida y cambio de armas', () => {
       { type: 'CommandRejected', commandType: 'PickUp', reason: 'unknown-unit' },
     ]);
 
-    const select = reduce(state, {
-      type: 'SelectWeapon',
+    const equip = reduce(state, {
+      type: 'EquipItem',
       unitId: 'enemy-1',
-      slot: 1,
+      from: 'backpack',
+      index: 0,
     });
-    expect(select.events).toEqual([
-      { type: 'CommandRejected', commandType: 'SelectWeapon', reason: 'unknown-unit' },
+    expect(equip.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EquipItem', reason: 'unknown-unit' },
     ]);
   });
 
@@ -470,13 +508,19 @@ describe('recogida y cambio de armas', () => {
     });
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+    const equip = reduce(pickup.state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'backpack',
+      index: 0,
+    });
     const damage = expectedSinglePacketDamage(
-      pickup.state.players[0],
-      pickup.state.enemies[0],
+      equip.state.players[0],
+      equip.state.enemies[0],
       3,
       6,
     );
-    const attack = reduce(pickup.state, {
+    const attack = reduce(equip.state, {
       type: 'Attack',
       unitId: 'player-1',
       targetId: 'enemy-1',
@@ -494,10 +538,10 @@ describe('recogida y cambio de armas', () => {
       { type: 'AlarmRaised', unitId: 'enemy-1', position: { x: 6, y: 5 } },
     ]);
     expect(attack.state.enemies[0].hp).toBe(
-      pickup.state.enemies[0].maxHp - damage,
+      equip.state.enemies[0].maxHp - damage,
     );
     expect(attack.state.players[0]).toMatchObject({
-      equipment: { weaponId: 'axe' },
+      equipment: { weapon: { itemId: 'axe' } },
       actions: { remaining: 1 },
     });
   });
@@ -510,17 +554,13 @@ describe('recogida y cambio de armas', () => {
         rng: createRng(DEFAULT_MAP_SEED),
       });
       const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
-      const toSword = reduce(pickup.state, {
-        type: 'SelectWeapon',
+      const toAxe = reduce(pickup.state, {
+        type: 'EquipItem',
         unitId: 'player-1',
-        slot: 1,
+        from: 'backpack',
+        index: 0,
       });
-      const toDagger = reduce(toSword.state, {
-        type: 'SelectWeapon',
-        unitId: 'player-1',
-        slot: 2,
-      });
-      return reduce(toDagger.state, {
+      return reduce(toAxe.state, {
         type: 'Attack',
         unitId: 'player-1',
         targetId: 'enemy-1',

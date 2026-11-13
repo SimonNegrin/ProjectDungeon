@@ -5,7 +5,6 @@ import {
   deriveCursorStatus,
 } from '../../../src/host/cursor';
 import { BspMapGenerator, BESTIARY, ROSTER, createInitialState, reduce } from '../../../src/game/index';
-import type { WeaponId } from '../../../src/game/equipment';
 import type { GameState, RngState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
 import {
@@ -533,7 +532,7 @@ describe('snapshot del mapa generado', () => {
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
-    const weapon = session.state.map?.weapons?.[0];
+    const weapon = session.state.groundItems?.[0];
     if (!weapon) throw new Error('La semilla de referencia debe colocar armas');
 
     let state: GameState = {
@@ -563,7 +562,12 @@ describe('snapshot del mapa generado', () => {
 
     expect(pickup.snapshot.weapons).toHaveLength(2);
     expect(pickup.snapshot.weapons.some((entry) => entry.id === weapon.id)).toBe(false);
-    expect(pickup.snapshot.players[0].equipment.weaponId).toBe(weapon.weaponId);
+    expect(pickup.snapshot.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(
+      pickup.snapshot.players[0].inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item.itemId),
+    ).toEqual([weapon.itemId]);
   });
 
   it('expone los 4 enemigos con percepción completa y clona home/lastKnown', () => {
@@ -711,7 +715,7 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(dispatched.damageBreakdown[0].damage).toBe(4);
   });
 
-  it('clona stats, mana, equipment, weapons y actions de cada unidad', () => {
+  it('clona stats, mana, equipo, mochila y actions de cada unidad', () => {
     const { api, session } = combatSetup();
     const snapshot = api.snapshot();
 
@@ -725,8 +729,8 @@ describe('snapshot profundo y RNG de combate', () => {
       expect(units[0].mana).not.toBe(liveUnits[0].mana);
       expect(units[0].equipment).toEqual(liveUnits[0].equipment);
       expect(units[0].equipment).not.toBe(liveUnits[0].equipment);
-      expect(units[0].weapons).toEqual(liveUnits[0].weapons);
-      expect(units[0].weapons).not.toBe(liveUnits[0].weapons);
+      expect(units[0].inventory).toEqual(liveUnits[0].inventory);
+      expect(units[0].inventory).not.toBe(liveUnits[0].inventory);
       expect(units[0].actions).toEqual(liveUnits[0].actions);
       expect(units[0].actions).not.toBe(liveUnits[0].actions);
     }
@@ -738,7 +742,7 @@ describe('snapshot profundo y RNG de combate', () => {
     const liveStats = { ...session.state.players[0].stats };
     const liveMana = { ...session.state.players[0].mana };
     const liveEquipment = { ...session.state.players[0].equipment };
-    const liveWeapons = [...session.state.players[0].weapons];
+    const liveInventory = session.state.players[0].inventory;
     const liveActions = { ...session.state.players[0].actions };
 
     const snapshot = api.snapshot();
@@ -746,15 +750,21 @@ describe('snapshot profundo y RNG de combate', () => {
     const player = snapshot.players[0];
     (player.stats as { habilidad: number }).habilidad = 999;
     (player.mana as { current: number }).current = 999;
-    (player.equipment as { weaponId: WeaponId }).weaponId = 'axe';
-    (player.weapons as WeaponId[]).push('axe');
+    (player.equipment as { weapon: unknown }).weapon = {
+      id: 'mutado',
+      itemId: 'axe',
+    };
+    (player.inventory.items as unknown[]).push({
+      id: 'mutado-2',
+      itemId: 'axe',
+    });
     (player.actions as { remaining: number }).remaining = 0;
 
     expect(session.state.rng).toEqual(liveRng);
     expect(session.state.players[0].stats).toEqual(liveStats);
     expect(session.state.players[0].mana).toEqual(liveMana);
     expect(session.state.players[0].equipment).toEqual(liveEquipment);
-    expect(session.state.players[0].weapons).toEqual(liveWeapons);
+    expect(session.state.players[0].inventory).toBe(liveInventory);
     expect(session.state.players[0].actions).toEqual(liveActions);
 
     const fresh = api.snapshot();
@@ -762,7 +772,7 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(fresh.players[0].stats).toEqual(liveStats);
     expect(fresh.players[0].mana).toEqual(liveMana);
     expect(fresh.players[0].equipment).toEqual(liveEquipment);
-    expect(fresh.players[0].weapons).toEqual(liveWeapons);
+    expect(fresh.players[0].inventory).toEqual(liveInventory);
     expect(fresh.players[0].actions).toEqual(liveActions);
   });
 

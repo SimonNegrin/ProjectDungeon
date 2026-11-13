@@ -105,8 +105,18 @@ describe('colocación inicial de los cuatro enemigos', () => {
           remaining: definition.stats.acciones,
         },
         stats: definition.stats,
-        equipment: definition.equipment,
-        weapons: [definition.equipment.weaponId],
+        equipment: {
+          weapon: { itemId: definition.equipment.weaponId },
+          armor:
+            definition.equipment.armorId === null
+              ? null
+              : { itemId: definition.equipment.armorId },
+          shield:
+            definition.equipment.shieldId === null
+              ? null
+              : { itemId: definition.equipment.shieldId },
+        },
+        inventory: { capacity: 8 },
         awareness: 'dormant',
         fleeing: false,
         lastKnown: null,

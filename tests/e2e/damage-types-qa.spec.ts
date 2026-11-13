@@ -7,12 +7,15 @@ import {
   createPlayerFromArchetype,
   createRoomGrid,
   type GameState,
+  type ArmorId,
   type MagicLevel,
   type ResistanceProfile,
   type ShieldId,
+  type WeaponId,
   type Tile,
   type Unit,
 } from '../../src/game/index';
+import { equipmentFromLegacy } from '../../src/game/inventory';
 import { bandFor } from '../../src/game/damage';
 import type { GameEvent } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
@@ -137,6 +140,21 @@ function positioned(
   };
 }
 
+function slots(
+  owner: string,
+  equipment: {
+    readonly weaponId?: WeaponId | null;
+    readonly armorId?: ArmorId | null;
+    readonly shieldId?: ShieldId | null;
+  },
+) {
+  return equipmentFromLegacy(owner, {
+    weaponId: equipment.weaponId ?? null,
+    armorId: equipment.armorId ?? null,
+    shieldId: equipment.shieldId ?? null,
+  });
+}
+
 /**
  * Escenario de presentación con un enemigo a la vista y otro tras un muro. El
  * muro es la única geometría añadida: las bandas dependen de `hasLineOfSight`
@@ -156,15 +174,14 @@ function bandScenario(): GameState {
   });
   const player: Unit = {
     ...warrior,
-    equipment: { ...warrior.equipment, weaponId: 'hammer' },
-    weapons: ['hammer'],
+    equipment: slots('player-1', { weaponId: 'hammer' }),
   };
   const visible = positioned(template, 'enemy-1', { x: 6, y: 5 }, {
-    equipment: { ...template.equipment, shieldId: null },
+    equipment: slots('enemy-1', { weaponId: 'sword', shieldId: null }),
     stats: { ...template.stats, resistencia: NORMAL_PROFILE },
   });
   const hidden = positioned(template, 'enemy-2', { x: 12, y: 5 }, {
-    equipment: { ...template.equipment, shieldId: null },
+    equipment: slots('enemy-1', { weaponId: 'sword', shieldId: null }),
     stats: {
       ...template.stats,
       resistencia: {
@@ -248,11 +265,11 @@ function mageScenario(options: MageOptions = {}): GameState {
         magic: 'vulnerable',
       },
     },
-    equipment: {
-      ...template.equipment,
+    equipment: slots('enemy-1', {
+      weaponId: 'sword',
       shieldId:
         options.enemyShield === undefined ? 'shield' : options.enemyShield,
-    },
+    }),
     awareness: 'dormant',
     fleeing: false,
     home: { x: 8, y: 5 },
@@ -349,7 +366,7 @@ test('arma nueva, bandas distintas y desglose por tipo en el feedback', async ({
   const fixture = await hammerFixture(page);
   const [east, south] = fixture.neighbors;
   const witness = positioned(fixture.sentinel, 'enemy-1', east, {
-    equipment: { ...fixture.sentinel.equipment, armorId: null, shieldId: null },
+    equipment: slots('enemy-1', { weaponId: 'sword', armorId: null, shieldId: null }),
     stats: { ...fixture.sentinel.stats, resistencia: NORMAL_PROFILE },
   });
   // El bruto conserva su perfil del bestiario: contundente resistente.
@@ -367,7 +384,7 @@ test('arma nueva, bandas distintas y desglose por tipo en el feedback', async ({
   await page.keyboard.press('g');
   await settle(page);
   const picked = await snapshot(page);
-  expect(picked.players[0].equipment.weaponId).toBe('hammer');
+  expect(picked.players[0].equipment.weapon?.itemId).toBe('hammer');
   expect(picked.players[0].weapons).toContain('hammer');
   expect(picked.weapons.some((weapon) => weapon.weaponId === 'hammer')).toBe(false);
   await expect(page.getByTestId('hud-weapon')).toContainText('Martillo');
@@ -425,7 +442,7 @@ test('muy resistente conserva el mínimo 1 y no existe texto de inmunidad', asyn
   await page.setViewportSize({ width: 1280, height: 720 });
   const fixture = await hammerFixture(page);
   const enemy = positioned(fixture.sentinel, 'enemy-1', fixture.neighbors[0], {
-    equipment: { ...fixture.sentinel.equipment, armorId: 'plate', shieldId: null },
+    equipment: slots('enemy-1', { weaponId: 'sword', armorId: 'plate', shieldId: null }),
     stats: {
       ...fixture.sentinel.stats,
       resistencia: { ...NORMAL_PROFILE, blunt: 'very-resistant' },
@@ -476,11 +493,11 @@ async function openElectricSwordRun(
   options: ElectricScenarioOptions,
 ): Promise<GameSnapshot> {
   const enemy = positioned(fixture.sentinel, 'enemy-1', fixture.neighbors[0], {
-    equipment: {
-      ...fixture.sentinel.equipment,
+    equipment: slots('enemy-1', {
+      weaponId: 'sword',
       armorId: options.armorId,
       shieldId: options.shieldId,
-    },
+    }),
     stats: { ...fixture.sentinel.stats, resistencia: NORMAL_PROFILE },
   });
   return openBspState(page, SEED, undefined, {
