@@ -7,6 +7,7 @@ import {
   type Unit,
 } from '../../../src/game/index';
 import {
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeGridWithWalls,
   makeState,
@@ -179,6 +180,12 @@ describe('turn phase', () => {
         damage: firstDamage,
         targetHp: firstHp,
         rolls: { attack: 6, shield: 5, damage: 5, armor: 5 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.enemies[0],
+          state.players[0],
+          5,
+          5,
+        ),
       },
       {
         type: 'AttackPerformed',
@@ -188,6 +195,12 @@ describe('turn phase', () => {
         damage: secondDamage,
         targetHp: secondHp,
         rolls: { attack: 5, shield: 2, damage: 1, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.enemies[0],
+          state.players[0],
+          1,
+          1,
+        ),
       },
       {
         type: 'AttackPerformed',
@@ -197,6 +210,7 @@ describe('turn phase', () => {
         damage: thirdDamage,
         targetHp: thirdHp,
         rolls: { attack: 1, shield: 6, damage: null, armor: null },
+        damageBreakdown: [],
       },
       {
         type: 'AttackPerformed',
@@ -206,6 +220,12 @@ describe('turn phase', () => {
         damage: fourthDamage,
         targetHp: fourthHp,
         rolls: { attack: 4, shield: 3, damage: 4, armor: 2 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          state.enemies[1],
+          state.players[0],
+          4,
+          2,
+        ),
       },
     ]);
     expect(result.state.players[0].hp).toBe(fourthHp);

@@ -1,5 +1,6 @@
 import type {
   Command,
+  DamagePacketBreakdown,
   GameEvent,
   GameState,
   GameStatus,
@@ -173,10 +174,23 @@ function cloneUnit(unit: Unit): Unit {
   };
 }
 
+function cloneBreakdown(
+  breakdown: readonly DamagePacketBreakdown[],
+): readonly DamagePacketBreakdown[] {
+  return breakdown.map((packet) => ({ ...packet }));
+}
+
 function cloneEvent(event: GameEvent): GameEvent {
   switch (event.type) {
     case 'UnitMoved':
       return { ...event, from: { ...event.from }, to: { ...event.to } };
+    case 'AttackPerformed':
+    case 'ReplicaPerformed':
+      return { ...event, damageBreakdown: cloneBreakdown(event.damageBreakdown) };
+    case 'SpellCast':
+      return event.effect === 'damage'
+        ? { ...event, damageBreakdown: cloneBreakdown(event.damageBreakdown) }
+        : { ...event };
     default:
       return { ...event };
   }

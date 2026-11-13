@@ -9,6 +9,7 @@ import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
 import {
+  expectedSinglePacketBreakdown,
   expectedSinglePacketDamage,
   makeState,
   makeUnit,
@@ -102,6 +103,12 @@ describe('sesión de juego', () => {
         damage,
         targetHp,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          initial.players[0],
+          initial.enemies[0],
+          2,
+          1,
+        ),
       },
     ]);
     expect(session.state.enemies[0]).toMatchObject({ hp: targetHp });
@@ -131,6 +138,12 @@ describe('sesión de juego', () => {
         damage,
         targetHp: 0,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+        damageBreakdown: expectedSinglePacketBreakdown(
+          initial.players[0],
+          initial.enemies[0],
+          2,
+          1,
+        ),
       },
       { type: 'UnitDied', unitId: 'enemy-1' },
       { type: 'GameEnded', status: 'victory' },

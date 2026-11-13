@@ -24,6 +24,7 @@ function missAttack(): GameEvent {
     damage: 0,
     targetHp: 10,
     rolls: { attack: 1, shield: 6, damage: null, armor: null },
+    damageBreakdown: [],
   };
 }
 
@@ -38,6 +39,7 @@ function replica(hit = true): GameEvent {
     rolls: hit
       ? { attack: 6, shield: 1, damage: 2, armor: 1 }
       : { attack: 1, shield: 6, damage: null, armor: null },
+    damageBreakdown: [],
   };
 }
 
@@ -108,6 +110,7 @@ describe('cue propio de la réplica (REQ-027 T-006)', () => {
       damage: 3,
       targetHp: 7,
       rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      damageBreakdown: [],
     };
     const timeline = buildMotionTimeline([missAttack(), replica(), nextHit], {
       finalState: board({ playerHp: 16 }),
@@ -168,6 +171,7 @@ describe('PV del objetivo retrasados hasta el cue de réplica', () => {
       damage: 4,
       targetHp: 6,
       rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      damageBreakdown: [],
     };
     const enemyMiss: GameEvent = {
       type: 'AttackPerformed',
@@ -177,6 +181,7 @@ describe('PV del objetivo retrasados hasta el cue de réplica', () => {
       damage: 0,
       targetHp: 20,
       rolls: { attack: 1, shield: 6, damage: null, armor: null },
+      damageBreakdown: [],
     };
     const finalState = board({ enemyHp: 6 });
     const timeline = buildMotionTimeline([enemyMiss, playerReplica], { finalState });
@@ -201,6 +206,7 @@ describe('PV del objetivo retrasados hasta el cue de réplica', () => {
       damage: 4,
       targetHp: 0,
       rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+      damageBreakdown: [],
     };
     const timeline = buildMotionTimeline(
       [lethal, { type: 'UnitDied', unitId: 'enemy-1' }],
@@ -227,6 +233,7 @@ describe('PV del objetivo retrasados hasta el cue de réplica', () => {
           damage: 0,
           targetHp: 20,
           rolls: { attack: 1, shield: 6, damage: null, armor: null },
+          damageBreakdown: [],
         },
         {
           type: 'ReplicaPerformed',
@@ -236,6 +243,7 @@ describe('PV del objetivo retrasados hasta el cue de réplica', () => {
           damage: 4,
           targetHp: 6,
           rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+          damageBreakdown: [],
         },
       ],
       { finalState },

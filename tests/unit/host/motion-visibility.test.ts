@@ -199,6 +199,7 @@ describe('movimiento reducido', () => {
     damage: 5,
     targetHp: 0,
     rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
+    damageBreakdown: [],
   };
   const died: GameEvent = { type: 'UnitDied', unitId: 'enemy-1' };
   const ended: GameEvent = { type: 'GameEnded', status: 'victory' };

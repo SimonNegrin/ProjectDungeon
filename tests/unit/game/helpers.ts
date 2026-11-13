@@ -1,5 +1,6 @@
 import {
   BESTIARY,
+  BAND_MULTIPLIERS,
   MAX_ACTIONS,
   WEAPONS,
   armorValue,
@@ -13,6 +14,7 @@ import {
   rollDie,
   type Awareness,
   type ArchetypeId,
+  type DamagePacketBreakdown,
   type EnemyType,
   type Faction,
   type GameState,
@@ -227,6 +229,41 @@ export function expectedSinglePacketDamage(
       resistanceDie,
     ),
   );
+}
+
+/**
+ * Desglose esperado de un ataque de un solo paquete con dados fijos, leído del
+ * catálogo y del perfil. El bruto se escribe con la regla física —única en las
+ * armas del catálogo— y el daño final reutiliza el resolvedor compartido.
+ */
+export function expectedSinglePacketBreakdown(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  resistanceDie: number,
+): readonly DamagePacketBreakdown[] {
+  const packet = WEAPONS[attacker.equipment.weaponId!].damagePackets[0];
+  const armor = armorValue(target.equipment.armorId);
+  const band = bandFor(target.stats.resistencia, packet.type);
+  return [
+    {
+      type: packet.type,
+      amount: packet.amount,
+      damageRoll: damageDie,
+      resistanceRoll: resistanceDie,
+      raw: packet.amount + attacker.stats.fuerza + damageDie - (armor + resistanceDie),
+      band,
+      multiplier: BAND_MULTIPLIERS[band],
+      damage: resolvePacket(
+        packet,
+        attacker.stats.fuerza,
+        armor,
+        band,
+        damageDie,
+        resistanceDie,
+      ),
+    },
+  ];
 }
 
 export function makeGridWithWalls(

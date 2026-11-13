@@ -7,6 +7,7 @@ import { noteDamage, raiseAlarm } from './perception';
 import { rollDie } from './rng';
 import type {
   AttackRolls,
+  DamagePacketBreakdown,
   GameEvent,
   GameState,
   RejectionReason,
@@ -58,6 +59,8 @@ interface Strike {
   readonly damage: number;
   readonly targetHp: number;
   readonly rolls: AttackRolls;
+  /** Desglose por paquete; vacío si falla. */
+  readonly damageBreakdown: readonly DamagePacketBreakdown[];
   readonly rng: RngState;
 }
 
@@ -83,6 +86,7 @@ function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
 
   let rng = shieldRoll.rng;
   let damage = 0;
+  let damageBreakdown: readonly DamagePacketBreakdown[] = [];
   let rolls: AttackRolls = {
     attack: attackRoll.die,
     shield: shieldRoll.die,
@@ -100,12 +104,20 @@ function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
     );
     rng = resolved.rng;
     damage = resolved.total;
-    // Los eventos conservan el total y el desglose llega en TASK-0088; aquí
-    // `damage`/`armor` reflejan los dados del primer paquete (único en este corte).
+    damageBreakdown = resolved.breakdown;
+    // `AttackRolls.damage/armor` conservan por compatibilidad los dados del
+    // primer paquete; el desglose es la fuente autoritativa.
     rolls = { ...rolls, damage: resolved.rolls[0].damage, armor: resolved.rolls[0].resistance };
   }
 
-  return { hit, damage, targetHp: Math.max(0, target.hp - damage), rolls, rng };
+  return {
+    hit,
+    damage,
+    targetHp: Math.max(0, target.hp - damage),
+    rolls,
+    damageBreakdown,
+    rng,
+  };
 }
 
 /** Sustituye unidades por ID en jugadores y enemigos sin mutar la entrada. */
@@ -288,6 +300,7 @@ export function resolveAttack(
       damage: strike.damage,
       targetHp: strike.targetHp,
       rolls: strike.rolls,
+      damageBreakdown: strike.damageBreakdown,
     },
   ];
 
@@ -321,6 +334,7 @@ export function resolveAttack(
         damage: replica.damage,
         targetHp: replica.targetHp,
         rolls: replica.rolls,
+        damageBreakdown: replica.damageBreakdown,
       });
 
       if (replica.targetHp === 0) {
