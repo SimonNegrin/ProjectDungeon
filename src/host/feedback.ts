@@ -1,4 +1,5 @@
 import type { AttackRolls, GameEvent, GameState, Position, Unit } from '../game/types';
+import { formatBreakdown } from './damage-labels';
 import { FEEDBACK_CONFIG } from './feedback-config';
 
 export interface DamageFeedback {
@@ -17,6 +18,11 @@ export interface AttackFeedback {
   readonly rolls: AttackRolls;
   /** Texto ASCII: `-N` en impacto y `Fallo` en fallo. */
   readonly text: string;
+  /**
+   * Desglose legible del evento (`filo 3 + eléctrico 2`), solo paquetes con
+   * daño > 0. Vacío en fallo, sin paquetes o si todos quedaron a 0.
+   */
+  readonly detail: string;
   /** Posición del objetivo al resolverse el ataque. */
   readonly x: number;
   readonly y: number;
@@ -243,6 +249,7 @@ export function collectAttackFeedbacks(
       targetHp: event.targetHp,
       rolls: { ...event.rolls },
       text: event.hit ? `-${event.damage}` : 'Fallo',
+      detail: event.hit ? formatBreakdown(event.damageBreakdown) : '',
       x: target.x,
       y: target.y,
       attacker: { x: attacker?.x ?? target.x, y: attacker?.y ?? target.y },

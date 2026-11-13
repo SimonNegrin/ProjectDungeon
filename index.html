@@ -76,6 +76,15 @@
         color: var(--ink);
         font-variant-numeric: tabular-nums;
       }
+      /* Bandas del enemigo bajo cursor: solo con línea de visión (REQ-029). */
+      .hud-cursor-bands {
+        flex-basis: 100%;
+        gap: 4px 12px;
+        font-size: 0.72rem;
+      }
+      .hud-cursor-bands .hud-stat {
+        color: var(--ink);
+      }
       .hud-stat strong.is-pulsing {
         animation: hud-slot-pulse var(--hud-pulse-ms, 350ms) steps(2, end) 1;
       }
@@ -363,6 +372,19 @@
       }
       .damage-feedback[data-result="miss"] {
         color: #9aa7b8;
+      }
+      /* Desglose por tipo: segunda línea del texto de daño, sin tocar el nodo
+         principal (el total sigue siendo el texto de `damage-feedback`). */
+      .damage-feedback-detail {
+        position: absolute;
+        z-index: 4;
+        color: #e8e2d0;
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95), 0 0 2px rgba(0, 0, 0, 0.95);
+        pointer-events: none;
+        opacity: 0;
+        white-space: nowrap;
       }
       .overlay {
         position: absolute;

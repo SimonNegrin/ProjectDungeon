@@ -8,7 +8,7 @@ import {
 } from '../game/equipment';
 import type { GameEvent, GameState, Position, Unit } from '../game/types';
 import { rosterEntry } from '../game/roster';
-import { alarmRadius, visionRadius } from '../game/perception';
+import { alarmRadius, hasLineOfSight, visionRadius } from '../game/perception';
 import {
   pathLength,
   wideCorridorStretch,
@@ -18,6 +18,7 @@ import {
 } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
+import { DAMAGE_TYPES, profileRows, formatProfile, type BandRow } from './damage-labels';
 import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 
@@ -45,6 +46,11 @@ export interface HudModel {
   readonly stats: string;
   /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyHp: string;
+  /**
+   * Cinco bandas del enemigo vivo bajo el cursor; `null` sin enemigo, con el
+   * jugador muerto o sin línea de visión (REQ-029 R-010 / T-008).
+   */
+  readonly cursorEnemyBands: readonly BandRow[] | null;
   /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
   readonly weaponHint: string | null;
   readonly turn: string;
@@ -141,6 +147,23 @@ function enemyAt(state: GameState, position: Position | undefined): Unit | undef
   );
 }
 
+/**
+ * Bandas legibles solo con un jugador vivo que tenga línea de visión al tile
+ * del cursor. La línea de visión la decide el motor (`hasLineOfSight`); el host
+ * no la recalcula (REQ-023 T-001, REQ-029 R-010).
+ */
+function cursorEnemyBands(
+  state: GameState,
+  enemy: Unit | undefined,
+  cursor: Position | undefined,
+): readonly BandRow[] | null {
+  if (!enemy || !cursor) return null;
+  const sees = state.players.some(
+    (player) => player.hp > 0 && hasLineOfSight(state.grid, player, cursor),
+  );
+  return sees ? profileRows(enemy.stats.resistencia) : null;
+}
+
 function weaponAtPlayer(state: GameState, player: Unit | undefined) {
   if (!player) return undefined;
   return state.map?.weapons?.find(
@@ -169,6 +192,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     armor: armorLabel(player),
     stats: statsLabel(player),
     cursorEnemyHp: formatHp(cursorEnemy),
+    cursorEnemyBands: cursorEnemyBands(state, cursorEnemy, cursor),
     weaponHint: mapWeapon
       ? `G recoger ${weaponFor(mapWeapon.weaponId).name}`
       : null,
@@ -423,7 +447,7 @@ function lastAttackLine(events: readonly GameEvent[]): string {
 function cursorEnemyDebugLine(state: GameState, cursor: Position): string {
   const enemy = enemyAt(state, cursor);
   return enemy
-    ? `Enemigo bajo cursor: ${enemy.id} ${formatHp(enemy)}`
+    ? `Enemigo bajo cursor: ${enemy.id} ${formatHp(enemy)} · bandas ${formatProfile(enemy.stats.resistencia)}`
     : 'Enemigo bajo cursor: ninguno';
 }
 
@@ -537,6 +561,39 @@ function ensureWeaponHint(root: ParentNode, keys: HTMLElement): HTMLElement {
   return hint;
 }
 
+/**
+ * Grupo de bandas del enemigo bajo el cursor. Reutiliza los nodos si ya existen
+ * para que reconstruir la vista siga siendo idempotente.
+ */
+function ensureCursorBands(
+  root: ParentNode,
+  hud: HTMLElement,
+): { readonly group: HTMLElement; readonly rows: ReadonlyMap<string, HTMLElement> } {
+  const existingGroup = root.querySelector<HTMLElement>('[data-testid="hud-cursor-bands"]');
+  const group = existingGroup ?? document.createElement('div');
+  if (!existingGroup) {
+    group.className = 'hud-group hud-cursor-bands';
+    group.dataset.testid = 'hud-cursor-bands';
+    group.hidden = true;
+    hud.append(group);
+  }
+
+  const rows = new Map<string, HTMLElement>();
+  for (const type of DAMAGE_TYPES) {
+    const testId = `hud-cursor-band-${type}`;
+    const existingRow = root.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
+    const row = existingRow ?? document.createElement('span');
+    if (!existingRow) {
+      row.className = 'hud-stat';
+      row.dataset.testid = testId;
+      group.append(row);
+    }
+    rows.set(type, row);
+  }
+
+  return { group, rows };
+}
+
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
   const hud = requireElement(root, 'hud');
@@ -566,6 +623,7 @@ export function createHudView(root: ParentNode): HudView {
     'hud-cursor-enemy-hp',
     'Enemigo cursor',
   );
+  const cursorBands = ensureCursorBands(root, hud);
   const weaponHint = ensureWeaponHint(root, keys);
 
   return {
@@ -588,6 +646,11 @@ export function createHudView(root: ParentNode): HudView {
       armor.textContent = model.armor;
       stats.textContent = model.stats;
       cursorEnemyHp.textContent = model.cursorEnemyHp;
+      cursorBands.group.hidden = model.cursorEnemyBands === null;
+      for (const row of model.cursorEnemyBands ?? []) {
+        const element = cursorBands.rows.get(row.type);
+        if (element) element.textContent = `${row.typeLabel} ${row.bandLabel} ${row.icon}`;
+      }
       weaponHint.textContent = model.weaponHint ?? '';
       weaponHint.hidden = model.weaponHint === null;
       victory.hidden = !model.overlays.victory;

@@ -12,6 +12,7 @@ import {
   type CursorStatus,
 } from './cursor';
 import { createCursorView } from './cursor-view';
+import { formatBreakdown } from './damage-labels';
 import { createDebugApi, type AnimationSnapshot } from './debug';
 import { MAX_DAMAGE_TEXTS, layoutDamageTexts } from './feedback';
 import { FEEDBACK_CONFIG } from './feedback-config';
@@ -93,6 +94,8 @@ function isEditableTarget(target: EventTarget | null): boolean {
 /** Instancia de texto de daño anclada al mundo y gobernada por el reloj. */
 interface DamageTextInstance {
   readonly text: string;
+  /** Desglose por tipo bajo el total; vacío si no aplica. */
+  readonly detail: string;
   readonly hit: boolean;
   readonly target: Position;
   readonly attacker: Position;
@@ -139,11 +142,38 @@ function createDamageFeedbackView(
     throw new Error('Faltan los elementos de texto de daño.');
   }
 
-  const hide = (node: HTMLElement): void => {
+  /**
+   * El desglose se pinta como nodo hermano bajo el texto principal. Así el nodo
+   * `damage-feedback` conserva su `-N` exacto y el total sigue siendo el
+   * protagonista; el detalle es una segunda línea sin cambiar el HTML base.
+   */
+  const detailNodes = nodes.map((node, index) => {
+    const testId =
+      index === 0 ? 'damage-feedback-detail' : `damage-feedback-detail-${index + 1}`;
+    const existing = frame.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
+    if (existing) return existing;
+
+    const detail = document.createElement('div');
+    detail.className = 'damage-feedback-detail';
+    detail.dataset.testid = testId;
+    detail.dataset.damageDetail = String(index);
+    detail.hidden = true;
+    node.after(detail);
+    return detail;
+  });
+
+  const hideDetail = (detail: HTMLElement): void => {
+    detail.hidden = true;
+    detail.textContent = '';
+    detail.style.opacity = '0';
+  };
+
+  const hide = (node: HTMLElement, detail: HTMLElement): void => {
     node.hidden = true;
     node.textContent = '';
     delete node.dataset.result;
     node.style.opacity = '0';
+    hideDetail(detail);
   };
 
   return {
@@ -156,8 +186,9 @@ function createDamageFeedbackView(
       nodes.forEach((node, index) => {
         const text = texts[index];
         const layout = layouts[index];
+        const detail = detailNodes[index];
         if (!text || !layout) {
-          hide(node);
+          hide(node, detail);
           return;
         }
 
@@ -169,26 +200,39 @@ function createDamageFeedbackView(
               Math.max(0, text.remainingMs / FEEDBACK_CONFIG.texts.damageMs),
             );
         const rise = Math.round(progress * DAMAGE_TEXT_RISE_PX);
-        node.hidden = false;
-        node.textContent = text.text;
-        node.dataset.result = text.hit ? 'hit' : 'miss';
-        node.style.left = cssPercent(
-          mapXToFramePercent(layout.x * TILE_SIZE - camera.x),
-        );
-        node.style.top = cssPercent(
-          mapYToFramePercent(layout.y * TILE_SIZE - camera.y),
-        );
-        node.style.opacity = reducedMotion
+        const left = cssPercent(mapXToFramePercent(layout.x * TILE_SIZE - camera.x));
+        const top = cssPercent(mapYToFramePercent(layout.y * TILE_SIZE - camera.y));
+        const opacity = reducedMotion
           ? '1'
           : `${Math.min(
               1,
               Math.max(0, text.remainingMs / DAMAGE_TEXT_FADE_MS),
             )}`;
+
+        node.hidden = false;
+        node.textContent = text.text;
+        node.dataset.result = text.hit ? 'hit' : 'miss';
+        node.style.left = left;
+        node.style.top = top;
+        node.style.opacity = opacity;
         node.style.transform = `translate(-50%, calc(-100% - ${rise}px))`;
+
+        // El desglose cuelga del ancla base y solo existe si el evento trajo
+        // paquetes con daño > 0; un fallo o un recorte total no inventa texto.
+        if (text.detail === '') {
+          hideDetail(detail);
+          return;
+        }
+        detail.hidden = false;
+        detail.textContent = text.detail;
+        detail.style.left = left;
+        detail.style.top = top;
+        detail.style.opacity = opacity;
+        detail.style.transform = 'translate(-50%, 2px)';
       });
     },
     clear(): void {
-      for (const node of nodes) hide(node);
+      nodes.forEach((node, index) => hide(node, detailNodes[index]));
     },
   };
 }
@@ -484,10 +528,12 @@ async function boot(): Promise<void> {
     hit: boolean,
     target: Position,
     attacker: Position,
+    detail: string,
   ): void => {
     damageTexts = [
       {
         text,
+        detail,
         hit,
         target: { ...target },
         attacker: { ...attacker },
@@ -567,6 +613,7 @@ async function boot(): Promise<void> {
               attackEvent.hit,
               cue.data.target,
               cue.data.attacker,
+              attackEvent.hit ? formatBreakdown(attackEvent.damageBreakdown) : '',
             );
           }
           break;
