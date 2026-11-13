@@ -4,7 +4,7 @@ id: TASK-0098
 title: "E2E y QA visual del inventario y el equipo"
 description: "Cubrir en navegador el panel con teclado, equipar y desequipar, recoger y soltar, mochila llena, dos manos con escudo, costes de MP sin acción y ausencia de G y 1-3, con capturas de 1280×720 y 900×700."
 status: stable
-task_status: ready
+task_status: blocked
 task_type: test
 requirement: REQ-018
 requirement_ids: [T-012]
@@ -13,13 +13,28 @@ unlocks: []
 created_at: 2026-11-13T19:22:51Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0098/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:22:51Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T22:10:00Z
+    note: >-
+      Bloqueada tras verificar el intento 1 (commits `fdf862f` y `8cb1a7e`).
+      Reejecutados `pnpm run verify` (1249/1249), `pnpm run test:e2e`
+      (131/131) y los seis specs tocados con `--repeat-each=3` (90/90),
+      además del spec nuevo en Chromium con ventana (`--headed`, 8/8).
+      Diff revisado: solo `tests/e2e/**` y `artifacts/TASK-0098/**`, sin tests
+      borrados, saltados ni aserciones debilitadas. Queda sin cubrir el
+      criterio «E2E de arma a dos manos con escudo» y su captura: el catálogo
+      vigente no tiene armas `hands: 2`; TASK-0093 difirió la maza a
+      REQ-019/REQ-020 y esta tarea prohíbe tocar el catálogo. La regla sí está
+      cubierta en unitarios (`tests/unit/game/inventory.test.ts:609`).
+      Decisión necesaria en `requirements-writer`: enmendar el criterio o
+      añadir la pieza en su tarea de REQ-019.
 ---
 
 # Objetivo
