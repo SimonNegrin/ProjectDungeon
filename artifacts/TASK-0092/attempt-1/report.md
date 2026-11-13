@@ -8,6 +8,13 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T16:00:00Z }
 artifacts: artifacts/TASK-0092/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T16:00:05Z
+    note: >-
+      Verificado en `task/TASK-0092`: E2E 123/123 y verify 1189/1189
+      reejecutados; capturas 1280×720 y 900×700 revisadas; sin cambios en
+      `src/` ni en tests existentes. EXP-004 falló una vez por timeout bajo
+      carga y pasó aislado.
 ---
 
 # Estado
