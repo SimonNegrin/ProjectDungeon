@@ -4,7 +4,7 @@ id: TASK-0087
 title: "Motor: martillo, espada electrizada, daga arcana y colocación determinista"
 description: "Añadir al catálogo las tres armas nuevas con sus paquetes y colocar al menos una de forma determinista en el mapa, sin cambiar el equipo inicial del roster."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-003, R-004, R-012, T-002]
