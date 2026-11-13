@@ -77,7 +77,7 @@ viewports); hechizos eléctrico/mágico y curación/resurrección sin desglose
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `E2E_ARTIFACTS_DIR` escribe capturas de todas las specs; una corrida completa dejó 197 PNG y 21 MB en el directorio del intento. | `find artifacts/TASK-0092/attempt-1 -name '*.png' \| wc -l` antes de limpiar. | Borrar directorios de specs ajenas y copiar las propias a `screenshots/`. | Se repite en cada tarea de QA visual que ejecute la suite completa. | Documentar el filtro por spec o permitir limitar `E2E_ARTIFACTS_DIR` a la spec en curso. | Bajo; solo arnés/documentación. | `pending` |
+| `E2E_ARTIFACTS_DIR` escribe capturas de todas las specs; una corrida completa dejó 197 PNG y 21 MB en el directorio del intento. | `find artifacts/TASK-0092/attempt-1 -name '*.png' \| wc -l` antes de limpiar. | Borrar directorios de specs ajenas y copiar las propias a `screenshots/`. | Se repite en cada tarea de QA visual que ejecute la suite completa. | Documentar el filtro por spec o permitir limitar `E2E_ARTIFACTS_DIR` a la spec en curso. | Bajo; solo arnés/documentación. | `accepted`: workaround local (ejecutar la spec focalizada y limpiar el resto); sin cambio de arnés en esta tarea. |
 
 # Métricas de handoff
 
