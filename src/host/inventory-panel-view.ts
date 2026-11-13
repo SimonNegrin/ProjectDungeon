@@ -18,6 +18,7 @@ import {
 
 interface PanelRowView {
   readonly root: HTMLElement;
+  readonly icon: HTMLElement;
   readonly name: HTMLElement;
   readonly detail: HTMLElement;
   readonly traits: HTMLElement;
@@ -74,6 +75,12 @@ function createRow(
   const header = document.createElement('div');
   header.className = 'inventory-row-header';
 
+  const icon = document.createElement('span');
+  icon.className = 'inventory-row-icon';
+  icon.dataset.testid = `inventory-${rowTestId(key)}-icon`;
+  icon.setAttribute('aria-hidden', 'true');
+  icon.hidden = true;
+
   const name = document.createElement('span');
   name.className = 'inventory-row-name';
   name.dataset.testid = `inventory-${rowTestId(key)}-name`;
@@ -81,7 +88,7 @@ function createRow(
   const detail = document.createElement('span');
   detail.className = 'inventory-row-detail';
 
-  header.append(name, detail);
+  header.append(icon, name, detail);
 
   const traits = document.createElement('p');
   traits.className = 'inventory-row-traits';
@@ -106,7 +113,22 @@ function createRow(
   root.append(header, traits, comparison, actions);
   parent.append(root);
 
-  return { root, name, detail, traits, comparison, buttons };
+  return { root, icon, name, detail, traits, comparison, buttons };
+}
+
+/**
+ * Icono DOM con el mismo recorte que el mundo: fondo CSS posicionado sobre
+ * `items.png`, nunca un canvas. La hoja y el tamaño viven en `index.html`; aquí
+ * solo se desplaza la ventana al `rect` del catálogo.
+ */
+function updateIcon(icon: HTMLElement, item: PanelItem): void {
+  const rect = item.sprite;
+  icon.hidden = item.empty || rect === null;
+  if (!rect) {
+    icon.style.removeProperty('background-position');
+    return;
+  }
+  icon.style.backgroundPosition = `-${rect.x}px -${rect.y}px`;
 }
 
 function updateRow(
@@ -116,6 +138,7 @@ function updateRow(
 ): void {
   view.root.dataset.empty = String(item.empty);
   view.root.classList.toggle('is-empty', item.empty);
+  updateIcon(view.icon, item);
   view.name.textContent = item.name;
   view.detail.textContent = item.detail;
 
