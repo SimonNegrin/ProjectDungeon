@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (101):
+Avisos (102):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - docs/tasks/TASK-0070-exp-003-tres-tablas-ui.md: tarea de 663 palabras; objetivo ≤600
@@ -102,7 +102,8 @@ Avisos (101):
 - artifacts/TASK-0092/attempt-1/report.md: handoff de 4077 B; objetivo ≤2560 B
 - artifacts/TASK-0093/attempt-1/report.md: handoff de 2880 B; objetivo ≤2560 B
 - artifacts/TASK-0094/attempt-1/brief.md: handoff de 3132 B; objetivo ≤2560 B
-OK: 459 documentos, 98 tareas, 6 experimentos.
+- artifacts/TASK-0094/attempt-1/report.md: handoff de 3549 B; objetivo ≤2560 B
+OK: 460 documentos, 98 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -111,12 +112,12 @@ $ vitest run
 
 
  Test Files  88 passed (88)
-      Tests  1220 passed (1220)
-   Start at  20:12:52
-   Duration  38.71s (tests 90%, import 8%, transform 1%, worker 1%)
+      Tests  1225 passed (1225)
+   Start at  20:19:55
+   Duration  13.45s (tests 89%, import 8%, transform 2%, worker 1%)
 
-    Isolate  88 workers spawned · ~77ms startup each (spawn + environment, per file)
-             at least ~6.68s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  88 workers spawned · ~137ms startup each (spawn + environment, per file)
+             at least ~1.58s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -125,7 +126,7 @@ transforming...
 rendering chunks...
 computing gzip size...
 dist/index.html                21.03 kB │ gzip:  4.60 kB
-dist/assets/main-IK6uRX-P.js  168.20 kB │ gzip: 55.99 kB
-✓ built in 413ms
+dist/assets/main-D6R0CgcN.js  168.22 kB │ gzip: 55.99 kB
+✓ built in 429ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 12 dist files and 66 production modules; no forbidden markers.
