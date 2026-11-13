@@ -4,7 +4,7 @@ id: TASK-0095
 title: "Host: panel modal de inventario y equipo con `I`"
 description: "Añadir el panel DOM sobre el mapa con equipo, mochila y objetos del suelo, navegación completa por teclado, foco visible, comparación de stats y traits, cobro al confirmar, y retirar `G` y `1`-`3` del input."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-015, R-016, R-017, T-008, T-009]
@@ -13,7 +13,7 @@ unlocks: [TASK-0097, TASK-0098]
 created_at: 2026-11-13T19:22:51Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0095/
 priority: P1
 risk: high
