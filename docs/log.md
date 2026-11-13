@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0093 — done: catálogo `ITEMS` con `ItemDefinition`, validación y vistas `WEAPONS`/`ARMORS`/`SHIELDS` derivadas sin cambiar valores; recortes contra `items.txt` y el PNG real; verify 1200/1200 y 77/77 focalizados; fusión `5dd5634` — [informe](../artifacts/TASK-0093/attempt-1/report.md)
+
 * 2026-11-13 — Requirement — REQ-020 — borrador v3: varios cadáveres pueden compartir casilla y no bloquean el paso; saquear elige uno explícitamente y la resurrección apuntará a una **unidad**, no a la casilla; la enmienda de REQ-021 se aplica al cerrar la hoja. Quedan política de botín, colocación, capacidad y ciclo de vida — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
 
 * 2026-11-13 — Verification — verify — `pnpm run verify` falló dos veces en el barrido A/B/C de EXP-004 por timeout de 5 s con 86 workers; el archivo pasa aislado y la suite completa con `--maxWorkers=4` da 1189/1189; candidato a `harness-keeper` — [workflow](harness/workflow.md)
