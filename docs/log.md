@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Requirement — REQ-031 — stable v1: hotseat local 1-6 con turno por jugador y `N`, relevo por cámara sin Enter, aviso de ronda no bloqueante, fase enemiga con HUD de actor/objetivo y «El master mueve», panel público y reinicio con misma party y semilla — [REQ-031](requirements/REQ-031-hotseat-local.md)
+* 2026-11-13 — Requirement — REQ-016 — stable v2: selector 1-6 activo, flujo jugador a jugador, nombres de 12 (vacío = arquetipo, duplicados), arquetipos repetidos y semilla visible/editable; entrada al arrancar, desde resultado y pausa; hotseat a REQ-031 — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
+* 2026-11-13 — Requirement — REQ-024 — borrador v2: pausa global, guardado solo en fase de personajes, carga en el activo y reinicio en el menú con «Nueva»/«Reiniciar» (misma party y semilla); se retira `R` — [REQ-024](requirements/REQ-024-menu-pausa-guardado.md)
+* 2026-11-13 — Docs — índice y alcance — fase 2 definida con REQ-031 y REQ-016 v2; REQ-024 v2 en borrador; el hotseat jugable sigue pendiente de implementación — [índice](requirements/index.md), [alcance](scope.md)
 * 2026-11-13 — Requirement — REQ-019 — corrige la cita del ADR de traits (ADR-022 → ADR-024) y enlaza la dependencia; sin cambios de reglas — [REQ-019](requirements/REQ-019-traits-objetos.md)
 * 2026-11-13 — Decision — ADR-024 — registra el catálogo de traits, stacking, pipeline de disparadores y los dos especiales de REQ-019; corrige la referencia rota que apuntaba a ADR-022 — [ADR-024](decisions/ADR-024-traits-objetos-pipeline.md)
 * 2026-11-13 — Decision — ADR-021 — nota de vigencia: traits en uso, piezas de REQ-019/020 y equipar desde suelo o contenedor (REQ-018 R-021) — [ADR-021](decisions/ADR-021-inventario-equipo.md)

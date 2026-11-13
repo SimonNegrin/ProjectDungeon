@@ -48,7 +48,7 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
 | 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
-| 2 | Multijugador local hotseat en el mismo teclado | En curso (preparación): esquema y roster planificados (TASK-0053 a TASK-0056); pantalla de inicio en borrador (REQ-016) |
+| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v2; implementación pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -72,9 +72,11 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   bestiario completos.
 - `REQ-018` (inventario y equipo) y `REQ-019` (traits) están `stable` y sin
   tareas; `REQ-020` (cofres y cadáveres) sigue en borrador.
-- `REQ-016` (pantalla de inicio), `REQ-022` (HUD izquierdo), `REQ-023` (detalle
-  del cursor), `REQ-024` (pausa y guardado) y `REQ-030` (alcance visible de
-  hechizos) están en borrador.
+- Hotseat: `REQ-031` (modo local) y `REQ-016` v2 (configuración y semilla) están
+  `stable` y sin tareas; `REQ-024` v2 (pausa, guardado y reinicio) sigue en
+  borrador. La implementación de la fase 2 está pendiente.
+- `REQ-022` (HUD izquierdo), `REQ-023` (detalle del cursor) y `REQ-030` (alcance
+  visible de hechizos) están en borrador.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
   ordenar con `REQ-018`/`REQ-020`.
 
@@ -193,8 +195,8 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Servidor, WebSocket, QR y salas (fase 3).
 - Cuentas, base de datos y matchmaking. El guardado local de partida lo define
   `REQ-024`; la progresión entre runs sigue abierta.
-- Hotseat jugable; la pantalla de configuración (`REQ-016`, borrador) es
-  preparación.
+- Hotseat jugable: definido en `REQ-031` y `REQ-016` v2, con implementación
+  pendiente.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
   muros mágicos: horizonte. La magia básica y la curación están implementadas en
