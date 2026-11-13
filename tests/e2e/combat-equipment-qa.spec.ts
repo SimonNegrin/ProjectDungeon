@@ -1,7 +1,15 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { ARMORS, SHIELDS, WEAPONS, armorValue, shieldValue } from '../../src/game/equipment';
+import {
+  ARMORS,
+  SHIELDS,
+  WEAPONS,
+  armorValue,
+  shieldValue,
+  weaponDamage,
+} from '../../src/game/equipment';
+import { bandFor, resolvePacket } from '../../src/game/damage';
 import { ROSTER } from '../../src/game/roster';
 import type { GameEvent, Unit } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
@@ -127,7 +135,7 @@ function signed(value: number): string {
 
 function weaponLabel(unit: Unit): string {
   const weapon = WEAPONS[unit.equipment.weaponId!];
-  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
 }
 
 function shieldLabel(unit: Unit): string {
@@ -143,8 +151,8 @@ function armorLabel(unit: Unit): string {
 }
 
 function statsLabel(unit: Unit): string {
-  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
+  const { habilidad, fuerza, defensa } = unit.stats;
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
 }
 
 function equipmentBody(unit: Unit): string {
@@ -219,7 +227,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   });
   expect(player.weapons).toEqual(['sword']);
   expect(player.stats).toEqual(ROSTER.warrior.stats);
-  expect(player.stats.resistencia).toBe(1);
+  expect(player.stats.resistencia).toEqual({});
   expect(initial.weapons).toHaveLength(2);
 
   const axe = initial.weapons.find((weapon) => weapon.weaponId === 'axe');
@@ -434,15 +442,19 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
       shieldValue(enemy.equipment.shieldId) +
       attack!.rolls.shield,
   );
+  const packet = playerWeapon.damagePackets[0];
+  const band = bandFor(enemy.stats.resistencia, packet.type);
   expect(attack!.damage).toBe(
     Math.max(
       1,
-      playerUnit.stats.fuerza +
-        playerWeapon.damage +
-        attack!.rolls.damage! -
-        (enemy.stats.resistencia +
-          armorValue(enemy.equipment.armorId) +
-          attack!.rolls.armor!),
+      resolvePacket(
+        packet,
+        playerUnit.stats.fuerza,
+        armorValue(enemy.equipment.armorId),
+        band,
+        attack!.rolls.damage!,
+        attack!.rolls.armor!,
+      ),
     ),
   );
 

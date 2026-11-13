@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ARMORS, SHIELDS, WEAPONS } from '../../../src/game/equipment';
+import { ARMORS, SHIELDS, WEAPONS, weaponDamage } from '../../../src/game/equipment';
 import {
   BESTIARY,
   BspMapGenerator,
@@ -62,11 +62,11 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('F1');
     expect(model.overlays).toEqual({ victory: false, defeat: false });
     expect(model.weapon).toBe(
-      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${WEAPONS.sword.damage}`,
+      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
     );
     expect(model.shield).toBe(`${SHIELDS.shield.name} +${SHIELDS.shield.defense}`);
     expect(model.armor).toBe(`${ARMORS.armor.name} +${ARMORS.armor.armor}`);
-    expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa · +0 resistencia');
+    expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
   });
@@ -81,7 +81,7 @@ describe('modelo del HUD', () => {
     expect(model.playerName).toBe(ROSTER.warrior.name);
     expect(model.archetype).toBe(ROSTER.warrior.name);
     expect(model.stats).toBe(
-      '+1 habilidad · +1 fuerza · +1 defensa · +1 resistencia',
+      '+1 habilidad · +1 fuerza · +1 defensa',
     );
   });
 
@@ -119,11 +119,11 @@ describe('modelo del HUD', () => {
     const model = buildHudModel(state);
 
     expect(model.weapon).toBe(
-      `${WEAPONS.axe.name} +${WEAPONS.axe.accuracy}/+${WEAPONS.axe.damage}`,
+      `${WEAPONS.axe.name} +${WEAPONS.axe.accuracy}/+${weaponDamage(WEAPONS.axe)}`,
     );
     expect(model.shield).toBe('Sin escudo');
     expect(model.armor).toBe('Sin armadura');
-    expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa · +0 resistencia');
+    expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa');
   });
 
   it('muestra Sin arma cuando la unidad no tiene arma equipada', () => {
@@ -175,7 +175,7 @@ describe('modelo del HUD', () => {
     expect(picked.map?.weapons?.some((entry) => entry.id === weapon.id)).toBe(false);
     expect(buildHudModel(picked, { x: weapon.x, y: weapon.y }).weaponHint).toBeNull();
     expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${WEAPONS[weapon.weaponId].damage}`,
+      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${weaponDamage(WEAPONS[weapon.weaponId])}`,
     );
   });
 
@@ -415,10 +415,10 @@ describe('modelo del overlay de debug', () => {
     if (!attackEvent) throw new Error('se esperaba un ataque');
 
     expect(text).toContain(
-      `Equipo: ${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${WEAPONS.sword.damage} · ${SHIELDS.shield.name} +${SHIELDS.shield.defense} · ${ARMORS.armor.name} +${ARMORS.armor.armor}`,
+      `Equipo: ${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)} · ${SHIELDS.shield.name} +${SHIELDS.shield.defense} · ${ARMORS.armor.name} +${ARMORS.armor.armor}`,
     );
     expect(text).toContain(
-      'Atributos +1 habilidad · +1 fuerza · +1 defensa · +0 resistencia',
+      'Atributos +1 habilidad · +1 fuerza · +1 defensa',
     );
     expect(text).toContain(
       `Vida: player-1 ${result.state.players[0].hp}/${result.state.players[0].maxHp} · enemy-1 ${result.state.enemies[0].hp}/${result.state.enemies[0].maxHp}`,
@@ -478,7 +478,7 @@ describe('modelo del overlay de debug', () => {
         : `${ARMORS[BESTIARY.sentinel.equipment.armorId].name} +${ARMORS[BESTIARY.sentinel.equipment.armorId].armor}`;
     const equipment = lines.filter((line) => line.startsWith('Equipo enemigo'));
     expect(equipment).toEqual([
-      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weapon.damage} · ${shield} · ${armor} · Atributos +0 habilidad · +0 fuerza · +0 defensa · +0 resistencia · Acciones 2/2`,
+      `Equipo enemigo enemy-1: ${weapon.name} +${weapon.accuracy}/+${weaponDamage(weapon)} · ${shield} · ${armor} · Atributos +0 habilidad · +0 fuerza · +0 defensa · Acciones 2/2`,
     ]);
   });
 

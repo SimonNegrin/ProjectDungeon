@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  WEAPONS,
-  armorValue,
-  reduce,
-  resolveDamage,
-  type Unit,
-} from '../../../src/game/index';
+import { reduce, type Unit } from '../../../src/game/index';
 import {
   collectAttackFeedbacks,
   collectDamageFeedbacks,
@@ -16,20 +10,20 @@ import {
   MAX_DAMAGE_TEXTS,
   type DamageFeedbackAnchor,
 } from '../../../src/host/feedback';
-import { makeState, makeUnit, rngForDice } from '../game/helpers';
+import {
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from '../game/helpers';
 
 function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 describe('feedback de ataque', () => {

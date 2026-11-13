@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BspMapGenerator, reduce, createInitialState } from '../../../src/game/index';
-import { WEAPONS } from '../../../src/game/equipment';
+import { WEAPONS, weaponDamage } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 
@@ -34,7 +34,7 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
     expect(picked.players[0].equipment.weaponId).toBe(weapon.weaponId);
     expect(picked.players[0].weapons).toEqual(['sword', weapon.weaponId]);
     expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${WEAPONS[weapon.weaponId].damage}`,
+      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${weaponDamage(WEAPONS[weapon.weaponId])}`,
     );
     expect(buildHudModel(picked).weaponHint).toBeNull();
   });
@@ -76,7 +76,7 @@ describe('integración de recogida y cambio de arma con el HUD', () => {
     expect(switched.players[0].mp).toBe(mpBefore);
     expect(switched.players[0].actions).toEqual(actionsBefore);
     expect(buildHudModel(switched).weapon).toBe(
-      `${WEAPONS[first.weaponId].name} +${WEAPONS[first.weaponId].accuracy}/+${WEAPONS[first.weaponId].damage}`,
+      `${WEAPONS[first.weaponId].name} +${WEAPONS[first.weaponId].accuracy}/+${weaponDamage(WEAPONS[first.weaponId])}`,
     );
   });
 });

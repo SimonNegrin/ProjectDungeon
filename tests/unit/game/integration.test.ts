@@ -1,31 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
-  WEAPONS,
-  armorValue,
   createRng,
   reduce,
-  resolveDamage,
   type Command,
   type GameEvent,
   type GameState,
   type Unit,
 } from '../../../src/game/index';
-import { makeState, makeUnit, rngForDice } from './helpers';
+import {
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 /** Daño esperado según catálogo y equipo, sin fijar el valor de balance. */
 function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 interface RunResult {

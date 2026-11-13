@@ -24,7 +24,6 @@ interface ExpectedArchetype {
     habilidad: number,
     fuerza: number,
     defensa: number,
-    resistencia: number,
     punteria: number,
     acciones: number,
   ];
@@ -36,63 +35,63 @@ const EXPECTED: Readonly<Record<ArchetypeId, ExpectedArchetype>> = {
     maxHp: 20,
     maxMp: 6,
     magicLevel: 0,
-    stats: [1, 1, 1, 1, 0, 2],
+    stats: [1, 1, 1, 0, 2],
   },
   barbarian: {
     name: 'Bárbaro',
     maxHp: 24,
     maxMp: 5,
     magicLevel: 0,
-    stats: [0, 3, -1, 0, 0, 2],
+    stats: [0, 3, -1, 0, 2],
   },
   rogue: {
     name: 'Pícaro',
     maxHp: 14,
     maxMp: 8,
     magicLevel: 0,
-    stats: [3, 0, 1, 0, 0, 3],
+    stats: [3, 0, 1, 0, 3],
   },
   archer: {
     name: 'Arquero',
     maxHp: 14,
     maxMp: 6,
     magicLevel: 0,
-    stats: [1, 0, 0, 0, 3, 2],
+    stats: [1, 0, 0, 3, 2],
   },
   mage: {
     name: 'Mago',
     maxHp: 12,
     maxMp: 5,
     magicLevel: 4,
-    stats: [0, -1, 0, 0, 0, 2],
+    stats: [0, -1, 0, 0, 2],
   },
   cleric: {
     name: 'Clérigo',
     maxHp: 18,
     maxMp: 5,
     magicLevel: 3,
-    stats: [0, -1, 3, 2, 0, 2],
+    stats: [0, -1, 3, 0, 2],
   },
   spellblade: {
     name: 'Guerrero mágico',
     maxHp: 18,
     maxMp: 6,
     magicLevel: 2,
-    stats: [1, 0, 1, 0, 0, 2],
+    stats: [1, 0, 1, 0, 2],
   },
   cook: {
     name: 'Cocinero',
     maxHp: 14,
     maxMp: 6,
     magicLevel: 1,
-    stats: [3, -1, 0, 0, 0, 2],
+    stats: [3, -1, 0, 0, 2],
   },
   farmer: {
     name: 'Agricultor',
     maxHp: 22,
     maxMp: 4,
     magicLevel: 0,
-    stats: [-1, 3, 0, 1, 0, 2],
+    stats: [-1, 3, 0, 0, 2],
   },
 };
 
@@ -102,7 +101,6 @@ function statsOf(entry: (typeof ROSTER)[ArchetypeId]): readonly number[] {
     stats.habilidad,
     stats.fuerza,
     stats.defensa,
-    stats.resistencia,
     stats.punteria,
     stats.acciones,
   ];
@@ -181,14 +179,17 @@ describe('roster de arquetipos', () => {
     }
   });
 
-  it('el Cuchillo es +4/1 y la daga sigue +4/2', () => {
+  it('el Cuchillo es +4/1 punzante y la daga sigue +4/2 punzante', () => {
     expect(WEAPONS.knife).toEqual({
       id: 'knife',
       name: 'Cuchillo',
       accuracy: 4,
-      damage: 1,
+      damagePackets: [{ type: 'pierce', amount: 1 }],
     });
-    expect(WEAPONS.dagger).toMatchObject({ accuracy: 4, damage: 2 });
+    expect(WEAPONS.dagger).toMatchObject({
+      accuracy: 4,
+      damagePackets: [{ type: 'pierce', amount: 2 }],
+    });
   });
 });
 
@@ -252,7 +253,7 @@ describe('personaje desde arquetipo', () => {
 });
 
 describe('jugador por defecto (REQ-015 T-003)', () => {
-  it('usa stats y equipo del Guerrero con +1 de resistencia y el spawn real', () => {
+  it('usa stats y equipo del Guerrero con perfil normal y el spawn real', () => {
     const state = createInitialState({ seed: 279837264 });
     const player = state.players[0];
     const spawn = state.map!.spawns.party?.[0] ?? state.map!.spawns.player;
@@ -261,7 +262,7 @@ describe('jugador por defecto (REQ-015 T-003)', () => {
     expect(player.nombre).toBe(ROSTER.warrior.name);
     expect(player.archetypeId).toBe('warrior');
     expect(player.stats).toEqual(ROSTER.warrior.stats);
-    expect(player.stats.resistencia).toBe(1);
+    expect(player.stats.resistencia).toEqual({});
     expect(player.equipment).toEqual(ROSTER.warrior.equipment);
     expect(player.weapons).toEqual(['sword']);
     expect(player.hp).toBe(ROSTER.warrior.maxHp);

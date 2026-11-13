@@ -19,7 +19,7 @@ function stats(acciones: number): UnitStats {
     habilidad: 1,
     fuerza: 1,
     defensa: 1,
-    resistencia: 0,
+    resistencia: {},
     punteria: 0,
     magicLevel: 0,
     acciones,

@@ -1,11 +1,15 @@
 import {
   BESTIARY,
   MAX_ACTIONS,
+  WEAPONS,
+  armorValue,
+  bandFor,
   createMana,
   createRoomGrid,
   createRng,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
+  resolvePacket,
   rollDie,
   type Awareness,
   type ArchetypeId,
@@ -32,7 +36,7 @@ const PLAYER_STATS: UnitStats = {
   habilidad: 1,
   fuerza: 1,
   defensa: 1,
-  resistencia: 0,
+  resistencia: {},
   punteria: 0,
   magicLevel: 0,
   acciones: 2,
@@ -42,7 +46,7 @@ const NEUTRAL_STATS: UnitStats = {
   habilidad: 0,
   fuerza: 0,
   defensa: 0,
-  resistencia: 0,
+  resistencia: {},
   punteria: 0,
   magicLevel: 0,
   acciones: 2,
@@ -196,6 +200,33 @@ export function advanceRng(rng: RngState, dice: readonly number[]): RngState {
     current = rolled.rng;
   }
   return current;
+}
+
+/**
+ * Daño esperado de un ataque de un solo paquete con dados fijos, derivado del
+ * resolvedor compartido y leyendo arma, armadura y banda del catálogo/perfil.
+ * No fija valores de balance.
+ */
+export function expectedSinglePacketDamage(
+  attacker: Unit,
+  target: Unit,
+  damageDie: number,
+  resistanceDie: number,
+): number {
+  const weapon = WEAPONS[attacker.equipment.weaponId!];
+  const packet = weapon.damagePackets[0];
+  const band = bandFor(target.stats.resistencia, packet.type);
+  return Math.max(
+    1,
+    resolvePacket(
+      packet,
+      attacker.stats.fuerza,
+      armorValue(target.equipment.armorId),
+      band,
+      damageDie,
+      resistanceDie,
+    ),
+  );
 }
 
 export function makeGridWithWalls(

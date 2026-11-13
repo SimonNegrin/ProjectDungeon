@@ -27,6 +27,30 @@ export interface Position {
 export type MagicLevel = 0 | 1 | 2 | 3 | 4;
 
 /**
+ * Cinco tipos de daño (REQ-029 R-001). Fuego y hielo no son tipos: quedan como
+ * traits de estado futuros. Los IDs son estables; las etiquetas viven en la UI.
+ */
+export type DamageType = 'slash' | 'blunt' | 'pierce' | 'magic' | 'electric';
+
+/**
+ * Banda de resistencia de una unidad a un tipo de daño (REQ-029 R-007/R-008).
+ * No existe la inmunidad: «muy resistente» sigue recibiendo al menos 1 de total.
+ */
+export type ResistanceBand = 'vulnerable' | 'normal' | 'resistant' | 'very-resistant';
+
+/**
+ * Perfil de resistencia: una banda por tipo. La banda ausente es `normal`.
+ * Sustituye a la resistencia numérica única de ADR-015 (REQ-029 T-003).
+ */
+export type ResistanceProfile = Readonly<Partial<Record<DamageType, ResistanceBand>>>;
+
+/** Paquete de daño: tipo y cantidad base (REQ-029 R-003). */
+export interface DamagePacket {
+  readonly type: DamageType;
+  readonly amount: number;
+}
+
+/**
  * Atributos inherentes de un personaje (REQ-014 R-001). PV y MP viven en sus
  * campos actuales de `Unit`; el equipo no define ninguno de estos valores.
  */
@@ -34,7 +58,8 @@ export interface UnitStats {
   readonly habilidad: number;
   readonly fuerza: number;
   readonly defensa: number;
-  readonly resistencia: number;
+  /** Perfil de resistencia por tipo; `{}` = normal en los cinco (REQ-029 T-003). */
+  readonly resistencia: ResistanceProfile;
   readonly punteria: number;
   /** Nivel de magia único (REQ-025 R-001); 0 significa sin magia. */
   readonly magicLevel: MagicLevel;

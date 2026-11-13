@@ -4,22 +4,36 @@ id: TASK-0085
 title: "Motor: tipos de daño, paquetes y resolvedor con bandas"
 description: "Sustituir el daño único por paquetes tipados con perfil de resistencia, armadura y fuerza solo en los físicos, multiplicador de banda después de la absorción, redondeo hacia abajo y mínimo 1 global, con RNG determinista."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-011, T-001, T-002, T-003, T-004, T-005, T-006]
 depends_on: []
 unlocks: [TASK-0086, TASK-0087, TASK-0088]
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T09:56:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0085/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T09:56:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0085` (código `4117b49`, tests
+      `43490bb` y `fe5f90f`, artefactos `7147f54`). `pnpm run verify` OK
+      (1103/1103 en 79 archivos; docs:check, config:check, tsc, build y
+      check:bundle). `pnpm run test:e2e` OK (9/9) sobre los tres specs de
+      combate/equipo/HUD modificados. Los 10 criterios comprobados: cinco tipos,
+      cuatro bandas y `DamagePacket`; `resistencia` como perfil normal por
+      defecto; armas `damagePackets` con validación; resolvedor único y puro
+      compartido por ataque, réplica y hechizo; bandas ×1,5/×1/×0,5/×0,25 con
+      mínimo 1 global; hechizos eléctricos/mágicos y curación/resurrección sin
+      paquete; orden determinista del RNG; sin fórmula paralela en el motor;
+      host con adaptación mínima y tests migrados sin debilitarse.
 ---
 
 # Objetivo
@@ -45,29 +59,29 @@ réplica y hechizos comparten el camino y el RNG conserva su orden.
 
 # Criterios de aceptación
 
-- [ ] `DamageType`, `ResistanceBand`, `ResistanceProfile` y
+- [x] `DamageType`, `ResistanceBand`, `ResistanceProfile` y
       `DamagePacket { type, amount }` tienen IDs estables; las etiquetas viven en
       catálogo o UI.
-- [ ] `UnitStats.resistencia` es un perfil con una banda por tipo y normal por
+- [x] `UnitStats.resistencia` es un perfil con una banda por tipo y normal por
       defecto; no queda resistencia numérica usada por el daño.
-- [ ] Las armas declaran `damagePackets` con las mismas cantidades (espada y
+- [x] Las armas declaran `damagePackets` con las mismas cantidades (espada y
       hacha filo; daga y cuchillo punzante). La validación rechaza más de un
       físico, más de un elemental o más de dos paquetes.
-- [ ] El resolvedor es único y puro: dados de daño y resistencia independientes
+- [x] El resolvedor es único y puro: dados de daño y resistencia independientes
       por paquete; los físicos suman fuerza y restan armadura; mágico y eléctrico
       ignoran ambas; banda después de la absorción con `floor`; cada paquete se
       recorta a 0 y el total es `max(1, suma)`.
-- [ ] Las bandas aplican ×1,5, ×1, ×0,5 y ×0,25; no existe inmunidad ni total 0.
-- [ ] Los hechizos de daño declaran tipo (eléctrico o mágico); curación y
+- [x] Las bandas aplican ×1,5, ×1, ×0,5 y ×0,25; no existe inmunidad ni total 0.
+- [x] Los hechizos de daño declaran tipo (eléctrico o mágico); curación y
       resurrección no declaran paquete. El nivel de magia solo afecta a acceso,
       maná e impacto.
-- [ ] Un fallo consume solo impacto y escudo; un impacto consume, en orden fijo,
+- [x] Un fallo consume solo impacto y escudo; un impacto consume, en orden fijo,
       daño y resistencia por paquete. Misma semilla y comandos, misma secuencia.
-- [ ] Ataque y réplica comparten resolvedor; no queda fórmula paralela en
+- [x] Ataque y réplica comparten resolvedor; no queda fórmula paralela en
       `combat.ts`, `magic.ts` ni `ai.ts`.
-- [ ] El host compila con una adaptación mínima; los tests se migran sin
+- [x] El host compila con una adaptación mínima; los tests se migran sin
       borrarse, saltarse ni debilitarse.
-- [ ] `pnpm run verify` pasa; `src/game/` sigue puro, sin dependencias ni DOM.
+- [x] `pnpm run verify` pasa; `src/game/` sigue puro, sin dependencias ni DOM.
 
 # Plan de test
 
@@ -82,9 +96,9 @@ réplica y hechizos comparten el camino y el RNG conserva su orden.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0085/attempt-1/report.md`
-- [ ] Salidas de `pnpm run verify` y de los tests focalizados
-- [ ] Commit SHA en la rama `task/TASK-0085`
+- [x] Informe en `artifacts/TASK-0085/attempt-1/report.md`
+- [x] Salidas de `pnpm run verify` y de los tests focalizados
+- [x] Commit SHA en la rama `task/TASK-0085`
 
 # Restricciones
 

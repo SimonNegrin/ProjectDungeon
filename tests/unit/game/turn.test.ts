@@ -1,28 +1,26 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BESTIARY,
-  WEAPONS,
-  armorValue,
   createRng,
   reduce,
-  resolveDamage,
   type GameEvent,
   type Unit,
 } from '../../../src/game/index';
-import { makeGridWithWalls, makeState, makeUnit, rngForDice } from './helpers';
+import {
+  expectedSinglePacketDamage,
+  makeGridWithWalls,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 describe('turn phase', () => {

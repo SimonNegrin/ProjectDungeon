@@ -1,15 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
-  WEAPONS,
-  armorValue,
   planEnemyAction,
   reduce,
   resolveAttack,
-  resolveDamage,
   type GameEvent,
   type Unit,
 } from '../../../src/game/index';
-import { advanceRng, makeState, makeUnit, rngForDice } from './helpers';
+import {
+  advanceRng,
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 const DAMAGE_DICE = [3, 3] as const;
 const PLAYER_HIT = [6, 1, ...DAMAGE_DICE] as const;
@@ -20,14 +23,9 @@ function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    target.stats.resistencia + armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 function armedEnemy(

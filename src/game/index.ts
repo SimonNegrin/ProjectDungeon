@@ -1,6 +1,7 @@
 export * from './types';
 export * from './actions';
 export * from './mana';
+export * from './damage';
 export * from './spells';
 export * from './magic';
 export * from './equipment';

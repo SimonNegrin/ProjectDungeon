@@ -12,16 +12,18 @@ import {
   PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
-  WEAPONS,
-  armorValue,
   reduce,
-  resolveDamage,
   type GameState,
   type Position,
   type RngState,
   type WeaponId,
 } from '../../../src/game/index';
-import { makeState, makeUnit, rngForDice } from './helpers';
+import {
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 describe('engine state', () => {
   it('crea un mapa generado de 32x32 con muros en el borde y suelo transitable', () => {
@@ -140,7 +142,7 @@ describe('engine state', () => {
         habilidad: 1,
         fuerza: 1,
         defensa: 1,
-        resistencia: 1,
+        resistencia: {},
         punteria: 0,
         magicLevel: 0,
       },
@@ -420,9 +422,9 @@ describe('recogida y cambio de armas', () => {
     });
 
     const pickup = reduce(state, { type: 'PickUp', unitId: 'player-1' });
-    const damage = resolveDamage(
-      pickup.state.players[0].stats.fuerza + WEAPONS.axe.damage,
-      armorValue(pickup.state.enemies[0].equipment.armorId),
+    const damage = expectedSinglePacketDamage(
+      pickup.state.players[0],
+      pickup.state.enemies[0],
       3,
       6,
     );
