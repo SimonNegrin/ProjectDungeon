@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0083 — ready: selección de hechizo y objetivo con teclado, HUD de magia y maná, feedback de impacto/curación/resurrección y rechazos con motivo; dependencia TASK-0082 `done` y REQ-025 aceptada; handoff a `task-lead` — [TASK-0083](tasks/TASK-0083-host-lanzamiento-hechizos-hud.md)
+
 * 2026-11-13 — Task — TASK-0089 — done: cinco bandas del enemigo bajo el cursor solo con LOS, perfil completo en F1 y total `-N` con desglose por tipo leído del evento; verify 1143/1143 y E2E 112/112; fusión `7222d0e` — [informe](../artifacts/TASK-0089/attempt-1/report.md)
 
 * 2026-11-13 — Planning — TASK-0089 — ready: dependencias TASK-0086 y TASK-0088 cerradas y REQ-029 aceptada; handoff a `task-lead` — [TASK-0089](tasks/TASK-0089-host-cursor-bandas-feedback-dano.md)

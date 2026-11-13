@@ -76,7 +76,7 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `done` | REQ-027 | TASK-0079 | P1 |
 | [TASK-0081](TASK-0081-motor-nivel-magia-mana.md) | Motor: nivel de magia y maná por turno | `done` | REQ-025 | TASK-0080 | P1 |
 | [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `done` | REQ-025 | TASK-0081 | P1 |
-| [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `backlog` | REQ-025 | TASK-0082 | P1 |
+| [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `ready` | REQ-025 | TASK-0082 | P1 |
 | [TASK-0084](TASK-0084-balance-acciones-magia-replica.md) | Balance: propuesta con acciones, magia y réplica | `backlog` | REQ-026 | TASK-0083 | P1 |
 | [TASK-0085](TASK-0085-motor-tipos-dano-paquetes-resolvedor.md) | Motor: tipos de daño, paquetes y resolvedor con bandas | `done` | REQ-029 | — | P1 |
 | [TASK-0086](TASK-0086-motor-perfiles-resistencia-roster-bestiario.md) | Motor: perfiles de resistencia v1 de roster, bestiario y familias | `done` | REQ-029 | TASK-0085 | P1 |
@@ -97,9 +97,12 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 
-# backlog
+# ready
 
 * [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)
+
+# backlog
+
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0090 — Verificación: matriz de tipos, regresión y coste por ataque](TASK-0090-verificacion-matriz-tipos-regresion-coste.md)
 * [TASK-0091 — Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025](TASK-0091-docs-formulas-bandas-vigencia.md)

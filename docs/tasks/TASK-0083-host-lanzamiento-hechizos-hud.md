@@ -4,7 +4,7 @@ id: TASK-0083
 title: "Host: lanzamiento de hechizos, HUD y feedback"
 description: "Seleccionar hechizo y objetivo con teclado, mostrar nivel de magia y maná actual/máximo en el HUD y el debug, y presentar impacto, curación, resurrección y rechazos con feedback legible."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-011, R-013, T-004, T-008]
