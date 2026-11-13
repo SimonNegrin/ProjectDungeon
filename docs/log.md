@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0085 — done: cinco tipos de daño, paquetes tipados y resolvedor único con bandas ×1,5/×1/×0,5/×0,25; armadura y fuerza solo físicos, mínimo 1 global y RNG determinista; verify 1103/1103 y E2E 9/9; fusión `9acff9e` — [informe](../artifacts/TASK-0085/attempt-1/report.md)
 * 2026-11-13 — Harness — Permisos — `deny` para `timeout`, `gtimeout`, `node -e` y `node --eval`; la plantilla fija los comandos de creación y retira el `node -e`; pedido tras las dos peticiones de la sesión de REQ-029 — [opencode.jsonc](../opencode.jsonc)
 * 2026-11-13 — Harness — Timeouts — la regla vuelve a distinguir el parámetro de la herramienta del binario `timeout` (ausente en macOS) en `AGENTS.md`, workflow, prompts y skills; la compresión de `AGENTS.md` dejó la lectura ambigua y requirements-writer ejecutó `timeout 120 pnpm run tasks:board` — [workflow](harness/workflow.md#timeouts-y-procesos)
 * 2026-11-13 — Planning — REQ-029 — milestone planificado en TASK-0085 a TASK-0092: modelo y resolvedor, perfiles v1, armas nuevas, desglose de eventos, HUD, matriz de tests, docs y QA; TASK-0085 ready y el resto en cadena — [TASK-0085](tasks/TASK-0085-motor-tipos-dano-paquetes-resolvedor.md)
