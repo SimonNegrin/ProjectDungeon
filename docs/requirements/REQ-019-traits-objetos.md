@@ -4,11 +4,11 @@ id: REQ-019
 title: Traits de objetos equipados
 description: "Primer corte de traits: modificadores de los nueve atributos, stacking con suma, únicos y suelos, robo de vida y ataque circular de 3×3 sin daño amigo, con cuatro piezas de catálogo. Cuerpo etéreo queda como especial futuro."
 status: stable
-version: 2
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-13T17:00:50Z
+updated_at: 2026-11-13T21:29:30Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T12:00:00Z }
 verified:
@@ -80,7 +80,7 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 | T-010 | Tests nuevos: stacking, topes y suelos, orden de disparadores, ataque circular (8 casillas, diagonales, sin centro, sin aliados, orden determinista, una tirada por objetivo), robo de vida (porcentaje, mínimo, sin sobrecurar, por objetivo), sinergia área + robo, traits negativos, serialización y no regresión de `REQ-006`, `REQ-009`, `REQ-010` y `REQ-017`. | `pnpm run verify` pasa; los tests existentes conservan su intención. |
 | T-011 | Se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura; se registra un ADR de traits y pipeline de efectos (ADR-024). | `pnpm run docs:check` pasa; el ADR existe y está enlazado; no queda "ataque de área" como nombre vigente. |
 | T-012 | La UI del panel de `REQ-018` muestra los traits de cada objeto y los traits activos del portador, con descripción y desglose de stats. | El panel permite leer el trait antes de equipar y explicar el total; el HUD o `F1` expone los traits activos. |
-| T-013 | La maza reutiliza las reglas de dos manos de `REQ-018`; no hay una validación paralela. | Arma a dos manos y escudo no coexisten; el rechazo no deja cambios parciales. |
+| T-013 | La maza reutiliza las reglas de dos manos de `REQ-018`; no hay una validación paralela. La cobertura E2E de dos manos con escudo, diferida desde `REQ-018` v5, entra con esta tarea. | Arma a dos manos y escudo no coexisten; el rechazo no deja cambios parciales; hay E2E con la maza equipada y escudo puesto. |
 | T-014 | Sin dependencias nuevas, sin red y sin arte final; el motor sigue sin DOM. | `package.json` y `pnpm-lock.yaml` no cambian; `src/game/` no importa `src/host/`. |
 
 # Requisitos no funcionales
@@ -192,6 +192,7 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 | 2026-11-12 | Sin enemigos con traits en este corte. | human:simon | aceptada |
 | 2026-11-12 | Las piezas llegan solo por cofres y saqueo; el equipo inicial no cambia. | human:simon | aceptada |
 | 2026-11-12 | Traits siempre visibles; sin identificación. | human:simon | aceptada |
+| 2026-11-13 | v3: recibe el E2E de dos manos con escudo diferido desde `REQ-018` v5; sin cambios de reglas. | human:simon | aceptada |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
 
 # Aceptación de la hoja

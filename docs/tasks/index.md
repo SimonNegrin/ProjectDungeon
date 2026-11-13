@@ -89,7 +89,7 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0093](TASK-0093-motor-catalogo-objetos-definiciones.md) | Motor: catálogo de objetos y definiciones de equipo | `done` | REQ-018 | — | P1 |
 | [TASK-0094](TASK-0094-motor-instancias-mochila-equipo-operaciones.md) | Motor: instancias, mochila, equipo y operaciones atómicas | `done` | REQ-018 | TASK-0093 | P1 |
 | [TASK-0095](TASK-0095-host-panel-inventario-equipo.md) | Host: panel modal de inventario y equipo con `I` | `done` | REQ-018 | TASK-0094 | P1 |
-| [TASK-0098](TASK-0098-e2e-qa-inventario-equipo.md) | E2E y QA visual del inventario y el equipo | `blocked` | REQ-018 | TASK-0095, TASK-0096 | P1 |
+| [TASK-0098](TASK-0098-e2e-qa-inventario-equipo.md) | E2E y QA visual del inventario y el equipo | `done` | REQ-018 | TASK-0095, TASK-0096 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -106,7 +106,6 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
-* [TASK-0098 — E2E y QA visual del inventario y el equipo](TASK-0098-e2e-qa-inventario-equipo.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
 # backlog
@@ -199,6 +198,7 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0093 — Motor: catálogo de objetos y definiciones de equipo](TASK-0093-motor-catalogo-objetos-definiciones.md)
 * [TASK-0094 — Motor: instancias, mochila, equipo y operaciones atómicas](TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
 * [TASK-0095 — Host: panel modal de inventario y equipo con `I`](TASK-0095-host-panel-inventario-equipo.md)
+* [TASK-0098 — E2E y QA visual del inventario y el equipo](TASK-0098-e2e-qa-inventario-equipo.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
