@@ -8,7 +8,7 @@ task_status: backlog
 task_type: feature
 requirement: REQ-018
 requirement_ids: [T-010, T-011]
-depends_on: [TASK-0094]
+depends_on: [TASK-0094, TASK-0095]
 unlocks: [TASK-0097, TASK-0098]
 created_at: 2026-11-13T19:22:51Z
 completed_at:

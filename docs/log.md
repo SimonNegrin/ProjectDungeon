@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0096/0097/0098 — DoR revisada; siguen en `backlog` por dependencias abiertas. TASK-0096 pasa a depender de TASK-0095 — [TASK-0096](tasks/TASK-0096-host-objetos-suelo-sprite-debug.md), [TASK-0097](tasks/TASK-0097-docs-inventario-equipo-controles.md), [TASK-0098](tasks/TASK-0098-e2e-qa-inventario-equipo.md)
+
 * 2026-11-13 — Planning — TASK-0095 — ready: panel modal DOM con `I`, bloques de equipo, mochila y suelo, teclado, comparación y retirada de `G` y `1`-`3`; dependencia TASK-0094 `done` y REQ-018 aceptada; handoff a `task-lead` — [TASK-0095](tasks/TASK-0095-host-panel-inventario-equipo.md)
 
 * 2026-11-13 — Task — TASK-0094 — done: instancias con localización única, 8 huecos y mochila paramétrica, stats efectivos en un punto y operaciones atómicas de 1 MP; puente `G`/`1`-`3`; verify 1225/1225 en `main`; fusión `a173d85` — [informe](../artifacts/TASK-0094/attempt-1/report.md)
