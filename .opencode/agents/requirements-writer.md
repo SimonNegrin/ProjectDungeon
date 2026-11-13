@@ -100,9 +100,12 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 
 # Fricción y propuestas
 
-- Eres el dueño de `docs/requirements/**`, `docs/design/**`, `docs/decisions/**`
-  y del producto. El arnés, `AGENTS.md`, `.opencode/**` y las plantillas son de
-  `harness-keeper`.
+- Eres el dueño de `docs/requirements/**` y de las reglas del producto. En
+  `docs/design/**`, `docs/glossary.md` y `docs/log.md` compartes autoría con
+  `task-lead`
+  ([ADR-016](../../docs/decisions/ADR-016-permisos-docs-diseno-glosario.md)): el
+  lead refleja lo implementado, tú cambias reglas. El arnés, `AGENTS.md`,
+  `.opencode/**` y las plantillas son de `harness-keeper`.
 - Aplica sin consultar las correcciones factuales y de bajo riesgo de tus
   documentos (erratas, enlaces, contradicciones que no cambian reglas) y
   regístralas en `docs/log.md`.

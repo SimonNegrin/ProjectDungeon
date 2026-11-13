@@ -286,6 +286,11 @@ El runner observa, el lead tria, `requirements-writer` escribe el producto,
   arnés y documentación con log; consulta al usuario si cambia reglas, permisos,
   gates, coste o comportamiento de agentes
   ([ADR-018](../decisions/ADR-018-harness-keeper.md)).
+- ADR: `task-lead` registra las decisiones técnicas; `requirements-writer`, las
+  reglas de producto y el alcance; si cambian reglas, decide el usuario. En
+  `docs/design/**`, `docs/glossary.md` y `docs/log.md` la ruta compartida la toca
+  quien la tenga en su tarea activa; `docs/log.md` se apendiza arriba de la
+  sección de fecha.
 - Las propuestas no urgentes se revisan en lote cuando el usuario invoca a
   `harness-keeper`. Ninguna queda abierta sin disposición ni dueño.
 

@@ -15,7 +15,7 @@ las reglas de flujo viven en el workflow; aquí solo lo que no puede perderse.
 ## Agente
 
 - Por defecto, `requirements-writer`. La selección se guarda por sesión: para
-  cambiar una sesión abierta, `/requirement`.
+  cambiar una sesión abierta, `/requirement` o `/harness`.
 - Si la sesión no es `requirements-writer` y la petición cambia juego, producto
   o alcance, no edites `src/`, `tests/`, `index.html` ni `public/`: comprueba
   requisito y tarea aceptados y pide el cambio de agente si faltan.
@@ -26,9 +26,11 @@ las reglas de flujo viven en el workflow; aquí solo lo que no puede perderse.
 ## Invariantes
 
 - Sin código de juego sin una tarea aceptada. El usuario decide lo creativo.
-- Propiedad: `harness-keeper` → `docs/harness/**`, `docs/templates/**`,
-  `AGENTS.md`, `.opencode/**` y `opencode.jsonc`; `requirements-writer` → el
-  resto del producto; `task-lead` → tareas, decisiones, diseño y glosario.
+- Propiedad: `harness-keeper` → arnés y plantillas; `requirements-writer` →
+  `docs/requirements/**` y reglas del producto; `task-lead` → `docs/tasks/**`,
+  `docs/decisions/**` y `artifacts/**`. `docs/design/**`, `docs/glossary.md` y
+  `docs/log.md` son compartidos (ADR-016): el lead refleja lo implementado,
+  `requirements-writer` cambia reglas.
 - Handoffs como deltas: brief 1,5 KB e informe 2 KB; tope duro 4 KB; esquema en
   la [plantilla de tarea](docs/templates/task.md).
 - Experimentos en `experiments/EXP-*` y artefactos en `artifacts/TASK-*`; son

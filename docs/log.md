@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Harness — Propiedad — `AGENTS.md` y el prompt de `requirements-writer` se alinean con ADR-016 (diseño, glosario y log compartidos); comando `/harness`; la autoría de ADR por tipo y el log arriba de la fecha quedan solo en el workflow — [workflow](harness/workflow.md#fricción-y-propuestas)
+
 * 2026-11-13 — Task — TASK-0088 — done: desglose por paquete (tipo, base, dados, bruto, banda, multiplicador y daño final) en eventos de ataque, réplica y hechizo, con total y RNG intactos; checks de solo lectura en snapshot; verify 1119/1119; fusión `a0dc2b5` — [informe](../artifacts/TASK-0088/attempt-1/report.md)
 * 2026-11-13 — Fricción — Arnés — propiedad de diseño, decisiones, glosario y log: AGENTS.md da diseño y decisiones solo a task-lead, ADR-016 las declara compartidas y el prompt de requirements-writer las reclama en exclusiva; la autoría de ADR no está repartida; propuesta redactada, para harness-keeper — [ADR-016](decisions/ADR-016-permisos-docs-diseno-glosario.md)
 * 2026-11-13 — Task — TASK-0088 — desviaciones: ataque mixto probado en el resolvedor y no en un evento porque el catálogo v1 solo tiene armas de un paquete, con cobertura real en TASK-0090 tras TASK-0087; fixtures de host con `damageBreakdown: []` sin relajar aserciones; EXP-004 repitió su timeout bajo carga y pasa aislado — [TASK-0088](tasks/TASK-0088-motor-eventos-desglose-dano.md)
