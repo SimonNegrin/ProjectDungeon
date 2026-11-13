@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Requirement — REQ-018 — stable v3: alineada con REQ-019 (anillo, collar y guantes; traits), REQ-029 (paquetes y bandas), REQ-026 (soltar equipado) y REQ-021 (fantasma); equipar desde suelo o contenedor cuesta 1 MP con el sustituido a la mochila; catálogo y calendario quedan para la tarea y hotseat — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+* 2026-11-13 — Docs — índice — REQ-018 pasa a v3 con el catálogo alineado a REQ-029, la equipación directa desde suelo o contenedor y la vigencia de REQ-019/021/026 — [índice](requirements/index.md)
 * 2026-11-13 — Milestone — REQ-029 — cerrada: tipos de daño, paquetes y bandas implementados y verificados en TASK-0085 a TASK-0092; playtest de legibilidad confirmado; ajuste fino aplazado a roster y bestiario completos — [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)
 * 2026-11-13 — Milestone — REQ-025/REQ-027 — cerradas: magia (TASK-0081 a TASK-0083) y réplica (TASK-0079/0080) implementadas y verificadas; resurrección jugable pendiente de REQ-021 — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)
 * 2026-11-13 — Docs — scope e índice — reflejan el cierre de REQ-025/027/029 y el estado parcial de REQ-026: TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/020; corrige los `updated_at` futuros de REQ-010/014/015 — [scope](scope.md)
