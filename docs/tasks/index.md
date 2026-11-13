@@ -88,7 +88,7 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0092](TASK-0092-e2e-qa-tipos-dano-bandas.md) | E2E y QA visual de tipos de daño, bandas y desglose | `done` | REQ-029 | TASK-0087, TASK-0089 | P1 |
 | [TASK-0093](TASK-0093-motor-catalogo-objetos-definiciones.md) | Motor: catálogo de objetos y definiciones de equipo | `done` | REQ-018 | — | P1 |
 | [TASK-0094](TASK-0094-motor-instancias-mochila-equipo-operaciones.md) | Motor: instancias, mochila, equipo y operaciones atómicas | `done` | REQ-018 | TASK-0093 | P1 |
-| [TASK-0095](TASK-0095-host-panel-inventario-equipo.md) | Host: panel modal de inventario y equipo con `I` | `backlog` | REQ-018 | TASK-0094 | P1 |
+| [TASK-0095](TASK-0095-host-panel-inventario-equipo.md) | Host: panel modal de inventario y equipo con `I` | `ready` | REQ-018 | TASK-0094 | P1 |
 | [TASK-0098](TASK-0098-e2e-qa-inventario-equipo.md) | E2E y QA visual del inventario y el equipo | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
@@ -103,6 +103,10 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `backlog` | REQ-018 | TASK-0094 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P2 |
 
+# ready
+
+* [TASK-0095 — Host: panel modal de inventario y equipo con `I`](TASK-0095-host-panel-inventario-equipo.md)
+
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
@@ -110,7 +114,6 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0095 — Host: panel modal de inventario y equipo con `I`](TASK-0095-host-panel-inventario-equipo.md)
 * [TASK-0098 — E2E y QA visual del inventario y el equipo](TASK-0098-e2e-qa-inventario-equipo.md)
 * [TASK-0096 — Host: objetos del suelo con sprite, efectos y debug](TASK-0096-host-objetos-suelo-sprite-debug.md)
 * [TASK-0097 — Docs: inventario, equipo, controles y vigencia](TASK-0097-docs-inventario-equipo-controles.md)

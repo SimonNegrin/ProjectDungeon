@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0095 — ready: panel modal DOM con `I`, bloques de equipo, mochila y suelo, teclado, comparación y retirada de `G` y `1`-`3`; dependencia TASK-0094 `done` y REQ-018 aceptada; handoff a `task-lead` — [TASK-0095](tasks/TASK-0095-host-panel-inventario-equipo.md)
+
 * 2026-11-13 — Task — TASK-0094 — done: instancias con localización única, 8 huecos y mochila paramétrica, stats efectivos en un punto y operaciones atómicas de 1 MP; puente `G`/`1`-`3`; verify 1225/1225 en `main`; fusión `a173d85` — [informe](../artifacts/TASK-0094/attempt-1/report.md)
 
 * 2026-11-13 — Planning — TASK-0094 — ready: modelo de instancias con localización única, 8 huecos de equipo y 8 de mochila, agregación de stats efectivos en un punto y operaciones atómicas de 1 MP; dependencia TASK-0093 `done` y REQ-018 aceptada; handoff a `task-lead` — [TASK-0094](tasks/TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
