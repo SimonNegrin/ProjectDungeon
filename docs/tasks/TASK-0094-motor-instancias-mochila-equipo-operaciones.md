@@ -4,7 +4,7 @@ id: TASK-0094
 title: "Motor: instancias, mochila, equipo y operaciones atómicas"
 description: "Convertir armas y equipo en instancias con localización única, dar a cada personaje ocho huecos y ocho de mochila, agregar stats efectivos en un solo punto y resolver equipar, desequipar, recoger y soltar como operaciones atómicas de 1 MP."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-001, R-003, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-018, R-019, R-020, R-021, T-002, T-003, T-004, T-005, T-006]

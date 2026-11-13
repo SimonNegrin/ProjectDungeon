@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0094 — ready: modelo de instancias con localización única, 8 huecos de equipo y 8 de mochila, agregación de stats efectivos en un punto y operaciones atómicas de 1 MP; dependencia TASK-0093 `done` y REQ-018 aceptada; handoff a `task-lead` — [TASK-0094](tasks/TASK-0094-motor-instancias-mochila-equipo-operaciones.md)
+
 * 2026-11-13 — Task — TASK-0093 — done: catálogo `ITEMS` con `ItemDefinition`, validación y vistas `WEAPONS`/`ARMORS`/`SHIELDS` derivadas sin cambiar valores; recortes contra `items.txt` y el PNG real; verify 1200/1200 y 77/77 focalizados; fusión `5dd5634` — [informe](../artifacts/TASK-0093/attempt-1/report.md)
 
 * 2026-11-13 — Requirement — REQ-020 — borrador v3: varios cadáveres pueden compartir casilla y no bloquean el paso; saquear elige uno explícitamente y la resurrección apuntará a una **unidad**, no a la casilla; la enmienda de REQ-021 se aplica al cerrar la hoja. Quedan política de botín, colocación, capacidad y ciclo de vida — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
