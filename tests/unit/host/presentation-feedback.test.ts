@@ -18,7 +18,7 @@ import {
 } from '../../../src/host/motion';
 import { buildPresentationEvents } from '../../../src/host/presentation';
 import { GameSession } from '../../../src/host/session';
-import { makeState, makeUnit } from '../game/helpers';
+import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
 function moved(
   unitId: string,
@@ -394,6 +394,64 @@ describe('beat e input durante una acción sin movimiento', () => {
       type: 'command',
       command: { type: 'Restart' },
     });
+  });
+});
+
+describe('ataque mixto en el feedback', () => {
+  function mixedAttack(dice: readonly number[]): Extract<GameEvent, { type: 'AttackPerformed' }> {
+    const player = makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x: 5,
+      y: 5,
+      weapons: ['electric-sword'],
+      equipment: { weaponId: 'electric-sword', armorId: null, shieldId: null },
+    });
+    const enemy = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      x: 6,
+      y: 5,
+      maxHp: 50,
+      stats: { resistencia: { electric: 'vulnerable' } },
+      equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+    });
+    const state = makeState({ players: [player], enemies: [enemy], rng: rngForDice(dice) });
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+    const event = result.events.find(
+      (entry): entry is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+        entry.type === 'AttackPerformed',
+    );
+    if (!event) throw new Error('se esperaba un ataque');
+    return event;
+  }
+
+  it('dos paquetes con daño conservan un único beat y el total del evento', () => {
+    const event = mixedAttack([6, 1, 4, 2, 3, 1]);
+    expect(event.damageBreakdown.filter((packet) => packet.damage > 0)).toHaveLength(2);
+
+    const timeline = buildMotionTimeline([event]);
+
+    expect(timeline.cues.map((cue) => cue.kind)).toEqual(['attack']);
+    expect(timeline.cues[0].data.text).toBe(`-${event.damage}`);
+    expect(timeline.cues[0].data.damage).toBe(event.damage);
+    expect(timeline.cues[0].durationMs).toBe(FEEDBACK_CONFIG.beats.attackHit);
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.beats.attackHit);
+  });
+
+  it('un paquete recortado a 0 no añade otro cue ni otro texto', () => {
+    const event = mixedAttack([6, 1, 4, 2, 3, 6]);
+    expect(event.damageBreakdown.map((packet) => packet.damage)).toEqual([6, 0]);
+
+    const timeline = buildMotionTimeline([event]);
+
+    expect(timeline.cues.map((cue) => cue.kind)).toEqual(['attack']);
+    expect(timeline.cues[0].data.text).toBe('-6');
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.beats.attackHit);
   });
 });
 

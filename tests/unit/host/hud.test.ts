@@ -12,7 +12,7 @@ import {
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import type { CursorStatus } from '../../../src/host/cursor';
-import { makeState, makeUnit, rngForDice } from '../game/helpers';
+import { makeState, makeUnit, makeGridWithWalls, rngForDice } from '../game/helpers';
 
 const PLAYER_CURSOR: CursorStatus = {
   x: 4,
@@ -151,6 +151,89 @@ describe('modelo del HUD', () => {
     expect(buildHudModel(state, { x: 6, y: 5 }).cursorEnemyHp).toBe('10/10');
     expect(buildHudModel(state, { x: 5, y: 5 }).cursorEnemyHp).toBe('—/—');
     expect(buildHudModel(state).cursorEnemyHp).toBe('—/—');
+  });
+
+  it('muestra las cinco bandas con texto e icono si hay línea de visión', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          stats: {
+            resistencia: {
+              slash: 'vulnerable',
+              pierce: 'resistant',
+              magic: 'resistant',
+              electric: 'very-resistant',
+            },
+          },
+        }),
+      ],
+    });
+
+    const bands = buildHudModel(state, { x: 6, y: 5 }).cursorEnemyBands;
+    if (!bands) throw new Error('se esperaban bandas con línea de visión');
+
+    expect(bands.map((row) => row.type)).toEqual([
+      'slash',
+      'blunt',
+      'pierce',
+      'magic',
+      'electric',
+    ]);
+    expect(bands.map((row) => `${row.typeLabel} ${row.bandLabel} ${row.icon}`)).toEqual([
+      'filo vulnerable ▲',
+      'contundente normal ●',
+      'punzante resistente ▼',
+      'mágico resistente ▼',
+      'eléctrico muy resistente ▼▼',
+    ]);
+  });
+
+  it('muestra las bandas normales del perfil por defecto', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    const bands = buildHudModel(state, { x: 6, y: 5 }).cursorEnemyBands;
+    expect(bands).toHaveLength(5);
+    expect(bands?.every((row) => row.band === 'normal')).toBe(true);
+    expect(bands?.every((row) => row.icon === '●')).toBe(true);
+  });
+
+  it('sin línea de visión no muestra bandas, pero no oculta los PV del cursor', () => {
+    const state = makeState({
+      grid: makeGridWithWalls([{ x: 6, y: 5 }]),
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
+    });
+
+    const model = buildHudModel(state, { x: 7, y: 5 });
+    expect(model.cursorEnemyBands).toBeNull();
+    expect(model.cursorEnemyHp).toBe('10/10');
+  });
+
+  it('con el jugador muerto no muestra bandas aunque el cursor vea al enemigo', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 0 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    expect(buildHudModel(state, { x: 6, y: 5 }).cursorEnemyBands).toBeNull();
+  });
+
+  it('sin enemigo bajo el cursor o sin cursor no hay bandas', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    expect(buildHudModel(state, { x: 5, y: 5 }).cursorEnemyBands).toBeNull();
+    expect(buildHudModel(state).cursorEnemyBands).toBeNull();
   });
 
   it('muestra la pista de G solo cuando el jugador ocupa un arma del mapa', () => {
@@ -548,5 +631,59 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Últimos eventos: player-1→enemy-1 fallo (HP 10)');
     expect(text).not.toContain('player-1→enemy-1 -0');
     expect(text).toContain('Enemigo bajo cursor: ninguno');
+  });
+
+  it('F1 muestra las cinco bandas, incluidas las normales', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          stats: {
+            resistencia: { slash: 'vulnerable', electric: 'very-resistant' },
+          },
+        }),
+      ],
+    });
+
+    const text = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      { ...PLAYER_CURSOR, x: 6, y: 5, state: 'enemy', kind: 'enemy' },
+    ).lines.join('\n');
+
+    expect(text).toContain(
+      'Enemigo bajo cursor: enemy-1 10/10 · bandas filo vulnerable ▲ · contundente normal ● · punzante normal ● · mágico normal ● · eléctrico muy resistente ▼▼',
+    );
+  });
+
+  it('F1 conserva el perfil completo aunque no haya línea de visión', () => {
+    const state = makeState({
+      grid: makeGridWithWalls([{ x: 6, y: 5 }]),
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 5 })],
+    });
+    const cursor: CursorStatus = { ...PLAYER_CURSOR, x: 7, y: 5, state: 'enemy', kind: 'enemy' };
+
+    const text = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      cursor,
+    ).lines.join('\n');
+
+    expect(text).toContain(
+      'Enemigo bajo cursor: enemy-1 10/10 · bandas filo normal ● · contundente normal ● · punzante normal ● · mágico normal ● · eléctrico normal ●',
+    );
+    // El HUD de juego sí respeta la LOS; `F1` es debug y no la filtra.
+    expect(buildHudModel(state, { x: 7, y: 5 }).cursorEnemyBands).toBeNull();
   });
 });
