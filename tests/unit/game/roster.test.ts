@@ -3,6 +3,7 @@ import {
   BESTIARY,
   ROSTER,
   WEAPONS,
+  bandFor,
   createInitialState,
   createPlayerFromArchetype,
   reduce,
@@ -262,7 +263,10 @@ describe('jugador por defecto (REQ-015 T-003)', () => {
     expect(player.nombre).toBe(ROSTER.warrior.name);
     expect(player.archetypeId).toBe('warrior');
     expect(player.stats).toEqual(ROSTER.warrior.stats);
-    expect(player.stats.resistencia).toEqual({});
+    expect(player.stats.resistencia).toEqual(ROSTER.warrior.stats.resistencia);
+    for (const type of ['slash', 'blunt', 'pierce', 'magic', 'electric'] as const) {
+      expect(bandFor(player.stats.resistencia, type), type).toBe('normal');
+    }
     expect(player.equipment).toEqual(ROSTER.warrior.equipment);
     expect(player.weapons).toEqual(['sword']);
     expect(player.hp).toBe(ROSTER.warrior.maxHp);

@@ -227,7 +227,7 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   });
   expect(player.weapons).toEqual(['sword']);
   expect(player.stats).toEqual(ROSTER.warrior.stats);
-  expect(player.stats.resistencia).toEqual({});
+  expect(player.stats.resistencia).toEqual(ROSTER.warrior.stats.resistencia);
   expect(initial.weapons).toHaveLength(2);
 
   const axe = initial.weapons.find((weapon) => weapon.weaponId === 'axe');

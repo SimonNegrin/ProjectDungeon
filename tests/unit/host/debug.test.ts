@@ -4,7 +4,7 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { BspMapGenerator, createInitialState, reduce } from '../../../src/game/index';
+import { BspMapGenerator, BESTIARY, ROSTER, createInitialState, reduce } from '../../../src/game/index';
 import type { WeaponId } from '../../../src/game/equipment';
 import type { GameState, RngState } from '../../../src/game/types';
 import { createDebugApi } from '../../../src/host/debug';
@@ -766,5 +766,41 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(a.events).toEqual(b.events);
     expect(a.snapshot.rng).toEqual(first.session.state.rng);
     expect(b.snapshot.rng).toEqual(second.session.state.rng);
+  });
+
+  it('expone el perfil de resistencia del catálogo en el snapshot', () => {
+    const api = generatedSetup();
+    const snapshot = api.snapshot();
+    const roundTrip = JSON.parse(JSON.stringify(snapshot)) as typeof snapshot;
+    const archetypeId = snapshot.players[0].archetypeId;
+    if (archetypeId === null) throw new Error('El jugador debe tener arquetipo');
+
+    expect(snapshot.players[0].stats.resistencia).toEqual(
+      ROSTER[archetypeId].stats.resistencia,
+    );
+    expect(roundTrip.players[0].stats.resistencia).toEqual(
+      snapshot.players[0].stats.resistencia,
+    );
+    expect(Object.keys(snapshot.players[0].stats.resistencia).sort()).toEqual([
+      'blunt',
+      'electric',
+      'magic',
+      'pierce',
+      'slash',
+    ]);
+
+    for (const enemy of snapshot.enemies) {
+      if (enemy.enemyType === null) continue;
+      expect(enemy.stats.resistencia).toEqual(
+        BESTIARY[enemy.enemyType].stats.resistencia,
+      );
+      expect(Object.keys(enemy.stats.resistencia).sort()).toEqual([
+        'blunt',
+        'electric',
+        'magic',
+        'pierce',
+        'slash',
+      ]);
+    }
   });
 });
