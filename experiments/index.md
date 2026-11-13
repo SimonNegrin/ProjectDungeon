@@ -8,6 +8,7 @@ pregunta y deja una decisión registrada.
 * [EXP-002: ritmo del movimiento animado](EXP-002-ritmo-movimiento/experiment.md) - Decidido: personalizado, 125 ms por paso y 70 ms de pausa, diagonal a duración constante, para `REQ-006`.
 * [EXP-003: mesa de combate](EXP-003-mesa-combate/experiment.md) - v1 decidió la tabla A; la v2.0 mide 12 emparejamientos 1v1 con acciones, magia y réplica (semilla 1017, 1.000 duelos) y añade el banco de ajuste de REQ-028: tres tablas inline a ancho completo (combates, armas y héroes), objetivos editables por enemigo, stats compartidos, diagnóstico 4-de-4 y export reproducible. El balance base sigue pendiente: los 12 quedan fuera de la banda 40-60 % por arriba.
 * [EXP-004: comparador de generadores de salas irregulares](EXP-004-salas-irregulares/experiment.md) - Construido en TASK-0040; TASK-0041 aplica la v2. La v3 añade mínimo de 3 salas, spawn que evita la mayor, adyacencia en parejas, enemigos interiores con emboscadas y salida como puerta o escalera. Compara A · crecimiento sobre roca, B · BSP con máscaras y C · plantillas empaquetadas para `REQ-011`, `REQ-012` y `REQ-013`.
+* [EXP-005: mesa de tipos de daño y bandas de resistencia](EXP-005-mesa-tipos-dano/experiment.md) - Cancelado por el momento: los valores estimados de `REQ-029` bastan para probar y el ajuste fino se hará con roster y bestiario completos. Se conserva como referencia de la pregunta, las variantes y las métricas.
 
 ## Arranque
 

@@ -50,6 +50,11 @@ y eventos.
 
 # Combate y azar
 
+> **Nota de vigencia (2026-11-12).** [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md)
+> y [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md) sustituyen la
+> capa de absorción única por paquetes con tipo y perfiles de banda. El RNG, los
+> eventos, la separación motor/host y el resto de esta sección siguen vigentes.
+
 El combate vive en `src/game/` y es puro y determinista:
 
 - `combat.ts` resuelve impacto y daño con el esquema de `REQ-014`: habilidad y

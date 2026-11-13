@@ -45,11 +45,14 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Habilidad** | Atributo inherente que se suma al acierto del arma para resolver el impacto; sustituye al antiguo modificador de acierto. |
 | **Fuerza** | Atributo inherente que se suma al daño del arma; sustituye al antiguo modificador de daño. |
 | **Defensa** | Atributo inherente que se suma al escudo para resistir el impacto. |
-| **Resistencia** | Atributo inherente de absorción: se suma a la armadura en una sola capa para reducir el daño. |
+| **Resistencia** | Atributo inherente que ahora es un **perfil de cinco bandas**, una por tipo de daño; sustituye a la resistencia numérica única ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
+| **Tipo de daño** | Categoría de un paquete de daño: filo, contundente, punzante, mágico o eléctrico. Fuego y hielo no son tipos en este corte; serán traits de estado ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
+| **Paquete de daño** | Componente de un ataque con tipo y cantidad propios; tira su daño y su resistencia. Un arma del primer corte puede llevar un paquete físico y uno elemental ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
+| **Banda de resistencia** | Grado de resistencia a un tipo: vulnerable ×1,5, normal ×1, resistente ×0,5 y muy resistente ×0,25; se aplica después de la absorción, con redondeo hacia abajo y mínimo 1 global ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Acierto del arma** | Bonus del arma que se suma a la habilidad al resolver el impacto. |
-| **Daño del arma** | Bonus del arma que se suma a la fuerza al resolver el daño. |
+| **Daño del arma** | Paquete o paquetes de daño del arma; la fuerza se suma solo al paquete físico. Un arma puede añadir un paquete mágico o eléctrico ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
-| **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. |
+| **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. No confundir con el **tipo de daño mágico**, que es independiente y cualquier héroe puede usar con un arma encantada ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Maná** | Recurso de hechizos separado del MP; su máximo es nivel × 4 y se recarga completo al inicio de cada turno. |
 | **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto, Pícaro 3; tope 4 provisional). Atacar, interactuar y lanzar hechizos consumen una; moverse, recoger/soltar del suelo, esperar y terminar el turno no. |
 | **Recoger y soltar** | Manejo de un objeto del suelo desde el panel de personaje: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
@@ -57,7 +60,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla. Solo replica quien está vivo, adyacente y con arma equipada, y está alerta, regresando o huyendo acorralado; un dormido nunca replica. Es una tirada nueva con la misma fórmula y RNG, puede fallar o matar, no gasta acción, maná ni MP y no se encadena. Solo existe en melé: ni a distancia ni mágica. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
-| **Armadura** | Equipo que actúa como bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
+| **Armadura** | Equipo que resta al daño de los paquetes **físicos** (filo, contundente y punzante); no protege de mágico ni eléctrico. No evita el impacto ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Equipo** | Conjunto de objetos equipados por una unidad en sus ocho huecos: arma, escudo, armadura, casco, botas, guantes, collar y un anillo. El equipo puesto no ocupa la mochila ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
 | **Mochila** | Inventario personal de un personaje: ocho huecos por defecto, parámetro del modelo; no se comparte y no apila equipo. Consumibles, munición y llaves, cuando existan, viven aquí y nunca ocupan hueco de equipo. |
 | **Hueco** | Ranura de equipo o de mochila que contiene como máximo un objeto. Ocho de equipo y ocho de mochila por personaje; un objeto está exactamente en uno. |

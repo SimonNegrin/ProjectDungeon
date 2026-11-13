@@ -107,11 +107,14 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - El suelo usa un damero de dos colores planos generados por código, con base
   común y segundo tono por sala; la decoración plana se agrupa por ambientes y no
   bloquea.
-- El combate usa acierto de arma + 1d6 contra escudo + 1d6; el daño es arma +
-  1d6 menos armadura + 1d6, con mínimo 1. El escudo evita impactos y la armadura
-  reduce daño; cada personaje aporta modificadores de acierto, daño y defensa.
-  La tabla A de `EXP-003` queda sustituida por el balance provisional v1 de
-  `REQ-010` v5; los números se reajustarán.
+- El combate usa acierto de arma + 1d6 contra escudo + 1d6. El daño se organiza
+  en cinco tipos (filo, contundente, punzante, mágico y eléctrico) y se resuelve
+  por paquetes separados con resistencia por bandas; la fuerza solo suma al
+  paquete físico y la armadura solo protege lo físico. El escudo sigue evitando
+  impactos de todos los tipos. Fuego y hielo quedan como traits de estado futuros
+  ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). La tabla A de
+  `EXP-003` y el balance provisional v1 de `REQ-010` v5 son históricos; los
+  números se reajustarán.
 - Los enemigos tienen visión de 360° con línea de visión, detección en cada paso
   y alarma de una onda de radio 5 sin cadena. El perfil cobarde huye de forma
   determinista al recibir un golpe de al menos el 40 % de su vida máxima; la
@@ -199,6 +202,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
   borrador.
 - Inventario, equipo y traits: `REQ-018` está `stable` v2 y sin implementar;
   `REQ-019` sigue en borrador.
+- Ajuste fino de tipos y perfiles con roster y bestiario completos: `REQ-029`
+  deja valores estimados para probar; el mecanismo iterable de fortalezas y
+  debilidades se diseñará cuando ambos estén cerrados.
 - Estructura de run (roguelike), muerte permanente y encadenado funcional de
   niveles: sin definir.
 - Saqueo de cadáveres: definido como objetivo de la muerte jugable, sin

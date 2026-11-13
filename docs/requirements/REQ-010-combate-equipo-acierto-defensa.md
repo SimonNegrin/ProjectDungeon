@@ -34,6 +34,11 @@ verified:
       y el orden es ataque → réplica.
 ---
 
+> **Nota de vigencia (2026-11-12).** La fórmula de daño y el catálogo de armas
+> quedan enmendados por [REQ-029](REQ-029-tipos-dano-resistencias.md): el daño se
+> resuelve por paquetes con tipo y resistencia por bandas; la tirada de impacto y
+> el escudo no cambian. Las tablas de balance de esta hoja son históricas.
+
 # Contexto
 
 El combate actual es fijo: el jugador hace 5 de daño, el enemigo 3, la vida es

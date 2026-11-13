@@ -22,3 +22,4 @@
 * [ADR-020: economía de acciones](ADR-020-economia-acciones.md) - 2 acciones por defecto (Pícaro 3), enemigos 2/1/2, tope 4 provisional, fin de turno manual y AI encadenada.
 * [ADR-021: inventario, huecos de equipo y panel único](ADR-021-inventario-equipo.md) - Ocho huecos de equipo y ocho de mochila, localización única por instancia, catálogo como fuente, operaciones atómicas y un solo panel abierto con `I`.
 * [ADR-022: réplica cuerpo a cuerpo](ADR-022-replica-cuerpo-a-cuerpo.md) - Reacción gratuita e inmediata tras un fallo de melé, tirada nueva, sin cadena, cue propio y animación de ataque girada sin texto.
+* [ADR-023: tipos de daño, paquetes y bandas](ADR-023-tipos-dano-paquetes-bandas.md) - Cinco tipos, paquetes separados, fuerza y armadura solo físicas, resistencia por bandas con multiplicador después de la absorción y mágico/eléctrico independientes del nivel de magia.

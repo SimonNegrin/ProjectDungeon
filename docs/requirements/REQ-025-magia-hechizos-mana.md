@@ -20,6 +20,12 @@ verified:
       resurrección de nivel 4 con 60 % del PV máximo.
 ---
 
+> **Nota de vigencia (2026-11-12).** La fórmula mágica y el catálogo se enmendan
+> por [REQ-029](REQ-029-tipos-dano-resistencias.md): el daño se resuelve por
+> paquetes con tipo, la armadura no protege de mágico/eléctrico y el nivel de
+> magia solo afecta a acceso, maná e impacto. Los hechizos de fuego causan daño
+> mágico hasta que exista el trait de quemadura; los eléctricos causan eléctrico.
+
 # Contexto
 
 La visión pedía familias mágicas con niveles separados. El usuario prefiere un

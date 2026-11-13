@@ -153,6 +153,13 @@ motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado
 
 # Combate
 
+> **Nota de vigencia (2026-11-12).** La fórmula de daño, el catálogo de armas y
+> la resistencia única quedan enmendados por
+> [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md): el daño se
+> resuelve por paquetes con tipo y bandas. Las tablas de esta sección son
+> históricas hasta que se actualicen en la tarea de implementación.
+
 Valores aceptados en [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
 y registrados en [ADR-012](../decisions/ADR-012-combate-equipo-rng.md); el
 esquema de atributos y la absorción vigente están en

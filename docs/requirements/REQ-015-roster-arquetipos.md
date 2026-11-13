@@ -28,6 +28,10 @@ verified:
       Clérigo); ninguna bloquea el cierre.
 ---
 
+> **Nota de vigencia (2026-11-12).** Los perfiles de resistencia por arquetipo se
+> añaden en [REQ-029](REQ-029-tipos-dano-resistencias.md); la tabla de stats y el
+> equipo inicial se mantienen, salvo la resistencia numérica, que pasa a perfil.
+
 # Contexto
 
 `REQ-014` fijó el esquema de nueve atributos por personaje. Esta hoja define el

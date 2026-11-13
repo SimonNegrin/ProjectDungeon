@@ -20,6 +20,11 @@ verified:
       multi-familia 1-4 y enemigos con el mismo esquema.
 ---
 
+> **Nota de vigencia (2026-11-12).** La resistencia numérica única pasa a ser un
+> perfil de cinco bandas por tipo en
+> [REQ-029](REQ-029-tipos-dano-resistencias.md). Los nueve atributos se mantienen;
+> la fórmula de daño de esta hoja queda enmendada.
+
 # Contexto
 
 El juego arranca directo con un único personaje implícito y tres modificadores
