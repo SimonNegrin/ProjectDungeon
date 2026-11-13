@@ -66,7 +66,7 @@ arquitectura como límite de layout aceptado, no como algo resuelto.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El subagente recibe `Permission denied` al usar `edit` sobre un documento. | Llamada a `edit` en `docs/glossary.md` en esta ejecución. | Editar con `python3` desde el shell. | Cualquier tarea documental futura del mismo rol puede repetirlo. | Revisar los permisos de `edit`/`write` para `task-runner`. | Bajo; el workaround evita el bloqueo, pero es menos seguro. | `pending` |
+| El subagente recibe `Permission denied` al usar `edit` sobre un documento. | Llamada a `edit` en `docs/glossary.md` en esta ejecución. | Editar con `python3` desde el shell. | Cualquier tarea documental futura del mismo rol puede repetirlo. | Revisar los permisos de `edit`/`write` para `task-runner`. | Bajo; el workaround evita el bloqueo, pero es menos seguro. | `deferred`: elevado a `requirements-writer` para que decida con `harness-keeper`; el rol deniega `edit` en `docs/**` y la tarea es documental |
 
 # Métricas de handoff
 

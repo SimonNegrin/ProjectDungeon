@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Fricción — Arnés — `task-runner` no puede editar `docs/**` (permisos y prompt) pero TASK-0097 es documental; se usó `python3` como workaround; `deferred` a `requirements-writer` con `harness-keeper` — [informe](../artifacts/TASK-0097/attempt-1/report.md)
+
 * 2026-11-13 — Task — TASK-0097 — done: glosario, `I`/`Escape`, arquitectura del catálogo, instancias, stats y panel, y vigencia de REQ-010/REQ-026, ADR-021 e índice; límite visual documentado como aceptado; docs:check 471 documentos y verify 1249/1249; fusión `b78047b` — [informe](../artifacts/TASK-0097/attempt-1/report.md)
 
 * 2026-11-13 — Task — TASK-0098 — done: E2E del panel con teclado, equipar/desequipar, recoger/soltar, mochila llena, sin MP y ausencia de `G`/`1`-`3`, con sprites, `F1` y capturas 1280×720 / 900×700; E2E de dos manos diferido a REQ-019 T-013; verify 1249/1249 y E2E 131/131 — [informe](../artifacts/TASK-0098/attempt-1/report.md)
