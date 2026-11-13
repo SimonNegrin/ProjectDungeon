@@ -1,0 +1,33 @@
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ❯ experiments/EXP-004-salas-irregulares/src/spawn.test.ts (20 tests | 1 failed) 15125ms
+   ❯ spawn alrededor del acceso y enemigos de la v3 (20)
+     × el barrido A/B/C × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas 5412ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el barrido A/B/C × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ experiments/EXP-004-salas-irregulares/src/spawn.test.ts:608:3
+    606|   });
+    607|
+    608|   it('el barrido A/B/C × 200 semillas mantiene componente global ≤2, m…
+       |   ^
+    609|     const sweepSeeds = Array.from({ length: 200 }, (_, index) => index…
+    610|     // 104 y 371 están incluidos aquí y tienen regresión explícita arr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 87 passed (88)
+      Tests  1 failed | 1219 passed (1220)
+   Start at  20:12:10
+   Duration  15.42s (tests 90%, import 8%, transform 2%, worker 1%)
+
+    Isolate  88 workers spawned · ~157ms startup each (spawn + environment, per file)
+             at least ~1.81s faster with isolate: false — reuses workers across files instead of one per file
+
+[ELIFECYCLE] Test failed. See above for more details.
