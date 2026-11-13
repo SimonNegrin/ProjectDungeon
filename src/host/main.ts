@@ -683,13 +683,17 @@ async function boot(): Promise<void> {
           break;
         case 'PickUp':
         case 'SelectWeapon':
+        case 'DropItem':
+        case 'UnequipItem':
         case 'EnemyPhaseStarted':
         case 'PlayerTurnStarted':
         case 'TurnEnded': {
           const kind =
             entry.event.type === 'PickUp'
               ? 'pickup'
-              : entry.event.type === 'SelectWeapon'
+              : entry.event.type === 'SelectWeapon' ||
+                  entry.event.type === 'DropItem' ||
+                  entry.event.type === 'UnequipItem'
                 ? 'select-weapon'
                 : entry.event.type === 'EnemyPhaseStarted'
                   ? 'enemy-phase'

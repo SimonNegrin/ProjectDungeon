@@ -1,4 +1,5 @@
-import { ITEMS } from '../game/equipment';
+import { EQUIPMENT_SLOTS, ITEMS } from '../game/equipment';
+import { backpackCount, type ItemInstance } from '../game/inventory';
 import { effectiveStats } from '../game/stats';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { rosterEntry } from '../game/roster';
@@ -15,9 +16,10 @@ import type { CursorState, CursorStatus } from './cursor';
 import { DAMAGE_TYPES, profileRows, formatProfile, type BandRow } from './damage-labels';
 import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
+import { PANEL_SLOT_LABELS } from './inventory-panel';
 
 export const KEYS_HELP =
-  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
+  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
 
 export interface HudModel {
   /** Nombre de instancia del jugador. */
@@ -422,6 +424,40 @@ function equipmentDebugLine(unit: Unit | undefined): string {
   return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
+function itemLabel(instance: ItemInstance): string {
+  return `${ITEMS[instance.itemId].name} [${instance.id}]`;
+}
+
+function inventoryDebugLines(unit: Unit | undefined): readonly string[] {
+  if (!unit) {
+    return ['Mochila: —', 'Equipo por hueco: —'];
+  }
+
+  const entries = unit.inventory.items.flatMap((item, index) =>
+    item === null ? [] : [`${index + 1}. ${itemLabel(item)}`],
+  );
+  const slots = EQUIPMENT_SLOTS.map((slot) => {
+    const instance = unit.equipment[slot];
+    return `${PANEL_SLOT_LABELS[slot]} ${instance ? itemLabel(instance) : '—'}`;
+  });
+
+  return [
+    `Mochila ${backpackCount(unit.inventory)}/${unit.inventory.capacity}: ${
+      entries.length === 0 ? 'vacía' : entries.join(' · ')
+    }`,
+    `Equipo por hueco: ${slots.join(' · ')}`,
+  ];
+}
+
+/** Objetos del suelo con su instancia y localización, misma verdad que el panel. */
+function groundDebugLine(state: GameState): string {
+  const items = state.groundItems ?? [];
+  if (items.length === 0) return 'Suelo: sin objetos';
+  return `Suelo: ${items
+    .map((item) => `${itemLabel(item)} en (${item.x},${item.y})`)
+    .join(' · ')}`;
+}
+
 function magicLabel(unit: Unit | undefined): string {
   return unit
     ? `Magia ${formatMagic(unit)} · Maná ${formatMana(unit)}`
@@ -505,6 +541,8 @@ export function buildDebugModel(
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)} · Acciones ${formatActions(enemy)}`,
       equipmentDebugLine(player),
+      ...inventoryDebugLines(player),
+      groundDebugLine(state),
       ...enemyEquipmentLines(state),
       ...enemyMagicLines(state),
       ...enemyPerceptionLines(state),

@@ -305,6 +305,12 @@ function beatForEvent(
       return FEEDBACK_CONFIG.beats.pickup;
     case 'SelectWeapon':
       return FEEDBACK_CONFIG.beats.selectWeapon;
+    // Soltar invierte la recogida y desequipar invierte el cambio de arma; se
+    // presentan con los beats existentes de REQ-017.
+    case 'DropItem':
+      return FEEDBACK_CONFIG.beats.pickup;
+    case 'UnequipItem':
+      return FEEDBACK_CONFIG.beats.selectWeapon;
     case 'UnitMoved':
       return MOTION_CONFIG.stepMs + MOTION_CONFIG.pauseMs;
   }
@@ -402,6 +408,16 @@ function cueForEvent(
         data: { unitId: event.unitId, itemId: event.itemId, slot: event.slot },
       };
     case 'SelectWeapon':
+      return {
+        ...base,
+        kind: 'select-weapon',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId, itemId: event.itemId, slot: event.slot },
+      };
+    case 'DropItem':
+    case 'UnequipItem':
+      // Reutilizan el cue y el banner existentes de cambio de inventario: no
+      // hay copy nueva, solo el estado que cambia de zona al acabar el beat.
       return {
         ...base,
         kind: 'select-weapon',
@@ -1135,13 +1151,21 @@ export function presentationState(
     withFutureSpells(withFutureActions(unit, timeline, elapsed), timeline, elapsed),
   );
 
-  // Recoger y equipar se aplican al acabar su beat, no al empezar el cue. Hasta
-  // entonces se conserva el inventario, el equipo, el MP y el suelo iniciales.
-  // Se deshace en orden inverso para encadenar varios cambios.
+  // Recoger, soltar, equipar y desequipar se aplican al acabar su beat, no al
+  // empezar el cue. Hasta entonces se conserva el inventario, el equipo, el MP y
+  // el suelo iniciales. Se deshace en orden inverso para encadenar varios
+  // cambios.
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
     const event = entry.event;
-    if (event.type !== 'PickUp' && event.type !== 'SelectWeapon') continue;
+    if (
+      event.type !== 'PickUp' &&
+      event.type !== 'SelectWeapon' &&
+      event.type !== 'DropItem' &&
+      event.type !== 'UnequipItem'
+    ) {
+      continue;
+    }
     const cue = timeline.cues.find(
       (candidate) =>
         candidate.eventType === event.type && candidate.atMs === entry.atMs,
@@ -1176,7 +1200,10 @@ export function presentationState(
     const playerSteps = timeline.steps.filter((step) => step.unitId === player.id);
     const inventoryOccurred = timeline.events.some((entry) => {
       if (
-        (entry.event.type !== 'PickUp' && entry.event.type !== 'SelectWeapon') ||
+        (entry.event.type !== 'PickUp' &&
+          entry.event.type !== 'SelectWeapon' &&
+          entry.event.type !== 'DropItem' &&
+          entry.event.type !== 'UnequipItem') ||
         entry.event.unitId !== player.id
       ) {
         return false;
