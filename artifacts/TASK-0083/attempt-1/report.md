@@ -8,6 +8,19 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T14:10:00Z }
 artifacts: artifacts/TASK-0083/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T14:09:43Z
+    note: >-
+      Verificación independiente en `task/TASK-0083` (host `e5c9ec2`, tests
+      `8166dce`/`d2e0f15`, artefactos `d32e443`). Diff completo revisado: solo
+      host, `index.html`, tests y artefactos; `src/game/**`, requisitos, arnés,
+      plantillas y dependencias intactos. Re-ejecutados `pnpm run verify`
+      (1170/1170; docs, config, tsc, build y bundle OK), `pnpm run test:e2e`
+      (116/116) y `docs:check` (437 documentos), más el spec focalizado (4/4)
+      con capturas byte-idénticas a las del runner. Criterios 1–7 comprobados;
+      capturas 1280×720 y 900×700 revisadas. Sin tests borrados, saltados o
+      debilitados. Fricción `E2E_ARTIFACTS_DIR` rechazada: `visual-qa` ya limita
+      el comando a `<spec>`. Detalle en `lead-verification.md`.
 ---
 
 # Estado
@@ -61,13 +74,13 @@ verified:
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `E2E_ARTIFACTS_DIR` aplicado a la suite completa escribe capturas de todos los specs bajo el intento. | `e2e-output.txt`; 20 MB generados y se conservaron solo los del spec. | Ejecutar el spec focalizado con la variable y la suite completa sin ella. | Afecta a cualquier tarea que capture con la suite completa. | Documentar en workflow que la variable se reserve al spec de la tarea. | Bajo; solo docs. | `pending` |
+| `E2E_ARTIFACTS_DIR` aplicado a la suite completa escribe capturas de todos los specs bajo el intento. | `e2e-output.txt`; 20 MB generados y se conservaron solo los del spec. | Ejecutar el spec focalizado con la variable y la suite completa sin ella. | Afecta a cualquier tarea que capture con la suite completa. | Documentar en workflow que la variable se reserve al spec de la tarea. | Bajo; solo docs. | `rejected`: `visual-qa` ya documenta el comando con `<spec>`. |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4092 |
-| `report_bytes` | 2898 |
+| `report_bytes` | 3783 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
