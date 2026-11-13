@@ -119,6 +119,12 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 
 # Herramientas
 
+- Para escribir o renombrar usa `edit`/`write`, ya permitidos en `docs/**`. No
+  uses `sed -i`, `mv`, `mkdir`, `touch` ni bucles `for` con variables: la
+  allowlist no los cubre, el escáner no puede analizarlos y la sesión se queda
+  esperando aprobación.
+- `updated_at` lleva la hora real (`date -u +%Y-%m-%dT%H:%M:%SZ`), nunca una
+  redondeada ni futura.
 - Usa pnpm, no npm ni npx.
 - Para buscar archivos usa `rg --files -g '*patrón*' [ruta]` o `git ls-files`;
   `find` pide permiso porque `-exec` y `-delete` caben en cualquier forma del
