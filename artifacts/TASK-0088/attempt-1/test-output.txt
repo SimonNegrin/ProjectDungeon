@@ -1,0 +1,199 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ tests/unit/game/turn.test.ts > turn phase > EndTurn ejecuta la fase enemiga y restaura MP y acción del jugador 8ms
+ ✓ tests/unit/game/turn.test.ts > turn phase > restaura MP y acción del enemigo al empezar su fase 5ms
+ ✓ tests/unit/game/turn.test.ts > turn phase > ejecuta la fase completa con varios enemigos en orden de índice 6ms
+ ✓ tests/unit/game/turn.test.ts > turn phase > varios enemigos adyacentes atacan en la misma fase 3ms
+ ✓ tests/unit/game/turn.test.ts > turn phase > detiene la fase enemiga en cuanto muere el último jugador 10ms
+ ✓ tests/unit/game/turn.test.ts > turn phase > rechaza EndTurn si la partida ha terminado o la fase no es del jugador 0ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > cada tipo usa su número de acciones del bestiario 1ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > dos tipos encadenan sus acciones sin alterar las del otro 0ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > dormido y en regreso no atacan 2ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > el cobarde que huye gasta MP y no ataca al moverse 4ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > el cobarde acorralado ataca con las acciones que le quedan 0ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > la cola termina al morir el objetivo atacado 0ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > la fase termina cuando todos los enemigos agotan sus acciones 0ms
+ ✓ tests/unit/game/turn.test.ts > cola de acciones enemiga > es determinista y no usa Math.random 1ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > un impacto no genera réplica y conserva el contrato del ataque 8ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > un fallo resuelve la réplica del defensor justo después del ataque 12ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica usa tiradas nuevas y puede fallar sin abrir cadena 2ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica puede matar: el atacante muere y el jugador pierde la partida 2ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > el enemigo que muere por la réplica no ejecuta su acción siguiente 2ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > dos fallos en el mismo turno producen dos réplicas independientes 0ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica es gratis y deja intactos acciones y MP del defensor 0ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > serializar y rehidratar el estado no reproduce réplicas pendientes 1ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > sin arma equipada no hay réplica 1ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo dormido no replica aunque esté armado y adyacente 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > acercarse despierta al dormido y desde ese momento sí replica 3ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo que huye en campo abierto no replica 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo que huye acorralado sí replica 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > el que regresa replica y sigue regresando sin cambiar de objetivo 5ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > ataques a distancia y mágicos no generan réplica 1ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un defensor jugador sin arma tampoco replica al enemigo 0ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > usa la misma fórmula y RNG pero tiradas distintas y deterministas 1ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > MoveTo que falla al llegar al enemigo dispara la réplica 10ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > el orden es ataque, réplica y muerte del atacante 2ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en adyacencia ortogonal e impacta con las tiradas del RNG 16ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en diagonal y aplica el daño del catálogo 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar fuera de rango sin consumir tiradas 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > permite dos ataques con la misma fórmula y rechaza el tercero sin acción 55ms
+ ✓ tests/unit/game/combat.test.ts > combat > permite moverse después de atacar mientras quede MP 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a un objetivo inexistente o muerto 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a una unidad de la misma facción 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > emite muerte y victoria cuando el enemigo llega a 0 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara victoria mientras quede otro enemigo vivo 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara derrota mientras quede otro jugador vivo 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > el enemigo hace el daño que marca el mismo resolvedor 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > la muerte del jugador ocurre a 0 y emite derrota 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe del 40 % de la vida máxima que sobrevive inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe por debajo del umbral no hace huir al cobarde 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > el valiente no huye aunque cruce el umbral 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe letal no inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un nuevo golpe fuerte renueva la huida y vuelve a emitir EnemyFled 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > las 36 combinaciones de impacto usan habilidad y defensa y el empate falla 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > las 36 combinaciones dan 15 impactos con diferencia 0 y 21 con +1 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el empate falla 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > respeta la fórmula de daño físico y el mínimo 1 global 2ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la armadura no anula el golpe: el total nunca baja de 1 1ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el daño físico coincide con la tabla esperada contra armadura 0 y 2 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la muestra empírica de daño queda a menos de 2 puntos de la teórica 15ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > vulnerable ×1,5 y las bandas reductoras recortan hacia abajo tras la absorción 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > la banda se aplica después de la absorción, no antes 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > con el perfil normal el daño coincide con la fórmula física en las 36 tiradas 1ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > un objetivo resistente recibe menos daño que uno normal con el mismo golpe 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > el evento expone la banda, el multiplicador y el total como suma de paquetes 1ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el catálogo tiene IDs estables y relaciones de diseño 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el arma equipada cambia acierto y daño sin tocar la fórmula 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > la armadura reduce daño y el escudo no 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > quitar el escudo sube el impacto recibido sin cambiar el daño 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > los atributos de habilidad, fuerza y defensa cambian el combate 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > al golpear a un dormido emite AlarmRaised tras AttackPerformed y alerta la onda 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > si el golpe mata, no hay alarma 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un fallo no despierta al dormido 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un alertado reinicia la memoria sin segunda onda 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > es puro, serializable y reproducible con la misma semilla 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un fallo consume dos tiradas y avanza el estado exactamente dos pasos 2ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un impacto consume cuatro tiradas y avanza el estado exactamente cuatro pasos 2ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un ataque rechazado no consume tiradas 0ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > empieza en el estado inicial 78ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > integra tecla -> MoveTo -> reduce -> eventos -> HUD 2ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > EndTurn emite la fase enemiga y devuelve el control al jugador 17ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > un ataque con F actualiza la vida y emite AttackPerformed 7ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > expone un snapshot serializable con cámara, viewport y últimos eventos 3ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > expone la percepción y la memoria del enemigo en solo lectura 104ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > es dato serializable con seis hechizos y todos los campos 3ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > cubre un ataque por nivel 1–4 con fuego y eléctrico 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > la curación es aliado a 2–3 y la resurrección exige nivel 4 y coste 8 1ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > findSpell no inventa hechizos 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > los hechizos de daño declaran tipo y la curación/resurrección no declaran paquete 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza un hechizo desconocido sin consumir nada 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza un lanzador inexistente o muerto 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza que un enemigo lance en fase de jugador sin consumir nada 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza fuera de la fase del jugador 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin acción sin gastar maná, RNG ni cupo 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin maná suficiente sin gastar acción 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza por nivel de magia insuficiente 3ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza objetivo inexistente, muerto o de la misma facción 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza fuera de alcance usando el alcance del catálogo 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin línea de visión cuando un muro se interpone 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza el tercer hechizo por tope con acciones de sobra 2ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > Fuego II impacta y daña con el paquete mágico del catálogo, ignorando la armadura 2ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el desglose del hechizo refleja tipo, banda y total como suma 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el desglose eléctrico aplica la banda del objetivo 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el empate falla y no tira daño 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el nivel de magia y el acierto del hechizo deciden el impacto 194ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > la muerte del enemigo emite UnitDied y GameEnded con victoria 2ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > Restart vuelve al estado inicial 26ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > arranca con la semilla y los spawns del mapa generado 56ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > R conserva la semilla y reconstruye exactamente el mismo mapa 17ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > fuego y eléctrico declaran tipos distintos y usan acierto y cantidad del catálogo 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el daño mágico ignora la armadura y aplica la banda mágica del objetivo 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > un hechizo eléctrico aplica la banda eléctrica del objetivo 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > los proyectiles no atraviesan muros pero sí ignoran unidades 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > la magia no abre réplica al fallar contra un enemigo armado 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > un impacto mágico a un enemigo reutiliza su reacción de daño sin réplica 1ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > matar al último enemigo con magia cierra la partida 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > cura al aliado a 2–3 casillas sin tirar dados 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > no supera el PV máximo y no cura a sí mismo ni a enemigos 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > rechaza aliados a 1 o 4 casillas y sin línea de visión 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > devuelve al jugador con el 60 % del PV máximo, redondeado hacia arriba 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > el PV de vuelta nunca baja de 1 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > permite dos resurrecciones en el mismo turno (sin tope propio) 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > rechaza sin nivel, sin maná, sin adyacencia y sin cadáver 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > rechaza la casilla con un vivo de cualquier facción y el cadáver enemigo 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > misma semilla y comandos dan el mismo estado y eventos 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > no usa Math.random 1ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el estado y el cupo son serializables y sobreviven al snapshot 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el turno siguiente recarga el cupo junto a maná y acciones 3ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el resolvedor lee la cantidad del paquete y el coste del catálogo, no de constantes 0ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > muestra la memoria no nula del enemigo y no expone mutadores 2ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > expone el estado de presentación y un avance determinista del reloj 4ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > sin animación el snapshot informa de presentación inactiva 0ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > dispatch aplica el comando y devuelve snapshot y eventos serializables 2ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > dispatch acepta MoveTo y devuelve snapshot y eventos serializables 43ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > un comando rechazado devuelve CommandRejected sin lanzar 1ms
+ ✓ tests/unit/host/debug.test.ts > API de debug window.__game > el snapshot es una copia y no expone el estado vivo 1ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > expone semilla, salas, corredores, huecos y spawns 41ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > expone entrada, salida, enemigos, bocas, puntos calientes y caverna de growth 16ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > aplica las cuatro bandas con multiplicador y floor tras la absorción 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > la banda se aplica después de la absorción y cada paquete se recorta a 0 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > la fuerza suma solo al paquete físico y la armadura solo lo reduce 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > resuelve un ataque mixto sumando paquetes físicos y elementales 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > el desglose conserva el orden declarado y refleja cada banda 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > el desglose conserva el bruto negativo y recorta el paquete a 0 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > aplica el mínimo 1 global aunque todos los paquetes queden a 0 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > consume daño y resistencia por paquete en el orden fijo del RNG 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > clasifica los cinco tipos: tres físicos y dos elementales 1ms
+ ✓ tests/unit/game/damage.test.ts > validación del catálogo de armas > todas las armas del catálogo pasan la validación 0ms
+ ✓ tests/unit/game/damage.test.ts > validación del catálogo de armas > rechaza dos físicos, dos elementales o más de dos paquetes 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > en verde recorre el camino completo, gasta el coste exacto y no consume acción 7ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > en ámbar avanza hasta agotar MP, sin atacar ni consumir acción 2ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > en rojo (muro) no mueve, no gasta MP ni acción y emite un único rechazo 1ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > en rojo (sin camino) rechaza con no-path sin movimiento parcial 3ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre el propio jugador rechaza invalid-target sin gastar MP 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sin MP y con camino rechaza no-mp sin mover 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > rechaza fases y unidades no válidas con las mismas reglas que Move 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > alcanzable con acción se acerca al tile de ataque, gasta MP y acción y ataca 5ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > si el ataque mata, aplica UnitDied y GameEnded tras los movimientos 6ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > alcanzable sin acción solo se mueve al tile de ataque 5ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > demasiado lejano avanza hasta agotar MP y no ataca 1ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > adyacente con acción ataca sin moverse ni gastar MP 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > adyacente sin acción no hace nada y rechaza no-action 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > sobre un enemigo > sin tile de ataque libre o camino se trata como rojo 0ms
+ ✓ tests/unit/game/move-to.test.ts > MoveTo > es determinista y el comando sobrevive a un round-trip JSON 1ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > regenerate cambia la semilla y el mapa manteniendo el camino de la sesión 17ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > cargar un estado BSP conserva su generador y mapa al reiniciar 60ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > cargar un estado growth conserva su generador y mapa al reiniciar 13ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > una sesión manual sin mapa sigue reiniciando al estado por defecto 15ms
+ ✓ tests/unit/host/session.test.ts > sesión de juego > un comando rechazado no muta el estado ni lanza 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > el snapshot completo sobrevive a un round-trip JSON 29ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > no expone el mapa vivo: mutar salas o spawns del snapshot no lo altera 42ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > expone un resumen determinista de decoración que coincide con el render 41ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > mutar el resumen de decoración o las paletas no altera el siguiente snapshot 8ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > expone las armas del mapa clonadas y no deja mutar el estado vivo 18ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > las armas del snapshot desaparecen al recogerlas 10ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > expone los 4 enemigos con percepción completa y clona home/lastKnown 15ms
+ ✓ tests/unit/host/debug.test.ts > snapshot del mapa generado > dispatch de reinicio conserva semilla y mapa en el snapshot 32ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > expone un RNG clonado que coincide con el estado antes y después de atacar 3ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > clona el desglose de daño del snapshot y del dispatch 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > clona stats, mana, equipment, weapons y actions de cada unidad 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > mutar cada campo anidado del snapshot no altera el estado vivo 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > sobrevive a un round-trip JSON conservando RNG, equipo y atributos 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > dos partidas con la misma semilla y comandos producen el mismo RNG 0ms
+ ✓ tests/unit/host/debug.test.ts > snapshot profundo y RNG de combate > expone el perfil de resistencia del catálogo en el snapshot 9ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara la tabla completa y serializable de los tres tipos 3ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara los atributos inherentes de REQ-014 por tipo, incluidas las acciones 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara acciones por tipo 2/1/2 (REQ-026) 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > usa un radio de alarma común y el papel de cada tipo en PV y MP 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > el centinela va sin armadura, conserva escudo y el resto del equipo es el aceptado 1ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > cambiar un valor del catálogo cambia el combate sin tocar fórmulas 1ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > cada tipo ataca con su arma y modificadores del bestiario 1ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > la fase enemiga usa el centinela del bestiario y resolveAttack 1ms
+ ✓ tests/unit/game/bestiary.test.ts > tiempo para matar según el catálogo > los nueve cruces siguen el TtK calculado desde el catálogo 512ms
+
+ Test Files  9 passed (9)
+      Tests  190 passed (190)
+   Start at  10:56:47
+   Duration  810ms (tests 61%, transform 19%, import 18%, worker 2%)
+
