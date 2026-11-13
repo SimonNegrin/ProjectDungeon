@@ -16,8 +16,9 @@ playtests.
 > **Aviso de vigencia (2026-11-13).** La sección de acción se actualiza con
 > `REQ-026`: varias acciones por turno, Pícaro 3, enemigos 2/1/2 y tope 4
 > provisional. La réplica de `REQ-027` y la magia de `REQ-025` están
-> implementadas y tienen sección propia. El combate de `REQ-029` se documenta en
-> [Combate](#combate) con paquetes y bandas; el daño único queda como historia.
+> implementadas; la réplica tiene sección propia. El combate de `REQ-029` se
+> documenta en [Combate](#combate) con paquetes y bandas; el daño único queda como
+> historia.
 
 # Rejilla y movimiento
 

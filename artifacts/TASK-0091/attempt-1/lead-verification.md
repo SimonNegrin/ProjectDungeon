@@ -17,9 +17,9 @@ está en `requirements-notes-patch.txt`.
 
 # Diff revisado
 
-- `782ee4e`: `docs/design/turn-economy.md`, `docs/design/architecture.md` y
-  `docs/glossary.md`; 199 líneas añadidas y 92 borradas. Sin cambios en `src/**`,
-  `tests/**`, `package.json` ni dependencias.
+- `782ee4e` y el ajuste posterior del aviso de magia: `docs/design/turn-economy.md`,
+  `docs/design/architecture.md` y `docs/glossary.md`; 199 líneas añadidas y 92
+  borradas. Sin cambios en `src/**`, `tests/**`, `package.json` ni dependencias.
 - El plan del runner (`docs-plan.md`) se leyó completo y se contrastó con
   `damage.ts`, `equipment.ts`, `roster.ts`, `bestiary.ts`, `spells.ts`,
   `combat.ts`, `magic.ts`, `map.ts` y `types.ts`. Los valores de la tabla de
