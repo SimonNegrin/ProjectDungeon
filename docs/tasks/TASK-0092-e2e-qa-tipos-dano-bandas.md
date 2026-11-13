@@ -4,22 +4,33 @@ id: TASK-0092
 title: "E2E y QA visual de tipos de daño, bandas y desglose"
 description: "Verificar en navegador el ciclo completo: conseguir un arma nueva, atacar enemigos con bandas distintas, leer el total y el desglose, consultar bandas con y sin línea de visión y comprobar el mínimo 1."
 status: stable
-task_status: backlog
+task_status: done
 task_type: qa
 requirement: REQ-029
 requirement_ids: [R-010, T-008, T-009]
 depends_on: [TASK-0087, TASK-0089]
 unlocks: []
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T16:00:05Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0092/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T16:00:05Z
+    note: >-
+      Verificación independiente en `task/TASK-0092` (tests `9a959a5`, evidencia
+      `d897cea`). Diff completo: solo la spec nueva y artefactos; sin cambios en
+      `src/`, reglas, armas ni tests existentes. Reejecutados `pnpm run test:e2e`
+      (123/123) y `pnpm run verify` (1189/1189; docs, config, tsc, build y
+      bundle). Capturas revisadas a 1280×720 y 900×700: bandas con texto e icono,
+      ocultas sin LOS, F1 con perfil completo y `-N` con desglose. EXP-004 falló
+      una vez por timeout bajo carga y pasó aislado; el verify completo posterior
+      pasó.
 ---
 
 # Objetivo
@@ -44,20 +55,20 @@ sin inmunidades absolutas y sin cambiar el resto del loop.
 
 # Criterios de aceptación
 
-- [ ] Un escenario determinista consigue al menos un arma nueva y ataca con ella
+- [x] Un escenario determinista consigue al menos un arma nueva y ataca con ella
       a enemigos con bandas distintas; se comprueba el total y el desglose por
       tipo en el feedback.
-- [ ] Contra un muy resistente el ataque sigue haciendo al menos 1; no existe
+- [x] Contra un muy resistente el ataque sigue haciendo al menos 1; no existe
       ningún estado ni texto de inmunidad.
-- [ ] La armadura no cambia el daño mágico o eléctrico y sí el físico; el escudo
+- [x] La armadura no cambia el daño mágico o eléctrico y sí el físico; el escudo
       sigue afectando al impacto de cualquier tipo.
-- [ ] El cursor muestra las cinco bandas solo con línea de visión y las oculta
+- [x] El cursor muestra las cinco bandas solo con línea de visión y las oculta
       sin ella; `F1` muestra el perfil completo.
-- [ ] Un hechizo eléctrico aplica la banda eléctrica y uno de fuego la mágica;
+- [x] Un hechizo eléctrico aplica la banda eléctrica y uno de fuego la mágica;
       curación y resurrección no muestran desglose.
-- [ ] Se revisan capturas a 1280×720 y 900×700; la información se entiende sin
+- [x] Se revisan capturas a 1280×720 y 900×700; la información se entiende sin
       depender del color.
-- [ ] `pnpm run test:e2e` y `pnpm run verify` pasan; no se debilitan expectativas
+- [x] `pnpm run test:e2e` y `pnpm run verify` pasan; no se debilitan expectativas
       existentes y cualquier ajuste de fixture se justifica en el informe.
 
 # Plan de test
@@ -70,10 +81,10 @@ sin inmunidades absolutas y sin cambiar el resto del loop.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0092/attempt-1/report.md`
-- [ ] Salida de `pnpm run test:e2e` y de `pnpm run verify`
-- [ ] Capturas 1280×720 y 900×700 en `<spec>/screenshots/`
-- [ ] Commit SHA en la rama `task/TASK-0092`
+- [x] Informe en `artifacts/TASK-0092/attempt-1/report.md`
+- [x] Salida de `pnpm run test:e2e` y de `pnpm run verify`
+- [x] Capturas 1280×720 y 900×700 en `<spec>/screenshots/`
+- [x] Commit SHA en la rama `task/TASK-0092`
 
 # Restricciones
 
