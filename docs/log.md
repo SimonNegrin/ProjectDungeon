@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0086 — ready: se añade como criterio y evidencia el contraste fila por fila de las tres tablas de REQ-029 (9 arquetipos, 3 enemigos, 6 familias), porque los tests leen el catálogo y no detectarían un valor mal transcrito; handoff a `task-lead` — [TASK-0086](tasks/TASK-0086-motor-perfiles-resistencia-roster-bestiario.md)
 * 2026-11-13 — Task — TASK-0085 — done: cinco tipos de daño, paquetes tipados y resolvedor único con bandas ×1,5/×1/×0,5/×0,25; armadura y fuerza solo físicos, mínimo 1 global y RNG determinista; verify 1103/1103 y E2E 9/9; fusión `9acff9e` — [informe](../artifacts/TASK-0085/attempt-1/report.md)
 * 2026-11-13 — Harness — Permisos — `deny` para `timeout`, `gtimeout`, `node -e` y `node --eval`; la plantilla fija los comandos de creación y retira el `node -e`; pedido tras las dos peticiones de la sesión de REQ-029 — [opencode.jsonc](../opencode.jsonc)
 * 2026-11-13 — Harness — Timeouts — la regla vuelve a distinguir el parámetro de la herramienta del binario `timeout` (ausente en macOS) en `AGENTS.md`, workflow, prompts y skills; la compresión de `AGENTS.md` dejó la lectura ambigua y requirements-writer ejecutó `timeout 120 pnpm run tasks:board` — [workflow](harness/workflow.md#timeouts-y-procesos)

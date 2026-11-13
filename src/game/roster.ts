@@ -9,7 +9,29 @@
 
 import { createActions } from './actions';
 import { createMana } from './mana';
-import type { Position, Unit, UnitEquipment, UnitStats } from './types';
+import type {
+  Position,
+  ResistanceBand,
+  ResistanceProfile,
+  Unit,
+  UnitEquipment,
+  UnitStats,
+} from './types';
+
+/**
+ * Perfiles de resistencia estimados v1 de REQ-029. Las cinco bandas son
+ * explícitas para que la tabla de héroe se contraste 1:1; una banda ausente
+ * seguiría siendo `normal` por `bandFor`.
+ */
+function profile(
+  slash: ResistanceBand,
+  blunt: ResistanceBand,
+  pierce: ResistanceBand,
+  magic: ResistanceBand,
+  electric: ResistanceBand,
+): ResistanceProfile {
+  return { slash, blunt, pierce, magic, electric };
+}
 
 export type ArchetypeId =
   | 'warrior'
@@ -49,7 +71,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 1,
       fuerza: 1,
       defensa: 1,
-      resistencia: {},
+      resistencia: profile('normal', 'normal', 'normal', 'normal', 'normal'),
       punteria: 0,
       magicLevel: 0,
       acciones: 2,
@@ -69,7 +91,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 0,
       fuerza: 3,
       defensa: -1,
-      resistencia: {},
+      resistencia: profile('resistant', 'resistant', 'normal', 'vulnerable', 'vulnerable'),
       punteria: 0,
       magicLevel: 0,
       acciones: 2,
@@ -89,7 +111,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 3,
       fuerza: 0,
       defensa: 1,
-      resistencia: {},
+      resistencia: profile('normal', 'vulnerable', 'resistant', 'normal', 'normal'),
       punteria: 0,
       magicLevel: 0,
       acciones: 3,
@@ -109,7 +131,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 1,
       fuerza: 0,
       defensa: 0,
-      resistencia: {},
+      resistencia: profile('normal', 'vulnerable', 'normal', 'normal', 'normal'),
       punteria: 3,
       magicLevel: 0,
       acciones: 2,
@@ -129,7 +151,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 0,
       fuerza: -1,
       defensa: 0,
-      resistencia: {},
+      resistencia: profile('vulnerable', 'vulnerable', 'vulnerable', 'resistant', 'resistant'),
       punteria: 0,
       magicLevel: 4,
       acciones: 2,
@@ -149,7 +171,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 0,
       fuerza: -1,
       defensa: 3,
-      resistencia: {},
+      resistencia: profile('normal', 'normal', 'normal', 'resistant', 'resistant'),
       punteria: 0,
       magicLevel: 3,
       acciones: 2,
@@ -169,7 +191,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 1,
       fuerza: 0,
       defensa: 1,
-      resistencia: {},
+      resistencia: profile('normal', 'normal', 'normal', 'resistant', 'normal'),
       punteria: 0,
       magicLevel: 2,
       acciones: 2,
@@ -189,7 +211,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: 3,
       fuerza: -1,
       defensa: 0,
-      resistencia: {},
+      resistencia: profile('normal', 'normal', 'normal', 'normal', 'normal'),
       punteria: 0,
       magicLevel: 1,
       acciones: 2,
@@ -209,7 +231,7 @@ export const ROSTER: Readonly<Record<ArchetypeId, ArchetypeEntry>> = {
       habilidad: -1,
       fuerza: 3,
       defensa: 0,
-      resistencia: {},
+      resistencia: profile('normal', 'resistant', 'normal', 'vulnerable', 'vulnerable'),
       punteria: 0,
       magicLevel: 0,
       acciones: 2,
