@@ -258,8 +258,9 @@ futuro.
    fino se hará cuando roster y bestiario estén completos. No bloquea el modelo.
 2. **Armas nuevas.** Los valores del martillo, la espada electrizada y la daga
    arcana son estimados; la colocación exacta en el mapa se decide en la tarea.
-3. **HUD.** Se propone mostrar las cinco bandas con línea de visión; si el playtest
-   lo considera ruidoso, se muestran solo las bandas distintas de normal.
+3. **HUD.** Resuelta: el playtest del 2026-11-13 considera legible mostrar las
+   cinco bandas con línea de visión. La alternativa de mostrar solo las distintas
+   de normal queda descartada para este corte.
 4. **Hechizos de fuego.** Se propone que causen daño mágico hasta que exista el
    trait de quemadura; confirmar al implementar el trait.
 5. **Familias del bestiario.** La asignación de las 64 entradas a familias queda
@@ -286,6 +287,7 @@ futuro.
 | 2026-11-12 | Primer corte de contenido: martillo, espada electrizada y daga arcana; perfiles v1 para héroes y enemigos actuales. | human:simon | aceptada; valores estimados |
 | 2026-11-12 | Usar los valores estimados v1 para probar; el ajuste fino se aplaza a roster y bestiario completos, con un mecanismo iterable de fortalezas y debilidades. | human:simon | aceptada |
 | 2026-11-12 | Cancelar `EXP-005` por el momento: no se construye un ajuste para pocos personajes antes del ajuste final. | human:simon | aceptada |
+| 2026-11-13 | El playtest confirma el HUD con las cinco bandas y línea de visión; no se limita a las bandas distintas de normal. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
