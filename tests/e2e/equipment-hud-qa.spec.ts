@@ -103,7 +103,7 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   await openGame(page);
 
   const initial = await snapshot(page);
-  expect(initial.weapons).toHaveLength(2);
+  expect(initial.weapons).toHaveLength(3);
   const weapon = initial.weapons[0];
 
   await expect(page.getByTestId('hud-weapon')).toHaveText(
@@ -151,7 +151,7 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   await expect(page.getByTestId('hud-weapon')).toHaveText(
     weaponLabel(afterPickup.players[0]),
   );
-  expect(afterPickup.weapons).toHaveLength(1);
+  expect(afterPickup.weapons).toHaveLength(2);
   await screenshot(page, 'weapon-picked', testInfo);
 
   expect(consoleErrors).toEqual([]);

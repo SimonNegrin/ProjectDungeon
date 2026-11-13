@@ -1,0 +1,10 @@
+$ playwright test tests/e2e/generated-map-qa.spec.ts -g 'F1, R, F2' --repeat-each=2
+
+Running 2 tests using 2 workers
+
+TASK-0016 F2 seed=2224621424 rooms=9 wide=1 player=(23,10) enemy=(3,20) distance=66 camera=(544,128)
+TASK-0016 F2 seed=942461208 rooms=9 wide=1 player=(25,10) enemy=(3,7) distance=61 camera=(608,128)
+  ✓  1 [chromium] › tests/e2e/generated-map-qa.spec.ts:811:1 › F1, R, F2, HUD y encuadre 16:9 (1.1s)
+  ✓  2 [chromium] › tests/e2e/generated-map-qa.spec.ts:811:1 › F1, R, F2, HUD y encuadre 16:9 (1.2s)
+
+  2 passed (2.8s)

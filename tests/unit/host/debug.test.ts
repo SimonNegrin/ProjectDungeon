@@ -510,10 +510,11 @@ describe('snapshot del mapa generado', () => {
     const api = generatedSetup();
 
     const snapshot = api.snapshot();
-    expect(snapshot.weapons).toHaveLength(2);
+    expect(snapshot.weapons).toHaveLength(3);
     expect(snapshot.weapons.map((weapon) => weapon.weaponId).sort()).toEqual([
       'axe',
       'dagger',
+      'hammer',
     ]);
     expect(snapshot.weapons[0]).toMatchObject({
       id: expect.any(String),
@@ -557,10 +558,10 @@ describe('snapshot del mapa generado', () => {
       },
     );
 
-    expect(api.snapshot().weapons).toHaveLength(2);
+    expect(api.snapshot().weapons).toHaveLength(3);
     const pickup = api.dispatch({ type: 'PickUp', unitId: 'player-1' });
 
-    expect(pickup.snapshot.weapons).toHaveLength(1);
+    expect(pickup.snapshot.weapons).toHaveLength(2);
     expect(pickup.snapshot.weapons.some((entry) => entry.id === weapon.id)).toBe(false);
     expect(pickup.snapshot.players[0].equipment.weaponId).toBe(weapon.weaponId);
   });

@@ -597,9 +597,13 @@ describe('apariciones', () => {
 describe('armas del mapa', () => {
   const weapons = reference.weapons ?? [];
 
-  it('coloca el hacha y la daga como entidades con ID, posición y arma', () => {
-    expect(weapons.map((weapon) => weapon.weaponId).sort()).toEqual(['axe', 'dagger']);
-    expect(new Set(weapons.map((weapon) => weapon.id)).size).toBe(2);
+  it('coloca el hacha, la daga y el martillo como entidades con ID, posición y arma', () => {
+    expect(weapons.map((weapon) => weapon.weaponId).sort()).toEqual([
+      'axe',
+      'dagger',
+      'hammer',
+    ]);
+    expect(new Set(weapons.map((weapon) => weapon.id)).size).toBe(3);
 
     for (const weapon of weapons) {
       expect(Number.isInteger(weapon.x)).toBe(true);
@@ -611,7 +615,7 @@ describe('armas del mapa', () => {
     }
   });
 
-  it('usa dos salas distintas y ninguna es la sala inicial', () => {
+  it('usa una sala distinta por arma y ninguna es la sala inicial', () => {
     const playerRoom = roomAt(
       reference.rooms,
       reference.spawns.player.x,
@@ -626,7 +630,7 @@ describe('armas del mapa', () => {
       return room?.id;
     });
 
-    expect(new Set(roomIds).size).toBe(2);
+    expect(new Set(roomIds).size).toBe(3);
   });
 
   it('es alcanzable y no ocupa muro, puerta ni aparición', () => {
@@ -653,8 +657,23 @@ describe('armas del mapa', () => {
     expect(again.weapons).toEqual(weapons);
 
     const other = generator.generate(1234, DEFAULT_MAP_OPTIONS);
-    expect(other.weapons).toHaveLength(2);
+    expect(other.weapons).toHaveLength(3);
     expect(other.weapons).not.toEqual(weapons);
+  });
+
+  it('coloca el martillo con la semilla fija sin mover el hacha ni la daga', () => {
+    expect(weapons.map((weapon) => `${weapon.weaponId}@${weapon.x},${weapon.y}`)).toEqual([
+      'axe@8,4',
+      'dagger@23,10',
+      'hammer@16,17',
+    ]);
+
+    const other = generator.generate(1234, DEFAULT_MAP_OPTIONS);
+    const hammer = (other.weapons ?? []).find(
+      (weapon) => weapon.weaponId === 'hammer',
+    );
+    expect(hammer).toBeDefined();
+    expect(hammer).not.toMatchObject({ x: 16, y: 17 });
   });
 
   it('admite celdas bloqueadas opcionales sin cambiar las armas BSP por defecto', () => {
@@ -664,10 +683,11 @@ describe('armas del mapa', () => {
       blockedCells: [{ x: first.x, y: first.y }],
     });
 
-    expect(restricted).toHaveLength(2);
+    expect(restricted).toHaveLength(3);
     expect(restricted.map((weapon) => weapon.weaponId).sort()).toEqual([
       'axe',
       'dagger',
+      'hammer',
     ]);
     expect(
       restricted.some(

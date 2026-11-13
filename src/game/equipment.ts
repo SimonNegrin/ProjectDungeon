@@ -9,7 +9,14 @@
 import { isPhysical } from './damage';
 import type { DamagePacket } from './types';
 
-export type WeaponId = 'sword' | 'axe' | 'dagger' | 'knife';
+export type WeaponId =
+  | 'sword'
+  | 'axe'
+  | 'dagger'
+  | 'knife'
+  | 'hammer'
+  | 'electric-sword'
+  | 'arcane-dagger';
 export type ArmorId = 'armor' | 'plate';
 export type ShieldId = 'shield';
 
@@ -20,6 +27,12 @@ export interface WeaponDefinition {
   readonly accuracy: number;
   /** Paquetes de daño tipado (REQ-029 T-002); sustituye al `damage` único. */
   readonly damagePackets: readonly DamagePacket[];
+  /**
+   * `true` cuando acierto y paquetes son contenido estimado v1 de REQ-029
+   * (§ contenido estimado v1) pendiente de ajuste con roster y bestiario.
+   * Las armas ya existentes no lo declaran.
+   */
+  readonly estimatedV1?: true;
 }
 
 /**
@@ -75,6 +88,35 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDefinition>> = {
     name: 'Cuchillo',
     accuracy: 4,
     damagePackets: [{ type: 'pierce', amount: 1 }],
+  },
+  // Armas nuevas de REQ-029 § contenido estimado v1: entran por mapa o botín y
+  // no cambian el equipo inicial del roster.
+  hammer: {
+    id: 'hammer',
+    name: 'Martillo',
+    accuracy: 2,
+    damagePackets: [{ type: 'blunt', amount: 4 }],
+    estimatedV1: true,
+  },
+  'electric-sword': {
+    id: 'electric-sword',
+    name: 'Espada electrizada',
+    accuracy: 3,
+    damagePackets: [
+      { type: 'slash', amount: 3 },
+      { type: 'electric', amount: 1 },
+    ],
+    estimatedV1: true,
+  },
+  'arcane-dagger': {
+    id: 'arcane-dagger',
+    name: 'Daga arcana',
+    accuracy: 4,
+    damagePackets: [
+      { type: 'pierce', amount: 2 },
+      { type: 'magic', amount: 1 },
+    ],
+    estimatedV1: true,
   },
 };
 

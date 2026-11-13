@@ -501,6 +501,11 @@ export function validateGrowthMap(
     const weaponIds = new Set<string>();
     const weaponCells = new Set<string>();
     const weaponRoomIds = new Set<number>();
+    // En mapas con menos salas útiles que armas (caverna de tres salas) dos
+    // armas pueden compartir sala, pero nunca celda. Fuera de ese caso se
+    // mantiene una sala distinta por arma.
+    const eligibleRooms = rooms.filter((room) => room.id !== spawns.roomId).length;
+    const allowSharedRoom = eligibleRooms < MAP_WEAPON_SPECS.length;
 
     for (let index = 0; index < weapons.length; index += 1) {
       const weapon = weapons[index];
@@ -533,7 +538,7 @@ export function validateGrowthMap(
         if (room.id === spawns.roomId) {
           issues.push(`Arma ${weapon.id} en la sala de spawn.`);
         }
-        if (weaponRoomIds.has(room.id)) {
+        if (weaponRoomIds.has(room.id) && !allowSharedRoom) {
           issues.push(`Dos armas comparten la sala ${room.id}.`);
         }
         weaponRoomIds.add(room.id);

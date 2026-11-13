@@ -161,7 +161,7 @@ describe('GrowthMapGenerator', () => {
 
     expect(second).toEqual(first);
     expect(JSON.stringify(second)).toBe(JSON.stringify(first));
-    expect(first.weapons).toHaveLength(2);
+    expect(first.weapons).toHaveLength(3);
     expect(second.weapons).toEqual(first.weapons);
     expect(new GrowthMapGenerator().generate(PERF_SEED + 1).tiles).not.toEqual(
       first.tiles,
@@ -223,12 +223,12 @@ describe('GrowthMapGenerator', () => {
     }
   });
 
-  it('coloca exactamente el hacha y la daga fuera de spawn, puertas, salida y enemigos', () => {
+  it('coloca exactamente el hacha, la daga y el martillo fuera de spawn, puertas, salida y enemigos', () => {
     const map = generatedMap(PERF_SEED);
     const weapons = map.weapons ?? [];
 
-    expect(weapons).toHaveLength(2);
-    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger']);
+    expect(weapons).toHaveLength(3);
+    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger', 'hammer']);
     expect(weapons.map((weapon) => weapon.id)).toEqual(
       MAP_WEAPON_SPECS.map((spec) => spec.id),
     );
@@ -268,7 +268,7 @@ describe('GrowthMapGenerator', () => {
       expect(enemyKeys.has(key), `${weapon.id} enemigo`).toBe(false);
     }
 
-    expect(roomIds.size).toBe(2);
+    expect(roomIds.size).toBe(3);
   });
 
   it('genera 22×18 en menos de 50 ms con la semilla de playtest', () => {
@@ -324,12 +324,12 @@ describe('createInitialState con growth por defecto', () => {
     }
   });
 
-  it('expone las dos armas del catálogo por defecto y permite recogerlas desde su celda', () => {
+  it('expone las tres armas del catálogo por defecto y permite recogerlas desde su celda', () => {
     const state = createInitialState();
     const weapons = state.map?.weapons ?? [];
 
-    expect(weapons).toHaveLength(2);
-    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger']);
+    expect(weapons).toHaveLength(3);
+    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger', 'hammer']);
 
     const weapon = weapons[0];
     const onWeapon = {
@@ -343,7 +343,7 @@ describe('createInitialState con growth por defecto', () => {
     expect(
       picked.state.map?.weapons?.some((entry) => entry.id === weapon.id),
     ).toBe(false);
-    expect(picked.state.map?.weapons).toHaveLength(1);
+    expect(picked.state.map?.weapons).toHaveLength(2);
     expect(JSON.parse(JSON.stringify(picked.state.map))).toEqual(picked.state.map);
   });
 

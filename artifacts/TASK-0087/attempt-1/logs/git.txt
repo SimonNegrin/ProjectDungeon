@@ -1,0 +1,23 @@
+commit 72501d02abfef26ec095153b2d78f9fd0e963b72
+Author: Simón Negrín <simon.negrin@gmail.com>
+Date:   Fri Nov 13 13:03:55 2026 +0000
+
+    feat(TASK-0087): añade martillo, espada electrizada y daga arcana al catálogo
+    
+    El martillo entra al final de MAP_WEAPON_SPECS para conservar la colocación existente con la semilla fija. Los mapas con menos salas que armas reutilizan sala con celdas distintas.
+
+ src/game/chambers/variants/growth.ts          |  7 ++-
+ src/game/equipment.ts                         | 44 ++++++++++++++-
+ src/game/map.ts                               | 28 +++++++---
+ tests/e2e/combat-equipment-qa.spec.ts         | 15 +++---
+ tests/e2e/equipment-hud-qa.spec.ts            |  4 +-
+ tests/unit/game/engine.test.ts                | 48 +++++++++++++++++
+ tests/unit/game/equipment.test.ts             | 77 +++++++++++++++++++++++++++
+ tests/unit/game/growth-generator.test.ts      | 18 +++----
+ tests/unit/game/map.test.ts                   | 34 +++++++++---
+ tests/unit/host/debug.test.ts                 |  7 +--
+ tests/unit/host/equipment-integration.test.ts | 20 +++++++
+ tests/unit/host/feedback-events.test.ts       | 35 ++++++++++++
+ 12 files changed, 302 insertions(+), 35 deletions(-)
+ M docs/tasks/TASK-0087-motor-armas-nuevas-colocacion.md
+?? artifacts/TASK-0087/

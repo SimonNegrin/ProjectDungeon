@@ -133,6 +133,10 @@ function measurableTiles(
   const units = new Set(
     [...snap.players, ...snap.enemies].map((unit) => keyOf(unit.x, unit.y)),
   );
+  // Un arma del mapa dibuja su sprite sobre el suelo: mide como decals/spawns.
+  const weapons = new Set(
+    snap.weapons.map((weapon) => keyOf(weapon.x, weapon.y)),
+  );
 
   const tiles: TilePoint[] = [];
   for (let y = 0; y < snap.grid.height; y += 1) {
@@ -141,7 +145,15 @@ function measurableTiles(
       if (!isFullyVisible(snap, x, y)) continue;
       if (!predicate(x, y)) continue;
       const key = keyOf(x, y);
-      if (doors.has(key) || decals.has(key) || spawns.has(key) || units.has(key)) continue;
+      if (
+        doors.has(key) ||
+        decals.has(key) ||
+        spawns.has(key) ||
+        units.has(key) ||
+        weapons.has(key)
+      ) {
+        continue;
+      }
       tiles.push({ x, y, parity: parityOf(x, y) });
     }
   }
