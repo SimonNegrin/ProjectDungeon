@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { BspMapGenerator, createInitialState } from '../../../src/game/index';
+import { ITEMS, type ItemId } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { gridPixelSize, visibleTileRange, type Viewport } from '../../../src/host/geometry';
@@ -17,7 +18,6 @@ import {
   renderScene,
   ALARM_COLOR,
   DEFENSE_GESTURE_COLOR,
-  WEAPON_SHAPE_COLORS,
   type SceneAssets,
 } from '../../../src/host/renderer';
 import {
@@ -146,6 +146,7 @@ const assets: SceneAssets = {
   tiles: { name: 'tiles' } as unknown as CanvasImageSource,
   rogues: { name: 'rogues' } as unknown as CanvasImageSource,
   monsters: { name: 'monsters' } as unknown as CanvasImageSource,
+  items: { name: 'items' } as unknown as CanvasImageSource,
 };
 
 const VIEWPORT: Viewport = { width: 416, height: 416 };
@@ -631,23 +632,24 @@ describe('render del mapa generado', () => {
   });
 });
 
-describe('render de armas del mapa', () => {
-  function stateWithWeapon(
-    weaponId: 'axe' | 'dagger',
+describe('render de objetos del suelo', () => {
+  function stateWithItem(
+    itemId: ItemId,
+    options: { readonly onPlayerTile?: boolean } = {},
   ): { state: GameState; x: number; y: number; camera: { x: number; y: number } } {
     const base = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
     const player = base.players[0];
-    const x = player.x + 1;
+    const x = options.onPlayerTile ? player.x : player.x + 1;
     const y = player.y;
     if (!base.map) throw new Error('La semilla de referencia debe generar mapa');
 
     return {
       state: {
         ...base,
-        groundItems: [{ id: `item-weapon-${weaponId}`, itemId: weaponId, x, y }],
+        groundItems: [{ id: `item-${itemId}`, itemId, x, y }],
       },
       x,
       y,
@@ -655,79 +657,56 @@ describe('render de armas del mapa', () => {
     };
   }
 
-  it('dibuja el hacha con formas planas en su tile, sin assets nuevos', () => {
-    const { state, x, y, camera } = stateWithWeapon('axe');
-    const fake = draw(state, camera);
+  it.each(['axe', 'dagger', 'armor', 'shield'] as const)(
+    'dibuja %s con el recorte de items.png que declara el catálogo',
+    (itemId) => {
+      const { state, x, y, camera } = stateWithItem(itemId);
+      const rect = ITEMS[itemId].sprite.rect;
+      const fake = draw(state, camera);
 
-    const axeFills = fake.ops.filter(
-      (op): op is Extract<RenderOp, { kind: 'fill' }> =>
-        op.kind === 'fill' &&
-        op.style === WEAPON_SHAPE_COLORS.handle &&
-        op.x >= x * 32 &&
-        op.x < (x + 1) * 32 &&
-        op.y >= y * 32 &&
-        op.y < (y + 1) * 32,
-    );
+      expect(fake.draws).toContainEqual({
+        image: assets.items,
+        sx: rect.x,
+        sy: rect.y,
+        sw: 32,
+        sh: 32,
+        dx: x * 32,
+        dy: y * 32,
+        dw: 32,
+        dh: 32,
+      });
+    },
+  );
 
-    expect(axeFills.length).toBeGreaterThan(0);
-    expect(
-      fake.ops.some(
-        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.axeBlade,
-      ),
-    ).toBe(true);
-    // Las armas son formas planas: no añaden `drawImage`.
-    expect(
-      fake.draws.some(
-        (call) =>
-          call.image !== assets.tiles &&
-          call.image !== assets.rogues &&
-          call.image !== assets.monsters,
-      ),
-    ).toBe(false);
-  });
-
-  it('el hacha y la daga usan formas distintas en el mismo tile', () => {
-    const axe = stateWithWeapon('axe');
-    const dagger = stateWithWeapon('dagger');
+  it('el hacha y la daga usan recortes distintos del mismo catálogo', () => {
+    const axe = stateWithItem('axe');
+    const dagger = stateWithItem('dagger');
     const axeFake = draw(axe.state, axe.camera);
     const daggerFake = draw(dagger.state, dagger.camera);
 
-    const axeShape = axeFake.ops.filter(
-      (op) =>
-        op.kind === 'fill' &&
-        (op.style === WEAPON_SHAPE_COLORS.handle ||
-          op.style === WEAPON_SHAPE_COLORS.axeBlade),
-    );
-    const daggerShape = daggerFake.ops.filter(
-      (op) =>
-        op.kind === 'fill' &&
-        (op.style === WEAPON_SHAPE_COLORS.handle ||
-          op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
-          op.style === WEAPON_SHAPE_COLORS.guard),
-    );
+    const itemDraws = (fake: FakeContext) =>
+      fake.draws.filter((call) => call.image === assets.items);
 
-    expect(axeShape).not.toEqual(daggerShape);
-    expect(
-      daggerFake.ops.some(
-        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.guard,
-      ),
-    ).toBe(true);
-    expect(
-      axeFake.ops.some(
-        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.daggerBlade,
-      ),
-    ).toBe(false);
+    expect(itemDraws(axeFake)[0]).toMatchObject({
+      sx: ITEMS.axe.sprite.rect.x,
+      sy: ITEMS.axe.sprite.rect.y,
+    });
+    expect(itemDraws(daggerFake)[0]).toMatchObject({
+      sx: ITEMS.dagger.sprite.rect.x,
+      sy: ITEMS.dagger.sprite.rect.y,
+    });
+    expect(ITEMS.axe.sprite.rect).not.toEqual(ITEMS.dagger.sprite.rect);
   });
 
-  it('dibuja las armas entre decals y unidades', () => {
-    const { state, camera } = stateWithWeapon('axe');
+  it('dibuja el objeto después de los decals y antes que la unidad que pisa su tile', () => {
+    const { state, camera } = stateWithItem('axe', { onPlayerTile: true });
     const fake = draw(state, camera);
 
-    const weaponIndex = fake.ops.findIndex(
-      (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.handle,
-    );
     const decalIndex = fake.ops.findIndex(
       (op) => op.kind === 'draw' && op.image === assets.tiles && op.sy !== 64,
+    );
+    const itemIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.items,
     );
     const unitIndex = fake.ops.findIndex(
       (op) =>
@@ -735,27 +714,19 @@ describe('render de armas del mapa', () => {
         (op.image === assets.rogues || op.image === assets.monsters),
     );
 
-    expect(weaponIndex).toBeGreaterThan(decalIndex);
-    expect(unitIndex).toBeGreaterThan(weaponIndex);
+    expect(decalIndex).toBeGreaterThanOrEqual(0);
+    expect(itemIndex).toBeGreaterThan(decalIndex);
+    expect(unitIndex).toBeGreaterThan(itemIndex);
   });
 
-  it('sin armas en el mapa no pinta formas de arma', () => {
+  it('sin objetos en el mapa no pinta recortes de items.png', () => {
     const fake = draw(makeState(), { x: 0, y: 0 });
 
-    expect(
-      fake.ops.some(
-        (op) =>
-          op.kind === 'fill' &&
-          (op.style === WEAPON_SHAPE_COLORS.handle ||
-            op.style === WEAPON_SHAPE_COLORS.axeBlade ||
-            op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
-            op.style === WEAPON_SHAPE_COLORS.guard),
-      ),
-    ).toBe(false);
+    expect(fake.draws.some((call) => call.image === assets.items)).toBe(false);
   });
 
-  it('no muta el estado al dibujar armas', () => {
-    const { state } = stateWithWeapon('dagger');
+  it('no muta el estado al dibujar objetos', () => {
+    const { state } = stateWithItem('dagger');
     const before = JSON.stringify(state);
     const frozen = deepFreeze(state);
 
@@ -763,21 +734,13 @@ describe('render de armas del mapa', () => {
     expect(JSON.stringify(state)).toBe(before);
   });
 
-  it('el frame apagado de la recogida conserva el arma en el estado pero no la pinta', () => {
-    const { state, x, y, camera } = stateWithWeapon('dagger');
+  it('el frame apagado de la recogida conserva el objeto en el estado pero no lo pinta', () => {
+    const { state, x, y, camera } = stateWithItem('dagger');
     const hidden = createFakeContext();
     renderScene(hidden.ctx, state, assets, camera, VIEWPORT, 32, {
       pickupItem: { itemId: 'dagger', tileX: x, tileY: y, visible: false },
     });
-    expect(
-      hidden.ops.some(
-        (op) =>
-          op.kind === 'fill' &&
-          (op.style === WEAPON_SHAPE_COLORS.handle ||
-            op.style === WEAPON_SHAPE_COLORS.daggerBlade ||
-            op.style === WEAPON_SHAPE_COLORS.guard),
-      ),
-    ).toBe(false);
+    expect(hidden.draws.some((call) => call.image === assets.items)).toBe(false);
     expect(state.groundItems?.[0]).toMatchObject({ x, y, itemId: 'dagger' });
 
     const visible = createFakeContext();
@@ -785,8 +748,11 @@ describe('render de armas del mapa', () => {
       pickupItem: { itemId: 'dagger', tileX: x, tileY: y, visible: true },
     });
     expect(
-      visible.ops.some(
-        (op) => op.kind === 'fill' && op.style === WEAPON_SHAPE_COLORS.daggerBlade,
+      visible.draws.some(
+        (call) =>
+          call.image === assets.items &&
+          call.sx === ITEMS.dagger.sprite.rect.x &&
+          call.sy === ITEMS.dagger.sprite.rect.y,
       ),
     ).toBe(true);
   });

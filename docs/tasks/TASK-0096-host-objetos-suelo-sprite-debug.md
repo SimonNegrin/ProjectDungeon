@@ -4,22 +4,40 @@ id: TASK-0096
 title: "Host: objetos del suelo con sprite, efectos y debug"
 description: "Dibujar los objetos del suelo con su recorte de items.png, presentar los cues de recoger, soltar y equipar sin parpadeos, usar el mismo sprite en el panel y exponer mochila, equipo, capacidad y objetos del suelo en F1."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-018
 requirement_ids: [T-010, T-011]
 depends_on: [TASK-0094, TASK-0095]
 unlocks: [TASK-0097, TASK-0098]
 created_at: 2026-11-13T19:22:51Z
-completed_at:
+completed_at: 2026-11-13T21:02:35Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0096/
 priority: P2
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:22:51Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T21:02:35Z
+    note: >-
+      Verificación independiente en `task/TASK-0096` sobre la implementación
+      `bcdacc4` (evidencia `9df6e7f`, informes `fd60216` y `9df6e7f`). Revisado
+      el diff completo: `src/host/{assets,renderer,inventory-panel,inventory-panel-view,presentation,motion,main,hud,feedback-events}.ts`,
+      `index.html` y tests de renderer, panel, presentación, HUD, feedback,
+      debug y crecimiento; sin cambios en `src/game/`, reglas, costes, catálogo,
+      dependencias ni arte, y sin tocar requisitos ni criterios. Reejecutados
+      los focalizados (179/179 en ocho archivos) y `pnpm run verify`
+      (1249/1249; docs, config, tsc, build y bundle). Comprobado en navegador
+      integrado con `?test=1`: espada y daga se distinguen en el suelo y en el
+      panel con el mismo recorte de `items.png`; `I` abre el panel y `Escape`
+      lo cierra; `F1` muestra mochila 0/8, equipo por hueco y suelo con
+      localización, y la ayuda muestra `I`/`Escape` sin `G` ni `1`-`3`. El
+      intento 2 corrigió el pulso del HUD en soltar/desequipar y restauró la
+      aserción de capas del renderer. E2E/QA visual del panel queda en
+      TASK-0098 según el plan.
 ---
 
 # Objetivo

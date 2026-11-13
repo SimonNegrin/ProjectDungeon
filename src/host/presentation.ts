@@ -2,10 +2,11 @@ import type { ItemId } from '../game/equipment';
 import type { Command, GameEvent, GameState, Unit } from '../game/types';
 
 /**
- * Eventos de presentación del host. `PickUp` y `SelectWeapon` no son eventos del
- * motor: el host los crea a partir del comando y del diff entre el estado antes
- * y después de despacharlo. Así la timeline y el estado intermedio los tratan
- * como cualquier otro evento sin añadirlos a `DispatchResult.events`.
+ * Eventos de presentación del host. `PickUp`, `SelectWeapon`, `DropItem` y
+ * `UnequipItem` no son eventos del motor: el host los crea a partir del comando y
+ * del diff entre el estado antes y después de despacharlo. Así la timeline y el
+ * estado intermedio los tratan como cualquier otro evento sin añadirlos a
+ * `DispatchResult.events`.
  */
 export interface PickUpPresentationEvent {
   readonly type: 'PickUp';
@@ -21,10 +22,29 @@ export interface SelectWeaponPresentationEvent {
   readonly slot: number;
 }
 
+/** Soltar un objeto de mochila o hueco: el estado visible cambia al acabar su beat. */
+export interface DropItemPresentationEvent {
+  readonly type: 'DropItem';
+  readonly unitId: string;
+  readonly itemId: ItemId;
+  /** Hueco de mochila (1-based) o 0 cuando sale de un hueco de equipo. */
+  readonly slot: number;
+}
+
+/** Desequipar: el hueco queda vacío y el objeto entra en la mochila al acabar su beat. */
+export interface UnequipItemPresentationEvent {
+  readonly type: 'UnequipItem';
+  readonly unitId: string;
+  readonly itemId: ItemId;
+  readonly slot: number;
+}
+
 export type PresentationEvent =
   | GameEvent
   | PickUpPresentationEvent
-  | SelectWeaponPresentationEvent;
+  | SelectWeaponPresentationEvent
+  | DropItemPresentationEvent
+  | UnequipItemPresentationEvent;
 
 function additions(before: Unit, after: Unit) {
   const beforeIds = new Set(
@@ -67,7 +87,9 @@ export function buildPresentationEvents(
   if (
     command.type !== 'PickUp' &&
     command.type !== 'EquipItem' &&
-    command.type !== 'SelectWeapon'
+    command.type !== 'SelectWeapon' &&
+    command.type !== 'DropItem' &&
+    command.type !== 'UnequipItem'
   ) {
     return presentation;
   }
@@ -84,6 +106,33 @@ export function buildPresentationEvents(
       unitId: command.unitId,
       itemId: added.item.itemId,
       slot: added.index + 1,
+    });
+    return presentation;
+  }
+
+  if (command.type === 'DropItem') {
+    const instance =
+      command.from === 'backpack'
+        ? before.inventory.items[command.index]
+        : before.equipment[command.slot];
+    if (!instance) return presentation;
+    presentation.push({
+      type: 'DropItem',
+      unitId: command.unitId,
+      itemId: instance.itemId,
+      slot: command.from === 'backpack' ? command.index + 1 : 0,
+    });
+    return presentation;
+  }
+
+  if (command.type === 'UnequipItem') {
+    const instance = before.equipment[command.slot];
+    if (!instance) return presentation;
+    presentation.push({
+      type: 'UnequipItem',
+      unitId: command.unitId,
+      itemId: instance.itemId,
+      slot: 0,
     });
     return presentation;
   }

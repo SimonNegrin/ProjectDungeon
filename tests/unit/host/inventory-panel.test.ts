@@ -5,6 +5,7 @@ import {
   reduce,
 } from '../../../src/game/index';
 import { ITEMS } from '../../../src/game/equipment';
+import { allInstances } from '../../../src/game/inventory';
 import type { GameState } from '../../../src/game/types';
 import {
   buildInventoryPanelModel,
@@ -73,6 +74,28 @@ describe('modelo del panel de personaje', () => {
       ITEMS.hammer.name,
     ]);
     expect(model.groundHint).toContain('primer objeto');
+  });
+
+  it('el icono de cada fila usa el mismo recorte de items.png que el mundo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['hammer'],
+        }),
+      ],
+      groundItems: [GROUND_ITEM],
+    });
+    const model = buildInventoryPanelModel(state);
+
+    expect(model.equipment[0].sprite).toEqual(ITEMS.sword.sprite.rect);
+    expect(model.backpack[0].sprite).toEqual(ITEMS.hammer.sprite.rect);
+    expect(model.ground?.[0].sprite).toEqual(ITEMS.axe.sprite.rect);
+    expect(model.backpack[1].empty).toBe(true);
+    expect(model.backpack[1].sprite).toBeNull();
   });
 
   it('compara arma, armadura y escudo antes de equipar', () => {
@@ -322,5 +345,185 @@ describe('integración del panel con el motor y los cues', () => {
     expect(afterModel.mp).toBe(
       `${result.state.players[0].mp}/${result.state.players[0].maxMp}`,
     );
+  });
+
+  function expectUniqueInstances(state: GameState): void {
+    const ids = allInstances(state).map((instance) => instance.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  }
+
+  it('soltar invierte la recogida: el objeto sigue en la mochila hasta el fin del beat', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-axe', itemId: 'axe' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
+        }),
+      ],
+      groundItems: [],
+    });
+    const command = {
+      type: 'DropItem' as const,
+      unitId: 'player-1',
+      from: 'backpack' as const,
+      index: 0,
+    };
+    const result = reduce(state, command);
+    const presentation = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    expect(presentation).toEqual([
+      { type: 'DropItem', unitId: 'player-1', itemId: 'axe', slot: 1 },
+    ]);
+
+    const timeline = buildMotionTimeline(presentation, {
+      initialState: state,
+      finalState: result.state,
+    });
+    const cue = timeline.cues.find((entry) => entry.kind === 'select-weapon');
+    if (!cue) throw new Error('Soltar debe producir su cue');
+
+    const beforeCue = presentationState(result.state, timeline, cue.atMs - 1, state);
+    expect(beforeCue.groundItems).toEqual([]);
+    expect(beforeCue.players[0].inventory.items[0]?.itemId).toBe('axe');
+    expectUniqueInstances(beforeCue);
+
+    const duringCue = presentationState(result.state, timeline, cue.atMs, state);
+    expect(duringCue.groundItems).toEqual([]);
+    expectUniqueInstances(duringCue);
+
+    const afterCue = presentationState(
+      result.state,
+      timeline,
+      cue.atMs + cue.durationMs,
+      state,
+    );
+    expect(afterCue.players[0].inventory.items[0]).toBeNull();
+    expect(afterCue.groundItems).toEqual([
+      { id: 'item-player-1-axe', itemId: 'axe', x: 4, y: 4 },
+    ]);
+    expectUniqueInstances(afterCue);
+  });
+
+  it('desequipar mueve el objeto al hueco de mochila al acabar su beat', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+        }),
+      ],
+    });
+    const command = {
+      type: 'UnequipItem' as const,
+      unitId: 'player-1',
+      slot: 'armor' as const,
+    };
+    const result = reduce(state, command);
+    const presentation = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    expect(presentation).toHaveLength(1);
+    expect(presentation[0]).toMatchObject({
+      type: 'UnequipItem',
+      unitId: 'player-1',
+      itemId: 'armor',
+    });
+
+    const timeline = buildMotionTimeline(presentation, {
+      initialState: state,
+      finalState: result.state,
+    });
+    const cue = timeline.cues.find((entry) => entry.kind === 'select-weapon');
+    if (!cue) throw new Error('Desequipar debe producir su cue');
+
+    const beforeCue = presentationState(result.state, timeline, cue.atMs - 1, state);
+    expect(beforeCue.players[0].equipment.armor?.itemId).toBe('armor');
+    expect(beforeCue.players[0].inventory.items[0]).toBeNull();
+    expectUniqueInstances(beforeCue);
+
+    const afterCue = presentationState(
+      result.state,
+      timeline,
+      cue.atMs + cue.durationMs,
+      state,
+    );
+    expect(afterCue.players[0].equipment.armor).toBeNull();
+    expect(afterCue.players[0].inventory.items[0]?.itemId).toBe('armor');
+    expectUniqueInstances(afterCue);
+  });
+
+  it('con prefers-reduced-motion el estado final se aplica de inmediato', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-axe', itemId: 'axe' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
+        }),
+      ],
+      groundItems: [],
+    });
+    const command = {
+      type: 'DropItem' as const,
+      unitId: 'player-1',
+      from: 'backpack' as const,
+      index: 0,
+    };
+    const result = reduce(state, command);
+    const presentation = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    const timeline = buildMotionTimeline(presentation, {
+      initialState: state,
+      finalState: result.state,
+      reducedMotion: true,
+    });
+
+    expect(timeline.totalMs).toBe(0);
+    const immediate = presentationState(result.state, timeline, 0, state);
+    expect(immediate.players[0].inventory.items[0]).toBeNull();
+    expect(immediate.groundItems).toEqual(result.state.groundItems);
   });
 });

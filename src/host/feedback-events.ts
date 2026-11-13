@@ -195,7 +195,9 @@ export function weaponSlotPulseAt(
   elapsed: number,
 ): WeaponSlotPulse | null {
   for (const cue of activeCues(timeline, elapsed)) {
-    if (cue.kind !== 'pickup' && cue.kind !== 'select-weapon') continue;
+    // `DropItem`/`UnequipItem` reutilizan el cue `select-weapon`, pero no son un
+    // cambio de arma: el pulso del HUD se limita a sus dos eventos originales.
+    if (cue.eventType !== 'PickUp' && cue.eventType !== 'SelectWeapon') continue;
     return { slot: cue.data.slot ?? 0, durationMs: cue.durationMs };
   }
   return null;

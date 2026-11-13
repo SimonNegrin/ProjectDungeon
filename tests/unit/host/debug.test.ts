@@ -527,6 +527,62 @@ describe('snapshot del mapa generado', () => {
     expect(JSON.parse(JSON.stringify(fresh)).weapons).toEqual(fresh.weapons);
   });
 
+  it('expone capacidad, instancias de mochila, equipo por hueco y objetos del suelo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-axe', itemId: 'axe' },
+              { id: 'item-player-1-plate', itemId: 'plate' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
+          equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+        }),
+      ],
+      groundItems: [
+        { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+      ],
+    });
+    const snapshot = setup(state).snapshot();
+
+    expect(snapshot.players[0].inventory.capacity).toBe(8);
+    expect(snapshot.players[0].inventory.items).toEqual([
+      { id: 'item-player-1-axe', itemId: 'axe' },
+      { id: 'item-player-1-plate', itemId: 'plate' },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ]);
+    expect(snapshot.players[0].equipment).toMatchObject({
+      weapon: { id: 'item-player-1-weapon', itemId: 'sword' },
+      shield: { id: 'item-player-1-shield', itemId: 'shield' },
+      armor: { id: 'item-player-1-armor', itemId: 'armor' },
+      head: null,
+      feet: null,
+      hands: null,
+      neck: null,
+      ring: null,
+    });
+    expect(snapshot.groundItems).toEqual([
+      { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+    ]);
+  });
+
   it('las armas del snapshot desaparecen al recogerlas', () => {
     const session = new GameSession({
       seed: 279837264,

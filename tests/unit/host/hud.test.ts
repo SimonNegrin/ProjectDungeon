@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   ARMORS,
@@ -17,6 +18,7 @@ import {
 } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
+import { buildInventoryPanelModel } from '../../../src/host/inventory-panel';
 import type { CursorStatus } from '../../../src/host/cursor';
 import { makeState, makeUnit, makeGridWithWalls, rngForDice } from '../game/helpers';
 
@@ -64,7 +66,10 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('Espacio/Enter moverse');
     expect(model.keys).toContain('F atacar');
     expect(model.keys).toContain('I panel');
+    expect(model.keys).toContain('Escape cerrar');
     expect(model.keys).not.toContain('G ');
+    expect(model.keys).not.toContain('1-3');
+    expect(model.keys).not.toContain('1–3');
     expect(model.keys).toContain('E terminar turno');
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
@@ -103,6 +108,16 @@ describe('modelo del HUD', () => {
 
     expect(model.playerName).toBe('Ada');
     expect(model.archetype).toBe(ROSTER.warrior.name);
+  });
+
+  it('la ayuda estática de index.html coincide con las teclas nuevas', () => {
+    const html = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
+    const help = html.match(/data-testid="hud-keys"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
+
+    expect(help).toContain('I panel');
+    expect(help).toContain('Escape cerrar');
+    expect(help).not.toMatch(/\bG\b/);
+    expect(help).not.toMatch(/\b1-3\b|\b1–3\b/);
   });
 
   it('sin arquetipo conocido deja el arquetipo como guion', () => {
@@ -400,6 +415,74 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Cámara: (0, 0) · Límites (224, 224) · Viewport 416×416');
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Últimos eventos: ninguno');
+  });
+
+  it('muestra mochila, capacidad, equipo por hueco y suelo del mismo estado que el panel', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          inventory: {
+            capacity: 8,
+            items: [
+              { id: 'item-player-1-axe', itemId: 'axe' },
+              { id: 'item-player-1-plate', itemId: 'plate' },
+              null,
+              null,
+              null,
+              null,
+              null,
+              null,
+            ],
+          },
+          equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+        }),
+      ],
+      groundItems: [
+        { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+      ],
+    });
+    const text = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+    ).lines.join('\n');
+    const panel = buildInventoryPanelModel(state);
+
+    expect(text).toContain('Mochila 2/8');
+    expect(text).toContain('1. Hacha [item-player-1-axe]');
+    expect(text).toContain('2. Coraza [item-player-1-plate]');
+    expect(text).toContain('Equipo por hueco:');
+    expect(text).toContain('Arma Espada [item-player-1-weapon]');
+    expect(text).toContain('Escudo Escudo [item-player-1-shield]');
+    expect(text).toContain('Armadura Armadura [item-player-1-armor]');
+    expect(text).toContain('Casco —');
+    expect(text).toContain('Suelo: Martillo [item-ground-hammer] en (7,9)');
+
+    // La UI y F1 se derivan del mismo estado: los nombres coinciden.
+    for (const row of [...panel.backpack, ...panel.equipment, ...(panel.ground ?? [])]) {
+      if (!row.empty) expect(text).toContain(row.name);
+    }
+  });
+
+  it('sin objetos en el suelo lo indica sin ambigüedad', () => {
+    const text = buildDebugModel(
+      makeState(),
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+    ).lines.join('\n');
+
+    expect(text).toContain('Suelo: sin objetos');
+    expect(text).toContain('Mochila 0/8: vacía');
   });
 
   it('muestra nombre y arquetipo del Guerrero en el overlay de debug', () => {

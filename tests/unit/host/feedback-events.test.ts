@@ -168,6 +168,45 @@ describe('pulso de la ranura del arma', () => {
       FEEDBACK_CONFIG.beats.selectWeapon,
     );
   });
+
+  it('soltar y desequipar conservan su cue pero no pulsan la ranura del arma', () => {
+    const state = makeState();
+    const drop = buildMotionTimeline(
+      [
+        {
+          type: 'DropItem',
+          unitId: 'player-1',
+          itemId: 'armor',
+          slot: 0,
+        } satisfies PresentationEvent,
+      ],
+      { finalState: state },
+    );
+    const unequip = buildMotionTimeline(
+      [
+        {
+          type: 'UnequipItem',
+          unitId: 'player-1',
+          itemId: 'armor',
+          slot: 0,
+        } satisfies PresentationEvent,
+      ],
+      { finalState: state },
+    );
+
+    expect(drop.cues[0]).toMatchObject({
+      kind: 'select-weapon',
+      eventType: 'DropItem',
+      beatMs: FEEDBACK_CONFIG.beats.pickup,
+    });
+    expect(unequip.cues[0]).toMatchObject({
+      kind: 'select-weapon',
+      eventType: 'UnequipItem',
+      beatMs: FEEDBACK_CONFIG.beats.selectWeapon,
+    });
+    expect(weaponSlotPulseAt(drop, 0)).toBeNull();
+    expect(weaponSlotPulseAt(unequip, 0)).toBeNull();
+  });
 });
 
 describe('efectos de marco', () => {

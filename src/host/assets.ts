@@ -15,6 +15,7 @@ export const ASSET_URLS = {
   tiles: '/assets/32rogues/tiles.png',
   rogues: '/assets/32rogues/rogues.png',
   monsters: '/assets/32rogues/monsters.png',
+  items: '/assets/32rogues/items.png',
 } as const;
 
 /** Recortes comprobados sobre la rejilla real de los PNG (32 px por celda). */
@@ -99,6 +100,8 @@ export interface GameAssets {
   readonly tiles: HTMLImageElement;
   readonly rogues: HTMLImageElement;
   readonly monsters: HTMLImageElement;
+  /** Hoja de objetos de 32rogues; el catálogo decide el recorte. */
+  readonly items: HTMLImageElement;
 }
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
@@ -115,13 +118,14 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-/** Espera a que las tres imágenes estén listas antes de renderizar. */
+/** Espera a que las cuatro imágenes estén listas antes de renderizar. */
 export async function loadAssets(): Promise<GameAssets> {
-  const [tiles, rogues, monsters] = await Promise.all([
+  const [tiles, rogues, monsters, items] = await Promise.all([
     loadImage(ASSET_URLS.tiles),
     loadImage(ASSET_URLS.rogues),
     loadImage(ASSET_URLS.monsters),
+    loadImage(ASSET_URLS.items),
   ]);
 
-  return { tiles, rogues, monsters };
+  return { tiles, rogues, monsters, items };
 }

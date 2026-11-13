@@ -13,6 +13,7 @@ import {
   type EquipmentSlot,
   type ItemDefinition,
   type ItemId,
+  type ItemSpriteRect,
 } from '../game/equipment';
 import { backpackCount, type GroundItem } from '../game/inventory';
 import {
@@ -73,6 +74,8 @@ export interface PanelItem {
   readonly empty: boolean;
   readonly name: string;
   readonly detail: string;
+  /** Recorte de `items.png` que comparte con el objeto dibujado en el suelo. */
+  readonly sprite: ItemSpriteRect | null;
   /** Traits legibles; vacío hoy, pero se leen en el hueco. */
   readonly traits: readonly string[];
   readonly comparison: readonly PanelComparisonRow[];
@@ -255,6 +258,7 @@ function equipmentRow(unit: Unit, slot: EquipmentSlot): PanelItem {
     comparison: [] as readonly PanelComparisonRow[],
     name: instance ? itemName(ITEMS[instance.itemId]) : 'Vacío',
     detail: instance ? itemDetail(ITEMS[instance.itemId]) : slotLabel(slot),
+    sprite: instance ? ITEMS[instance.itemId].sprite.rect : null,
     traits: instance ? itemTraits(ITEMS[instance.itemId]) : [],
     actions: [] as readonly PanelAction[],
   };
@@ -284,6 +288,7 @@ function backpackRow(unit: Unit, index: number): PanelItem {
       empty: true,
       name: 'Vacío',
       detail: `Hueco ${index + 1}`,
+      sprite: null,
       traits: [],
       comparison: [],
       actions: [],
@@ -295,6 +300,7 @@ function backpackRow(unit: Unit, index: number): PanelItem {
     empty: false,
     name: itemName(item),
     detail: `${itemDetail(item)} · ${slotLabel(item.slot)}`,
+    sprite: item.sprite.rect,
     traits: itemTraits(item),
     comparison: compareEquip(unit, instance.itemId),
     actions: backpackActions(unit, index),
@@ -308,6 +314,7 @@ function groundRow(unit: Unit, item: GroundItem): PanelItem {
     empty: false,
     name: `${definition.name}`,
     detail: `${itemDetail(definition)} · ${slotLabel(definition.slot)}`,
+    sprite: definition.sprite.rect,
     traits: itemTraits(definition),
     comparison: compareEquip(unit, item.itemId),
     actions: [
@@ -355,6 +362,7 @@ export function buildInventoryPanelModel(
         empty: true,
         name: 'Vacío',
         detail: slotLabel(slot),
+        sprite: null,
         traits: [],
         comparison: [],
         actions: [],

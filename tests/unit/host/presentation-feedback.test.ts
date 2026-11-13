@@ -469,7 +469,7 @@ describe('ataque mixto en el feedback', () => {
 });
 
 describe('eventos de presentación del host', () => {
-  it('crea PickUp/SelectWeapon solo cuando el motor no emitió eventos y hubo cambio', () => {
+  it('crea PickUp/SelectWeapon/DropItem/UnequipItem solo cuando el motor no emitió eventos y hubo cambio', () => {
     const initialState = makeState({
       players: [
         makeUnit({
@@ -508,8 +508,7 @@ describe('eventos de presentación del host', () => {
       { type: 'SelectWeapon', unitId: 'player-1', itemId: 'axe', slot: 2 },
     ]);
 
-    // Desequipar no añade cue sintético: el builder solo modela recogida y
-    // equipo, y no inventa eventos para comandos sin presentación propia.
+    // Desequipar y soltar también retrasan su cambio de zona hasta el beat.
     const unequip = { type: 'UnequipItem' as const, unitId: 'player-1', slot: 'armor' as const };
     const unequipResult = reduce(initialState, unequip);
     expect(
@@ -519,7 +518,20 @@ describe('eventos de presentación del host', () => {
         unequipResult.state,
         unequipResult.events,
       ),
-    ).toEqual([]);
+    ).toEqual([
+      { type: 'UnequipItem', unitId: 'player-1', itemId: 'armor', slot: 0 },
+    ]);
+
+    const drop = {
+      type: 'DropItem' as const,
+      unitId: 'player-1',
+      from: 'backpack' as const,
+      index: 1,
+    };
+    const dropResult = reduce(initialState, drop);
+    expect(
+      buildPresentationEvents(drop, initialState, dropResult.state, dropResult.events),
+    ).toEqual([{ type: 'DropItem', unitId: 'player-1', itemId: 'axe', slot: 2 }]);
 
     const rejected = reduce(initialState, {
       type: 'PickUp',

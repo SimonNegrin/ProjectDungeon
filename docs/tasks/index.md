@@ -100,12 +100,8 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
-| [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `ready` | REQ-018 | TASK-0094, TASK-0095 | P2 |
+| [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P2 |
-
-# ready
-
-* [TASK-0096 — Host: objetos del suelo con sprite, efectos y debug](TASK-0096-host-objetos-suelo-sprite-debug.md)
 
 # blocked
 
@@ -212,4 +208,5 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0062 — Arnés: sufijo de repetición en capturas E2E](TASK-0062-arnes-sufijo-repeticion-capturas.md)
 * [TASK-0065 — EXP-003 v2.0: manifest del índice](TASK-0065-exp-003-v2-manifest.md)
 * [TASK-0075 — Arnés: validar el formato del log en docs:check](TASK-0075-arnes-validacion-log.md)
+* [TASK-0096 — Host: objetos del suelo con sprite, efectos y debug](TASK-0096-host-objetos-suelo-sprite-debug.md)
 
