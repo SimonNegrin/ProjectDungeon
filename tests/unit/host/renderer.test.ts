@@ -698,10 +698,13 @@ describe('render de objetos del suelo', () => {
     expect(ITEMS.axe.sprite.rect).not.toEqual(ITEMS.dagger.sprite.rect);
   });
 
-  it('dibuja el objeto antes que la unidad que pisa su tile', () => {
+  it('dibuja el objeto después de los decals y antes que la unidad que pisa su tile', () => {
     const { state, camera } = stateWithItem('axe', { onPlayerTile: true });
     const fake = draw(state, camera);
 
+    const decalIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.tiles && op.sy !== 64,
+    );
     const itemIndex = fake.ops.findIndex(
       (op) => op.kind === 'draw' && op.image === assets.items,
     );
@@ -711,7 +714,8 @@ describe('render de objetos del suelo', () => {
         (op.image === assets.rogues || op.image === assets.monsters),
     );
 
-    expect(itemIndex).toBeGreaterThanOrEqual(0);
+    expect(decalIndex).toBeGreaterThanOrEqual(0);
+    expect(itemIndex).toBeGreaterThan(decalIndex);
     expect(unitIndex).toBeGreaterThan(itemIndex);
   });
 
