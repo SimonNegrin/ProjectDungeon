@@ -1,5 +1,7 @@
+import type { SpellId } from '../game/spells';
 import type { Command, GameState, Position, Unit } from '../game/types';
 import type { NoticeCode } from './notices';
+import { SPELL_ORDER, type SpellMenuSelection } from './spell-menu';
 
 /** Datos mínimos de un evento de teclado; permite probar el mapeo sin DOM. */
 export interface KeyInput {
@@ -18,11 +20,14 @@ export type InputIgnoreReason =
   | 'wrong-phase'
   | 'no-active-player'
   | 'no-target'
-  | 'animating';
+  | 'animating'
+  | 'spell-menu-open';
 
 export interface TranslateKeyOptions {
   /** Con una animación activa solo responden `F1` y `R`; el resto se descarta. */
   readonly animating?: boolean;
+  /** Estado de la lista de hechizos; sin él se comporta como cerrada y vacía. */
+  readonly spellMenu?: SpellMenuSelection;
 }
 
 /**
@@ -36,6 +41,12 @@ export type InputIntent =
   | { readonly type: 'notice'; readonly notice: NoticeCode }
   | { readonly type: 'toggle-debug' }
   | { readonly type: 'new-seed' }
+  | { readonly type: 'spell-menu-toggle' }
+  | { readonly type: 'spell-menu-close' }
+  | { readonly type: 'spell-menu-move'; readonly delta: number }
+  | { readonly type: 'spell-menu-select'; readonly spellId: SpellId }
+  | { readonly type: 'spell-cast'; readonly spellId: SpellId; readonly unitId: string; readonly target: Position }
+  | { readonly type: 'spell-deselect' }
   | { readonly type: 'ignored'; readonly reason: InputIgnoreReason };
 
 const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number }>> = {
@@ -118,6 +129,9 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
  * - `G` envía `PickUp` para el arma del tile del jugador.
  * - `1`-`3` envían `SelectWeapon` al hueco correspondiente.
+ * - `Q` abre/cierra la lista de hechizos; con la lista abierta `↑/↓` o `W/S`
+ *   navegan, `1`-`6` eligen, `Enter` lanza contra el cursor y `Esc` cierra.
+ * - Cerrada, `X` lanza el hechizo seleccionado y `Esc` lo deselecciona.
  * - Movimiento, acciones y fin de turno exigen fase de jugador.
  */
 export function translateKey(
@@ -138,6 +152,66 @@ export function translateKey(
   if (key === 'f2') return { type: 'new-seed' };
 
   if (state.status !== 'playing') return ignored('game-over');
+
+  const menu = options.spellMenu;
+
+  if (key === 'q') {
+    if (state.phase !== 'player') return ignored('wrong-phase');
+    if (!findActivePlayer(state)) return ignored('no-active-player');
+    return { type: 'spell-menu-toggle' };
+  }
+
+  if (menu?.open) {
+    if (key === 'escape') return { type: 'spell-menu-close' };
+    if (key === 'arrowup' || key === 'w') {
+      return { type: 'spell-menu-move', delta: -1 };
+    }
+    if (key === 'arrowdown' || key === 's') {
+      return { type: 'spell-menu-move', delta: 1 };
+    }
+
+    const slot = Number.parseInt(key, 10);
+    if (/^[1-6]$/.test(key) && slot >= 1 && slot <= SPELL_ORDER.length) {
+      return { type: 'spell-menu-select', spellId: SPELL_ORDER[slot - 1] };
+    }
+
+    if (key === 'enter') {
+      const player = findActivePlayer(state);
+      if (!player) return ignored('no-active-player');
+      const highlighted = Math.min(
+        Math.max(0, menu.index),
+        SPELL_ORDER.length - 1,
+      );
+      const spellId = SPELL_ORDER[highlighted];
+      return {
+        type: 'spell-cast',
+        spellId,
+        unitId: player.id,
+        target: { x: cursor.x, y: cursor.y },
+      };
+    }
+
+    return ignored('spell-menu-open');
+  }
+
+  if (key === 'escape') {
+    return menu?.selectedId ? { type: 'spell-deselect' } : ignored('unmapped');
+  }
+
+  if (key === 'x') {
+    if (state.phase !== 'player') return ignored('wrong-phase');
+    const player = findActivePlayer(state);
+    if (!player) return ignored('no-active-player');
+    if (!menu?.selectedId) {
+      return { type: 'notice', notice: 'no-spell-selected' };
+    }
+    return {
+      type: 'spell-cast',
+      spellId: menu.selectedId,
+      unitId: player.id,
+      target: { x: cursor.x, y: cursor.y },
+    };
+  }
 
   const cursorMove = MOVES[key];
   if (cursorMove) {

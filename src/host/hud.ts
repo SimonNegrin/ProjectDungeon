@@ -23,7 +23,7 @@ import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 
 export const KEYS_HELP =
-  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · E terminar turno · R reiniciar · F1 debug';
+  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
 
 export interface HudModel {
   /** Nombre de instancia del jugador. */
@@ -32,6 +32,10 @@ export interface HudModel {
   readonly archetype: string;
   readonly playerHp: string;
   readonly playerMp: string;
+  /** Nivel de magia único del jugador (REQ-025 R-011). */
+  readonly playerMagic: string;
+  /** Maná actual/máximo del jugador; `0/0` sin magia. */
+  readonly playerMana: string;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
   /** Sugerencia discreta de terminar el turno; `null` si no aplica. */
@@ -46,6 +50,10 @@ export interface HudModel {
   readonly stats: string;
   /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyHp: string;
+  /** Nivel de magia del enemigo bajo el cursor; `—` si no hay ninguno. */
+  readonly cursorEnemyMagic: string;
+  /** Maná actual/máximo del enemigo bajo el cursor; `—/—` si no hay ninguno. */
+  readonly cursorEnemyMana: string;
   /**
    * Cinco bandas del enemigo vivo bajo el cursor; `null` sin enemigo, con el
    * jugador muerto o sin línea de visión (REQ-029 R-010 / T-008).
@@ -72,6 +80,14 @@ function formatHp(unit: Unit | undefined): string {
 
 function formatMp(unit: Unit | undefined): string {
   return unit ? `${unit.mp}/${unit.maxMp}` : '—/—';
+}
+
+function formatMagic(unit: Unit | undefined): string {
+  return unit ? String(unit.stats.magicLevel) : '—';
+}
+
+function formatMana(unit: Unit | undefined): string {
+  return unit ? `${unit.mana.current}/${unit.mana.max}` : '—/—';
 }
 
 function formatActions(unit: Unit | undefined): string {
@@ -183,6 +199,8 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     archetype: archetypeLabel(player),
     playerHp: formatHp(player),
     playerMp: formatMp(player),
+    playerMagic: formatMagic(player),
+    playerMana: formatMana(player),
     action: formatActions(player),
     actionSuggestion: actionSuggestion(state),
     phase: phaseLabel(state),
@@ -192,6 +210,8 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     armor: armorLabel(player),
     stats: statsLabel(player),
     cursorEnemyHp: formatHp(cursorEnemy),
+    cursorEnemyMagic: formatMagic(cursorEnemy),
+    cursorEnemyMana: formatMana(cursorEnemy),
     cursorEnemyBands: cursorEnemyBands(state, cursorEnemy, cursor),
     weaponHint: mapWeapon
       ? `G recoger ${weaponFor(mapWeapon.weaponId).name}`
@@ -399,6 +419,19 @@ function equipmentDebugLine(unit: Unit | undefined): string {
   return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
+function magicLabel(unit: Unit | undefined): string {
+  return unit
+    ? `Magia ${formatMagic(unit)} · Maná ${formatMana(unit)}`
+    : 'Magia — · Maná —';
+}
+
+function enemyMagicLines(state: GameState): readonly string[] {
+  if (state.enemies.length === 0) return ['Magia enemiga: ninguno'];
+  return state.enemies.map(
+    (enemy) => `Magia enemiga ${enemy.id}: ${magicLabel(enemy)}`,
+  );
+}
+
 function enemyEquipmentLines(state: GameState): readonly string[] {
   const alive = state.enemies.filter((enemy) => enemy.hp > 0);
   if (alive.length === 0) return ['Equipo enemigo: ninguno'];
@@ -465,11 +498,12 @@ export function buildDebugModel(
 
   return {
     lines: [
-      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acciones ${formatActions(player)}`,
+      `Jugador: ${positions(player)} · HP ${formatHp(player)} · MP ${formatMp(player)} · Acciones ${formatActions(player)} · ${magicLabel(player)}`,
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)} · Acciones ${formatActions(enemy)}`,
       equipmentDebugLine(player),
       ...enemyEquipmentLines(state),
+      ...enemyMagicLines(state),
       ...enemyPerceptionLines(state),
       vitalityLine(state),
       `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
@@ -599,6 +633,8 @@ export function createHudView(root: ParentNode): HudView {
   const hud = requireElement(root, 'hud');
   const playerHp = requireElement(root, 'hud-player-hp');
   const playerMp = requireElement(root, 'hud-player-mp');
+  const playerMagic = requireElement(root, 'hud-player-magic');
+  const playerMana = requireElement(root, 'hud-player-mana');
   const action = requireElement(root, 'hud-action');
   const actionSuggestion = requireElement(root, 'hud-suggestion');
   const phase = requireElement(root, 'hud-phase');
@@ -623,6 +659,18 @@ export function createHudView(root: ParentNode): HudView {
     'hud-cursor-enemy-hp',
     'Enemigo cursor',
   );
+  const cursorEnemyMagic = ensureHudStat(
+    root,
+    equipmentGroup,
+    'hud-cursor-enemy-magic',
+    'Magia cursor',
+  );
+  const cursorEnemyMana = ensureHudStat(
+    root,
+    equipmentGroup,
+    'hud-cursor-enemy-mana',
+    'Maná cursor',
+  );
   const cursorBands = ensureCursorBands(root, hud);
   const weaponHint = ensureWeaponHint(root, keys);
 
@@ -633,6 +681,8 @@ export function createHudView(root: ParentNode): HudView {
       archetype.textContent = model.archetype;
       playerHp.textContent = model.playerHp;
       playerMp.textContent = model.playerMp;
+      playerMagic.textContent = model.playerMagic;
+      playerMana.textContent = model.playerMana;
       action.textContent = model.action;
       actionSuggestion.textContent = model.actionSuggestion ?? '';
       actionSuggestion.hidden = model.actionSuggestion === null;
@@ -646,6 +696,8 @@ export function createHudView(root: ParentNode): HudView {
       armor.textContent = model.armor;
       stats.textContent = model.stats;
       cursorEnemyHp.textContent = model.cursorEnemyHp;
+      cursorEnemyMagic.textContent = model.cursorEnemyMagic;
+      cursorEnemyMana.textContent = model.cursorEnemyMana;
       cursorBands.group.hidden = model.cursorEnemyBands === null;
       for (const row of model.cursorEnemyBands ?? []) {
         const element = cursorBands.rows.get(row.type);

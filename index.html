@@ -41,6 +41,7 @@
         gap: 8px;
       }
       .game-root {
+        position: relative;
         width: 100%;
         flex: 1 1 auto;
         min-height: 0;
@@ -351,6 +352,85 @@
         font-weight: 700;
         line-height: 1.3;
       }
+      /* Lista modal de hechizos: flota sobre el escenario sin mover el HUD. */
+      .spell-list {
+        position: absolute;
+        top: 82px;
+        right: 12px;
+        z-index: 20;
+        width: min(370px, calc(100% - 24px));
+        padding: 10px 12px;
+        background: rgba(5, 9, 14, 0.94);
+        border: 1px solid rgba(127, 179, 213, 0.55);
+        border-radius: 8px;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5);
+      }
+      .spell-list-title {
+        margin: 0 0 6px;
+        color: var(--accent);
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+      }
+      .spell-list-items {
+        display: grid;
+        gap: 3px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .spell-row {
+        display: grid;
+        grid-template-columns: 1.15rem minmax(0, 1fr) auto auto;
+        gap: 8px;
+        align-items: baseline;
+        padding: 3px 5px;
+        border-radius: 4px;
+        color: var(--muted);
+        font-size: 0.76rem;
+      }
+      .spell-row.is-selected {
+        color: var(--ink);
+        background: rgba(232, 184, 109, 0.16);
+        box-shadow: inset 0 0 0 1px rgba(232, 184, 109, 0.6);
+      }
+      .spell-row-key {
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+      }
+      .spell-row-name {
+        color: inherit;
+        white-space: nowrap;
+      }
+      .spell-row-meta {
+        color: var(--muted);
+        font-size: 0.7rem;
+        white-space: nowrap;
+      }
+      .spell-row-availability {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .spell-row[data-availability="available"] .spell-row-availability {
+        color: #4ade80;
+      }
+      .spell-row[data-availability="level"] .spell-row-availability {
+        color: #fbbf24;
+      }
+      .spell-row[data-availability="mana"] .spell-row-availability {
+        color: #7fb3d5;
+      }
+      .spell-row[data-availability="limit"] .spell-row-availability {
+        color: #f87171;
+      }
+      .spell-list-hint {
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 0.7rem;
+        line-height: 1.35;
+      }
       .hud-suggestion {
         flex-basis: 100%;
         margin: 2px 0 0;
@@ -372,6 +452,12 @@
       }
       .damage-feedback[data-result="miss"] {
         color: #9aa7b8;
+      }
+      .damage-feedback[data-result="heal"] {
+        color: #4ade80;
+      }
+      .damage-feedback[data-result="revive"] {
+        color: #7fb3d5;
       }
       /* Desglose por tipo: segunda línea del texto de daño, sin tocar el nodo
          principal (el total sigue siendo el texto de `damage-feedback`). */
@@ -483,6 +569,8 @@
           <div class="hud-group">
             <span class="hud-stat">Vida <strong data-testid="hud-player-hp">20/20</strong></span>
             <span class="hud-stat">MP <strong data-testid="hud-player-mp">6/6</strong></span>
+            <span class="hud-stat">Magia <strong data-testid="hud-player-magic">0</strong></span>
+            <span class="hud-stat">Maná <strong data-testid="hud-player-mana">0/0</strong></span>
             <span class="hud-stat">Acciones <strong data-testid="hud-action">2/2</strong></span>
           </div>
           <div class="hud-group">
@@ -496,6 +584,12 @@
           </p>
           <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
           <p class="hud-message" data-testid="hud-message" role="status" aria-live="polite" hidden></p>
+        </section>
+
+        <section class="spell-list" data-testid="spell-list" aria-label="Hechizos" hidden>
+          <h2 class="spell-list-title">Hechizos · Q</h2>
+          <ol class="spell-list-items" data-testid="spell-list-items"></ol>
+          <p class="spell-list-hint" data-testid="spell-list-hint"></p>
         </section>
 
         <div class="stage" data-testid="stage">

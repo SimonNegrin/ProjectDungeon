@@ -9,6 +9,7 @@ import type {
   Unit,
 } from '../game/types';
 import type { WeaponId } from '../game/equipment';
+import { findSpell } from '../game/spells';
 import { clampCamera, type Camera } from './camera';
 import { FEEDBACK_CONFIG } from './feedback-config';
 import { TILE_SIZE, type Viewport, type WorldSize } from './geometry';
@@ -81,6 +82,7 @@ export type FeedbackCueKind =
   | 'move'
   | 'attack'
   | 'replica'
+  | 'spell'
   | 'death'
   | 'pickup'
   | 'select-weapon'
@@ -119,6 +121,10 @@ export interface FeedbackCueData {
   readonly status?: GameEndStatus;
   readonly commandType?: CommandType;
   readonly reason?: RejectionReason;
+  readonly spellId?: string;
+  /** Efecto del `SpellCast`; decide texto y tipo de feedback. */
+  readonly effect?: 'damage' | 'heal' | 'resurrect';
+  readonly healing?: number;
   readonly mpAfter?: number;
   readonly from?: Position;
   readonly to?: Position;
@@ -258,9 +264,14 @@ function beatForEvent(
       return event.hit
         ? FEEDBACK_CONFIG.beats.attackHit
         : FEEDBACK_CONFIG.beats.attackMiss;
-    // TASK-0083 define el beat y el cue de hechizos; aquí no hay presentación.
     case 'SpellCast':
-      return 0;
+      if (event.effect === 'heal') return FEEDBACK_CONFIG.beats.spellHeal;
+      if (event.effect === 'resurrect') {
+        return FEEDBACK_CONFIG.beats.spellResurrect;
+      }
+      return event.hit
+        ? FEEDBACK_CONFIG.beats.spellHit
+        : FEEDBACK_CONFIG.beats.spellMiss;
     // La réplica reutiliza la animación de ataque con un beat propio (REQ-027).
     case 'ReplicaPerformed':
       return FEEDBACK_CONFIG.beats.replica;
@@ -474,9 +485,60 @@ function cueForEvent(
         anchor: { unitId: null, tile: null },
         data: { commandType: event.commandType, reason: event.reason },
       };
-    case 'SpellCast':
-      // Sin cue hasta TASK-0083; el evento sí viaja en la timeline.
-      return null;
+    case 'SpellCast': {
+      const state = finalState ?? initialState;
+      const anchor = anchorFor(event.targetId, state, event.target);
+      const attacker = unitTile(state, event.casterId);
+      const common = {
+        casterId: event.casterId,
+        targetId: event.targetId,
+        spellId: event.spellId,
+        effect: event.effect,
+        ...(attacker ? { attacker } : {}),
+        ...(anchor.tile ? { target: anchor.tile } : {}),
+      };
+
+      if (event.effect === 'damage') {
+        return {
+          ...base,
+          kind: 'spell',
+          anchor,
+          data: {
+            ...common,
+            hit: event.hit,
+            damage: event.damage,
+            targetHp: event.targetHp,
+            rolls: { ...event.rolls },
+            text: event.hit ? `-${event.damage}` : 'Fallo',
+          },
+        };
+      }
+
+      if (event.effect === 'heal') {
+        return {
+          ...base,
+          kind: 'spell',
+          anchor,
+          data: {
+            ...common,
+            healing: event.healing,
+            targetHp: event.targetHp,
+            text: `+${event.healing}`,
+          },
+        };
+      }
+
+      return {
+        ...base,
+        kind: 'spell',
+        anchor,
+        data: {
+          ...common,
+          targetHp: event.targetHp,
+          text: `Vuelve ${event.targetHp} PV`,
+        },
+      };
+    }
     case 'UnitMoved':
       // El builder trata el movimiento por separado para conservar sus fases.
       return {
@@ -940,7 +1002,11 @@ function hpBeforeEvents(
   const before = new Map<number, number>();
   for (let index = 0; index < timeline.events.length; index += 1) {
     const event = timeline.events[index].event;
-    if (event.type !== 'AttackPerformed' && event.type !== 'ReplicaPerformed') {
+    if (
+      event.type !== 'AttackPerformed' &&
+      event.type !== 'ReplicaPerformed' &&
+      event.type !== 'SpellCast'
+    ) {
       continue;
     }
     const current = hp.get(event.targetId);
@@ -963,16 +1029,53 @@ function withFutureActions(
 ): Unit {
   let remaining = unit.actions.remaining;
   for (const entry of timeline.events) {
+    if (entry.atMs <= elapsed + EPSILON) continue;
     if (
       entry.event.type === 'AttackPerformed' &&
-      entry.event.attackerId === unit.id &&
-      entry.atMs > elapsed + EPSILON
+      entry.event.attackerId === unit.id
+    ) {
+      remaining = Math.min(unit.actions.max, remaining + 1);
+    }
+    if (
+      entry.event.type === 'SpellCast' &&
+      entry.event.casterId === unit.id
     ) {
       remaining = Math.min(unit.actions.max, remaining + 1);
     }
   }
   if (remaining === unit.actions.remaining) return unit;
   return { ...unit, actions: { ...unit.actions, remaining } };
+}
+
+/**
+ * Deshace el maná y el cupo de los hechizos que aún no han ocurrido. El coste
+ * sale del catálogo, igual que en el motor; el host no lo recalcula.
+ */
+function withFutureSpells(
+  unit: Unit,
+  timeline: MotionTimeline,
+  elapsed: number,
+): Unit {
+  let current = unit.mana.current;
+  let spellsCast = unit.spellsCast;
+
+  for (const entry of timeline.events) {
+    if (
+      entry.event.type !== 'SpellCast' ||
+      entry.event.casterId !== unit.id ||
+      entry.atMs <= elapsed + EPSILON
+    ) {
+      continue;
+    }
+    const spell = findSpell(entry.event.spellId);
+    if (spell) current = Math.min(unit.mana.max, current + spell.cost);
+    spellsCast = Math.max(0, spellsCast - 1);
+  }
+
+  if (current === unit.mana.current && spellsCast === unit.spellsCast) {
+    return unit;
+  }
+  return { ...unit, mana: { ...unit.mana, current }, spellsCast };
 }
 
 /**
@@ -996,15 +1099,26 @@ export function presentationState(
   const hpBefore = hpBeforeEvents(timeline, initialState);
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
+    const event = entry.event;
     if (
-      entry.event.type !== 'AttackPerformed' &&
-      entry.event.type !== 'ReplicaPerformed'
+      event.type !== 'AttackPerformed' &&
+      event.type !== 'ReplicaPerformed' &&
+      event.type !== 'SpellCast'
     ) {
       continue;
     }
     if (entry.atMs <= elapsed + EPSILON) continue;
-    const { targetId, targetHp, damage } = entry.event;
-    const restoredHp = hpBefore?.get(index) ?? targetHp + damage;
+
+    const { targetId, targetHp } = event;
+    const restoredHp =
+      hpBefore?.get(index) ??
+      (event.type === 'SpellCast'
+        ? event.effect === 'damage'
+          ? targetHp + event.damage
+          : event.effect === 'heal'
+            ? targetHp - event.healing
+            : 0
+        : targetHp + event.damage);
     players = players.map((unit) =>
       unit.id === targetId ? { ...unit, hp: restoredHp } : unit,
     );
@@ -1013,8 +1127,12 @@ export function presentationState(
     );
   }
 
-  players = players.map((unit) => withFutureActions(unit, timeline, elapsed));
-  enemies = enemies.map((unit) => withFutureActions(unit, timeline, elapsed));
+  players = players.map((unit) =>
+    withFutureSpells(withFutureActions(unit, timeline, elapsed), timeline, elapsed),
+  );
+  enemies = enemies.map((unit) =>
+    withFutureSpells(withFutureActions(unit, timeline, elapsed), timeline, elapsed),
+  );
 
   // La recogida y el cambio de arma se aplican al acabar su beat, no al
   // empezar el cue (R-011/R-012). Hasta entonces se conserva el inventario, el
@@ -1119,15 +1237,17 @@ export function presentationState(
 
     let actions = player.actions;
     if (!playerTurn && initialPlayer) {
-      const attacksOccurred = timeline.events.filter(
+      const actionsOccurred = timeline.events.filter(
         (entry) =>
-          entry.event.type === 'AttackPerformed' &&
-          entry.event.attackerId === player.id &&
+          ((entry.event.type === 'AttackPerformed' &&
+            entry.event.attackerId === player.id) ||
+            (entry.event.type === 'SpellCast' &&
+              entry.event.casterId === player.id)) &&
           entry.atMs <= elapsed + EPSILON,
       ).length;
       actions = {
         ...initialPlayer.actions,
-        remaining: Math.max(0, initialPlayer.actions.remaining - attacksOccurred),
+        remaining: Math.max(0, initialPlayer.actions.remaining - actionsOccurred),
       };
     }
     players = players.map((unit) =>
