@@ -31,7 +31,7 @@ verified:
 |---|---|---|
 | `pnpm run verify` | 81 archivos, 1129 tests, build y bundle OK | `verify-output.txt` |
 | `pnpm exec vitest run` (7 archivos tocados) | 134 tests OK | `test-output.txt` |
-| `pnpm run test:e2e` (equipo/HUD) | 8 tests OK | `e2e-output.txt` |
+| `pnpm run test:e2e` (suite completa) | 112 tests OK | `e2e-output.txt` |
 
 Semilla `279837264`: `axe@8,4`, `dagger@23,10`, `hammer@16,17`; la semilla
 `1234` cambia las tres. Comprobado en `tests/unit/game/map.test.ts`.
@@ -49,6 +49,9 @@ reejecutaron sin capturas nuevas.
   quedaba con dos armas.
 - Se ajustaron recuentos E2E de equipo para no dejar especificaciones rotas.
 - La marca de estimado es un campo opcional del catálogo, no una lista paralela.
+- Regresión E2E del lead: `floor-qa-ambient` medía el sprite del martillo en
+  `(16,17)`. `measurableTiles` excluye `snap.weapons` como decals/spawns; sin
+  tocar umbrales ni colores.
 
 # Problemas conocidos y preguntas abiertas
 
@@ -64,6 +67,6 @@ Ninguna: el ajuste de growth es una decisión de esta tarea, no del arnés.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2754 |
-| `report_bytes` | 2332 |
+| `report_bytes` | 2524 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
