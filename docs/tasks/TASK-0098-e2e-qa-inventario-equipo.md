@@ -4,7 +4,7 @@ id: TASK-0098
 title: "E2E y QA visual del inventario y el equipo"
 description: "Cubrir en navegador el panel con teclado, equipar y desequipar, recoger y soltar, mochila llena, dos manos con escudo, costes de MP sin acción y ausencia de G y 1-3, con capturas de 1280×720 y 900×700."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-018
 requirement_ids: [T-012]
