@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Harness — Permisos — el prompt de `requirements-writer` descarta `git -C <ruta>`: el cwd ya es la raíz y el flag rompe el prefijo de la allowlist, así que cada consulta pedía permiso; sin cambios en `opencode.jsonc` — [requirements-writer](../.opencode/agents/requirements-writer.md)
+
 * 2026-11-13 — Harness — Propiedad — `AGENTS.md` y el prompt de `requirements-writer` se alinean con ADR-016 (diseño, glosario y log compartidos); comando `/harness`; la autoría de ADR por tipo y el log arriba de la fecha quedan solo en el workflow — [workflow](harness/workflow.md#fricción-y-propuestas)
 
 * 2026-11-13 — Task — TASK-0088 — done: desglose por paquete (tipo, base, dados, bruto, banda, multiplicador y daño final) en eventos de ataque, réplica y hechizo, con total y RNG intactos; checks de solo lectura en snapshot; verify 1119/1119; fusión `a0dc2b5` — [informe](../artifacts/TASK-0088/attempt-1/report.md)

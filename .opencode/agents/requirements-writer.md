@@ -123,6 +123,10 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 - Para buscar archivos usa `rg --files -g '*patrón*' [ruta]` o `git ls-files`;
   `find` pide permiso porque `-exec` y `-delete` caben en cualquier forma del
   comando ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
+- No antepongas `-C <ruta>` a git: la sesión ya trabaja en la raíz del repo y las
+  reglas de la allowlist empiezan por el subcomando (`git status *`, `git log *`),
+  así que `-C` obliga a pedir permiso en cada paso
+  ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
 - Todo comando de shell va con el parámetro `timeout`; macOS no trae el binario
   `timeout`.
 - No dejes procesos en background; si necesitas uno, que sea un servidor con
