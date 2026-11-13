@@ -124,6 +124,26 @@ describe('disponibilidad de hechizos', () => {
     );
   });
 
+  it('el Cocinero de nivel 1 ve Eléctrico I disponible y Fuego II por nivel', () => {
+    const cook = createPlayerFromArchetype('cook', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+    const model = buildSpellMenuModel(
+      makeState({ players: [cook] }),
+      { open: true, index: 0, selectedId: null },
+    );
+
+    expect(model.items.find((item) => item.id === 'electric-1')).toMatchObject({
+      availability: 'available',
+      availabilityLabel: 'disponible',
+    });
+    expect(model.items.find((item) => item.id === 'fire-2')).toMatchObject({
+      availability: 'level',
+      availabilityLabel: 'nivel',
+    });
+  });
+
   it('navega con vuelta circular y localiza el índice', () => {
     expect(moveSpellSelection(0, -1, 6)).toBe(5);
     expect(moveSpellSelection(5, 1, 6)).toBe(0);
