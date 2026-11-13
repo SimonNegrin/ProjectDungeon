@@ -4,7 +4,7 @@ id: TASK-0089
 title: "Host: bandas en el detalle del cursor y desglose de daño"
 description: "Mostrar las cinco bandas del enemigo bajo el cursor solo con línea de visión, el perfil completo en F1 y el total más el desglose por tipo en el feedback de ataque."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-010, T-008]

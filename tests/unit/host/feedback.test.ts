@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { reduce, type Unit } from '../../../src/game/index';
+import { reduce, type GameEvent, type ResistanceProfile, type Unit } from '../../../src/game/index';
 import {
   collectAttackFeedbacks,
   collectDamageFeedbacks,
@@ -103,6 +103,7 @@ describe('feedback de impacto y fallo', () => {
         targetHp: state.enemies[0].maxHp - damage,
         rolls: { attack: 6, shield: 1, damage: 2, armor: 1 },
         text: `-${damage}`,
+        detail: `filo ${damage}`,
         x: 6,
         y: 5,
         attacker: { x: 5, y: 5 },
@@ -134,6 +135,124 @@ describe('feedback de impacto y fallo', () => {
       x: 6,
       y: 5,
     });
+  });
+});
+
+describe('desglose por tipo del ataque', () => {
+  interface MixedOptions {
+    readonly resistencia?: ResistanceProfile;
+    readonly dice?: readonly number[];
+    readonly armorId?: 'armor' | 'plate' | null;
+  }
+
+  /** Ataque real con la espada electrizada (filo + eléctrico) del catálogo. */
+  function mixedAttack(options: MixedOptions = {}) {
+    const player = makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x: 5,
+      y: 5,
+      weapons: ['electric-sword'],
+      equipment: { weaponId: 'electric-sword', armorId: null, shieldId: null },
+    });
+    const enemy = makeUnit({
+      id: 'enemy-1',
+      faction: 'enemy',
+      x: 6,
+      y: 5,
+      maxHp: 50,
+      stats: { resistencia: options.resistencia ?? { electric: 'vulnerable' } },
+      equipment: {
+        weaponId: 'sword',
+        armorId: options.armorId === undefined ? null : options.armorId,
+        shieldId: null,
+      },
+    });
+    const state = makeState({
+      players: [player],
+      enemies: [enemy],
+      rng: rngForDice(options.dice ?? [6, 1, 4, 2, 3, 1]),
+    });
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+    const event = result.events.find(
+      (entry): entry is Extract<GameEvent, { type: 'AttackPerformed' }> =>
+        entry.type === 'AttackPerformed',
+    );
+    if (!event) throw new Error('se esperaba un ataque');
+    const [feedback] = collectAttackFeedbacks(result.events, result.state);
+    if (!feedback) throw new Error('se esperaba feedback de ataque');
+    return { event, feedback };
+  }
+
+  it('lee el total y el desglose del evento, no de una fórmula paralela', () => {
+    const { event, feedback } = mixedAttack();
+
+    expect(event.damage).toBe(10);
+    expect(event.damageBreakdown.map((packet) => packet.damage)).toEqual([6, 4]);
+    expect(feedback.text).toBe('-10');
+    expect(feedback.damage).toBe(event.damage);
+    expect(feedback.detail).toBe(
+      `filo ${event.damageBreakdown[0].damage} + eléctrico ${event.damageBreakdown[1].damage}`,
+    );
+    expect(feedback.detail).toBe('filo 6 + eléctrico 4');
+  });
+
+  it('un cambio de banda en el estado cambia el texto sin tocar el host', () => {
+    const normal = mixedAttack({ resistencia: { electric: 'normal' } });
+    const vulnerable = mixedAttack({ resistencia: { electric: 'vulnerable' } });
+
+    expect(normal.feedback.detail).toBe('filo 6 + eléctrico 3');
+    expect(vulnerable.feedback.detail).toBe('filo 6 + eléctrico 4');
+    expect(normal.feedback.detail).not.toBe(vulnerable.feedback.detail);
+  });
+
+  it('un paquete recortado a 0 no aparece en el desglose', () => {
+    const { event, feedback } = mixedAttack({ dice: [6, 1, 4, 2, 3, 6] });
+
+    expect(event.damageBreakdown.map((packet) => packet.damage)).toEqual([6, 0]);
+    expect(event.damage).toBe(6);
+    expect(feedback.detail).toBe('filo 6');
+    expect(feedback.detail).not.toContain('eléctrico');
+  });
+
+  it('si todos los paquetes quedan a 0 muestra el total mínimo sin desglose', () => {
+    const { event, feedback } = mixedAttack({
+      dice: [6, 1, 1, 6, 1, 6],
+      armorId: 'plate',
+    });
+
+    expect(event.damageBreakdown.map((packet) => packet.damage)).toEqual([0, 0]);
+    expect(event.damage).toBe(1);
+    expect(feedback.text).toBe('-1');
+    expect(feedback.detail).toBe('');
+  });
+
+  it('curación y resurrección no producen desglose ni texto de daño', () => {
+    const heal: GameEvent = {
+      type: 'SpellCast',
+      casterId: 'player-1',
+      spellId: 'healing-3',
+      targetId: 'player-1',
+      target: { x: 5, y: 5 },
+      effect: 'heal',
+      healing: 4,
+      targetHp: 10,
+    };
+    const resurrect: GameEvent = {
+      type: 'SpellCast',
+      casterId: 'player-1',
+      spellId: 'resurrection-4',
+      targetId: 'player-1',
+      target: { x: 5, y: 5 },
+      effect: 'resurrect',
+      targetHp: 12,
+    };
+
+    expect(collectAttackFeedbacks([heal, resurrect], makeState())).toEqual([]);
   });
 });
 

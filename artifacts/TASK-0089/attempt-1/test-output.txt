@@ -1,0 +1,77 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ tests/unit/host/feedback.test.ts > feedback de ataque > convierte AttackPerformed en daño y posición del objetivo 5ms
+ ✓ tests/unit/host/feedback.test.ts > feedback de ataque > también produce feedback para el ataque enemigo 1ms
+ ✓ tests/unit/host/feedback.test.ts > feedback de ataque > no inventa feedback sin ataques 0ms
+ ✓ tests/unit/host/feedback.test.ts > feedback de impacto y fallo > un impacto usa el texto ASCII -N y conserva daño, vida y tiradas 1ms
+ ✓ tests/unit/host/feedback.test.ts > feedback de impacto y fallo > un fallo produce Fallo con texto y sin tiradas de daño 1ms
+ ✓ tests/unit/host/feedback.test.ts > desglose por tipo del ataque > lee el total y el desglose del evento, no de una fórmula paralela 2ms
+ ✓ tests/unit/host/feedback.test.ts > desglose por tipo del ataque > un cambio de banda en el estado cambia el texto sin tocar el host 1ms
+ ✓ tests/unit/host/feedback.test.ts > desglose por tipo del ataque > un paquete recortado a 0 no aparece en el desglose 5ms
+ ✓ tests/unit/host/feedback.test.ts > desglose por tipo del ataque > si todos los paquetes quedan a 0 muestra el total mínimo sin desglose 1ms
+ ✓ tests/unit/host/feedback.test.ts > desglose por tipo del ataque > curación y resurrección no producen desglose ni texto de daño 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > si el atacante está arriba, el texto queda debajo del centro del objetivo 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > si el atacante está abajo, el texto queda encima del centro del objetivo 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > si el atacante está a la izquierda, el texto se desplaza a la derecha 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > si el atacante está a la derecha, el texto se desplaza a la izquierda 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > en las cuatro direcciones el texto no invade la casilla del atacante 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > en diagonal gana el eje vertical de forma determinista 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > en la misma casilla usa `below` como regla fija 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > en los bordes del mapa mantiene la caja del texto dentro del marco 0ms
+ ✓ tests/unit/host/feedback.test.ts > anclaje del feedback de daño > coloca hasta tres textos simultáneos del mismo tile sin pisarse 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > FEEDBACK_CONFIG única de REQ-017 > contiene los beats de la matriz y conserva MOTION_CONFIG 125/70 2ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > FEEDBACK_CONFIG única de REQ-017 > incluye las duraciones de efecto, disolución y persistencia de REQ-017 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > FEEDBACK_CONFIG única de REQ-017 > deriva los temporizadores existentes de la configuración única 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > genera un cue por evento con tipo, inicio, duración y ancla 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > es pura y determinista: no muta eventos ni estado 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > TurnEnded calla si le sigue EnemyPhaseStarted y bloquea 250 ms si va solo 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > CommandRejected no alarga la timeline y conserva su cue no bloqueante 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > una cadena terminal ataque + muerte + fin dura ~2 s 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > cues deterministas sobre la timeline > activeCues devuelve solo los cues vivos en el reloj 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > estado visible retrasado hasta su cue > la unidad muerta se dibuja como viva hasta UnitDied 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > estado visible retrasado hasta su cue > la recogida mantiene arma, inventario y MP hasta su cue 49ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > estado visible retrasado hasta su cue > el cambio de arma se aplica al final del beat, no al inicio 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > estado visible retrasado hasta su cue > fase enemiga, fin de partida y alarma usan el atMs secuenciado 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > estado visible retrasado hasta su cue > AlarmRaised no se adelanta al inicio cuando acompaña a un movimiento 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > beat e input durante una acción sin movimiento > un ataque sin movimiento crea un beat y descarta las intenciones 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > ataque mixto en el feedback > dos paquetes con daño conservan un único beat y el total del evento 4ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > ataque mixto en el feedback > un paquete recortado a 0 no añade otro cue ni otro texto 5ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > eventos de presentación del host > crea PickUp/SelectWeapon solo cuando el motor no emitió eventos y hubo cambio 1ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > fin de partida y reinicio en su cue > el overlay espera el beat de 800 ms de GameEnded 0ms
+ ✓ tests/unit/host/presentation-feedback.test.ts > fin de partida y reinicio en su cue > el reinicio dura 250 ms y no añade estado intermedio 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > refleja el estado inicial con vida, MP, acción, fase, enemigo y ayuda 3ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra el nombre y el arquetipo del jugador por defecto 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > distingue el nombre editable del nombre del arquetipo 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > sin arquetipo conocido deja el arquetipo como guion 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > refleja un cambio de arma y un equipo sin escudo ni armadura 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra Sin arma cuando la unidad no tiene arma equipada 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra la vida del enemigo vivo bajo el cursor y nada si no hay enemigo 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra las cinco bandas con texto e icono si hay línea de visión 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra las bandas normales del perfil por defecto 1ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > sin línea de visión no muestra bandas, pero no oculta los PV del cursor 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > con el jugador muerto no muestra bandas aunque el cursor vea al enemigo 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > sin enemigo bajo el cursor o sin cursor no hay bandas 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra la pista de G solo cuando el jugador ocupa un arma del mapa 44ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > actualiza la vida del enemigo y el contador de acciones 2/2→1/2→0/2 3ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > refleja la fase de jugador, el turno y la restauración tras fin de turno 1ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > sugiere terminar solo con 0 acciones, sin MP y en fase de jugador 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra el overlay de victoria cuando el enemigo muere 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del HUD > muestra el overlay de derrota cuando el jugador muere 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > incluye posiciones, MP, fase, cámara y semilla determinista 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > muestra nombre y arquetipo del Guerrero en el overlay de debug 24ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > resume los últimos eventos 1ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > con un mapa generado muestra semilla, salas, huecos, spawns y pasillos anchos 11ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > sin mapa mantiene las líneas n/a del overlay 1ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > añade equipo, modificadores, vida de todos, último ataque y enemigo bajo cursor 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > muestra equipo y modificadores de cada enemigo vivo, con el centinela 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > muestra el estado de percepción por enemigo y las etiquetas de sus eventos 8ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > un fallo en F1 muestra Fallo y no inventa tiradas de daño 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > F1 muestra las cinco bandas, incluidas las normales 0ms
+ ✓ tests/unit/host/hud.test.ts > modelo del overlay de debug > F1 conserva el perfil completo aunque no haya línea de visión 0ms
+
+ Test Files  3 passed (3)
+      Tests  68 passed (68)
+   Start at  13:26:04
+   Duration  285ms (tests 41%, transform 31%, import 25%, worker 3%)
+
