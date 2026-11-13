@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-12T12:00:00Z
+updated_at: 2026-11-13T17:00:50Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T12:00:00Z }
 verified:
@@ -78,7 +78,7 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 | T-008 | Este corte no implementa cuerpo etéreo ni traits que alteren movimiento, colisión, ocupación, línea de visión o generación de mapa. | `src/game/` no contiene lógica de atravesar muros; ningún trait del catálogo modifica esas capas. |
 | T-009 | Serialización y debug: el snapshot expone traits activos, fuente, stats efectivos y eventos de trait. | Se puede reproducir una partida y explicar cada modificación desde el snapshot. |
 | T-010 | Tests nuevos: stacking, topes y suelos, orden de disparadores, ataque circular (8 casillas, diagonales, sin centro, sin aliados, orden determinista, una tirada por objetivo), robo de vida (porcentaje, mínimo, sin sobrecurar, por objetivo), sinergia área + robo, traits negativos, serialización y no regresión de `REQ-006`, `REQ-009`, `REQ-010` y `REQ-017`. | `pnpm run verify` pasa; los tests existentes conservan su intención. |
-| T-011 | Se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura; se registra un ADR de traits y pipeline de efectos (ADR-022). | `pnpm run docs:check` pasa; el ADR existe y está enlazado; no queda "ataque de área" como nombre vigente. |
+| T-011 | Se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura; se registra un ADR de traits y pipeline de efectos (ADR-024). | `pnpm run docs:check` pasa; el ADR existe y está enlazado; no queda "ataque de área" como nombre vigente. |
 | T-012 | La UI del panel de `REQ-018` muestra los traits de cada objeto y los traits activos del portador, con descripción y desglose de stats. | El panel permite leer el trait antes de equipar y explicar el total; el HUD o `F1` expone los traits activos. |
 | T-013 | La maza reutiliza las reglas de dos manos de `REQ-018`; no hay una validación paralela. | Arma a dos manos y escudo no coexisten; el rechazo no deja cambios parciales. |
 | T-014 | Sin dependencias nuevas, sin red y sin arte final; el motor sigue sin DOM. | `package.json` y `pnpm-lock.yaml` no cambian; `src/game/` no importa `src/host/`. |
@@ -115,8 +115,10 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
   de 4 acciones se mantiene.
 - **REQ-020:** es la vía de entrada de las cuatro piezas.
 - **REQ-017:** cada objetivo del ataque circular es un beat propio.
-- **ADR-022:** se registra el catálogo de traits, el stacking y el pipeline de
+- **ADR-024:** se registra el catálogo de traits, el stacking y el pipeline de
   efectos.
+- **Cita corregida (2026-11-13):** el ADR de traits es `ADR-024`; la v2 lo citaba
+  como ADR-022, que es la réplica cuerpo a cuerpo. No cambia ninguna regla.
 
 # Dependencias
 
@@ -141,6 +143,8 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 - [ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md): esquema de
   atributos.
 - [ADR-021](../decisions/ADR-021-inventario-equipo.md): inventario, huecos y panel.
+- [ADR-024](../decisions/ADR-024-traits-objetos-pipeline.md): catálogo de traits,
+  stacking y pipeline de efectos.
 - **Secuencia:** definir después de `REQ-018` y antes de `REQ-020`; aplicar después
   de `REQ-020`.
 
