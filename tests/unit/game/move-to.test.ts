@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import {
-  WEAPONS,
-  armorValue,
   planCursorTarget,
   reduce,
-  resolveDamage,
   type Unit,
 } from '../../../src/game/index';
-import { makeGridWithWalls, makeState, makeUnit, rngForDice } from './helpers';
+import {
+  expectedSinglePacketDamage,
+  makeGridWithWalls,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 const PLAYER_HIT = [6, 1, 2, 1] as const;
 
@@ -15,14 +18,9 @@ function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 function playerAt(x: number, y: number, patch: { mp?: number; actions?: number } = {}) {

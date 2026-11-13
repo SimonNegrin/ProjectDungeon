@@ -1,31 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import {
   BspMapGenerator,
-  WEAPONS,
-  armorValue,
   createInitialState,
-  resolveDamage,
   type Unit,
 } from '../../../src/game/index';
 import type { Position } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
-import { makeState, makeUnit, rngForDice } from '../game/helpers';
+import {
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from '../game/helpers';
 import type { RngState } from '../../../src/game/index';
 
 function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 function adjacentState(rng?: RngState) {

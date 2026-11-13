@@ -6,18 +6,27 @@ import {
   SHIELDS,
   WEAPONS,
   armorValue,
+  bandFor,
   createRng,
   reduce,
   resolveAttack,
-  resolveDamage,
   resolveHit,
+  resolvePacket,
+  resolvePackets,
   rollDie,
   shieldValue,
+  weaponDamage,
   type RngState,
   type Unit,
   type UnitStats,
 } from '../../../src/game/index';
-import { advanceRng, makeState, makeUnit, rngForDice } from './helpers';
+import {
+  advanceRng,
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 const PLAYER_HIT = [6, 1, 2, 1] as const;
 const ENEMY_HIT = [6, 1, 3, 3] as const;
@@ -27,14 +36,9 @@ function expectedDamage(
   attacker: Unit,
   target: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    attacker.stats.fuerza + WEAPONS[attacker.equipment.weaponId!].damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 describe('combat', () => {
@@ -521,38 +525,49 @@ describe('fórmulas de impacto y daño', () => {
     expect(resolveHit(1, 0, 3, 3)).toBe(true);
   });
 
-  it('respeta la fórmula de daño y el mínimo 1', () => {
+  it('respeta la fórmula de daño físico y el mínimo 1 global', () => {
     for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-      for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-        for (const [damageBonus, armor] of [
+      for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
+        for (const [amount, armor] of [
           [5, 0],
           [5, 1],
           [5, 2],
           [1, 6],
         ] as const) {
-          const expected = Math.max(1, damageBonus + damageDie - (armor + armorDie));
-          expect(resolveDamage(damageBonus, armor, damageDie, armorDie)).toBe(expected);
+          const packet = { type: 'slash' as const, amount };
+          const raw = resolvePacket(packet, 0, armor, 'normal', damageDie, resistanceDie);
+          expect(raw).toBe(Math.max(0, amount + damageDie - (armor + resistanceDie)));
+          expect(Math.max(1, raw)).toBe(
+            Math.max(1, amount + damageDie - (armor + resistanceDie)),
+          );
         }
       }
     }
   });
 
-  it('la armadura no anula el golpe: siempre hay al menos 1 de daño', () => {
+  it('la armadura no anula el golpe: el total nunca baja de 1', () => {
+    const packet = { type: 'slash' as const, amount: 4 };
     for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-      for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-        expect(resolveDamage(4, 10, damageDie, armorDie)).toBe(1);
+      for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
+        const raw = resolvePacket(packet, 0, 10, 'normal', damageDie, resistanceDie);
+        expect(raw).toBe(0);
+        expect(Math.max(1, raw)).toBe(1);
       }
     }
   });
 
-  it('el daño coincide con la tabla esperada de espada contra armadura 0 y 2', () => {
+  it('el daño físico coincide con la tabla esperada contra armadura 0 y 2', () => {
+    const packet = { type: 'slash' as const, amount: 5 };
     function stats(armor: number): { min: number; max: number; mean: number } {
       let min = Number.POSITIVE_INFINITY;
       let max = Number.NEGATIVE_INFINITY;
       let sum = 0;
       for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-        for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-          const value = resolveDamage(5, armor, damageDie, armorDie);
+        for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
+          const value = Math.max(
+            1,
+            resolvePacket(packet, 0, armor, 'normal', damageDie, resistanceDie),
+          );
           min = Math.min(min, value);
           max = Math.max(max, value);
           sum += value;
@@ -567,13 +582,13 @@ describe('fórmulas de impacto y daño', () => {
 
   it('la muestra empírica de daño queda a menos de 2 puntos de la teórica', () => {
     const samples = 12_000;
-    const damageBonus = 5;
+    const packet = { type: 'slash' as const, amount: 5 };
     const armor = 1;
 
     const theoretical = new Map<number, number>();
     for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-      for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-        const value = Math.max(1, damageBonus + damageDie - (armor + armorDie));
+      for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
+        const value = Math.max(1, 5 + damageDie - (armor + resistanceDie));
         theoretical.set(value, (theoretical.get(value) ?? 0) + 1);
       }
     }
@@ -581,14 +596,9 @@ describe('fórmulas de impacto y daño', () => {
     const observed = new Map<number, number>();
     let rng: RngState = createRng(4242);
     for (let index = 0; index < samples; index += 1) {
-      const damageRoll = rollDie(rng);
-      const armorRoll = rollDie(damageRoll.rng);
-      rng = armorRoll.rng;
-      const value = Math.max(
-        1,
-        damageBonus + damageRoll.die - (armor + armorRoll.die),
-      );
-      observed.set(value, (observed.get(value) ?? 0) + 1);
+      const resolved = resolvePackets([packet], 0, armor, {}, rng);
+      rng = resolved.rng;
+      observed.set(resolved.total, (observed.get(resolved.total) ?? 0) + 1);
     }
 
     for (const [value, count] of theoretical) {
@@ -599,21 +609,24 @@ describe('fórmulas de impacto y daño', () => {
   });
 });
 
-describe('resistencia en la absorción', () => {
-  it('la resistencia se suma a la armadura en una sola capa y el daño nunca baja de 1', () => {
-    for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-      for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-        const withoutResistance = resolveDamage(5, 0 + 2, damageDie, armorDie);
-        const withResistance = resolveDamage(5, 3 + 2, damageDie, armorDie);
-
-        expect(withResistance).toBe(Math.max(1, 5 + damageDie - (3 + 2 + armorDie)));
-        expect(withResistance).toBeLessThanOrEqual(withoutResistance);
-        expect(resolveDamage(5, 100, damageDie, armorDie)).toBe(1);
-      }
-    }
+describe('bandas de resistencia', () => {
+  it('vulnerable ×1,5 y las bandas reductoras recortan hacia abajo tras la absorción', () => {
+    const packet = { type: 'slash' as const, amount: 5 };
+    expect(resolvePacket(packet, 0, 0, 'vulnerable', 1, 1)).toBe(7); // 5 × 1,5 = 7
+    expect(resolvePacket(packet, 0, 0, 'normal', 1, 1)).toBe(5); // 5 × 1
+    expect(resolvePacket(packet, 0, 0, 'resistant', 1, 1)).toBe(2); // 5 × 0,5 = 2
+    expect(resolvePacket(packet, 0, 0, 'very-resistant', 1, 1)).toBe(1); // 5 × 0,25 = 1
   });
 
-  it('con resistencia 0 el daño coincide con la fórmula previa en las 36 tiradas', () => {
+  it('la banda se aplica después de la absorción, no antes', () => {
+    // bruto = 5 + 1 − (2 + 1) = 3; vulnerable → floor(3 × 1,5) = 4.
+    const packet = { type: 'slash' as const, amount: 5 };
+    expect(resolvePacket(packet, 0, 2, 'vulnerable', 1, 1)).toBe(4);
+    // La armadura solo entra en los físicos; el mismo paquete resistente da 1.
+    expect(resolvePacket(packet, 0, 2, 'resistant', 1, 1)).toBe(1);
+  });
+
+  it('con el perfil normal el daño coincide con la fórmula física en las 36 tiradas', () => {
     const player = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
 
     for (const type of ['sentinel', 'brute', 'coward'] as const) {
@@ -624,21 +637,19 @@ describe('resistencia en la absorción', () => {
         x: 6,
         y: 5,
       });
-      const weapon = WEAPONS[player.equipment.weaponId!];
+      const packet = WEAPONS[player.equipment.weaponId!].damagePackets[0];
       const armor = armorValue(enemy.equipment.armorId);
 
-      expect(enemy.stats.resistencia).toBe(0);
+      expect(bandFor(enemy.stats.resistencia, packet.type)).toBe('normal');
       for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-        for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
+        for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
           const previous = Math.max(
             1,
-            player.stats.fuerza + weapon.damage + damageDie - (armor + armorDie),
+            player.stats.fuerza + packet.amount + damageDie - (armor + resistanceDie),
           );
-          const current = resolveDamage(
-            player.stats.fuerza + weapon.damage,
-            enemy.stats.resistencia + armor,
-            damageDie,
-            armorDie,
+          const current = Math.max(
+            1,
+            resolvePacket(packet, player.stats.fuerza, armor, 'normal', damageDie, resistanceDie),
           );
           expect(current).toBe(previous);
         }
@@ -646,25 +657,25 @@ describe('resistencia en la absorción', () => {
     }
   });
 
-  it('un objetivo con resistencia recibe menos daño que uno sin ella', () => {
+  it('un objetivo resistente recibe menos daño que uno normal con el mismo golpe', () => {
     const attacker = makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 });
-    const withoutResistance = makeUnit({
+    const normal = makeUnit({
       id: 'enemy-1',
       faction: 'enemy',
       enemyType: 'sentinel',
       x: 6,
       y: 5,
     });
-    const withResistance = makeUnit({
+    const resistant = makeUnit({
       id: 'enemy-1',
       faction: 'enemy',
       enemyType: 'sentinel',
       x: 6,
       y: 5,
-      stats: { resistencia: 2 },
+      stats: { resistencia: { slash: 'resistant' } },
     });
 
-    function attack(target: typeof withoutResistance): ReturnType<typeof resolveAttack> {
+    function attack(target: typeof normal): ReturnType<typeof resolveAttack> {
       const state = makeState({
         players: [attacker],
         enemies: [target],
@@ -673,13 +684,15 @@ describe('resistencia en la absorción', () => {
       return resolveAttack(state, 'player-1', 'enemy-1');
     }
 
-    const soft = attack(withoutResistance);
-    const tough = attack(withResistance);
+    const soft = attack(normal);
+    const tough = attack(resistant);
     if (!soft.ok || !tough.ok) throw new Error('ataque rechazado');
 
     expect(soft.hit).toBe(true);
     expect(tough.hit).toBe(true);
-    expect(soft.damage - tough.damage).toBe(2);
+    expect(soft.damage).toBe(expectedSinglePacketDamage(attacker, normal, 3, 1));
+    expect(tough.damage).toBe(expectedSinglePacketDamage(attacker, resistant, 3, 1));
+    expect(soft.damage).toBeGreaterThan(tough.damage);
     expect(tough.damage).toBeGreaterThanOrEqual(1);
   });
 });
@@ -690,13 +703,13 @@ describe('equipo y modificadores', () => {
       expect(weapon.id).toBe(id);
       expect(weapon.name.length).toBeGreaterThan(0);
       expect(weapon.accuracy).toBeGreaterThan(0);
-      expect(weapon.damage).toBeGreaterThan(0);
+      expect(weaponDamage(weapon)).toBeGreaterThan(0);
     }
     // La daga es la más fiable y el hacha la que más daño hace (REQ-010).
     expect(WEAPONS.dagger.accuracy).toBeGreaterThan(WEAPONS.sword.accuracy);
     expect(WEAPONS.sword.accuracy).toBeGreaterThan(WEAPONS.axe.accuracy);
-    expect(WEAPONS.axe.damage).toBeGreaterThan(WEAPONS.sword.damage);
-    expect(WEAPONS.sword.damage).toBeGreaterThan(WEAPONS.dagger.damage);
+    expect(weaponDamage(WEAPONS.axe)).toBeGreaterThan(weaponDamage(WEAPONS.sword));
+    expect(weaponDamage(WEAPONS.sword)).toBeGreaterThan(weaponDamage(WEAPONS.dagger));
 
     for (const [id, armor] of Object.entries(ARMORS)) {
       expect(armor.id).toBe(id);
@@ -808,7 +821,7 @@ describe('equipo y modificadores', () => {
       habilidad: 1,
       fuerza: 1,
       defensa: 1,
-      resistencia: 0,
+      resistencia: {},
       punteria: 0,
       magicLevel: 0,
       acciones: 2,

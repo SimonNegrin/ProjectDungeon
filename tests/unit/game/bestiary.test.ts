@@ -5,19 +5,25 @@ import {
   SHIELDS,
   WEAPONS,
   armorValue,
+  bandFor,
   createRng,
   enemyDefinition,
   reduce,
   resolveAttack,
-  resolveDamage,
   resolveHit,
+  resolvePacket,
   shieldValue,
   weaponFor,
   type EnemyType,
   type Unit,
   type WeaponId,
 } from '../../../src/game/index';
-import { makeState, makeUnit, rngForDice } from './helpers';
+import {
+  expectedSinglePacketDamage,
+  makeState,
+  makeUnit,
+  rngForDice,
+} from './helpers';
 
 const ENEMY_TYPES: readonly EnemyType[] = ['sentinel', 'brute', 'coward'];
 const WEAPON_IDS: readonly WeaponId[] = ['sword', 'axe', 'dagger'];
@@ -51,13 +57,8 @@ function makePlayer(weaponId: WeaponId = 'sword'): Unit {
   });
 }
 
-function damageWith(attacker: Unit, target: Unit, damageDie: number, armorDie: number): number {
-  return resolveDamage(
-    attacker.stats.fuerza + weaponFor(attacker.equipment.weaponId!).damage,
-    armorValue(target.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+function damageWith(attacker: Unit, target: Unit, damageDie: number, resistanceDie: number): number {
+  return expectedSinglePacketDamage(attacker, target, damageDie, resistanceDie);
 }
 
 describe('bestiario', () => {
@@ -75,7 +76,7 @@ describe('bestiario', () => {
       expect(definition.stats.habilidad).toBeGreaterThanOrEqual(0);
       expect(definition.stats.fuerza).toBeGreaterThanOrEqual(0);
       expect(definition.stats.defensa).toBeGreaterThanOrEqual(0);
-      expect(definition.stats.resistencia).toBeGreaterThanOrEqual(0);
+      expect(bandFor(definition.stats.resistencia, 'slash')).toBe('normal');
       expect(definition.stats.punteria).toBeGreaterThanOrEqual(0);
       expect(definition.stats.magicLevel).toBe(0);
       expect(enemyDefinition(type)).toBe(definition);
@@ -277,7 +278,8 @@ describe('tiempo para matar según el catálogo', () => {
     const enemy = makeEnemy(type);
     const attackBonus = player.stats.habilidad + WEAPONS[weaponId].accuracy;
     const defense = enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
-    const damageBonus = player.stats.fuerza + WEAPONS[weaponId].damage;
+    const packet = WEAPONS[weaponId].damagePackets[0];
+    const band = bandFor(enemy.stats.resistencia, packet.type);
     const armor = armorValue(enemy.equipment.armorId);
     let hits = 0;
     let damageSum = 0;
@@ -287,8 +289,11 @@ describe('tiempo para matar según el catálogo', () => {
         if (!resolveHit(attackBonus, defense, attackDie, shieldDie)) continue;
         hits += 1;
         for (let damageDie = 1; damageDie <= 6; damageDie += 1) {
-          for (let armorDie = 1; armorDie <= 6; armorDie += 1) {
-            damageSum += resolveDamage(damageBonus, armor, damageDie, armorDie);
+          for (let resistanceDie = 1; resistanceDie <= 6; resistanceDie += 1) {
+            damageSum += Math.max(
+              1,
+              resolvePacket(packet, player.stats.fuerza, armor, band, damageDie, resistanceDie),
+            );
           }
         }
       }

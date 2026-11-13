@@ -2,13 +2,13 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   MAX_SPELLS_PER_TURN,
   SPELLS,
-  armorValue,
+  bandFor,
   createRng,
   findSpell,
   manaMaxFor,
   reduce,
-  resolveDamage,
   resolveHit,
+  resolvePacket,
   shieldValue,
   type Command,
   type GameState,
@@ -55,7 +55,7 @@ function dummy(overrides: UnitOptions = {}): Unit {
     y: 5,
     maxHp: 40,
     hp: 40,
-    stats: { defensa: 1, resistencia: 0 },
+    stats: { defensa: 1, resistencia: {} },
     equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
     ...overrides,
   });
@@ -112,14 +112,12 @@ function attackDamage(
   spell: SpellDefinition,
   victim: Unit,
   damageDie: number,
-  armorDie: number,
+  resistanceDie: number,
 ): number {
-  return resolveDamage(
-    spell.power,
-    victim.stats.resistencia + armorValue(victim.equipment.armorId),
-    damageDie,
-    armorDie,
-  );
+  const packet = spell.damagePacket;
+  if (packet === null) throw new Error('hechizo sin paquete de daño');
+  const band = bandFor(victim.stats.resistencia, packet.type);
+  return Math.max(1, resolvePacket(packet, 0, 0, band, damageDie, resistanceDie));
 }
 
 function hits(
@@ -199,6 +197,13 @@ describe('catálogo de hechizos', () => {
   it('findSpell no inventa hechizos', () => {
     expect(findSpell('fire-2')).toBe(SPELLS['fire-2']);
     expect(findSpell('missing')).toBeUndefined();
+  });
+
+  it('los hechizos de daño declaran tipo y la curación/resurrección no declaran paquete', () => {
+    expect(FIRE.damagePacket).toEqual({ type: 'magic', amount: 5 });
+    expect(ELECTRIC.damagePacket?.type).toBe('electric');
+    expect(HEAL.damagePacket).toBeNull();
+    expect(RESURRECT.damagePacket).toBeNull();
   });
 });
 
@@ -366,7 +371,7 @@ describe('validación atómica del lanzamiento', () => {
 });
 
 describe('ataque mágico', () => {
-  it('Fuego II impacta y daña con el poder del catálogo y las capas del físico', () => {
+  it('Fuego II impacta y daña con el paquete mágico del catálogo, ignorando la armadura', () => {
     const caster = mage();
     const victim = dummy();
     const dice = [6, 1, 3, 2] as const;
@@ -456,7 +461,7 @@ describe('ataque mágico', () => {
     expect(electric.events[0]).toMatchObject({ effect: 'damage', hit: true });
   });
 
-  it('fuego y eléctrico usan acierto y poder distintos del catálogo', () => {
+  it('fuego y eléctrico declaran tipos distintos y usan acierto y cantidad del catálogo', () => {
     const caster = mage();
     const victim = dummy();
     const dice = [6, 1, 3, 2] as const;
@@ -483,14 +488,21 @@ describe('ataque mágico', () => {
       damage: expectedElectric,
     });
     expect(FIRE.accuracy).not.toBe(ELECTRIC.accuracy);
-    expect(FIRE.power).not.toBe(ELECTRIC.power);
+    expect(FIRE.damagePacket?.type).toBe('magic');
+    expect(ELECTRIC.damagePacket?.type).toBe('electric');
+    expect(FIRE.damagePacket?.amount).not.toBe(ELECTRIC.damagePacket?.amount);
   });
 
-  it('la resistencia suma a la armadura en una sola capa, sin resistencia mágica', () => {
+  it('el daño mágico ignora la armadura y aplica la banda mágica del objetivo', () => {
     const caster = mage();
-    const soft = dummy({ equipment: { weaponId: 'sword', armorId: null, shieldId: null } });
-    const tough = dummy({
-      stats: { defensa: 1, resistencia: 2 },
+    const unarmored = dummy({
+      equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+    });
+    const armored = dummy({
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: null },
+    });
+    const magicResistant = dummy({
+      stats: { defensa: 1, resistencia: { magic: 'resistant' } },
       equipment: { weaponId: 'sword', armorId: 'armor', shieldId: null },
     });
     const dice = [6, 1, 3, 2] as const;
@@ -505,19 +517,67 @@ describe('ataque mágico', () => {
       return result.events[0];
     }
 
-    const softHit = damageAgainst(soft);
-    const toughHit = damageAgainst(tough);
+    const unarmoredHit = damageAgainst(unarmored);
+    const armoredHit = damageAgainst(armored);
+    const resistantHit = damageAgainst(magicResistant);
 
-    expect(softHit).toMatchObject({
+    expect(unarmoredHit).toMatchObject({
       effect: 'damage',
-      damage: attackDamage(FIRE, soft, dice[2], dice[3]),
+      damage: attackDamage(FIRE, unarmored, dice[2], dice[3]),
     });
-    expect(toughHit).toMatchObject({
+    expect(armoredHit).toMatchObject({
       effect: 'damage',
-      damage: attackDamage(FIRE, tough, dice[2], dice[3]),
+      damage: attackDamage(FIRE, armored, dice[2], dice[3]),
     });
-    expect(attackDamage(FIRE, soft, dice[2], dice[3])).toBeGreaterThan(
-      attackDamage(FIRE, tough, dice[2], dice[3]),
+    expect(resistantHit).toMatchObject({
+      effect: 'damage',
+      damage: attackDamage(FIRE, magicResistant, dice[2], dice[3]),
+    });
+
+    // La armadura no reduce el daño mágico: con y sin armadura es idéntico.
+    expect(attackDamage(FIRE, unarmored, dice[2], dice[3])).toBe(
+      attackDamage(FIRE, armored, dice[2], dice[3]),
+    );
+    // La banda resistente reduce el daño tras la absorción.
+    expect(attackDamage(FIRE, magicResistant, dice[2], dice[3])).toBeLessThan(
+      attackDamage(FIRE, armored, dice[2], dice[3]),
+    );
+  });
+
+  it('un hechizo eléctrico aplica la banda eléctrica del objetivo', () => {
+    const caster = mage();
+    const normal = dummy({
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: null },
+    });
+    const electricResistant = dummy({
+      stats: { defensa: 1, resistencia: { electric: 'resistant' } },
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: null },
+    });
+    const dice = [6, 1, 3, 2] as const;
+
+    function damageAgainst(victim: Unit) {
+      const state = makeState({
+        players: [caster],
+        enemies: [victim],
+        rng: rngForDice(dice),
+      });
+      const result = cast(state, ELECTRIC, { x: victim.x, y: victim.y });
+      return result.events[0];
+    }
+
+    const normalHit = damageAgainst(normal);
+    const resistantHit = damageAgainst(electricResistant);
+
+    expect(normalHit).toMatchObject({
+      effect: 'damage',
+      damage: attackDamage(ELECTRIC, normal, dice[2], dice[3]),
+    });
+    expect(resistantHit).toMatchObject({
+      effect: 'damage',
+      damage: attackDamage(ELECTRIC, electricResistant, dice[2], dice[3]),
+    });
+    expect(attackDamage(ELECTRIC, electricResistant, dice[2], dice[3])).toBeLessThan(
+      attackDamage(ELECTRIC, normal, dice[2], dice[3]),
     );
   });
 
@@ -960,16 +1020,19 @@ describe('determinismo y cupo por turno', () => {
     expect(reasonOf(nextTurn)).toBeUndefined();
   });
 
-  it('el resolvedor lee poder y coste del catálogo, no de constantes', () => {
-    const mutable = SPELLS[FIRE.id] as { power: number; cost: number };
-    const originalPower = mutable.power;
+  it('el resolvedor lee la cantidad del paquete y el coste del catálogo, no de constantes', () => {
+    const mutable = SPELLS[FIRE.id] as unknown as {
+      damagePacket: { type: 'magic'; amount: number };
+      cost: number;
+    };
+    const originalAmount = mutable.damagePacket.amount;
     const originalCost = mutable.cost;
     const caster = mage();
     const victim = dummy();
     const dice = [6, 1, 3, 2] as const;
 
     try {
-      mutable.power = originalPower + 7;
+      mutable.damagePacket.amount = originalAmount + 7;
       mutable.cost = originalCost + 1;
 
       const state = makeState({
@@ -981,17 +1044,12 @@ describe('determinismo y cupo por turno', () => {
         x: victim.x,
         y: victim.y,
       });
-      const damage = resolveDamage(
-        mutable.power,
-        victim.stats.resistencia + armorValue(victim.equipment.armorId),
-        dice[2],
-        dice[3],
-      );
+      const damage = attackDamage(FIRE, victim, dice[2], dice[3]);
 
       expect(result.events[0]).toMatchObject({ effect: 'damage', damage });
       expect(result.state.players[0].mana.current).toBe(16 - mutable.cost);
     } finally {
-      mutable.power = originalPower;
+      mutable.damagePacket.amount = originalAmount;
       mutable.cost = originalCost;
     }
   });

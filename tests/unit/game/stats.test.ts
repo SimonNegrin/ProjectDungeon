@@ -8,7 +8,7 @@ describe('estado de atributos', () => {
       habilidad: 2,
       fuerza: 3,
       defensa: 1,
-      resistencia: 4,
+      resistencia: { electric: 'resistant' },
       punteria: 5,
       magicLevel: 4,
       acciones: 2,
