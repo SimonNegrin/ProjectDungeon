@@ -1,0 +1,128 @@
+import { expect, it } from 'vitest';
+import {
+  WEAPONS,
+  createRng,
+  resolveAttack,
+  type GameState,
+  type WeaponId,
+} from '../../../src/game/index';
+import { makeState, makeUnit } from './helpers';
+
+const SEED = 1017;
+const ITERATIONS = 50_000;
+const REPETITIONS = 5;
+const WARMUP = 10_000;
+
+function baseState(weaponId: WeaponId): GameState {
+  const attacker = makeUnit({
+    id: 'player-1',
+    faction: 'player',
+    x: 5,
+    y: 5,
+    hp: 1_000_000_000,
+    maxHp: 1_000_000_000,
+    actionsMax: 1_000_000_000,
+    actions: 1_000_000_000,
+    equipment: { weaponId, armorId: null, shieldId: null },
+    weapons: [weaponId],
+    stats: { fuerza: 1 },
+  });
+  const target = makeUnit({
+    id: 'enemy-1',
+    faction: 'enemy',
+    x: 6,
+    y: 5,
+    hp: 1_000_000_000,
+    maxHp: 1_000_000_000,
+    awareness: 'alert',
+    stats: { defensa: -100, resistencia: {} },
+    equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+  });
+
+  return makeState({ players: [attacker], enemies: [target], rng: createRng(SEED) });
+}
+
+function run(state: GameState, iterations: number): GameState {
+  let current = state;
+  for (let index = 0; index < iterations; index += 1) {
+    const result = resolveAttack(current, 'player-1', 'enemy-1');
+    if (!result.ok) throw new Error(result.reason);
+    if (!result.hit) throw new Error('se esperaba impacto');
+    current = result.state;
+  }
+  return current;
+}
+
+function measure(weaponId: WeaponId): number[] {
+  run(baseState(weaponId), WARMUP);
+  const samples: number[] = [];
+  for (let repetition = 0; repetition < REPETITIONS; repetition += 1) {
+    const state = baseState(weaponId);
+    const start = performance.now();
+    run(state, ITERATIONS);
+    const elapsed = performance.now() - start;
+    samples.push((elapsed / ITERATIONS) * 1000);
+  }
+  return samples;
+}
+
+function stats(samples: readonly number[]) {
+  const sorted = [...samples].sort((a, b) => a - b);
+  const mean = samples.reduce((total, value) => total + value, 0) / samples.length;
+  return {
+    meanUs: mean,
+    medianUs: sorted[Math.floor(sorted.length / 2)],
+    minUs: sorted[0],
+    maxUs: sorted[sorted.length - 1],
+  };
+}
+
+it('mide un ataque de un paquete frente a dos paquetes', () => {
+  const weapons = Object.values(WEAPONS);
+  const one = weapons.find((weapon) => weapon.damagePackets.length === 1);
+  const two = weapons.find((weapon) => weapon.damagePackets.length === 2);
+  if (!one || !two) throw new Error('el catálogo no tiene armas de uno y dos paquetes');
+
+  const oneSamples = measure(one.id);
+  const twoSamples = measure(two.id);
+  const oneStats = stats(oneSamples);
+  const twoStats = stats(twoSamples);
+  const deltaUs = twoStats.meanUs - oneStats.meanUs;
+  const ratio = twoStats.meanUs / oneStats.meanUs;
+  const frameBudgetMs = 1000 / 60;
+
+  console.log(
+    JSON.stringify(
+      {
+        seed: SEED,
+        iterationsPerSample: ITERATIONS,
+        repetitions: REPETITIONS,
+        warmupIterations: WARMUP,
+        onePacket: {
+          weapon: one.id,
+          packets: one.damagePackets.length,
+          samplesUs: oneSamples,
+          ...oneStats,
+        },
+        twoPackets: {
+          weapon: two.id,
+          packets: two.damagePackets.length,
+          samplesUs: twoSamples,
+          ...twoStats,
+        },
+        deltaMeanUs: deltaUs,
+        ratio,
+        frameBudgetMs,
+        attacksPerFrameBudget: {
+          onePacket: frameBudgetMs / (oneStats.meanUs / 1000),
+          twoPackets: frameBudgetMs / (twoStats.meanUs / 1000),
+        },
+      },
+      null,
+      2,
+    ),
+  );
+
+  expect(one.damagePackets.length).toBe(1);
+  expect(two.damagePackets.length).toBe(2);
+});

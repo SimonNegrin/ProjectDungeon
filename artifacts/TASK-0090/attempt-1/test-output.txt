@@ -1,0 +1,177 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > los nueve arquetipos declaran un perfil completo de bandas válidas 3ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > las seis familias son plantillas reutilizables con perfil completo 1ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > cada enemigo hereda su familia y solo sobrescribe bandas concretas 1ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > la sobrescritura no muta la plantilla de familia compartida 0ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > una unidad sin perfil explícito recibe normal en los cinco tipos 0ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > los perfiles son serializables en catálogos y unidades 3ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > dos unidades con el mismo perfil reciben el mismo tratamiento 10ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > un paquete usa la banda del catálogo: resistente y vulnerable 0ms
+ ✓ tests/unit/game/resistances.test.ts > perfiles de resistencia del catálogo (REQ-029) > cambiar una banda en un fixture cambia el combate sin tocar el resolvedor 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > matriz de bandas sobre los cinco tipos > aplica cada banda del catálogo y ordena el daño de vulnerable a muy resistente 2ms
+ ✓ tests/unit/game/damage-matrix.test.ts > matriz de bandas sobre los cinco tipos > una banda ausente equivale a normal y el desglose conserva el orden declarado 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > físico frente a elemental > la fuerza solo suma al físico y la armadura solo lo reduce 2ms
+ ✓ tests/unit/game/damage-matrix.test.ts > físico frente a elemental > mágico y eléctrico ignoran fuerza y armadura 2ms
+ ✓ tests/unit/game/damage-matrix.test.ts > ataque con paquete físico y elemental > resuelve los paquetes del catálogo en orden y consume dos tiradas por paquete 3ms
+ ✓ tests/unit/game/damage-matrix.test.ts > ataque con paquete físico y elemental > con el arma mixta la armadura reduce solo el paquete físico 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > ataque con paquete físico y elemental > recorta cada paquete a 0 y aplica el mínimo 1 global aunque todos queden a 0 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > ataque con paquete físico y elemental > el catálogo no pasa de dos paquetes y la validación rechaza duplicados de grupo 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > hechizos tipados > eléctrico usa paquete eléctrico y fuego usa paquete mágico 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > hechizos tipados > cada hechizo de daño aplica la banda del tipo de su paquete 6ms
+ ✓ tests/unit/game/damage-matrix.test.ts > hechizos tipados > eléctrico y fuego leen su propia banda del mismo perfil 4ms
+ ✓ tests/unit/game/damage-matrix.test.ts > hechizos tipados > el nivel de magia no cambia el tipo ni el daño del paquete 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > hechizos tipados > la curación no declara paquete y no consume RNG 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > determinismo y réplica con el resolvedor compartido > la misma semilla y los mismos comandos repiten estado, eventos y desglose 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > determinismo y réplica con el resolvedor compartido > la réplica usa el mismo resolvedor y no pasa de dos paquetes 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > no regresión de REQ-010, REQ-014 y REQ-025 > REQ-010: el empate falla, el escudo defiende y la armadura absorbe 0ms
+ ✓ tests/unit/game/damage-matrix.test.ts > no regresión de REQ-010, REQ-014 y REQ-025 > REQ-014: los nueve atributos siguen en catálogos y unidades 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > no regresión de REQ-010, REQ-014 y REQ-025 > REQ-025: nivel, maná y tope de hechizos se validan antes de tirar 1ms
+ ✓ tests/unit/game/damage-matrix.test.ts > secuencia RNG del desglose > el desglose y el estado final del RNG coinciden con la secuencia consumida 0ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > un impacto no genera réplica y conserva el contrato del ataque 4ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > un fallo resuelve la réplica del defensor justo después del ataque 12ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica usa tiradas nuevas y puede fallar sin abrir cadena 1ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica puede matar: el atacante muere y el jugador pierde la partida 5ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > el enemigo que muere por la réplica no ejecuta su acción siguiente 2ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > dos fallos en el mismo turno producen dos réplicas independientes 0ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > la réplica es gratis y deja intactos acciones y MP del defensor 0ms
+ ✓ tests/unit/game/replica.test.ts > réplica tras fallo cuerpo a cuerpo > serializar y rehidratar el estado no reproduce réplicas pendientes 1ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > sin arma equipada no hay réplica 1ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo dormido no replica aunque esté armado y adyacente 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > acercarse despierta al dormido y desde ese momento sí replica 2ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo que huye en campo abierto no replica 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un enemigo que huye acorralado sí replica 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > el que regresa replica y sigue regresando sin cambiar de objetivo 2ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > ataques a distancia y mágicos no generan réplica 0ms
+ ✓ tests/unit/game/replica.test.ts > elegibilidad del defensor > un defensor jugador sin arma tampoco replica al enemigo 0ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > usa la misma fórmula y RNG pero tiradas distintas y deterministas 0ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > MoveTo que falla al llegar al enemigo dispara la réplica 6ms
+ ✓ tests/unit/game/replica.test.ts > orden, determinismo e integración > el orden es ataque, réplica y muerte del atacante 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en adyacencia ortogonal e impacta con las tiradas del RNG 12ms
+ ✓ tests/unit/game/combat.test.ts > combat > ataca en diagonal y aplica el daño del catálogo 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar fuera de rango sin consumir tiradas 0ms
+ ✓ tests/unit/game/combat.test.ts > combat > permite dos ataques con la misma fórmula y rechaza el tercero sin acción 67ms
+ ✓ tests/unit/game/combat.test.ts > combat > permite moverse después de atacar mientras quede MP 4ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a un objetivo inexistente o muerto 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > rechaza atacar a una unidad de la misma facción 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > emite muerte y victoria cuando el enemigo llega a 0 1ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara victoria mientras quede otro enemigo vivo 3ms
+ ✓ tests/unit/game/combat.test.ts > combat > no declara derrota mientras quede otro jugador vivo 2ms
+ ✓ tests/unit/game/combat.test.ts > combat > el enemigo hace el daño que marca el mismo resolvedor 7ms
+ ✓ tests/unit/game/combat.test.ts > combat > la muerte del jugador ocurre a 0 y emite derrota 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe del 40 % de la vida máxima que sobrevive inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe por debajo del umbral no hace huir al cobarde 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > el valiente no huye aunque cruce el umbral 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un golpe letal no inicia la huida 0ms
+ ✓ tests/unit/game/combat.test.ts > huida del cobarde por daño > un nuevo golpe fuerte renueva la huida y vuelve a emitir EnemyFled 0ms
+ ✓ tests/unit/game/roster.test.ts > roster de arquetipos > declara los nueve arquetipos con los valores de REQ-015 3ms
+ ✓ tests/unit/game/roster.test.ts > roster de arquetipos > declara el equipo inicial y las dos variantes de cada arquetipo 1ms
+ ✓ tests/unit/game/roster.test.ts > roster de arquetipos > registra rol e identidad mágica sin efecto en los stats 0ms
+ ✓ tests/unit/game/roster.test.ts > roster de arquetipos > el Cuchillo es +4/1 punzante y la daga sigue +4/2 punzante 1ms
+ ✓ tests/unit/game/roster.test.ts > personaje desde arquetipo > parte con PV/MP completos, acción, arma equipada y nombre por defecto 0ms
+ ✓ tests/unit/game/roster.test.ts > personaje desde arquetipo > los arquetipos sin arma parten sin armas equipadas 0ms
+ ✓ tests/unit/game/roster.test.ts > personaje desde arquetipo > el nombre es editable y serializable sin cambiar stats ni PV 4ms
+ ✓ tests/unit/game/roster.test.ts > personaje desde arquetipo > enemigos y jugador por defecto llevan nombres estables 74ms
+ ✓ tests/unit/game/roster.test.ts > jugador por defecto (REQ-015 T-003) > usa stats y equipo del Guerrero con perfil normal y el spawn real 41ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > las 36 combinaciones de impacto usan habilidad y defensa y el empate falla 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > las 36 combinaciones dan 15 impactos con diferencia 0 y 21 con +1 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el empate falla 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > respeta la fórmula de daño físico y el mínimo 1 global 2ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la armadura no anula el golpe: el total nunca baja de 1 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > el daño físico coincide con la tabla esperada contra armadura 0 y 2 0ms
+ ✓ tests/unit/game/combat.test.ts > fórmulas de impacto y daño > la muestra empírica de daño queda a menos de 2 puntos de la teórica 12ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > vulnerable ×1,5 y las bandas reductoras recortan hacia abajo tras la absorción 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > la banda se aplica después de la absorción, no antes 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > con el perfil normal el daño coincide con la fórmula física en las 36 tiradas 1ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > un objetivo resistente recibe menos daño que uno normal con el mismo golpe 0ms
+ ✓ tests/unit/game/combat.test.ts > bandas de resistencia > el evento expone la banda, el multiplicador y el total como suma de paquetes 1ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el catálogo tiene IDs estables y relaciones de diseño 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > el arma equipada cambia acierto y daño sin tocar la fórmula 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > la armadura reduce daño y el escudo no 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > quitar el escudo sube el impacto recibido sin cambiar el daño 0ms
+ ✓ tests/unit/game/combat.test.ts > equipo y modificadores > los atributos de habilidad, fuerza y defensa cambian el combate 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > al golpear a un dormido emite AlarmRaised tras AttackPerformed y alerta la onda 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > si el golpe mata, no hay alarma 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un fallo no despierta al dormido 0ms
+ ✓ tests/unit/game/combat.test.ts > daño como despertador y alarma > un alertado reinicia la memoria sin segunda onda 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > es puro, serializable y reproducible con la misma semilla 0ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un fallo consume dos tiradas y avanza el estado exactamente dos pasos 4ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un impacto consume cuatro tiradas y avanza el estado exactamente cuatro pasos 2ms
+ ✓ tests/unit/game/combat.test.ts > secuencia del RNG > un ataque rechazado no consume tiradas 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > es dato serializable con seis hechizos y todos los campos 3ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > cubre un ataque por nivel 1–4 con fuego y eléctrico 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > la curación es aliado a 2–3 y la resurrección exige nivel 4 y coste 8 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > findSpell no inventa hechizos 0ms
+ ✓ tests/unit/game/magic.test.ts > catálogo de hechizos > los hechizos de daño declaran tipo y la curación/resurrección no declaran paquete 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza un hechizo desconocido sin consumir nada 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza un lanzador inexistente o muerto 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza que un enemigo lance en fase de jugador sin consumir nada 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza fuera de la fase del jugador 1ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin acción sin gastar maná, RNG ni cupo 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin maná suficiente sin gastar acción 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza por nivel de magia insuficiente 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza objetivo inexistente, muerto o de la misma facción 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza fuera de alcance usando el alcance del catálogo 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza sin línea de visión cuando un muro se interpone 0ms
+ ✓ tests/unit/game/magic.test.ts > validación atómica del lanzamiento > rechaza el tercer hechizo por tope con acciones de sobra 1ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > Fuego II impacta y daña con el paquete mágico del catálogo, ignorando la armadura 7ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el desglose del hechizo refleja tipo, banda y total como suma 1ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el desglose eléctrico aplica la banda del objetivo 2ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el empate falla y no tira daño 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el nivel de magia y el acierto del hechizo deciden el impacto 138ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > fuego y eléctrico declaran tipos distintos y usan acierto y cantidad del catálogo 1ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > el daño mágico ignora la armadura y aplica la banda mágica del objetivo 1ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > un hechizo eléctrico aplica la banda eléctrica del objetivo 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > los proyectiles no atraviesan muros pero sí ignoran unidades 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > la magia no abre réplica al fallar contra un enemigo armado 0ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > un impacto mágico a un enemigo reutiliza su reacción de daño sin réplica 2ms
+ ✓ tests/unit/game/magic.test.ts > ataque mágico > matar al último enemigo con magia cierra la partida 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > cura al aliado a 2–3 casillas sin tirar dados 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > no supera el PV máximo y no cura a sí mismo ni a enemigos 0ms
+ ✓ tests/unit/game/magic.test.ts > curación > rechaza aliados a 1 o 4 casillas y sin línea de visión 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > devuelve al jugador con el 60 % del PV máximo, redondeado hacia arriba 1ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > el PV de vuelta nunca baja de 1 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > permite dos resurrecciones en el mismo turno (sin tope propio) 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > rechaza sin nivel, sin maná, sin adyacencia y sin cadáver 0ms
+ ✓ tests/unit/game/magic.test.ts > resurrección > rechaza la casilla con un vivo de cualquier facción y el cadáver enemigo 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > misma semilla y comandos dan el mismo estado y eventos 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > no usa Math.random 1ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el estado y el cupo son serializables y sobreviven al snapshot 0ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el turno siguiente recarga el cupo junto a maná y acciones 3ms
+ ✓ tests/unit/game/magic.test.ts > determinismo y cupo por turno > el resolvedor lee la cantidad del paquete y el coste del catálogo, no de constantes 0ms
+ ✓ tests/unit/game/roster.test.ts > jugador por defecto (REQ-015 T-003) > la identidad de arquetipo es serializable y null en enemigos 48ms
+ ✓ tests/unit/game/roster.test.ts > jugador por defecto (REQ-015 T-003) > el Guerrero por defecto ataca y consume RNG cuando lleva arma 17ms
+ ✓ tests/unit/game/roster.test.ts > ataque sin arma > rechaza el ataque con motivo unarmed sin consumir RNG ni acción 0ms
+ ✓ tests/unit/game/roster.test.ts > ataque sin arma > mantiene la precedencia de las validaciones anteriores 0ms
+ ✓ tests/unit/game/equipment.test.ts > armas nuevas de REQ-029 § contenido estimado v1 > el martillo declara acierto +2 y contundente 4 1ms
+ ✓ tests/unit/game/equipment.test.ts > armas nuevas de REQ-029 § contenido estimado v1 > la espada electrizada declara acierto +3, filo 3 y eléctrico 1 0ms
+ ✓ tests/unit/game/equipment.test.ts > armas nuevas de REQ-029 § contenido estimado v1 > la daga arcana declara acierto +4, punzante 2 y mágico 1 0ms
+ ✓ tests/unit/game/equipment.test.ts > armas nuevas de REQ-029 § contenido estimado v1 > las tres pasan la validación del catálogo 0ms
+ ✓ tests/unit/game/equipment.test.ts > armas nuevas de REQ-029 § contenido estimado v1 > las armas existentes conservan sus valores y no se marcan estimadas 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > aplica las cuatro bandas con multiplicador y floor tras la absorción 2ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > la banda se aplica después de la absorción y cada paquete se recorta a 0 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > la fuerza suma solo al paquete físico y la armadura solo lo reduce 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > resuelve un ataque mixto sumando paquetes físicos y elementales 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > el desglose conserva el orden declarado y refleja cada banda 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > el desglose conserva el bruto negativo y recorta el paquete a 0 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > aplica el mínimo 1 global aunque todos los paquetes queden a 0 1ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > consume daño y resistencia por paquete en el orden fijo del RNG 0ms
+ ✓ tests/unit/game/damage.test.ts > resolvedor de paquetes > clasifica los cinco tipos: tres físicos y dos elementales 1ms
+ ✓ tests/unit/game/damage.test.ts > validación del catálogo de armas > todas las armas del catálogo pasan la validación 0ms
+ ✓ tests/unit/game/damage.test.ts > validación del catálogo de armas > rechaza dos físicos, dos elementales o más de dos paquetes 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara la tabla completa y serializable de los tres tipos 7ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara los atributos inherentes de REQ-014 por tipo, incluidas las acciones 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > declara acciones por tipo 2/1/2 (REQ-026) 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > usa un radio de alarma común y el papel de cada tipo en PV y MP 0ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > el centinela va sin armadura, conserva escudo y el resto del equipo es el aceptado 1ms
+ ✓ tests/unit/game/bestiary.test.ts > bestiario > cambiar un valor del catálogo cambia el combate sin tocar fórmulas 2ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > cada tipo ataca con su arma y modificadores del bestiario 2ms
+ ✓ tests/unit/game/bestiary.test.ts > ataque enemigo con el resolvedor compartido > la fase enemiga usa el centinela del bestiario y resolveAttack 1ms
+ ✓ tests/unit/game/bestiary.test.ts > tiempo para matar según el catálogo > los nueve cruces siguen el TtK calculado desde el catálogo 356ms
+
+ Test Files  9 passed (9)
+      Tests  168 passed (168)
+   Start at  14:53:54
+   Duration  598ms (tests 53%, import 23%, transform 21%, worker 2%)
+
