@@ -41,6 +41,9 @@ motivo sin consumir nada.
 - `index.html`: nodos del HUD actual; sin arte nuevo.
 - Requisito: [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md).
   Depende de `TASK-0082` por el catálogo y el resolvedor.
+- [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) cambia el daño
+  mágico a paquetes tipados (TASK-0085) y añade desglose a `SpellCast`
+  (TASK-0088); esta tarea presenta el total del evento y no reimplementa daño.
 
 # Criterios de aceptación
 
@@ -58,7 +61,8 @@ motivo sin consumir nada.
       ausencia de réplica por hechizo.
 - [ ] QA visual con capturas 1280×720 y 900×700; `pnpm run verify` y `docs:check`
       pasan.
-- [ ] Sin cambios en fórmulas, catálogo ni valores de balance.
+- [ ] Sin cambios en acceso, coste, maná, alcance ni tope; el daño sigue al
+      resolvedor de REQ-029 y el total se lee del evento.
 
 # Plan de test
 

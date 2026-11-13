@@ -8,8 +8,8 @@ version: 1
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-12T12:00:00Z
-updated_at: 2026-11-13T10:00:00Z
-related_tasks: []
+updated_at: 2026-11-13T12:30:00Z
+related_tasks: [TASK-0085, TASK-0086, TASK-0087, TASK-0088, TASK-0089, TASK-0090, TASK-0091, TASK-0092]
 related_requirements: [REQ-009, REQ-010, REQ-014, REQ-015, REQ-017, REQ-023, REQ-025, REQ-026, REQ-027]
 related_decisions: [ADR-023]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T12:00:00Z }

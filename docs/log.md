@@ -7,6 +7,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 * 2026-11-13 — Harness — Permisos — `deny` para `timeout`, `gtimeout`, `node -e` y `node --eval`; la plantilla fija los comandos de creación y retira el `node -e`; pedido tras las dos peticiones de la sesión de REQ-029 — [opencode.jsonc](../opencode.jsonc)
 * 2026-11-13 — Harness — Timeouts — la regla vuelve a distinguir el parámetro de la herramienta del binario `timeout` (ausente en macOS) en `AGENTS.md`, workflow, prompts y skills; la compresión de `AGENTS.md` dejó la lectura ambigua y requirements-writer ejecutó `timeout 120 pnpm run tasks:board` — [workflow](harness/workflow.md#timeouts-y-procesos)
+* 2026-11-13 — Planning — REQ-029 — milestone planificado en TASK-0085 a TASK-0092: modelo y resolvedor, perfiles v1, armas nuevas, desglose de eventos, HUD, matriz de tests, docs y QA; TASK-0085 ready y el resto en cadena — [TASK-0085](tasks/TASK-0085-motor-tipos-dano-paquetes-resolvedor.md)
+* 2026-11-13 — Planning — REQ-026 — TASK-0084 queda pendiente de decisión: mide el balance con el modelo de daño único que REQ-029 sustituye; ejecutarla antes o replantearla tras TASK-0085 — [TASK-0084](tasks/TASK-0084-balance-acciones-magia-replica.md)
 * 2026-11-13 — Requirement — REQ-029 — stable v1: texto aprobado; cinco tipos, paquetes separados, bandas y ajuste fino aplazado a roster y bestiario completos; tareas en sesión aparte — [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)
 
 ## 2026-11-12
