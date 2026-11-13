@@ -1,0 +1,14 @@
+$ playwright test tests/e2e/combat-equipment-qa.spec.ts tests/e2e/equipment-hud-qa.spec.ts
+
+Running 8 tests using 4 workers
+
+  ✓  1 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:584:1 › feedback de daño en un ataque normal desde el lado (2.0s)
+  ✓  3 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:641:1 › fallo con texto y sin destello (semilla suplementaria) (2.9s)
+  ✓  2 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:348:1 › impacto, vida bajo cursor, F1, economía de turno y victoria (3.1s)
+  ✓  5 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:751:1 › determinismo: dos cargas con la misma semilla y comandos (1.8s)
+  ✓  6 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:845:1 › derrota determinista sin cambiar la economía de turno (1.2s)
+  ✓  7 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:101:1 › arma en el mapa, pista de G y HUD de equipo (1.3s)
+  ✓  8 [chromium] › tests/e2e/equipment-hud-qa.spec.ts:160:1 › impacto, fallo y F1 con tiradas y vida (1.0s)
+  ✓  4 [chromium] › tests/e2e/combat-equipment-qa.spec.ts:213:1 › HUD con espada, armas en el mapa, recogida con G y cambio 1-3 (5.1s)
+
+  8 passed (7.9s)
