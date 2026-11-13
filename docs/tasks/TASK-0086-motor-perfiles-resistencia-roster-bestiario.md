@@ -4,22 +4,33 @@ id: TASK-0086
 title: "Motor: perfiles de resistencia v1 de roster, bestiario y familias"
 description: "Declarar los perfiles estimados de los nueve arquetipos, los tres enemigos actuales y seis plantillas de familia, con herencia por familia y sobrescritura por enemigo, sin tocar el resolvedor."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-007, R-013, R-014, T-003]
 depends_on: [TASK-0085]
 unlocks: [TASK-0088, TASK-0089, TASK-0090]
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T10:36:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0086/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T10:36:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0086` (código `686b15f`, tests
+      `ee58a26`, artefactos `2b59f7a`). Contraste propio fila por fila de las 18
+      filas de REQ-029 (9 arquetipos, 3 enemigos y 6 familias) sin discrepancias.
+      `pnpm run verify` OK (1113/1113 en 80 archivos; docs:check, config:check,
+      tsc, build y check:bundle) y `pnpm run test:e2e` OK (112/112). Resolvedor,
+      armas, PV, acciones y hechizos intactos; E2E adaptados sin debilitar. El
+      perfil se expone serializable en el snapshot de debug; el render de bandas
+      en `F1` sigue en TASK-0089.
 ---
 
 # Objetivo
@@ -44,22 +55,22 @@ resolvedor.
 
 # Criterios de aceptación
 
-- [ ] Los nueve arquetipos de `REQ-015` declaran exactamente las bandas de la
+- [x] Los nueve arquetipos de `REQ-015` declaran exactamente las bandas de la
       tabla de héroe (V/N/R) y los tres enemigos actuales, las de su tabla.
-- [ ] Existen seis plantillas de familia reutilizables (humanoide, constructo, no
+- [x] Existen seis plantillas de familia reutilizables (humanoide, constructo, no
       muerto, bestia, elemental y dragón) como datos; un enemigo concreto puede
       sobrescribir una banda sin duplicar el perfil entero.
-- [ ] Una unidad sin perfil explícito sigue recibiendo normal en los cinco tipos.
-- [ ] El perfil es serializable y se expone en snapshot y debug; dos unidades con
+- [x] Una unidad sin perfil explícito sigue recibiendo normal en los cinco tipos.
+- [x] El perfil es serializable y se expone en snapshot y debug; dos unidades con
       el mismo perfil reciben el mismo tratamiento.
-- [ ] Cambiar una banda en el catálogo cambia el combate esperado sin editar el
+- [x] Cambiar una banda en el catálogo cambia el combate esperado sin editar el
       resolvedor; los tests leen el perfil del catálogo y no copian la tabla.
-- [ ] Las tres tablas se contrastan fila por fila con REQ-029 (9 arquetipos, 3
+- [x] Las tres tablas se contrastan fila por fila con REQ-029 (9 arquetipos, 3
       enemigos y 6 familias) y el contraste queda registrado en el informe. Los
       tests leen el catálogo, así que un valor mal transcrito no se detecta solo.
-- [ ] Los valores quedan marcados como estimados v1; no se ajustan armas, PV,
+- [x] Los valores quedan marcados como estimados v1; no se ajustan armas, PV,
       acciones ni hechizos.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas.
 
 # Plan de test
 
@@ -75,9 +86,9 @@ resolvedor.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0086/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify` y de los tests focalizados
-- [ ] Commit SHA en la rama `task/TASK-0086`
+- [x] Informe en `artifacts/TASK-0086/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` y de los tests focalizados
+- [x] Commit SHA en la rama `task/TASK-0086`
 
 # Restricciones
 

@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0086 — done: perfiles v1 de los 9 arquetipos, 3 enemigos y 6 familias con herencia y sobrescritura parcial; contraste 18/18 con REQ-029; verify 1113/1113 y E2E 112/112; fusión `8d840af` — [informe](../artifacts/TASK-0086/attempt-1/report.md)
 * 2026-11-13 — Planning — TASK-0086 — ready: se añade como criterio y evidencia el contraste fila por fila de las tres tablas de REQ-029 (9 arquetipos, 3 enemigos, 6 familias), porque los tests leen el catálogo y no detectarían un valor mal transcrito; handoff a `task-lead` — [TASK-0086](tasks/TASK-0086-motor-perfiles-resistencia-roster-bestiario.md)
 * 2026-11-13 — Task — TASK-0085 — done: cinco tipos de daño, paquetes tipados y resolvedor único con bandas ×1,5/×1/×0,5/×0,25; armadura y fuerza solo físicos, mínimo 1 global y RNG determinista; verify 1103/1103 y E2E 9/9; fusión `9acff9e` — [informe](../artifacts/TASK-0085/attempt-1/report.md)
 * 2026-11-13 — Harness — Permisos — `deny` para `timeout`, `gtimeout`, `node -e` y `node --eval`; la plantilla fija los comandos de creación y retira el `node -e`; pedido tras las dos peticiones de la sesión de REQ-029 — [opencode.jsonc](../opencode.jsonc)
