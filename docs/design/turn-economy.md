@@ -13,10 +13,11 @@ Fijar unos valores jugables para el primer prototipo local. No son definitivos:
 están pensados para poder probar el loop y ajustarlos después con experimentos y
 playtests.
 
-> **Aviso de vigencia (2026-11-12).** La sección de acción se actualiza con
+> **Aviso de vigencia (2026-11-13).** La sección de acción se actualiza con
 > `REQ-026`: varias acciones por turno, Pícaro 3, enemigos 2/1/2 y tope 4
-> provisional. La réplica de `REQ-027` ya está implementada y tiene sección
-> propia. La magia de `REQ-025` sigue como referencia hasta que se implemente.
+> provisional. La réplica de `REQ-027` y la magia de `REQ-025` están
+> implementadas y tienen sección propia. El combate de `REQ-029` se documenta en
+> [Combate](#combate) con paquetes y bandas; el daño único queda como historia.
 
 # Rejilla y movimiento
 
@@ -153,26 +154,27 @@ motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado
 
 # Combate
 
-> **Nota de vigencia (2026-11-12).** La fórmula de daño, el catálogo de armas y
-> la resistencia única quedan enmendados por
-> [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) y
-> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md): el daño se
-> resuelve por paquetes con tipo y bandas. Las tablas de esta sección son
-> históricas hasta que se actualicen en la tarea de implementación.
+El combate vigente se resuelve con el modelo de paquetes y perfiles de
+[REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) y
+[ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md); la tirada de
+impacto y el escudo conservan lo aceptado en
+[REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
+[ADR-012](../decisions/ADR-012-combate-equipo-rng.md). El esquema de atributos
+vive en [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md) y la
+absorción numérica de
+[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md) queda sustituida
+por el perfil de bandas.
 
-Valores aceptados en [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
-y registrados en [ADR-012](../decisions/ADR-012-combate-equipo-rng.md); el
-esquema de atributos y la absorción vigente están en
-[REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md) y
-[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md). Son revisables
-en playtest, pero no se cambian sin una nueva decisión.
-
-Todo personaje comparte ocho atributos inherentes, independientes del equipo:
+Todo personaje comparte nueve atributos inherentes, independientes del equipo:
 **habilidad**, **fuerza**, **defensa**, **resistencia**, **puntería**, **magia**,
-**PV** y **MP**. El equipo no define ninguno; solo aporta bonus. Habilidad y
-fuerza sustituyen a los antiguos modificadores de acierto y daño; defensa se
-mantiene. Puntería sigue como slot sin efecto; magia se define en `REQ-025`
-(nivel 0–4, maná y hechizos) y aún no está implementada.
+**PV**, **MP** y **acciones por turno**. El equipo no define ninguno; solo aporta
+bonus. Habilidad y fuerza sustituyen a los antiguos modificadores de acierto y
+daño; la fuerza se suma solo al paquete físico y defensa se mantiene. La
+resistencia es un **perfil de cinco bandas**, una por tipo de daño, no un valor
+plano. Puntería sigue como slot sin efecto. Magia es un nivel único 0–4
+([REQ-025](../requirements/REQ-025-magia-hechizos-mana.md)): determina el maná, el
+acceso a hechizos y el impacto mágico; no cambia el tipo de daño ni la
+resistencia.
 
 | Regla | Valor |
 |---|---|
@@ -181,49 +183,128 @@ mantiene. Puntería sigue como slot sin efecto; magia se define en `REQ-025`
 | Línea de visión | Bresenham sobre la rejilla; diagonales permitidas. |
 | Cobertura | No existe en el primer prototipo. |
 | Impacto | `habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6`; el empate falla. |
-| Daño | `max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))`. |
-| Resistencia | Absorción de daño; se suma a la armadura del equipo en una sola capa. |
-| Escudo | Suma a la defensa; no reduce el daño de un impacto. |
-| Armadura | Bonus a la resistencia; resta al daño de un impacto, no evita el impacto. |
-| Orden de tiradas | Ataque y escudo; si impacta, golpe y absorción. |
+| Impacto mágico | `nivel de magia + acierto del hechizo + 1d6 > defensa + escudo + 1d6`; el empate falla. |
+| Daño por paquete físico | `bruto = cantidad + fuerza + 1d6 − (armadura + 1d6)`. |
+| Daño por paquete mágico o eléctrico | `bruto = cantidad + 1d6 − 1d6`; ni fuerza ni armadura entran. |
+| Banda | `bruto = max(0, bruto)`; `daño = max(0, floor(bruto × banda))`. |
+| Total | `max(1, suma de daños de paquete)`; un paquete nunca resta a otro. |
+| Resistencia | Perfil de cinco bandas; se aplica después de la absorción y no hay inmunidad absoluta. |
+| Escudo | Suma a la defensa; decide el impacto de cualquier tipo, no reduce el daño. |
+| Armadura | Resta al daño de los paquetes físicos (filo, contundente y punzante); no protege de mágico ni eléctrico. |
+| Orden de tiradas | Ataque y escudo; si impacta, por paquete en el orden declarado, daño y resistencia. Un fallo consume dos tiradas. |
 | Azar | RNG sembrado y serializable; misma semilla y comandos, misma secuencia. |
 | Muerte | Al llegar a 0 PV. |
 
+## Bandas de resistencia
+
+| Banda | Multiplicador | Uso |
+|---|---:|---|
+| Vulnerable | ×1,5 | Debilidad clara; el paquete hace más daño. |
+| Normal | ×1 | Valor por defecto; la banda ausente cuenta como normal. |
+| Resistente | ×0,5 | Reduce a la mitad el daño del paquete. |
+| Muy resistente | ×0,25 | Resistencia extrema y rara; nunca inmunidad. |
+
 ## Armas
 
-| Arma | Acierto | Daño | Perfil |
+| Arma | Acierto | Paquetes | Estimada v1 | Notas |
+|---|---:|---|---|---|
+| Espada | +3 | filo 3 | No | Equilibrada; arma inicial del Guerrero. |
+| Hacha | +2 | filo 5 | No | Mucho daño; falla más. |
+| Daga | +4 | punzante 2 | No | Muy fiable; sufre contra armadura. |
+| Cuchillo | +4 | punzante 1 | No | Muy fiable; arma inicial del Cocinero. |
+| Martillo | +2 | contundente 4 | Sí | Única arma nueva colocada en el mapa de forma determinista. |
+| Espada electrizada | +3 | filo 3 + eléctrico 1 | Sí | Arma mixta; cualquier héroe puede usarla. |
+| Daga arcana | +4 | punzante 2 + mágico 1 | Sí | Segunda fuente elemental; existe como dato y no se coloca en el mapa. |
+
+El catálogo vive en `equipment.ts`. Las armas marcadas como estimadas v1 son
+contenido de prueba de REQ-029 y no cambian el equipo inicial del roster: el
+martillo entra en el mapa y la espada electrizada y la daga arcana existen como
+datos.
+
+## Equipo y bestiario
+
+Atributos y equipo de los nueve arquetipos y los tres enemigos actuales. Los
+perfiles se leen por tipo; `V` = vulnerable, `N` = normal, `R` = resistente y
+`MR` = muy resistente.
+
+| Unidad | Habilidad | Fuerza | Defensa | PV | MP | Arma | Escudo | Armadura |
+|---|---:|---:|---:|---:|---:|---|---:|---:|
+| Guerrero | +1 | +1 | +1 | 20 | 6 | Espada | 1 | 1 |
+| Bárbaro | 0 | +3 | −1 | 24 | 5 | Hacha | 0 | 0 |
+| Pícaro | +3 | 0 | +1 | 14 | 8 | Daga | 0 | 0 |
+| Arquero | +1 | 0 | 0 | 14 | 6 | — | 0 | 0 |
+| Mago | 0 | −1 | 0 | 12 | 5 | — | 0 | 0 |
+| Clérigo | 0 | −1 | +3 | 18 | 5 | — | 1 | 1 |
+| Guerrero mágico | +1 | 0 | +1 | 18 | 6 | — | 0 | 1 |
+| Cocinero | +3 | −1 | 0 | 14 | 6 | Cuchillo | 0 | 0 |
+| Agricultor | −1 | +3 | 0 | 22 | 4 | — | 1 | 0 |
+| Centinela | 0 | 0 | 0 | 6 | 5 | Espada | 1 | 0 |
+| Bruto | 0 | +1 | 0 | 8 | 4 | Hacha | 0 | 2 |
+| Cobarde | +1 | 0 | +1 | 5 | 6 | Daga | 1 | 0 |
+
+| Unidad | Filo | Contundente | Punzante | Mágico | Eléctrico |
+|---|---|---|---|---|---|
+| Guerrero | N | N | N | N | N |
+| Bárbaro | R | R | N | V | V |
+| Pícaro | N | V | R | N | N |
+| Arquero | N | V | N | N | N |
+| Mago | V | V | V | R | R |
+| Clérigo | N | N | N | R | R |
+| Guerrero mágico | N | N | N | R | N |
+| Cocinero | N | N | N | N | N |
+| Agricultor | N | R | N | V | V |
+| Centinela | N | N | N | N | N |
+| Bruto | N | R | N | V | V |
+| Cobarde | N | V | N | N | N |
+
+Los perfiles de los héroes son estimados v1 del roster. Los enemigos heredan la
+plantilla humanoide y sobrescriben solo algunas bandas; las seis plantillas de
+familia (humanoide, constructo, no muerto, bestia, elemental y dragón) están en
+`bestiary.ts` y la asignación de las 64 entradas queda para una hoja posterior.
+Escudo y armadura son el valor numérico del equipo; 0 significa sin equipo.
+
+El Guerrero empieza con la espada, el escudo y la armadura; los huecos
+secundarios arrancan vacíos y el equipo inicial de cada arquetipo es la tabla de
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md). El hacha, la daga y el
+martillo están en el mapa; la espada electrizada y la daga arcana existen como
+datos. El juego tiene ocho huecos de equipo y ocho de mochila por personaje; el
+arma se cambia **solo** desde el panel abierto con `I`, cuesta 1 MP y no gasta
+acción; `G` ya no existe y la recogida también se hace desde el panel
+([REQ-018](../requirements/REQ-018-inventario-equipo.md)). En este corte existen
+ataque cuerpo a cuerpo y hechizos; el alcance físico a distancia queda como valor
+futuro.
+
+## Historia: modelo de daño único (REQ-010/ADR-015)
+
+> **No vigente.** Se conserva solo como historia y como referencia para el
+> cross-check de `EXP-003`. El motor no usa estas fórmulas ni estas tablas; el
+> modelo vigente es el de arriba
+> ([REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md),
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md)).
+
+Fórmula histórica:
+
+```text
+impacto: habilidad + acierto del arma + 1d6 > defensa + escudo + 1d6
+daño:    max(1, (fuerza + daño del arma + 1d6) − (resistencia + armadura + 1d6))
+```
+
+| Arma histórica | Acierto | Daño | Perfil |
 |---|---:|---:|---|
 | Espada | +3 | 3 | Equilibrada; arma inicial del Guerrero. |
 | Hacha | +2 | 5 | Mucho daño; rompe armadura, pero falla más. |
 | Daga | +4 | 2 | Muy fiable; supera escudos, pero sufre contra armadura. |
 | Cuchillo | +4 | 1 | Muy fiable; menos dañino que la daga. Arma inicial del Cocinero. |
 
-## Equipo y bestiario
-
-| Unidad | Habilidad | Fuerza | Defensa | Resistencia | Arma | Escudo | Armadura | PV |
+| Unidad histórica | Habilidad | Fuerza | Defensa | Resistencia | Arma | Escudo | Armadura | PV |
 |---|---:|---:|---:|---:|---|---:|---:|---:|
 | Guerrero (jugador por defecto) | +1 | +1 | +1 | +1 | Espada | 1 | 1 | 20 |
 | Centinela | +0 | +0 | +0 | +0 | Espada | 1 | 0 | 6 |
 | Bruto | +0 | +1 | +0 | +0 | Hacha | 0 | 2 | 8 |
 | Cobarde | +1 | +0 | +1 | +0 | Daga | 1 | 0 | 5 |
 
-Todos los personajes tienen puntería 0 y magia vacía en este corte. MP enemigo:
-Centinela 5, Bruto 4, Cobarde 6. Estos valores son el **balance provisional v1**
-de [REQ-010 v5](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
-[REQ-009 v4](../requirements/REQ-009-percepcion-alarma-huida.md); el balance v1
-de enemigos y armas no cambia. El Guerrero sustituye al jugador provisional y
-añade +1 de resistencia (0 → 1). El roster de
-[REQ-015](../requirements/REQ-015-roster-arquetipos.md) es la fuente única de
-stats y equipo de los héroes.
-
-El Guerrero empieza con la espada, el escudo y la armadura; los huecos
-secundarios arrancan vacíos y el equipo inicial de cada arquetipo es la tabla de
-[REQ-015](../requirements/REQ-015-roster-arquetipos.md). El hacha y la daga están
-en el mapa. El juego tiene ocho huecos de equipo y ocho de mochila por personaje;
-el arma se cambia **solo** desde el panel abierto con `I`, cuesta 1 MP y no gasta
-acción; `G` ya no existe y la recogida también se hace desde el panel
-([REQ-018](../requirements/REQ-018-inventario-equipo.md)). En este corte solo
-existe ataque cuerpo a cuerpo; el alcance a distancia queda como valor futuro.
+En el modelo histórico el Guerrero añadía +1 de resistencia (0 → 1); hoy su
+perfil es normal en los cinco tipos.
 
 # Orden de turnos
 

@@ -30,7 +30,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Fase de jugadores** | Periodo en el que cada jugador usa su turno, en orden fijo. |
 | **Fase enemiga** | Periodo posterior en el que actúan todos los enemigos. |
 | **MP** | Puntos de movimiento disponibles en un turno. |
-| **Acción** | Una intervención táctica: atacar, interactuar o esperar. |
+| **Acción** | Intervención que consume una de las acciones del turno: atacar, interactuar o lanzar hechizos. Esperar y terminar el turno son libres y no consumen acción ([REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)). |
 | **Hotseat** | Varios jugadores comparten el mismo teclado y juegan por turnos. |
 | **Local-first** | Construir y validar el juego en local antes de añadir red. |
 | **Experimento** | Página interactiva que responde una pregunta de diseño o técnica y registra una decisión. |
@@ -43,21 +43,22 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **RNG sembrado** | Generador pseudoaleatorio determinista inicializado por la semilla; su estado es serializable y reproducible. |
 | **Atributos inherentes** | Los nueve valores propios de un personaje, independientes del equipo: habilidad, fuerza, defensa, resistencia, puntería, magia, PV, MP y acciones por turno. |
 | **Habilidad** | Atributo inherente que se suma al acierto del arma para resolver el impacto; sustituye al antiguo modificador de acierto. |
-| **Fuerza** | Atributo inherente que se suma al daño del arma; sustituye al antiguo modificador de daño. |
+| **Fuerza** | Atributo inherente que se suma solo al paquete físico del arma; los paquetes mágico y eléctrico no escalan con ella. Sustituye al antiguo modificador de daño ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Defensa** | Atributo inherente que se suma al escudo para resistir el impacto. |
 | **Resistencia** | Atributo inherente que ahora es un **perfil de cinco bandas**, una por tipo de daño; sustituye a la resistencia numérica única ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Tipo de daño** | Categoría de un paquete de daño: filo, contundente, punzante, mágico o eléctrico. Fuego y hielo no son tipos en este corte; serán traits de estado ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Paquete de daño** | Componente de un ataque con tipo y cantidad propios; tira su daño y su resistencia. Un arma del primer corte puede llevar un paquete físico y uno elemental ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Banda de resistencia** | Grado de resistencia a un tipo: vulnerable ×1,5, normal ×1, resistente ×0,5 y muy resistente ×0,25; se aplica después de la absorción, con redondeo hacia abajo y mínimo 1 global ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
+| **Perfil de resistencia** | Conjunto de bandas de una unidad, una por tipo de daño; la banda ausente es `normal`. Vive en `UnitStats.resistencia` y sustituye a la resistencia numérica única ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). No confundir con el perfil de comportamiento del bestiario (`brave`/`coward`, [REQ-009](requirements/REQ-009-percepcion-alarma-huida.md)). |
 | **Acierto del arma** | Bonus del arma que se suma a la habilidad al resolver el impacto. |
 | **Daño del arma** | Paquete o paquetes de daño del arma; la fuerza se suma solo al paquete físico. Un arma puede añadir un paquete mágico o eléctrico ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Puntería** | Atributo inherente reservado al ataque a distancia; sin efecto en este corte. |
-| **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo y el acceso a hechizos; las familias son categorías de hechizo, no niveles. No confundir con el **tipo de daño mágico**, que es independiente y cualquier héroe puede usar con un arma encantada ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
+| **Magia** | Atributo inherente de nivel entero único 0–4 (0 = sin magia). Determina el maná máximo, el acceso a hechizos y el bono de impacto mágico (nivel + acierto del hechizo); las familias son categorías de hechizo, no niveles. No confundir con el **tipo de daño mágico**, que es independiente y cualquier héroe puede usar con un arma encantada ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md), [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)). |
 | **Maná** | Recurso de hechizos separado del MP; su máximo es nivel × 4 y se recarga completo al inicio de cada turno. |
 | **Acciones por turno** | Noveno atributo inherente: cuántas acciones puede gastar una unidad en su turno (2 por defecto, Pícaro 3; tope 4 provisional). Atacar, interactuar y lanzar hechizos consumen una; moverse, recoger/soltar del suelo, esperar y terminar el turno no. |
 | **Recoger y soltar** | Manejo de un objeto del suelo desde el panel de personaje: cuesta 1 MP y no acción; soltar un objeto equipado lo desequipa ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
 | **Contenedor** | Cofre o cadáver con inventario propio; abrir o registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo». |
-| **Hechizo** | Efecto mágico con nivel mínimo, coste base 2 × nivel, alcance, acierto y poder; consume una acción y se limita a dos por turno en el primer corte (provisional). |
+| **Hechizo** | Efecto mágico con nivel mínimo, coste de maná, alcance, acierto, objetivo y efecto; los de daño declaran un paquete mágico o eléctrico y usan el resolvedor común. Consume una acción y se limita a dos por turno en el primer corte (provisional) ([REQ-025](requirements/REQ-025-magia-hechizos-mana.md), [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla. Solo replica quien está vivo, adyacente y con arma equipada, y está alerta, regresando o huyendo acorralado; un dormido nunca replica. Es una tirada nueva con la misma fórmula y RNG, puede fallar o matar, no gasta acción, maná ni MP y no se encadena. Solo existe en melé: ni a distancia ni mágica. |
 | **Escudo** | Equipo que suma a la defensa; decide si un ataque impacta, no cuánto duele. |
 | **Armadura** | Equipo que resta al daño de los paquetes **físicos** (filo, contundente y punzante); no protege de mágico ni eléctrico. No evita el impacto ([REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
