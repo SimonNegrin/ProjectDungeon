@@ -24,14 +24,14 @@ verified:
 - `src/host/{notices,feedback-config,motion,main}.ts`: motivos de rechazo, beats y
   cues de hechizo, textos `-N`/`Fallo`/`+N`/`Vuelve N PV`, y maná/acción
   progresivos en la presentación.
-- Commits: `e5c9ec2` (feat), `8166dce` (test).
+- Commits: `e5c9ec2` (feat), `8166dce` y `d2e0f15` (test).
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm exec vitest run ...` (7 archivos host) | 97/97 | `test-output.txt` |
-| `pnpm run verify` | OK: 1169 tests, build y bundle | `verify-output.txt` |
+| `pnpm exec vitest run ...` (7 archivos host) | 98/98 | `test-output.txt` |
+| `pnpm run verify` | OK: 1170 tests, build y bundle | `verify-output.txt` |
 | `pnpm run test:e2e` | 116/116 | `e2e-output.txt` |
 | `pnpm run docs:check` | OK | `docs-check-output.txt` |
 
@@ -68,6 +68,6 @@ verified:
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4092 |
-| `report_bytes` | 2886 |
+| `report_bytes` | 2898 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

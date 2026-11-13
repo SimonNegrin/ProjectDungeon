@@ -83,7 +83,7 @@ Avisos (94):
 - artifacts/TASK-0082/attempt-1/brief.md: handoff de 4032 B; objetivo ≤2560 B
 - artifacts/TASK-0082/attempt-1/report.md: handoff de 4084 B; objetivo ≤2560 B
 - artifacts/TASK-0083/attempt-1/brief.md: handoff de 4092 B; objetivo ≤2560 B
-- artifacts/TASK-0083/attempt-1/report.md: handoff de 2886 B; objetivo ≤2560 B
+- artifacts/TASK-0083/attempt-1/report.md: handoff de 2898 B; objetivo ≤2560 B
 - artifacts/TASK-0085/attempt-1/brief.md: handoff de 3025 B; objetivo ≤2560 B
 - artifacts/TASK-0085/attempt-1/report.md: handoff de 3488 B; objetivo ≤2560 B
 - artifacts/TASK-0086/attempt-1/brief.md: handoff de 3580 B; objetivo ≤2560 B
