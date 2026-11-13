@@ -4,7 +4,7 @@ id: TASK-0086
 title: "Motor: perfiles de resistencia v1 de roster, bestiario y familias"
 description: "Declarar los perfiles estimados de los nueve arquetipos, los tres enemigos actuales y seis plantillas de familia, con herencia por familia y sobrescritura por enemigo, sin tocar el resolvedor."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-007, R-013, R-014, T-003]
@@ -54,6 +54,9 @@ resolvedor.
       el mismo perfil reciben el mismo tratamiento.
 - [ ] Cambiar una banda en el catálogo cambia el combate esperado sin editar el
       resolvedor; los tests leen el perfil del catálogo y no copian la tabla.
+- [ ] Las tres tablas se contrastan fila por fila con REQ-029 (9 arquetipos, 3
+      enemigos y 6 familias) y el contraste queda registrado en el informe. Los
+      tests leen el catálogo, así que un valor mal transcrito no se detecta solo.
 - [ ] Los valores quedan marcados como estimados v1; no se ajustan armas, PV,
       acciones ni hechizos.
 - [ ] `pnpm run verify` pasa; sin dependencias nuevas.
