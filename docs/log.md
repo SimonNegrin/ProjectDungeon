@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Requirement — REQ-030 — borrador: contorno de alcance de hechizos recortado por muros y LOS al recorrer la lista y al apuntar con `X`; fuera los avisos de rechazo y el sonido; P-001 a P-007 abiertas, incluida la de si «solo adversario» es regla nueva o el rechazo actual — [REQ-030](requirements/REQ-030-alcance-visible-hechizos.md)
+
 * 2026-11-13 — Task — TASK-0083 — done: selección de hechizo y objetivo con teclado, HUD de magia/maná y feedback de impacto, curación, resurrección y rechazos; 1170/1170 verify, 116/116 E2E y docs:check OK; capturas 1280×720 y 900×700; sin cambios en `src/game/**`; fusión `d92f059` — [informe](../artifacts/TASK-0083/attempt-1/report.md)
 
 * 2026-11-13 — Planning — TASK-0083 — ready: selección de hechizo y objetivo con teclado, HUD de magia y maná, feedback de impacto/curación/resurrección y rechazos con motivo; dependencia TASK-0082 `done` y REQ-025 aceptada; handoff a `task-lead` — [TASK-0083](tasks/TASK-0083-host-lanzamiento-hechizos-hud.md)
