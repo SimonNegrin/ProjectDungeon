@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { ARMORS, SHIELDS, WEAPONS } from '../../src/game/equipment';
+import { ARMORS, SHIELDS, WEAPONS, weaponDamage } from '../../src/game/equipment';
 import type { Unit } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
@@ -33,7 +33,7 @@ function signed(value: number): string {
 
 function weaponLabel(unit: Unit): string {
   const weapon = WEAPONS[unit.equipment.weaponId!];
-  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weapon.damage)}`;
+  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
 }
 
 function shieldLabel(unit: Unit): string {
@@ -49,8 +49,8 @@ function armorLabel(unit: Unit): string {
 }
 
 function statsLabel(unit: Unit): string {
-  const { habilidad, fuerza, defensa, resistencia } = unit.stats;
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa · ${signed(resistencia)} resistencia`;
+  const { habilidad, fuerza, defensa } = unit.stats;
+  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
 }
 
 function floorNeighbor(
