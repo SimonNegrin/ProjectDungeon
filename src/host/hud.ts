@@ -17,7 +17,7 @@ import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 
 export const KEYS_HELP =
-  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
+  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
 
 export interface HudModel {
   /** Nombre de instancia del jugador. */
@@ -216,7 +216,9 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     cursorEnemyMagic: formatMagic(cursorEnemy),
     cursorEnemyMana: formatMana(cursorEnemy),
     cursorEnemyBands: cursorEnemyBands(state, cursorEnemy, cursor),
-    weaponHint: groundItem ? `G recoger ${ITEMS[groundItem.itemId].name}` : null,
+    weaponHint: groundItem
+      ? `I panel · ${ITEMS[groundItem.itemId].name} en el suelo`
+      : null,
     turn: `Turno ${state.turn}`,
     status: statusLabel(state),
     keys: KEYS_HELP,

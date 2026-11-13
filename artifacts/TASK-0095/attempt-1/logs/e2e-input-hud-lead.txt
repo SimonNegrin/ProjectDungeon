@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/game-input-hud.spec.ts:54:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (3.5s)
+
+  1 passed (5.4s)

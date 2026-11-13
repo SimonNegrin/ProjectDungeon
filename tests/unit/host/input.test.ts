@@ -110,27 +110,14 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
   });
 
-  it('G recoge y 1-3 equipan desde los tres primeros huecos de mochila', () => {
+  it('I abre el panel en el turno del jugador sin coste', () => {
     const state = makeState();
 
-    for (const key of ['g', 'G']) {
-      expectCommand(translate(key, state), { type: 'PickUp', unitId: 'player-1' });
-    }
-    for (const [key, index] of [
-      ['1', 0],
-      ['2', 1],
-      ['3', 2],
-    ] as const) {
-      expectCommand(translate(key, state), {
-        type: 'EquipItem',
-        unitId: 'player-1',
-        from: 'backpack',
-        index,
-      });
-    }
+    expect(translate('i', state)).toEqual({ type: 'panel-open' });
+    expect(translate('I', state)).toEqual({ type: 'panel-open' });
   });
 
-  it('G y 1-3 exigen fase de jugador y un jugador activo', () => {
+  it('I exige partida en curso, fase de jugador y un jugador vivo', () => {
     const state = makeState();
     const enemyPhase = { ...state, phase: 'enemy' as const };
     const noPlayer = {
@@ -138,22 +125,53 @@ describe('mapeo de teclado a intenciones del host', () => {
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 })],
     };
 
-    for (const key of ['g', '1', '2', '3']) {
-      expect(translate(key, enemyPhase)).toEqual({
+    expect(translate('i', enemyPhase)).toEqual({
+      type: 'ignored',
+      reason: 'wrong-phase',
+    });
+    expect(translate('i', noPlayer)).toEqual({
+      type: 'ignored',
+      reason: 'no-active-player',
+    });
+    expect(translate('i', makeState({ status: 'victory' }))).toEqual({
+      type: 'ignored',
+      reason: 'game-over',
+    });
+  });
+
+  it('I no abre el panel con la lista de hechizos abierta', () => {
+    expect(
+      translateKey({ key: 'i' }, makeState(), PLAYER_TILE, {
+        spellMenu: { open: true, index: 0, selectedId: null },
+      }),
+    ).toEqual({ type: 'ignored', reason: 'spell-menu-open' });
+  });
+
+  it('con el panel abierto solo Escape e I cierran y el mapa no recibe comandos', () => {
+    const state = adjacentState();
+    const open = { panelOpen: true };
+
+    expect(translateKey({ key: 'Escape' }, state, PLAYER_TILE, open)).toEqual({
+      type: 'panel-close',
+    });
+    expect(translateKey({ key: 'i' }, state, PLAYER_TILE, open)).toEqual({
+      type: 'panel-close',
+    });
+    for (const key of ['d', ' ', 'Enter', 'f', 'e', 'r', 'F1', 'F2', 'q', 'x', 'g', '1', '2', '3']) {
+      expect(translateKey({ key }, state, PLAYER_TILE, open)).toEqual({
         type: 'ignored',
-        reason: 'wrong-phase',
-      });
-      expect(translate(key, noPlayer)).toEqual({
-        type: 'ignored',
-        reason: 'no-active-player',
+        reason: 'panel-open',
       });
     }
+  });
 
-    const victory = makeState({ status: 'victory' });
-    for (const key of ['g', '1', '2', '3']) {
-      expect(translate(key, victory)).toEqual({
+  it('G y 1-3 ya no se mapean a recoger ni a equipar', () => {
+    const state = makeState();
+
+    for (const key of ['g', 'G', '1', '2', '3']) {
+      expect(translate(key, state)).toEqual({
         type: 'ignored',
-        reason: 'game-over',
+        reason: 'unmapped',
       });
     }
   });
@@ -233,15 +251,17 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(JSON.stringify(cursor)).toBe(beforeCursor);
   });
 
-  it('bloquea el comportamiento del navegador con F1, F2, F, G y 1-3', () => {
+  it('bloquea el comportamiento del navegador con F1, F2, F, I y Escape', () => {
     expect(isManagedKey('F1')).toBe(true);
     expect(isManagedKey('f2')).toBe(true);
     expect(isManagedKey('f')).toBe(true);
-    expect(isManagedKey('g')).toBe(true);
-    expect(isManagedKey('G')).toBe(true);
-    expect(isManagedKey('1')).toBe(true);
-    expect(isManagedKey('2')).toBe(true);
-    expect(isManagedKey('3')).toBe(true);
+    expect(isManagedKey('i')).toBe(true);
+    expect(isManagedKey('I')).toBe(true);
+    expect(isManagedKey('Escape')).toBe(true);
+    expect(isManagedKey('g')).toBe(false);
+    expect(isManagedKey('1')).toBe(false);
+    expect(isManagedKey('2')).toBe(false);
+    expect(isManagedKey('3')).toBe(false);
     expect(isManagedKey('q')).toBe(false);
     expect(isManagedKey('4')).toBe(false);
   });
@@ -329,8 +349,8 @@ describe('gate de input durante la animación', () => {
   const state = adjacentState();
   const options = { animating: true };
 
-  it('descarta flechas/WASD, Espacio/Enter, F, G, 1-3, E y F2 sin encolar', () => {
-    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'g', '1', '2', '3', 'e', 'F2']) {
+  it('descarta flechas/WASD, Espacio/Enter, F, I, E y F2 sin encolar', () => {
+    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'i', 'e', 'F2']) {
       expect(translateKey({ key }, state, { x: 6, y: 6 }, options)).toEqual({
         type: 'ignored',
         reason: 'animating',

@@ -21,13 +21,16 @@ export type InputIgnoreReason =
   | 'no-active-player'
   | 'no-target'
   | 'animating'
-  | 'spell-menu-open';
+  | 'spell-menu-open'
+  | 'panel-open';
 
 export interface TranslateKeyOptions {
   /** Con una animación activa solo responden `F1` y `R`; el resto se descarta. */
   readonly animating?: boolean;
   /** Estado de la lista de hechizos; sin él se comporta como cerrada y vacía. */
   readonly spellMenu?: SpellMenuSelection;
+  /** Panel de personaje abierto: bloquea los comandos del mapa (R-015/T-009). */
+  readonly panelOpen?: boolean;
 }
 
 /**
@@ -47,6 +50,8 @@ export type InputIntent =
   | { readonly type: 'spell-menu-select'; readonly spellId: SpellId }
   | { readonly type: 'spell-cast'; readonly spellId: SpellId; readonly unitId: string; readonly target: Position }
   | { readonly type: 'spell-deselect' }
+  | { readonly type: 'panel-open' }
+  | { readonly type: 'panel-close' }
   | { readonly type: 'ignored'; readonly reason: InputIgnoreReason };
 
 const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number }>> = {
@@ -60,13 +65,6 @@ const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number 
   arrowright: { dx: 1, dy: 0 },
 };
 
-/** Teclas 1-3 que equipan los tres primeros huecos de la mochila. */
-const BACKPACK_SLOTS: Readonly<Record<string, number>> = {
-  '1': 0,
-  '2': 1,
-  '3': 2,
-};
-
 const MANAGED_KEYS = new Set([
   'w',
   'a',
@@ -77,10 +75,8 @@ const MANAGED_KEYS = new Set([
   'arrowdown',
   'arrowleft',
   'arrowright',
-  'g',
-  '1',
-  '2',
-  '3',
+  'i',
+  'escape',
   'e',
   'r',
   'enter',
@@ -107,6 +103,17 @@ function findActivePlayer(state: GameState): Unit | undefined {
   return state.players.find((player) => player.hp > 0);
 }
 
+/**
+ * Condición de apertura del panel de personaje (REQ-018 T-009): partida en
+ * curso, fase de jugador y al menos un jugador vivo. Cuando `REQ-021` añada el
+ * fantasma, este es el único punto que debe excluirlo.
+ */
+export function canOpenCharacterPanel(state: GameState): boolean {
+  if (state.status !== 'playing') return false;
+  if (state.phase !== 'player') return false;
+  return findActivePlayer(state) !== undefined;
+}
+
 /** Enemigo vivo exactamente en el tile bajo el cursor. */
 function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
   return state.enemies.find(
@@ -120,19 +127,21 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  *
  * Reglas:
  * - `repeat` y modificadores (ctrl/meta/alt) se ignoran.
+ * - Con el panel abierto solo `Escape` e `I` cierran; el resto se bloquea.
  * - Con una animación activa solo responden `F1` y `R`; el resto se descarta.
+ * - `I` abre el panel en fase de jugador con un jugador vivo, sin coste.
  * - `F1` y `F2` son acciones del host; `F2` también funciona con la partida
  *   terminada.
  * - Con la partida terminada solo `R`, `F1` y `F2` reaccionan.
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
  * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
- * - `G` envía `PickUp` para el arma del tile del jugador.
- * - `1`-`3` envían `SelectWeapon` al hueco correspondiente.
  * - `Q` abre/cierra la lista de hechizos; con la lista abierta `↑/↓` o `W/S`
  *   navegan, `1`-`6` eligen, `Enter` lanza contra el cursor y `Esc` cierra.
  * - Cerrada, `X` lanza el hechizo seleccionado y `Esc` lo deselecciona.
  * - Movimiento, acciones y fin de turno exigen fase de jugador.
+ * - `G` y `1`-`3` ya no gestionan equipo: recoger, equipar y cambiar de arma
+ *   viven en el panel.
  */
 export function translateKey(
   input: KeyInput,
@@ -145,11 +154,26 @@ export function translateKey(
 
   const key = input.key.toLowerCase();
 
+  // El panel es modal: mientras está abierto ningún comando del mapa, ni
+  // siquiera reiniciar o el debug, llega al motor.
+  if (options.panelOpen) {
+    if (key === 'escape' || key === 'i') return { type: 'panel-close' };
+    return ignored('panel-open');
+  }
+
   if (key === 'f1') return { type: 'toggle-debug' };
   if (key === 'r') return command({ type: 'Restart' });
   if (options.animating) return ignored('animating');
 
   if (key === 'f2') return { type: 'new-seed' };
+
+  if (key === 'i') {
+    if (state.status !== 'playing') return ignored('game-over');
+    if (state.phase !== 'player') return ignored('wrong-phase');
+    if (!findActivePlayer(state)) return ignored('no-active-player');
+    if (options.spellMenu?.open) return ignored('spell-menu-open');
+    return { type: 'panel-open' };
+  }
 
   if (state.status !== 'playing') return ignored('game-over');
 
@@ -224,26 +248,6 @@ export function translateKey(
     if (state.phase !== 'player') return ignored('wrong-phase');
     if (!findActivePlayer(state)) return ignored('no-active-player');
     return command({ type: 'EndTurn' });
-  }
-
-  if (key === 'g') {
-    if (state.phase !== 'player') return ignored('wrong-phase');
-    const player = findActivePlayer(state);
-    if (!player) return ignored('no-active-player');
-    return command({ type: 'PickUp', unitId: player.id });
-  }
-
-  const backpackIndex = BACKPACK_SLOTS[key];
-  if (backpackIndex !== undefined) {
-    if (state.phase !== 'player') return ignored('wrong-phase');
-    const player = findActivePlayer(state);
-    if (!player) return ignored('no-active-player');
-    return command({
-      type: 'EquipItem',
-      unitId: player.id,
-      from: 'backpack',
-      index: backpackIndex,
-    });
   }
 
   if (key === 'enter' || key === ' ' || key === 'spacebar') {

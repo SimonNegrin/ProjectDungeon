@@ -63,6 +63,8 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('cursor');
     expect(model.keys).toContain('Espacio/Enter moverse');
     expect(model.keys).toContain('F atacar');
+    expect(model.keys).toContain('I panel');
+    expect(model.keys).not.toContain('G ');
     expect(model.keys).toContain('E terminar turno');
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
@@ -242,7 +244,7 @@ describe('modelo del HUD', () => {
     expect(buildHudModel(state).cursorEnemyBands).toBeNull();
   });
 
-  it('muestra la pista de G solo cuando el jugador ocupa un arma del mapa', () => {
+  it('muestra la pista del panel solo cuando el jugador ocupa un objeto del mapa', () => {
     const state = createInitialState({
       seed: 279837264,
       generator: new BspMapGenerator(),
@@ -258,7 +260,10 @@ describe('modelo del HUD', () => {
     };
 
     const model = buildHudModel(onWeapon, { x: item.x, y: item.y });
-    expect(model.weaponHint).toBe(`G recoger ${ITEMS[item.itemId].name}`);
+    expect(model.weaponHint).toBe(
+      `I panel · ${ITEMS[item.itemId].name} en el suelo`,
+    );
+    expect(model.weaponHint).not.toContain('G recoger');
 
     const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' }).state;
     expect(picked.groundItems?.some((entry) => entry.id === item.id)).toBe(false);

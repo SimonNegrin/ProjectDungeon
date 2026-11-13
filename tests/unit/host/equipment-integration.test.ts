@@ -32,7 +32,7 @@ describe('integración de recogida y equipo con el HUD', () => {
 
     const onItem = stateOnItem(base, item);
     expect(buildHudModel(onItem).weaponHint).toBe(
-      `G recoger ${ITEMS[item.itemId].name}`,
+      `I panel · ${ITEMS[item.itemId].name} en el suelo`,
     );
 
     const picked = reduce(onItem, { type: 'PickUp', unitId: 'player-1' }).state;
@@ -56,7 +56,9 @@ describe('integración de recogida y equipo con el HUD', () => {
     if (!hammer) throw new Error('La semilla de referencia debe colocar el martillo');
 
     const onHammer = stateOnItem(base, hammer);
-    expect(buildHudModel(onHammer).weaponHint).toBe('G recoger Martillo');
+    expect(buildHudModel(onHammer).weaponHint).toBe(
+      'I panel · Martillo en el suelo',
+    );
     expect(buildHudModel(onHammer).weaponHint).not.toContain('hammer');
 
     const picked = reduce(onHammer, { type: 'PickUp', unitId: 'player-1' }).state;
