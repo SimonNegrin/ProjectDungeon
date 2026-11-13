@@ -1,0 +1,48 @@
+$ rg -n "(`G`|G|`1`-`3`|1-3|tres armas)" docs/glossary.md docs/design/turn-economy.md docs/design/architecture.md docs/decisions/ADR-021-inventario-equipo.md docs/requirements/REQ-010-combate-equipo-acierto-defensa.md docs/requirements/REQ-026-economia-acciones-rebalanceo.md docs/requirements/index.md
+docs/glossary.md:75:| **Panel de personaje** | Vista modal sobre el mapa, abierta con `I`, que reúne equipo, mochila y objetos del suelo del tile del jugador; desde ella se equipa, desequipa, recoge y suelta. `G` ya no existe ([REQ-018](requirements/REQ-018-inventario-equipo.md)). |
+docs/decisions/ADR-021-inventario-equipo.md:35:era una lista de tres armas con auto-equipado y una tecla `G`, más escudo y
+docs/decisions/ADR-021-inventario-equipo.md:63:  equipo, mochila y suelo del tile del jugador. `G` se retira.
+docs/decisions/ADR-021-inventario-equipo.md:90:- **Atajos de cambio rápido `1`-`3`**: reintroducen el modelo de tres armas que
+docs/decisions/ADR-021-inventario-equipo.md:92:- **Recogida con `G` y equipar en un panel aparte**: dos vistas y dos teclas para
+docs/design/turn-economy.md:273:acción; `G` ya no existe y la recogida también se hace desde el panel
+docs/requirements/REQ-026-economia-acciones-rebalanceo.md:31:> [REQ-029](REQ-029-tipos-dano-resistencias.md). El inventario de tres armas, la
+docs/requirements/REQ-026-economia-acciones-rebalanceo.md:32:> recogida con `G` y las ranuras `1`-`3` de
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:5:description: Acierto de arma + 1d6 contra escudo + 1d6; daño de arma + 1d6 menos armadura + 1d6; modificadores por habilidad, tres armas melee, equipo y recogida. Balance provisional v1. El inventario de tres armas, la recogida con G y el cambio con 1-3 quedan enmendados por REQ-018.
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:81:  armas** (R-006 y T-004), la **recogida con `G`** y su **auto-equipado**, el
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:82:  **cambio con `1`-`3`**, el **equipo fijo de armadura y escudo** (R-004) y la
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:83:  pista de `G` del host (T-006).
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:95:  a TASK-0098; el modelo vigente es el panel con `I` de REQ-018 y no quedan `G`
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:96:  ni `1`-`3` como controles vigentes.
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:115:| R-003 | Hay tres armas melee con acierto y daño propios: espada +3/3, hacha +2/5 y daga +4/2. No hay críticos en este corte. | La tabla es la única fuente de valores; el hacha hace más daño y acierta menos; la daga acierta más y hace menos daño. |
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:118:| R-006 | La recogida es con `G` si el jugador está sobre el arma; cuesta 1 MP, no la acción. El arma se equipa sola. El cambio entre las armas llevadas es gratis con `1`-`3`; hay tres huecos. *(Enmienda REQ-018: `I` abre el panel, la recogida va a la mochila y el cambio de arma cuesta 1 MP; el coste de 1 MP por recoger se mantiene.)* | `G` recoge, gasta 1 MP y equipa; con 0 MP se rechaza; `1`-`3` cambia sin gastar acción ni MP; no se puede llevar una cuarta. **Sustituido por REQ-018** (panel con `I`). |
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:226:| T-004 | Las armas del mapa son entidades con posición e ID; `G` recoge la del tile del jugador, gasta 1 MP, la equipa y la elimina del mapa. `1`-`3` cambia de arma sin coste de acción ni MP. *(Enmienda REQ-018: recoger sigue costando 1 MP, la tecla es `I` y el objeto va a la mochila; `1`-`3` desaparece.)* | Recoger dos veces la misma arma no duplica; el inventario no pasa de tres; con 0 MP se rechaza; el cambio no consume MP ni acción. **Sustituido por REQ-018.** |
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:266:- [REQ-018](REQ-018-inventario-equipo.md): sustituye el inventario de tres armas,
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:267:  la recogida con `G`, el cambio con `1`-`3` y el equipo fijo de armadura y
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:317:| 2026-11-08 | `G` recoge, cuesta 1 MP y equipa; `1`-`3` cambia gratis. | human:simon | aceptada |
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:331:| 2026-11-11 | Enmienda de alcance por `REQ-018`: se sustituyen el inventario de tres armas, la recogida con `G` y su auto-equipado, el cambio con `1`-`3`, el equipo fijo de armadura y escudo y la pista de `G`. Fórmulas, armas, bestiario y balance no cambian. | human:simon | aceptada |
+docs/requirements/REQ-010-combate-equipo-acierto-defensa.md:343:- [x] El usuario ha aprobado tres armas melee, la recogida con `G` por 1 MP, el
+docs/requirements/index.md:13:* [REQ-010 — Combate con equipo: acierto, escudo y armadura](REQ-010-combate-equipo-acierto-defensa.md) - Stable v7: acierto de arma + 1d6 contra escudo + 1d6, daño de arma + 1d6 menos armadura + 1d6 (mínimo 1), modificadores +1/+1/+1, tres armas melee, armadura y escudo, recogida con G por 1 MP y dos armas por semilla. Balance provisional v1: PV 6/8/5, armas 3/5/2, centinela sin armadura; la tabla A de EXP-003 queda sustituida y los números se reajustarán. Tareas TASK-0026 a TASK-0030. Enmienda REQ-018 (v7): inventario de tres armas, recogida con `G`, cambio con `1`-`3` y equipo fijo quedan sustituidos; fórmulas y balance no cambian. Enmienda REQ-029: el daño y las armas pasan a paquetes con tipo y bandas.
+docs/requirements/index.md:21:* [REQ-018 — Inventario y equipo por personaje](REQ-018-inventario-equipo.md) - Stable v5: ocho huecos de equipo (un anillo), ocho de mochila personales, panel modal único abierto con `I` (sin `G`), 1 MP por equipar, recoger y soltar sin gastar acción, equipo inicial solo de REQ-015 y dos manos que devuelve el escudo a la mochila. Equipar desde el suelo o un contenedor va directo al hueco; anillo, collar y guantes llegan con REQ-019 y casco y botas siguen vacíos. Catálogo con paquetes y bandas de REQ-029. Sustituye el modelo de tres armas y la recogida de REQ-010. Implementada (TASK-0093 a TASK-0098); este corte solo trae armas a una mano y el E2E de dos manos con escudo pasa a REQ-019 T-013.
+docs/design/architecture.md:92:  [REQ-018](../requirements/REQ-018-inventario-equipo.md) la tecla `G` y el cambio
+docs/design/architecture.md:93:  con `1`-`3` desaparecen y la gestión pasa por el panel abierto con `I`.
+docs/design/architecture.md:322:dominante por sala, con 1-3 focos locales y 20-30 % de mezcla; algunas salas son
+
+Nota: las apariciones restantes son historia, enmiendas o negaciones («G ya no existe», «desaparecen», «quedan sustituidos»); la tabla de controles vigente no contiene G ni 1-3.
+
+$ sed -n "348,363p" docs/design/turn-economy.md
+# Controles provisionales
+
+| Tecla | Acción |
+|---|---|
+| `WASD` / flechas | Mover el cursor un tile en 4 direcciones. |
+| `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
+| `F` | Atacar al enemigo bajo el cursor si está adyacente. |
+| `I` | Abrir o cerrar el panel de personaje: equipo, mochila y suelo del tile. |
+| `Escape` | Cerrar el panel de personaje. |
+| `E` | Terminar turno. |
+| `R` | Reiniciar la sala. |
+| `F1` | Alternar overlay de debug. |
+| `F2` | Generar una semilla nueva en modo debug. |
+
+En el futuro hotseat se reutilizarán las mismas teclas para el jugador activo.
+En la fase remota, el móvil enviará comandos equivalentes.
