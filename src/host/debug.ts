@@ -1,14 +1,21 @@
+import { ITEMS, type WeaponId } from '../game/equipment';
 import type {
   Command,
+  Container,
   DamagePacketBreakdown,
+  EquipmentSlots,
   GameEvent,
   GameState,
   GameStatus,
+  GroundItem,
+  Inventory,
+  ItemInstance,
   Phase,
   Position,
   RngState,
   Tile,
   Unit,
+  UnitEquipment,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
 import type {
@@ -74,6 +81,18 @@ export interface AnimationSnapshot {
   readonly cues: readonly ActiveCueSnapshot[];
 }
 
+/**
+ * Vista de unidad en el snapshot. `slots` e `inventory` son la verdad nueva;
+ * `equipment` y `weapons` son derivados de compatibilidad para que los E2E
+ * históricos sigan compilando hasta TASK-0098. Nunca se leen como fuente.
+ */
+export type SnapshotUnit = Unit & {
+  /** Vista legacy del equipo; deriva de `equipment` y no es verdad. */
+  readonly legacyEquipment: UnitEquipment;
+  /** Vista legacy del inventario de tres armas; solo para E2E previos. */
+  readonly weapons: readonly WeaponId[];
+};
+
 export interface GameSnapshot {
   readonly grid: {
     readonly width: number;
@@ -100,14 +119,21 @@ export interface GameSnapshot {
   readonly hotspots: readonly Hotspot[];
   /** Sala caverna de la variante, o `null`. */
   readonly cavernRoomId: number | null;
-  /** Armas aún presentes en el mapa, clonadas y en solo lectura. */
+  /**
+   * Vista legacy de las armas del suelo; deriva de `groundItems`.
+   * Se conserva solo para que `tsc` compile los E2E anteriores a TASK-0098.
+   */
   readonly weapons: readonly MapWeapon[];
+  /** Instancias en el suelo; verdad nueva y serializable. */
+  readonly groundItems: readonly GroundItem[];
+  /** Contenedores sintéticos con sus instancias. */
+  readonly containers: readonly Container[];
   /** Resumen de solo lectura de la decoración plana; coincide con el render. */
   readonly decoration: readonly DecorationSummary[];
   /** Paleta y ambiente deterministas de cada sala; el render usa los mismos. */
   readonly floorPalettes: readonly RoomPalette[];
-  readonly players: readonly Unit[];
-  readonly enemies: readonly Unit[];
+  readonly players: readonly SnapshotUnit[];
+  readonly enemies: readonly SnapshotUnit[];
   readonly phase: Phase;
   readonly turn: number;
   readonly status: GameStatus;
@@ -161,13 +187,60 @@ export interface DebugSnapshotSource {
   readonly animation?: AnimationSnapshot;
 }
 
-function cloneUnit(unit: Unit): Unit {
+function cloneInstance(instance: ItemInstance | null): ItemInstance | null {
+  return instance ? { id: instance.id, itemId: instance.itemId } : null;
+}
+
+function cloneSlots(slots: EquipmentSlots): EquipmentSlots {
+  return {
+    weapon: cloneInstance(slots.weapon),
+    shield: cloneInstance(slots.shield),
+    armor: cloneInstance(slots.armor),
+    head: cloneInstance(slots.head),
+    feet: cloneInstance(slots.feet),
+    hands: cloneInstance(slots.hands),
+    neck: cloneInstance(slots.neck),
+    ring: cloneInstance(slots.ring),
+  };
+}
+
+function cloneInventory(inventory: Inventory): Inventory {
+  return {
+    capacity: inventory.capacity,
+    items: inventory.items.map(cloneInstance),
+  };
+}
+
+/** Vista legacy derivada de los ocho huecos; no es la verdad del motor. */
+function legacyEquipment(slots: EquipmentSlots): UnitEquipment {
+  return {
+    weaponId: (slots.weapon?.itemId ?? null) as WeaponId | null,
+    armorId: (slots.armor?.itemId ?? null) as UnitEquipment['armorId'],
+    shieldId: (slots.shield?.itemId ?? null) as UnitEquipment['shieldId'],
+  };
+}
+
+/** Vista legacy del inventario de tres armas; solo para E2E previos. */
+function legacyWeapons(unit: Unit): readonly WeaponId[] {
+  const weapons: WeaponId[] = [];
+  if (unit.equipment.weapon) weapons.push(unit.equipment.weapon.itemId as WeaponId);
+  for (const item of unit.inventory.items) {
+    if (item && ITEMS[item.itemId].category === 'weapon') {
+      weapons.push(item.itemId as WeaponId);
+    }
+  }
+  return weapons;
+}
+
+function cloneUnit(unit: Unit): SnapshotUnit {
   return {
     ...unit,
     stats: { ...unit.stats },
     mana: { ...unit.mana },
-    equipment: { ...unit.equipment },
-    weapons: [...unit.weapons],
+    equipment: cloneSlots(unit.equipment),
+    legacyEquipment: legacyEquipment(unit.equipment),
+    inventory: cloneInventory(unit.inventory),
+    weapons: [...legacyWeapons(unit)],
     actions: { ...unit.actions },
     home: { ...unit.home },
     lastKnown: unit.lastKnown ? { ...unit.lastKnown } : null,
@@ -234,6 +307,29 @@ function cloneMapEnemy(enemy: MapEnemy): MapEnemy {
   return { ...enemy, home: { ...enemy.home } };
 }
 
+function cloneGroundItem(item: GroundItem): GroundItem {
+  return { id: item.id, itemId: item.itemId, x: item.x, y: item.y };
+}
+
+function cloneContainer(container: Container): Container {
+  return {
+    id: container.id,
+    x: container.x,
+    y: container.y,
+    capacity: container.capacity,
+    items: container.items.map(cloneInstance),
+  };
+}
+
+/** Vista legacy `MapWeapon` derivada de las instancias de suelo. */
+function legacyWeaponsFromGround(items: readonly GroundItem[]): readonly MapWeapon[] {
+  return items.flatMap((item) =>
+    ITEMS[item.itemId].category === 'weapon'
+      ? [{ id: item.id, weaponId: item.itemId as WeaponId, x: item.x, y: item.y }]
+      : [],
+  );
+}
+
 function cloneCursor(cursor: CursorStatus): CursorSnapshot {
   return {
     x: cursor.x,
@@ -276,7 +372,9 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     openMouths: map?.openMouths?.map((mouth) => ({ ...mouth })) ?? [],
     hotspots: map?.hotspots?.map((hotspot) => ({ ...hotspot })) ?? [],
     cavernRoomId: map?.cavernRoomId ?? null,
-    weapons: map?.weapons?.map((weapon) => ({ ...weapon })) ?? [],
+    weapons: legacyWeaponsFromGround(source.state.groundItems ?? []),
+    groundItems: (source.state.groundItems ?? []).map(cloneGroundItem),
+    containers: (source.state.containers ?? []).map(cloneContainer),
     decoration: [...summarizeDecoration(planDecoration(map))],
     floorPalettes: [...roomPalettesFor(map)],
     players: source.state.players.map(cloneUnit),

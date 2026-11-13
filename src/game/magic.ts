@@ -11,10 +11,10 @@
 import { hasAction, spendAction } from './actions';
 import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
 import { resolvePackets } from './damage';
-import { shieldValue } from './equipment';
 import { isAlive, isOccupied } from './grid';
 import { hasLineOfSight } from './perception';
 import { rollDie } from './rng';
+import { effectiveStats } from './stats';
 import { findSpell, type SpellDefinition } from './spells';
 import type {
   AttackRolls,
@@ -109,7 +109,8 @@ export function castSpell(
 
   if (!hasAction(caster)) return reject('no-action');
   if (caster.mana.current < spell.cost) return reject('no-mana');
-  if (caster.stats.magicLevel < spell.minLevel) return reject('insufficient-level');
+  const casterProfile = effectiveStats(caster);
+  if (casterProfile.stats.magicLevel < spell.minLevel) return reject('insufficient-level');
 
   const range = distance(caster, target);
 
@@ -216,11 +217,13 @@ function resolveMagicAttack(
   const packet = spell.damagePacket;
   if (packet === null) return reject('unknown-spell');
 
+  const casterProfile = effectiveStats(caster);
+  const victimProfile = effectiveStats(victim);
   const attackRoll = rollDie(state.rng);
   const shieldRoll = rollDie(attackRoll.rng);
   const hit = resolveHit(
-    caster.stats.magicLevel + spell.accuracy,
-    victim.stats.defensa + shieldValue(victim.equipment.shieldId),
+    casterProfile.stats.magicLevel + spell.accuracy,
+    victimProfile.stats.defensa + victimProfile.evasion,
     attackRoll.die,
     shieldRoll.die,
   );

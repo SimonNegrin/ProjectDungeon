@@ -1,5 +1,5 @@
-import type { Command, GameEvent, GameState } from '../game/types';
-import type { WeaponId } from '../game/equipment';
+import type { ItemId } from '../game/equipment';
+import type { Command, GameEvent, GameState, Unit } from '../game/types';
 
 /**
  * Eventos de presentación del host. `PickUp` y `SelectWeapon` no son eventos del
@@ -10,14 +10,14 @@ import type { WeaponId } from '../game/equipment';
 export interface PickUpPresentationEvent {
   readonly type: 'PickUp';
   readonly unitId: string;
-  readonly weaponId: WeaponId;
+  readonly itemId: ItemId;
   readonly slot: number;
 }
 
 export interface SelectWeaponPresentationEvent {
   readonly type: 'SelectWeapon';
   readonly unitId: string;
-  readonly weaponId: WeaponId;
+  readonly itemId: ItemId;
   readonly slot: number;
 }
 
@@ -26,13 +26,35 @@ export type PresentationEvent =
   | PickUpPresentationEvent
   | SelectWeaponPresentationEvent;
 
+function additions(before: Unit, after: Unit) {
+  const beforeIds = new Set(
+    before.inventory.items
+      .filter((item) => item !== null)
+      .map((item) => item.id),
+  );
+  return after.inventory.items
+    .map((item, index) => ({ item, index }))
+    .filter(
+      (entry): entry is { item: NonNullable<typeof entry.item>; index: number } =>
+        entry.item !== null && !beforeIds.has(entry.item.id),
+    );
+}
+
+function replacedSlot(before: Unit, after: Unit) {
+  for (const slot of Object.keys(after.equipment) as Array<keyof Unit['equipment']>) {
+    if (before.equipment[slot]?.id !== after.equipment[slot]?.id) {
+      return { slot, instance: after.equipment[slot] };
+    }
+  }
+  return null;
+}
+
 /**
  * Construye la lista de eventos de presentación de una acción.
  *
  * Los eventos del motor se conservan tal cual. Solo se añade un evento sintético
- * cuando el comando es `PickUp` o `SelectWeapon`, el motor no emitió eventos
- * (esos comandos no producen `GameEvent`) y el estado cambió. Un rechazo emite
- * `CommandRejected`, que ya viene en `events`, así que no se inventa nada.
+ * cuando el comando cambia inventario o equipo, el motor no emitió eventos y el
+ * estado cambió. Un rechazo emite `CommandRejected`, que ya viene en `events`.
  */
 export function buildPresentationEvents(
   command: Command,
@@ -41,52 +63,44 @@ export function buildPresentationEvents(
   events: readonly GameEvent[],
 ): PresentationEvent[] {
   const presentation: PresentationEvent[] = [...events];
-
-  // PickUp/SelectWeapon exitosos no emiten eventos; un rechazo sí. Cualquier
-  // evento del motor ya describe la acción y no necesita un evento sintético.
   if (events.length > 0) return presentation;
+  if (
+    command.type !== 'PickUp' &&
+    command.type !== 'EquipItem' &&
+    command.type !== 'SelectWeapon'
+  ) {
+    return presentation;
+  }
+
+  const before = initialState.players.find((unit) => unit.id === command.unitId);
+  const after = finalState.players.find((unit) => unit.id === command.unitId);
+  if (!before || !after) return presentation;
 
   if (command.type === 'PickUp') {
-    const before = initialState.players.find((unit) => unit.id === command.unitId);
-    const after = finalState.players.find((unit) => unit.id === command.unitId);
-    if (!before || !after) return presentation;
-
-    const weaponId = after.equipment.weaponId;
-    if (!weaponId) return presentation;
-
-    const mapChanged =
-      (initialState.map?.weapons?.length ?? 0) !==
-      (finalState.map?.weapons?.length ?? 0);
-    const changed =
-      mapChanged ||
-      before.mp !== after.mp ||
-      before.weapons !== after.weapons ||
-      before.equipment !== after.equipment;
-    if (!changed) return presentation;
-
+    const added = additions(before, after)[0];
+    if (!added) return presentation;
     presentation.push({
       type: 'PickUp',
       unitId: command.unitId,
-      weaponId,
-      slot: after.weapons.indexOf(weaponId) + 1,
+      itemId: added.item.itemId,
+      slot: added.index + 1,
     });
     return presentation;
   }
 
-  if (command.type === 'SelectWeapon') {
-    const before = initialState.players.find((unit) => unit.id === command.unitId);
-    const after = finalState.players.find((unit) => unit.id === command.unitId);
-    if (!before || !after) return presentation;
-    if (before.equipment.weaponId === after.equipment.weaponId) return presentation;
-
-    const weaponId = after.equipment.weaponId;
-    if (!weaponId) return presentation;
-
+  if (command.type === 'EquipItem' || command.type === 'SelectWeapon') {
+    const changed = replacedSlot(before, after);
+    if (!changed?.instance) return presentation;
     presentation.push({
       type: 'SelectWeapon',
       unitId: command.unitId,
-      weaponId,
-      slot: command.slot,
+      itemId: changed.instance.itemId,
+      slot:
+        command.type === 'SelectWeapon'
+          ? command.slot
+          : command.type === 'EquipItem' && command.from === 'backpack'
+            ? command.index + 1
+            : 1,
     });
   }
 

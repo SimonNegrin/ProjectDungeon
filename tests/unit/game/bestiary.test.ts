@@ -7,6 +7,7 @@ import {
   armorValue,
   bandFor,
   createRng,
+  effectiveStats,
   enemyDefinition,
   reduce,
   resolveAttack,
@@ -201,7 +202,7 @@ describe('ataque enemigo con el resolvedor compartido', () => {
       expect(result.hit).toBe(
         resolveHit(
           definition.stats.habilidad + weapon.accuracy,
-          player.stats.defensa + shieldValue(player.equipment.shieldId),
+          player.stats.defensa + effectiveStats(player).evasion,
           6,
           1,
         ),
@@ -284,10 +285,11 @@ describe('tiempo para matar según el catálogo', () => {
     const player = makePlayer(weaponId);
     const enemy = makeEnemy(type);
     const attackBonus = player.stats.habilidad + WEAPONS[weaponId].accuracy;
-    const defense = enemy.stats.defensa + shieldValue(enemy.equipment.shieldId);
+    const enemyProfile = effectiveStats(enemy);
+    const defense = enemy.stats.defensa + enemyProfile.evasion;
     const packet = WEAPONS[weaponId].damagePackets[0];
     const band = bandFor(enemy.stats.resistencia, packet.type);
-    const armor = armorValue(enemy.equipment.armorId);
+    const armor = enemyProfile.absorption;
     let hits = 0;
     let damageSum = 0;
 

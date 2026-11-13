@@ -8,7 +8,7 @@ import type {
   RejectionReason,
   Unit,
 } from '../game/types';
-import type { WeaponId } from '../game/equipment';
+import type { ItemId } from '../game/equipment';
 import { findSpell } from '../game/spells';
 import { clampCamera, type Camera } from './camera';
 import { FEEDBACK_CONFIG } from './feedback-config';
@@ -110,7 +110,7 @@ export interface FeedbackCueData {
   readonly targetId?: string;
   readonly attackerId?: string;
   readonly playerId?: string;
-  readonly weaponId?: WeaponId;
+  readonly itemId?: ItemId;
   readonly slot?: number;
   readonly hit?: boolean;
   readonly damage?: number;
@@ -399,14 +399,14 @@ function cueForEvent(
         ...base,
         kind: 'pickup',
         anchor: anchorFor(event.unitId, finalState),
-        data: { unitId: event.unitId, weaponId: event.weaponId, slot: event.slot },
+        data: { unitId: event.unitId, itemId: event.itemId, slot: event.slot },
       };
     case 'SelectWeapon':
       return {
         ...base,
         kind: 'select-weapon',
         anchor: anchorFor(event.unitId, finalState),
-        data: { unitId: event.unitId, weaponId: event.weaponId, slot: event.slot },
+        data: { unitId: event.unitId, itemId: event.itemId, slot: event.slot },
       };
     case 'EnemySpotted':
       return {
@@ -1092,6 +1092,7 @@ export function presentationState(
   let players = state.players;
   let enemies = state.enemies;
   let map = state.map;
+  let groundItems = state.groundItems;
 
   // Deshacer en orden inverso los ataques y réplicas que aún no han ocurrido
   // restaura la vida previa de cada objetivo, incluso con varios encadenados.
@@ -1134,10 +1135,9 @@ export function presentationState(
     withFutureSpells(withFutureActions(unit, timeline, elapsed), timeline, elapsed),
   );
 
-  // La recogida y el cambio de arma se aplican al acabar su beat, no al
-  // empezar el cue (R-011/R-012). Hasta entonces se conserva el inventario, el
-  // arma equipada, el MP y el arma del suelo iniciales. Se deshace en orden
-  // inverso para encadenar varios cambios.
+  // Recoger y equipar se aplican al acabar su beat, no al empezar el cue. Hasta
+  // entonces se conserva el inventario, el equipo, el MP y el suelo iniciales.
+  // Se deshace en orden inverso para encadenar varios cambios.
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
     const event = entry.event;
@@ -1149,53 +1149,23 @@ export function presentationState(
     const appliedAt = cue ? cue.atMs + cue.durationMs : entry.atMs;
     if (appliedAt <= elapsed + EPSILON) continue;
 
-    if (event.type === 'PickUp') {
-      const initialPlayer = initialState?.players.find(
-        (unit) => unit.id === event.unitId,
+    const initialPlayer = initialState?.players.find(
+      (unit) => unit.id === event.unitId,
+    );
+    if (initialPlayer) {
+      players = players.map((unit) =>
+        unit.id === initialPlayer.id
+          ? {
+              ...unit,
+              mp: initialPlayer.mp,
+              inventory: initialPlayer.inventory,
+              equipment: initialPlayer.equipment,
+            }
+          : unit,
       );
-      if (initialPlayer) {
-        players = players.map((unit) =>
-          unit.id === initialPlayer.id
-            ? {
-                ...unit,
-                mp: initialPlayer.mp,
-                weapons: initialPlayer.weapons,
-                equipment: initialPlayer.equipment,
-              }
-            : unit,
-        );
-      }
-
-      const initialWeapon = initialState?.map?.weapons?.find(
-        (weapon) => weapon.weaponId === event.weaponId,
-      );
-      if (initialWeapon && map) {
-        const weapons = map.weapons ?? [];
-        if (!weapons.some((weapon) => weapon.id === initialWeapon.id)) {
-          const initialOrder = initialState?.map?.weapons ?? [];
-          const insertAt = initialOrder.findIndex(
-            (weapon) => weapon.id === initialWeapon.id,
-          );
-          const nextWeapons = [...weapons];
-          nextWeapons.splice(
-            insertAt < 0 ? nextWeapons.length : Math.min(insertAt, nextWeapons.length),
-            0,
-            initialWeapon,
-          );
-          map = { ...map, weapons: nextWeapons };
-        }
-      }
-    } else if (event.type === 'SelectWeapon') {
-      const initialPlayer = initialState?.players.find(
-        (unit) => unit.id === event.unitId,
-      );
-      if (initialPlayer) {
-        players = players.map((unit) =>
-          unit.id === initialPlayer.id
-            ? { ...unit, equipment: initialPlayer.equipment }
-            : unit,
-        );
-      }
+    }
+    if (initialState) {
+      groundItems = initialState.groundItems ?? [];
     }
   }
 
@@ -1204,13 +1174,16 @@ export function presentationState(
     const initialPlayer = initialState?.players.find((unit) => unit.id === player.id);
     const playerTurn = lastEventOfType(timeline, 'PlayerTurnStarted', elapsed);
     const playerSteps = timeline.steps.filter((step) => step.unitId === player.id);
-    const pickupOccurred = timeline.events.some((entry) => {
-      if (entry.event.type !== 'PickUp' || entry.event.unitId !== player.id) {
+    const inventoryOccurred = timeline.events.some((entry) => {
+      if (
+        (entry.event.type !== 'PickUp' && entry.event.type !== 'SelectWeapon') ||
+        entry.event.unitId !== player.id
+      ) {
         return false;
       }
       const cue = timeline.cues.find(
         (candidate) =>
-          candidate.eventType === 'PickUp' && candidate.atMs === entry.atMs,
+          candidate.eventType === entry.event.type && candidate.atMs === entry.atMs,
       );
       const appliedAt = cue ? cue.atMs + cue.durationMs : entry.atMs;
       return appliedAt <= elapsed + EPSILON;
@@ -1229,7 +1202,7 @@ export function presentationState(
           ? (initialPlayer?.mp ?? initialMp)
           : playerSteps[completed - 1].mpAfter;
       players = players.map((unit) => (unit.id === player.id ? { ...unit, mp } : unit));
-    } else if (initialPlayer && !pickupOccurred) {
+    } else if (initialPlayer && !inventoryOccurred) {
       players = players.map((unit) =>
         unit.id === player.id ? { ...unit, mp: initialPlayer.mp } : unit,
       );
@@ -1277,5 +1250,5 @@ export function presentationState(
   );
   const status = gameEnded?.data.status ?? 'playing';
 
-  return { ...state, map, players, enemies, phase, turn, status };
+  return { ...state, map, groundItems, players, enemies, phase, turn, status };
 }

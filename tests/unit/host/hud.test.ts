@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { ARMORS, SHIELDS, WEAPONS, weaponDamage } from '../../../src/game/equipment';
+import {
+  ARMORS,
+  ITEMS,
+  SHIELDS,
+  WEAPONS,
+  weaponDamage,
+} from '../../../src/game/equipment';
 import {
   BESTIARY,
   BspMapGenerator,
@@ -241,24 +247,24 @@ describe('modelo del HUD', () => {
       seed: 279837264,
       generator: new BspMapGenerator(),
     });
-    const map = state.map;
-    if (!map || !map.weapons || map.weapons.length === 0) {
+    const items = state.groundItems;
+    if (!items || items.length === 0) {
       throw new Error('La semilla de referencia debe colocar armas');
     }
-    const weapon = map.weapons[0];
+    const item = items[0];
     const onWeapon: GameState = {
       ...state,
-      players: [{ ...state.players[0], x: weapon.x, y: weapon.y }],
+      players: [{ ...state.players[0], x: item.x, y: item.y }],
     };
 
-    const model = buildHudModel(onWeapon, { x: weapon.x, y: weapon.y });
-    expect(model.weaponHint).toBe(`G recoger ${WEAPONS[weapon.weaponId].name}`);
+    const model = buildHudModel(onWeapon, { x: item.x, y: item.y });
+    expect(model.weaponHint).toBe(`G recoger ${ITEMS[item.itemId].name}`);
 
     const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' }).state;
-    expect(picked.map?.weapons?.some((entry) => entry.id === weapon.id)).toBe(false);
-    expect(buildHudModel(picked, { x: weapon.x, y: weapon.y }).weaponHint).toBeNull();
+    expect(picked.groundItems?.some((entry) => entry.id === item.id)).toBe(false);
+    expect(buildHudModel(picked, { x: item.x, y: item.y }).weaponHint).toBeNull();
     expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS[weapon.weaponId].name} +${WEAPONS[weapon.weaponId].accuracy}/+${weaponDamage(WEAPONS[weapon.weaponId])}`,
+      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
     );
   });
 

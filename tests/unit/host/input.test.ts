@@ -110,21 +110,22 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
   });
 
-  it('G recoge y 1-3 seleccionan un hueco de arma', () => {
+  it('G recoge y 1-3 equipan desde los tres primeros huecos de mochila', () => {
     const state = makeState();
 
     for (const key of ['g', 'G']) {
       expectCommand(translate(key, state), { type: 'PickUp', unitId: 'player-1' });
     }
-    for (const [key, slot] of [
-      ['1', 1],
-      ['2', 2],
-      ['3', 3],
+    for (const [key, index] of [
+      ['1', 0],
+      ['2', 1],
+      ['3', 2],
     ] as const) {
       expectCommand(translate(key, state), {
-        type: 'SelectWeapon',
+        type: 'EquipItem',
         unitId: 'player-1',
-        slot,
+        from: 'backpack',
+        index,
       });
     }
   });

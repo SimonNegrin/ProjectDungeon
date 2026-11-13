@@ -1,10 +1,10 @@
 import { hasAction, spendAction } from './actions';
 import { BESTIARY } from './bestiary';
 import { resolvePackets } from './damage';
-import { armorValue, shieldValue, weaponFor } from './equipment';
 import { isAlive, isInside, isOccupied, isWallAt } from './grid';
 import { noteDamage, raiseAlarm } from './perception';
 import { rollDie } from './rng';
+import { effectiveStats } from './stats';
 import type {
   AttackRolls,
   DamagePacketBreakdown,
@@ -71,15 +71,16 @@ interface Strike {
  * orden fijo; no muta la entrada.
  */
 function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
-  const weapon = weaponFor(attacker.equipment.weaponId!);
-  const armor = armorValue(target.equipment.armorId);
-  const shield = shieldValue(target.equipment.shieldId);
+  const attackerProfile = effectiveStats(attacker);
+  const targetProfile = effectiveStats(target);
+  const weapon = attackerProfile.weapon;
+  if (weapon === null) throw new Error('resolveStrike requiere un arma equipada');
 
   const attackRoll = rollDie(state.rng);
   const shieldRoll = rollDie(attackRoll.rng);
   const hit = resolveHit(
-    attacker.stats.habilidad + weapon.accuracy,
-    target.stats.defensa + shield,
+    attackerProfile.stats.habilidad + attackerProfile.accuracy,
+    targetProfile.stats.defensa + targetProfile.evasion,
     attackRoll.die,
     shieldRoll.die,
   );
@@ -97,9 +98,9 @@ function resolveStrike(state: GameState, attacker: Unit, target: Unit): Strike {
   if (hit) {
     const resolved = resolvePackets(
       weapon.damagePackets,
-      attacker.stats.fuerza,
-      armor,
-      target.stats.resistencia,
+      attackerProfile.stats.fuerza,
+      targetProfile.absorption,
+      targetProfile.stats.resistencia,
       rng,
     );
     rng = resolved.rng;
@@ -219,7 +220,7 @@ export function canReplicate(
 ): boolean {
   if (!isAlive(defender) || !isAlive(attacker)) return false;
   if (!isAdjacent(defender, attacker)) return false;
-  if (defender.equipment.weaponId === null) return false;
+  if (defender.equipment.weapon === null) return false;
   if (defender.awareness === 'dormant') return false;
   if (defender.fleeing) return isCornered(state, defender, attacker);
   return true;
@@ -278,7 +279,7 @@ export function resolveAttack(
   if (!isAdjacent(attacker, target)) {
     return { ok: false, reason: 'target-not-adjacent' };
   }
-  if (attacker.equipment.weaponId === null) {
+  if (attacker.equipment.weapon === null) {
     return { ok: false, reason: 'unarmed' };
   }
 

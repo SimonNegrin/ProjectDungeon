@@ -32,19 +32,23 @@ function signed(value: number): string {
 }
 
 function weaponLabel(unit: Unit): string {
-  const weapon = WEAPONS[unit.equipment.weaponId!];
+  const weaponId = unit.equipment.weapon?.itemId;
+  if (weaponId === undefined) return 'Sin arma';
+  const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
   return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
 }
 
 function shieldLabel(unit: Unit): string {
-  if (unit.equipment.shieldId === null) return 'Sin escudo';
-  const shield = SHIELDS[unit.equipment.shieldId];
+  const shieldId = unit.equipment.shield?.itemId;
+  if (shieldId === undefined) return 'Sin escudo';
+  const shield = SHIELDS[shieldId as keyof typeof SHIELDS];
   return `${shield.name} ${signed(shield.defense)}`;
 }
 
 function armorLabel(unit: Unit): string {
-  if (unit.equipment.armorId === null) return 'Sin armadura';
-  const armor = ARMORS[unit.equipment.armorId];
+  const armorId = unit.equipment.armor?.itemId;
+  if (armorId === undefined) return 'Sin armadura';
+  const armor = ARMORS[armorId as keyof typeof ARMORS];
   return `${armor.name} ${signed(armor.armor)}`;
 }
 

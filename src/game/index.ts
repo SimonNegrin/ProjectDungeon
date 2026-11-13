@@ -5,6 +5,8 @@ export * from './damage';
 export * from './spells';
 export * from './magic';
 export * from './equipment';
+export * from './inventory';
+export * from './stats';
 export * from './roster';
 export * from './bestiary';
 export * from './rng';

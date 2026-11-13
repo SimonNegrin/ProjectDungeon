@@ -296,7 +296,10 @@ describe('createInitialState con growth por defecto', () => {
     const map = state.map;
     if (!map) throw new Error('El estado inicial debe incluir mapa');
 
-    expect(map).toEqual(new GrowthMapGenerator().generate(PERF_SEED));
+    const { weapons: _generatedWeapons, ...expectedMap } =
+      new GrowthMapGenerator().generate(PERF_SEED);
+    expect(map).toEqual(expectedMap);
+    expect(state.groundItems).toHaveLength(3);
     expect(state.grid).toMatchObject({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
     expect(state.players[0]).toMatchObject({
       x: map.spawns.player.x,
@@ -326,10 +329,11 @@ describe('createInitialState con growth por defecto', () => {
 
   it('expone las tres armas del catálogo por defecto y permite recogerlas desde su celda', () => {
     const state = createInitialState();
-    const weapons = state.map?.weapons ?? [];
+    const weapons = state.groundItems ?? [];
 
     expect(weapons).toHaveLength(3);
-    expect(weapons.map((weapon) => weapon.weaponId)).toEqual(['axe', 'dagger', 'hammer']);
+    expect(weapons.map((weapon) => weapon.itemId)).toEqual(['axe', 'dagger', 'hammer']);
+    expect(state.map?.weapons).toBeUndefined();
 
     const weapon = weapons[0];
     const onWeapon = {
@@ -338,13 +342,19 @@ describe('createInitialState con growth por defecto', () => {
     };
     const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' });
 
-    expect(picked.state.players[0].weapons).toEqual(['sword', weapon.weaponId]);
-    expect(picked.state.players[0].equipment.weaponId).toBe(weapon.weaponId);
     expect(
-      picked.state.map?.weapons?.some((entry) => entry.id === weapon.id),
+      picked.state.players[0].inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item.itemId),
+    ).toEqual([weapon.itemId]);
+    expect(picked.state.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(
+      picked.state.groundItems?.some((entry) => entry.id === weapon.id),
     ).toBe(false);
-    expect(picked.state.map?.weapons).toHaveLength(2);
-    expect(JSON.parse(JSON.stringify(picked.state.map))).toEqual(picked.state.map);
+    expect(picked.state.groundItems).toHaveLength(2);
+    expect(JSON.parse(JSON.stringify(picked.state.groundItems))).toEqual(
+      picked.state.groundItems,
+    );
   });
 
   it('mantiene BSP inyectado con 32×32 y exactamente cuatro enemigos', () => {
@@ -426,7 +436,7 @@ describe('createInitialState con growth por defecto', () => {
     const result = reduce(parsed, { type: 'EndTurn' });
     expect(result.state.map).toEqual(state.map);
     expect(JSON.parse(JSON.stringify(result.state))).toEqual(result.state);
-    expect(validateGrowthMap(result.state.map!).ok).toBe(true);
+    expect(validateGrowthMap(new GrowthMapGenerator().generate(PERF_SEED)).ok).toBe(true);
   });
 });
 

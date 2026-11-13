@@ -4,6 +4,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { BspMapGenerator } from '../../src/game/bsp';
 import { WEAPONS } from '../../src/game/equipment';
 import { createInitialState } from '../../src/game/engine';
+import { inventoryFromIds } from '../../src/game/inventory';
 import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
@@ -55,7 +56,7 @@ test('TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final',
   const base = await openBspState(page, SEED);
   const weapon = base.weapons[0];
   expect(weapon).toBeDefined();
-  const beforeEquipment = base.players[0].equipment;
+  const beforeEquipment = base.players[0].legacyEquipment;
   const beforeWeapon = await page.getByTestId('hud-weapon').textContent();
 
   await openBspState(page, SEED, undefined, {
@@ -91,8 +92,7 @@ test('TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final', asy
     players: [
       {
         ...base.players[0],
-        weapons: ['sword', 'axe'],
-        equipment: { ...base.players[0].equipment, weaponId: 'sword' },
+        inventory: inventoryFromIds('player-1', ['sword', 'axe']),
       },
     ],
   };

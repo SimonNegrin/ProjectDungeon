@@ -2,23 +2,30 @@ import {
   BESTIARY,
   BAND_MULTIPLIERS,
   MAX_ACTIONS,
-  WEAPONS,
-  armorValue,
   bandFor,
+  createInventory,
   createMana,
   createRoomGrid,
   createRng,
+  effectiveStats,
+  equipmentFromLegacy,
+  inventoryFromIds,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   resolvePacket,
   rollDie,
   type Awareness,
   type ArchetypeId,
+  type Container,
   type DamagePacketBreakdown,
   type EnemyType,
+  type EquipmentSlots,
   type Faction,
   type GameState,
   type Grid,
+  type GroundItem,
+  type Inventory,
+  type ItemId,
   type MagicLevel,
   type Mana,
   type Phase,
@@ -27,7 +34,6 @@ import {
   type Unit,
   type UnitEquipment,
   type UnitStats,
-  type WeaponId,
 } from '../../../src/game/index';
 
 /** Valores de las unidades sintéticas sin `enemyType`; los reales leen el bestiario. */
@@ -79,8 +85,14 @@ export interface UnitOptions {
   /** Máximo explícito; por defecto, inherente + bonus recortado a 4. */
   readonly actionsMax?: number;
   readonly stats?: Partial<UnitStats>;
+  /** Equipo legacy de entrada; se convierte a los ocho huecos. */
   readonly equipment?: UnitEquipment;
-  readonly weapons?: readonly WeaponId[];
+  /** Huecos ya construidos; tiene prioridad sobre `equipment`. */
+  readonly equipmentSlots?: EquipmentSlots;
+  /** Mochila ya construida; tiene prioridad sobre `weapons`. */
+  readonly inventory?: Inventory;
+  /** Atajo legacy: llena la mochila con estos IDs en orden. */
+  readonly weapons?: readonly ItemId[];
   /** Por defecto `alert`: conserva la intención de los tests legacy. */
   readonly awareness?: Awareness;
   readonly fleeing?: boolean;
@@ -102,12 +114,22 @@ export function makeUnit(options: UnitOptions): Unit {
     ...(options.magicLevel !== undefined ? { magicLevel: options.magicLevel } : {}),
     ...options.stats,
   };
-  const equipment: UnitEquipment =
+  const legacyEquipment: UnitEquipment =
     options.equipment ??
     definition?.equipment ?? { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' };
+  const equipment =
+    options.equipmentSlots ?? equipmentFromLegacy(options.id, legacyEquipment);
+  const inventory =
+    options.inventory ??
+    (options.weapons
+      ? inventoryFromIds(options.id, options.weapons)
+      : createInventory());
   const maxActions =
     options.actionsMax ??
-    Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + (equipment.actionsBonus ?? 0)));
+    Math.min(
+      MAX_ACTIONS,
+      Math.max(0, stats.acciones + (legacyEquipment.actionsBonus ?? 0)),
+    );
 
   return {
     id: options.id,
@@ -126,7 +148,7 @@ export function makeUnit(options: UnitOptions): Unit {
     spellsCast: options.spellsCast ?? 0,
     stats,
     equipment,
-    weapons: options.weapons ?? [definition?.equipment.weaponId ?? 'sword'],
+    inventory,
     awareness: options.awareness ?? 'alert',
     fleeing: options.fleeing ?? false,
     home: options.home ?? { x: options.x, y: options.y },
@@ -140,6 +162,8 @@ export interface StateOptions {
   readonly grid?: Grid;
   readonly players?: readonly Unit[];
   readonly enemies?: readonly Unit[];
+  readonly groundItems?: readonly GroundItem[];
+  readonly containers?: readonly Container[];
   readonly phase?: Phase;
   readonly turn?: number;
   readonly status?: GameState['status'];
@@ -151,6 +175,8 @@ export function makeState(options: StateOptions = {}): GameState {
     grid: options.grid ?? createRoomGrid(20, 20),
     players: options.players ?? [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
     enemies: options.enemies ?? [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 15 })],
+    groundItems: options.groundItems ?? [],
+    containers: options.containers ?? [],
     phase: options.phase ?? 'player',
     turn: options.turn ?? 1,
     status: options.status ?? 'playing',
@@ -215,15 +241,16 @@ export function expectedSinglePacketDamage(
   damageDie: number,
   resistanceDie: number,
 ): number {
-  const weapon = WEAPONS[attacker.equipment.weaponId!];
-  const packet = weapon.damagePackets[0];
-  const band = bandFor(target.stats.resistencia, packet.type);
+  const attackerProfile = effectiveStats(attacker);
+  const targetProfile = effectiveStats(target);
+  const packet = attackerProfile.damagePackets[0];
+  const band = bandFor(targetProfile.stats.resistencia, packet.type);
   return Math.max(
     1,
     resolvePacket(
       packet,
-      attacker.stats.fuerza,
-      armorValue(target.equipment.armorId),
+      attackerProfile.stats.fuerza,
+      targetProfile.absorption,
       band,
       damageDie,
       resistanceDie,
@@ -242,21 +269,27 @@ export function expectedSinglePacketBreakdown(
   damageDie: number,
   resistanceDie: number,
 ): readonly DamagePacketBreakdown[] {
-  const packet = WEAPONS[attacker.equipment.weaponId!].damagePackets[0];
-  const armor = armorValue(target.equipment.armorId);
-  const band = bandFor(target.stats.resistencia, packet.type);
+  const attackerProfile = effectiveStats(attacker);
+  const targetProfile = effectiveStats(target);
+  const packet = attackerProfile.damagePackets[0];
+  const armor = targetProfile.absorption;
+  const band = bandFor(targetProfile.stats.resistencia, packet.type);
   return [
     {
       type: packet.type,
       amount: packet.amount,
       damageRoll: damageDie,
       resistanceRoll: resistanceDie,
-      raw: packet.amount + attacker.stats.fuerza + damageDie - (armor + resistanceDie),
+      raw:
+        packet.amount +
+        attackerProfile.stats.fuerza +
+        damageDie -
+        (armor + resistanceDie),
       band,
       multiplier: BAND_MULTIPLIERS[band],
       damage: resolvePacket(
         packet,
-        attacker.stats.fuerza,
+        attackerProfile.stats.fuerza,
         armor,
         band,
         damageDie,

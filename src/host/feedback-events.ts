@@ -1,4 +1,4 @@
-import { weaponFor } from '../game/equipment';
+import { ITEMS } from '../game/equipment';
 import type { GameEvent, GameState } from '../game/types';
 import { FEEDBACK_CONFIG } from './feedback-config';
 import { activeCues, type FeedbackCue, type MotionTimeline } from './motion';
@@ -18,17 +18,17 @@ export interface BannerFeedback {
 export function bannerForCue(cue: FeedbackCue): BannerFeedback | null {
   switch (cue.kind) {
     case 'pickup': {
-      if (!cue.data.weaponId) return null;
+      if (!cue.data.itemId) return null;
       return {
-        text: `+ ${weaponFor(cue.data.weaponId).name}`,
+        text: `+ ${ITEMS[cue.data.itemId].name}`,
         kind: 'pickup',
         durationMs: FEEDBACK_CONFIG.texts.bannerMs,
       };
     }
     case 'select-weapon': {
-      if (!cue.data.weaponId) return null;
+      if (!cue.data.itemId) return null;
       return {
-        text: weaponFor(cue.data.weaponId).name,
+        text: ITEMS[cue.data.itemId].name,
         kind: 'select-weapon',
         durationMs: FEEDBACK_CONFIG.texts.bannerMs,
       };

@@ -61,7 +61,10 @@ describe('createInitialState por defecto y BSP inyectado', () => {
     const map = state.map;
     if (!map) throw new Error('El estado inicial debe incluir mapa');
 
-    expect(map).toEqual(new GrowthMapGenerator().generate(DEFAULT_MAP_SEED));
+    const { weapons: _generatedWeapons, ...expectedMap } =
+      new GrowthMapGenerator().generate(DEFAULT_MAP_SEED);
+    expect(map).toEqual(expectedMap);
+    expect(state.groundItems).toHaveLength(3);
     expect(map.seed).toBe(DEFAULT_MAP_SEED);
     expect(map.width).toBe(22);
     expect(map.height).toBe(18);
@@ -103,9 +106,12 @@ describe('createInitialState por defecto y BSP inyectado', () => {
   it('BSP inyectado sigue produciendo 32×32 y cuatro enemigos', () => {
     const state = createInitialState({ generator: new BspMapGenerator() });
 
-    expect(state.map).toEqual(
-      new BspMapGenerator().generate(DEFAULT_MAP_SEED, DEFAULT_MAP_OPTIONS),
+    const { weapons: _bspWeapons, ...expectedMap } = new BspMapGenerator().generate(
+      DEFAULT_MAP_SEED,
+      DEFAULT_MAP_OPTIONS,
     );
+    expect(state.map).toEqual(expectedMap);
+    expect(state.groundItems).toHaveLength(3);
     expect(state.grid).toMatchObject({ width: 32, height: 32 });
     expect(state.enemies).toHaveLength(4);
     expect(state.enemies[0].x).toBe(state.map?.spawns.enemy.x);
@@ -210,7 +216,7 @@ describe('createInitialState con un MapGenerator inyectado', () => {
         // réplica (REQ-027); la réplica tiene sus propios tests.
         players: attack.state.players.map((unit) => ({
           ...unit,
-          equipment: { ...unit.equipment, weaponId: null },
+          equipment: { ...unit.equipment, weapon: null },
         })),
         rng: rngForDice([6, 1, 3, 3]),
       },

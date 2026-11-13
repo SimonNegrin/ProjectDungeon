@@ -8,7 +8,9 @@
  */
 
 import { createActions } from './actions';
+import { createInventory, equipmentFromLegacy } from './inventory';
 import { createMana } from './mana';
+import { aggregateEffectiveStats, equippedDefinitions } from './stats';
 import type {
   Position,
   ResistanceBand,
@@ -264,10 +266,12 @@ export function createPlayerFromArchetype(
 ): Unit {
   const entry = rosterEntry(id);
   const position = options.position ?? { x: 0, y: 0 };
-  const weaponId = entry.equipment.weaponId;
+  const unitId = options.id ?? 'player-1';
+  const equipment = equipmentFromLegacy(unitId, entry.equipment);
+  const profile = aggregateEffectiveStats(entry.stats, equippedDefinitions({ equipment }));
 
   return {
-    id: options.id ?? 'player-1',
+    id: unitId,
     nombre: options.name ?? entry.name,
     faction: 'player',
     enemyType: null,
@@ -279,11 +283,11 @@ export function createPlayerFromArchetype(
     mp: entry.maxMp,
     maxMp: entry.maxMp,
     mana: createMana(entry.stats.magicLevel),
-    actions: createActions(entry.stats, entry.equipment),
+    actions: createActions(profile.stats),
     spellsCast: 0,
     stats: entry.stats,
-    equipment: entry.equipment,
-    weapons: weaponId === null ? [] : [weaponId],
+    equipment,
+    inventory: createInventory(),
     awareness: 'alert',
     fleeing: false,
     home: { x: position.x, y: position.y },
