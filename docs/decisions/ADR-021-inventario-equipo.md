@@ -9,6 +9,16 @@ decided_at: 2026-11-11T18:00:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 ---
 
+> **Nota de vigencia (2026-11-13).** El modelo sigue vigente con tres
+> actualizaciones: el campo de traits ya está en uso y el panel muestra traits y
+> desglose de stats ([REQ-019](../requirements/REQ-019-traits-objetos.md));
+> anillo, collar y guantes llegan con REQ-019 y entran por
+> [REQ-020](../requirements/REQ-020-cofres-saqueo.md), mientras casco y botas
+> siguen vacíos; y equipar admite origen en el suelo del tile o en un contenedor
+> abierto por 1 MP, con el objeto sustituido de vuelta a la mochila y rechazo
+> entero si no cabe ([REQ-018](../requirements/REQ-018-inventario-equipo.md),
+> R-021).
+
 # Contexto
 
 El equipo de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
