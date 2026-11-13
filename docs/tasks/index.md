@@ -100,8 +100,12 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
-| [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `backlog` | REQ-018 | TASK-0094, TASK-0095 | P2 |
+| [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `ready` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `backlog` | REQ-018 | TASK-0095, TASK-0096 | P2 |
+
+# ready
+
+* [TASK-0096 — Host: objetos del suelo con sprite, efectos y debug](TASK-0096-host-objetos-suelo-sprite-debug.md)
 
 # blocked
 
@@ -111,7 +115,6 @@ Total: **98**. Generado desde el frontmatter de `docs/tasks/*.md`.
 # backlog
 
 * [TASK-0098 — E2E y QA visual del inventario y el equipo](TASK-0098-e2e-qa-inventario-equipo.md)
-* [TASK-0096 — Host: objetos del suelo con sprite, efectos y debug](TASK-0096-host-objetos-suelo-sprite-debug.md)
 * [TASK-0097 — Docs: inventario, equipo, controles y vigencia](TASK-0097-docs-inventario-equipo-controles.md)
 
 # done

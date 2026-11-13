@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Planning — TASK-0096 — ready: objetos del suelo con recorte de `items.png`, icono en el panel, cues de recoger/soltar/equipar, `F1` y snapshot con mochila/equipo/capacidad/suelo, y ayuda con `I`/`Escape`; dependencias TASK-0094 y TASK-0095 `done`; handoff a `task-lead` — [TASK-0096](tasks/TASK-0096-host-objetos-suelo-sprite-debug.md)
+
 * 2026-11-13 — Task — TASK-0095 — done: panel modal DOM con I, equipo, mochila y suelo, teclado con foco y comparación, costes al confirmar y retirada de G y 1-3; verify 1237/1237; fusión 6c64b04 — [informe](../artifacts/TASK-0095/attempt-1/report.md)
 
 * 2026-11-13 — Planning — TASK-0096/0097/0098 — DoR revisada; siguen en `backlog` por dependencias abiertas. TASK-0096 pasa a depender de TASK-0095 — [TASK-0096](tasks/TASK-0096-host-objetos-suelo-sprite-debug.md), [TASK-0097](tasks/TASK-0097-docs-inventario-equipo-controles.md), [TASK-0098](tasks/TASK-0098-e2e-qa-inventario-equipo.md)

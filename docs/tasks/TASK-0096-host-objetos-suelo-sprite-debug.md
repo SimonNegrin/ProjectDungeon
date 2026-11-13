@@ -4,7 +4,7 @@ id: TASK-0096
 title: "Host: objetos del suelo con sprite, efectos y debug"
 description: "Dibujar los objetos del suelo con su recorte de items.png, presentar los cues de recoger, soltar y equipar sin parpadeos, usar el mismo sprite en el panel y exponer mochila, equipo, capacidad y objetos del suelo en F1."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-018
 requirement_ids: [T-010, T-011]
