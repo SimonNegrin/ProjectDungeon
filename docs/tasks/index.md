@@ -76,7 +76,7 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0080](TASK-0080-host-docs-replica-visible.md) | Host y docs: réplica visible y ADR | `done` | REQ-027 | TASK-0079 | P1 |
 | [TASK-0081](TASK-0081-motor-nivel-magia-mana.md) | Motor: nivel de magia y maná por turno | `done` | REQ-025 | TASK-0080 | P1 |
 | [TASK-0082](TASK-0082-motor-catalogo-hechizos.md) | Motor: catálogo y resolución de hechizos | `done` | REQ-025 | TASK-0081 | P1 |
-| [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `ready` | REQ-025 | TASK-0082 | P1 |
+| [TASK-0083](TASK-0083-host-lanzamiento-hechizos-hud.md) | Host: lanzamiento de hechizos, HUD y feedback | `done` | REQ-025 | TASK-0082 | P1 |
 | [TASK-0084](TASK-0084-balance-acciones-magia-replica.md) | Balance: propuesta con acciones, magia y réplica | `backlog` | REQ-026 | TASK-0083 | P1 |
 | [TASK-0085](TASK-0085-motor-tipos-dano-paquetes-resolvedor.md) | Motor: tipos de daño, paquetes y resolvedor con bandas | `done` | REQ-029 | — | P1 |
 | [TASK-0086](TASK-0086-motor-perfiles-resistencia-roster-bestiario.md) | Motor: perfiles de resistencia v1 de roster, bestiario y familias | `done` | REQ-029 | TASK-0085 | P1 |
@@ -96,10 +96,6 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0062](TASK-0062-arnes-sufijo-repeticion-capturas.md) | Arnés: sufijo de repetición en capturas E2E | `done` | HARNESS | — | P2 |
 | [TASK-0065](TASK-0065-exp-003-v2-manifest.md) | EXP-003 v2.0: manifest del índice | `done` | REQ-027 | TASK-0064 | P2 |
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
-
-# ready
-
-* [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)
 
 # backlog
 
@@ -183,6 +179,7 @@ Total: **92**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0080 — Host y docs: réplica visible y ADR](TASK-0080-host-docs-replica-visible.md)
 * [TASK-0081 — Motor: nivel de magia y maná por turno](TASK-0081-motor-nivel-magia-mana.md)
 * [TASK-0082 — Motor: catálogo y resolución de hechizos](TASK-0082-motor-catalogo-hechizos.md)
+* [TASK-0083 — Host: lanzamiento de hechizos, HUD y feedback](TASK-0083-host-lanzamiento-hechizos-hud.md)
 * [TASK-0085 — Motor: tipos de daño, paquetes y resolvedor con bandas](TASK-0085-motor-tipos-dano-paquetes-resolvedor.md)
 * [TASK-0086 — Motor: perfiles de resistencia v1 de roster, bestiario y familias](TASK-0086-motor-perfiles-resistencia-roster-bestiario.md)
 * [TASK-0087 — Motor: martillo, espada electrizada, daga arcana y colocación determinista](TASK-0087-motor-armas-nuevas-colocacion.md)

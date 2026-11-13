@@ -12,7 +12,8 @@ verified:
     at: 2026-11-13T14:09:43Z
     note: >-
       Verificación independiente en `task/TASK-0083` (host `e5c9ec2`, tests
-      `8166dce`/`d2e0f15`, artefactos `d32e443`). Diff completo revisado: solo
+      `8166dce`/`d2e0f15`, artefactos `d32e443`, verificación `f71bd31`, fusión
+      `d92f059`). Diff completo revisado: solo
       host, `index.html`, tests y artefactos; `src/game/**`, requisitos, arnés,
       plantillas y dependencias intactos. Re-ejecutados `pnpm run verify`
       (1170/1170; docs, config, tsc, build y bundle OK), `pnpm run test:e2e`
@@ -81,6 +82,6 @@ verified:
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 4092 |
-| `report_bytes` | 3783 |
+| `report_bytes` | 3833 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
