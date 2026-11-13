@@ -4,7 +4,7 @@ id: TASK-0091
 title: "Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025"
 description: "Actualizar turn-economy, architecture, glosario y las notas de vigencia de los requisitos enmendados para que el daño único deje de figurar como modelo vigente."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-029
 requirement_ids: [T-010]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-13T12:30:00Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0091/
 priority: P1
 risk: low
