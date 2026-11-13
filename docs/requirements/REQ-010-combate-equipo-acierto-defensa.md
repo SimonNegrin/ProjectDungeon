@@ -8,7 +8,7 @@ version: 7
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-08T16:18:04Z
-updated_at: 2026-11-11T19:00:00Z
+updated_at: 2026-11-13T18:00:00Z
 related_tasks: [TASK-0025, TASK-0026, TASK-0027, TASK-0028, TASK-0029, TASK-0030]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-08T16:37:43Z }
 verified:
@@ -34,10 +34,13 @@ verified:
       y el orden es ataque → réplica.
 ---
 
-> **Nota de vigencia (2026-11-12).** La fórmula de daño y el catálogo de armas
-> quedan enmendados por [REQ-029](REQ-029-tipos-dano-resistencias.md): el daño se
-> resuelve por paquetes con tipo y resistencia por bandas; la tirada de impacto y
-> el escudo no cambian. Las tablas de balance de esta hoja son históricas.
+> **Nota de vigencia (2026-11-13).** La fórmula de daño único, el catálogo de
+> armas y las tablas de balance de esta hoja son históricos: el daño vigente se
+> resuelve por paquetes con tipo y perfil de bandas en `src/game/damage.ts`, según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md). La tirada de
+> impacto y el escudo no cambian. Lo implementan TASK-0085 a TASK-0090 y lo
+> documenta TASK-0091.
 
 # Contexto
 

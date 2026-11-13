@@ -1,0 +1,78 @@
+---
+type: Docs Patch
+title: "TASK-0091: notas de vigencia para requirements-writer"
+description: Reemplazos exactos de las cuatro notas de vigencia en docs/requirements, con enlaces inline y sin tocar historial ni tablas.
+task: TASK-0091
+attempt: 1
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-13T16:30:00Z }
+---
+
+# Uso
+
+Estos cuatro bloques van en `docs/requirements/**`, que solo edita
+`requirements-writer` (el lead y el runner no tienen permiso). Sustituyen el
+bloque de nota existente; no cambian el historial de decisiones, las tablas ni
+las versiones. Actualizar `updated_at` de cada hoja a `2026-11-13T18:00:00Z` es
+opcional y no altera la versión.
+
+El texto ya usa enlaces inline (el corpus no usa enlaces de referencia) y rutas
+relativas a `docs/requirements/`.
+
+# REQ-010
+
+Archivo: `docs/requirements/REQ-010-combate-equipo-acierto-defensa.md`, líneas
+base 37-40.
+
+```markdown
+> **Nota de vigencia (2026-11-13).** La fórmula de daño único, el catálogo de
+> armas y las tablas de balance de esta hoja son históricos: el daño vigente se
+> resuelve por paquetes con tipo y perfil de bandas en `src/game/damage.ts`, según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md). La tirada de
+> impacto y el escudo no cambian. Lo implementan TASK-0085 a TASK-0090 y lo
+> documenta TASK-0091.
+```
+
+# REQ-014
+
+Archivo: `docs/requirements/REQ-014-atributos-inherentes-personajes.md`, líneas
+base 23-26.
+
+```markdown
+> **Nota de vigencia (2026-11-13).** La resistencia numérica única pasa a ser un
+> perfil de cinco bandas por tipo en `UnitStats.resistencia`, según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md). Los nueve
+> atributos se mantienen; la fórmula de daño de esta hoja queda enmendada y la
+> implementación se cerró en TASK-0085 y TASK-0086, documentada en TASK-0091.
+```
+
+# REQ-015
+
+Archivo: `docs/requirements/REQ-015-roster-arquetipos.md`, líneas base 31-33.
+
+```markdown
+> **Nota de vigencia (2026-11-13).** Los perfiles de resistencia por arquetipo se
+> añaden en `src/game/roster.ts` según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md); la tabla de stats
+> y el equipo inicial se mantienen, salvo la resistencia numérica, que pasa a
+> perfil de cinco bandas. Lo implementan TASK-0085 y TASK-0086 y lo documenta
+> TASK-0091.
+```
+
+# REQ-025
+
+Archivo: `docs/requirements/REQ-025-magia-hechizos-mana.md`, líneas base 23-27.
+
+```markdown
+> **Nota de vigencia (2026-11-13).** La fórmula mágica y el catálogo se enmendan
+> por [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md): el daño se
+> resuelve por paquetes con tipo en `src/game/damage.ts`, la armadura no protege
+> de mágico/eléctrico y el nivel de magia solo afecta a acceso, maná e impacto.
+> Los hechizos de fuego causan daño mágico hasta que exista el trait de quemadura;
+> los eléctricos causan eléctrico. Lo implementan TASK-0085 a TASK-0090 y lo
+> documenta TASK-0091.
+```

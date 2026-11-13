@@ -50,43 +50,59 @@ y eventos.
 
 # Combate y azar
 
-> **Nota de vigencia (2026-11-12).** [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md)
-> y [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md) sustituyen la
-> capa de absorción única por paquetes con tipo y perfiles de banda. El RNG, los
-> eventos, la separación motor/host y el resto de esta sección siguen vigentes.
+El combate vive en `src/game/` y es puro y determinista. El modelo vigente es el
+de [REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) y
+[ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md), que sustituyen la
+absorción única de
+[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md).
 
-El combate vive en `src/game/` y es puro y determinista:
-
-- `combat.ts` resuelve impacto y daño con el esquema de `REQ-014`: habilidad y
-  fuerza son los modificadores del atacante; defensa se suma al escudo y la
-  resistencia a la armadura en una sola capa de absorción. Un fallo consume dos
-  tiradas y un impacto cuatro, en el orden ataque, escudo, golpe y absorción.
-- `equipment.ts` guarda el catálogo de armas, armaduras y escudos con IDs
-  estables; `bestiary.ts` guarda por tipo los nueve atributos (habilidad, fuerza,
-  defensa, resistencia, puntería, magia, PV, MP y acciones), arma, escudo,
-  armadura, visión
-  y perfil.
+- `damage.ts` es el resolvedor único y puro de paquetes: por paquete, un dado de
+  daño y uno de resistencia en el orden declarado; los paquetes físicos suman
+  fuerza y restan armadura, y los mágicos y eléctricos ignoran ambas. La banda
+  del perfil se aplica después de la absorción con `floor`, cada paquete se
+  recorta a 0 y el total es `max(1, suma)`. Armas, réplicas y hechizos pasan por
+  aquí; no hay una fórmula paralela en `magic.ts` ni en la IA.
+- `combat.ts` resuelve el impacto con `habilidad + acierto del arma` contra
+  `defensa + escudo`; el empate falla. Un fallo consume dos tiradas (ataque y
+  escudo); un impacto consume dos más por paquete (daño y resistencia), en orden
+  fijo. Los perfiles de resistencia viven en las unidades
+  (`UnitStats.resistencia`), no en una tabla aparte.
+- `equipment.ts` guarda el catálogo de siete armas con `damagePackets`, armaduras
+  y escudos con IDs estables. Las armas nuevas de REQ-029 se marcan con
+  `estimatedV1`; el martillo se coloca en el mapa.
+- `bestiary.ts` guarda por tipo los nueve atributos, equipo, visión, alarma y
+  perfil de comportamiento. El perfil de resistencia se compone de una plantilla
+  de familia (humanoide, constructo, no muerto, bestia, elemental y dragón) más
+  una sobrescritura parcial del enemigo.
 - `roster.ts` es la fuente única de los nueve arquetipos jugables de REQ-015:
-  stats, equipo inicial, variantes, rol y magia de identidad. El jugador por
-  defecto se crea con `createPlayerFromArchetype('warrior', ...)` en el spawn del
-  mapa; `Unit.archetypeId` guarda la identidad serializable y es `null` en
-  enemigos y unidades sintéticas. El HUD deriva el nombre del arquetipo del
-  roster y no duplica valores.
+  stats (incluido el perfil de resistencia), equipo inicial, variantes, rol y
+  magia de identidad. El jugador por defecto se crea con
+  `createPlayerFromArchetype('warrior', ...)` en el spawn del mapa;
+  `Unit.archetypeId` guarda la identidad serializable y es `null` en enemigos y
+  unidades sintéticas. El HUD deriva el nombre del arquetipo del roster y no
+  duplica valores.
 - `rng.ts` implementa un d6 serializable. El estado guarda la semilla y el
   contador; la misma semilla y los mismos comandos dan la misma secuencia.
-- Los eventos `AttackPerformed` incluyen impacto, daño, PV resultante y tiradas;
-  el host no recalcula reglas.
+- Los eventos `AttackPerformed`, `ReplicaPerformed` y `SpellCast` incluyen
+  impacto, daño total, PV resultante, tiradas y `damageBreakdown` por paquete:
+  tipo, cantidad base, dados de daño y resistencia, bruto, banda, multiplicador y
+  daño final. El host no recalcula reglas.
 - El jugador y los enemigos comparten el mismo resolvedor. La recogida y el
-  cambio de arma son comandos del motor; desde [REQ-018](../requirements/REQ-018-inventario-equipo.md)
-  la tecla `G` y el cambio con `1`-`3` desaparecen y la gestión pasa por el panel
-  abierto con `I`.
+  cambio de arma son comandos del motor; desde
+  [REQ-018](../requirements/REQ-018-inventario-equipo.md) la tecla `G` y el cambio
+  con `1`-`3` desaparecen y la gestión pasa por el panel abierto con `I`.
 
 Ver [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md),
-[REQ-015](../requirements/REQ-015-roster-arquetipos.md) y
-[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md). El combate con
-equipo y RNG de [REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md)
-y [ADR-012](../decisions/ADR-012-combate-equipo-rng.md) queda como historia; el
-balance v1 de enemigos y armas se conserva y el Guerrero usa resistencia 1.
+[REQ-015](../requirements/REQ-015-roster-arquetipos.md),
+[REQ-029](../requirements/REQ-029-tipos-dano-resistencias.md) y
+[ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md). El combate con
+equipo y RNG de
+[REQ-010](../requirements/REQ-010-combate-equipo-acierto-defensa.md) y
+[ADR-012](../decisions/ADR-012-combate-equipo-rng.md) queda como historia; el
+balance v1 de enemigos y armas se conserva, y la resistencia numérica de
+[ADR-015](../decisions/ADR-015-atributos-inherentes-absorcion.md) se sustituye por
+el perfil de bandas. La implementación se cerró en TASK-0085 a TASK-0090 y se
+documenta en [turn-economy](turn-economy.md#combate).
 
 ## Magia y maná
 
@@ -94,17 +110,25 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
 `src/game/` y comparte el RNG y las capas de combate:
 
 - `spells.ts` es el catálogo de hechizos: id, familia, nivel mínimo, coste,
-  alcance, acierto, poder, objetivo, efecto y presentación. Es dato serializable
-  y fuente única; añadir un hechizo no toca el resolvedor.
+  alcance, acierto, `damagePacket`, objetivo, efecto y presentación. Es dato
+  serializable y fuente única; añadir un hechizo no toca el resolvedor. Los
+  hechizos de daño declaran un paquete eléctrico o mágico; curación y
+  resurrección no declaran paquete.
 - `magic.ts` valida y resuelve hechizos con el RNG sembrado: acción, maná, nivel,
-  alcance, línea de visión y objetivo. Un rechazo no consume nada.
+  objetivo, alcance, línea de visión y tope. Un rechazo no consume nada. El daño
+  de un hechizo pasa por el resolvedor de `damage.ts`, no por una fórmula
+  paralela.
 - El comando `CastSpell` apunta a una casilla y resuelve el objetivo por facción;
   `Unit.spellsCast` cuenta los hechizos del turno (tope 2) y se reinicia con MP,
-  acciones y maná. El evento `SpellCast` lleva impacto, daño, curación o PV de
-  retorno para que el host no recalcule reglas.
-- El ataque mágico reutiliza las capas de `combat.ts`: acierto con nivel de magia
-  + acierto del hechizo contra defensa + escudo; daño con poder del hechizo contra
-  resistencia + armadura. No hay una resistencia mágica separada.
+  acciones y maná. El evento `SpellCast` de daño lleva impacto, daño, PV
+  resultante, tiradas y `damageBreakdown`; curación y resurrección llevan su
+  efecto para que el host no recalcule reglas.
+- El ataque mágico reutiliza las capas de `combat.ts`: el impacto suma el nivel
+  de magia y el acierto del hechizo contra defensa + escudo; el daño usa el
+  paquete del hechizo contra el perfil de resistencia del objetivo. Mágico y
+  eléctrico ignoran fuerza y armadura: la armadura no absorbe daño mágico ni
+  eléctrico, aunque el escudo sí cuenta para el impacto. El nivel de magia solo
+  afecta a acceso, maná e impacto; no decide el tipo ni la resistencia.
 - `mana.ts` implementa el recurso de este corte: `UnitStats.magicLevel` (0–4) y
   `Unit.mana { current, max }`; `max = nivel × 4` y se recarga al inicio del
   turno junto a MP y acciones. El maná no altera el MP.
@@ -112,7 +136,8 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
   resurrección conserva las condiciones de
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
 
-Ver [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md).
+Ver [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md) y
+[ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md).
 
 ## Economía de acciones
 

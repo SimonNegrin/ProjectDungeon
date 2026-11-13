@@ -8,7 +8,7 @@ version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-11T23:10:00Z
+updated_at: 2026-11-13T18:00:00Z
 related_tasks: [TASK-0055, TASK-0056]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
@@ -28,9 +28,13 @@ verified:
       Clérigo); ninguna bloquea el cierre.
 ---
 
-> **Nota de vigencia (2026-11-12).** Los perfiles de resistencia por arquetipo se
-> añaden en [REQ-029](REQ-029-tipos-dano-resistencias.md); la tabla de stats y el
-> equipo inicial se mantienen, salvo la resistencia numérica, que pasa a perfil.
+> **Nota de vigencia (2026-11-13).** Los perfiles de resistencia por arquetipo se
+> añaden en `src/game/roster.ts` según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md); la tabla de stats
+> y el equipo inicial se mantienen, salvo la resistencia numérica, que pasa a
+> perfil de cinco bandas. Lo implementan TASK-0085 y TASK-0086 y lo documenta
+> TASK-0091.
 
 # Contexto
 

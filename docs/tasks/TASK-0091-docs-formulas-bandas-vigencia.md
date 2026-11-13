@@ -4,22 +4,38 @@ id: TASK-0091
 title: "Docs: fórmulas por paquete, bandas y vigencia de REQ-010/014/015/025"
 description: "Actualizar turn-economy, architecture, glosario y las notas de vigencia de los requisitos enmendados para que el daño único deje de figurar como modelo vigente."
 status: stable
-task_status: backlog
+task_status: done
 task_type: docs
 requirement: REQ-029
 requirement_ids: [T-010]
 depends_on: [TASK-0089, TASK-0090]
 unlocks: []
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T16:31:32Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0091/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T16:31:32Z
+    note: >-
+      Verificación independiente en `task/TASK-0091` (auditoría `4db7ef9`,
+      informe `1fe839b`, diseño y glosario `782ee4e`, verificación `cbc0d96`,
+      precisión del aviso `247dd22`, notas de requisitos `e905889`). Diff
+      completo revisado: solo `docs/design/turn-economy.md`,
+      `docs/design/architecture.md`, `docs/glossary.md` y las cuatro notas de
+      vigencia; sin tocar `src/**`, `tests/**`, dependencias ni historial de
+      decisiones. Valores contrastados con `damage.ts`, `equipment.ts`,
+      `roster.ts`, `bestiary.ts`, `spells.ts`, `combat.ts`, `magic.ts`, `map.ts`
+      y `types.ts`: 7 armas con paquetes, 4 bandas, 9 arquetipos y 3 enemigos
+      coinciden. `pnpm run docs:check` OK (447 documentos, 92 tareas) y
+      `pnpm run verify` OK (86 archivos, 1189/1189) re-ejecutados tras
+      `e905889`; el barrido de EXP-004 es un timeout intermitente preexistente
+      bajo carga y no una regresión. Los seis criterios se cumplen.
 ---
 
 # Objetivo
@@ -42,18 +58,18 @@ daño único quede presentada como vigente.
 
 # Criterios de aceptación
 
-- [ ] `turn-economy.md#combate` muestra la fórmula por paquetes, la tabla de
+- [x] `turn-economy.md#combate` muestra la fórmula por paquetes, la tabla de
       bandas, el catálogo de armas con paquetes y los perfiles vigentes; la
       fórmula de daño único queda solo como historia claramente marcada.
-- [ ] `architecture.md` describe el resolvedor único, los perfiles en las
+- [x] `architecture.md` describe el resolvedor único, los perfiles en las
       unidades, el desglose de eventos y los hechizos tipados; no afirma que la
       armadura absorbe daño mágico o eléctrico.
-- [ ] El glosario define tipo, paquete, banda, perfil y daño del arma sin
+- [x] El glosario define tipo, paquete, banda, perfil y daño del arma sin
       contradecir el código; distingue daño mágico de nivel de magia.
-- [ ] Las notas de vigencia de `REQ-010`, `REQ-014`, `REQ-015` y `REQ-025` apuntan
+- [x] Las notas de vigencia de `REQ-010`, `REQ-014`, `REQ-015` y `REQ-025` apuntan
       al modelo implementado y a las tareas que lo cierran.
-- [ ] El enlace a `ADR-023` funciona y el ADR no contradice lo implementado.
-- [ ] `pnpm run docs:check` y `pnpm run verify` pasan; no se edita código de juego
+- [x] El enlace a `ADR-023` funciona y el ADR no contradice lo implementado.
+- [x] `pnpm run docs:check` y `pnpm run verify` pasan; no se edita código de juego
       ni tests.
 
 # Plan de test
@@ -66,9 +82,9 @@ daño único quede presentada como vigente.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0091/attempt-1/report.md`
-- [ ] Salida de `pnpm run docs:check` y de `pnpm run verify`
-- [ ] Commit SHA en la rama `task/TASK-0091`
+- [x] Informe en `artifacts/TASK-0091/attempt-1/report.md`
+- [x] Salida de `pnpm run docs:check` y de `pnpm run verify`
+- [x] Commit SHA en la rama `task/TASK-0091`
 
 # Restricciones
 
