@@ -8,6 +8,14 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T13:05:00Z }
 artifacts: artifacts/TASK-0087/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T13:12:00Z
+    note: >-
+      Verificado en la fusión `9fa4a66`: `pnpm run verify` 1129/1129 y
+      `pnpm run test:e2e` 112/112. Se coloca solo el martillo porque es la única
+      fuente de contundente y R-012 solo exige una nueva en mapa; la espada
+      electrizada y la daga arcana quedan en catálogo y su ataque se cubre en
+      TASK-0090. Regresión E2E de paleta detectada y corregida.
 ---
 
 # Estado
@@ -67,6 +75,6 @@ Ninguna: el ajuste de growth es una decisión de esta tarea, no del arnés.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2754 |
-| `report_bytes` | 2524 |
+| `report_bytes` | 2958 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

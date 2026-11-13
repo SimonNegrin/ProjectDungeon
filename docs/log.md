@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0087 — done: martillo (contundente 4), espada electrizada (filo 3 + eléctrico 1) y daga arcana (punzante 2 + mágico 1) estimadas v1; martillo determinista en la semilla `279837264`; verify 1129/1129 y E2E 112/112; fusión `9fa4a66` — [informe](../artifacts/TASK-0087/attempt-1/report.md)
+
 * 2026-11-13 — Harness — Permisos — el prompt de `requirements-writer` descarta `git -C <ruta>`: el cwd ya es la raíz y el flag rompe el prefijo de la allowlist, así que cada consulta pedía permiso; sin cambios en `opencode.jsonc` — [requirements-writer](../.opencode/agents/requirements-writer.md)
 
 * 2026-11-13 — Harness — Propiedad — `AGENTS.md` y el prompt de `requirements-writer` se alinean con ADR-016 (diseño, glosario y log compartidos); comando `/harness`; la autoría de ADR por tipo y el log arriba de la fecha quedan solo en el workflow — [workflow](harness/workflow.md#fricción-y-propuestas)

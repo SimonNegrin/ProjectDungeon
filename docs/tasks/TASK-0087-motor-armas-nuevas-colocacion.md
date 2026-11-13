@@ -4,22 +4,36 @@ id: TASK-0087
 title: "Motor: martillo, espada electrizada, daga arcana y colocación determinista"
 description: "Añadir al catálogo las tres armas nuevas con sus paquetes y colocar al menos una de forma determinista en el mapa, sin cambiar el equipo inicial del roster."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-003, R-004, R-012, T-002]
 depends_on: [TASK-0085]
 unlocks: [TASK-0090, TASK-0092]
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T13:12:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0087/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T13:12:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0087` (código `72501d0`, fix E2E
+      `1aef12b`, informe `b62c9ef`, fusión `9fa4a66`). Diff revisado completo.
+      `pnpm run verify` re-ejecutado OK (81 archivos, 1129/1129; docs:check,
+      config:check, tsc, build y check:bundle) y `pnpm run test:e2e` OK
+      (112/112). Semilla `279837264`: `axe@8,4`, `dagger@23,10`,
+      `hammer@16,17`; `1234` cambia las tres. Se colocó solo el martillo porque
+      es la única fuente de contundente y R-012 solo exige una nueva en mapa;
+      las otras dos quedan en catálogo y su ataque se cubre en TASK-0090. Los
+      siete criterios se cumplen; roster, bestiario, fórmulas y armas existentes
+      intactos. La verificación detectó una regresión E2E de muestreo de paleta
+      por el sprite del martillo, corregida excluyendo `snap.weapons`.
 ---
 
 # Objetivo
@@ -44,22 +58,22 @@ mapa del primer corte, recogible con las reglas de inventario existentes.
 
 # Criterios de aceptación
 
-- [ ] El martillo declara acierto +2 y contundente 4; la espada electrizada,
+- [x] El martillo declara acierto +2 y contundente 4; la espada electrizada,
       acierto +3, filo 3 y eléctrico 1; la daga arcana, acierto +4, punzante 2 y
       mágico 1, con IDs y nombres estables.
-- [ ] La validación del catálogo acepta las tres armas y sigue rechazando más de
+- [x] La validación del catálogo acepta las tres armas y sigue rechazando más de
       un físico, más de un elemental o más de dos paquetes.
-- [ ] Al menos una de las tres armas nuevas aparece de forma determinista en el
+- [x] Al menos una de las tres armas nuevas aparece de forma determinista en el
       mapa para una semilla fija; la colocación queda declarada en datos y no
       depende de azar no registrado.
-- [ ] La recogida y el cambio de arma funcionan con las reglas de inventario
+- [x] La recogida y el cambio de arma funcionan con las reglas de inventario
       vigentes; el HUD y el feedback muestran el nombre desde el catálogo, sin
       listas paralelas.
-- [ ] El equipo inicial de los nueve arquetipos no cambia y la tabla de `REQ-015`
+- [x] El equipo inicial de los nueve arquetipos no cambia y la tabla de `REQ-015`
       sigue siendo válida.
-- [ ] Los valores quedan marcados como estimados; no se rebalancean las armas
+- [x] Los valores quedan marcados como estimados; no se rebalancean las armas
       existentes ni los enemigos.
-- [ ] `pnpm run verify` pasa; sin dependencias nuevas.
+- [x] `pnpm run verify` pasa; sin dependencias nuevas.
 
 # Plan de test
 
@@ -72,9 +86,9 @@ mapa del primer corte, recogible con las reglas de inventario existentes.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0087/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify` y de los tests focalizados
-- [ ] Commit SHA en la rama `task/TASK-0087`
+- [x] Informe en `artifacts/TASK-0087/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` y de los tests focalizados
+- [x] Commit SHA en la rama `task/TASK-0087`
 
 # Restricciones
 
