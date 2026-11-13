@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Task — TASK-0091 — done: turn-economy con paquetes, bandas, 7 armas y perfiles; arquitectura con resolvedor único y magia tipada; glosario con perfil y distinción daño mágico/nivel; notas de vigencia de REQ-010/014/015/025; docs:check 447 y verify 1189/1189; fusión `a3cb72b` — [informe](../artifacts/TASK-0091/attempt-1/report.md)
+
 * 2026-11-13 — Task — TASK-0092 — done: E2E de arma nueva, bandas normal/resistente/muy resistente, mínimo 1, armadura/escudo, LOS y F1, hechizos eléctrico/mágico y curación sin desglose; 123/123 E2E y 1189/1189 verify; capturas 1280×720 y 900×700; EXP-004 falló una vez por timeout bajo carga y pasó aislado; fusión `1f06019` — [informe](../artifacts/TASK-0092/attempt-1/report.md)
 
 * 2026-11-13 — QA — TASK-0092 — playtest manual de legibilidad confirmado por el usuario: lectura rápida de bandas, desglose y mínimo 1 sin depender del color — [TASK-0092](tasks/TASK-0092-e2e-qa-tipos-dano-bandas.md)
