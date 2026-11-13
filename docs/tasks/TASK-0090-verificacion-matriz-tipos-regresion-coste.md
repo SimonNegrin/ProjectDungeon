@@ -4,7 +4,7 @@ id: TASK-0090
 title: "Verificación: matriz de tipos, regresión y coste por ataque"
 description: "Cubrir con tests la matriz de bandas, paquetes, armas y hechizos, comprobar la no regresión de REQ-010, REQ-014, REQ-025 y REQ-027 y medir el coste de un ataque de dos paquetes."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: test
 requirement: REQ-029
 requirement_ids: [T-009, T-012]
