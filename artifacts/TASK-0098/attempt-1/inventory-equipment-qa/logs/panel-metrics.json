@@ -1,0 +1,74 @@
+[
+  {
+    "viewport": "1280x720",
+    "state": "panel-abierto",
+    "width": 963.546875,
+    "height": 542,
+    "scrollWidth": 964,
+    "scrollHeight": 542,
+    "clientWidth": 964,
+    "clientHeight": 542,
+    "bodyScrollHeight": 692,
+    "bodyClientHeight": 508
+  },
+  {
+    "viewport": "1280x720",
+    "state": "mochila-llena",
+    "width": 1002.65625,
+    "height": 564,
+    "scrollWidth": 1003,
+    "scrollHeight": 564,
+    "clientWidth": 1003,
+    "clientHeight": 564,
+    "bodyScrollHeight": 1090,
+    "bodyClientHeight": 530
+  },
+  {
+    "viewport": "1280x720",
+    "state": "suelo-vacio",
+    "width": 1002.65625,
+    "height": 564,
+    "scrollWidth": 1003,
+    "scrollHeight": 564,
+    "clientWidth": 1003,
+    "clientHeight": 564,
+    "bodyScrollHeight": 677,
+    "bodyClientHeight": 530
+  },
+  {
+    "viewport": "900x700",
+    "state": "panel-abierto",
+    "width": 868,
+    "height": 488.25,
+    "scrollWidth": 868,
+    "scrollHeight": 488,
+    "clientWidth": 868,
+    "clientHeight": 488,
+    "bodyScrollHeight": 692,
+    "bodyClientHeight": 454
+  },
+  {
+    "viewport": "900x700",
+    "state": "mochila-llena",
+    "width": 868,
+    "height": 488.25,
+    "scrollWidth": 868,
+    "scrollHeight": 488,
+    "clientWidth": 868,
+    "clientHeight": 488,
+    "bodyScrollHeight": 1090,
+    "bodyClientHeight": 454
+  },
+  {
+    "viewport": "900x700",
+    "state": "suelo-vacio",
+    "width": 868,
+    "height": 488.25,
+    "scrollWidth": 868,
+    "scrollHeight": 488,
+    "clientWidth": 868,
+    "clientHeight": 488,
+    "bodyScrollHeight": 677,
+    "bodyClientHeight": 454
+  }
+]

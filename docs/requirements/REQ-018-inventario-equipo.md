@@ -4,11 +4,11 @@ id: REQ-018
 title: Inventario y equipo por personaje
 description: "Ocho huecos de equipo, ocho de mochila y un panel único de gestión; equipar, recoger y soltar cuestan 1 MP, equipar desde el suelo o un contenedor va directo al hueco, el catálogo inicial se limita a armas, escudos y armaduras y el arma solo se cambia desde el panel. Sustituye el modelo de tres armas y la recogida con G de REQ-010."
 status: stable
-version: 4
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-13T19:22:51Z
+updated_at: 2026-11-13T21:29:30Z
 related_tasks: [TASK-0093, TASK-0094, TASK-0095, TASK-0096, TASK-0097, TASK-0098]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
@@ -33,6 +33,12 @@ verified:
       hotseat, como base del saqueo, del fantasma y de la columna del jugador;
       cierra las preguntas de calendario y de visibilidad en hotseat. Sin cambios
       de reglas. El arte de objetos sale de `items.png`, ya copiado del pack.
+  - by: human:simon
+    at: 2026-11-13T21:29:30Z
+    note: >-
+      Aprueba la v5: enmienda R-004. Este corte no trae arma a dos manos
+      jugable; la regla vive en el modelo y en sus unitarios y el E2E de dos
+      manos con escudo se traslada a la tarea de REQ-019 que añade la maza.
 ---
 
 # Contexto
@@ -112,7 +118,7 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 | R-001 | Cada personaje tiene un inventario personal además de su equipo. | El estado de cada personaje distingue inventario y equipo; el inventario no es compartido por defecto. |
 | R-002 | Cada personaje tiene ocho huecos de equipo: arma, escudo, armadura, casco, botas, guantes, collar y **un** anillo. | El panel muestra los ocho huecos; cada uno acepta solo su categoría; hay un único hueco de anillo. |
 | R-003 | El hueco de arma admite armas a una mano o a dos manos. Un arma a dos manos anula el escudo. | Con un arma a dos manos no se puede llevar escudo; con un arma a una mano, sí. |
-| R-004 | El catálogo de este corte incluye armas melee a una y dos manos, escudos y armaduras corporales. Anillo, collar y guantes llegan con `REQ-019` y entran por `REQ-020`; casco y botas siguen vacíos. | El catálogo inicial solo contiene esas tres categorías; los cinco huecos secundarios existen y se muestran vacíos hasta que llegue su pieza. |
+| R-004 | El catálogo de este corte incluye armas melee a **una mano**, escudos y armaduras corporales. La regla de dos manos existe en el modelo y se prueba con unitarios; la primera arma a dos manos jugable es la maza de `REQ-019`. Anillo, collar y guantes llegan con `REQ-019` y entran por `REQ-020`; casco y botas siguen vacíos. | El catálogo inicial solo contiene esas tres categorías y ninguna arma a dos manos; los cinco huecos secundarios existen y se muestran vacíos hasta que llegue su pieza; el estado no admite arma a dos manos y escudo a la vez. |
 | R-005 | Quedan fuera del primer corte los consumibles, la magia, las llaves, la munición y las monedas. | Esos objetos no aparecen en el catálogo ni en el inventario de este corte. |
 | R-006 | Consumibles, munición y llaves, cuando existan, viven en la mochila, se usan desde ella y **nunca** ocupan hueco de equipo. | Ninguno de esos objetos admite un hueco de equipo; el modelo los representa como objetos de mochila. |
 | R-007 | El inventario y el equipo son por personaje; no hay una bolsa compartida. | Cada personaje tiene su propio inventario; los cofres de `REQ-020` serán el almacenamiento común. |
@@ -252,6 +258,7 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 | 2026-11-13 | v3: alineación con REQ-019/029/021/026; anillo, collar y guantes llegan con REQ-019 y entran por REQ-020; casco y botas siguen vacíos. | human:simon | aceptada |
 | 2026-11-13 | Equipar desde el suelo o un contenedor cuesta 1 MP y va directo al hueco; el sustituido vuelve a la mochila y si no cabe se rechaza entero. | human:simon | aceptada |
 | 2026-11-13 | Soltar una pieza equipada cuesta 1 MP, la desequipa y la deja en la casilla (REQ-026 R-010). | human:simon | aceptada |
+| 2026-11-13 | Enmienda R-004: este corte no trae arma a dos manos jugable; la regla vive en el modelo y sus unitarios, y el E2E de dos manos con escudo se traslada a la tarea de REQ-019 que añade la maza. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
