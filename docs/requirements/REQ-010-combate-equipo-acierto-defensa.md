@@ -91,6 +91,9 @@ Una sola enmienda, y solo de inventario y equipo:
   [REQ-015](REQ-015-roster-arquetipos.md) y los ocho huecos en `REQ-018`. Las
   filas afectadas llevan una nota al final; no se reescriben para no borrar el
   histórico de lo aprobado.
+- **Implementación (2026-11-13):** la sustitución está implementada en TASK-0093
+  a TASK-0098; el modelo vigente es el panel con `I` de REQ-018 y no quedan `G`
+  ni `1`-`3` como controles vigentes.
 
 # Objetivos de experiencia
 

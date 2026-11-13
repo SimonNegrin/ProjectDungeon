@@ -353,6 +353,7 @@ Flujo de una fase enemiga:
 | `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
 | `F` | Atacar al enemigo bajo el cursor si está adyacente. |
 | `I` | Abrir o cerrar el panel de personaje: equipo, mochila y suelo del tile. |
+| `Escape` | Cerrar el panel de personaje. |
 | `E` | Terminar turno. |
 | `R` | Reiniciar la sala. |
 | `F1` | Alternar overlay de debug. |

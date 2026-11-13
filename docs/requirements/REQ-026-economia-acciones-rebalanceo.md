@@ -22,10 +22,16 @@ verified:
 
 > **Estado de implementación (2026-11-13).** Contador de acciones, costes por
 > comando, ataque repetible, fin de turno manual, IA encadenada y HUD
-> implementados en TASK-0076 a TASK-0078. Quedan pendientes **soltar objetos y
-> contenedores** (R-010/R-011), que dependen de REQ-018 y REQ-020, y el
-> **rebalanceo** de TASK-0084, aplazado hasta roster y bestiario completos por
-> [REQ-029](REQ-029-tipos-dano-resistencias.md).
+> implementados en TASK-0076 a TASK-0078. **Soltar objetos (R-010) queda
+> implementado en TASK-0094** dentro del modelo de inventario de
+> [REQ-018](REQ-018-inventario-equipo.md): cuesta 1 MP y no gasta acción. Queda
+> pendiente **R-011 (contenedores)**, que depende de
+> [REQ-020](REQ-020-cofres-saqueo.md), y el **rebalanceo** de TASK-0084,
+> aplazado hasta roster y bestiario completos por
+> [REQ-029](REQ-029-tipos-dano-resistencias.md). El inventario de tres armas, la
+> recogida con `G` y las ranuras `1`-`3` de
+> [REQ-010](REQ-010-combate-equipo-acierto-defensa.md) quedan sustituidos por el
+> panel con `I` de REQ-018.
 
 # Contexto
 
