@@ -78,6 +78,6 @@ acción y cue pendiente sin adelanto.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3317 |
-| `report_bytes` | 4074 |
+| `report_bytes` | 4092 |
 | `overflow` | `none` |
 | `criteria_failed` | 1 (`pnpm run verify` por `docs:check`) |
