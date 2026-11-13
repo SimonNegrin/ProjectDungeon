@@ -13,6 +13,7 @@ import {
   tileIndex,
   type GeneratedMap,
   type MapGenerator,
+  type WeaponId,
 } from '../../../src/game/index';
 import {
   GrowthMapGenerator,
@@ -436,7 +437,16 @@ describe('createInitialState con growth por defecto', () => {
     const result = reduce(parsed, { type: 'EndTurn' });
     expect(result.state.map).toEqual(state.map);
     expect(JSON.parse(JSON.stringify(result.state))).toEqual(result.state);
-    expect(validateGrowthMap(new GrowthMapGenerator().generate(PERF_SEED)).ok).toBe(true);
+
+    // El estado ya no guarda `map.weapons`: se reconstruye la vista del
+    // generador desde las instancias del suelo para validar el mapa del estado.
+    const weapons = (result.state.groundItems ?? []).map((item) => ({
+      id: item.id.replace(/^item-/, ''),
+      weaponId: item.itemId as WeaponId,
+      x: item.x,
+      y: item.y,
+    }));
+    expect(validateGrowthMap({ ...result.state.map!, weapons }).ok).toBe(true);
   });
 });
 

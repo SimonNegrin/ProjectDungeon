@@ -295,7 +295,7 @@ describe('estado visible retrasado hasta su cue', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-weapon', itemId: 'sword' },
+              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
               { id: 'item-player-1-backpack-axe', itemId: 'axe' },
               null,
               null,
@@ -480,7 +480,7 @@ describe('eventos de presentación del host', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-weapon', itemId: 'sword' },
+              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
               { id: 'item-player-1-backpack-axe', itemId: 'axe' },
               null,
               null,
@@ -508,10 +508,17 @@ describe('eventos de presentación del host', () => {
       { type: 'SelectWeapon', unitId: 'player-1', itemId: 'axe', slot: 2 },
     ]);
 
-    const same = { type: 'SelectWeapon' as const, unitId: 'player-1', slot: 1 };
-    const sameResult = reduce(initialState, same);
+    // Desequipar no añade cue sintético: el builder solo modela recogida y
+    // equipo, y no inventa eventos para comandos sin presentación propia.
+    const unequip = { type: 'UnequipItem' as const, unitId: 'player-1', slot: 'armor' as const };
+    const unequipResult = reduce(initialState, unequip);
     expect(
-      buildPresentationEvents(same, initialState, sameResult.state, sameResult.events),
+      buildPresentationEvents(
+        unequip,
+        initialState,
+        unequipResult.state,
+        unequipResult.events,
+      ),
     ).toEqual([]);
 
     const rejected = reduce(initialState, {

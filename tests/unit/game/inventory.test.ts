@@ -273,6 +273,135 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
     expect(inventorySlots(result.state)).toEqual(['axe', 'knife']);
   });
 
+  it('equipa por ID la segunda instancia de un tile con dos objetos', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipmentSlots: slots('player-1', null),
+        }),
+      ],
+      groundItems: [
+        { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
+        { id: 'item-ground-axe', itemId: 'axe', x: 4, y: 4 },
+      ],
+    });
+
+    const result = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'ground',
+      itemId: 'item-ground-axe',
+    });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.players[0].equipment.weapon?.id).toBe('item-ground-axe');
+    expect(result.state.groundItems).toEqual([
+      { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
+    ]);
+  });
+
+  it('rechaza equipar del suelo un ID que no está en el tile', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipmentSlots: slots('player-1', null),
+        }),
+      ],
+      groundItems: [
+        { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
+        { id: 'item-ground-axe', itemId: 'axe', x: 5, y: 4 },
+      ],
+    });
+
+    const result = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'ground',
+      itemId: 'item-ground-axe',
+    });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EquipItem', reason: 'no-item' },
+    ]);
+    expect(result.state.groundItems).toHaveLength(2);
+  });
+
+  it('equipar desde el suelo con hueco ocupado y un hueco libre intercambia', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipmentSlots: slots('player-1', 'dagger'),
+          inventory: inventoryFromIds('player-1', ['axe'], 2),
+        }),
+      ],
+      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 }],
+    });
+
+    const result = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'ground',
+      itemId: 'item-ground-sword',
+    });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.players[0].equipment.weapon?.itemId).toBe('sword');
+    expect(backpackIds(result.state)).toEqual(['axe', 'dagger']);
+    expect(result.state.groundItems).toEqual([]);
+  });
+
+  it('con el contenedor lleno, equipar desde él se rechaza sin mover nada', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipmentSlots: slots('player-1', 'dagger'),
+          inventory: inventoryFromIds('player-1', ['axe'], 1),
+        }),
+      ],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 1,
+          items: [{ id: 'item-chest-sword', itemId: 'sword' }],
+        },
+      ],
+    });
+
+    const result = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'container',
+      containerId: 'chest-1',
+      itemId: 'item-chest-sword',
+    });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EquipItem', reason: 'inventory-full' },
+    ]);
+    expect(result.state.containers?.[0].items[0]?.id).toBe('item-chest-sword');
+    expect(result.state.players[0].equipment.weapon?.itemId).toBe('dagger');
+  });
+
   it('equipar desde un contenedor sintético con hueco libre y con hueco ocupado', () => {
     const free = makeState({
       players: [

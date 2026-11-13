@@ -318,8 +318,12 @@ function locateSource(
   }
 
   if (source.kind === 'ground') {
-    const ground = groundItemAt(state, unit.x, unit.y);
-    if (!ground || ground.id !== source.itemId) return { error: 'no-item' };
+    // Varias instancias pueden compartir casilla: el comando trae el ID exacto.
+    const ground = groundItems(state).find(
+      (item) =>
+        item.id === source.itemId && item.x === unit.x && item.y === unit.y,
+    );
+    if (!ground) return { error: 'no-item' };
     return {
       instance: { id: ground.id, itemId: ground.itemId },
       state: { ...state, groundItems: groundWithout(state, ground.id) },
