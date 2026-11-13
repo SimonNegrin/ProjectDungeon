@@ -4,22 +4,39 @@ id: TASK-0089
 title: "Host: bandas en el detalle del cursor y desglose de daño"
 description: "Mostrar las cinco bandas del enemigo bajo el cursor solo con línea de visión, el perfil completo en F1 y el total más el desglose por tipo en el feedback de ataque."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-029
 requirement_ids: [R-010, T-008]
 depends_on: [TASK-0086, TASK-0088]
 unlocks: [TASK-0091, TASK-0092]
 created_at: 2026-11-13T12:30:00Z
-completed_at:
+completed_at: 2026-11-13T13:31:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0089/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T12:30:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-13T13:31:00Z
+    note: >-
+      Verificación independiente en `task/TASK-0089` (host `3904efe`, tests
+      `6a5daef`, artefactos `7e0adfc`, fusión `7222d0e`). Diff revisado completo:
+      solo `src/host/**`, `index.html` y los tres tests del plan; `src/game/**`,
+      requisitos, arnés, plantillas y dependencias intactos. Re-ejecutados los 68
+      tests focalizados, `pnpm run verify` (81 archivos, 1143/1143; docs,
+      config, tsc, build y bundle OK) y `pnpm run test:e2e` (112/112). DOM
+      comprobado en navegador integrado: cinco bandas con LOS, ocultas con muro
+      intermedio sin ocultar los PV del cursor, ataque mixto `-6` con
+      «filo 4 + eléctrico 2» leído del evento y F1 con el perfil completo sin
+      LOS. Decisión técnica del lead: un `AttackPerformed` conserva su único
+      beat de REQ-017; ese beat presenta el total y el desglose de los paquetes
+      con daño, y un paquete a 0 no inventa texto ni beat. Sin captura PNG; el
+      QA visual con capturas es TASK-0092. Sin tests debilitados ni cambios de
+      alcance.
 ---
 
 # Objetivo
@@ -44,20 +61,20 @@ por tipo, con texto e icono y sin depender solo del color.
 
 # Criterios de aceptación
 
-- [ ] Con línea de visión, el detalle del cursor muestra las cinco bandas del
+- [x] Con línea de visión, el detalle del cursor muestra las cinco bandas del
       enemigo con texto e icono; sin línea de visión no se muestran.
-- [ ] `F1` muestra el perfil completo del enemigo bajo el cursor, incluidas las
+- [x] `F1` muestra el perfil completo del enemigo bajo el cursor, incluidas las
       bandas normales, y sigue mostrando el resto del debug actual.
-- [ ] El feedback de ataque muestra el total como número principal y el desglose
+- [x] El feedback de ataque muestra el total como número principal y el desglose
       por tipo, por ejemplo «−5» y «filo 3 + eléctrico 2», leído del evento.
-- [ ] Cada paquete con daño recibe su beat si el ataque lo requiere; un paquete
+- [x] Cada paquete con daño recibe su beat si el ataque lo requiere; un paquete
       recortado a 0 no inventa un beat ni un texto de daño.
-- [ ] Curación y resurrección no muestran desglose de paquetes.
-- [ ] La información no depende solo del color: hay texto y, si hay icono, se
+- [x] Curación y resurrección no muestran desglose de paquetes.
+- [x] La información no depende solo del color: hay texto y, si hay icono, se
       entiende sin él.
-- [ ] El total del ataque y los PV resultantes no cambian respecto al motor; el
+- [x] El total del ataque y los PV resultantes no cambian respecto al motor; el
       host no duplica la fórmula.
-- [ ] Tests unitarios y de integración del HUD y del feedback pasan;
+- [x] Tests unitarios y de integración del HUD y del feedback pasan;
       `pnpm run verify` pasa y el E2E existente se conserva.
 
 # Plan de test
@@ -72,10 +89,11 @@ por tipo, con texto e icono y sin depender solo del color.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0089/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify` y de los tests focalizados
-- [ ] Captura de referencia si cambia el HUD (sin sustituir al QA de TASK-0092)
-- [ ] Commit SHA en la rama `task/TASK-0089`
+- [x] Informe en `artifacts/TASK-0089/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` y de los tests focalizados
+- [x] Verificación DOM del HUD (`visual-check.txt`); sin PNG, las capturas
+      quedan para TASK-0092
+- [x] Commit SHA en la rama `task/TASK-0089`
 
 # Restricciones
 

@@ -1,0 +1,38 @@
+# TASK-0089 · comprobación DOM del lead (intento 1)
+
+Fecha: 2026-11-13T13:30Z · servidor `pnpm dev --port 5173 --strictPort` (cerrado tras la comprobación) · URL `/?seed=279837264&test=1`.
+
+## Bandas con línea de visión
+
+Estado BSP con jugador en (27,5), centinela en (28,5) y espada electrizada equipada. Cursor sobre el enemigo:
+
+- `hud-cursor-enemy-hp`: `6/6`
+- `hud-cursor-bands` visible
+- filas: `filo normal ●`, `contundente normal ●`, `punzante normal ●`, `mágico normal ●`, `eléctrico normal ●`
+
+## Bandas sin línea de visión
+
+Mismo estado con muro en (27,5), jugador en (26,5) y enemigo en (28,5). Cursor sobre el enemigo:
+
+- `hud-cursor-bands` oculto
+- `hud-cursor-enemy-hp`: `6/6` (los PV del cursor no se gatean)
+
+## Ataque mixto
+
+`window.__game.dispatch({ type: 'Attack', unitId: 'player-1', targetId: 'enemy-1' })` y `advance(0)`:
+
+- evento: `hit: true`, `damage: 6`, desglose `filo 4 + eléctrico 2`
+- `damage-feedback`: `-6`, `data-result="hit"`
+- `damage-feedback-detail`: `filo 4 + eléctrico 2`, visible
+
+## F1 sin línea de visión
+
+`F1` abierto tras el escenario con muro:
+
+`Enemigo bajo cursor: enemy-1 6/6 · bandas filo normal ● · contundente normal ● · punzante normal ● · mágico normal ● · eléctrico normal ●`
+
+Las cinco bandas, normales incluidas, se muestran en debug aunque no haya LOS.
+
+## Captura
+
+No se generó PNG: el panel de navegador no permitió capturar la ventana en esta sesión. El QA visual con capturas a 1280×720 y 900×700 es TASK-0092.

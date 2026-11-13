@@ -12,15 +12,18 @@ verified:
     at: 2026-11-13T13:29:34Z
     note: >-
       Verificación independiente en `task/TASK-0089` (host `3904efe`, tests
-      `6a5daef`, artefactos `7e0adfc`). Diff completo revisado: solo host,
-      `index.html` y los tres tests del plan; `src/game/**`, requisitos, arnés y
-      dependencias intactos. Re-ejecutados los 68 tests focalizados, `pnpm run
-      verify` (81 archivos, 1143/1143; docs, config, tsc, build y bundle OK) y
-      `pnpm run test:e2e` (112/112). Sin tests borrados, saltados o debilitados.
-      Un `AttackPerformed` con dos paquetes conserva un único beat de REQ-017 y
-      muestra el desglose de los paquetes con daño en ese beat; un paquete a 0
-      no genera texto. Curación y resurrección no producen feedback. No hay
-      captura: el QA visual queda para TASK-0092, como fija el plan.
+      `6a5daef`, artefactos `7e0adfc`, fusión `7222d0e`). Diff completo
+      revisado: solo host, `index.html` y los tres tests del plan; `src/game/**`,
+      requisitos, arnés y dependencias intactos. Re-ejecutados los 68 tests
+      focalizados, `pnpm run verify` (81 archivos, 1143/1143; docs, config, tsc,
+      build y bundle OK) y `pnpm run test:e2e` (112/112). Sin tests borrados,
+      saltados o debilitados. DOM comprobado en navegador integrado: bandas con
+      LOS, ocultas con muro intermedio, `-6` + `filo 4 + eléctrico 2` y F1 con
+      el perfil completo sin LOS (`visual-check.txt`). Un `AttackPerformed` con
+      dos paquetes conserva un único beat de REQ-017 y muestra el desglose de
+      los paquetes con daño en ese beat; un paquete a 0 no genera texto.
+      Curación y resurrección no producen feedback. Sin captura PNG: el QA
+      visual queda para TASK-0092, como fija el plan.
 ---
 
 # Estado
@@ -47,8 +50,12 @@ beat; curación y resurrección sin desglose. Sin E2E por indicación del brief.
 
 # Evidencia visual
 
-- Ninguna: el brief excluye QA visual/E2E (TASK-0092). La vista DOM se validó
-  por tipos y build.
+- DOM verificado por el lead en navegador integrado: bandas visibles con LOS,
+  ocultas con muro intermedio (PV del cursor siguen visibles), ataque mixto
+  `-6` + `filo 4 + eléctrico 2` y `F1` con las cinco bandas sin LOS.
+- Sin captura PNG: el panel no permitió capturar la ventana; el QA visual con
+  capturas a 1280×720 y 900×700 queda para TASK-0092. Detalle en
+  `visual-check.txt`.
 
 # Desviaciones
 
