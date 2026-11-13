@@ -8,6 +8,19 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T13:30:00Z }
 artifacts: artifacts/TASK-0089/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-13T13:29:34Z
+    note: >-
+      Verificación independiente en `task/TASK-0089` (host `3904efe`, tests
+      `6a5daef`, artefactos `7e0adfc`). Diff completo revisado: solo host,
+      `index.html` y los tres tests del plan; `src/game/**`, requisitos, arnés y
+      dependencias intactos. Re-ejecutados los 68 tests focalizados, `pnpm run
+      verify` (81 archivos, 1143/1143; docs, config, tsc, build y bundle OK) y
+      `pnpm run test:e2e` (112/112). Sin tests borrados, saltados o debilitados.
+      Un `AttackPerformed` con dos paquetes conserva un único beat de REQ-017 y
+      muestra el desglose de los paquetes con daño en ese beat; un paquete a 0
+      no genera texto. Curación y resurrección no producen feedback. No hay
+      captura: el QA visual queda para TASK-0092, como fija el plan.
 ---
 
 # Estado
@@ -55,7 +68,7 @@ beat; curación y resurrección sin desglose. Sin E2E por indicación del brief.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief afirma que no hay arma mixta en el catálogo v1 | `electric-sword` y `arcane-dagger` declaran dos paquetes; `equipment.test.ts` lo comprueba | Equipar el arma real en el fixture y atacar con `reduce` | Otros intentos pueden construir fixtures artificiales | Verificar el catálogo con `grep` antes del brief | Bajo | `pending` |
+| El brief afirma que no hay arma mixta en el catálogo v1 | `electric-sword` y `arcane-dagger` declaran dos paquetes; `equipment.test.ts` lo comprueba | Equipar el arma real en el fixture y atacar con `reduce` | Otros intentos pueden construir fixtures artificiales | Verificar el catálogo con `grep` antes del brief | Bajo | `accepted` (local de esta tarea; sin cambio de arnés) |
 
 # Métricas de handoff
 
