@@ -15,6 +15,7 @@ const assets: SceneAssets = {
   tiles: { name: 'tiles' } as unknown as CanvasImageSource,
   rogues: { name: 'rogues' } as unknown as CanvasImageSource,
   monsters: { name: 'monsters' } as unknown as CanvasImageSource,
+  items: { name: 'items' } as unknown as CanvasImageSource,
 };
 
 const DOOR_FRAME_COLORS = ['#6b4423', '#4e5d6b', '#3d4a55'];

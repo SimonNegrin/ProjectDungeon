@@ -1,4 +1,4 @@
-import { ITEMS, type WeaponId } from '../game/equipment';
+import { ITEMS } from '../game/equipment';
 import type { GameState, Unit } from '../game/types';
 import type { Door, DoorStyle, Exit } from '../game/map';
 import {
@@ -34,6 +34,8 @@ export interface SceneAssets {
   readonly tiles: CanvasImageSource;
   readonly rogues: CanvasImageSource;
   readonly monsters: CanvasImageSource;
+  /** Hoja de objetos; cada recorte sale de `ITEMS[...].sprite.rect`. */
+  readonly items: CanvasImageSource;
 }
 
 /** Overrides visuales de presentación; no forman parte del estado del motor. */
@@ -90,42 +92,7 @@ const HOTSPOT_COLORS: Readonly<Record<string, string>> = {
   ambos: '#fb7185',
 };
 
-/**
- * Formas planas provisionales de las armas del mapa (sin assets). Son solo
- * presentación: el arma, su posición y su ID vienen del estado del motor.
- */
-export const WEAPON_SHAPE_COLORS = {
-  handle: '#8a5a2b',
-  axeBlade: '#b9c2cc',
-  daggerBlade: '#d7dde5',
-  guard: '#c9a227',
-} as const;
-
-function drawWeaponShape(
-  ctx: CanvasRenderingContext2D,
-  weaponId: string,
-  x: number,
-  y: number,
-  tileSize: number,
-): void {
-  if (weaponId === 'axe') {
-    ctx.fillStyle = WEAPON_SHAPE_COLORS.handle;
-    ctx.fillRect(x + tileSize * 0.44, y + tileSize * 0.24, tileSize * 0.12, tileSize * 0.56);
-    ctx.fillStyle = WEAPON_SHAPE_COLORS.axeBlade;
-    ctx.fillRect(x + tileSize * 0.18, y + tileSize * 0.2, tileSize * 0.4, tileSize * 0.2);
-    ctx.fillRect(x + tileSize * 0.54, y + tileSize * 0.26, tileSize * 0.16, tileSize * 0.16);
-    return;
-  }
-
-  // Daga (y cualquier arma melee sin forma propia todavía): hoja corta y guarda.
-  ctx.fillStyle = WEAPON_SHAPE_COLORS.handle;
-  ctx.fillRect(x + tileSize * 0.45, y + tileSize * 0.5, tileSize * 0.1, tileSize * 0.32);
-  ctx.fillStyle = WEAPON_SHAPE_COLORS.daggerBlade;
-  ctx.fillRect(x + tileSize * 0.45, y + tileSize * 0.12, tileSize * 0.1, tileSize * 0.4);
-  ctx.fillStyle = WEAPON_SHAPE_COLORS.guard;
-  ctx.fillRect(x + tileSize * 0.34, y + tileSize * 0.5, tileSize * 0.32, tileSize * 0.06);
-}
-
+/** Dibuja un recorte 32×32 de un PNG escalado al tamaño del tile. */
 function drawRect(
   ctx: CanvasRenderingContext2D,
   image: CanvasImageSource,
@@ -821,12 +788,13 @@ export function renderScene(
     drawExit(ctx, state.map.exit, assets, range, tileSize);
   }
 
-  // Objetos del suelo: por ahora solo las armas tienen forma plana provisional.
-  // Durante la recogida el objeto sigue en el suelo y parpadea: el frame apagado
-  // no lo dibuja, pero el estado conserva su tile hasta el final del beat.
+  // Objetos del suelo: cada categoría del catálogo usa su recorte de
+  // `items.png`; se dibujan antes que las unidades para que la unidad que pisa
+  // el tile quede encima. Durante la recogida el objeto sigue en el suelo y
+  // parpadea: el frame apagado no lo dibuja, pero el estado conserva su tile
+  // hasta el final del beat.
   const pickupItem = options.pickupItem ?? null;
   for (const item of state.groundItems ?? []) {
-    if (ITEMS[item.itemId].category !== 'weapon') continue;
     if (item.x < range.minX || item.x > range.maxX) continue;
     if (item.y < range.minY || item.y > range.maxY) continue;
     if (
@@ -837,9 +805,11 @@ export function renderScene(
     ) {
       continue;
     }
-    drawWeaponShape(
+    const rect = ITEMS[item.itemId].sprite.rect;
+    drawRect(
       ctx,
-      item.itemId as WeaponId,
+      assets.items,
+      { sx: rect.x, sy: rect.y, sw: rect.width, sh: rect.height },
       item.x * tileSize,
       item.y * tileSize,
       tileSize,
