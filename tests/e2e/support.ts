@@ -283,6 +283,48 @@ export async function dispatchCommand(page: Page, command: Command) {
 }
 
 /**
+ * Test id estable de una fila del panel de personaje. Repite la normalización
+ * del host (`inventory-panel-view.ts`) para que el test derive el selector del
+ * estado y no dependa de IDs de instancia escritos a mano.
+ */
+export function panelRowTestId(key: string): string {
+  return key.replace(/[^a-zA-Z0-9-]+/g, '-');
+}
+
+/** Test id de una acción confirmable del panel (`equip`, `pickup`, ...). */
+export function panelActionTestId(
+  kind: 'equip' | 'unequip' | 'pickup' | 'drop',
+  key: string,
+): string {
+  return `inventory-action-${kind}-${panelRowTestId(key)}`;
+}
+
+/**
+ * Lleva el foco a una acción del panel solo con `Tab` (teclado real). Falla si
+ * no la alcanza; no usa `focus()` ni clics, que saltarían el recorrido modal.
+ */
+export async function focusPanelAction(page: Page, testId: string): Promise<void> {
+  const activeTestId = async (): Promise<string | null> =>
+    page.evaluate(() => {
+      const active = document.activeElement;
+      return active instanceof HTMLElement ? (active.dataset.testid ?? null) : null;
+    });
+
+  if ((await activeTestId()) === testId) return;
+  for (let presses = 0; presses < 96; presses += 1) {
+    await page.keyboard.press('Tab');
+    if ((await activeTestId()) === testId) return;
+  }
+  throw new Error(`No se alcanzó la acción ${testId} con Tab`);
+}
+
+/** Enfoca con `Tab` y activa la acción con `Enter`, ambas pulsaciones reales. */
+export async function pressPanelAction(page: Page, testId: string): Promise<void> {
+  await focusPanelAction(page, testId);
+  await page.keyboard.press('Enter');
+}
+
+/**
  * Despacha un comando y congela el reloj de presentación en la misma tarea del
  * navegador. `dispatch` arranca la animación y programa el rAF real; si el
  * siguiente `page.evaluate` llega tarde, ese rAF puede adelantar el reloj antes

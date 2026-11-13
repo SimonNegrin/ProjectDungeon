@@ -33,6 +33,8 @@ import {
   moveCursorTo,
   openBspState,
   openState,
+  panelActionTestId,
+  pressPanelAction,
   settle,
   snapshot,
 } from './support';
@@ -379,13 +381,28 @@ test('arma nueva, bandas distintas y desglose por tipo en el feedback', async ({
   });
   const initial = await snapshot(page);
   expect(initial.weapons.some((weapon) => weapon.weaponId === 'hammer')).toBe(true);
-  await expect(page.getByTestId('weapon-hint')).toContainText('G recoger Martillo');
+  await expect(page.getByTestId('weapon-hint')).toContainText('I panel');
+  await expect(page.getByTestId('weapon-hint')).toContainText(
+    'Martillo en el suelo',
+  );
 
-  await page.keyboard.press('g');
+  const groundHammer = initial.groundItems.find((item) => item.itemId === 'hammer');
+  expect(groundHammer, 'El martillo debe existir como instancia del suelo').toBeDefined();
+  const beforeEquip = await snapshot(page);
+  await page.keyboard.press('i');
+  await expect(page.getByTestId('inventory-panel')).toBeVisible();
+  await pressPanelAction(
+    page,
+    panelActionTestId('equip', `ground:${groundHammer!.id}`),
+  );
   await settle(page);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
   const picked = await snapshot(page);
   expect(picked.players[0].equipment.weapon?.itemId).toBe('hammer');
   expect(picked.players[0].weapons).toContain('hammer');
+  expect(picked.players[0].mp).toBe(beforeEquip.players[0].mp - 1);
+  expect(picked.players[0].actions).toEqual(beforeEquip.players[0].actions);
   expect(picked.weapons.some((weapon) => weapon.weaponId === 'hammer')).toBe(false);
   await expect(page.getByTestId('hud-weapon')).toContainText('Martillo');
   await screenshot(page, 'arma-nueva-martillo', testInfo);

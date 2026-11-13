@@ -1,0 +1,95 @@
+$ playwright test tests/e2e/inventory-equipment-qa.spec.ts tests/e2e/equipment-hud-qa.spec.ts tests/e2e/combat-equipment-qa.spec.ts tests/e2e/damage-types-qa.spec.ts tests/e2e/default-character-qa.spec.ts tests/e2e/feedback-inventory-perception-qa.spec.ts --repeat-each=3 --reporter=line
+
+Running 90 tests using 4 workers
+
+[1/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:218:1 › HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3
+[2/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:626:1 › feedback de daño en un ataque normal desde el lado
+[3/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:683:1 › fallo con texto y sin destello (semilla suplementaria)
+[4/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:390:1 › impacto, vida bajo cursor, F1, economía de turno y victoria
+[5/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:793:1 › determinismo: dos cargas con la misma semilla y comandos
+[6/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:887:1 › derrota determinista sin cambiar la economía de turno
+[7/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (1280×720)
+[8/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (900×700)
+[9/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:364:1 › arma nueva, bandas distintas y desglose por tipo en el feedback
+[10/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:456:1 › muy resistente conserva el mínimo 1 y no existe texto de inmunidad
+[11/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:538:1 › armadura: reduce el paquete físico y no el eléctrico
+[12/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:582:1 › escudo: cambia el impacto de un ataque mixto y de un hechizo
+[13/90] [chromium] › tests/e2e/default-character-qa.spec.ts:19:1 › smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y arquetipo
+[14/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:108:1 › arma en el mapa, pista del panel y HUD de equipo
+[15/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:669:1 › hechizo eléctrico, hechizo de fuego, curación y resurrección sin desglose
+[16/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:184:1 › impacto, fallo y F1 con tiradas y vida
+[17/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:53:1 › TASK-0059: la recogida mantiene el arma, anuncia el objeto y lo guarda en la mochila
+[18/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:95:1 › TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final
+[19/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:132:1 › TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue
+[20/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:176:1 › TASK-0059: huida con marca, banner de fase y fin de partida sin overlay prematuro
+[21/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:238:1 › TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante
+[22/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:264:1 › TASK-0059: el rechazo no crea beat y muestra aviso con sacudida
+[23/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:161:1 › panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se omite
+[24/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:214:1 › panel: equipar y desequipar con teclado, comparación, desglose y 1 MP sin acción
+[25/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:268:1 › panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acción
+[26/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:328:1 › mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada; el intercambio de mochila sí cabe
+[27/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:382:1 › sin MP: equipar se rechaza y no altera el estado ni gasta acción
+[28/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:403:1 › G y 1-3 no recogen ni cambian de arma; el panel es el único camino
+[29/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:433:1 › sprites del panel coinciden con el objeto y F1 expone mochila, equipo, capacidad y suelo
+[30/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:464:1 › capturas 1280×720 y 900×700: panel abierto, mochila llena y suelo vacío
+[31/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:218:1 › HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3
+[32/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:390:1 › impacto, vida bajo cursor, F1, economía de turno y victoria
+[33/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:626:1 › feedback de daño en un ataque normal desde el lado
+[34/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:793:1 › determinismo: dos cargas con la misma semilla y comandos
+[35/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:683:1 › fallo con texto y sin destello (semilla suplementaria)
+[36/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:887:1 › derrota determinista sin cambiar la economía de turno
+[37/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (1280×720)
+[38/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (900×700)
+[39/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:364:1 › arma nueva, bandas distintas y desglose por tipo en el feedback
+[40/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:456:1 › muy resistente conserva el mínimo 1 y no existe texto de inmunidad
+[41/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:538:1 › armadura: reduce el paquete físico y no el eléctrico
+[42/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:582:1 › escudo: cambia el impacto de un ataque mixto y de un hechizo
+[43/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:669:1 › hechizo eléctrico, hechizo de fuego, curación y resurrección sin desglose
+[44/90] [chromium] › tests/e2e/default-character-qa.spec.ts:19:1 › smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y arquetipo
+[45/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:108:1 › arma en el mapa, pista del panel y HUD de equipo
+[46/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:184:1 › impacto, fallo y F1 con tiradas y vida
+[47/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:53:1 › TASK-0059: la recogida mantiene el arma, anuncia el objeto y lo guarda en la mochila
+[48/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:95:1 › TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final
+[49/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:176:1 › TASK-0059: huida con marca, banner de fase y fin de partida sin overlay prematuro
+[50/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:132:1 › TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue
+[51/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:238:1 › TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante
+[52/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:264:1 › TASK-0059: el rechazo no crea beat y muestra aviso con sacudida
+[53/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:161:1 › panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se omite
+[54/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:214:1 › panel: equipar y desequipar con teclado, comparación, desglose y 1 MP sin acción
+[55/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:268:1 › panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acción
+[56/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:328:1 › mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada; el intercambio de mochila sí cabe
+[57/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:382:1 › sin MP: equipar se rechaza y no altera el estado ni gasta acción
+[58/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:403:1 › G y 1-3 no recogen ni cambian de arma; el panel es el único camino
+[59/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:433:1 › sprites del panel coinciden con el objeto y F1 expone mochila, equipo, capacidad y suelo
+[60/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:464:1 › capturas 1280×720 y 900×700: panel abierto, mochila llena y suelo vacío
+[61/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:218:1 › HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3
+[62/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:390:1 › impacto, vida bajo cursor, F1, economía de turno y victoria
+[63/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:626:1 › feedback de daño en un ataque normal desde el lado
+[64/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:793:1 › determinismo: dos cargas con la misma semilla y comandos
+[65/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:683:1 › fallo con texto y sin destello (semilla suplementaria)
+[66/90] [chromium] › tests/e2e/combat-equipment-qa.spec.ts:887:1 › derrota determinista sin cambiar la economía de turno
+[67/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (1280×720)
+[68/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:301:3 › bandas del cursor con y sin LOS, F1 y desglose (900×700)
+[69/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:364:1 › arma nueva, bandas distintas y desglose por tipo en el feedback
+[70/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:456:1 › muy resistente conserva el mínimo 1 y no existe texto de inmunidad
+[71/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:538:1 › armadura: reduce el paquete físico y no el eléctrico
+[72/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:582:1 › escudo: cambia el impacto de un ataque mixto y de un hechizo
+[73/90] [chromium] › tests/e2e/damage-types-qa.spec.ts:669:1 › hechizo eléctrico, hechizo de fuego, curación y resurrección sin desglose
+[74/90] [chromium] › tests/e2e/default-character-qa.spec.ts:19:1 › smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y arquetipo
+[75/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:108:1 › arma en el mapa, pista del panel y HUD de equipo
+[76/90] [chromium] › tests/e2e/equipment-hud-qa.spec.ts:184:1 › impacto, fallo y F1 con tiradas y vida
+[77/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:53:1 › TASK-0059: la recogida mantiene el arma, anuncia el objeto y lo guarda en la mochila
+[78/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:95:1 › TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final
+[79/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:132:1 › TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue
+[80/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:176:1 › TASK-0059: huida con marca, banner de fase y fin de partida sin overlay prematuro
+[81/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:238:1 › TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante
+[82/90] [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:264:1 › TASK-0059: el rechazo no crea beat y muestra aviso con sacudida
+[83/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:161:1 › panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se omite
+[84/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:214:1 › panel: equipar y desequipar con teclado, comparación, desglose y 1 MP sin acción
+[85/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:268:1 › panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acción
+[86/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:328:1 › mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada; el intercambio de mochila sí cabe
+[87/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:382:1 › sin MP: equipar se rechaza y no altera el estado ni gasta acción
+[88/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:403:1 › G y 1-3 no recogen ni cambian de arma; el panel es el único camino
+[89/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:433:1 › sprites del panel coinciden con el objeto y F1 expone mochila, equipo, capacidad y suelo
+[90/90] [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:464:1 › capturas 1280×720 y 900×700: panel abierto, mochila llena y suelo vacío
+  90 passed (39.9s)

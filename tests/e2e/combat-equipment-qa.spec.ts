@@ -23,6 +23,8 @@ import {
   ensureMp,
   moveCursorTo,
   openBspState,
+  panelActionTestId,
+  pressPanelAction,
   settle,
   snapshot,
   walkTo,
@@ -213,7 +215,7 @@ function attackEvent(events: readonly GameEvent[]) {
   );
 }
 
-test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
+test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
@@ -223,11 +225,9 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(initial.status).toBe('playing');
   expect(player.nombre).toBe(ROSTER.warrior.name);
   expect(player.archetypeId).toBe('warrior');
-  expect(player.equipment).toEqual({
-    weaponId: 'sword',
-    armorId: 'armor',
-    shieldId: 'shield',
-  });
+  expect(player.equipment.weapon?.itemId).toBe('sword');
+  expect(player.equipment.armor?.itemId).toBe('armor');
+  expect(player.equipment.shield?.itemId).toBe('shield');
   expect(player.weapons).toEqual(['sword']);
   expect(player.stats).toEqual(ROSTER.warrior.stats);
   expect(player.stats.resistencia).toEqual(ROSTER.warrior.stats.resistencia);
@@ -270,23 +270,37 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   expect(nearAxe.players[0].equipment.weapon?.itemId).toBe('sword');
   await screenshot(page, 'weapon-in-map', testInfo);
 
+  const pickupFromPanel = async (itemId: string): Promise<void> => {
+    await page.keyboard.press('i');
+    await expect(page.getByTestId('inventory-panel')).toBeVisible();
+    await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+    await pressPanelAction(page, panelActionTestId('pickup', `ground:${itemId}`));
+    await settle(page);
+  };
+
   await walkTo(page, axe!.x, axe!.y);
   const beforePickup = await ensureMp(page, 1);
   expect(beforePickup.players[0]).toMatchObject({ x: axe!.x, y: axe!.y });
   await expect(page.getByTestId('weapon-hint')).toBeVisible();
-  await expect(page.getByTestId('weapon-hint')).toContainText('G recoger Hacha');
+  await expect(page.getByTestId('weapon-hint')).toContainText('I panel');
+  await expect(page.getByTestId('weapon-hint')).toContainText('Hacha en el suelo');
   await screenshot(page, 'weapon-map-hint', testInfo);
 
-  await page.keyboard.press('g');
-  await settle(page);
+  const axeInstance = initial.groundItems.find((item) => item.id === axe!.id);
+  expect(axeInstance, 'El hacha debe existir como instancia del suelo').toBeDefined();
+  await pickupFromPanel(axeInstance!.id);
+  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await screenshot(page, 'panel-recogida', testInfo);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
+  await expect(page.getByTestId('weapon-hint')).toBeHidden();
   const afterPickup = await snapshot(page);
   expect(afterPickup.players[0].mp).toBe(beforePickup.players[0].mp - 1);
   expect(afterPickup.players[0].actions).toEqual(beforePickup.players[0].actions);
-  expect(afterPickup.players[0].equipment.weapon?.itemId).toBe('axe');
+  expect(afterPickup.players[0].equipment.weapon?.itemId).toBe('sword');
   expect(afterPickup.players[0].weapons).toEqual(['sword', 'axe']);
   expect(afterPickup.weapons).toHaveLength(2);
   expect(afterPickup.weapons.some((weapon) => weapon.id === axe!.id)).toBe(false);
-  await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudEquipment(page, afterPickup);
   await screenshot(page, 'weapon-picked', testInfo);
 
@@ -294,55 +308,80 @@ test('HUD con espada, armas en el mapa, recogida con G y cambio 1-3', async ({
   const repeated = await dispatchCommand(page, { type: 'PickUp', unitId: 'player-1' });
   await settle(page);
   expect(repeated.events).toEqual([
-    { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-weapon' },
+    { type: 'CommandRejected', commandType: 'PickUp', reason: 'no-item' },
   ]);
   const afterRepeated = await snapshot(page);
   expect(afterRepeated.players[0]).toMatchObject({
     mp: afterPickup.players[0].mp,
     weapons: ['sword', 'axe'],
-    equipment: { weaponId: 'axe' },
   });
+  expect(afterRepeated.players[0].equipment.weapon?.itemId).toBe('sword');
   expect(afterRepeated.weapons).toHaveLength(2);
   await expect(page.getByTestId('hud-message')).toBeHidden();
 
   await walkTo(page, dagger!.x, dagger!.y);
   const beforeDagger = await ensureMp(page, 1);
-  await expect(page.getByTestId('weapon-hint')).toContainText('G recoger Daga');
-  await page.keyboard.press('g');
-  await settle(page);
+  await expect(page.getByTestId('weapon-hint')).toContainText('Daga en el suelo');
+  const daggerInstance = initial.groundItems.find((item) => item.id === dagger!.id);
+  expect(daggerInstance, 'La daga debe existir como instancia del suelo').toBeDefined();
+  await pickupFromPanel(daggerInstance!.id);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
   const afterDagger = await snapshot(page);
   expect(afterDagger.players[0].mp).toBe(beforeDagger.players[0].mp - 1);
   expect(afterDagger.players[0].actions).toEqual(beforeDagger.players[0].actions);
-  expect(afterDagger.players[0].equipment.weapon?.itemId).toBe('dagger');
+  expect(afterDagger.players[0].equipment.weapon?.itemId).toBe('sword');
   expect(afterDagger.players[0].weapons).toEqual(['sword', 'axe', 'dagger']);
   expect(afterDagger.weapons).toHaveLength(1);
   expect(afterDagger.weapons[0].weaponId).toBe('hammer');
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudEquipment(page, afterDagger);
 
+  // El cambio de arma se hace solo desde el panel: `EquipItem` desde la
+  // mochila; `1`-`3` son no-op y no mueven MP ni acciones.
   const beforeSwitch = await snapshot(page);
-  for (const [slot, weaponId] of [
-    [1, 'sword'],
-    [2, 'axe'],
-    [3, 'dagger'],
-  ] as const) {
-    await page.keyboard.press(String(slot));
+  await page.keyboard.press('i');
+  await expect(page.getByTestId('inventory-panel')).toBeVisible();
+  await pressPanelAction(page, panelActionTestId('equip', 'backpack:0'));
+  await settle(page);
+  await page.keyboard.press('Escape');
+  const afterSwitch = await snapshot(page);
+  expect(afterSwitch.players[0].equipment.weapon?.itemId).toBe('axe');
+  expect(afterSwitch.players[0]).toMatchObject({
+    mp: beforeSwitch.players[0].mp - 1,
+    actions: beforeSwitch.players[0].actions,
+    x: beforeSwitch.players[0].x,
+    y: beforeSwitch.players[0].y,
+  });
+  expect([...afterSwitch.players[0].weapons].sort()).toEqual([
+    'axe',
+    'dagger',
+    'sword',
+  ]);
+  await expectHudEquipment(page, afterSwitch);
+  await screenshot(page, 'weapon-switch', testInfo);
+
+  for (const slot of ['1', '2', '3'] as const) {
+    await page.keyboard.press(slot);
     await settle(page);
-    const afterSwitch = await snapshot(page);
-    expect(afterSwitch.players[0].equipment.weapon?.itemId).toBe(weaponId);
-    expect(afterSwitch.players[0]).toMatchObject({
-      mp: beforeSwitch.players[0].mp,
-      actions: beforeSwitch.players[0].actions,
-      x: beforeSwitch.players[0].x,
-      y: beforeSwitch.players[0].y,
+    const afterKey = await snapshot(page);
+    expect(afterKey.players[0].equipment.weapon?.itemId).toBe('axe');
+    expect(afterKey.players[0]).toMatchObject({
+      mp: afterSwitch.players[0].mp,
+      actions: afterSwitch.players[0].actions,
+      x: afterSwitch.players[0].x,
+      y: afterSwitch.players[0].y,
     });
-    expect(afterSwitch.turn).toBe(beforeSwitch.turn);
-    expect(afterSwitch.players[0].weapons).toEqual(['sword', 'axe', 'dagger']);
+    expect(afterKey.turn).toBe(afterSwitch.turn);
+    expect([...afterKey.players[0].weapons].sort()).toEqual([
+      'axe',
+      'dagger',
+      'sword',
+    ]);
     expect(
-      afterSwitch.lastEvents.filter((event) => event.type === 'CommandRejected'),
+      afterKey.lastEvents.filter((event) => event.type === 'CommandRejected'),
     ).toEqual([]);
-    await expectHudEquipment(page, afterSwitch);
-    if (slot === 2) await screenshot(page, 'weapon-switch', testInfo);
+    await expectHudEquipment(page, afterKey);
   }
 
   expect(consoleErrors).toEqual([]);

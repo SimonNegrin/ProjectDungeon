@@ -50,7 +50,7 @@ function floorNeighbor(
   });
 }
 
-test('TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final', async ({
+test('TASK-0059: la recogida mantiene el arma, anuncia el objeto y lo guarda en la mochila', async ({
   page,
 }, testInfo) => {
   const base = await openBspState(page, SEED);
@@ -62,6 +62,7 @@ test('TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final',
   await openBspState(page, SEED, undefined, {
     player: { x: weapon.x, y: weapon.y },
   });
+  const beforePickup = await snapshot(page);
   await dispatchFrozen(page, { type: 'PickUp', unitId: 'player-1' });
   await advanceToCue(page, 'pickup');
   await page.evaluate(() => window.__game!.advance(5));
@@ -70,16 +71,25 @@ test('TASK-0059: la recogida mantiene el arma, pulsa el slot y cambia al final',
   await expect(banner).toBeVisible();
   await expect(banner).toHaveText(`+ ${WEAPONS[weapon.weaponId].name}`);
   await expect(banner).toHaveAttribute('data-banner-kind', 'pickup');
-  // El HUD todavía muestra el equipo inicial: el cambio llega al final del beat.
+  // La recogida ya no auto-equipa: el HUD conserva el arma y solo pulsa el slot.
   await expect(page.getByTestId('hud-weapon')).toHaveText(beforeWeapon ?? '');
   await expect(page.getByTestId('hud-weapon')).toHaveClass(/is-pulsing/);
   await screenshot(page, 'recogida', testInfo);
 
   await settle(page);
-  await expect(page.getByTestId('hud-weapon')).toContainText(
-    WEAPONS[weapon.weaponId].name,
+  await expect(page.getByTestId('hud-weapon')).toHaveText(beforeWeapon ?? '');
+  const afterPickup = await snapshot(page);
+  expect(afterPickup.players[0].equipment.weapon?.itemId).toBe(
+    beforeEquipment.weaponId,
   );
-  expect(beforeEquipment.weaponId).not.toBe(weapon.weaponId);
+  expect(
+    afterPickup.players[0].inventory.items.some(
+      (item) => item?.itemId === weapon.weaponId,
+    ),
+    'El objeto recogido debe quedar en la mochila',
+  ).toBe(true);
+  expect(afterPickup.players[0].mp).toBe(beforePickup.players[0].mp - 1);
+  expect(afterPickup.players[0].actions).toEqual(beforePickup.players[0].actions);
 });
 
 test('TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final', async ({

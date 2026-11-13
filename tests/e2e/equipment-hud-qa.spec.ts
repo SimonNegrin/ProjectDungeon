@@ -12,6 +12,9 @@ import {
   ensureMp,
   moveCursorTo,
   openBspState,
+  panelActionTestId,
+  pressPanelAction,
+  settle,
   snapshot,
   walkTo,
 } from './support';
@@ -102,7 +105,7 @@ function watchConsole(page: Page): string[] {
   return errors;
 }
 
-test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) => {
+test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testInfo) => {
   const consoleErrors = watchConsole(page);
   await openGame(page);
 
@@ -145,15 +148,32 @@ test('arma en el mapa, pista de G y HUD de equipo', async ({ page }, testInfo) =
   // siguiente turno sin moverse del tile del arma.
   await ensureMp(page, 1);
   await expect(page.getByTestId('weapon-hint')).toBeVisible();
-  await expect(page.getByTestId('weapon-hint')).toContainText('G recoger');
+  await expect(page.getByTestId('weapon-hint')).toContainText('I panel');
+  await expect(page.getByTestId('weapon-hint')).toContainText('en el suelo');
   await screenshot(page, 'weapon-map-hint', testInfo);
 
-  await page.keyboard.press('g');
-  await page.evaluate(() => window.__game!.advance(1_000_000));
+  const groundWeapon = initial.groundItems.find((item) => item.id === weapon.id);
+  if (!groundWeapon) throw new Error('El arma debe existir como instancia del suelo');
+
+  await page.keyboard.press('i');
+  await expect(page.getByTestId('inventory-panel')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await pressPanelAction(
+    page,
+    panelActionTestId('pickup', `ground:${groundWeapon.id}`),
+  );
+  await settle(page);
+  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   const afterPickup = await snapshot(page);
+  // Recoger ya no auto-equipa: el arma queda en la mochila y el HUD no cambia.
   await expect(page.getByTestId('hud-weapon')).toHaveText(
     weaponLabel(afterPickup.players[0]),
+  );
+  expect(afterPickup.players[0].equipment.weapon?.itemId).toBe(
+    initial.players[0].equipment.weapon?.itemId,
   );
   expect(afterPickup.weapons).toHaveLength(2);
   await screenshot(page, 'weapon-picked', testInfo);

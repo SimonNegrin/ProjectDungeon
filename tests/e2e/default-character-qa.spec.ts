@@ -35,7 +35,9 @@ test('smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y a
   expect(player.archetypeId).toBe('warrior');
   expect(player.stats).toEqual(ROSTER.warrior.stats);
   expect(player.stats.resistencia).toEqual(ROSTER.warrior.stats.resistencia);
-  expect(player.equipment).toEqual(ROSTER.warrior.equipment);
+  expect(player.equipment.weapon?.itemId).toBe(ROSTER.warrior.equipment.weaponId);
+  expect(player.equipment.armor?.itemId).toBe(ROSTER.warrior.equipment.armorId);
+  expect(player.equipment.shield?.itemId).toBe(ROSTER.warrior.equipment.shieldId);
   expect(player.weapons).toEqual(['sword']);
   expect({ x: player.x, y: player.y }).toEqual(spawn);
   expect({ x: player.x, y: player.y }).not.toEqual({ x: 0, y: 0 });
