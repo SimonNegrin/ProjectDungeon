@@ -15,10 +15,12 @@ cerrada: `REQ-001` a `REQ-015` y `REQ-017` están implementadas o `stable`, con
 los tipos de daño están implementadas (`REQ-025`, `REQ-026`, `REQ-027` y
 `REQ-029`).
 
-El trabajo inmediato es cerrar la resurrección jugable y el saqueo
-(`REQ-018`, `REQ-020` y `REQ-021`), y después el HUD lateral y el guardado
-(`REQ-022`, `REQ-023` y `REQ-024`). `REQ-030` (alcance visible de hechizos)
-queda en borrador.
+El trabajo inmediato es el **inventario y el equipo** (`REQ-018`, tareas
+TASK-0093 a TASK-0098), base del saqueo, del fantasma y de la columna del
+jugador; después el saqueo y los traits (`REQ-020` y `REQ-019`), la muerte
+jugable (`REQ-021`), el HUD lateral y el guardado (`REQ-022`, `REQ-023` y
+`REQ-024`) y, al final, el hotseat de la fase 2 (`REQ-016` v2 y `REQ-031`).
+`REQ-030` (alcance visible de hechizos) queda en borrador.
 
 # Horizonte
 
@@ -48,7 +50,7 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
 | 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
-| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v2; implementación pendiente |
+| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v2; se implementa al cerrar inventario, saqueo, muerte, HUD y guardado |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -70,11 +72,13 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 - Tipos de daño: `REQ-029` implementada y verificada en TASK-0085 a TASK-0092;
   perfiles y armas v1 son estimados y el ajuste fino se aplaza a roster y
   bestiario completos.
-- `REQ-018` (inventario y equipo) y `REQ-019` (traits) están `stable` y sin
-  tareas; `REQ-020` (cofres y cadáveres) sigue en borrador.
+- `REQ-018` (inventario y equipo) está `stable` v4 y en implementación con
+  TASK-0093 a TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y
+  `REQ-020` (cofres y cadáveres) sigue en borrador.
 - Hotseat: `REQ-031` (modo local) y `REQ-016` v2 (configuración y semilla) están
   `stable` y sin tareas; `REQ-024` v2 (pausa, guardado y reinicio) sigue en
-  borrador. La implementación de la fase 2 está pendiente.
+  borrador. Es el último paso del orden actual, tras inventario, saqueo, muerte,
+  HUD y guardado.
 - `REQ-022` (HUD izquierdo), `REQ-023` (detalle del cursor) y `REQ-030` (alcance
   visible de hechizos) están en borrador.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
@@ -189,6 +193,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   confirmación y reemplaza la partida actual.
 - La persistencia es local por archivo, sin cuentas ni servidor; no implica
   progresión entre runs.
+- El orden de implementación es inventario y equipo → cofres y saqueo → traits →
+  muerte y resurrección → HUD lateral → guardado → hotseat. El hotseat no se
+  empieza hasta que existan el panel, el saqueo y el fantasma que sus reglas
+  dan por hechos.
 
 # Fuera de alcance ahora
 
@@ -196,7 +204,7 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Cuentas, base de datos y matchmaking. El guardado local de partida lo define
   `REQ-024`; la progresión entre runs sigue abierta.
 - Hotseat jugable: definido en `REQ-031` y `REQ-016` v2, con implementación
-  pendiente.
+  pendiente al final del orden actual.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
   muros mágicos: horizonte. La magia básica y la curación están implementadas en
@@ -207,8 +215,8 @@ Los valores concretos de la economía de turno son provisionales y viven en
   el ajuste fino espera a roster y bestiario completos, según `REQ-029`.
 - Puertas con llave y cofres: definidos, no implementados; `REQ-020` sigue en
   borrador.
-- Inventario, equipo y traits: `REQ-018` y `REQ-019` están `stable` v2 y sin
-  implementar.
+- Inventario y equipo: `REQ-018` está en implementación con TASK-0093 a
+  TASK-0098; los traits (`REQ-019`) siguen sin implementar.
 - Ajuste fino de tipos y perfiles con roster y bestiario completos: `REQ-029`
   deja valores estimados para probar; el mecanismo iterable de fortalezas y
   debilidades se diseñará cuando ambos estén cerrados.

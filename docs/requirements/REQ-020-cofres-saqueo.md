@@ -4,11 +4,11 @@ id: REQ-020
 title: Cofres, cadáveres saqueables y transferencia de objetos
 description: "Contenedores con inventario propio, cofres y cadáveres saqueables, y transferencia de objetos entre inventario y contenedor. Borrador: quedan preguntas abiertas."
 status: draft
-version: 2
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-11T15:50:00Z
+updated_at: 2026-11-13T19:34:25Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:00:00Z }
 verified:
@@ -75,7 +75,8 @@ como preguntas para la sesión de cierre.
   tablas.
 - **Capacidad del contenedor y bolsa compartida.**
 - **Cofres cerrados, trampas y llaves.**
-- **Ciclo de vida del cadáver:** cuánto dura, si se vacía, si bloquea.
+- **Ciclo de vida del cadáver:** cuánto dura y si se vacía; ya está decidido que
+  no bloquea y que varios pueden compartir casilla.
 
 # Requisitos técnicos
 
@@ -148,16 +149,21 @@ como preguntas para la sesión de cierre.
 4. **Cofres cerrados y trampas.** ¿Entran en este corte? Si entran, ¿requieren
    llaves, una tirada o una herramienta? Las llaves están fuera de `REQ-018`.
 5. **Ciclo de vida del cadáver.** ¿Persiste hasta el final del nivel, desaparece
-   al vaciarlo o se queda como decoración? ¿Bloquea el movimiento? ¿Pueden varios
-   jugadores saquearlo?
-6. **Transferencia y UI.** ¿Panel lateral, ventana centrada o intercambio en el
+   al vaciarlo o se queda como decoración? **Decidido el 2026-11-13: varios
+   cadáveres pueden compartir casilla, no bloquean el paso y la interacción elige
+   uno explícitamente.** Sigue abierto cuánto persiste y si se queda vacío.
+6. **Apilado y selección.** Varios cadáveres en la misma casilla: cómo se ordena
+   la lista (propuesta: orden de muerte), qué se ve en el mapa con dos o más y si
+   saquear abre el cadáver elegido o una lista. La resurrección de `REQ-021` debe
+   apuntar a una **unidad**, no a la casilla; se enmienda al cerrar esta hoja.
+7. **Transferencia y UI.** ¿Panel lateral, ventana centrada o intercambio en el
    mismo tile? «Coger todo» ya está aprobado; ¿qué pasa si el inventario está
    lleno? ¿Se puede soltar un objeto al suelo?
-7. **Hotseat.** ¿Solo el jugador activo puede saquear? ¿La pantalla pausa la
+8. **Hotseat.** ¿Solo el jugador activo puede saquear? ¿La pantalla pausa la
    partida? ¿Puede un jugador coger lo que otro dejó en un cofre?
-8. **Feedback y alarma.** ¿Saquear hace ruido o alerta enemigos? ¿Qué evento
+9. **Feedback y alarma.** ¿Saquear hace ruido o alerta enemigos? ¿Qué evento
    visual y de texto produce abrir, coger y dejar?
-9. **Calendario.** Se propuso implementar después de cerrar hotseat, pero
+10. **Calendario.** Se propuso implementar después de cerrar hotseat, pero
    hotseat aún no tiene hoja ni tareas. Confirmar el orden cuando exista.
 
 # Decisiones
@@ -171,6 +177,7 @@ como preguntas para la sesión de cierre.
 | 2026-11-10 | Definir después de `REQ-018` y `REQ-019`; aplicar después de `REQ-018` y antes de `REQ-019`. | human:simon | aceptada |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
 | 2026-11-11 | Abrir/registrar un cofre o cadáver cuesta 1 acción y requiere adyacencia; transferir es gratis y se permite «coger todo». | human:simon | aceptada |
+| 2026-11-13 | Varios cadáveres pueden compartir casilla y no bloquean el paso; la interacción elige uno explícitamente. La resurrección apuntará a una **unidad** y se enmienda en `REQ-021` al cerrar esta hoja. | human:simon | aceptada; pendiente de aplicar a REQ-021 |
 
 # Aceptación de la hoja
 

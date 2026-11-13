@@ -4,12 +4,12 @@ id: REQ-018
 title: Inventario y equipo por personaje
 description: "Ocho huecos de equipo, ocho de mochila y un panel único de gestión; equipar, recoger y soltar cuestan 1 MP, equipar desde el suelo o un contenedor va directo al hueco, el catálogo inicial se limita a armas, escudos y armaduras y el arma solo se cambia desde el panel. Sustituye el modelo de tres armas y la recogida con G de REQ-010."
 status: stable
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-13T16:52:06Z
-related_tasks: []
+updated_at: 2026-11-13T19:22:51Z
+related_tasks: [TASK-0093, TASK-0094, TASK-0095, TASK-0096, TASK-0097, TASK-0098]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
   - by: human:simon
@@ -26,6 +26,13 @@ verified:
       el panel), REQ-029 (paquetes y bandas), REQ-026 (soltar un equipado) y
       REQ-021 (cadáver y fantasma); equipar desde el suelo o un contenedor cuesta
       1 MP, el sustituido vuelve a la mochila y si no cabe se rechaza entero.
+  - by: human:simon
+    at: 2026-11-13T19:22:51Z
+    note: >-
+      Aprueba la v4: el inventario y el equipo se implementan **antes** del
+      hotseat, como base del saqueo, del fantasma y de la columna del jugador;
+      cierra las preguntas de calendario y de visibilidad en hotseat. Sin cambios
+      de reglas. El arte de objetos sale de `items.png`, ya copiado del pack.
 ---
 
 # Contexto
@@ -54,6 +61,10 @@ La hoja queda **stable** tras la revisión del texto.
 La **v3** no reabre ninguna decisión de la v2: corrige la vigencia frente a las
 hojas aprobadas después y fija el coste de equipar desde el suelo o un
 contenedor.
+
+La **v4** solo adelanta el calendario: este corte se implementa **antes** del
+hotseat, con las tareas TASK-0093 a TASK-0098, porque es la base del saqueo, del
+fantasma y de la columna del jugador. No cambia ninguna regla.
 
 # Objetivos de experiencia
 
@@ -201,10 +212,11 @@ contenedor.
 
 # Preguntas abiertas
 
-1. **Calendario.** Bloqueada por hotseat: la implementación sigue prevista después
-   de cerrar esa fase, pero aún no tiene hoja ni tareas. Se confirma cuando exista.
-2. **Visibilidad en hotseat.** Quién puede ver la mochila del jugador activo y si
-   el panel se comporta igual para el resto. Se resuelve con la hoja de hotseat.
+1. **Calendario.** Cerrada en v4: se implementa antes del hotseat, en el orden
+   REQ-018 → REQ-020 → REQ-019. TASK-0093 a TASK-0098 cubren este corte.
+2. **Visibilidad en hotseat.** Cerrada por
+   [REQ-031](REQ-031-hotseat-local.md) R-011: el panel es público, solo se abre
+   en el turno del jugador activo y el fantasma no lo usa.
 3. **Catálogo concreto.** Qué armas, escudos y armaduras entran en el primer
    catálogo y qué sprite de `items.txt` les corresponde. Queda como dato de la
    tarea de implementación, con `ADR-006` para los sprites, `REQ-029` para los
@@ -221,7 +233,8 @@ contenedor.
 | 2026-11-10 | Ocho huecos: arma, escudo, armadura, casco, botas, guantes, collar y un anillo; un arma a dos manos anula el escudo. | human:simon | aceptada |
 | 2026-11-10 | Inventario y equipo por personaje; sin bolsa compartida por defecto. | human:simon | aceptada |
 | 2026-11-10 | Definir en orden `REQ-018` → `REQ-019` → `REQ-020`; aplicar `REQ-018` → `REQ-020` → `REQ-019`. | human:simon | aceptada |
-| 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
+| 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | sustituida el 2026-11-13 |
+| 2026-11-13 | Implementación **antes** del hotseat: es la base del saqueo, del fantasma y del HUD del activo; orden REQ-018 → REQ-020 → REQ-019 y hotseat al final. | human:simon | aceptada |
 | 2026-11-11 | Mochila de **8 huecos personales**, parámetro modificable; el equipo puesto no cuenta. | human:simon | aceptada |
 | 2026-11-11 | Equipar y desequipar cuestan **1 MP** y no gastan acción, siempre y también desde contenedor; sin condición de alerta. | human:simon | aceptada |
 | 2026-11-11 | Casco, botas, guantes, collar y anillo solo aportan traits; en este corte ninguna pieza secundaria entra en el catálogo (enmienda R-004). | human:simon | aceptada |

@@ -5,6 +5,15 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Requirement — REQ-020 — borrador v3: varios cadáveres pueden compartir casilla y no bloquean el paso; saquear elige uno explícitamente y la resurrección apuntará a una **unidad**, no a la casilla; la enmienda de REQ-021 se aplica al cerrar la hoja. Quedan política de botín, colocación, capacidad y ciclo de vida — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
+
+* 2026-11-13 — Verification — verify — `pnpm run verify` falló dos veces en el barrido A/B/C de EXP-004 por timeout de 5 s con 86 workers; el archivo pasa aislado y la suite completa con `--maxWorkers=4` da 1189/1189; candidato a `harness-keeper` — [workflow](harness/workflow.md)
+
+* 2026-11-13 — Requirement — REQ-018 — stable v4: el inventario y el equipo se implementan antes del hotseat, como base del saqueo, del fantasma y del HUD del activo; cierra las preguntas de calendario y de visibilidad en hotseat sin cambiar reglas — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+* 2026-11-13 — Assets — 32rogues — copiados `items.png` e `items.txt` del pack original a `public/assets/32rogues/` con licencia idéntica; el catálogo de objetos ya puede referenciar sprites (el README del pack aún no los lista) — [ADR-006](decisions/ADR-006-arte-placeholder-32rogues.md)
+* 2026-11-13 — Planning — REQ-018 — tareas TASK-0093 a TASK-0098 creadas (catálogo, modelo y operaciones, panel, mundo y debug, docs, E2E); TASK-0093 `ready`, el resto en backlog; grafo sin ciclos — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+* 2026-11-13 — Docs — scope e índice — nuevo orden: inventario y equipo → cofres y saqueo → traits → muerte y resurrección → HUD lateral → guardado → hotseat; TASK-0093 a TASK-0098 en curso — [scope](scope.md)
+
 * 2026-11-13 — Requirement — REQ-031 — stable v1: hotseat local 1-6 con turno por jugador y `N`, relevo por cámara sin Enter, aviso de ronda no bloqueante, fase enemiga con HUD de actor/objetivo y «El master mueve», panel público y reinicio con misma party y semilla — [REQ-031](requirements/REQ-031-hotseat-local.md)
 * 2026-11-13 — Requirement — REQ-016 — stable v2: selector 1-6 activo, flujo jugador a jugador, nombres de 12 (vacío = arquetipo, duplicados), arquetipos repetidos y semilla visible/editable; entrada al arrancar, desde resultado y pausa; hotseat a REQ-031 — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
 * 2026-11-13 — Requirement — REQ-024 — borrador v2: pausa global, guardado solo en fase de personajes, carga en el activo y reinicio en el menú con «Nueva»/«Reiniciar» (misma party y semilla); se retira `R` — [REQ-024](requirements/REQ-024-menu-pausa-guardado.md)
