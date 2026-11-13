@@ -77,13 +77,13 @@ suelo/contenedor, dos manos, soltar, sin apilado, coste, serialización y stats.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| EXP-004 agota intermitentemente su timeout de 5 s con la suite completa | `verify-output-default-1..3.txt` fallan; `verify-output.txt` y aislado pasan | Reintentar o `VITEST_MAX_WORKERS=1 pnpm run verify` | Afecta a cualquier tarea que ejecute verify en esta máquina | Ajustar el timeout del test o marcarlo lento | Bajo; no cambia reglas | `pending` |
+| EXP-004 agota intermitentemente su timeout de 5 s con la suite completa | `verify-output-default-1..3.txt` fallan; `verify-output.txt` y aislado pasan | Reintentar o `VITEST_MAX_WORKERS=1 pnpm run verify` | Afecta a cualquier tarea que ejecute verify en esta máquina | `harness-keeper`: ajustar timeout | Bajo; no cambia reglas | `deferred` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3132 |
-| `report_bytes` | 4086 |
+| `report_bytes` | 4076 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
