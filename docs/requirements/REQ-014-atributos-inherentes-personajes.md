@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T13:30:00Z
-updated_at: 2026-11-11T15:20:00Z
+updated_at: 2026-11-13T18:00:00Z
 related_tasks: [TASK-0053, TASK-0054]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T13:30:00Z }
 verified:
@@ -20,10 +20,12 @@ verified:
       multi-familia 1-4 y enemigos con el mismo esquema.
 ---
 
-> **Nota de vigencia (2026-11-12).** La resistencia numérica única pasa a ser un
-> perfil de cinco bandas por tipo en
-> [REQ-029](REQ-029-tipos-dano-resistencias.md). Los nueve atributos se mantienen;
-> la fórmula de daño de esta hoja queda enmendada.
+> **Nota de vigencia (2026-11-13).** La resistencia numérica única pasa a ser un
+> perfil de cinco bandas por tipo en `UnitStats.resistencia`, según
+> [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md). Los nueve
+> atributos se mantienen; la fórmula de daño de esta hoja queda enmendada y la
+> implementación se cerró en TASK-0085 y TASK-0086, documentada en TASK-0091.
 
 # Contexto
 

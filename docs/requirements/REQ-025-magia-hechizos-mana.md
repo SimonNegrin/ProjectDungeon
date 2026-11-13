@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:00:00Z
-updated_at: 2026-11-11T15:40:00Z
+updated_at: 2026-11-13T18:00:00Z
 related_tasks: [TASK-0081, TASK-0082, TASK-0083]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:00:00Z }
 verified:
@@ -20,11 +20,14 @@ verified:
       resurrección de nivel 4 con 60 % del PV máximo.
 ---
 
-> **Nota de vigencia (2026-11-12).** La fórmula mágica y el catálogo se enmendan
-> por [REQ-029](REQ-029-tipos-dano-resistencias.md): el daño se resuelve por
-> paquetes con tipo, la armadura no protege de mágico/eléctrico y el nivel de
-> magia solo afecta a acceso, maná e impacto. Los hechizos de fuego causan daño
-> mágico hasta que exista el trait de quemadura; los eléctricos causan eléctrico.
+> **Nota de vigencia (2026-11-13).** La fórmula mágica y el catálogo se enmendan
+> por [REQ-029](REQ-029-tipos-dano-resistencias.md) y
+> [ADR-023](../decisions/ADR-023-tipos-dano-paquetes-bandas.md): el daño se
+> resuelve por paquetes con tipo en `src/game/damage.ts`, la armadura no protege
+> de mágico/eléctrico y el nivel de magia solo afecta a acceso, maná e impacto.
+> Los hechizos de fuego causan daño mágico hasta que exista el trait de quemadura;
+> los eléctricos causan eléctrico. Lo implementan TASK-0085 a TASK-0090 y lo
+> documenta TASK-0091.
 
 # Contexto
 
