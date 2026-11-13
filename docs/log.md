@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Harness — Permisos — `deny` para `timeout`, `gtimeout`, `node -e` y `node --eval`; la plantilla fija los comandos de creación y retira el `node -e`; pedido tras las dos peticiones de la sesión de REQ-029 — [opencode.jsonc](../opencode.jsonc)
+* 2026-11-13 — Harness — Timeouts — la regla vuelve a distinguir el parámetro de la herramienta del binario `timeout` (ausente en macOS) en `AGENTS.md`, workflow, prompts y skills; la compresión de `AGENTS.md` dejó la lectura ambigua y requirements-writer ejecutó `timeout 120 pnpm run tasks:board` — [workflow](harness/workflow.md#timeouts-y-procesos)
 * 2026-11-13 — Requirement — REQ-029 — stable v1: texto aprobado; cinco tipos, paquetes separados, bandas y ajuste fino aplazado a roster y bestiario completos; tareas en sesión aparte — [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)
 
 ## 2026-11-12

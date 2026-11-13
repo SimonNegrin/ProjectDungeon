@@ -120,7 +120,8 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 - Para buscar archivos usa `rg --files -g '*patrón*' [ruta]` o `git ls-files`;
   `find` pide permiso porque `-exec` y `-delete` caben en cualquier forma del
   comando ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
-- Todo comando de shell debe llevar un timeout explícito.
+- Todo comando de shell va con el parámetro `timeout`; macOS no trae el binario
+  `timeout`.
 - No dejes procesos en background; si necesitas uno, que sea un servidor con
   puerto fijo y cierre posterior.
 - Sigue [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).

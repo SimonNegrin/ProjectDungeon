@@ -25,7 +25,7 @@ pasan” sin verlo.
 
 - [ ] `pnpm run verify` pasa con timeout de 120 s.
 - [ ] E2E/visual pasa si aplica con timeout de 180 s.
-- [ ] Los comandos se ejecutaron con timeout explícito.
+- [ ] Los comandos se ejecutaron con el parámetro `timeout`.
 - [ ] No quedan procesos en background ni comandos colgados.
 - [ ] Los tests nuevos comprueban comportamiento, no implementación.
 - [ ] No se han borrado, saltado o debilitado tests.

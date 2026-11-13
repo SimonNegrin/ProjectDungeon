@@ -69,7 +69,7 @@ Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 # Timeouts
 
 - Usa pnpm, no npm ni npx.
-- Todo comando de shell debe llevar un timeout explícito. Consulta
+- Todo comando de shell va con el parámetro `timeout`. Consulta
   [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).
 - Los servidores en background solo con puerto fijo, comprobación de salud y
   cierre posterior.

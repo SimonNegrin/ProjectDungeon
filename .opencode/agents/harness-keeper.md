@@ -124,7 +124,7 @@ con el rol, documento que ya no se lee—, menciónalo en una línea al final.
 # Herramientas
 
 - Usa pnpm, no npm ni npx.
-- Todo comando de shell lleva timeout explícito; sigue
+- Todo comando de shell va con el parámetro `timeout`; sigue
   [workflow](../../docs/harness/workflow.md#timeouts-y-procesos).
 - Sin procesos en background salvo servidores con puerto fijo, salud y cierre.
 - `pnpm run verify` antes de cerrar cualquier cambio; si no aplica, justifícalo.

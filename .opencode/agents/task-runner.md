@@ -85,7 +85,7 @@ experimentos en [docs/harness/experiments.md](../../docs/harness/experiments.md)
 # Timeouts
 
 - Usa pnpm, no npm ni npx.
-- Todo comando de shell debe llevar un timeout explícito. Consulta
+- Todo comando de shell va con el parámetro `timeout`. Consulta
   [docs/harness/workflow.md](../../docs/harness/workflow.md#timeouts-y-procesos).
 - No dejes servidores en background después de terminar.
 - Si un comando agota el timeout, para el proceso y devuélvelo como bloqueo.

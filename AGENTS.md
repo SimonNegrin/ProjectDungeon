@@ -33,7 +33,8 @@ las reglas de flujo viven en el workflow; aquí solo lo que no puede perderse.
   la [plantilla de tarea](docs/templates/task.md).
 - Experimentos en `experiments/EXP-*` y artefactos en `artifacts/TASK-*`; son
   evidencia y no se reescriben.
-- Todo comando con `timeout` explícito; política en
+- Todo comando va con el parámetro `timeout` de la herramienta de shell; macOS
+  no trae el binario `timeout`. Política en
   [workflow](docs/harness/workflow.md#timeouts-y-procesos).
 - pnpm 12.18.0; nunca npm ni npx. `pnpm run verify` antes de cerrar cualquier
   cambio.

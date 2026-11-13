@@ -203,7 +203,7 @@ hipótesis descartadas, opciones, decisión necesaria y riesgo de cada opción.
 El shell de OpenCode corta a los 120 s por defecto, pero un hijo en background
 puede sobrevivir. Por eso:
 
-- **todo comando en primer plano lleva `timeout` explícito**;
+- **todo comando en primer plano lleva el parámetro `timeout`**;
 - un background solo se usa para servidores o watchers, con puerto fijo,
   comprobación de salud y cierre posterior;
 - no se espera indefinidamente a ningún proceso.

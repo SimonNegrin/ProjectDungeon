@@ -16,6 +16,15 @@ un requisito o un experimento.
 Tope: 600 palabras de objetivo, aviso; 800, error. Lo que no quepa va a una hoja
 de requisito, a `docs/design/` o al brief.
 
+# Comandos
+
+- Tablero: `pnpm run tasks:board`.
+- Validación: `pnpm run docs:check`; ya informa del recuento de palabras de la
+  tarea cuando pasa de 600.
+- Inspección: `rg`, `sed -n` y `wc -w`; no `node -e`, que equivale a ejecución
+  arbitraria.
+- Sin prefijo `timeout`: el timeout es el parámetro de la herramienta de shell.
+
 # Esquema
 
 ```markdown

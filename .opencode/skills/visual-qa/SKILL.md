@@ -23,7 +23,7 @@ estado y DOM; usa la captura para el usuario y para comparar.
 
 # Playwright
 
-- Ejecutar `pnpm run test:e2e` con timeout explícito de 180 s.
+- Ejecutar `pnpm run test:e2e` con el parámetro `timeout` de 180 s.
 - Abrir la página con `?test=1&seed=123`.
 - Esperar a que el juego esté listo.
 - Simular teclado.

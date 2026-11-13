@@ -48,6 +48,10 @@
     { "action": "shell", "resource": "pnpm run test:e2e *", "effect": "allow" },
     { "action": "shell", "resource": "pnpm exec playwright test *", "effect": "allow" },
     { "action": "shell", "resource": "echo ---", "effect": "allow" },
-    { "action": "shell", "resource": "echo ===E2E===", "effect": "allow" }
+    { "action": "shell", "resource": "echo ===E2E===", "effect": "allow" },
+    { "action": "shell", "resource": "timeout *", "effect": "deny" },
+    { "action": "shell", "resource": "gtimeout *", "effect": "deny" },
+    { "action": "shell", "resource": "node -e *", "effect": "deny" },
+    { "action": "shell", "resource": "node --eval *", "effect": "deny" }
   ]
 }
