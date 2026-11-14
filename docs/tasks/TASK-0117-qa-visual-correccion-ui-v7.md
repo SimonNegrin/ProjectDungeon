@@ -4,7 +4,7 @@ id: TASK-0117
 title: "QA visual de la corrección de UI v7"
 description: "Cubrir en navegador y capturas el relieve de 2×, las listas verticales, el panel alineado, las siluetas y el cursor nuevo a 900×700 y 1280×720."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-033
 requirement_ids: [R-025, R-026, R-027, R-028, R-029, R-030, R-031, S-006, P-007, P-008, T-008]
