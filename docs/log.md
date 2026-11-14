@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Harness — Definition of Ready — una tarea no mezcla dos dominios de cambio (estructura, navegación, render, datos) y el QA visual de UI va en una tarea `qa` posterior; medido: duración mediana 14→28 min y 26→63 ficheros por tarea, con criterios estables — [DoR](quality/definition-of-ready-done.md#tarea-lista-para-ejecutar)
+
 * 2026-11-14 — Harness — validador — `task_type` validado contra un conjunto y aviso si una tarea `docs` no cerrada se asigna a `task-runner`; `harness-keeper` puede editar `scripts/**` — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)
 
 * 2026-11-14 — Harness — tareas `docs` — el ejecutor sale del destino (lead: diseño, glosario, decisiones y log; requirements-writer: requisitos; harness-keeper: arnés) y `task-runner` no las ejecuta ni las escribe por shell; sin permisos nuevos — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)

@@ -28,6 +28,11 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 - La ruta de artefactos está definida.
 - Los comandos y timeouts previstos están definidos.
 - Cabe en una sesión de agente; si no, se divide.
+- No mezcla dos dominios de cambio (estructura y estilos, navegación y entrada,
+  render y canvas, datos y motor): si los mezcla, se parte por resultado
+  esperado, no por capas.
+- Una tarea UI no incluye su QA visual entre sus criterios: va en una tarea
+  `qa` posterior.
 
 # Tarea terminada
 
