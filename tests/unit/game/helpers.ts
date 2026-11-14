@@ -68,6 +68,8 @@ export interface UnitOptions {
   readonly enemyType?: EnemyType | null;
   /** Arquetipo del roster; `null` en unidades sintéticas. */
   readonly archetypeId?: ArchetypeId | null;
+  /** Variante visual; `null` en unidades sintéticas. */
+  readonly variant?: Unit['variant'];
   readonly x: number;
   readonly y: number;
   readonly hp?: number;
@@ -137,6 +139,7 @@ export function makeUnit(options: UnitOptions): Unit {
     faction: options.faction,
     enemyType: options.enemyType ?? null,
     archetypeId: options.archetypeId ?? null,
+    variant: options.variant ?? null,
     x: options.x,
     y: options.y,
     hp: options.hp ?? maxHp,

@@ -48,6 +48,19 @@ El motor no lee teclado, no dibuja y no usa `Date.now()` para reglas. El bucle d
 render puede usar tiempo real, pero la simulación de turnos avanza por comandos
 y eventos.
 
+# Configuración de partida
+
+`src/game/config.ts` define `GameConfig`: semilla y de 1 a 6 `PlayerConfig` en
+orden de turno, cada uno con arquetipo, variante `1|2` y nombre. Es serializable
+y el motor la valida antes de generar el mapa con `GameConfigError` tipado
+(`player-count`, `unknown-archetype`, `invalid-variant`, `invalid-seed`), sin
+estado parcial. `createInitialState` es el único constructor: crea
+`player-1..N` desde la lista, ocupa los huecos de `spawns.party` en orden,
+resuelve el nombre vacío con el del arquetipo y guarda `state.config`. Host,
+`GameSession`, `load`, `regenerate` y `Restart` consumen ese mismo camino.
+`Unit.variant` viaja al snapshot y no cambia cálculos; el motor sigue puro, sin
+importar `src/host/` ni conocer el DOM ([REQ-016](../requirements/REQ-016-pantalla-inicio-configuracion.md#requisitos-técnicos)).
+
 # Combate y azar
 
 El combate vive en `src/game/` y es puro y determinista. El modelo vigente es el
@@ -76,11 +89,10 @@ absorción única de
   una sobrescritura parcial del enemigo.
 - `roster.ts` es la fuente única de los nueve arquetipos jugables de REQ-015:
   stats (incluido el perfil de resistencia), equipo inicial, variantes, rol y
-  magia de identidad. El jugador por defecto se crea con
-  `createPlayerFromArchetype('warrior', ...)` en el spawn del mapa;
-  `Unit.archetypeId` guarda la identidad serializable y es `null` en enemigos y
-  unidades sintéticas. El HUD deriva el nombre del arquetipo del roster y no
-  duplica valores.
+  magia de identidad. `createPlayerFromArchetype` construye una unidad desde el
+  arquetipo y la variante; `Unit.archetypeId` y `Unit.variant` guardan la
+  identidad serializable, con `null` en enemigos y unidades sintéticas. El HUD
+  deriva el nombre del arquetipo del roster y no duplica valores.
 - `rng.ts` implementa un d6 serializable. El estado guarda la semilla y el
   contador; la misma semilla y los mismos comandos dan la misma secuencia.
 - Los eventos `AttackPerformed`, `ReplicaPerformed` y `SpellCast` incluyen

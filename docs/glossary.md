@@ -105,3 +105,4 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Playtest** | Sesión en la que el usuario prueba una build y evalúa sensaciones. |
 | **Arquetipo** | Personaje jugable del roster con stats inherentes, equipo inicial, dos variantes de sprite e identidad (rol y magia). El nombre de instancia es editable y, por defecto, el del arquetipo. |
 | **Roster** | Catálogo de los nueve arquetipos jugables de [REQ-015](requirements/REQ-015-roster-arquetipos.md) en `src/game/roster.ts`; fuente única de sus stats, equipo, variantes e identidad. |
+| **Configuración de partida** | Entrada serializable del motor (`GameConfig` en `src/game/config.ts`): semilla y de 1 a 6 jugadores en orden de turno, cada uno con arquetipo, variante `1|2` y nombre. `createInitialState` es su único constructor; una configuración inválida lanza `GameConfigError` antes de generar el mapa ([REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md#requisitos-técnicos)). |

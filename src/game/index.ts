@@ -1,4 +1,5 @@
 export * from './types';
+export * from './config';
 export * from './actions';
 export * from './mana';
 export * from './damage';
