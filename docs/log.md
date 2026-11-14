@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0112 a TASK-0118 — creadas: relieve de 2×, listas verticales, panel arriba sin cabeza, siluetas, cursor y QA/docs; TASK-0112 ready y el resto en cadena — [TASK-0112](tasks/TASK-0112-ui-biseles-gruesos-crecimiento.md)
+
 * 2026-11-14 — Requirement — REQ-033 — stable v7: aprobado el texto; biseles 2×, cursor 4× #fcffc0, listas verticales, columnas arriba, casco superior sin bloque de cabeza, siluetas #6eb8a8 que se ocultan al equipar y transición de 140-160 ms; sin cambios de reglas — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
 
 * 2026-11-14 — Requirement — REQ-033 — v7: biseles 2× línea y cursor 4×, listas verticales en ambos HUD, columnas alineadas arriba, casco superior sin bloque de cabeza, siluetas sólidas #6eb8a8 en slots vacíos y cursor #fcffc0 con transición de 140-160 ms; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
