@@ -61,7 +61,11 @@ ha tocado el experimento.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `verify` falla por timeout de 5 s del barrido A/B/C de EXP-004 con la suite paralela | 2 ejecuciones de `verify`; aislado pasa; `--no-file-parallelism` 1344/1344; ya anotado en `docs/log.md` | `pnpm exec vitest run --no-file-parallelism` | Afecta a cualquier tarea que ejecute `verify` en esta máquina | `harness-keeper`: subir el timeout del test o fijar serial en CI | Bajo; solo configuración de test | `pending` |
+| `verify` falla por timeout de 5 s del barrido A/B/C de EXP-004 con la suite paralela | 2 ejecuciones de `verify`; aislado pasa; `--no-file-parallelism` 1344/1344; ya anotado en `docs/log.md` | `pnpm exec vitest run --no-file-parallelism` | Afecta a cualquier tarea que ejecute `verify` en esta máquina | `harness-keeper`: subir el timeout del test o fijar serial en CI | Bajo; solo configuración de test | `deferred` (`harness-keeper`) |
+
+Triaje del lead: la fricción es de arnés, no de esta tarea; queda `deferred` a
+`harness-keeper` y ya estaba anotada en `docs/log.md`. La segunda ejecución de
+`pnpm run verify` del lead pasó completa (94/1344, build y bundle).
 
 # Métricas de handoff
 
