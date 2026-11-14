@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0103 — done: cierre documental del hito UI (tres zonas, panel de tres columnas, ficha de dos bloques, submenú y controles) y QA visual final; verify 1298/1298 y E2E 150/150; fusión `0d1a912` — [informe](../artifacts/TASK-0103/attempt-1/report.md)
+
 * 2026-11-14 — Planning — TASK-0103 — in_progress: DoR cumplida (REQ-032 v2 y REQ-018 v7 aceptados, TASK-0102 done); cierre documental y QA visual — [TASK-0103](tasks/TASK-0103-cierre-hito-ui-docs-qa.md)
 
 * 2026-11-14 — Playtest — REQ-018/REQ-032 — el usuario aprueba el panel tras probarlo: tres columnas, figura de equipo, ficha de dos bloques y submenú con `Enter`; playtest del hito UI superado — [REQ-018](requirements/REQ-018-inventario-equipo.md)
