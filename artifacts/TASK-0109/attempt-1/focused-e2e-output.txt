@@ -1,0 +1,19 @@
+$ playwright test tests/e2e/qa-visual-revision-ui.spec.ts
+
+Running 13 tests using 4 workers
+
+  ✓   4 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1133:5 › REQ-033 QA visual a 900x700 › ficha: sprite, stats verticales y dos secciones sin rótulos (1.3s)
+  ✓   1 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1427:5 › REQ-033 QA visual a 900x700 › cursor superpuesto: transición, salto y movimiento reducido (2.1s)
+  ✓   3 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1024:5 › REQ-033 QA visual a 900x700 › HUD: tres zonas, variantes condicionales y pie (2.2s)
+  ✓   6 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1673:5 › REQ-033 QA visual a 900x700 › paleta y relieve: ocho colores, outset/inset y sin adornos modernos (553ms)
+  ✓   7 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1024:5 › REQ-033 QA visual a 1280x720 › HUD: tres zonas, variantes condicionales y pie (1.4s)
+  ✓   2 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1293:5 › REQ-033 QA visual a 900x700 › panel: mochila llena, cadáveres, suelo y encaje de tres columnas (3.6s)
+  ✓   8 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1133:5 › REQ-033 QA visual a 1280x720 › ficha: sprite, stats verticales y dos secciones sin rótulos (1.1s)
+  ✓   5 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1516:5 › REQ-033 QA visual a 900x700 › CLS: marco, panel, columnas, títulos y slots sin desplazamiento (3.4s)
+  ✓  10 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1427:5 › REQ-033 QA visual a 1280x720 › cursor superpuesto: transición, salto y movimiento reducido (1.6s)
+  ✓  12 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1673:5 › REQ-033 QA visual a 1280x720 › paleta y relieve: ocho colores, outset/inset y sin adornos modernos (674ms)
+  ✓   9 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1293:5 › REQ-033 QA visual a 1280x720 › panel: mochila llena, cadáveres, suelo y encaje de tres columnas (3.0s)
+  ✓  13 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1810:3 › REQ-033 escala continua › --ui-scale y --ui-line se derivan del marco sin saltos (1.4s)
+  ✓  11 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1516:5 › REQ-033 QA visual a 1280x720 › CLS: marco, panel, columnas, títulos y slots sin desplazamiento (2.9s)
+
+  13 passed (8.5s)

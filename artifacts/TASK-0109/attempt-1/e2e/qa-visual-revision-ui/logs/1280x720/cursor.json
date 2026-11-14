@@ -1,0 +1,204 @@
+{
+  "viewport": "1280x720",
+  "initial": {
+    "selectedKey": "backpack:0",
+    "activeKey": "backpack:0",
+    "line": 1.6009615384615385,
+    "cursor": {
+      "left": 582.3677978515625,
+      "top": 83.72716522216797,
+      "right": 639.9771728515625,
+      "bottom": 141.3365478515625,
+      "width": 57.609375,
+      "height": 57.60938262939453
+    },
+    "slot": {
+      "left": 583.96875,
+      "top": 85.328125,
+      "right": 638.390625,
+      "bottom": 139.75,
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 1,
+    "borderTopColor": "rgb(116, 163, 63)",
+    "transitionProperty": "transform",
+    "transitionDuration": "0.1s",
+    "transform": "matrix(1, 0, 0, 1, 275.368, 67.7272)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "backpack:0"
+  },
+  "horizontal": {
+    "selectedKey": "backpack:1",
+    "activeKey": "backpack:1",
+    "line": 1.6009615384615385,
+    "cursor": {
+      "left": 639.9771728515625,
+      "top": 83.72716522216797,
+      "right": 697.5865478515625,
+      "bottom": 141.3365478515625,
+      "width": 57.609375,
+      "height": 57.60938262939453
+    },
+    "slot": {
+      "left": 641.578125,
+      "top": 85.328125,
+      "right": 696,
+      "bottom": 139.75,
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 1,
+    "borderTopColor": "rgb(116, 163, 63)",
+    "transitionProperty": "transform",
+    "transitionDuration": "0.1s",
+    "transform": "matrix(1, 0, 0, 1, 332.977, 67.7272)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "backpack:1"
+  },
+  "vertical": {
+    "selectedKey": "backpack:3",
+    "activeKey": "backpack:3",
+    "line": 1.6009615384615385,
+    "cursor": {
+      "left": 639.9771728515625,
+      "top": 141.3365478515625,
+      "right": 697.5865478515625,
+      "bottom": 198.9459228515625,
+      "width": 57.609375,
+      "height": 57.609375
+    },
+    "slot": {
+      "left": 641.578125,
+      "top": 142.9375,
+      "right": 696,
+      "bottom": 197.359375,
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 1,
+    "borderTopColor": "rgb(116, 163, 63)",
+    "transitionProperty": "transform",
+    "transitionDuration": "0.1s",
+    "transform": "matrix(1, 0, 0, 1, 332.977, 125.337)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "backpack:3"
+  },
+  "zone": {
+    "selectedKey": "ground:item-test-ground-0",
+    "activeKey": "ground:item-test-ground-0",
+    "line": 1.6009615384615385,
+    "cursor": {
+      "left": 752.1802978515625,
+      "top": 83.72716522216797,
+      "right": 809.7896728515625,
+      "bottom": 141.3365478515625,
+      "width": 57.609375,
+      "height": 57.60938262939453
+    },
+    "slot": {
+      "left": 753.78125,
+      "top": 85.328125,
+      "right": 808.203125,
+      "bottom": 139.75,
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 1,
+    "borderTopColor": "rgb(116, 163, 63)",
+    "transitionProperty": "transform",
+    "transitionDuration": "0.1s",
+    "transform": "matrix(1, 0, 0, 1, 445.18, 67.7272)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "ground:item-test-ground-0"
+  },
+  "reduced": {
+    "selectedKey": "backpack:1",
+    "activeKey": "backpack:1",
+    "line": 1.6009615384615385,
+    "cursor": {
+      "left": 639.9771728515625,
+      "top": 83.72716522216797,
+      "right": 697.5865478515625,
+      "bottom": 141.3365478515625,
+      "width": 57.609375,
+      "height": 57.60938262939453
+    },
+    "slot": {
+      "left": 641.578125,
+      "top": 85.328125,
+      "right": 696,
+      "bottom": 139.75,
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 1,
+    "borderTopColor": "rgb(116, 163, 63)",
+    "transitionProperty": "none",
+    "transitionDuration": "0s",
+    "transform": "matrix(1, 0, 0, 1, 332.977, 67.7272)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "backpack:1"
+  },
+  "audits": {
+    "horizontalAudit": {
+      "runs": 1,
+      "properties": [
+        "transform"
+      ],
+      "elapsed": [
+        0.1
+      ]
+    },
+    "verticalAudit": {
+      "runs": 0,
+      "properties": [],
+      "elapsed": []
+    },
+    "zoneAudit": {
+      "runs": 0,
+      "properties": [],
+      "elapsed": []
+    },
+    "reducedAudit": {
+      "runs": 0,
+      "properties": [],
+      "elapsed": []
+    }
+  }
+}
