@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0122 — done: `GameConfig` serializable y constructor único en `createInitialState`; 1-6 jugadores en orden con variante, validación tipada, snapshot y `Restart`; verify 94/94 archivos y 1344 tests (primer intento con el flake de EXP-004), build y bundle OK; fusión `a00eeec` — [informe](../artifacts/TASK-0122/attempt-1/report.md)
+
 * 2026-11-14 — Planning — Shell de partida — 38 tareas TASK-0122 a TASK-0159 creadas desde REQ-016/021/024/031/034; grafo simétrico y REQ-020 intacto; TASK-0128/0143/0145/0155 se dividen por ejecutor y añaden TASK-0156/0157/0158/0159; board y docs:check OK — [tablero](tasks/index.md)
 
 * 2026-11-14 — Requirement — REQ-034 — stable v1: un enemigo solo deja cadáver si tiene al menos un objeto saqueable; tirada por objeto al crear (25 % común, 100 % progresión), cadáver condicionado, saqueo desde el mismo tile sin coste y cadáver de jugador intacto; enmienda REQ-017/018/020/021/024/026; revisada por el usuario — [REQ-034](requirements/REQ-034-objetos-saqueables-botin-enemigos.md)

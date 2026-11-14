@@ -111,7 +111,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0118](TASK-0118-docs-correccion-visual-adr.md) | Docs: corrección visual, ADR y glosario | `done` | REQ-033 | TASK-0117 | P1 |
 | [TASK-0119](TASK-0119-reapertura-submenu-teclado.md) | Bug: el submenú no reabre con teclado tras una acción del panel | `done` | REQ-032 | — | P1 |
 | [TASK-0120](TASK-0120-reloj-feedback-bucle-render.md) | Bug: el reloj de feedback no caduca y el host repinta a 60 fps | `done` | REQ-017 | — | P1 |
-| [TASK-0122](TASK-0122-motor-configuracion-partida-constructor-unico.md) | Motor: configuración de partida y constructor único | `backlog` | REQ-016 | — | P1 |
+| [TASK-0122](TASK-0122-motor-configuracion-partida-constructor-unico.md) | Motor: configuración de partida y constructor único | `done` | REQ-016 | — | P1 |
 | [TASK-0123](TASK-0123-host-menu-principal-paso-1.md) | Host: menú principal y paso 1 | `backlog` | REQ-016 | TASK-0122 | P1 |
 | [TASK-0124](TASK-0124-host-pantalla-jugador-roster-nombre.md) | Host: pantalla de jugador (roster, nombre, navegación) | `backlog` | REQ-016 | TASK-0122, TASK-0123 | P1 |
 | [TASK-0125](TASK-0125-host-ficha-arquetipo-miniaturas.md) | Host: ficha de arquetipo y miniaturas | `backlog` | REQ-016 | TASK-0122, TASK-0123, TASK-0124 | P1 |
@@ -171,7 +171,6 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0122 — Motor: configuración de partida y constructor único](TASK-0122-motor-configuracion-partida-constructor-unico.md)
 * [TASK-0123 — Host: menú principal y paso 1](TASK-0123-host-menu-principal-paso-1.md)
 * [TASK-0124 — Host: pantalla de jugador (roster, nombre, navegación)](TASK-0124-host-pantalla-jugador-roster-nombre.md)
 * [TASK-0125 — Host: ficha de arquetipo y miniaturas](TASK-0125-host-ficha-arquetipo-miniaturas.md)
@@ -318,6 +317,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0118 — Docs: corrección visual, ADR y glosario](TASK-0118-docs-correccion-visual-adr.md)
 * [TASK-0119 — Bug: el submenú no reabre con teclado tras una acción del panel](TASK-0119-reapertura-submenu-teclado.md)
 * [TASK-0120 — Bug: el reloj de feedback no caduca y el host repinta a 60 fps](TASK-0120-reloj-feedback-bucle-render.md)
+* [TASK-0122 — Motor: configuración de partida y constructor único](TASK-0122-motor-configuracion-partida-constructor-unico.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
