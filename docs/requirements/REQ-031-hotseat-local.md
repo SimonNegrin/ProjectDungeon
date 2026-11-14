@@ -2,23 +2,23 @@
 type: Requirement Sheet
 id: REQ-031
 title: Hotseat local en el mismo teclado
-description: "Uno a seis jugadores por turnos en la misma pantalla y teclado: turno por jugador con N, relevo por cámara sin confirmación, aviso de ronda no bloqueante, fase enemiga con HUD del actor y su objetivo, aviso «El master mueve» y sin información privada."
+description: "Uno a seis jugadores por turnos en la misma pantalla y teclado: turno por jugador con N, relevo por cámara sin confirmación, aviso de ronda no bloqueante, fase enemiga con HUD del actor y su objetivo, aviso «El master mueve», «Jugador N de M», resultado con Nueva y Cargar partida y sin información privada."
 status: stable
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T19:07:43Z
-updated_at: 2026-11-13T19:07:43Z
+updated_at: 2026-11-14T22:25:22Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:07:43Z }
 verified:
   - by: human:simon
-    at: 2026-11-13T19:07:43Z
+    at: 2026-11-14T22:25:22Z
     note: >-
-      Aprueba el modo: 1-6 jugadores, turno por jugador con `N`, relevo por
-      cámara sin aviso ni Enter, aviso de ronda no bloqueante, fase enemiga con
-      HUD del actor y su objetivo, «El master mueve» solo si hay acciones,
-      reinicio desde la pausa con misma party y semilla, y REQ-016 en v2.
+      Aprueba la v2: pausa según REQ-024 sin reinicio rápido, resultado con
+      Victoria o Derrota, ronda, party, semilla y Nueva/Cargar partida, «Jugador N
+      de M» en el HUD y duraciones v1 de 2 s, 800 ms y 300 ms. El modelo de turno,
+      relevo, fase enemiga y fantasma no cambia.
 ---
 
 # Contexto
@@ -31,13 +31,19 @@ no hay pantalla de inicio.
 
 Esta hoja define el **modo hotseat local**: cuántos jugadores, cómo se ordena el
 turno, cómo se releva el control, cómo se presenta la fase enemiga y cómo
-conviven la pausa, el guardado y el reinicio. No define el remoto por QR, que
+conviven la pausa, el guardado y el resultado. No define el remoto por QR, que
 sigue en fase 3, ni la configuración de la partida, que vive en
 [REQ-016](REQ-016-pantalla-inicio-configuracion.md).
 
-La sesión del 2026-11-13 cierra las decisiones: `N` como tecla de fin de turno,
-relevo directo por cámara, aviso de ronda no bloqueante, HUD contextual en la
-fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
+La v2 cierra la hoja y la alinea con el shell definitivo: el menú de pausa ya no
+tiene reinicio rápido, el resultado ofrece «Nueva partida» y «Cargar partida», y
+el HUD muestra «Jugador N de M». Las decisiones de turno, relevo, fase enemiga y
+fantasma no cambian.
+
+La sesión del 2026-11-13 cerró las decisiones de juego: `N` como tecla de fin de
+turno, relevo directo por cámara, aviso de ronda no bloqueante, HUD contextual en
+la fase enemiga y «El master mueve». La v2 retira el reinicio con la misma party y
+semilla y lo sustituye por «Nueva partida» y «Cargar partida».
 
 # Objetivos de experiencia
 
@@ -47,7 +53,7 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 - Que el cooperativo sea de mesa: todos ven todo, sin pantallas privadas.
 - Que morir no saque a nadie y que el fantasma no frene la partida.
 - Que 1-6 jugadores usen el mismo flujo, sin caminos paralelos.
-- Que reiniciar sea una decisión explícita, no una tecla accidental.
+- Que empezar de cero sea una decisión explícita, no una tecla accidental.
 
 # Requisitos creativos (decididos)
 
@@ -71,12 +77,13 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 | R-016 | No hay temporizador de turno ni de fantasma en este corte. | Ningún turno se cierra por tiempo; no hay cuenta atrás. |
 | R-017 | Los objetos se pasan entre jugadores **soltando (1 MP) y recogiendo (1 MP)**; no hay entrega directa. | No existe comando de entrega; el objeto pasa por el suelo. |
 | R-018 | La pausa es **global** y la abre cualquier jugador con `Esc`. Guardar solo está disponible en la fase de personajes y sin animaciones; cargar reanuda en el turno del jugador activo. | Cualquiera pausa; guardar se desactiva en fase enemiga o animación; cargar devuelve el control al activo. |
-| R-019 | El menú de pausa ofrece **«Reiniciar partida»**, que abre un diálogo con **«Nueva»** y **«Reiniciar»**: «Reiniciar» repite la misma party y semilla; «Nueva» lleva a la pantalla de inicio; `Esc` cancela. | Reiniciar reconstruye la misma mazmorra; Nueva abre la configuración; cancelar no cambia nada. |
-| R-020 | Al ganar o perder se muestra una pantalla de resultado con **«Reiniciar»** y **«Nueva»**; no hay reinicio automático. | El resultado no avanza solo; las dos acciones son explícitas. |
+| R-019 | El menú de pausa es el de [REQ-024](REQ-024-menu-pausa-guardado.md): reanudar, nueva partida, cargar, guardar y controles. No hay reinicio con la misma party y semilla. «Nueva partida» confirma que se pierde el progreso y abre el paso 1 de REQ-016. | No existe acción de reinicio; Nueva encadena confirmación y configuración; el menú coincide con REQ-024. |
+| R-020 | Al ganar o perder se muestra una pantalla de resultado con **Victoria** o **Derrota**, la ronda alcanzada, la party con nombres y arquetipos, la semilla por si se quiere repetir, y **«Nueva partida»** y **«Cargar partida»**; no hay reinicio automático ni reinicio rápido. | El resultado no avanza solo; las dos acciones son explícitas; la semilla se puede leer para repetir la mazmorra. |
 | R-021 | Con un solo jugador se usa la misma ruta: no hay paneo de relevo, pero sí aviso de ronda y «El master mueve» cuando corresponda. | El solitario comparte estado y flujo; solo desaparece el relevo. |
 | R-022 | La cámara sigue al jugador activo y, en la fase enemiga, al enemigo que actúa; los paneos respetan `prefers-reduced-motion`. | La cámara cambia con el actor; con movimiento reducido salta sin animación. |
 | R-023 | **`N` sustituye a `E`** como tecla de terminar turno en todo el juego; **`R` desaparece**; `Esc` abre la pausa. | La ayuda de controles y los tests usan `N`; no queda `E` de fin de turno ni `R` de reinicio. |
 | R-024 | No hay información privada: mapa, HUD y paneles son públicos. Cada cambio de turno, ronda o fase tiene feedback visual y de texto accesible. | No hay pantallas privadas; los avisos se anuncian sin depender solo del color o la animación. |
+| R-025 | El HUD izquierdo muestra **«Jugador N de M»** junto al nombre del activo, con N su posición en el orden y M el total de jugadores. | En hotseat se lee la posición y el total; con un jugador muestra «Jugador 1 de 1». |
 
 # Requisitos técnicos
 
@@ -89,13 +96,14 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 | T-005 | El snapshot de debug y `F1` exponen activo, ronda, orden, fase, actor enemigo y objetivo actual. | La UI y `F1` leen del mismo estado; no hay listas duplicadas. |
 | T-006 | Cámara, avisos «Ronda N» y «El master mueve» y HUD contextual viven en el host; el motor sigue puro. | `src/game/` no importa `src/host/`; los tests del motor corren sin DOM. |
 | T-007 | El input mapea `N` a fin de turno y `Esc` a pausa; elimina `E` y `R`. Bloquea comandos solo durante el paneo y las animaciones; el aviso de ronda no bloquea. | Tests de teclas, bloqueo durante paneo, libertad durante el aviso y ausencia de `E`/`R`. |
-| T-008 | El HUD izquierdo muestra la ficha completa del activo en fase de personajes y la ficha compacta del objetivo en la enemiga; el derecho muestra el detalle del cursor en personajes y al actor en la enemiga. | Cambio de HUD por fase; `aria-live` anuncia activo, ronda y actor. |
+| T-008 | El HUD izquierdo muestra la ficha completa del activo en fase de personajes, con «Jugador N de M», y la ficha compacta del objetivo en la enemiga; el derecho muestra el detalle del cursor en personajes y al actor en la enemiga. | Cambio de HUD por fase; `aria-live` anuncia activo, ronda y actor; N y M coinciden con el orden. |
 | T-009 | El guardado solo se permite en fase de personajes y sin animación; incluye semilla, party, orden, activo y ronda. Cargar devuelve el control al activo. | Guardar en enemiga o animación se rechaza; ida y vuelta conserva activo y ronda. |
-| T-010 | Reiniciar reconstruye el estado inicial desde la configuración guardada (misma party y semilla); Nueva abre la pantalla de inicio. No queda atajo `R`. | Mismo reinicio produce la misma mazmorra y party; Nueva no reutiliza la partida. |
-| T-011 | La pantalla de inicio construye N jugadores y una semilla visible y editable (REQ-016 v2); el hotseat consume ese estado sin lógica paralela. | N jugadores y semilla llegan al motor; el modo no reconfigura la party. |
-| T-012 | Tests nuevos: 2 y 6 jugadores, validación de activo, `N`, relevo, aviso de ronda, recursos por turno, muerte en turno, resurrección por índice, fantasma, eventos de actor/objetivo, salto de dormidos, «El master mueve», restricción de guardado, reinicio con misma semilla y E2E de dos jugadores. No se debilitan tests existentes. | `pnpm run verify` pasa; los tests de `REQ-005`, `REQ-009`, `REQ-010`, `REQ-017`, `REQ-021` y `REQ-026` conservan su intención. |
-| T-013 | Se registra **ADR-025** del modelo de turnos hotseat y se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura, con notas en REQ-005/017/018/021/022/023/024/026. | `pnpm run docs:check` pasa; no queda `E` de fin de turno ni `R` de reinicio como controles vigentes. |
+| T-010 | «Nueva partida» desde la pausa o el resultado descarta el estado y abre el paso 1 de REQ-016; no hay reinicio con la misma party y semilla ni atajo `R`. | Tras confirmar no se vuelve a la partida anterior; no existe acción de reinicio. |
+| T-011 | El shell de REQ-016 v3 construye N jugadores y una semilla visible y editable (menú principal, paso 1, jugadores y resumen); el hotseat consume ese estado sin lógica paralela. | N jugadores y semilla llegan al motor; el modo no reconfigura la party. |
+| T-012 | Tests nuevos: 2 y 6 jugadores, validación de activo, `N`, relevo, aviso de ronda, recursos por turno, muerte en turno, resurrección por índice, fantasma, eventos de actor/objetivo, salto de dormidos, «El master mueve», «Jugador N de M», restricción de guardado, resultado con Nueva y Cargar y E2E de dos jugadores. No se debilitan tests existentes. | `pnpm run verify` pasa; los tests de `REQ-005`, `REQ-009`, `REQ-010`, `REQ-017`, `REQ-021` y `REQ-026` conservan su intención. |
+| T-013 | Se registra **ADR-029** del modelo de turnos hotseat y se actualizan glosario, [economía de turno](../design/turn-economy.md) y arquitectura, con notas en REQ-005/017/018/021/022/023/024/026 y REQ-016 v3. | `pnpm run docs:check` pasa; no queda `E` de fin de turno ni `R` de reinicio como controles vigentes. |
 | T-014 | Sin dependencias nuevas, sin red y sin persistencia entre sesiones; el motor sigue sin DOM. | `package.json` y `pnpm-lock.yaml` no cambian; no hay llamadas de red. |
+| T-015 | La pantalla de resultado vive en el host y lee del estado final: Victoria o Derrota, ronda, party y semilla. «Nueva partida» abre REQ-016; «Cargar partida» usa el cargador de REQ-024 sin confirmación, porque no hay partida en curso. | El resultado muestra los datos correctos; las dos acciones llevan al flujo correspondiente; no hay reinicio automático. |
 
 # Requisitos no funcionales
 
@@ -110,13 +118,15 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 - **Mantenibilidad:** un único estado de turno activo, presentación separada en el
   host y reutilización de los eventos de `REQ-017`; sin caminos paralelos para
   solitario y hotseat.
-- **Ritmo:** avisos acotados y configurables; sin temporizadores. Si la mesa se
+- **Ritmo:** avisos acotados y configurables; sin temporizadores. Valores v1:
+  2 s de «Ronda N», 800 ms de «El master mueve» y 300 ms de paneo. Si la mesa se
   resiente, se propone experimento en vez de alargar los avisos.
 
 # Dependencias
 
-- [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v2: número de jugadores,
-  roster, orden y semilla; el hotseat consume su estado.
+- [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v3: menú principal, paso 1
+  con número de jugadores y semilla, ficha de arquetipo, resumen y orden; el
+  hotseat consume su estado. Su tabla de sprites resuelve las variantes.
 - [REQ-015](REQ-015-roster-arquetipos.md): arquetipos y personajes.
 - [REQ-012](REQ-012-spawn-sala-protegida.md): spawn de grupo y escalado de enemigos
   por jugadores.
@@ -128,15 +138,15 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
   ficha compacta del objetivo.
 - [REQ-023](REQ-023-hud-derecho-detalle-cursor.md): columna derecha y detalle del
   actor en fase enemiga.
-- [REQ-024](REQ-024-menu-pausa-guardado.md): pausa global, guardado, carga y
-  reinicio.
+- [REQ-024](REQ-024-menu-pausa-guardado.md): pausa global, menú de cinco botones,
+  guardado y carga; sin reinicio rápido.
 - [REQ-026](REQ-026-economia-acciones-rebalanceo.md): MP, acciones, fin de turno
   manual y orden de turnos.
 - [REQ-017](REQ-017-feedback-visual-eventos.md): beats y feedback; el relevo y los
   avisos se suman a su catálogo.
 - [REQ-005](REQ-005-viewport-impar-13.md): viewport y cámara que sigue al activo.
 - [ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md): sprites de la
-  pantalla de inicio.
+  pantalla de inicio; la tabla de variantes vive en REQ-016 v3.
 - [ADR-014](../decisions/ADR-014-balance-provisional-fuente-unica.md): balance
   provisional; 3-6 jugadores se valida en playtest.
 - [ADR-021](../decisions/ADR-021-inventario-equipo.md): inventario y panel.
@@ -147,8 +157,9 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 
 # Enmiendas a documentos vigentes
 
-- [REQ-016](REQ-016-pantalla-inicio-configuracion.md): pasa a v2; esta hoja cierra
-  sus preguntas de hotseat, flujo, nombres, semilla y reinicio.
+- [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v3: define el menú
+  principal, el paso 1, los jugadores y el resumen; esta hoja consume su estado y
+  retira el reinicio rápido.
 - [REQ-005](REQ-005-viewport-impar-13.md): la cámara sigue al activo con paneo y
   al enemigo que actúa en la fase enemiga.
 - [REQ-017](REQ-017-feedback-visual-eventos.md): se añaden los beats de relevo,
@@ -157,17 +168,18 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
   activo y es público; el traspaso directo queda fuera también en hotseat.
 - [REQ-021](REQ-021-muerte-fantasma-resurreccion.md): el fantasma cierra turno con
   `N` y la resurrección respeta el índice de la ronda.
-- [REQ-022](REQ-022-hud-izquierdo-jugador.md): ficha completa del activo y ficha
-  compacta del objetivo en fase enemiga.
+- [REQ-022](REQ-022-hud-izquierdo-jugador.md): ficha completa del activo, con
+  «Jugador N de M», y ficha compacta del objetivo en fase enemiga.
 - [REQ-023](REQ-023-hud-derecho-detalle-cursor.md): en fase enemiga la columna
   derecha muestra al enemigo que actúa.
-- [REQ-024](REQ-024-menu-pausa-guardado.md): pausa global, reinicio en el menú,
-  guardado solo en fase de personajes y carga en el turno activo.
+- [REQ-024](REQ-024-menu-pausa-guardado.md): pausa global, menú de cinco botones,
+  guardado solo en fase de personajes y carga en el turno activo; sin reinicio.
 - [REQ-026](REQ-026-economia-acciones-rebalanceo.md): `N` sustituye a `E`, el
   turno es por jugador y la ronda cierra con una fase enemiga.
 - [Economía de turno](../design/turn-economy.md): tabla de controles, orden de
   turnos, recursos por jugador y avisos.
-- **ADR-025:** registra el modelo de jugador activo, relevo, ronda y cámara.
+- **ADR-029** (se registra con la primera tarea de hotseat): modelo de jugador
+  activo, relevo, ronda, resultado y cámara.
 
 # Fuera de alcance
 
@@ -181,24 +193,25 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 - Guardado entre runs, progresión, desbloqueos y metaprogresión.
 - Audio, música y arte final del relevo, avisos o resultado.
 - Anti-cheat, espectadores, repeticiones y deshacer.
+- Reinicio rápido con la misma party y semilla: la única vía es «Nueva partida»
+  con la semilla anotada.
 
 # Preguntas abiertas
 
-1. **Balance con 3-6 jugadores.** El escalado de enemigos de `REQ-012` y la
-   duración de sesión se validan en playtest; si falla, se ajusta el bestiario o
-   el spawn, no el modo.
-2. **Fricción del ritmo.** Medir los avisos y el turno del fantasma en mesa; si
-   pesan, proponer experimento con duraciones o salto del fantasma.
-3. **Sprites de la pantalla de inicio.** Qué sprite de `rogues.png` corresponde a
-   cada arquetipo y variante; es dato de implementación con `ADR-006`.
-4. **Duraciones.** 2 s de «Ronda N», 800 ms de «El master mueve» y ~300 ms de
-   paneo son valores iniciales configurables; se ajustan en playtest.
-5. **Semilla.** Rango y normalización del campo de `REQ-016`; se reutiliza la
-   lógica del host y se documenta al implementar.
-6. **Pantalla de resultado.** Texto y presentación exactos; las dos acciones ya
-   están decididas.
-7. **Calendario.** El orden de implementación con `REQ-018`/`REQ-019`/`REQ-020` y
-   `REQ-021` se decide al abrir tareas.
+Ninguna. La v2 cierra el balance, el ritmo, las duraciones, la pantalla de
+resultado, los sprites y la semilla. Lo que queda es validación en playtest, no
+decisión pendiente.
+
+# Validación en playtest
+
+- **Balance con 3-6 jugadores.** El escalado de enemigos de `REQ-012` y la duración
+  de sesión se miden en mesa; si fallan, se ajusta el bestiario o el spawn, no el
+  modo.
+- **Ritmo.** Los 2 s de «Ronda N», 800 ms de «El master mueve» y 300 ms de paneo
+  son valores v1; si pesan, se propone experimento con duraciones o salto del
+  fantasma.
+- **Legibilidad del resultado.** Si la mesa no distingue Victoria de Derrota o no
+  encuentra la semilla, se ajusta la presentación sin cambiar las acciones.
 
 # Decisiones
 
@@ -219,11 +232,15 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 | 2026-11-13 | Resurrección: misma ronda si el índice no ha pasado; si no, siguiente. | human:simon | aceptada |
 | 2026-11-13 | Muerte en el propio turno: se resuelve la acción y se pasa; wipe termina la partida. | human:simon | aceptada |
 | 2026-11-13 | Pausa global para cualquier jugador con `Esc`; guardar solo en fase de personajes; cargar en el activo. | human:simon | aceptada |
-| 2026-11-13 | Reiniciar en el menú de pausa con «Nueva» y «Reiniciar»; Reiniciar conserva party y semilla. | human:simon | aceptada |
-| 2026-11-13 | Resultado con «Reiniciar» y «Nueva», sin reinicio automático. | human:simon | aceptada |
+| 2026-11-13 | Reiniciar en el menú de pausa con «Nueva» y «Reiniciar»; Reiniciar conserva party y semilla. | human:simon | sustituida |
+| 2026-11-13 | Resultado con «Reiniciar» y «Nueva», sin reinicio automático. | human:simon | sustituida |
 | 2026-11-13 | Un jugador usa la misma ruta, sin paneo de relevo. | human:simon | aceptada |
 | 2026-11-13 | `N` sustituye a `E`; `R` desaparece. | human:simon | aceptada |
-| 2026-11-13 | REQ-016 se cierra en v2 en el mismo milestone. | human:simon | aceptada |
+| 2026-11-13 | REQ-016 se cierra en v2 en el mismo milestone. | human:simon | sustituida |
+| 2026-11-14 | Sin reinicio rápido: la pausa usa el menú de REQ-024 y «Nueva partida» abre el paso 1 de REQ-016. | human:simon | aceptada |
+| 2026-11-14 | Resultado con Victoria o Derrota, ronda, party, semilla, «Nueva partida» y «Cargar partida». | human:simon | aceptada |
+| 2026-11-14 | El HUD muestra «Jugador N de M» junto al nombre del activo. | human:simon | aceptada |
+| 2026-11-14 | Duraciones v1: 2 s de ronda, 800 ms de «El master mueve» y 300 ms de paneo. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
@@ -231,9 +248,20 @@ fase enemiga, «El master mueve» y reinicio con la misma party y semilla.
 - [x] El usuario ha aprobado la cámara, el aviso de ronda y su no bloqueo.
 - [x] El usuario ha aprobado la fase enemiga, «El master mueve» y el HUD contextual.
 - [x] El usuario ha aprobado el panel público, el traspaso por suelo y el fantasma.
-- [x] El usuario ha aprobado la pausa global, el guardado y el reinicio.
+- [x] El usuario ha aprobado la pausa global, el menú sin reinicio y el guardado.
 - [x] El usuario ha aprobado `N` como fin de turno y la retirada de `E` y `R`.
+- [x] El usuario ha aprobado el resultado con Nueva y Cargar y «Jugador N de M».
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [x] Se puede generar un grafo de tareas.
-- [x] El usuario ha revisado el texto de la v1 y la hoja queda `stable`.
+- [x] El usuario ha revisado el texto de la v2 y la hoja queda `stable`.
+
+# Notas de vigencia
+
+- **v2 (2026-11-14):** retira el reinicio rápido y lo sustituye por el menú de
+  REQ-024 y el resultado con «Nueva partida» y «Cargar partida»; añade «Jugador N
+  de M», fija duraciones v1 y cierra las preguntas abiertas de sprites, semilla y
+  resultado. El modelo de turnos no cambia.
+- **v1 (2026-11-13):** hotseat local de 1-6 con turno por jugador y `N`, relevo
+  por cámara, aviso de ronda, fase enemiga con HUD de actor/objetivo, panel
+  público y reinicio con la misma party y semilla.

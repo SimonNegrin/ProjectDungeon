@@ -19,7 +19,7 @@ El trabajo inmediato es el **inventario y el equipo** (`REQ-018`, tareas
 TASK-0093 a TASK-0098), base del saqueo, del fantasma y de la columna del
 jugador; después el saqueo y los traits (`REQ-020` y `REQ-019`), la muerte
 jugable (`REQ-021`), el HUD lateral y el guardado (`REQ-022`, `REQ-023` y
-`REQ-024`) y, al final, el hotseat de la fase 2 (`REQ-016` v2 y `REQ-031`).
+`REQ-024`) y, al final, el hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`).
 `REQ-030` (alcance visible de hechizos) queda en borrador.
 
 # Horizonte
@@ -50,7 +50,7 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
 | 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
-| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v2; se implementa al cerrar inventario, saqueo, muerte, HUD y guardado |
+| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v3; se implementa al cerrar inventario, saqueo, muerte, HUD y guardado |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -75,10 +75,9 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 - `REQ-018` (inventario y equipo) está `stable` v4 y en implementación con
   TASK-0093 a TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y
   `REQ-020` (cofres y cadáveres) sigue en borrador.
-- Hotseat: `REQ-031` (modo local) y `REQ-016` v2 (configuración y semilla) están
-  `stable` y sin tareas; `REQ-024` v2 (pausa, guardado y reinicio) sigue en
-  borrador. Es el último paso del orden actual, tras inventario, saqueo, muerte,
-  HUD y guardado.
+- Hotseat: `REQ-031` (modo local), `REQ-016` v3 (menú principal, configuración y
+  semilla) y `REQ-024` v3 (pausa, guardado y carga) están `stable` y sin tareas.
+  Es el último paso del orden actual, tras inventario, saqueo, muerte y HUD.
 - `REQ-022` (HUD izquierdo), `REQ-023` (detalle del cursor) y `REQ-030` (alcance
   visible de hechizos) están en borrador.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
@@ -188,9 +187,11 @@ Los valores concretos de la economía de turno son provisionales y viven en
   jugador activo, derecha para el detalle del cursor. El HUD exterior desaparece.
 - El detalle del cursor exige línea de visión de un jugador vivo; un cofre cerrado
   no revela contenido ni trampa.
-- El menú de pausa ofrece reanudar, guardar en `.zip`, cargar `.json` o `.zip` y
-  controles. Guardar solo desde la pausa, un archivo por partida; cargar pide
-  confirmación y reemplaza la partida actual.
+- El menú de pausa ofrece, en este orden, reanudar, nueva partida, cargar
+  partida, guardar partida y controles. No hay reinicio rápido con la misma party
+  y semilla. Guardar solo desde la pausa, en fase de personajes y sin animación;
+  un archivo `.zip` por partida; cargar pide confirmación y reemplaza la partida
+  actual.
 - La persistencia es local por archivo, sin cuentas ni servidor; no implica
   progresión entre runs.
 - El orden de implementación es inventario y equipo → cofres y saqueo → traits →
@@ -203,8 +204,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Servidor, WebSocket, QR y salas (fase 3).
 - Cuentas, base de datos y matchmaking. El guardado local de partida lo define
   `REQ-024`; la progresión entre runs sigue abierta.
-- Hotseat jugable: definido en `REQ-031` y `REQ-016` v2, con implementación
-  pendiente al final del orden actual.
+- Hotseat jugable: definido en `REQ-031` v2 y `REQ-016` v3, con implementación
+  pendiente al final del orden actual; sin reinicio rápido, el resultado ofrece
+  «Nueva partida» y «Cargar partida».
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
   muros mágicos: horizonte. La magia básica y la curación están implementadas en

@@ -5,6 +5,12 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Requirement — REQ-031 — stable v2: pausa según REQ-024 sin reinicio rápido, resultado con Victoria o Derrota, ronda, party, semilla y Nueva/Cargar, «Jugador N de M» y duraciones 2 s/800 ms/300 ms; sin preguntas abiertas — [REQ-031](requirements/REQ-031-hotseat-local.md)
+
+* 2026-11-14 — Requirement — REQ-024 — stable v3: menú de pausa con Reanudar, Nueva partida, Cargar, Guardar y Controles; sin reinicio rápido en pausa ni en resultado; límites 5/20 MB y 4 entradas; manifiesto con party; sin guardado tras el resultado — [REQ-024](requirements/REQ-024-menu-pausa-guardado.md)
+
+* 2026-11-14 — Requirement — REQ-016 — stable v3: menú principal con «Nueva»/«Cargar», paso 1 cerrado (1-6 y semilla decimal), jugador a jugador con «Atrás», ficha completa, resumen con «Empezar»/«Atrás»/«Cancelar», cancelación al menú principal y tabla de 18 sprites con render por variante; sin preguntas abiertas — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
+
 * 2026-11-14 — Planning — REQ-033 — v8 aparcada: precisar R-025/R-030 con medidas pintadas (2/3 px y 4/6 px), anclar la cuantización de Chromium y el desborde de piernas, y alinear T-002; sin cambios de reglas ni aspecto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
 
 * 2026-11-14 — Task — TASK-0121 — done: un solo helper de auditoría de CLS en `support.ts`, esquema común y filtro alineado con P-006; recogida de 4 objetos en el Suelo sin shifts prohibidos; specs 32/32, E2E 215/215 y verify 1332/1332; fusión `158e09c` — [informe](../artifacts/TASK-0121/attempt-1/report.md)
