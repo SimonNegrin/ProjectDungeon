@@ -5,7 +5,7 @@ description: "Cierre documental de REQ-033: arquitectura, glosario, ADR y vigenc
 task: TASK-0110
 attempt: 1
 status: stable
-brief_bytes: 1235
+brief_bytes: 1238
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T14:13:45Z }
 ---
