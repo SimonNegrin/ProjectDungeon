@@ -1,0 +1,8 @@
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:203:1 › si cambia la disponibilidad de las opciones, el submenú se cierra (1.6s)
+  ✓  2 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:159:1 › un estado nuevo sin cambios de selección ni opciones conserva el submenú (1.8s)
+  ✓  3 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:94:1 › Enter reabre y mantiene el submenú tras recoger, equipar, desequipar y soltar (2.9s)
+
+  3 passed (3.9s)

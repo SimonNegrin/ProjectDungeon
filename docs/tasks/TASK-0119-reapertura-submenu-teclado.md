@@ -4,22 +4,34 @@ id: TASK-0119
 title: "Bug: el submenú no reabre con teclado tras una acción del panel"
 description: "Tras recoger o equipar, Enter deja de abrir el submenú contextual hasta que se vuelve a seleccionar con clic; el teclado queda inerte en el panel."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-032
 requirement_ids: [R-012, R-013, R-014, N-008]
 depends_on: []
 unlocks: []
 created_at: 2026-11-14T19:39:41Z
-completed_at:
-assignee: task-runner
-attempts: 0
+completed_at: 2026-11-14T20:02:52Z
+assignee: task-lead
+attempts: 1
 artifacts: artifacts/TASK-0119/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T19:39:41Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T20:02:52Z
+    note: >-
+      Intento 1 verificado (fix `df5143f`; informe `35caa4b`). Reejecutados
+      `pnpm run verify` (94 archivos, 1332/1332, build y bundle) y
+      `pnpm run test:e2e` (211/211). A/B del spec nuevo: 2 failed/1 passed sin
+      el arreglo y 3/3 con él. Comprobado a mano con el menú abierto: resize,
+      refresh con el mismo estado y `EndTurn` real con estado nuevo y mismas
+      opciones no lo cierran; flechas operativas y sin MP extra. Diff limitado a
+      `src/host/inventory-panel*.ts`, tests y artefactos; sin `src/game/**`,
+      reglas ni aspecto. El bucle de render del feedback queda documentado como
+      problema conocido, fuera de alcance.
 ---
 
 # Objetivo
@@ -50,21 +62,21 @@ falle primero; no se da por supuesta.
 
 # Criterios de aceptación
 
-- [ ] Test E2E nuevo y previo al arreglo: arma en el suelo, panel abierto, `Enter`,
+- [x] Test E2E nuevo y previo al arreglo: arma en el suelo, panel abierto, `Enter`,
       recoger, `Enter` otra vez sobre la fila resultante y submenú visible. Debe
       fallar antes del cambio.
-- [ ] Con teclado, tras recoger, equipar desde mochila, desequipar y soltar,
+- [x] Con teclado, tras recoger, equipar desde mochila, desequipar y soltar,
       `Enter` abre el submenú del objeto seleccionado o del que ocupa su lugar
       mientras exista alguna fila con acciones.
-- [ ] La selección posterior a una acción recae en una fila con acciones; si no
+- [x] La selección posterior a una acción recae en una fila con acciones; si no
       queda ninguna, cae en «Cerrar» o cierra el panel de forma explícita, nunca
       en un hueco vacío que ignora `Enter`.
-- [ ] Cambiar de turno, refrescar el estado y redimensionar no dejan el teclado
+- [x] Cambiar de turno, refrescar el estado y redimensionar no dejan el teclado
       inerte mientras el panel siga abierto.
-- [ ] Clic, flechas, `Tab`, `aria-current` y foco DOM mantienen el
+- [x] Clic, flechas, `Tab`, `aria-current` y foco DOM mantienen el
       comportamiento actual; `Enter` sobre una fila vacía no abre menú ni
       ejecuta nada.
-- [ ] Sin gasto de MP adicional, sin cambios de coste, de reglas ni del modelo.
+- [x] Sin gasto de MP adicional, sin cambios de coste, de reglas ni del modelo.
 
 # Plan de test
 
@@ -78,10 +90,10 @@ falle primero; no se da por supuesta.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0119/attempt-1/report.md`
-- [ ] Salida del E2E fallando antes del cambio y pasando después
-- [ ] Salida de `pnpm run verify` y del E2E completo
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0119/attempt-1/report.md`
+- [x] Salida del E2E fallando antes del cambio y pasando después
+- [x] Salida de `pnpm run verify` y del E2E completo
+- [x] Commit SHA
 
 # Restricciones
 

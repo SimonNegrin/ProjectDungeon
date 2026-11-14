@@ -1,0 +1,45 @@
+{
+  "before": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": false,
+    "mp": 6
+  },
+  "opened": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": true,
+    "mp": 6
+  },
+  "afterResize": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": true,
+    "mp": 6
+  },
+  "afterResizeBack": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": true,
+    "mp": 6
+  },
+  "afterRefresh": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": true,
+    "mp": 6
+  },
+  "afterTurn": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": true,
+    "mp": 6
+  },
+  "activeKind": "equip",
+  "afterEscape": {
+    "selected": "ground:item-test-ground-0",
+    "activeRow": "ground:item-test-ground-0",
+    "menu": false,
+    "mp": 6
+  }
+}
