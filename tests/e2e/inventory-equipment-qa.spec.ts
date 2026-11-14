@@ -125,14 +125,6 @@ function rowTestId(key: string): string {
   return `inventory-${panelRowTestId(key)}`;
 }
 
-function backpackName(index: number) {
-  return `[data-testid="${rowTestId(`backpack:${index}`)}-name"]`;
-}
-
-function groundName(instanceId: string) {
-  return `[data-testid="${rowTestId(`ground:${instanceId}`)}-name"]`;
-}
-
 interface BoxMetrics {
   readonly scrollWidth: number;
   readonly scrollHeight: number;
@@ -214,12 +206,16 @@ test('panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío si
   expect(initial.players[0].equipment.weapon?.itemId).toBe('sword');
 
   await openPanel(page);
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
-  await expect(page.getByTestId('inventory-player')).toHaveText(
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.locator('.inventory-ground-row')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText('No hay objetos');
+  // Sin cabecera duplicada: nombre y MP siguen cubiertos en el HUD izquierdo.
+  await expect(page.getByTestId('hud-player-name')).toHaveText(
     initial.players[0].nombre,
   );
-  await expect(page.getByTestId('inventory-mp')).toHaveText(
+  await expect(page.getByTestId('hud-player-mp')).toHaveText(
     `${initial.players[0].mp}/${initial.players[0].maxMp}`,
   );
   expect(await focusInsidePanel(page)).toBe(true);
@@ -269,12 +265,15 @@ test('panel: equipar y desequipar con teclado y 1 MP sin acción', async ({
   await openPanel(page);
 
   await expect(page.getByTestId('inventory-backpack-count')).toHaveText('1/8');
-  await expect(page.locator(backpackName(0))).toHaveText('Hacha');
-  // La rejilla no muestra stats, traits ni comparación (REQ-032 R-009); el
-  // modelo conserva la comparación y el desglose para TASK-0102.
+  await expect(page.getByTestId('inventory-backpack-0')).toHaveAttribute(
+    'aria-label',
+    'Hacha, En mochila',
+  );
+  // La rejilla no muestra stats, traits, comparación ni texto dentro del slot.
   await expect(page.getByTestId('inventory-stats')).toHaveCount(0);
   await expect(page.locator('.inventory-row-comparison')).toHaveCount(0);
   await expect(page.locator('.inventory-row-traits')).toHaveCount(0);
+  await expect(page.locator('.inventory-slot').first()).toHaveText('');
   await screenshot(page, 'panel-tres-columnas', testInfo);
 
   await pressPanelAction(page, panelActionTestId('equip', 'backpack:0'));
@@ -284,9 +283,14 @@ test('panel: equipar y desequipar con teclado y 1 MP sin acción', async ({
   expect(afterEquip.players[0].inventory.items[0]?.itemId).toBe('sword');
   expect(afterEquip.players[0].mp).toBe(before.players[0].mp - 1);
   expect(afterEquip.players[0].actions).toEqual(before.players[0].actions);
-  await expect(page.getByTestId('inventory-slot-weapon-name')).toHaveText('Hacha');
-  await expect(page.locator(backpackName(0))).toHaveText('Espada');
-  await expect(page.locator(backpackName(0))).toHaveCount(1);
+  await expect(page.getByTestId('inventory-slot-weapon')).toHaveAttribute(
+    'aria-label',
+    'Hacha, Equipado',
+  );
+  await expect(page.getByTestId('inventory-backpack-0')).toHaveAttribute(
+    'aria-label',
+    'Espada, En mochila',
+  );
 
   await pressPanelAction(page, panelActionTestId('unequip', 'slot:weapon'));
   await settle(page);
@@ -299,7 +303,14 @@ test('panel: equipar y desequipar con teclado y 1 MP sin acción', async ({
       item ? [item.itemId] : [],
     ),
   ).toEqual(['sword', 'axe']);
-  await expect(page.getByTestId('inventory-slot-weapon-name')).toHaveText('Vacío');
+  await expect(page.getByTestId('inventory-slot-weapon')).toHaveAttribute(
+    'aria-label',
+    'Arma: vacío, no seleccionable',
+  );
+  await expect(page.getByTestId('inventory-backpack-1')).toHaveAttribute(
+    'aria-label',
+    'Hacha, En mochila',
+  );
   await screenshot(page, 'panel-desequipado', testInfo);
 
   await page.keyboard.press('Escape');
@@ -320,9 +331,14 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   const before = await snapshot(page);
   await openPanel(page);
 
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.locator(groundName(groundId))).toHaveText('Hacha');
-  await expect(page.getByTestId('inventory-ground-hint')).toBeHidden();
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.getByTestId(`inventory-ground-${groundId}`)).toHaveAttribute(
+    'aria-label',
+    'Hacha, En el suelo',
+  );
+  await expect(page.getByTestId('inventory-ground-hint')).toHaveCount(0);
   await pressPanelAction(page, panelActionTestId('pickup', `ground:${groundId}`));
   await settle(page);
   const afterPickup = await snapshot(page);
@@ -330,9 +346,15 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   expect(afterPickup.players[0].actions).toEqual(before.players[0].actions);
   expect(afterPickup.groundItems).toHaveLength(0);
   expect(afterPickup.players[0].inventory.items[0]?.itemId).toBe('axe');
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
-  await expect(page.locator(backpackName(0))).toHaveText('Hacha');
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.locator('.inventory-ground-row')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText('No hay objetos');
+  await expect(page.getByTestId('inventory-backpack-0')).toHaveAttribute(
+    'aria-label',
+    'Hacha, En mochila',
+  );
 
   await pressPanelAction(page, panelActionTestId('drop', 'backpack:0'));
   await settle(page);
@@ -342,8 +364,10 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   expect(afterDrop.groundItems).toHaveLength(1);
   expect(afterDrop.groundItems[0].itemId).toBe('axe');
   expect(afterDrop.players[0].inventory.items.filter(Boolean)).toHaveLength(0);
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-empty')).toBeHidden();
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.locator('.inventory-ground-row')).toHaveCount(1);
 
   const dropped = afterDrop.groundItems[0];
   await pressPanelAction(page, panelActionTestId('pickup', `ground:${dropped.id}`));
@@ -365,9 +389,9 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   expect(afterEquippedDrop.players[0].inventory.items[0]?.itemId).toBe('sword');
   expect(afterEquippedDrop.groundItems).toHaveLength(1);
   expect(afterEquippedDrop.groundItems[0].itemId).toBe('axe');
-  await expect(page.locator(groundName(afterEquippedDrop.groundItems[0].id))).toHaveText(
-    'Hacha',
-  );
+  await expect(
+    page.getByTestId(`inventory-ground-${afterEquippedDrop.groundItems[0].id}`),
+  ).toHaveAttribute('aria-label', 'Hacha, En el suelo');
   await screenshot(page, 'panel-equipado-al-suelo', testInfo);
   expect(consoleErrors).toEqual([]);
 });
@@ -445,7 +469,7 @@ test('sin MP: equipar aparece no disponible con motivo y no altera el estado ni 
   const initial = await openScenario(page, { inventory: ['axe'], mp: 0 });
   const before = await snapshot(page);
   await openPanel(page);
-  await expect(page.getByTestId('inventory-mp')).toHaveText(
+  await expect(page.getByTestId('hud-player-mp')).toHaveText(
     `0/${initial.players[0].maxMp}`,
   );
   await selectPanelRow(page, 'backpack:0');
@@ -501,7 +525,10 @@ test('sprites del panel coinciden con el objeto y F1 expone mochila, equipo, cap
   const groundItem = initial.groundItems[0];
   await openPanel(page);
   await expect(page.getByTestId('inventory-backpack-count')).toHaveText('1/8');
-  await expect(page.locator(groundName(groundItem.id))).toHaveText('Hacha');
+  await expect(page.getByTestId(`inventory-ground-${groundItem.id}`)).toHaveAttribute(
+    'aria-label',
+    'Hacha, En el suelo',
+  );
   const groundIcon = page.getByTestId(`${rowTestId(`ground:${groundItem.id}`)}-icon`);
   await expect(groundIcon).toBeVisible();
   const background = await groundIcon.evaluate(
@@ -509,7 +536,7 @@ test('sprites del panel coinciden con el objeto y F1 expone mochila, equipo, cap
   );
   const rect = ITEMS.axe.sprite.rect;
   expect(background).toBe(
-    `calc(var(--ui-scale) * -${rect.x}px) calc(var(--ui-scale) * -${rect.y}px)`,
+    `calc(var(--ui-unit) * -${rect.x}) calc(var(--ui-unit) * -${rect.y})`,
   );
 
   await page.keyboard.press('Escape');
@@ -562,16 +589,15 @@ test('capturas 1280×720 y 900×700: mochila llena con cuatro objetos y suelo va
       expectNoScroll(column, `columna ${index + 1}`);
     }
     if (viewport.width === 1280) {
-      // REQ-033 R-013: con la escala nueva cuatro objetos pueden no caber en el
-      // suelo; el desplazamiento debe quedar confinado a su zona y no mover el
-      // panel, el cuerpo ni las columnas (que ya se han comprobado sin scroll).
+      // REQ-033 R-013: con el slot común, cuatro objetos caben en la rejilla de
+      // dos columnas; si sobraran, el scroll quedaría confinado al suelo.
       const ground = fullMetrics.groundScroll;
       expect(ground, 'suelo a 1280×720').not.toBeNull();
       expect(ground!.scrollWidth, 'el suelo no recorta en horizontal').toBeLessThanOrEqual(
         ground!.clientWidth + 1,
       );
-      expect(ground!.scrollHeight, 'el suelo desplaza en vertical').toBeGreaterThan(
-        ground!.clientHeight,
+      expect(ground!.scrollHeight, 'el suelo no recorta en vertical').toBeLessThanOrEqual(
+        ground!.clientHeight + 1,
       );
     }
     metrics.push({
@@ -583,8 +609,11 @@ test('capturas 1280×720 y 900×700: mochila llena con cuatro objetos y suelo va
 
     await openScenario(page, { inventory: ['dagger'] }, viewport);
     await openPanel(page);
-    await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-    await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
+    await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+    await expect(page.locator('.inventory-ground-row')).toHaveCount(0);
+    await expect(page.getByTestId('inventory-panel')).not.toContainText('No hay objetos');
     await screenshot(page, `suelo-vacio-${suffix}`, testInfo);
     const emptyMetrics = await panelMetrics(page);
     expectNoScroll(emptyMetrics.panel, 'panel con suelo vacío');

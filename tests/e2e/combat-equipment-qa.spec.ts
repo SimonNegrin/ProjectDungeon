@@ -297,7 +297,9 @@ test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', 
   const pickupFromPanel = async (itemId: string): Promise<void> => {
     await page.keyboard.press('i');
     await expect(page.getByTestId('inventory-panel')).toBeVisible();
-    await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+    await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
     await pressPanelAction(page, panelActionTestId('pickup', `ground:${itemId}`));
     await settle(page);
   };
@@ -313,8 +315,11 @@ test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', 
   const axeInstance = initial.groundItems.find((item) => item.id === axe!.id);
   expect(axeInstance, 'El hacha debe existir como instancia del suelo').toBeDefined();
   await pickupFromPanel(axeInstance!.id);
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.locator('.inventory-ground-row')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText('No hay objetos');
   await screenshot(page, 'panel-recogida', testInfo);
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();

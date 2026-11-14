@@ -29,20 +29,11 @@ const FULL_BACKPACK: readonly ItemId[] = [
   'shield',
 ];
 const FOUR_GROUND: readonly ItemId[] = ['axe', 'dagger', 'knife', 'hammer'];
-const MANY_GROUND: readonly ItemId[] = [
-  'axe',
-  'dagger',
-  'knife',
-  'hammer',
-  'electric-sword',
-  'arcane-dagger',
-  'plate',
-  'shield',
-  'axe',
-  'dagger',
-  'knife',
-  'hammer',
-];
+const MANY_GROUND: readonly ItemId[] = Array.from(
+  { length: 40 },
+  (_value, index) =>
+    ['axe', 'dagger', 'knife', 'hammer'][index % 4] as ItemId,
+);
 
 interface ScenarioOptions {
   readonly inventory?: readonly ItemId[];
@@ -51,26 +42,59 @@ interface ScenarioOptions {
   readonly weaponId?: ItemId | null;
   readonly armorId?: ItemId | null;
   readonly shieldId?: ItemId | null;
+  /** Cadáveres de presentación en la casilla del jugador. */
+  readonly deadPlayer?: boolean;
+  readonly deadEnemies?: readonly ('sentinel' | 'brute' | 'coward')[];
 }
 
 function warriorScenario(options: ScenarioOptions = {}): GameState {
   const base = createInitialState({ seed: SEED, generator: new BspMapGenerator() });
   const template = base.players[0];
   const at = { x: template.x, y: template.y };
+  const players = [
+    {
+      ...template,
+      mp: options.mp ?? template.maxMp,
+      equipment: equipmentFromLegacy(template.id, {
+        weaponId: options.weaponId === undefined ? 'sword' : options.weaponId,
+        armorId: options.armorId === undefined ? 'armor' : options.armorId,
+        shieldId: options.shieldId === undefined ? 'shield' : options.shieldId,
+      }),
+      inventory: inventoryFromIds(template.id, options.inventory ?? []),
+    },
+  ];
+  if (options.deadPlayer) {
+    players.push({
+      ...template,
+      id: 'player-corpse',
+      nombre: 'Bruja',
+      hp: 0,
+      x: at.x,
+      y: at.y,
+      equipment: equipmentFromLegacy('player-corpse', {
+        weaponId: null,
+        armorId: null,
+        shieldId: null,
+      }),
+      inventory: inventoryFromIds('player-corpse', []),
+    });
+  }
+  const enemyTemplate = base.enemies[0];
+  const enemies = options.deadEnemies
+    ? options.deadEnemies.map((enemyType, index) => ({
+        ...enemyTemplate,
+        id: `enemy-corpse-${index}`,
+        nombre: enemyType,
+        enemyType,
+        hp: 0,
+        x: at.x,
+        y: at.y,
+      }))
+    : base.enemies;
   return {
     ...base,
-    players: [
-      {
-        ...template,
-        mp: options.mp ?? template.maxMp,
-        equipment: equipmentFromLegacy(template.id, {
-          weaponId: options.weaponId === undefined ? 'sword' : options.weaponId,
-          armorId: options.armorId === undefined ? 'armor' : options.armorId,
-          shieldId: options.shieldId === undefined ? 'shield' : options.shieldId,
-        }),
-        inventory: inventoryFromIds(template.id, options.inventory ?? []),
-      },
-    ],
+    players,
+    enemies,
     groundItems: (options.ground ?? []).map((itemId, index) => ({
       id: `item-test-ground-${index}`,
       itemId,
@@ -197,6 +221,139 @@ function expectNoVerticalScroll(
   );
 }
 
+interface Rect {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+interface PanelGeometry {
+  readonly panel: Rect;
+  readonly columns: Array<{ readonly selector: string; readonly rect: Rect }>;
+  readonly titles: Array<{ readonly text: string; readonly rect: Rect }>;
+  readonly slots: Array<{
+    readonly key: string;
+    readonly rect: Rect;
+    readonly sprite: Rect | null;
+  }>;
+}
+
+async function panelGeometry(page: Page): Promise<PanelGeometry> {
+  return page.getByTestId('inventory-panel').evaluate((panel) => {
+    const rect = (element: Element) => {
+      const box = element.getBoundingClientRect();
+      return {
+        left: box.left,
+        top: box.top,
+        right: box.right,
+        bottom: box.bottom,
+        width: box.width,
+        height: box.height,
+      };
+    };
+    const columns = [
+      ...panel.querySelectorAll<HTMLElement>('.inventory-column'),
+    ].map((column) => ({
+      selector:
+        [...column.classList].find((name) => name.startsWith('inventory-column-')) ??
+        'inventory-column',
+      rect: rect(column),
+    }));
+    const titles = [
+      ...panel.querySelectorAll<HTMLElement>('.inventory-section-title'),
+    ].map((title) => ({ text: title.textContent?.trim() ?? '', rect: rect(title) }));
+    const slots = [
+      ...panel.querySelectorAll<HTMLElement>('.inventory-slot'),
+    ].map((slot) => {
+      const icon = slot.querySelector<HTMLElement>('.inventory-slot-icon');
+      return {
+        key: slot.dataset.rowKey ?? '',
+        rect: rect(slot),
+        sprite: icon && !icon.hidden ? rect(icon) : null,
+      };
+    });
+    return { panel: rect(panel), columns, titles, slots };
+  });
+}
+
+function expectInside(inner: Rect, outer: Rect, label: string): void {
+  expect(inner.left, `${label}: borde izquierdo fuera`).toBeGreaterThanOrEqual(
+    outer.left - 0.5,
+  );
+  expect(inner.top, `${label}: borde superior fuera`).toBeGreaterThanOrEqual(
+    outer.top - 0.5,
+  );
+  expect(inner.right, `${label}: borde derecho fuera`).toBeLessThanOrEqual(
+    outer.right + 0.5,
+  );
+  expect(inner.bottom, `${label}: borde inferior fuera`).toBeLessThanOrEqual(
+    outer.bottom + 0.5,
+  );
+}
+
+function expectPanelGeometry(geometry: PanelGeometry, label: string): void {
+  expect(geometry.columns).toHaveLength(3);
+  expect(geometry.titles).toHaveLength(3);
+  expect(
+    geometry.titles.map((title) => title.text.split(/\s+/)[0]),
+  ).toEqual(['Equipo', 'Bolsa', 'Suelo']);
+
+  for (const column of geometry.columns) {
+    expectInside(column.rect, geometry.panel, `${label} ${column.selector}`);
+  }
+
+  const top = geometry.titles[0].rect.top;
+  for (const [index, title] of geometry.titles.entries()) {
+    expectInside(title.rect, geometry.columns[index].rect, `${label} título ${title.text}`);
+    expect(Math.abs(title.rect.top - top), `${label} títulos desalineados`).toBeLessThanOrEqual(
+      1,
+    );
+  }
+
+  expect(geometry.slots.length).toBeGreaterThan(0);
+  const sides = geometry.slots.map((slot) => slot.rect.width);
+  const minSide = Math.min(...sides);
+  const maxSide = Math.max(...sides);
+  for (const side of sides) {
+    expect(Math.abs(side - minSide), `${label} slot de otro tamaño`).toBeLessThanOrEqual(
+      0.5,
+    );
+  }
+  expect(maxSide - minSide, `${label} slots desiguales`).toBeLessThanOrEqual(0.5);
+
+  for (const slot of geometry.slots) {
+    expect(
+      Math.abs(slot.rect.width - slot.rect.height),
+      `${label} ${slot.key} no es cuadrado`,
+    ).toBeLessThanOrEqual(0.5);
+    const column = slot.key.startsWith('backpack:')
+      ? geometry.columns[1]
+      : slot.key.startsWith('ground:')
+        ? geometry.columns[2]
+        : geometry.columns[0];
+    expectInside(slot.rect, column.rect, `${label} ${slot.key}`);
+    if (slot.sprite === null) continue;
+    expectInside(slot.sprite, slot.rect, `${label} sprite ${slot.key}`);
+    expect(
+      Math.abs(
+        slot.sprite.left + slot.sprite.width / 2 -
+          (slot.rect.left + slot.rect.width / 2),
+      ),
+      `${label} sprite ${slot.key} descentrado en X`,
+    ).toBeLessThanOrEqual(1);
+    expect(
+      Math.abs(
+        slot.sprite.top + slot.sprite.height / 2 -
+          (slot.rect.top + slot.rect.height / 2),
+      ),
+      `${label} sprite ${slot.key} descentrado en Y`,
+    ).toBeLessThanOrEqual(1);
+  }
+}
+
 test('tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son paradas', async ({
   page,
 }, testInfo) => {
@@ -206,6 +363,11 @@ test('tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son para
   });
   await openPanel(page);
 
+  const geometryLog: Array<Record<string, unknown>> = [];
+  const desktopGeometry = await panelGeometry(page);
+  expectPanelGeometry(desktopGeometry, '1280x720');
+  geometryLog.push({ viewport: '1280x720', ...desktopGeometry });
+
   const columns = page.locator('.inventory-column');
   await expect(columns).toHaveCount(3);
   const widths = await columns.evaluateAll((elements) =>
@@ -214,15 +376,31 @@ test('tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son para
   for (const width of widths) {
     expect(Math.abs(width - widths[0])).toBeLessThanOrEqual(2);
   }
-  await expect(page.locator('.inventory-slot')).toHaveCount(8);
-  await expect(page.locator('.inventory-backpack-cell')).toHaveCount(8);
-  await expect(page.getByTestId('inventory-cadavers')).toBeVisible();
-  await expect(page.getByTestId('inventory-cadavers-empty')).toContainText(
-    'No hay cadáveres',
-  );
+  await expect(page.locator('.inventory-column-equipment .inventory-slot')).toHaveCount(8);
+  await expect(page.locator('.inventory-column-backpack .inventory-slot')).toHaveCount(8);
+  await expect(page.locator('.inventory-ground .inventory-slot')).toHaveCount(4);
+  await expect(page.getByTestId('inventory-cadavers')).toBeHidden();
+  await expect(page.getByTestId('inventory-cadavers-empty')).toHaveCount(0);
   await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
   await expect(page.locator('.inventory-ground-row')).toHaveCount(4);
   await expect(page.getByTestId('inventory-stats')).toHaveCount(0);
+  for (const [testId, title] of [
+    ['inventory-column-equipment', 'Equipo'],
+    ['inventory-column-backpack', 'Bolsa'],
+    ['inventory-column-right', 'Suelo'],
+  ] as const) {
+    await expect(page.locator(`.${testId} .inventory-section-title`)).toContainText(
+      title,
+    );
+  }
+  await expect(page.getByTestId('inventory-player')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-mp')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText(
+    'Flechas/WASD',
+  );
+  await expect(page.getByTestId('inventory-panel')).not.toContainText(
+    'No hay objetos',
+  );
 
   // Solo los huecos ocupados son tabulables en la rejilla.
   for (const slot of ['head', 'neck', 'ring', 'feet', 'hands']) {
@@ -261,6 +439,10 @@ test('tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son para
   await openPanel(page);
   await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
   await expect(page.locator('.inventory-ground-row')).toHaveCount(4);
+  const compactGeometry = await panelGeometry(page);
+  expectPanelGeometry(compactGeometry, '900x700');
+  geometryLog.push({ viewport: '900x700', ...compactGeometry });
+  await writeLog(testInfo, 'panel-geometry.json', geometryLog);
   await screenshot(page, 'tres-columnas-900x700', testInfo);
 
   await page.keyboard.press('Tab');
@@ -272,6 +454,74 @@ test('tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son para
   await expect(page.getByTestId('inventory-panel')).toBeVisible();
   expect(await selectedKey(page)).toBe(beforeReopen);
   await screenshot(page, 'reapertura-900x700', testInfo);
+});
+
+test('cadáveres del tile: rejilla al inicio de Suelo, sin acciones ni paradas', async ({
+  page,
+}, testInfo) => {
+  await openScenario(page, {
+    inventory: FULL_BACKPACK,
+    ground: ['axe', 'dagger'],
+    deadPlayer: true,
+    deadEnemies: ['sentinel', 'brute'],
+  }, { width: 900, height: 700 });
+  await openPanel(page);
+
+  const cadavers = page.getByTestId('inventory-cadavers');
+  await expect(cadavers).toBeVisible();
+  await expect(page.locator('.inventory-corpse')).toHaveCount(3);
+  await expect(page.locator('.inventory-corpse-name')).toHaveText([
+    'Bruja',
+    'Centinela',
+    'Bruto',
+  ]);
+  await expect(
+    page.locator('.inventory-corpse-sprite[data-sheet="rogues"]'),
+  ).toHaveCount(1);
+  await expect(
+    page.locator('.inventory-corpse-sprite[data-sheet="monsters"]'),
+  ).toHaveCount(2);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText(
+    'No hay cadáveres',
+  );
+
+  const corpseRows = page.locator('.inventory-corpse');
+  await expect(corpseRows).toHaveCount(3);
+  expect(
+    await corpseRows.evaluateAll((elements) =>
+      elements.filter((element) => element.hasAttribute('data-row-key')).length,
+    ),
+  ).toBe(0);
+
+  const layout = await page.getByTestId('inventory-panel').evaluate((panel) => {
+    const column = panel.querySelector<HTMLElement>('.inventory-column-right')!;
+    const title = column.querySelector<HTMLElement>('.inventory-section-title')!;
+    const ground = panel.querySelector<HTMLElement>('.inventory-ground')!;
+    const box = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        left: rect.left,
+        top: rect.top,
+        right: rect.right,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      };
+    };
+    return {
+      column: box(column),
+      title: box(title),
+      corpses: [...column.querySelectorAll<HTMLElement>('.inventory-corpse')].map(box),
+      ground: box(ground),
+    };
+  });
+  const lastCorpse = layout.corpses[layout.corpses.length - 1];
+  expect(lastCorpse).toBeDefined();
+  expect(layout.title.bottom).toBeLessThanOrEqual(layout.corpses[0].top + 1);
+  expect(lastCorpse!.bottom).toBeLessThanOrEqual(layout.ground.top + 1);
+
+  await screenshot(page, 'cadavers-3-900x700', testInfo);
+  await writeLog(testInfo, 'panel-corpses.json', layout);
 });
 
 test('flechas y WASD recorren el plano, sin rebote y con empate determinista', async ({
@@ -469,7 +719,7 @@ test('scroll: a 1280×720 solo el suelo puede desplazarse; a 900×700 también',
   expect(compact.ground!.scrollTop).toBe(0);
 
   // El foco del suelo desplaza solo su contenedor y deja la fila visible.
-  await selectPanelRow(page, 'ground:item-test-ground-11');
+  await selectPanelRow(page, 'ground:item-test-ground-39');
   const focused = await scrollMetrics(page);
   expect(focused.ground!.scrollTop).toBeGreaterThan(0);
   const visibility = await page.evaluate(() => {
@@ -494,7 +744,7 @@ test('scroll: a 1280×720 solo el suelo puede desplazarse; a 900×700 también',
   log.push({ viewport: '900x700', ...focused });
 
   const panelRowsNow = await panelRows(page);
-  expect(panelRowsNow.some((row) => row.key === 'ground:item-test-ground-11')).toBe(
+  expect(panelRowsNow.some((row) => row.key === 'ground:item-test-ground-39')).toBe(
     true,
   );
   await screenshot(page, 'scroll-solo-suelo-900x700', testInfo);

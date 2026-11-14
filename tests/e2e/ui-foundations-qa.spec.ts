@@ -212,9 +212,9 @@ test('sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones exter
   await expect(panel).toBeVisible();
 
   const panelTitle = await computed(page, '.inventory-panel-title');
-  const panelHelp = await computed(page, '.inventory-panel-help');
+  const sectionTitle = await computed(page, '.inventory-section-title');
   expect(panelTitle.family).toContain('Pixelify Sans');
-  expect(panelHelp.family).toContain('Pixelify Sans');
+  expect(sectionTitle.family).toContain('Pixelify Sans');
 
   expect(audit.fontResponses.length).toBeGreaterThan(0);
   expect(audit.fontResponses.every((response) => response.status === 200)).toBe(true);
@@ -227,7 +227,7 @@ test('sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones exter
     glyphChecks,
     fontResponses: audit.fontResponses,
     external: audit.external,
-    families: { body, hud, hudData, hudHelp, panelTitle, panelHelp },
+    families: { body, hud, hudData, hudHelp, panelTitle, sectionTitle },
     uiLine: await uiLine(page),
     uiScale: await uiScale(page),
   });
@@ -349,7 +349,7 @@ test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucid
     '.hud-detail-block',
     '.inventory-panel-body',
     '.inventory-column',
-    '.inventory-row',
+    '.inventory-slot',
     '.inventory-submenu',
     '.spell-list',
     '.feedback-banner',
@@ -376,7 +376,7 @@ test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucid
   const outset = entries.find((entry) => entry.selector === '.hud-left')!;
   expect(outset.borderTopColor).toBe('rgb(110, 184, 168)');
   expect(outset.borderBottomColor).toBe('rgb(47, 20, 47)');
-  const inset = entries.find((entry) => entry.selector === '.inventory-row')!;
+  const inset = entries.find((entry) => entry.selector === '.inventory-slot')!;
   expect(inset.borderTopColor).toBe('rgb(47, 20, 47)');
   expect(inset.borderBottomColor).toBe('rgb(110, 184, 168)');
 

@@ -312,10 +312,13 @@ test.describe('panel de inventario sobre el mapa', () => {
       for (const column of scroll.columns) {
         expect(column.scrollHeight).toBeLessThanOrEqual(column.clientHeight + 1);
       }
-      const playerLabel = await page.getByTestId('inventory-player').boundingBox();
-      expect(playerLabel).not.toBeNull();
-      expect(playerLabel!.y).toBeGreaterThanOrEqual(panelBox!.y - 1);
-      expect(playerLabel!.y).toBeLessThan(panelBox!.y + panelBox!.height);
+      const columnTitle = await page
+        .locator('.inventory-section-title')
+        .first()
+        .boundingBox();
+      expect(columnTitle).not.toBeNull();
+      expect(columnTitle!.y).toBeGreaterThanOrEqual(panelBox!.y - 1);
+      expect(columnTitle!.y).toBeLessThan(panelBox!.y + panelBox!.height);
 
       await screenshot(
         page,
