@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0112 — done: bisel de 2× con crecimiento exterior y área interior estable (≤0,82 px); 1320/1320 unitarios y 189/189 E2E; fusión `8175366` — [informe](../artifacts/TASK-0112/attempt-1/report.md)
+
 * 2026-11-14 — Planning — TASK-0112 a TASK-0118 — creadas: relieve de 2×, listas verticales, panel arriba sin cabeza, siluetas, cursor y QA/docs; TASK-0112 ready y el resto en cadena — [TASK-0112](tasks/TASK-0112-ui-biseles-gruesos-crecimiento.md)
 
 * 2026-11-14 — Requirement — REQ-033 — stable v7: aprobado el texto; biseles 2×, cursor 4× #fcffc0, listas verticales, columnas arriba, casco superior sin bloque de cabeza, siluetas #6eb8a8 que se ocultan al equipar y transición de 140-160 ms; sin cambios de reglas — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)

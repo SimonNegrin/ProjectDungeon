@@ -4,22 +4,39 @@ id: TASK-0112
 title: "UI: biseles de 2× línea y crecimiento hacia fuera"
 description: "Aplicar un bisel de 2× la línea base a todos los outset/inset, sin reducir el área interior ni desplazar el contenido."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-006, R-025, T-002, T-015]
 depends_on: []
 unlocks: [TASK-0114, TASK-0116, TASK-0117]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T16:25:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0112/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T16:25:00Z
+    note: >-
+      Intento 1 verificado (código `36d315d`, informe `4828014`, verificación
+      `559fdb0`; fusión `8175366`). Reejecutados `pnpm run verify` (120 s;
+      93 archivos, 1320/1320, tsc, build y bundle) y `pnpm run test:e2e`
+      (180 s; 189/189). Token `--ui-bevel = 2 × --ui-line` consumido por
+      `.ui-outset`/`.ui-inset`, marco y panel-body; el bisel crece hacia fuera
+      con contornos exteriores y el interior se conserva (deltas ≤0,82 px en
+      HUD, zona, ficha, columnas, slots, botón y submenú). Chromium cuantiza el
+      grosor pintado (2 px a 900×700 y 3 px a 1280×720) mientras el token sigue
+      continuo (2,347 y 3,202 px); se registra como limitación del render, sin
+      cuantizar el token. Cursor del mapa intacto. Diff revisado: solo
+      `src/host/ui.css`, tests y artefactos; sin cambios en `src/game/**`,
+      `index.html`, requisitos, arnés, plantillas ni dependencias, y sin tests
+      borrados, saltados o debilitados. Capturas a 900×700 y 1280×720
+      revisadas.
 ---
 
 # Objetivo
@@ -37,18 +54,18 @@ de escala y la paleta no cambian.
 
 # Criterios de aceptación
 
-- [ ] Existe un token de bisel igual a `2 × --ui-line` y todos los `.ui-outset`,
+- [x] Existe un token de bisel igual a `2 × --ui-line` y todos los `.ui-outset`,
       `.ui-inset`, el marco exterior y los componentes con bisel lo consumen; no
       queda ningún bisel de UI a 1×.
-- [ ] El grosor crece hacia fuera: el rectángulo interior de HUD, zonas, ficha,
+- [x] El grosor crece hacia fuera: el rectángulo interior de HUD, zonas, ficha,
       columnas, slots, botones y submenú conserva tamaño y posición (±1 px) antes
       y después del cambio.
-- [ ] A 900×700 el bisel mide ≈3 px y a 1280×720 escala de forma continua; no hay
+- [x] A 900×700 el bisel mide ≈3 px y a 1280×720 escala de forma continua; no hay
       saltos de 1 px por umbral.
-- [ ] No aparecen solapes, recortes ni Content Shift en el marco, las columnas,
+- [x] No aparecen solapes, recortes ni Content Shift en el marco, las columnas,
       los títulos ni los slots.
-- [ ] El cursor del mapa mantiene su ancho de `2 × --ui-line`.
-- [ ] Los tests de relieve existentes se adaptan al grosor nuevo sin retirar
+- [x] El cursor del mapa mantiene su ancho de `2 × --ui-line`.
+- [x] Los tests de relieve existentes se adaptan al grosor nuevo sin retirar
       cobertura.
 
 # Plan de test

@@ -102,7 +102,7 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0108](TASK-0108-ui-cursor-superpuesto-cls.md) | UI: cursor superpuesto y anti-CLS | `done` | REQ-033 | TASK-0107 | P1 |
 | [TASK-0109](TASK-0109-qa-visual-revision-ui.md) | QA visual de la revisión de UI | `done` | REQ-033 | TASK-0105, TASK-0106, TASK-0107, TASK-0108 | P1 |
 | [TASK-0110](TASK-0110-docs-revision-ui-adr.md) | Docs: revisión visual, arquitectura y ADR | `done` | REQ-033 | TASK-0109 | P1 |
-| [TASK-0112](TASK-0112-ui-biseles-gruesos-crecimiento.md) | UI: biseles de 2× línea y crecimiento hacia fuera | `ready` | REQ-033 | — | P1 |
+| [TASK-0112](TASK-0112-ui-biseles-gruesos-crecimiento.md) | UI: biseles de 2× línea y crecimiento hacia fuera | `done` | REQ-033 | — | P1 |
 | [TASK-0113](TASK-0113-ui-listas-verticales-stats-traits.md) | UI: listas verticales de stats y traits | `backlog` | REQ-033 | — | P1 |
 | [TASK-0114](TASK-0114-ui-panel-arriba-figura-sin-cabeza.md) | UI: panel alineado arriba y figura sin cabeza | `backlog` | REQ-033 | TASK-0112 | P1 |
 | [TASK-0115](TASK-0115-ui-siluetas-slots-vacios.md) | UI: siluetas sólidas en slots de equipamiento vacíos | `backlog` | REQ-033 | TASK-0114 | P1 |
@@ -122,10 +122,6 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 | [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `done` | REQ-022 | TASK-0105 | P2 |
-
-# ready
-
-* [TASK-0112 — UI: biseles de 2× línea y crecimiento hacia fuera](TASK-0112-ui-biseles-gruesos-crecimiento.md)
 
 # blocked
 
@@ -240,6 +236,7 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0108 — UI: cursor superpuesto y anti-CLS](TASK-0108-ui-cursor-superpuesto-cls.md)
 * [TASK-0109 — QA visual de la revisión de UI](TASK-0109-qa-visual-revision-ui.md)
 * [TASK-0110 — Docs: revisión visual, arquitectura y ADR](TASK-0110-docs-revision-ui-adr.md)
+* [TASK-0112 — UI: biseles de 2× línea y crecimiento hacia fuera](TASK-0112-ui-biseles-gruesos-crecimiento.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
