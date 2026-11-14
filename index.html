@@ -20,9 +20,9 @@
               aria-label="Sala de mazmorra con un caballero y un goblin"
             ></canvas>
             <section class="hud" data-testid="hud" aria-label="Estado de la partida">
-              <aside class="hud-left" data-testid="hud-left">
+              <aside class="hud-left ui-outset" data-testid="hud-left">
                 <div
-                  class="hud-portrait"
+                  class="hud-portrait ui-inset"
                   data-testid="hud-portrait"
                   aria-hidden="true"
                 ></div>
@@ -62,7 +62,7 @@
                   hidden
                 ></p>
               </aside>
-              <aside class="hud-right" data-testid="hud-right" aria-label="Detalle bajo el cursor">
+              <aside class="hud-right ui-outset" data-testid="hud-right" aria-label="Detalle bajo el cursor">
                 <section
                   class="hud-detail"
                   data-testid="hud-cursor-detail"
@@ -94,7 +94,7 @@
                   hidden
                 >
                   <section
-                    class="hud-detail-block"
+                    class="hud-detail-block ui-outset"
                     data-testid="hud-panel-selected"
                     data-empty="false"
                   >
@@ -106,7 +106,7 @@
                     <p class="hud-detail-description" data-testid="hud-panel-selected-description" hidden></p>
                   </section>
                   <section
-                    class="hud-detail-block"
+                    class="hud-detail-block ui-outset"
                     data-testid="hud-panel-equipped"
                     data-empty="false"
                   >
@@ -120,7 +120,7 @@
                 </section>
               </aside>
             </section>
-            <section class="spell-list" data-testid="spell-list" aria-label="Hechizos" hidden>
+            <section class="spell-list ui-outset" data-testid="spell-list" aria-label="Hechizos" hidden>
               <h2 class="spell-list-title">Hechizos · Q</h2>
               <ol class="spell-list-items" data-testid="spell-list-items"></ol>
               <p class="spell-list-hint" data-testid="spell-list-hint"></p>
@@ -153,7 +153,7 @@
               aria-hidden="true"
             ></div>
             <div
-              class="feedback-banner"
+              class="feedback-banner ui-outset"
               data-testid="feedback-banner"
               role="status"
               aria-live="polite"
@@ -170,7 +170,7 @@
               aria-labelledby="inventory-title"
               hidden
             >
-              <div class="inventory-panel-body">
+              <div class="inventory-panel-body ui-outset">
                 <header class="inventory-panel-header">
                   <h2 class="inventory-panel-title" id="inventory-title">
                     Personaje · <span data-testid="inventory-player"></span>
@@ -182,7 +182,7 @@
                 </p>
                 <div class="inventory-columns">
                   <section
-                    class="inventory-column inventory-column-equipment"
+                    class="inventory-column inventory-column-equipment ui-outset"
                     data-zone="equipment"
                     aria-label="Equipo"
                   >
@@ -200,7 +200,7 @@
                     </div>
                   </section>
                   <section
-                    class="inventory-column inventory-column-backpack"
+                    class="inventory-column inventory-column-backpack ui-outset"
                     data-zone="backpack"
                     aria-label="Mochila"
                   >
@@ -210,7 +210,7 @@
                     <ul class="inventory-list inventory-backpack" data-testid="inventory-backpack"></ul>
                   </section>
                   <section
-                    class="inventory-column inventory-column-right"
+                    class="inventory-column inventory-column-right ui-outset"
                     data-zone="right"
                     aria-label="Cadáveres y suelo"
                   >
@@ -240,7 +240,7 @@
                   hidden
                 ></p>
                 <section
-                  class="inventory-submenu"
+                  class="inventory-submenu ui-outset"
                   data-testid="inventory-submenu"
                   role="menu"
                   aria-label="Acciones del objeto seleccionado"
@@ -249,7 +249,7 @@
                 <footer class="inventory-panel-footer">
                   <button
                     type="button"
-                    class="inventory-panel-close"
+                    class="inventory-panel-close ui-outset"
                     data-testid="inventory-close"
                     data-zone="close"
                   >
@@ -260,7 +260,7 @@
             </section>
 
             <section
-              class="overlay"
+              class="overlay ui-outset"
               data-testid="overlay-victory"
               role="dialog"
               aria-modal="true"
@@ -270,12 +270,12 @@
               <div>
                 <h2 id="victory-title">¡Victoria!</h2>
                 <p>Has derrotado al goblin.</p>
-                <button type="button" data-action="restart">Reiniciar</button>
+                <button type="button" class="ui-outset" data-action="restart">Reiniciar</button>
               </div>
             </section>
 
             <section
-              class="overlay"
+              class="overlay ui-outset"
               data-testid="overlay-defeat"
               role="dialog"
               aria-modal="true"
@@ -285,7 +285,7 @@
               <div>
                 <h2 id="defeat-title">Derrota</h2>
                 <p>El goblin ha acabado con el caballero.</p>
-                <button type="button" data-action="restart">Reiniciar</button>
+                <button type="button" class="ui-outset" data-action="restart">Reiniciar</button>
               </div>
             </section>
 
