@@ -66,7 +66,7 @@ ni paleta.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief propone `calc(var(--ui-unit) * -sx2px)`, pero `--ui-unit` es una longitud: multiplicarla por `px` es CSS inválido. | `src/host/ui.css` define `--ui-unit: calc(var(--ui-scale) * 1px)`. | Usar `calc(var(--ui-scale) * Npx)`, como el sprite del arma. | Cualquier brief futuro que copie la fórmula del retrato. | Aclarar en la plantilla: `--ui-scale` para posición y `--ui-unit` con factor unitario. | Bajo; solo redacción. | `pending` |
+| El brief propone `calc(var(--ui-unit) * -sx2px)`, pero `--ui-unit` es una longitud: multiplicarla por `px` es CSS inválido. | `src/host/ui.css` define `--ui-unit: calc(var(--ui-scale) * 1px)`. | Usar `calc(var(--ui-scale) * Npx)`, como el sprite del arma. | Cualquier brief futuro que copie la fórmula del retrato. | Aclarar en la plantilla: `--ui-scale` para posición y `--ui-unit` con factor unitario. | Bajo; solo redacción. | `rejected (error local del brief; la plantilla no fija fórmulas)` |
 
 # Métricas de handoff
 

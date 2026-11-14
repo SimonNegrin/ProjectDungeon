@@ -381,7 +381,11 @@ marco 16:9, Pixelify Sans local y tokens `--ui-*`.
   ([REQ-023](../requirements/REQ-023-hud-derecho-detalle-cursor.md)). Fase,
   turno, PV del enemigo y estado salen del HUD y quedan solo en `F1`; las teclas
   y la sugerencia se mantienen como texto plano al pie. El HUD vive dentro del
-  marco; no queda ninguna barra superior fuera de él.
+  marco; no queda ninguna barra superior fuera de él. La miniatura de Personaje
+  pinta el recorte 32×32 de `rogues.png` que `PORTRAIT_RECTS` asigna al
+  `archetypeId` del jugador activo; cambia en el mismo render que el nombre y el
+  arquetipo sin alterar su caja. El render del mapa sigue usando el recorte del
+  caballero para todos los jugadores y queda fuera de esta corrección.
 - **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
   siguen visibles. Tres columnas tituladas Equipo, Bolsa y Suelo, con figura de
   equipo, rejilla 2×4 y cadáveres/suelo en rejilla; slots cuadrados, iguales y
