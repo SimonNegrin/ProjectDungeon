@@ -50,6 +50,7 @@ import {
   CANVAS_WIDTH,
   MAP_VIEWPORT,
   computeFrameLayout,
+  computeUiLine,
   mapXToFramePercent,
   mapYToFramePercent,
 } from './layout';
@@ -287,6 +288,8 @@ async function boot(): Promise<void> {
     frame.style.width = `${layout.width}px`;
     frame.style.height = `${layout.height}px`;
     gameRoot.style.setProperty('--frame-width', `${layout.width}px`);
+    const uiLine = computeUiLine(TILE_SIZE, layout.scale, window.devicePixelRatio);
+    document.documentElement.style.setProperty('--ui-line', `${uiLine}px`);
   };
 
   applyPresentation();

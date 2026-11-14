@@ -10,6 +10,7 @@ import {
   MAP_VIEWPORT,
   RENDER_SCALE,
   computeFrameLayout,
+  computeUiLine,
   mapHeightToFramePercent,
   mapWidthToFramePercent,
   mapXToFramePercent,
@@ -103,6 +104,56 @@ describe('layout de presentación', () => {
       expect(Number.isNaN(layout.top)).toBe(false);
       expect(Number.isNaN(layout.width)).toBe(false);
       expect(Number.isNaN(layout.height)).toBe(false);
+    }
+  });
+});
+
+describe('grosor de línea de la UI', () => {
+  it('equivale a un píxel de arte escalado redondeado a píxel de dispositivo', () => {
+    const expected: Array<[number, number, number]> = [
+      [1, 1, 1],
+      [1, 2, 1],
+      [1.25, 1, 1],
+      [1.25, 2, 1.5],
+      [1.5, 1, 2],
+      [1.5, 2, 1.5],
+      [2.5, 1, 3],
+      [2.5, 2, 2.5],
+    ];
+
+    for (const [scale, dpr, line] of expected) {
+      expect(computeUiLine(32, scale, dpr)).toBe(line);
+      expect(Number.isInteger(computeUiLine(32, scale, dpr) * dpr)).toBe(true);
+    }
+  });
+
+  it('escala con el tamaño de tile además de con la escala del marco', () => {
+    expect(computeUiLine(64, 1, 1)).toBe(2);
+    expect(computeUiLine(16, 1, 2)).toBe(0.5);
+    expect(computeUiLine(16, 1, 1)).toBe(1);
+  });
+
+  it('nunca baja de un píxel de dispositivo', () => {
+    expect(computeUiLine(32, 0.1, 2)).toBe(0.5);
+    expect(computeUiLine(32, 0, 1)).toBe(1);
+  });
+
+  it('usa un fallback finito y positivo con entradas degeneradas', () => {
+    const cases: Array<[number, number, number]> = [
+      [0, 1, 1],
+      [-32, 1, 1],
+      [32, -1, 1],
+      [32, Number.NaN, 2],
+      [32, 1, 0],
+      [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NaN],
+    ];
+
+    for (const [tileSize, scale, dpr] of cases) {
+      const line = computeUiLine(tileSize, scale, dpr);
+      expect(Number.isFinite(line)).toBe(true);
+      expect(line).toBeGreaterThan(0);
+      const effectiveDpr = Number.isFinite(dpr) && dpr > 0 ? dpr : 1;
+      expect(line).toBeGreaterThanOrEqual(1 / effectiveDpr);
     }
   });
 });

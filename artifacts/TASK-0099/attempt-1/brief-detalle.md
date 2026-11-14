@@ -1,3 +1,13 @@
+---
+type: Task Brief Detail
+title: "TASK-0099: detalle del brief del intento 1"
+description: Fuente, tokens, escalas y línea calculada; tests y capturas exactas.
+task: TASK-0099
+attempt: 1
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-14T00:00:00Z }
+---
+
 # Detalle del intento 1
 
 ## Fuente
