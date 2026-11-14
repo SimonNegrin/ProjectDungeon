@@ -4,7 +4,7 @@ id: TASK-0113
 title: "UI: listas verticales de stats y traits"
 description: "Mostrar stats y traits del HUD izquierdo y de la ficha derecha como listas verticales, una entrada por línea y sin separadores."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-007, R-010, R-011, R-026, T-006, T-016]
