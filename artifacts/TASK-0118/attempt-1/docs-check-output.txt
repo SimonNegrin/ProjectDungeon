@@ -136,4 +136,4 @@ Avisos (136):
 - artifacts/TASK-0116/attempt-1/brief.md: handoff de 2585 B; objetivo ≤2560 B
 - artifacts/TASK-0117/attempt-1/brief.md: handoff de 3862 B; objetivo ≤2560 B
 - artifacts/TASK-0117/attempt-1/report.md: handoff de 3842 B; objetivo ≤2560 B
-OK: 554 documentos, 118 tareas, 6 experimentos.
+OK: 555 documentos, 118 tareas, 6 experimentos.

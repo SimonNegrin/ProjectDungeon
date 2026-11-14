@@ -420,8 +420,8 @@ Pixelify Sans local y tokens `--ui-*`.
   (#fcffc0), el mismo del cursor del mapa en estado de jugador; centro
   transparente y `z-index` 10, por encima de columnas, slots, títulos y figura
   pero por debajo del submenú (30). Se coloca con `transform` y anima cualquier
-  cambio de slot —fila, columna o zona— en 150 ms lineales; salta al instante al
-  abrir, con scroll, al redimensionar, al actualizar el modelo y con
+  cambio de slot —fila, columna o zona— en 150 ms lineales (140-160 ms); salta
+  al instante al abrir, con scroll, al redimensionar, al actualizar el modelo y con
   `prefers-reduced-motion`; no tapa el sprite ni el bisel y el foco real sigue
   en el slot. El cursor del mapa conserva su color y su ancho.
 - **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
