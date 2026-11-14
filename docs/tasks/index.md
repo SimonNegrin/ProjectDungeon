@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **103**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -94,6 +94,7 @@ Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0100](TASK-0100-pantalla-tres-zonas-hud.md) | UI: pantalla en tres zonas con HUD izquierdo y derecho | `done` | REQ-032 | TASK-0099 | P1 |
 | [TASK-0101](TASK-0101-panel-tres-columnas-figura.md) | Panel de inventario en tres columnas con figura de equipo | `done` | REQ-018 | TASK-0099, TASK-0100 | P1 |
 | [TASK-0102](TASK-0102-ficha-submenu-hud.md) | Ficha del objeto en el HUD derecho y submenú contextual | `done` | REQ-023 | TASK-0101 | P1 |
+| [TASK-0103](TASK-0103-cierre-hito-ui-docs-qa.md) | Cierre del hito UI: documentación y QA visual | `done` | REQ-032 | TASK-0102 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -203,6 +204,7 @@ Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0100 — UI: pantalla en tres zonas con HUD izquierdo y derecho](TASK-0100-pantalla-tres-zonas-hud.md)
 * [TASK-0101 — Panel de inventario en tres columnas con figura de equipo](TASK-0101-panel-tres-columnas-figura.md)
 * [TASK-0102 — Ficha del objeto en el HUD derecho y submenú contextual](TASK-0102-ficha-submenu-hud.md)
+* [TASK-0103 — Cierre del hito UI: documentación y QA visual](TASK-0103-cierre-hito-ui-docs-qa.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

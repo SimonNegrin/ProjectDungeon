@@ -4,14 +4,14 @@ id: TASK-0103
 title: "Cierre del hito UI: documentación y QA visual"
 description: "Reflejar el panel y los HUD implementados en arquitectura, glosario y economía de turno, corregir las notas de vigencia y cerrar con QA visual a 1280×720 y 900×700."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: docs
 requirement: REQ-032
 requirement_ids: [T-007, T-008]
 depends_on: [TASK-0102]
 unlocks: []
 created_at: 2026-11-14T02:14:13Z
-completed_at:
+completed_at: 2026-11-14T02:26:00Z
 assignee: task-lead
 attempts: 1
 artifacts: artifacts/TASK-0103/
@@ -20,6 +20,20 @@ risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T02:14:13Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T02:26:00Z
+    note: >-
+      DoR cumplida (REQ-032 v2 y REQ-018 v7 aceptados, TASK-0102 done). Docs en
+      `94c9988`; QA en `3a86eb6`, `21048c2` y `59384fa`. Reejecutados
+      `pnpm run docs:check` (OK), `pnpm run verify` (1298/1298, build y bundle) y
+      `pnpm run test:e2e` (150/150); focalizados 16/16. Revisado el diff completo:
+      solo `docs/**` y `artifacts/TASK-0103/**`, sin tests debilitados ni cambios
+      fuera de alcance. Capturas a 1280×720 y 900×700 de tres zonas, panel con
+      mochila llena, ficha de dos bloques y submenú; a 1280×720 no hay scroll
+      global y a 900×700 solo se desplaza la columna derecha. En 900×700 algunos
+      rótulos se eliden con «…», con `aria-label` completo y detalle íntegro en el
+      HUD derecho; es el recorte conocido de TASK-0101, no un solape. Fricción de
+      `E2E_ARTIFACTS_DIR` sigue `deferred` a `harness-keeper`.
 ---
 
 # Objetivo
