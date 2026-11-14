@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0111 — ready: retrato del HUD por jugador activo; corrige la miniatura estática detectada en el QA de TASK-0109 contra REQ-022 R-002 — [TASK-0111](tasks/TASK-0111-ui-retrato-hud-jugador-activo.md)
+
 * 2026-11-14 — Playtest — REQ-033 — validada por `human:simon`: la interfaz del corte funciona en playtest, sin defectos bloqueantes; queda solo decidir el retrato estático del HUD frente a REQ-022 R-002 — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
 
 * 2026-11-14 — Milestone — REQ-033 — completada con TASK-0104 a TASK-0110 `done`: escala continua, paleta, relieve inset/outset, HUD en tres zonas, ficha y panel nuevos (encaje a 900×700; R-021 no se abre), cursor, CLS 0 y ADR-026; pendiente el retrato del HUD contra REQ-022 R-002 — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)

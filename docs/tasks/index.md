@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **110**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **111**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -114,6 +114,11 @@ Total: **110**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0075](TASK-0075-arnes-validacion-log.md) | Arnés: validar el formato del log en docs:check | `done` | HARNESS | — | P2 |
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
+| [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `ready` | REQ-022 | TASK-0105 | P2 |
+
+# ready
+
+* [TASK-0111 — UI: retrato del HUD por jugador activo](TASK-0111-ui-retrato-hud-jugador-activo.md)
 
 # blocked
 
