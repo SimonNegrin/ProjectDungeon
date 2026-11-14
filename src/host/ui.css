@@ -982,10 +982,29 @@
         background-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
         image-rendering: pixelated;
       }
-      .inventory-slot:focus-visible,
-      .inventory-slot.is-selected {
-        outline: var(--ui-line) solid var(--ui-focus);
-        outline-offset: calc(var(--ui-line) * 2);
+      /* El cursor superpuesto sustituye al resaltado del slot: el foco DOM
+         sigue en la fila y `aria-current` conserva la semántica (R-024). */
+      .inventory-slot:focus-visible {
+        outline: none;
+      }
+      .inventory-cursor {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        left: 0;
+        background: transparent;
+        border: var(--ui-line) solid var(--ui-focus);
+        pointer-events: none;
+        transition: transform 100ms linear;
+        will-change: transform;
+      }
+      .inventory-cursor[data-instant="true"] {
+        transition: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .inventory-cursor {
+          transition: none;
+        }
       }
       .inventory-submenu {
         position: absolute;

@@ -347,6 +347,7 @@ async function boot(): Promise<void> {
   const hudView = createHudView(gameRoot);
   const spellMenuView = createSpellMenuView(gameRoot);
   const inventoryPanelView = createInventoryPanelView(frame, {
+    reducedMotion: prefersReducedMotion,
     onCommand: (option) => dispatchPanelCommand(option.command),
     onClose: () => closePanel(),
     onSelectionChange: (selection) => {
