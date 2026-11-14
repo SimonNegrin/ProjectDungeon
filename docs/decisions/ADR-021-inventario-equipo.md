@@ -9,6 +9,14 @@ decided_at: 2026-11-11T18:00:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 ---
 
+> **Revisión visual (2026-11-14, REQ-033 v6).** La composición visual del panel
+> queda revisada en
+> [REQ-033](../requirements/REQ-033-revision-visual-hud-panel.md) y
+> [ADR-026](ADR-026-escala-continua-relieve-vintage.md): tres columnas tituladas
+> Equipo, Bolsa y Suelo, slots cuadrados inset, cadáveres del tile solo si
+> existen, cursor superpuesto y anti-CLS. El modelo de instancias, localización,
+> huecos y costes no cambia; «Bolsa» es solo la etiqueta de UI de la mochila.
+
 > **Cierre del hito UI (2026-11-14).** La composición visual y de interacción
 > queda implementada en TASK-0099 a TASK-0102: pantalla en tres zonas, panel de
 > tres columnas con figura de equipo, ficha de dos bloques en el HUD derecho y
