@@ -1,0 +1,106 @@
+
+Running 3 tests using 3 workers
+
+  ✘  1 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:136:1 › TASK-0120: el banner de recogida caduca en tiempo real y el render se detiene (3.9s)
+  ✘  3 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de fallo caduca sin reiniciar su animación (4.5s)
+  ✘  2 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de impacto caduca sin reiniciar su animación (5.0s)
+
+
+  1) [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:136:1 › TASK-0120: el banner de recogida caduca en tiempo real y el render se detiene 
+
+    Error: el banner debe haberse consumido con el reloj real
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      169 |     atTwoSeconds.banner?.hidden,
+      170 |     'el banner debe haberse consumido con el reloj real',
+    > 171 |   ).toBe(true);
+          |     ^
+      172 |   expect(idle, 'en reposo no debe quedar ningún frame de feedback').toEqual({
+      173 |     raf: 0,
+      174 |     mutations: 0,
+        at /Users/simon/proyectdungeon/tests/e2e/feedback-clock-loop-qa.spec.ts:171:5
+
+    attachment #1: pickup-banner-reposo (image/png) ────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-48dc8-real-y-el-render-se-detiene-chromium/attachments/pickup-banner-reposo-10bab1759f3cf149a8d330b7dba41e3f9122edc2.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: pickup-clock (application/json) ─────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-48dc8-real-y-el-render-se-detiene-chromium/attachments/pickup-clock-1a2cd1c41900ccac12e49148b2cdb19748ed29b1.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-48dc8-real-y-el-render-se-detiene-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/feedback-clock-loop-qa-TAS-48dc8-real-y-el-render-se-detiene-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de impacto caduca sin reiniciar su animación 
+
+    Error: el texto debe seguir avanzando y no reiniciar su animación
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "translate(-50%, calc(-100% - 3px))"
+
+      226 |       fading.damage?.transform,
+      227 |       'el texto debe seguir avanzando y no reiniciar su animación',
+    > 228 |     ).not.toBe(atAnimationEnd.damage?.transform);
+          |           ^
+      229 |     expect(
+      230 |       atTwoSeconds.damage?.hidden,
+      231 |       'el texto debe haberse consumido con el reloj real',
+        at /Users/simon/proyectdungeon/tests/e2e/feedback-clock-loop-qa.spec.ts:228:11
+
+    attachment #1: damage-impacto-reposo (image/png) ───────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-e0768--sin-reiniciar-su-animación-chromium/attachments/damage-impacto-reposo-88c243557e4b7241e657405ddee800fdb32dc76b.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: damage-impacto-clock (application/json) ─────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-e0768--sin-reiniciar-su-animación-chromium/attachments/damage-impacto-clock-3eab8288dd0023686cf0c233aa518f7270460c13.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-e0768--sin-reiniciar-su-animación-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/feedback-clock-loop-qa-TAS-e0768--sin-reiniciar-su-animación-chromium/error-context.md
+
+  3) [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de fallo caduca sin reiniciar su animación 
+
+    Error: el texto debe seguir avanzando y no reiniciar su animación
+
+    expect(received).not.toBe(expected) // Object.is equality
+
+    Expected: not "translate(-50%, calc(-100% - 1px))"
+
+      226 |       fading.damage?.transform,
+      227 |       'el texto debe seguir avanzando y no reiniciar su animación',
+    > 228 |     ).not.toBe(atAnimationEnd.damage?.transform);
+          |           ^
+      229 |     expect(
+      230 |       atTwoSeconds.damage?.hidden,
+      231 |       'el texto debe haberse consumido con el reloj real',
+        at /Users/simon/proyectdungeon/tests/e2e/feedback-clock-loop-qa.spec.ts:228:11
+
+    attachment #1: damage-fallo-reposo (image/png) ─────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-5afae--sin-reiniciar-su-animación-chromium/attachments/damage-fallo-reposo-f0304f87a45e5648f8fc76394470821805d06fe0.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: damage-fallo-clock (application/json) ───────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-5afae--sin-reiniciar-su-animación-chromium/attachments/damage-fallo-clock-dd7806676a678648401d5ecca5e9297e84502491.json
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/feedback-clock-loop-qa-TAS-5afae--sin-reiniciar-su-animación-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/feedback-clock-loop-qa-TAS-5afae--sin-reiniciar-su-animación-chromium/error-context.md
+
+  3 failed
+    [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:136:1 › TASK-0120: el banner de recogida caduca en tiempo real y el render se detiene 
+    [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de impacto caduca sin reiniciar su animación 
+    [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de fallo caduca sin reiniciar su animación 

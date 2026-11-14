@@ -1,0 +1,32 @@
+{
+  "atAnimationEnd": {
+    "banner": {
+      "hidden": false,
+      "text": "+ Hacha"
+    },
+    "damage": {
+      "hidden": true,
+      "text": "",
+      "opacity": "0",
+      "transform": ""
+    },
+    "animating": false
+  },
+  "idle": {
+    "raf": 61,
+    "mutations": 61
+  },
+  "atTwoSeconds": {
+    "banner": {
+      "hidden": false,
+      "text": "+ Hacha"
+    },
+    "damage": {
+      "hidden": true,
+      "text": "",
+      "opacity": "0",
+      "transform": ""
+    },
+    "animating": false
+  }
+}
