@@ -21,7 +21,7 @@ No cambian reglas, costes ni catálogo.
 
 - Ficha en el HUD derecho y submenú con `Enter`: TASK-0102.
 - Cadáveres con inventario (REQ-021), cofres (REQ-020), arte nuevo o reglas.
-- E2E/QA visual final del hito, arquitectura y glosario.
+- E2E/QA visual final, arquitectura y glosario.
 
 # Invariantes
 
@@ -31,7 +31,7 @@ No cambian reglas, costes ni catálogo.
   el panel.
 - Motor, costes, capacidad, catálogo y snapshot intactos; abrir, navegar y cerrar
   no gastan MP ni acción.
-- Sin dependencias nuevas. No se borra ni se salta ningún test: los de la
+- Sin dependencias. No se borra ni se salta ningún test: los de la
   presentación anterior se actualizan al contrato nuevo.
 
 # Criterios de aceptación
@@ -48,7 +48,7 @@ Viven en `docs/tasks/TASK-0101-panel-tres-columnas-figura.md#criterios-de-acepta
 - `src/host/main.ts`: apertura, refresco y bloqueo; la selección es del host, no
   del motor.
 - REQ-032 R-008 a R-010, R-013 y
-  [`#navegación-del-panel`](../requirements/REQ-032-estilo-visual-interaccion-ui.md#navegación-del-panel);
+  [`#navegación-del-panel`](../../../docs/requirements/REQ-032-estilo-visual-interaccion-ui.md#navegación-del-panel);
   REQ-018 R-015/T-008.
 - **Lee [brief-detalle.md](brief-detalle.md)**: layout, algoritmo de vecino,
   foco, puente de acciones y tests que cambian.

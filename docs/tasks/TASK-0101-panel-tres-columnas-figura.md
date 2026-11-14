@@ -4,7 +4,7 @@ id: TASK-0101
 title: "Panel de inventario en tres columnas con figura de equipo"
 description: "Sustituir la rejilla actual por tres columnas: figura humana con ocho huecos, mochila de ocho casillas y columna de cadáveres y suelo con scroll, con navegación por proximidad."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-015, T-008]
