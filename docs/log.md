@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0114 — done: columnas del panel alineadas arriba, casco abre la rejilla de Equipo (±1 px) y figura sin bloque de cabeza con torso, brazos y piernas; Bolsa y Suelo arriba; sin CLS al abrir, navegar o cambiar contenido; verify 1323/1323 y E2E 192/192; fusión `984f7b2` — [informe](../artifacts/TASK-0114/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0113 — done: stats y traits como listas verticales en el HUD izquierdo y la ficha derecha, sin `·`; PV, MP, acciones y condicionales intactos; verify 1321/1321 y E2E 190/190; fusión `7b66c2b` — [informe](../artifacts/TASK-0113/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0112 — done: bisel de 2× con crecimiento exterior y área interior estable (≤0,82 px); 1320/1320 unitarios y 189/189 E2E; fusión `8175366` — [informe](../artifacts/TASK-0112/attempt-1/report.md)

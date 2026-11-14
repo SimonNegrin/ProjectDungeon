@@ -4,22 +4,38 @@ id: TASK-0114
 title: "UI: panel alineado arriba y figura sin cabeza"
 description: "Alinear el contenido de las columnas del panel arriba, subir el casco a la primera fila y retirar el bloque verde de la cabeza de la figura."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-013, R-027, R-028, P-002, P-007, T-007, T-017]
 depends_on: [TASK-0112]
 unlocks: [TASK-0115, TASK-0116, TASK-0117]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T16:45:17Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0114/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T16:45:17Z
+    note: >-
+      Intento 1 verificado (código `16eacee`, tests `7242c91`, informe
+      `0439649`; fusión `984f7b2`). Reejecutados `pnpm run verify` (120 s; 93
+      archivos, 1323/1323, tsc, build y bundle) y `pnpm run test:e2e` (180 s;
+      192/192). Tres columnas arriba con títulos en la misma línea; casco abre
+      la rejilla y coincide con el inicio del contenido (±1 px); sin nodo ni
+      regla `.inventory-figure-head`; torso, brazos y piernas presentes como
+      `aria-hidden` sin foco ni puntero; Bolsa y Suelo arriba con títulos y
+      slots del mismo tamaño; posiciones estables al abrir, navegar, equipar,
+      recoger y reabrir, sin shifts prohibidos. Diff revisado: solo
+      `index.html`, `src/host/ui.css`, tests y artefactos; bisel, `--ui-line`,
+      `src/game/**`, requisitos, arnés y plantillas sin cambios, y sin tests
+      borrados, saltados o debilitados. Capturas a 900×700 y 1280×720
+      revisadas.
 ---
 
 # Objetivo

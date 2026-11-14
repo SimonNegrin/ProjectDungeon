@@ -55,7 +55,7 @@ estabilidad al abrir, navegar, equipar, recoger y reabrir.
 
 | Síntoma | Evidencia | Workaround | Reutilizable | Cambio propuesto | Coste | Disposición |
 |---|---|---|---|---|---|---|
-| El observer CLS copiado marca como prohibidos los shifts del Suelo. | `li[inventory-ground-item-*]` `forbidden` al recoger con 4 objetos. | Filtrar por `matches` del armazón/slots, no `closest('.inventory-column')`. | Cada spec nuevo lo reimplementa y choca con P-006. | Extraerlo a `tests/e2e/support.ts`. | Bajo | `pending` |
+| El observer CLS copiado marca como prohibidos los shifts del Suelo. | `li[inventory-ground-item-*]` `forbidden` al recoger con 4 objetos. | Filtrar por `matches` del armazón/slots, no `closest('.inventory-column')`. | Cada spec nuevo lo reimplementa y choca con P-006. | Extraerlo a `tests/e2e/support.ts`. | Bajo | `deferred` |
 
 # Métricas de handoff
 
