@@ -35,11 +35,12 @@ verified:
 - `screenshots/`: diez PNG a tamaño exacto de viewport (1280×720 y 900×700) de
   tres zonas, panel con mochila 8/8, ficha de dos bloques, submenú y scroll.
 - Logs de scroll y geometría en `*/logs/*.json` de cada spec.
-- Sin solapes. A 1280×720 panel, cuerpo, columnas y suelo igualan
-  `scrollHeight`/`clientHeight`; la captura mide 1280×720 (sin scroll global).
-  A 900×700 solo el suelo desborda (721/211) y el foco lo desplaza. Submenú a la
-  derecha de la columna (~6 px), dentro del panel, sin tapar la mochila. Ficha
-  de dos bloques legible en ambos tamaños.
+- Sin solapes de layout; el submenú se superpone como popover a la columna de
+  cadáveres sin tapar la mochila. A 1280×720 panel, cuerpo, columnas y suelo
+  igualan `scrollHeight`/`clientHeight`; la captura mide 1280×720 (sin scroll
+  global). A 900×700 solo el suelo desborda (721/211) y el foco lo desplaza.
+  Submenú a la derecha de la columna (~6 px), dentro del panel. Ficha de dos
+  bloques legible en ambos tamaños.
 - A 900×700 algunos rótulos de figura/mochila se eliden con «…»; el `aria-label`
   es completo: recorte conocido de TASK-0101, no ilegible.
 
@@ -63,6 +64,6 @@ está reportada en TASK-0102 (disposición `deferred (harness-keeper)`).
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2591 |
-| `report_bytes` | 2371 |
+| `report_bytes` | 2448 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
