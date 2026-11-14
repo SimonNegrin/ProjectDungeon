@@ -1,9 +1,7 @@
 import { EQUIPMENT_SLOTS, ITEMS } from '../game/equipment';
 import { backpackCount, type ItemInstance } from '../game/inventory';
-import { effectiveStats } from '../game/stats';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
-import { rosterEntry } from '../game/roster';
-import { alarmRadius, hasLineOfSight, visionRadius } from '../game/perception';
+import { alarmRadius, visionRadius } from '../game/perception';
 import {
   pathLength,
   wideCorridorStretch,
@@ -13,7 +11,24 @@ import {
 } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
-import { DAMAGE_TYPES, profileRows, formatProfile, type BandRow } from './damage-labels';
+import { DAMAGE_TYPES, formatProfile, type BandRow } from './damage-labels';
+import {
+  archetypeLabel,
+  armorLabel,
+  buildCursorDetail,
+  conditionLabel,
+  formatActions,
+  formatHp,
+  formatMagic,
+  formatMana,
+  formatMp,
+  shieldLabel,
+  statsLabel,
+  traitsLabel,
+  weaponLabel,
+  type CursorDetail,
+  type CursorDetailKind,
+} from './hud-detail';
 import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
@@ -32,8 +47,14 @@ export interface HudModel {
   readonly playerMagic: string;
   /** Maná actual/máximo del jugador; `0/0` sin magia. */
   readonly playerMana: string;
+  /** `false` si el jugador no tiene maná y la fila se omite sin dejar hueco. */
+  readonly playerManaVisible: boolean;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
+  /** Traits activos derivados de las definiciones equipadas. */
+  readonly traits: string;
+  /** «Fantasma» con `hp <= 0`; no altera la mecánica de REQ-021. */
+  readonly condition: string | null;
   /** Sugerencia discreta de terminar el turno; `null` si no aplica. */
   readonly actionSuggestion: string | null;
   readonly phase: string;
@@ -50,11 +71,15 @@ export interface HudModel {
   readonly cursorEnemyMagic: string;
   /** Maná actual/máximo del enemigo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyMana: string;
+  /** `true` si el enemigo visible usa magia y procede mostrar magia/maná. */
+  readonly cursorEnemyMagicVisible: boolean;
   /**
    * Cinco bandas del enemigo vivo bajo el cursor; `null` sin enemigo, con el
    * jugador muerto o sin línea de visión (REQ-029 R-010 / T-008).
    */
   readonly cursorEnemyBands: readonly BandRow[] | null;
+  /** Composición del detalle bajo el cursor (REQ-023). */
+  readonly cursorDetail: CursorDetail;
   /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
   readonly weaponHint: string | null;
   readonly turn: string;
@@ -68,26 +93,6 @@ export interface HudModel {
 
 export interface DebugModel {
   readonly lines: readonly string[];
-}
-
-function formatHp(unit: Unit | undefined): string {
-  return unit ? `${unit.hp}/${unit.maxHp}` : '—/—';
-}
-
-function formatMp(unit: Unit | undefined): string {
-  return unit ? `${unit.mp}/${unit.maxMp}` : '—/—';
-}
-
-function formatMagic(unit: Unit | undefined): string {
-  return unit ? String(unit.stats.magicLevel) : '—';
-}
-
-function formatMana(unit: Unit | undefined): string {
-  return unit ? `${unit.mana.current}/${unit.mana.max}` : '—/—';
-}
-
-function formatActions(unit: Unit | undefined): string {
-  return unit ? `${unit.actions.remaining}/${unit.actions.max}` : '—/—';
 }
 
 /**
@@ -117,69 +122,11 @@ function boolLabel(value: boolean | undefined): string {
   return value ? 'Sí' : 'No';
 }
 
-function signed(value: number): string {
-  return value >= 0 ? `+${value}` : `${value}`;
-}
-
-function weaponLabel(unit: Unit | undefined): string {
-  if (!unit) return '—';
-  const profile = effectiveStats(unit);
-  if (profile.weapon === null) return 'Sin arma';
-  const damage = profile.weapon.damagePackets.reduce(
-    (total, packet) => total + packet.amount,
-    0,
-  );
-  return `${profile.weapon.name} ${signed(profile.accuracy)}/${signed(damage)}`;
-}
-
-function shieldLabel(unit: Unit | undefined): string {
-  if (!unit) return 'Sin escudo';
-  const profile = effectiveStats(unit);
-  if (profile.shield === null) return 'Sin escudo';
-  return `${profile.shield.name} ${signed(profile.evasion)}`;
-}
-
-function armorLabel(unit: Unit | undefined): string {
-  if (!unit) return 'Sin armadura';
-  const profile = effectiveStats(unit);
-  if (profile.armor === null) return 'Sin armadura';
-  return `${profile.armor.name} ${signed(profile.absorption)}`;
-}
-
-function statsLabel(unit: Unit | undefined): string {
-  if (!unit) return '—';
-  const { habilidad, fuerza, defensa } = effectiveStats(unit).stats;
-  // La resistencia es ahora un perfil por tipo (REQ-029); las bandas visibles
-  // llegan en TASK-0089 y no se muestran aquí.
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
-}
-
-function archetypeLabel(unit: Unit | undefined): string {
-  return unit?.archetypeId ? rosterEntry(unit.archetypeId).name : '—';
-}
-
 function enemyAt(state: GameState, position: Position | undefined): Unit | undefined {
   if (!position) return undefined;
   return state.enemies.find(
     (enemy) => enemy.hp > 0 && enemy.x === position.x && enemy.y === position.y,
   );
-}
-
-/**
- * Bandas legibles solo con un jugador vivo que tenga línea de visión al tile
- * del cursor. La línea de visión la decide el motor (`hasLineOfSight`); el host
- * no la recalcula (REQ-023 T-001, REQ-029 R-010).
- */
-function cursorEnemyBands(
-  state: GameState,
-  enemy: Unit | undefined,
-  cursor: Position | undefined,
-): readonly BandRow[] | null {
-  if (!enemy || !cursor) return null;
-  const sees = state.players.some(
-    (player) => player.hp > 0 && hasLineOfSight(state.grid, player, cursor),
-  );
-  return sees ? profileRows(enemy.stats.resistencia) : null;
 }
 
 function itemAtPlayer(
@@ -197,7 +144,14 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = state.players[0];
   const enemy = state.enemies[0];
   const groundItem = itemAtPlayer(state, player);
-  const cursorEnemy = enemyAt(state, cursor);
+  const cursorDetail = buildCursorDetail(state, cursor);
+  // La compatibilidad del HUD solo publica datos de un enemigo visible; sin
+  // línea de visión el panel dice «Desconocido» y no filtra sus stats.
+  const cursorEnemy =
+    cursorDetail.kind === 'enemy' ? enemyAt(state, cursor) : undefined;
+  const cursorEnemyMagicVisible =
+    cursorEnemy !== undefined &&
+    (cursorEnemy.stats.magicLevel > 0 || cursorEnemy.mana.max > 0);
 
   return {
     playerName: player?.nombre ?? '—',
@@ -206,7 +160,10 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     playerMp: formatMp(player),
     playerMagic: formatMagic(player),
     playerMana: formatMana(player),
+    playerManaVisible: (player?.mana.max ?? 0) > 0,
     action: formatActions(player),
+    traits: traitsLabel(player),
+    condition: conditionLabel(player),
     actionSuggestion: actionSuggestion(state),
     phase: phaseLabel(state),
     enemyHp: formatHp(enemy),
@@ -217,7 +174,9 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     cursorEnemyHp: formatHp(cursorEnemy),
     cursorEnemyMagic: formatMagic(cursorEnemy),
     cursorEnemyMana: formatMana(cursorEnemy),
-    cursorEnemyBands: cursorEnemyBands(state, cursorEnemy, cursor),
+    cursorEnemyMagicVisible,
+    cursorEnemyBands: cursorDetail.kind === 'enemy' ? cursorDetail.bands : null,
+    cursorDetail,
     weaponHint: groundItem
       ? `I panel · ${ITEMS[groundItem.itemId].name} en el suelo`
       : null,
@@ -577,64 +536,15 @@ export interface HudView {
   update(state: GameState, cursor?: Position, feedback?: HudFeedback): void;
 }
 
-/**
- * Crea las estadísticas de equipo dentro de un grupo del HUD sin tocar
- * `index.html`. Si el nodo ya existe lo reutiliza, de modo que el HUD sigue
- * siendo idempotente si se reconstruye la vista.
- */
-function ensureHudStat(
-  root: ParentNode,
-  container: HTMLElement,
-  testId: string,
-  label: string,
-): HTMLElement {
-  const existing = root.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
-  if (existing) return existing;
-
-  const element = document.createElement('span');
-  element.className = 'hud-stat';
-  element.append(`${label} `);
-  const value = document.createElement('strong');
-  value.dataset.testid = testId;
-  value.textContent = '—';
-  element.append(value);
-  container.append(element);
-  return value;
-}
-
-function ensureEquipmentGroup(root: ParentNode, hud: HTMLElement): HTMLElement {
-  const existing = root.querySelector<HTMLElement>('[data-testid="hud-equipment"]');
-  if (existing) return existing;
-
-  const group = document.createElement('div');
-  group.className = 'hud-group';
-  group.dataset.testid = 'hud-equipment';
-  hud.append(group);
-  return group;
-}
-
-function ensureIdentityGroup(root: ParentNode, hud: HTMLElement): HTMLElement {
-  const existing = root.querySelector<HTMLElement>('[data-testid="hud-identity"]');
-  if (existing) return existing;
-
-  const group = document.createElement('div');
-  group.className = 'hud-group';
-  group.dataset.testid = 'hud-identity';
-  hud.prepend(group);
-  return group;
-}
-
-function ensureWeaponHint(root: ParentNode, keys: HTMLElement): HTMLElement {
-  const existing = root.querySelector<HTMLElement>('[data-testid="weapon-hint"]');
-  if (existing) return existing;
-
-  const hint = document.createElement('p');
-  hint.className = 'hud-keys';
-  hint.dataset.testid = 'weapon-hint';
-  hint.hidden = true;
-  keys.after(hint);
-  return hint;
-}
+const DETAIL_KIND_LABELS: Readonly<Record<CursorDetailKind, string>> = {
+  enemy: 'Enemigo',
+  ally: 'Aliado',
+  item: 'Objeto',
+  door: 'Puerta',
+  terrain: 'Terreno',
+  unknown: 'Desconocido',
+  container: 'Contenedor',
+};
 
 /**
  * Grupo de bandas del enemigo bajo el cursor. Reutiliza los nodos si ya existen
@@ -642,15 +552,15 @@ function ensureWeaponHint(root: ParentNode, keys: HTMLElement): HTMLElement {
  */
 function ensureCursorBands(
   root: ParentNode,
-  hud: HTMLElement,
+  detail: HTMLElement,
 ): { readonly group: HTMLElement; readonly rows: ReadonlyMap<string, HTMLElement> } {
   const existingGroup = root.querySelector<HTMLElement>('[data-testid="hud-cursor-bands"]');
   const group = existingGroup ?? document.createElement('div');
   if (!existingGroup) {
-    group.className = 'hud-group hud-cursor-bands';
+    group.className = 'hud-cursor-bands';
     group.dataset.testid = 'hud-cursor-bands';
     group.hidden = true;
-    hud.append(group);
+    detail.append(group);
   }
 
   const rows = new Map<string, HTMLElement>();
@@ -659,7 +569,7 @@ function ensureCursorBands(
     const existingRow = root.querySelector<HTMLElement>(`[data-testid="${testId}"]`);
     const row = existingRow ?? document.createElement('span');
     if (!existingRow) {
-      row.className = 'hud-stat';
+      row.className = 'hud-cursor-band-row';
       row.dataset.testid = testId;
       group.append(row);
     }
@@ -671,49 +581,81 @@ function ensureCursorBands(
 
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
-  const hud = requireElement(root, 'hud');
+  const playerName = requireElement(root, 'hud-player-name');
+  const archetype = requireElement(root, 'hud-archetype');
   const playerHp = requireElement(root, 'hud-player-hp');
   const playerMp = requireElement(root, 'hud-player-mp');
   const playerMagic = requireElement(root, 'hud-player-magic');
   const playerMana = requireElement(root, 'hud-player-mana');
+  const manaRow = requireElement(root, 'hud-mana-row');
   const action = requireElement(root, 'hud-action');
+  const stats = requireElement(root, 'hud-stats');
+  const traits = requireElement(root, 'hud-traits');
+  const condition = requireElement(root, 'hud-condition');
+  const weapon = requireElement(root, 'hud-weapon');
   const actionSuggestion = requireElement(root, 'hud-suggestion');
   const phase = requireElement(root, 'hud-phase');
   const enemyHp = requireElement(root, 'hud-enemy-hp');
   const turn = requireElement(root, 'hud-turn');
   const status = requireElement(root, 'hud-status');
   const keys = requireElement(root, 'hud-keys');
+  const weaponHint = requireElement(root, 'weapon-hint');
   const victory = requireElement(root, 'overlay-victory');
   const defeat = requireElement(root, 'overlay-defeat');
 
-  const equipmentGroup = ensureEquipmentGroup(root, hud);
-  const identityGroup = ensureIdentityGroup(root, hud);
-  const playerName = ensureHudStat(root, identityGroup, 'hud-player-name', 'Nombre');
-  const archetype = ensureHudStat(root, identityGroup, 'hud-archetype', 'Arquetipo');
-  const weapon = ensureHudStat(root, equipmentGroup, 'hud-weapon', 'Arma');
-  const shield = ensureHudStat(root, equipmentGroup, 'hud-shield', 'Escudo');
-  const armor = ensureHudStat(root, equipmentGroup, 'hud-armor', 'Armadura');
-  const stats = ensureHudStat(root, equipmentGroup, 'hud-stats', 'Atributos');
-  const cursorEnemyHp = ensureHudStat(
-    root,
-    equipmentGroup,
-    'hud-cursor-enemy-hp',
-    'Enemigo cursor',
-  );
-  const cursorEnemyMagic = ensureHudStat(
-    root,
-    equipmentGroup,
-    'hud-cursor-enemy-magic',
-    'Magia cursor',
-  );
-  const cursorEnemyMana = ensureHudStat(
-    root,
-    equipmentGroup,
-    'hud-cursor-enemy-mana',
-    'Maná cursor',
-  );
-  const cursorBands = ensureCursorBands(root, hud);
-  const weaponHint = ensureWeaponHint(root, keys);
+  const detail = requireElement(root, 'hud-cursor-detail');
+  const detailKind = requireElement(root, 'hud-cursor-kind');
+  const detailTitle = requireElement(root, 'hud-cursor-title');
+  const detailSubtitle = requireElement(root, 'hud-cursor-subtitle');
+  const detailRows = requireElement(root, 'hud-cursor-rows');
+  const detailNotes = requireElement(root, 'hud-cursor-notes');
+  const vitals = requireElement(root, 'hud-cursor-vitals');
+  const magicVital = vitals.querySelector<HTMLElement>('[data-vital="magic"]');
+  const manaVital = vitals.querySelector<HTMLElement>('[data-vital="mana"]');
+  if (!magicVital || !manaVital) {
+    throw new Error('Faltan las filas de magia y maná del detalle del cursor');
+  }
+  const cursorEnemyHp = requireElement(root, 'hud-cursor-enemy-hp');
+  const cursorEnemyMagic = requireElement(root, 'hud-cursor-enemy-magic');
+  const cursorEnemyMana = requireElement(root, 'hud-cursor-enemy-mana');
+  const cursorBands = ensureCursorBands(root, detail);
+
+  let lastDetailKey: string | null = null;
+
+  const renderDetail = (value: CursorDetail): void => {
+    const key = JSON.stringify(value);
+    if (key === lastDetailKey) return;
+    lastDetailKey = key;
+
+    detail.dataset.kind = value.kind;
+    detailKind.textContent = DETAIL_KIND_LABELS[value.kind];
+    detailTitle.textContent = value.title;
+    detailSubtitle.textContent = value.subtitle ?? '';
+    detailSubtitle.hidden = value.subtitle === null;
+
+    detailRows.replaceChildren(
+      ...value.rows.map((row) => {
+        const item = document.createElement('div');
+        item.className = 'hud-detail-row';
+        item.dataset.row = row.id;
+        const label = document.createElement('dt');
+        label.textContent = row.label;
+        const valueNode = document.createElement('dd');
+        valueNode.textContent = row.value;
+        item.append(label, valueNode);
+        return item;
+      }),
+    );
+
+    detailNotes.textContent = value.notes.join(' · ');
+    detailNotes.hidden = value.notes.length === 0;
+
+    cursorBands.group.hidden = value.bands === null;
+    for (const row of value.bands ?? []) {
+      const element = cursorBands.rows.get(row.type);
+      if (element) element.textContent = `${row.typeLabel} ${row.bandLabel} ${row.icon}`;
+    }
+  };
 
   return {
     update(state: GameState, cursor?: Position, feedback?: HudFeedback): void {
@@ -724,7 +666,13 @@ export function createHudView(root: ParentNode): HudView {
       playerMp.textContent = model.playerMp;
       playerMagic.textContent = model.playerMagic;
       playerMana.textContent = model.playerMana;
+      manaRow.hidden = !model.playerManaVisible;
       action.textContent = model.action;
+      stats.textContent = model.stats;
+      traits.textContent = model.traits;
+      condition.textContent = model.condition ?? '';
+      condition.hidden = model.condition === null;
+      weapon.textContent = model.weapon;
       actionSuggestion.textContent = model.actionSuggestion ?? '';
       actionSuggestion.hidden = model.actionSuggestion === null;
       phase.textContent = model.phase;
@@ -732,18 +680,13 @@ export function createHudView(root: ParentNode): HudView {
       turn.textContent = model.turn;
       status.textContent = model.status;
       keys.textContent = model.keys;
-      weapon.textContent = model.weapon;
-      shield.textContent = model.shield;
-      armor.textContent = model.armor;
-      stats.textContent = model.stats;
       cursorEnemyHp.textContent = model.cursorEnemyHp;
       cursorEnemyMagic.textContent = model.cursorEnemyMagic;
       cursorEnemyMana.textContent = model.cursorEnemyMana;
-      cursorBands.group.hidden = model.cursorEnemyBands === null;
-      for (const row of model.cursorEnemyBands ?? []) {
-        const element = cursorBands.rows.get(row.type);
-        if (element) element.textContent = `${row.typeLabel} ${row.bandLabel} ${row.icon}`;
-      }
+      vitals.hidden = model.cursorDetail.kind !== 'enemy';
+      magicVital.hidden = !model.cursorEnemyMagicVisible;
+      manaVital.hidden = !model.cursorEnemyMagicVisible;
+      renderDetail(model.cursorDetail);
       weaponHint.textContent = model.weaponHint ?? '';
       weaponHint.hidden = model.weaponHint === null;
       victory.hidden = !model.overlays.victory;

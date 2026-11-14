@@ -122,15 +122,26 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
   expect(alarmNotice.message).toBe('¡Alarma! Te han visto');
   expect(alarmNotice.messageHidden).toBe(false);
 
-  // R-011/R-012: el aviso vive dentro del HUD y no tapa el marco del mapa.
+  // R-011/R-012: el aviso vive dentro del HUD y ambos dentro del marco.
   const hudBox = await box(page, 'hud');
   const messageBox = await box(page, 'hud-message');
   const frameBox = await box(page, 'frame');
+  expect(messageBox.x).toBeGreaterThanOrEqual(hudBox.x - 1);
+  expect(messageBox.y).toBeGreaterThanOrEqual(hudBox.y - 1);
+  expect(messageBox.x + messageBox.width).toBeLessThanOrEqual(
+    hudBox.x + hudBox.width + 1,
+  );
   expect(messageBox.y + messageBox.height).toBeLessThanOrEqual(
     hudBox.y + hudBox.height + 1,
   );
-  expect(messageBox.y + messageBox.height).toBeLessThanOrEqual(frameBox.y + 1);
-  expect(hudBox.y + hudBox.height).toBeLessThanOrEqual(frameBox.y + 1);
+  expect(hudBox.x).toBeGreaterThanOrEqual(frameBox.x - 1);
+  expect(hudBox.y).toBeGreaterThanOrEqual(frameBox.y - 1);
+  expect(hudBox.x + hudBox.width).toBeLessThanOrEqual(
+    frameBox.x + frameBox.width + 1,
+  );
+  expect(hudBox.y + hudBox.height).toBeLessThanOrEqual(
+    frameBox.y + frameBox.height + 1,
+  );
   await screenshot(page, testInfo, 'deteccion-paso');
 
   await settle(page);

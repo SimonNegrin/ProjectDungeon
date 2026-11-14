@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0100 — in_progress: DoR cumplida; pantalla en tres zonas con HUD izquierdo de REQ-022 v3, derecho de REQ-023 v3 y anclajes de REQ-017 dentro del marco — [TASK-0100](tasks/TASK-0100-pantalla-tres-zonas-hud.md)
+
 * 2026-11-14 — Fricción — REQ-032 — `--ui-line` se usa como color en la ficha y como grosor calculado en los criterios; se acepta `--ui-line` (grosor) y `--ui-line-color` (color), con aclaración documental pendiente en `requirements-writer` — [informe](../artifacts/TASK-0099/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0099 — done: Pixelify Sans variable local con OFL y crédito, tokens `--ui-*` y escalas por rol, `--ui-line` calculada desde tile y marco con redondeo a píxel de dispositivo y recálculo al redimensionar; verify 1259/1259 y E2E 134/134; capturas y tabla de caracteres; fusión `eadc42d` — [informe](../artifacts/TASK-0099/attempt-1/report.md)

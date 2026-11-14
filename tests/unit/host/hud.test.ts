@@ -110,6 +110,77 @@ describe('modelo del HUD', () => {
     expect(model.archetype).toBe(ROSTER.warrior.name);
   });
 
+  it('omite la fila de maná sin maná y muestra el estado vacío de traits', () => {
+    const warrior = buildHudModel(makeState());
+    expect(warrior.playerMana).toBe('0/0');
+    expect(warrior.playerManaVisible).toBe(false);
+    expect(warrior.traits).toBe('Sin traits activos');
+    expect(warrior.condition).toBeNull();
+
+    const mage = createPlayerFromArchetype('mage', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+    const withMana = buildHudModel(makeState({ players: [mage] }));
+    expect(withMana.playerManaVisible).toBe(true);
+    expect(withMana.playerMana).toBe(
+      `${mage.mana.current}/${mage.mana.max}`,
+    );
+  });
+
+  it('mantiene la ficha izquierda en el jugador fantasma con su MP', () => {
+    const ghost = makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x: 4,
+      y: 4,
+      hp: 0,
+      mp: 3,
+      maxMp: 6,
+    });
+    // Un segundo jugador vivo da línea de visión; la ficha sigue al fantasma,
+    // que es el jugador activo de este turno.
+    const observer = makeUnit({
+      id: 'player-2',
+      faction: 'player',
+      x: 5,
+      y: 4,
+    });
+    const model = buildHudModel(
+      makeState({ players: [ghost, observer] }),
+      { x: 4, y: 4 },
+    );
+
+    expect(model.condition).toBe('Fantasma');
+    expect(model.playerMp).toBe('3/6');
+    expect(model.playerHp).toBe(`0/${ghost.maxHp}`);
+    expect(model.cursorDetail.kind).toBe('ally');
+    expect(model.cursorDetail.title).toBe('player-1');
+    expect(model.cursorDetail.notes.join(' ')).toContain('Fantasma');
+    expect(model.cursorDetail.notes.join(' ')).toContain('sin equipo');
+    expect(JSON.stringify(model.cursorDetail)).not.toContain('Mochila');
+  });
+
+  it('cambia la ficha con el jugador activo de la lista (hotseat)', () => {
+    const first = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    const second = createPlayerFromArchetype('rogue', {
+      id: 'player-2',
+      position: { x: 5, y: 4 },
+      name: 'Boric',
+    });
+
+    expect(
+      buildHudModel(makeState({ players: [first, second] })).playerName,
+    ).toBe('Ada');
+    expect(
+      buildHudModel(makeState({ players: [second, first] })).playerName,
+    ).toBe('Boric');
+  });
+
   it('la ayuda estática de index.html coincide con las teclas nuevas', () => {
     const html = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
     const help = html.match(/data-testid="hud-keys"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
@@ -228,7 +299,7 @@ describe('modelo del HUD', () => {
     expect(bands?.every((row) => row.icon === '●')).toBe(true);
   });
 
-  it('sin línea de visión no muestra bandas, pero no oculta los PV del cursor', () => {
+  it('sin línea de visión oculta bandas y stats del cursor tras «Desconocido»', () => {
     const state = makeState({
       grid: makeGridWithWalls([{ x: 6, y: 5 }]),
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
@@ -236,8 +307,15 @@ describe('modelo del HUD', () => {
     });
 
     const model = buildHudModel(state, { x: 7, y: 5 });
+    // REQ-023 R-007: el panel no revela stats si ningún jugador vivo ve la
+    // casilla. La comprobación anterior solo cubría las bandas.
     expect(model.cursorEnemyBands).toBeNull();
-    expect(model.cursorEnemyHp).toBe('10/10');
+    expect(model.cursorEnemyHp).toBe('—/—');
+    expect(model.cursorEnemyMagic).toBe('—');
+    expect(model.cursorEnemyMana).toBe('—/—');
+    expect(model.cursorDetail.kind).toBe('unknown');
+    expect(model.cursorDetail.title).toBe('Desconocido');
+    expect(JSON.stringify(model.cursorDetail)).not.toContain('enemy-1');
   });
 
   it('con el jugador muerto no muestra bandas aunque el cursor vea al enemigo', () => {
