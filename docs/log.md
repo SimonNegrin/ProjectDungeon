@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0104 — done: escala continua `--ui-scale` ligada al marco (cuerpo 13,15 px a 900×700 y 17,93 px a 1280×720), paleta de ocho colores y biseles outset/inset sin radios, sombras, degradados, blur ni translucidez en la UI de juego; verify 1305/1305 y E2E 152/152; fusión `37c1a33` — [informe](../artifacts/TASK-0104/attempt-1/report.md)
+
 * 2026-11-14 — Planning — TASK-0104 a TASK-0110 — backlog: escala/paleta/relieve, HUD izquierdo, ficha derecha, panel con layout preferido, cursor/CLS, QA visual y docs; TASK-0104 `ready` y el resto en cadena; la distribución alternativa del panel queda condicionada al QA de TASK-0107 y no se crea — [TASK-0104](tasks/TASK-0104-ui-escala-continua-paleta-relieve.md)
 
 * 2026-11-14 — Requirement — REQ-033 — stable v6: aprobado el texto; enmiendas REQ-032 v3, REQ-022 v4, REQ-023 v4 y REQ-018 v8 para escala continua, vintage, tres zonas, ficha simplificada, títulos Equipo/Bolsa/Suelo, slots inset, distribución alternativa, anti-CLS y cursor superpuesto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
