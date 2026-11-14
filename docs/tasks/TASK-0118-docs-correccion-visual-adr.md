@@ -4,7 +4,7 @@ id: TASK-0118
 title: "Docs: corrección visual, ADR y glosario"
 description: "Reflejar en arquitectura, glosario y ADR el relieve de 2×, las listas verticales, el panel alineado, las siluetas y el cursor nuevo de REQ-033 v7."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: docs
 requirement: REQ-033
 requirement_ids: [T-009]
