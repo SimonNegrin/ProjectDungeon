@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Milestone — REQ-033 — completada con TASK-0104 a TASK-0110 `done`: escala continua, paleta, relieve inset/outset, HUD en tres zonas, ficha y panel nuevos (encaje a 900×700; R-021 no se abre), cursor, CLS 0 y ADR-026; pendiente el retrato del HUD contra REQ-022 R-002 — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
 * 2026-11-14 — Docs — TASK-0110 — done: arquitectura con escala única, ocho colores, outset/inset, cursor superpuesto y anti-CLS; glosario con escala de UI, outset, inset, Bolsa y cursor de selección; ADR-026 y notas de vigencia de ADR-021/025; docs:check y verify 1317/1317; fusión `eab91ef` — [informe](../artifacts/TASK-0110/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0109 — done: QA visual de REQ-033 con 35 capturas a 900×700 y 1280×720; tres columnas encajan a 900×700 (columnas 137,06, slots 39,89), escala continua, paleta y biseles, ficha, cadáveres, cursor y CLS 0; verify 1317/1317 y E2E 183/183; fusión `d2f1a21`; retrato estático fuera de REQ-033, pendiente de decisión — [informe](../artifacts/TASK-0109/attempt-1/report.md)
