@@ -116,12 +116,11 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
   await expect(page.getByTestId('hud-weapon')).toHaveText(
     weaponLabel(initial.players[0]),
   );
-  await expect(page.getByTestId('hud-shield')).toHaveText(
-    shieldLabel(initial.players[0]),
-  );
-  await expect(page.getByTestId('hud-armor')).toHaveText(
-    armorLabel(initial.players[0]),
-  );
+  // Escudo y armadura ya no viven en la ficha izquierda (REQ-022 R-004); el
+  // detalle del aliado bajo el cursor conserva la misma cobertura.
+  const detail = page.getByTestId('hud-cursor-detail');
+  await expect(detail).toContainText(shieldLabel(initial.players[0]));
+  await expect(detail).toContainText(armorLabel(initial.players[0]));
   await expect(page.getByTestId('hud-stats')).toHaveText(
     statsLabel(initial.players[0]),
   );

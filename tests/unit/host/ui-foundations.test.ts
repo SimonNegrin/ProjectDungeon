@@ -65,6 +65,24 @@ describe('tokens y escalas de la UI', () => {
   });
 });
 
+describe('tokens del HUD interior', () => {
+  it('no deja literales de color ni grosores de píxel en las reglas del HUD', () => {
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((match) => /\.hud/.test(match[1]))
+      .map((match) => ({ selector: match[1].trim(), body: match[2] }));
+
+    expect(rules.length).toBeGreaterThan(10);
+    for (const rule of rules) {
+      expect(rule.body, `${rule.selector} usa un color literal`).not.toMatch(
+        /rgba?\(|#[0-9a-f]{3,8}\b/i,
+      );
+      expect(rule.body, `${rule.selector} usa un grosor literal`).not.toMatch(
+        /border(?:-[a-z]+)?\s*:[^;]*\d+px/i,
+      );
+    }
+  });
+});
+
 describe('fuente Pixelify Sans incluida en el build', () => {
   it('la sirve desde /fonts con la variable 400–700 y swap', () => {
     const face = css.match(/@font-face\s*\{([\s\S]*?)\}/)?.[1] ?? '';

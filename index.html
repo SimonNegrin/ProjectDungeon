@@ -10,33 +10,6 @@
   <body>
     <main>
       <div class="game-root" data-testid="game-root">
-        <section class="hud" data-testid="hud" aria-label="Estado de la partida">
-          <div class="hud-group">
-            <span class="hud-stat">Vida <strong data-testid="hud-player-hp">20/20</strong></span>
-            <span class="hud-stat">MP <strong data-testid="hud-player-mp">6/6</strong></span>
-            <span class="hud-stat">Magia <strong data-testid="hud-player-magic">0</strong></span>
-            <span class="hud-stat">Maná <strong data-testid="hud-player-mana">0/0</strong></span>
-            <span class="hud-stat">Acciones <strong data-testid="hud-action">2/2</strong></span>
-          </div>
-          <div class="hud-group">
-            <span class="hud-stat">Fase <strong data-testid="hud-phase">Jugador</strong></span>
-            <span class="hud-stat">Enemigo <strong data-testid="hud-enemy-hp">10/10</strong></span>
-            <span class="hud-stat" data-testid="hud-turn">Turno 1</span>
-            <span class="hud-stat" data-testid="hud-status">En juego</span>
-          </div>
-          <p class="hud-keys" data-testid="hud-keys">
-            Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · E terminar turno · R reiniciar · F1 debug
-          </p>
-          <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
-          <p class="hud-message" data-testid="hud-message" role="status" aria-live="polite" hidden></p>
-        </section>
-
-        <section class="spell-list" data-testid="spell-list" aria-label="Hechizos" hidden>
-          <h2 class="spell-list-title">Hechizos · Q</h2>
-          <ol class="spell-list-items" data-testid="spell-list-items"></ol>
-          <p class="spell-list-hint" data-testid="spell-list-hint"></p>
-        </section>
-
         <div class="stage" data-testid="stage">
           <div class="frame" data-testid="frame">
             <canvas
@@ -46,6 +19,80 @@
               role="img"
               aria-label="Sala de mazmorra con un caballero y un goblin"
             ></canvas>
+            <section class="hud" data-testid="hud" aria-label="Estado de la partida">
+              <aside class="hud-left" data-testid="hud-left">
+                <div
+                  class="hud-portrait"
+                  data-testid="hud-portrait"
+                  aria-hidden="true"
+                ></div>
+                <p class="hud-player-name" data-testid="hud-player-name">—</p>
+                <p class="hud-archetype" data-testid="hud-archetype">—</p>
+                <div class="hud-fields">
+                  <span class="hud-stat">Vida <strong data-testid="hud-player-hp">20/20</strong></span>
+                  <span class="hud-stat">MP <strong data-testid="hud-player-mp">6/6</strong></span>
+                  <span class="hud-stat">Magia <strong data-testid="hud-player-magic">0</strong></span>
+                  <span class="hud-stat" data-testid="hud-mana-row"
+                    >Maná <strong data-testid="hud-player-mana">0/0</strong></span
+                  >
+                  <span class="hud-stat">Acciones <strong data-testid="hud-action">2/2</strong></span>
+                </div>
+                <p class="hud-stats" data-testid="hud-stats"></p>
+                <p class="hud-traits" data-testid="hud-traits">Sin traits activos</p>
+                <p class="hud-condition" data-testid="hud-condition" hidden></p>
+                <p class="hud-stat hud-weapon-slot">
+                  Arma <strong data-testid="hud-weapon">—</strong>
+                </p>
+                <p class="hud-hint" data-testid="weapon-hint" hidden></p>
+                <p class="hud-state-line">
+                  <span class="hud-stat">Fase <strong data-testid="hud-phase">Jugador</strong></span>
+                  <span class="hud-stat">Enemigo <strong data-testid="hud-enemy-hp">10/10</strong></span>
+                  <span class="hud-stat" data-testid="hud-turn">Turno 1</span>
+                  <span class="hud-stat" data-testid="hud-status">En juego</span>
+                </p>
+                <p class="hud-keys" data-testid="hud-keys">
+                  Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · E terminar turno · R reiniciar · F1 debug
+                </p>
+                <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
+                <p
+                  class="hud-message"
+                  data-testid="hud-message"
+                  role="status"
+                  aria-live="polite"
+                  hidden
+                ></p>
+              </aside>
+              <aside class="hud-right" data-testid="hud-right" aria-label="Detalle bajo el cursor">
+                <section
+                  class="hud-detail"
+                  data-testid="hud-cursor-detail"
+                  data-kind="unknown"
+                  aria-live="polite"
+                >
+                  <p class="hud-detail-eyebrow" data-testid="hud-cursor-kind">Desconocido</p>
+                  <h2 class="hud-detail-title" data-testid="hud-cursor-title">Desconocido</h2>
+                  <p class="hud-detail-subtitle" data-testid="hud-cursor-subtitle" hidden></p>
+                  <dl class="hud-detail-rows" data-testid="hud-cursor-rows"></dl>
+                  <p class="hud-detail-notes" data-testid="hud-cursor-notes" hidden></p>
+                  <p class="hud-detail-vitals" data-testid="hud-cursor-vitals" hidden>
+                    <span class="hud-detail-vital" data-vital="pv"
+                      >PV <strong data-testid="hud-cursor-enemy-hp">—/—</strong></span
+                    >
+                    <span class="hud-detail-vital" data-vital="magic"
+                      >Magia <strong data-testid="hud-cursor-enemy-magic">—</strong></span
+                    >
+                    <span class="hud-detail-vital" data-vital="mana"
+                      >Maná <strong data-testid="hud-cursor-enemy-mana">—/—</strong></span
+                    >
+                  </p>
+                </section>
+              </aside>
+            </section>
+            <section class="spell-list" data-testid="spell-list" aria-label="Hechizos" hidden>
+              <h2 class="spell-list-title">Hechizos · Q</h2>
+              <ol class="spell-list-items" data-testid="spell-list-items"></ol>
+              <p class="spell-list-hint" data-testid="spell-list-hint"></p>
+            </section>
             <div class="map-overlay" aria-hidden="true">
               <div class="perception-overlay" data-testid="perception-overlay" hidden></div>
               <div class="spot-markers" data-testid="spot-markers"></div>

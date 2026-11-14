@@ -190,18 +190,26 @@ function floorNeighbor(snap: GameSnapshot, x: number, y: number) {
 
 async function expectHudEquipment(page: Page, snap: GameSnapshot): Promise<void> {
   const player = snap.players[0];
+  await moveCursorTo(page, player.x, player.y);
   await expect(page.getByTestId('hud-weapon')).toHaveText(weaponLabel(player));
-  await expect(page.getByTestId('hud-shield')).toHaveText(shieldLabel(player));
-  await expect(page.getByTestId('hud-armor')).toHaveText(armorLabel(player));
   await expect(page.getByTestId('hud-stats')).toHaveText(statsLabel(player));
+  // El resumen de equipo dejó la ficha izquierda (REQ-022 R-004): arma,
+  // escudo y armadura se consultan en el detalle del aliado bajo el cursor.
+  const detail = page.getByTestId('hud-cursor-detail');
+  await expect(detail).toContainText(weaponLabel(player));
+  await expect(detail).toContainText(shieldLabel(player));
+  await expect(detail).toContainText(armorLabel(player));
 }
 
-async function expectHudOutsideMap(page: Page): Promise<void> {
+async function expectHudInsideFrame(page: Page): Promise<void> {
   const hud = await page.getByTestId('hud').boundingBox();
   const frame = await page.getByTestId('frame').boundingBox();
   expect(hud, 'El HUD debe tener caja').not.toBeNull();
   expect(frame, 'El marco del mapa debe tener caja').not.toBeNull();
-  expect(hud!.y + hud!.height).toBeLessThanOrEqual(frame!.y + 1);
+  expect(hud!.x).toBeGreaterThanOrEqual(frame!.x - 1);
+  expect(hud!.y).toBeGreaterThanOrEqual(frame!.y - 1);
+  expect(hud!.x + hud!.width).toBeLessThanOrEqual(frame!.x + frame!.width + 1);
+  expect(hud!.y + hud!.height).toBeLessThanOrEqual(frame!.y + frame!.height + 1);
 }
 
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -259,7 +267,7 @@ test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', 
     `${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
   );
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
-  await expectHudOutsideMap(page);
+  await expectHudInsideFrame(page);
   await screenshot(page, 'hud-sword', testInfo);
 
   const neighbor = floorNeighbor(initial, axe!.x, axe!.y);
