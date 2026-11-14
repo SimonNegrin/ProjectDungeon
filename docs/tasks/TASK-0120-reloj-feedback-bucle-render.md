@@ -3,8 +3,8 @@ type: Task
 id: TASK-0120
 title: "Bug: el reloj de feedback no caduca y el host repinta a 60 fps"
 description: "Tras cualquier feedback transitorio, el host repinta cada frame y los banners y textos no desaparecen; restaurar el consumo del reloj de presentación de REQ-017."
-status: draft
-task_status: backlog
+status: stable
+task_status: ready
 task_type: feature
 requirement: REQ-017
 requirement_ids: [R-011, R-016, T-005]
