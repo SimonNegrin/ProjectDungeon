@@ -1,0 +1,21 @@
+
+Running 16 tests using 4 workers
+
+  ✓   2 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:146:5 › pantalla en tres zonas › ficha, mapa y detalle caben sin recorte a 900×700 (1.7s)
+  ✓   4 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:146:5 › pantalla en tres zonas › ficha, mapa y detalle caben sin recorte a 1280×720 (1.7s)
+  ✓   3 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:199:5 › panel de inventario sobre el mapa › cubre solo el mapa y deja ambos HUD visibles a 900×700 (2.1s)
+  ✓   1 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:199:5 › panel de inventario sobre el mapa › cubre solo el mapa y deja ambos HUD visibles a 1280×720 (2.1s)
+  ✓   5 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:346:1 › el detalle cambia por tile sin tocar el estado del motor (556ms)
+  ✓   7 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:500:1 › la ficha muestra al fantasma y sigue al jugador activo en hotseat (1.6s)
+  ✓   9 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:258:1 › submenú: flechas, izquierda/derecha inertes y Enter una sola vez (1.9s)
+  ✓  10 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:291:1 › 0 MP: opciones no disponibles con motivo y sin despacho (911ms)
+  ✓   8 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:129:1 › submenú y ficha: equipar, desequipar, recoger y soltar sin gastar al abrir (2.8s)
+  ✓  11 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:341:1 › mochila llena: no se ofrece recoger y equipar desde el suelo se rechaza (819ms)
+  ✓   6 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:378:1 › describe aliado, objeto, puerta, terreno, entrada/salida y desconocido (3.6s)
+  ✓  12 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:370:1 › posiciones y capturas 1280×720 y 900×700 sin tapar la columna (1.3s)
+  ✓  13 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:200:1 › tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son paradas (1.7s)
+  ✓  14 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:277:1 › flechas y WASD recorren el plano, sin rebote y con empate determinista (1.9s)
+  ✓  15 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:323:1 › Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar (1.6s)
+  ✓  16 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:431:1 › scroll: a 1280×720 nada desborda; a 900×700 solo el suelo se desplaza (997ms)
+
+  16 passed (8.8s)
