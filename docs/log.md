@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Requirement — REQ-033 — stable v7: aprobado el texto; biseles 2×, cursor 4× #fcffc0, listas verticales, columnas arriba, casco superior sin bloque de cabeza, siluetas #6eb8a8 que se ocultan al equipar y transición de 140-160 ms; sin cambios de reglas — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v7: biseles 2× línea y cursor 4×, listas verticales en ambos HUD, columnas alineadas arriba, casco superior sin bloque de cabeza, siluetas sólidas #6eb8a8 en slots vacíos y cursor #fcffc0 con transición de 140-160 ms; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
 * 2026-11-14 — Review — REQ-016 — verificado: `renderer.ts` dibuja `KNIGHT_RECT` para todo jugador; no se abre tarea porque la selección de arquetipo/variante llega con REQ-016/REQ-031 (fase 2) y el render por variante se incluirá entonces — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
 
 * 2026-11-14 — Task — TASK-0111 — done: retrato del HUD por arquetipo activo (guerrero, mago y pícaro con recortes 32×32 de `rogues.png`); retrato, nombre y arquetipo cambian juntos sin CLS; verify 1319/1319 y E2E 187/187; capturas a 900×700 y 1280×720; fusión `315533c` — [informe](../artifacts/TASK-0111/attempt-1/report.md)
