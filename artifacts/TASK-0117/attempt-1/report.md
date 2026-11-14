@@ -5,7 +5,7 @@ description: QA visual en navegador de la corrección UI v7 a 900×700 y 1280×7
 task: TASK-0117
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-14T17:30:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-14T17:35:00Z }
 artifacts: artifacts/TASK-0117/attempt-1/
 verified:
 ---
@@ -19,15 +19,18 @@ TASK-0112 a TASK-0116, sin tocar UI, reglas, docs ni tests existentes.
 
 - Nuevo `tests/e2e/qa-visual-correccion-ui-v7.spec.ts` (12 tests, 6 por
   viewport); reutiliza los helpers de `support.ts` y `artifactPath`.
-- Commit SHA: `a9b383adcfce73cc3bd3db48c802eac384f7a711`.
+- Refuerzo del intento: aserciones de piernas bajo la caja y captura
+  `cursor-panel-*` con el panel abierto; `cursor-mapa-*` documenta el cursor del
+  mapa.
+- Commit SHA: `739901dc3bed4f3c4c263c5574f4cb020366cc4b`.
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
 | `pnpm run verify` (120 s) | 94 archivos, 1330 tests, tsc, build y bundle | `verify-output.txt` |
-| `pnpm run test:e2e` (180 s) | 208/208 en 1,3 min; sin flake de `generated-map-qa` | `e2e-output.txt` |
-| E2E del spec con `E2E_ARTIFACTS_DIR` | 12/12 en 6,4 s | `e2e-spec-output.txt` |
+| `pnpm run test:e2e` (180 s) | 208/208 en 1,4 min; sin flake de `generated-map-qa` | `e2e-output.txt` |
+| E2E del spec con `E2E_ARTIFACTS_DIR` | 12/12 en 8,3 s | `e2e-spec-output.txt` |
 
 # Criterios y evidencia
 
@@ -39,20 +42,25 @@ TASK-0112 a TASK-0116, sin tocar UI, reglas, docs ni tests existentes.
   condicionales ocultos con altura 0; mago con Magia 4 y Maná 16/16
   (`logs/<v>/listas.json`, `listas-*`).
 - **Panel:** títulos arriba, casco = inicio de rejilla y figura (±0), 5 bloques,
-  sin nodo cabeza, sin foco ni puntero; piernas bajo la caja 42,25/57,61 px
-  (aceptado en TASK-0114) (`logs/<v>/panel.json`, `panel-arriba-*`).
+  sin nodo cabeza, sin foco ni puntero. Cada pierna queda >2 px bajo la caja de
+  cinco filas (desborde 42,25/57,61 px), con `overflow` visible en figura,
+  contenedor, rejilla y columna, y por dentro del cuerpo del panel
+  (`logs/<v>/panel.json`, `panel-arriba-*`).
 - **Siluetas:** 8 vacíos con máscara `items.png` y `rgb(110,184,168)`; lleno solo
   sprite; reaparece al desequipar; Bolsa/Suelo sin capa; rect y bisel iguales
   (`logs/<v>/siluetas.json`, `siluetas-vacias-*`, `silueta-llena-*`).
 - **Cursor:** `rgb(252,255,192)`, 4× línea, z=10 < submenú z=30; 150 ms en
   horizontal, vertical y columna; foco DOM en el slot; instantáneo en apertura,
   resize, scroll y modelo; reducido 0 transiciones y duración 0
-  (`logs/<v>/cursor-*.json`, `cursor-submenu-*`, `cursor-reducido-*`).
+  (`logs/<v>/cursor-*.json`, `cursor-panel-*`, `cursor-submenu-*`,
+  `cursor-mapa-*`, `cursor-reducido-*`).
 
 # Evidencia visual
 
 - `qa-visual-correccion-ui-v7/screenshots/` y `logs/<v>/`; capturas revisadas de
   relieve, listas, panel, siluetas y cursor en ambos tamaños.
+- `cursor-panel-<v>.png` muestra el cursor del panel con el panel abierto y sin
+  submenú; `cursor-mapa-<v>.png` documenta el cursor del mapa tras cerrar.
 
 # Desviaciones
 
@@ -66,7 +74,7 @@ TASK-0112 a TASK-0116, sin tocar UI, reglas, docs ni tests existentes.
 # Problemas conocidos y preguntas abiertas
 
 - Ninguno abierto. `docs:check` avisa de tamaños de handoffs previos, del brief
-  (3862 B) y de este informe (3369 B); no es un fallo del cambio.
+  (3862 B) y de este informe (3842 B); no es un fallo del cambio.
 
 # Fricción reutilizable
 
@@ -77,6 +85,6 @@ Ninguna nueva; la cuantización de borde/outline ya está registrada en TASK-011
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 3862 |
-| `report_bytes` | 3369 |
+| `report_bytes` | 3842 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
