@@ -23,7 +23,7 @@ verified:
   - by: task-lead
     at: 2026-11-14T17:52:00Z
     note: >-
-      Intento 1 verificado (contenido `c8c07ef`; fusión pendiente).
+      Intento 1 verificado (contenido `c8c07ef`; fusión `252e05e`).
       Reejecutados `pnpm run docs:check` (555 documentos, 118 tareas
       y 6 experimentos) y `pnpm run verify` (94 archivos, 1330/1330, tsc, build
       y bundle). Diff revisado: solo `docs/design/architecture.md`,

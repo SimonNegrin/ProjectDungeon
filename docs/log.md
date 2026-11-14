@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Docs — TASK-0118 — done: arquitectura, glosario y ADR-027 reflejan bisel 2× exterior con cuantización aceptada, listas verticales, panel arriba sin cabeza, siluetas y cursor 4×/150 ms; docs:check 555 documentos y verify 1330/1330; fusión `252e05e` — [informe](../artifacts/TASK-0118/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0117 — done: QA visual v7 a 900×700 y 1280×720 con 12 tests; bisel pintado 2/3 px, listas verticales, panel arriba con piernas visibles, siluetas y cursor 4×/150 ms; verify 1330/1330 y E2E 208/208; fusión `2dd75b3` — [informe](../artifacts/TASK-0117/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0116 — done: cursor #fcffc0 con borde 4×, sobre el contenido y bajo el submenú; anima cualquier cambio de slot en 150 ms y salta al instante en apertura, resize, scroll, actualización o movimiento reducido; foco DOM y CLS 0; verify 1330/1330 y E2E 196/196; fusión `375b9ba` — [informe](../artifacts/TASK-0116/attempt-1/report.md)
