@@ -1,0 +1,75 @@
+
+Running 3 tests using 3 workers
+
+  ✓  2 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:204:1 › si cambia la disponibilidad de las opciones, el submenú se cierra (1.5s)
+  ✘  1 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:95:1 › Enter reabre y mantiene el submenú tras recoger, equipar, desequipar y soltar (6.1s)
+  ✘  3 [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:160:1 › un estado nuevo sin cambios de selección ni opciones conserva el submenú (6.6s)
+
+
+  1) [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:95:1 › Enter reabre y mantiene el submenú tras recoger, equipar, desequipar y soltar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  getByTestId('inventory-submenu')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" getByTestId('inventory-submenu') with timeout 5000ms
+      - waiting for getByTestId('inventory-submenu')
+        14 × locator resolved to <section hidden="" role="menu" data-testid="inventory-submenu" class="inventory-submenu ui-outset" aria-label="Acciones del objeto seleccionado"></section>
+           - unexpected value "hidden"
+
+
+      85 | async function expectMenuPersists(page: Page): Promise<void> {
+      86 |   await page.keyboard.press('Enter');
+    > 87 |   await expect(menu(page)).toBeVisible();
+         |                            ^
+      88 |   await page.waitForTimeout(150);
+      89 |   await expect(
+      90 |     menu(page),
+        at expectMenuPersists (/Users/simon/proyectdungeon/tests/e2e/panel-submenu-reopen-qa.spec.ts:87:28)
+        at /Users/simon/proyectdungeon/tests/e2e/panel-submenu-reopen-qa.spec.ts:113:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/panel-submenu-reopen-qa-En-4d17d-equipar-desequipar-y-soltar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/panel-submenu-reopen-qa-En-4d17d-equipar-desequipar-y-soltar-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:160:1 › un estado nuevo sin cambios de selección ni opciones conserva el submenú 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-testid="inventory-submenu"] [data-kind="pickup"][data-active="true"]')
+    Expected: 1
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" locator('[data-testid="inventory-submenu"] [data-kind="pickup"][data-active="true"]') with timeout 5000ms
+      - waiting for locator('[data-testid="inventory-submenu"] [data-kind="pickup"][data-active="true"]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      183 |   expect(await selectedKey(page)).toBe(key);
+      184 |   expect(await activeKey(page)).toBe(key);
+    > 185 |   await expect(menuOption(page, 'pickup')).toHaveCount(1);
+          |                                            ^
+      186 |   await expect(
+      187 |     page.locator('[data-testid="inventory-submenu"] [data-kind="equip"]'),
+      188 |   ).toHaveCount(1);
+        at /Users/simon/proyectdungeon/tests/e2e/panel-submenu-reopen-qa.spec.ts:185:44
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/panel-submenu-reopen-qa-un-8a6ff-pciones-conserva-el-submenú-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/panel-submenu-reopen-qa-un-8a6ff-pciones-conserva-el-submenú-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:95:1 › Enter reabre y mantiene el submenú tras recoger, equipar, desequipar y soltar 
+    [chromium] › tests/e2e/panel-submenu-reopen-qa.spec.ts:160:1 › un estado nuevo sin cambios de selección ni opciones conserva el submenú 
+  1 passed (7.6s)

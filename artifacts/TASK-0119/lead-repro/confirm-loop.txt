@@ -1,0 +1,3 @@
+WITH LOOP {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"bannerHidden":false}
+WITH LOOP + ENTER {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"bannerHidden":false}
+LOOP STOPPED + ENTER +300ms {"selected":"backpack:2","activeRow":"backpack:2","menu":true,"bannerHidden":false}

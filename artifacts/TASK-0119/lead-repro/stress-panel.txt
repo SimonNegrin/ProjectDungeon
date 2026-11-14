@@ -1,0 +1,199 @@
+OK step 0 {"after":{"selected":"ground:item-player-1-shield","mp":5,"rows":10}}
+FAIL: Enter no abrió tras seleccionar {
+  "step": 2,
+  "before": {
+    "selected": "slot:armor",
+    "activeRow": "slot:armor",
+    "activeTag": "LI",
+    "activeZone": "equipment",
+    "menu": false,
+    "mp": 4,
+    "animating": false,
+    "ground": [
+      "item-test-ground-0",
+      "item-test-ground-1",
+      "item-test-ground-3",
+      "item-player-1-shield"
+    ],
+    "inventory": [
+      "item-player-1-backpack-0",
+      "item-player-1-backpack-1",
+      "item-player-1-backpack-2",
+      "item-player-1-armor",
+      null,
+      null,
+      null,
+      null
+    ],
+    "equipment": {
+      "weapon": "item-player-1-weapon",
+      "shield": null,
+      "armor": "item-test-ground-2",
+      "head": null,
+      "feet": null,
+      "hands": null,
+      "neck": null,
+      "ring": null
+    },
+    "rows": [
+      {
+        "key": "slot:weapon",
+        "zone": "equipment",
+        "x": 190.8828125,
+        "y": 269.7734375
+      },
+      {
+        "key": "slot:armor",
+        "zone": "equipment",
+        "x": 133.2734375,
+        "y": 212.1640625
+      },
+      {
+        "key": "backpack:0",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:1",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:2",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:3",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-test-ground-0",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-player-1-shield",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 154.5546875
+      }
+    ]
+  },
+  "opened": {
+    "selected": "backpack:1",
+    "activeRow": "backpack:1",
+    "activeTag": "LI",
+    "activeZone": "backpack",
+    "menu": false,
+    "mp": 4,
+    "animating": false,
+    "ground": [
+      "item-test-ground-0",
+      "item-test-ground-1",
+      "item-test-ground-3",
+      "item-player-1-shield"
+    ],
+    "inventory": [
+      "item-player-1-backpack-0",
+      "item-player-1-backpack-1",
+      "item-player-1-backpack-2",
+      "item-player-1-armor",
+      null,
+      null,
+      null,
+      null
+    ],
+    "equipment": {
+      "weapon": "item-player-1-weapon",
+      "shield": null,
+      "armor": "item-test-ground-2",
+      "head": null,
+      "feet": null,
+      "hands": null,
+      "neck": null,
+      "ring": null
+    },
+    "rows": [
+      {
+        "key": "slot:weapon",
+        "zone": "equipment",
+        "x": 190.8828125,
+        "y": 269.7734375
+      },
+      {
+        "key": "slot:armor",
+        "zone": "equipment",
+        "x": 133.2734375,
+        "y": 212.1640625
+      },
+      {
+        "key": "backpack:0",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:1",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:2",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:3",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-test-ground-0",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-player-1-shield",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 154.5546875
+      }
+    ]
+  }
+}
+TRACE_LENGTH 3
