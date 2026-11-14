@@ -1,0 +1,11 @@
+JUST EXECUTED {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"animating":true}
+DURING 0 {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":true,"animating":true}
+DURING 1 {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"animating":true}
+DURING 2 {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":true,"animating":true}
+DURING 3 {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"animating":true}
+AFTER ANIMATION {"selected":"backpack:2","activeRow":"backpack:2","activeTestId":"inventory-backpack-2","activeTag":"LI","menu":false,"animating":false}
+AFTER ENTER POST {"selected":"backpack:2","activeRow":"backpack:2","activeTestId":"inventory-backpack-2","activeTag":"LI","menu":true,"animating":false}
+MID ANIMATION {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"animating":true}
+ENTER MID ANIMATION {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":true,"animating":true}
+AFTER MANUAL END {"selected":"backpack:2","activeRow":"backpack:2","activeTestId":"inventory-backpack-2","activeTag":"LI","menu":false,"animating":false}
+AFTER MANUAL END ENTER {"selected":"backpack:2","activeRow":"backpack:2","activeTestId":"inventory-backpack-2","activeTag":"LI","menu":true,"animating":false}

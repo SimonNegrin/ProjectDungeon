@@ -1,0 +1,171 @@
+OK step 0 ground:item-player-1-shield undefined
+FAIL: Enter no abrió {
+  "step": 15,
+  "preEnter": {
+    "selected": "backpack:3",
+    "activeRow": "backpack:3",
+    "activeTag": "LI",
+    "activeZone": "backpack",
+    "menu": false,
+    "rows": [
+      {
+        "key": "slot:weapon",
+        "zone": "equipment",
+        "x": 190.8828125,
+        "y": 269.7734375
+      },
+      {
+        "key": "slot:armor",
+        "zone": "equipment",
+        "x": 133.2734375,
+        "y": 212.1640625
+      },
+      {
+        "key": "backpack:1",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:2",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:3",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:4",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 212.1640625
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-player-1-shield",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-player-1-backpack-0",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 154.5546875
+      }
+    ]
+  },
+  "opened": {
+    "selected": "backpack:3",
+    "activeRow": "backpack:3",
+    "activeTag": "LI",
+    "activeZone": "backpack",
+    "menu": false,
+    "rows": [
+      {
+        "key": "slot:weapon",
+        "zone": "equipment",
+        "x": 190.8828125,
+        "y": 269.7734375
+      },
+      {
+        "key": "slot:armor",
+        "zone": "equipment",
+        "x": 133.2734375,
+        "y": 212.1640625
+      },
+      {
+        "key": "backpack:1",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 96.9453125
+      },
+      {
+        "key": "backpack:2",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:3",
+        "zone": "backpack",
+        "x": 361.7890625,
+        "y": 154.5546875
+      },
+      {
+        "key": "backpack:4",
+        "zone": "backpack",
+        "x": 304.1796875,
+        "y": 212.1640625
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 96.9453125
+      },
+      {
+        "key": "ground:item-player-1-shield",
+        "zone": "right",
+        "x": 473.8515625,
+        "y": 154.5546875
+      },
+      {
+        "key": "ground:item-player-1-backpack-0",
+        "zone": "right",
+        "x": 531.4609375,
+        "y": 154.5546875
+      }
+    ]
+  },
+  "log": [
+    {
+      "kind": "keydown",
+      "key": "Enter",
+      "repeat": false,
+      "t": 2983,
+      "selected": "backpack:3",
+      "activeRow": "backpack:3",
+      "activeTag": "LI",
+      "menu": false
+    },
+    {
+      "kind": "selected-change",
+      "t": 2986,
+      "selected": "backpack:3",
+      "activeRow": "backpack:3",
+      "activeTag": "LI",
+      "menu": false
+    },
+    {
+      "kind": "keyup",
+      "key": "Enter",
+      "t": 2990,
+      "selected": "backpack:3",
+      "activeRow": "backpack:3",
+      "activeTag": "LI",
+      "menu": false
+    }
+  ]
+}

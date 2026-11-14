@@ -1,0 +1,4 @@
+ANIMATION END {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"animating":false}
+ENTER DURANTE BANNER (+150ms) {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"animating":false}
+BANNER DRENADO {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"animating":false}
+ENTER TRAS DRENAR (+150ms) {"selected":"backpack:2","activeRow":"backpack:2","menu":false,"animating":false}

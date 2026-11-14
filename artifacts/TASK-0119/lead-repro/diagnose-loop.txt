@@ -1,0 +1,9 @@
+OPEN, no action {"t":374,"selected":"backpack:0","activeRow":"backpack:0","menu":false,"banner":{"hidden":true,"text":""},"marks":0,"damageTexts":0}
+renders in 500ms 0 {"t":880,"selected":"backpack:0","activeRow":"backpack:0","menu":false,"banner":{"hidden":true,"text":""},"marks":0,"damageTexts":0}
+menu after Enter (no action yet) {"t":1037,"selected":"backpack:0","activeRow":"backpack:0","menu":true,"banner":{"hidden":true,"text":""},"marks":0,"damageTexts":0}
+AFTER PICKUP anim end {"t":1424,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}
+after 500 renders since reset 109 {"t":1928,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}
+after 1000 renders since reset 229 {"t":2931,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}
+after 2000 renders since reset 471 {"t":4941,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}
+after 3000 renders since reset 831 {"t":7944,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}
+ENTER at ~6.5s {"t":8072,"selected":"backpack:2","activeRow":"backpack:2","menu":false,"banner":{"hidden":false,"text":"+ Martillo"},"marks":0,"damageTexts":0}

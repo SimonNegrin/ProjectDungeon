@@ -1,0 +1,51 @@
+FAIL step 1 {
+  "target": "ground:item-test-ground-2",
+  "preEnter": {
+    "selected": "ground:item-test-ground-2",
+    "activeRow": "ground:item-test-ground-2",
+    "activeTag": "LI",
+    "activeZone": "right",
+    "menu": false
+  },
+  "diagnosis": {
+    "inventory": [
+      "item-player-1-backpack-0",
+      "item-player-1-backpack-1",
+      "item-player-1-backpack-2",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "equipment": {
+      "weapon": "item-player-1-weapon",
+      "shield": null,
+      "armor": "item-player-1-armor",
+      "head": null,
+      "feet": null,
+      "hands": null,
+      "neck": null,
+      "ring": null
+    },
+    "ground": [
+      "item-test-ground-0",
+      "item-test-ground-1",
+      "item-test-ground-2",
+      "item-test-ground-3",
+      "item-player-1-shield"
+    ],
+    "modelRow": {
+      "empty": false,
+      "actions": 2
+    },
+    "options": [
+      "pickup",
+      "equip"
+    ],
+    "domEmpty": "false",
+    "selectedKey": "ground:item-test-ground-2"
+  }
+}
+AFTER REFRESH {"selected":"ground:item-test-ground-2","activeRow":"ground:item-test-ground-2","activeTag":"LI","activeZone":"right","menu":false,"rows":[{"key":"slot:weapon","zone":"equipment","x":190.8828125,"y":269.7734375},{"key":"slot:armor","zone":"equipment","x":133.2734375,"y":212.1640625},{"key":"backpack:0","zone":"backpack","x":304.1796875,"y":96.9453125},{"key":"backpack:1","zone":"backpack","x":361.7890625,"y":96.9453125},{"key":"backpack:2","zone":"backpack","x":304.1796875,"y":154.5546875},{"key":"ground:item-test-ground-0","zone":"right","x":473.8515625,"y":96.9453125},{"key":"ground:item-test-ground-1","zone":"right","x":531.4609375,"y":96.9453125},{"key":"ground:item-test-ground-2","zone":"right","x":473.8515625,"y":154.5546875},{"key":"ground:item-test-ground-3","zone":"right","x":531.4609375,"y":154.5546875},{"key":"ground:item-player-1-shield","zone":"right","x":473.8515625,"y":212.1640625}]}
+AFTER REFRESH ENTER {"selected":"ground:item-test-ground-2","activeRow":"ground:item-test-ground-2","activeTag":"LI","activeZone":"right","menu":true,"rows":[{"key":"slot:weapon","zone":"equipment","x":190.8828125,"y":269.7734375},{"key":"slot:armor","zone":"equipment","x":133.2734375,"y":212.1640625},{"key":"backpack:0","zone":"backpack","x":304.1796875,"y":96.9453125},{"key":"backpack:1","zone":"backpack","x":361.7890625,"y":96.9453125},{"key":"backpack:2","zone":"backpack","x":304.1796875,"y":154.5546875},{"key":"ground:item-test-ground-0","zone":"right","x":473.8515625,"y":96.9453125},{"key":"ground:item-test-ground-1","zone":"right","x":531.4609375,"y":96.9453125},{"key":"ground:item-test-ground-2","zone":"right","x":473.8515625,"y":154.5546875},{"key":"ground:item-test-ground-3","zone":"right","x":531.4609375,"y":154.5546875},{"key":"ground:item-player-1-shield","zone":"right","x":473.8515625,"y":212.1640625}]}

@@ -1,0 +1,164 @@
+STACKS [
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ],
+  [
+    "at scheduleTextFrame (http://127.0.0.1:4173/src/host/main.ts:428:30)",
+    "at textTick (http://127.0.0.1:4173/src/host/main.ts:437:33)"
+  ]
+]
+STATE {"selected":"backpack:2","activeRow":"backpack:2","menu":false}
+AFTER ENTER {"selected":"backpack:2","activeRow":"backpack:2","menu":false}

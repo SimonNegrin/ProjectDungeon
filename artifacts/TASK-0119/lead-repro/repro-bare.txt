@@ -1,0 +1,14 @@
+bare-pickup OPEN {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"rows":["ground:item-test-ground-0"]}
+bare-pickup SELECTED {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"rows":["ground:item-test-ground-0"]}
+bare-pickup AFTER PICKUP {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":false,"rows":["backpack:0"]}
+bare-pickup AFTER ENTER {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":true,"rows":["backpack:0"]}
+bare-equip OPEN {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"rows":["ground:item-test-ground-0"]}
+bare-equip SELECTED {"selected":"ground:item-test-ground-0","activeRow":"ground:item-test-ground-0","activeTestId":"inventory-ground-item-test-ground-0","activeTag":"LI","menu":false,"rows":["ground:item-test-ground-0"]}
+bare-equip AFTER PICKUP {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":false,"rows":["backpack:0"]}
+bare-equip AFTER ENTER {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":true,"rows":["backpack:0"]}
+bare-equip-from-ground AFTER {"selected":"slot:weapon","activeRow":"slot:weapon","activeTestId":"inventory-slot-weapon","activeTag":"LI","menu":false,"rows":["slot:weapon"]}
+bare-equip-from-ground AFTER ENTER {"selected":"slot:weapon","activeRow":"slot:weapon","activeTestId":"inventory-slot-weapon","activeTag":"LI","menu":true,"rows":["slot:weapon"]}
+unequip-only AFTER {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":false,"rows":["backpack:0"]}
+unequip-only AFTER ENTER {"selected":"backpack:0","activeRow":"backpack:0","activeTestId":"inventory-backpack-0","activeTag":"LI","menu":true,"rows":["backpack:0"]}
+drop-only AFTER {"selected":"ground:item-player-1-weapon","activeRow":"ground:item-player-1-weapon","activeTestId":"inventory-ground-item-player-1-weapon","activeTag":"LI","menu":false,"rows":["ground:item-player-1-weapon"]}
+drop-only AFTER ENTER {"selected":"ground:item-player-1-weapon","activeRow":"ground:item-player-1-weapon","activeTestId":"inventory-ground-item-player-1-weapon","activeTag":"LI","menu":true,"rows":["ground:item-player-1-weapon"]}
