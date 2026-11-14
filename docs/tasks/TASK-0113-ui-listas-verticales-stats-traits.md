@@ -4,22 +4,35 @@ id: TASK-0113
 title: "UI: listas verticales de stats y traits"
 description: "Mostrar stats y traits del HUD izquierdo y de la ficha derecha como listas verticales, una entrada por línea y sin separadores."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-007, R-010, R-011, R-026, T-006, T-016]
 depends_on: []
 unlocks: [TASK-0117]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T16:34:44Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0113/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T16:34:44Z
+    note: >-
+      Intento 1 verificado (código `5140565`, informe `d68212f`; fusión
+      `7b66c2b`). Reejecutados `pnpm run verify` (120 s; 93 archivos, 1321/1321,
+      tsc, build y bundle) y `pnpm run test:e2e` (180 s; 190/190). HUD izquierdo
+      y ficha derecha con stats, traits y arma como `ul/li`; los atributos del
+      aliado pasan a la lista de la ficha; sin `·` en stats ni traits; PV, MP,
+      acciones y condicionales intactos; bisel y `--ui-line` sin cambios. Diff
+      revisado: solo `index.html`, `src/host/hud.ts`, `hud-detail.ts`, `ui.css`,
+      tests y artefactos; sin cambios en `src/game/**`, requisitos, arnés ni
+      dependencias, y sin tests borrados, saltados o debilitados. Capturas a
+      900×700 y 1280×720 revisadas.
 ---
 
 # Objetivo
@@ -37,19 +50,19 @@ el catálogo, los valores ni las reglas.
 
 # Criterios de aceptación
 
-- [ ] Los atributos del HUD izquierdo se renderizan como elementos de lista, uno
+- [x] Los atributos del HUD izquierdo se renderizan como elementos de lista, uno
       por línea.
-- [ ] Los traits del HUD izquierdo se renderizan como elementos de lista, uno por
+- [x] Los traits del HUD izquierdo se renderizan como elementos de lista, uno por
       línea, y desaparecen sin dejar hueco si no existen.
-- [ ] Los stats del arma actual y de la ficha derecha también quedan uno por
+- [x] Los stats del arma actual y de la ficha derecha también quedan uno por
       línea, incluidos los objetos seleccionados y equipados.
-- [ ] No aparece el separador `·` entre stats o traits; tampoco una línea
+- [x] No aparece el separador `·` entre stats o traits; tampoco una línea
       horizontal con varias entradas.
-- [ ] PV, MP, acciones y las filas numéricas del HUD mantienen su estructura y
+- [x] PV, MP, acciones y las filas numéricas del HUD mantienen su estructura y
       valores.
-- [ ] Los estados condicionales (sin maná, sin traits, sin arma, objeto vacío) se
+- [x] Los estados condicionales (sin maná, sin traits, sin arma, objeto vacío) se
       conservan.
-- [ ] Los tests de HUD y ficha se adaptan a listas sin retirar cobertura.
+- [x] Los tests de HUD y ficha se adaptan a listas sin retirar cobertura.
 
 # Plan de test
 
@@ -62,10 +75,10 @@ el catálogo, los valores ni las reglas.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0113/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify` y del E2E
-- [ ] Capturas del HUD y de la ficha con varios stats y traits
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0113/attempt-1/report.md`
+- [x] Salida de `pnpm run verify` y del E2E
+- [x] Capturas del HUD y de la ficha con varios stats y traits
+- [x] Commit SHA
 
 # Restricciones
 

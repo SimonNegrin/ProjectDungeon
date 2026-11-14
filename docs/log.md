@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0113 — done: stats y traits como listas verticales en el HUD izquierdo y la ficha derecha, sin `·`; PV, MP, acciones y condicionales intactos; verify 1321/1321 y E2E 190/190; fusión `7b66c2b` — [informe](../artifacts/TASK-0113/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0112 — done: bisel de 2× con crecimiento exterior y área interior estable (≤0,82 px); 1320/1320 unitarios y 189/189 E2E; fusión `8175366` — [informe](../artifacts/TASK-0112/attempt-1/report.md)
 
 * 2026-11-14 — Planning — TASK-0112 a TASK-0118 — creadas: relieve de 2×, listas verticales, panel arriba sin cabeza, siluetas, cursor y QA/docs; TASK-0112 ready y el resto en cadena — [TASK-0112](tasks/TASK-0112-ui-biseles-gruesos-crecimiento.md)
