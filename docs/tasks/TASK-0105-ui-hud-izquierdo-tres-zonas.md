@@ -3,15 +3,15 @@ type: Task
 id: TASK-0105
 title: "UI: HUD izquierdo en tres zonas"
 description: "Recomponer la columna izquierda en Personaje, Arma y Stats+Traits, con el sprite a la izquierda de la ficha y las teclas y la sugerencia al pie."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-001, R-007, R-008, T-005]
 depends_on: [TASK-0104]
 unlocks: [TASK-0109]
 created_at: 2026-11-14T12:02:44Z
-completed_at:
+completed_at: 2026-11-14T13:03:32Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0105/
@@ -20,6 +20,27 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T12:02:44Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T13:03:32Z
+    note: >-
+      Intento 1 verificado (código `8458651`, tests `d42e9de`, evidencia
+      `392d00b`/`95da521`; fusión `f4de835`). HUD izquierdo en tres zonas
+      `ui-outset` con fondo `--ui-raised`: Personaje en dos columnas con retrato
+      a la izquierda y nombre/arquetipo/condición alineados arriba; Arma con
+      sprite de `items.png`, nombre, acierto y daño, zona oculta sin arma; Stats
+      con PV, MP, acciones y atributos, magia/maná solo con nivel/maná y traits
+      omitidos sin datos. Fase, turno, PV enemigo y estado ya no existen en el
+      DOM del HUD y siguen en `F1`; teclas y sugerencia quedan al pie, fuera de
+      las zonas y sin marco. Reejecutados con timeout `pnpm run verify` (120 s:
+      1307/1307, docs, config, tsc, build y bundle) y `pnpm run test:e2e` (180 s:
+      163/163), sin procesos huérfanos. Revisado el diff completo: `src/host/**`,
+      `index.html`, `tests/**` y artefactos; sin cambios en `src/game/**`,
+      requisitos, arnés, plantillas, dependencias ni tareas 0106-0110. Las
+      aserciones retiradas se sustituyeron por ausencia en el HUD y presencia en
+      `F1`, sin debilitar cobertura. Capturas revisadas a 900×700 y 1280×720.
+      El fallo intermitente de `EXP-004` por timeout de 5 s con 92 workers no se
+      reprodujo en la reejecución; se clasifica como fricción de arnés y queda
+      `deferred` a `harness-keeper`.
 ---
 
 # Objetivo

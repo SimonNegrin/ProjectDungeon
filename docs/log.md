@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0105 — done: HUD izquierdo en tres zonas (Personaje en dos columnas, Arma con sprite y stats, Stats+Traits condicional) y teclas/sugerencia al pie; fase, turno, PV enemigo y estado solo en `F1`; verify 1307/1307 y E2E 163/163; fusión `f4de835` — [informe](../artifacts/TASK-0105/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0104 — done: escala continua `--ui-scale` ligada al marco (cuerpo 13,15 px a 900×700 y 17,93 px a 1280×720), paleta de ocho colores y biseles outset/inset sin radios, sombras, degradados, blur ni translucidez en la UI de juego; verify 1305/1305 y E2E 152/152; fusión `37c1a33` — [informe](../artifacts/TASK-0104/attempt-1/report.md)
 
 * 2026-11-14 — Planning — TASK-0104 a TASK-0110 — backlog: escala/paleta/relieve, HUD izquierdo, ficha derecha, panel con layout preferido, cursor/CLS, QA visual y docs; TASK-0104 `ready` y el resto en cadena; la distribución alternativa del panel queda condicionada al QA de TASK-0107 y no se crea — [TASK-0104](tasks/TASK-0104-ui-escala-continua-paleta-relieve.md)
