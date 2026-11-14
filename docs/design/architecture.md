@@ -213,12 +213,15 @@ exactamente en un sitio.
   estables, foco visible y `Escape`/`I` gestionados por el host. El host solo
   despacha el comando confirmado: costes y rechazos vienen del motor.
 - **Panel de tres columnas**: el modelo expone `equipment`, `backpack`, `ground`
-  y `corpses`, y la vista los pinta en tres columnas de un tercio: figura humana
-  de ocho huecos (`inventory-figure`), ocho casillas de mochila y columna derecha
-  con los cadáveres apilados arriba y el suelo siempre abajo. La columna derecha
-  tiene scroll propio; a 1280×720 el panel completo con mochila llena y cuatro
-  objetos en el suelo no hace scroll. `src/host/inventory-navigation.ts` resuelve
-  la navegación por proximidad (`findNeighbor`, `nearestTo` y `cycleZone`).
+  y `corpses`, y la vista pinta tres columnas tituladas Equipo, Bolsa y Suelo,
+  con marco outset y slots cuadrados inset de un único tamaño. Equipo conserva
+  la figura humana de ocho huecos (`inventory-figure`), Bolsa es una rejilla 2×4
+  con contador, y Suelo pone los cadáveres del tile en rejilla al inicio (solo si
+  existen) y debajo los objetos en dos columnas. Sin cabecera ni ayuda, solo un
+  título accesible y «Cerrar». La columna derecha tiene scroll propio; a 1280×720
+  el panel completo con mochila llena y cuatro objetos no hace scroll.
+  `src/host/inventory-navigation.ts` resuelve la navegación por proximidad
+  (`findNeighbor`, `nearestTo` y `cycleZone`).
 - **Ficha y submenú**: con el panel abierto, `src/host/hud-detail.ts` compone
   `buildPanelDetail` en dos bloques independientes —el objeto seleccionado y el
   equipado en ese hueco, con sprite, stats verticales y traits solo si existen,
@@ -353,15 +356,17 @@ Pixelify Sans local y tokens `--ui-*` con la línea calculada desde el tile.
   ([REQ-023](../requirements/REQ-023-hud-derecho-detalle-cursor.md)). El HUD vive
   dentro del marco; no queda ninguna barra superior fuera de él.
 - **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
-  siguen visibles. Tres columnas de un tercio: figura de equipo, mochila y
-  cadáveres/suelo. `Escape` o `I` cierran y el mapa no acepta comandos.
+  siguen visibles. Tres columnas tituladas Equipo, Bolsa y Suelo, con figura de
+  equipo, rejilla 2×4 y cadáveres/suelo en rejilla; sin cabecera ni ayuda.
+  `Escape` o `I` cierran y el mapa no acepta comandos.
 - **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
   abierto pasa a la ficha de dos bloques y `Enter` abre el submenú contextual.
   `Tab`/`Shift+Tab` cambian de zona y las flechas o `WASD` se mueven por
   proximidad entre objetos existentes.
-- **Límites de layout**: el panel no hace scroll global a 1280×720; a 900×700
-  solo se desplaza la columna derecha (cadáveres y suelo). Los contenedores y el
-  inventario de cadáver llegan con
+- **Límites de layout**: el panel no hace scroll global a 1280×720; los slots
+  mantienen el mismo lado en las tres columnas y a 900×700 solo se desplaza la
+  columna derecha (cadáveres y suelo). Los contenedores y el inventario de
+  cadáver llegan con
   [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
 

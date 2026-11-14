@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0107 — done: panel con títulos Equipo/Bolsa/Suelo, slots cuadrados inset, cadáveres y suelo en rejilla; encaje 900×700 medido sin solapes (columnas 137,06 px, slots 39,89 px); no se abre la alternativa; verify 1310/1310, E2E 167/167; fusión `b026d69` — [informe](../artifacts/TASK-0107/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0106 — done: ficha derecha simplificada con sprite, stats verticales y traits condicionales; sin tipo duplicado, subtítulos, descripciones ni «Stats»; dos secciones con «Equipado» y «Vacío»; verify 1309/1309 y E2E 166/166; fusión `ad913e6` — [informe](../artifacts/TASK-0106/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0105 — done: HUD izquierdo en tres zonas (Personaje en dos columnas, Arma con sprite y stats, Stats+Traits condicional) y teclas/sugerencia al pie; fase, turno, PV enemigo y estado solo en `F1`; verify 1307/1307 y E2E 163/163; fusión `f4de835` — [informe](../artifacts/TASK-0105/attempt-1/report.md)
