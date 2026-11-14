@@ -4,7 +4,7 @@ id: TASK-0114
 title: "UI: panel alineado arriba y figura sin cabeza"
 description: "Alinear el contenido de las columnas del panel arriba, subir el casco a la primera fila y retirar el bloque verde de la cabeza de la figura."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-013, R-027, R-028, P-002, P-007, T-007, T-017]
