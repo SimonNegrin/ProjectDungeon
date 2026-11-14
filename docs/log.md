@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0100 — done: tres zonas con ficha izquierda, mapa 13×13 intacto y detalle derecho por tipo con LOS y «Desconocido»; maná condicional, turno y fantasma de vista; mensajes, banners y anclajes de REQ-017; panel modal solo sobre el mapa con ambos HUD visibles; verify 1278/1278 y E2E 141/141; fusión `b71346a` — [informe](../artifacts/TASK-0100/attempt-2/report.md)
+
 * 2026-11-14 — Planning — TASK-0100 — in_progress: DoR cumplida; pantalla en tres zonas con HUD izquierdo de REQ-022 v3, derecho de REQ-023 v3 y anclajes de REQ-017 dentro del marco — [TASK-0100](tasks/TASK-0100-pantalla-tres-zonas-hud.md)
 
 * 2026-11-14 — Fricción — REQ-032 — `--ui-line` se usa como color en la ficha y como grosor calculado en los criterios; se acepta `--ui-line` (grosor) y `--ui-line-color` (color), con aclaración documental pendiente en `requirements-writer` — [informe](../artifacts/TASK-0099/attempt-1/report.md)

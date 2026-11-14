@@ -4,22 +4,42 @@ id: TASK-0100
 title: "UI: pantalla en tres zonas con HUD izquierdo y derecho"
 description: "Retirar el HUD superior y componer HUD izquierdo con la ficha del jugador activo, mapa de 13×13 y HUD derecho con el detalle del cursor, sin perder casillas visibles ni mensajes."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-032
 requirement_ids: [R-006, R-007, T-001, T-003, T-006]
 depends_on: [TASK-0099]
 unlocks: []
 created_at: 2026-11-14T00:20:17Z
-completed_at:
+completed_at: 2026-11-14T01:20:00Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0100/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T00:20:17Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T01:20:00Z
+    note: >-
+      Intentos 1 y 2 verificados (commits `57890ae`, `351cb72`, `c910a64` y
+      `9f265da`; informes en `attempt-1/` y `attempt-2/`). Reejecutados
+      `pnpm run verify` (1278/1278, build y bundle) y `pnpm run test:e2e`
+      (141/141) con timeout de 120 s y 180 s, sin procesos huérfanos. Diff
+      revisado: `index.html`, `src/host/hud-detail.ts`, `src/host/hud.ts`,
+      `src/host/ui.css`, tests y artefactos; sin cambios en `src/game/**`,
+      `package.json`, `pnpm-lock.yaml`, `docs/requirements/**`,
+      `docs/harness/**` ni `docs/templates/**`. Comprobados los criterios:
+      tres zonas dentro del marco, mapa 13×13 intacto a 1280×720 y 900×700,
+      ficha izquierda con maná condicional, cambio de turno y fantasma de
+      vista; detalle derecho por tipo con LOS y «Desconocido»; consulta de
+      solo lectura; mensajes, banners y anclajes de REQ-017; y R-007 con el
+      panel modal limitado al mapa y ambos HUD visibles (intento 2). Las
+      capturas de ambos intentos se revisaron. Los traits muestran el estado
+      vacío real porque REQ-019 no está implementado; no se inventan notas de
+      recorte. Los `rgba` heredados de cursor, hechizos y panel quedan fuera
+      del alcance de esta tarea; las reglas nuevas del HUD usan tokens.
 ---
 
 # Objetivo
