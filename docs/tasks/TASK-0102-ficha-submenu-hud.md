@@ -4,7 +4,7 @@ id: TASK-0102
 title: "Ficha del objeto en el HUD derecho y submenú contextual"
 description: "Mostrar en el HUD derecho el objeto seleccionado junto al equipado en ese hueco, y abrir con Enter un submenú con las acciones válidas, su coste y sus rechazos."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-023
 requirement_ids: [R-004, R-009, T-005]
