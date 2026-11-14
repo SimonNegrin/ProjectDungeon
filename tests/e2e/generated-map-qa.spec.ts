@@ -816,23 +816,21 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   // HUD completo y legible.
   for (const testId of [
     'hud',
+    'hud-zone-character',
+    'hud-zone-stats',
     'hud-player-hp',
     'hud-player-mp',
     'hud-action',
-    'hud-phase',
-    'hud-turn',
-    'hud-enemy-hp',
   ] as const) {
     await expect(page.getByTestId(testId)).toBeVisible();
+  }
+  // Fase, turno y vida enemiga ya no se muestran en el HUD.
+  for (const retired of ['hud-phase', 'hud-turn', 'hud-enemy-hp'] as const) {
+    await expect(page.getByTestId(retired)).toHaveCount(0);
   }
   await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
   await expect(page.getByTestId('hud-action')).toHaveText('2/2');
-  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
-  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
-  );
 
   // F1: overlay visible con semilla, salas, huecos, spawns y pasillos anchos.
   const overlay = page.getByTestId('debug-overlay');
@@ -840,6 +838,10 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   await page.keyboard.press('F1');
   await expect(overlay).toBeVisible();
   const debugText = (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(debugText).toContain('Fase: Jugador · Turno 1');
+  expect(debugText).toContain(
+    `Enemigo: (${initial.enemies[0].x}, ${initial.enemies[0].y}) · HP ${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
+  );
   expect(debugText).toContain(`Semilla: ${REFERENCE_SEED}`);
   expect(debugText).toContain('Salas:');
   expect(debugText).toContain('Huecos:');

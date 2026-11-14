@@ -47,7 +47,7 @@ function endTurn(state: GameState): GameState {
 }
 
 describe('modelo del HUD', () => {
-  it('refleja el estado inicial con vida, MP, acción, fase, enemigo y ayuda', () => {
+  it('refleja el estado inicial con vida, MP, acción y ayuda', () => {
     const state = makeState();
     const model = buildHudModel(state);
 
@@ -56,10 +56,6 @@ describe('modelo del HUD', () => {
       playerMp: `${state.players[0].mp}/${state.players[0].maxMp}`,
       action: '2/2',
       actionSuggestion: null,
-      phase: 'Jugador',
-      enemyHp: `${state.enemies[0].hp}/${state.enemies[0].maxHp}`,
-      turn: 'Turno 1',
-      status: 'En juego',
     });
     expect(model.keys).toBe(KEYS_HELP);
     expect(model.keys).toContain('cursor');
@@ -74,14 +70,25 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('R reiniciar');
     expect(model.keys).toContain('F1');
     expect(model.overlays).toEqual({ victory: false, defeat: false });
-    expect(model.weapon).toBe(
-      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
-    );
+    expect(model.weapon).toMatchObject({
+      name: WEAPONS.sword.name,
+      accuracy: WEAPONS.sword.accuracy,
+      damage: weaponDamage(WEAPONS.sword),
+      sprite: ITEMS.sword.sprite.rect,
+    });
     expect(model.shield).toBe(`${SHIELDS.shield.name} +${SHIELDS.shield.defense}`);
     expect(model.armor).toBe(`${ARMORS.armor.name} +${ARMORS.armor.armor}`);
     expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
+  });
+
+  it('retira fase, turno, estado y PV del enemigo del modelo del HUD', () => {
+    const model = buildHudModel(makeState()) as unknown as Record<string, unknown>;
+
+    for (const field of ['phase', 'turn', 'status', 'enemyHp']) {
+      expect(model, `El HUD no debe exponer ${field}`).not.toHaveProperty(field);
+    }
   });
 
   it('muestra el nombre y el arquetipo del jugador por defecto', () => {
@@ -110,11 +117,12 @@ describe('modelo del HUD', () => {
     expect(model.archetype).toBe(ROSTER.warrior.name);
   });
 
-  it('omite la fila de maná sin maná y muestra el estado vacío de traits', () => {
+  it('omite la fila de maná y el bloque de traits sin datos', () => {
     const warrior = buildHudModel(makeState());
+    expect(warrior.playerMagicVisible).toBe(false);
     expect(warrior.playerMana).toBe('0/0');
     expect(warrior.playerManaVisible).toBe(false);
-    expect(warrior.traits).toBe('Sin traits activos');
+    expect(warrior.traits).toBeNull();
     expect(warrior.condition).toBeNull();
 
     const mage = createPlayerFromArchetype('mage', {
@@ -122,10 +130,13 @@ describe('modelo del HUD', () => {
       position: { x: 4, y: 4 },
     });
     const withMana = buildHudModel(makeState({ players: [mage] }));
+    expect(withMana.playerMagicVisible).toBe(true);
     expect(withMana.playerManaVisible).toBe(true);
+    expect(withMana.playerMagic).toBe(String(mage.stats.magicLevel));
     expect(withMana.playerMana).toBe(
       `${mage.mana.current}/${mage.mana.max}`,
     );
+    expect(withMana.weapon).toBeNull();
   });
 
   it('mantiene la ficha izquierda en el jugador fantasma con su MP', () => {
@@ -212,15 +223,18 @@ describe('modelo del HUD', () => {
 
     const model = buildHudModel(state);
 
-    expect(model.weapon).toBe(
-      `${WEAPONS.axe.name} +${WEAPONS.axe.accuracy}/+${weaponDamage(WEAPONS.axe)}`,
-    );
+    expect(model.weapon).toMatchObject({
+      name: WEAPONS.axe.name,
+      accuracy: WEAPONS.axe.accuracy,
+      damage: weaponDamage(WEAPONS.axe),
+      sprite: ITEMS.axe.sprite.rect,
+    });
     expect(model.shield).toBe('Sin escudo');
     expect(model.armor).toBe('Sin armadura');
     expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa');
   });
 
-  it('muestra Sin arma cuando la unidad no tiene arma equipada', () => {
+  it('deja el arma nula cuando la unidad no tiene arma equipada', () => {
     const state = makeState({
       players: [
         makeUnit({
@@ -234,7 +248,7 @@ describe('modelo del HUD', () => {
       ],
     });
 
-    expect(buildHudModel(state).weapon).toBe('Sin arma');
+    expect(buildHudModel(state).weapon).toBeNull();
   });
 
   it('muestra la vida del enemigo vivo bajo el cursor y nada si no hay enemigo', () => {
@@ -361,12 +375,15 @@ describe('modelo del HUD', () => {
     const picked = reduce(onWeapon, { type: 'PickUp', unitId: 'player-1' }).state;
     expect(picked.groundItems?.some((entry) => entry.id === item.id)).toBe(false);
     expect(buildHudModel(picked, { x: item.x, y: item.y }).weaponHint).toBeNull();
-    expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
-    );
+    expect(buildHudModel(picked).weapon).toMatchObject({
+      name: WEAPONS.sword.name,
+      accuracy: WEAPONS.sword.accuracy,
+      damage: weaponDamage(WEAPONS.sword),
+      sprite: ITEMS.sword.sprite.rect,
+    });
   });
 
-  it('actualiza la vida del enemigo y el contador de acciones 2/2→1/2→0/2', () => {
+  it('actualiza el contador de acciones 2/2→1/2→0/2', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
@@ -381,12 +398,11 @@ describe('modelo del HUD', () => {
     const next = attack(afterFirst);
     const model = buildHudModel(next);
 
-    expect(model.enemyHp).toBe(`${next.enemies[0].hp}/${next.enemies[0].maxHp}`);
     expect(model.action).toBe('0/2');
     expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
   });
 
-  it('refleja la fase de jugador, el turno y la restauración tras fin de turno', () => {
+  it('restaura las acciones tras fin de turno sin exponer fase ni turno', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
@@ -396,12 +412,13 @@ describe('modelo del HUD', () => {
     const next = endTurn(state);
     const model = buildHudModel(next);
 
-    expect(model.phase).toBe('Jugador');
-    expect(model.turn).toBe('Turno 2');
+    expect(next.turn).toBe(2);
+    expect(next.phase).toBe('player');
     expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
     expect(model.playerMp).toBe(`${next.players[0].mp}/${next.players[0].maxMp}`);
     expect(model.action).toBe('2/2');
-    expect(model.status).toBe('En juego');
+    expect(model).not.toHaveProperty('phase');
+    expect(model).not.toHaveProperty('turn');
   });
 
   it('sugiere terminar solo con 0 acciones, sin MP y en fase de jugador', () => {
@@ -450,8 +467,7 @@ describe('modelo del HUD', () => {
     const next = attack(afterFirst);
     const model = buildHudModel(next);
 
-    expect(model.enemyHp).toBe(`0/${next.enemies[0].maxHp}`);
-    expect(model.status).toBe('Victoria');
+    expect(next.enemies[0].hp).toBe(0);
     expect(model.overlays).toEqual({ victory: true, defeat: false });
   });
 
@@ -466,7 +482,6 @@ describe('modelo del HUD', () => {
     const model = buildHudModel(next);
 
     expect(model.playerHp).toBe(`0/${next.players[0].maxHp}`);
-    expect(model.status).toBe('Derrota');
     expect(model.overlays).toEqual({ victory: false, defeat: true });
   });
 });

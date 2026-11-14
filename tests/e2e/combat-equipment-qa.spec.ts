@@ -191,7 +191,16 @@ function floorNeighbor(snap: GameSnapshot, x: number, y: number) {
 async function expectHudEquipment(page: Page, snap: GameSnapshot): Promise<void> {
   const player = snap.players[0];
   await moveCursorTo(page, player.x, player.y);
-  await expect(page.getByTestId('hud-weapon')).toHaveText(weaponLabel(player));
+  const weaponId = player.equipment.weapon?.itemId;
+  if (weaponId === undefined) {
+    await expect(page.getByTestId('hud-zone-weapon')).toBeHidden();
+  } else {
+    const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
+    await expect(page.getByTestId('hud-weapon')).toHaveText(weapon.name);
+    await expect(page.getByTestId('hud-weapon-stats')).toHaveText(
+      `${signed(weapon.accuracy)} acierto · ${signed(weaponDamage(weapon))} daño`,
+    );
+  }
   await expect(page.getByTestId('hud-stats')).toHaveText(statsLabel(player));
   // El resumen de equipo dejó la ficha izquierda (REQ-022 R-004): arma,
   // escudo y armadura se consultan en el detalle del aliado bajo el cursor.
@@ -263,9 +272,16 @@ test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', 
 
   await expectHudEquipment(page, initial);
   await expect(page.getByTestId('hud-cursor-enemy-hp')).toHaveText('—/—');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const initialDebug =
+    (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(initialDebug).toContain(
+    `Enemigo: (${initial.enemies[0].x}, ${initial.enemies[0].y}) · HP ${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
   );
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   await expectHudInsideFrame(page);
   await screenshot(page, 'hud-sword', testInfo);
@@ -428,7 +444,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   await expect(page.getByTestId('hud-cursor-enemy-hp')).toHaveText(
     `${enemy.hp}/${enemy.maxHp}`,
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(`${enemy.hp}/${enemy.maxHp}`);
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
 
   const beforeAttack = await snapshot(page);
   const attackResult = await dispatchFrozen(page, {
@@ -517,9 +533,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(afterAttack.players[0].mp).toBe(beforeAttack.players[0].mp);
   expect(afterAttack.turn).toBe(beforeAttack.turn);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${attack!.targetHp}/${enemy.maxHp}`,
-  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
@@ -626,8 +640,15 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
   expect(victoryEvents.some((event) => event.type === 'UnitDied')).toBe(true);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
+  await expect(page.getByTestId('hud-status')).toHaveCount(0);
   await screenshot(page, 'victory', testInfo);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const victoryDebug =
+    (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(victoryDebug).toContain('Estado: Victoria');
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   expect(consoleErrors).toEqual([]);
 });
@@ -682,9 +703,7 @@ test('feedback de daño en un ataque normal desde el lado', async ({ page }, tes
   expect(afterAttack.turn).toBe(beforeAttack.turn);
   expect(afterAttack.players[0].actions.remaining).toBe(1);
   expect(afterAttack.enemies[0].hp).toBe(attack!.targetHp);
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${attack!.targetHp}/${enemy.maxHp}`,
-  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
 
   expect(consoleErrors).toEqual([]);
 });
@@ -748,9 +767,7 @@ test('fallo con texto y sin destello (semilla suplementaria)', async ({
       effectiveStats(enemy).evasion +
       miss!.rolls.shield,
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${enemy.hp}/${enemy.maxHp}`,
-  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
   const afterMiss = await snapshot(page);
   expect(afterMiss.players[0].actions.remaining).toBe(1);
   expect(afterMiss.players[0].mp).toBe(beforeMiss.players[0].mp);
@@ -976,8 +993,15 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   expect(defeat.players[0].hp).toBe(0);
   await expect(page.getByTestId('overlay-defeat')).toBeVisible();
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await expect(page.getByTestId('hud-status')).toHaveText('Derrota');
+  await expect(page.getByTestId('hud-status')).toHaveCount(0);
   await screenshot(page, 'defeat', testInfo);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const defeatDebug =
+    (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(defeatDebug).toContain('Estado: Derrota');
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   await page.keyboard.press('r');
   const restarted = await snapshot(page);

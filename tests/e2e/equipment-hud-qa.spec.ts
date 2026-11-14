@@ -34,11 +34,19 @@ function signed(value: number): string {
   return value >= 0 ? `+${value}` : `${value}`;
 }
 
-function weaponLabel(unit: Unit): string {
+/** Zona de arma del HUD: nombre y stats separados con signo. */
+async function expectHudWeapon(page: Page, unit: Unit): Promise<void> {
   const weaponId = unit.equipment.weapon?.itemId;
-  if (weaponId === undefined) return 'Sin arma';
+  if (weaponId === undefined) {
+    await expect(page.getByTestId('hud-zone-weapon')).toBeHidden();
+    return;
+  }
   const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
-  return `${weapon.name} ${signed(weapon.accuracy)}/${signed(weaponDamage(weapon))}`;
+  await expect(page.getByTestId('hud-zone-weapon')).toBeVisible();
+  await expect(page.getByTestId('hud-weapon')).toHaveText(weapon.name);
+  await expect(page.getByTestId('hud-weapon-stats')).toHaveText(
+    `${signed(weapon.accuracy)} acierto · ${signed(weaponDamage(weapon))} daño`,
+  );
 }
 
 function shieldLabel(unit: Unit): string {
@@ -113,9 +121,7 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
   expect(initial.weapons).toHaveLength(3);
   const weapon = initial.weapons[0];
 
-  await expect(page.getByTestId('hud-weapon')).toHaveText(
-    weaponLabel(initial.players[0]),
-  );
+  await expectHudWeapon(page, initial.players[0]);
   // Escudo y armadura ya no viven en la ficha izquierda (REQ-022 R-004); el
   // detalle del aliado bajo el cursor conserva la misma cobertura.
   const detail = page.getByTestId('hud-cursor-detail');
@@ -169,9 +175,7 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
   const afterPickup = await snapshot(page);
   // Recoger ya no auto-equipa: el arma queda en la mochila y el HUD no cambia.
-  await expect(page.getByTestId('hud-weapon')).toHaveText(
-    weaponLabel(afterPickup.players[0]),
-  );
+  await expectHudWeapon(page, afterPickup.players[0]);
   expect(afterPickup.players[0].equipment.weapon?.itemId).toBe(
     initial.players[0].equipment.weapon?.itemId,
   );

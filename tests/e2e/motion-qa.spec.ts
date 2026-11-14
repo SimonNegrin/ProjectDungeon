@@ -5,6 +5,7 @@ import type { GameEvent } from '../../src/game/types';
 import { FEEDBACK_CONFIG } from '../../src/host/feedback-config';
 import { MOTION_CONFIG } from '../../src/host/motion';
 import {
+  debugText,
   defeatAllEnemies,
   moveAwayFromEnemy,
   moveCursorTo,
@@ -195,8 +196,6 @@ async function presentationSample(page: Page, label: string) {
       path: snap.cursor.path.length,
     },
     hudMp: await page.getByTestId('hud-player-mp').textContent(),
-    hudPhase: await page.getByTestId('hud-phase').textContent(),
-    hudTurn: await page.getByTestId('hud-turn').textContent(),
     dots: await page.locator('[data-testid="cursor-path-point"]').count(),
   };
 }
@@ -557,8 +556,6 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   const baselineHud = {
     mp: await page.getByTestId('hud-player-mp').textContent(),
     action: await page.getByTestId('hud-action').textContent(),
-    phase: await page.getByTestId('hud-phase').textContent(),
-    turn: await page.getByTestId('hud-turn').textContent(),
   };
 
   for (const key of [
@@ -599,10 +596,12 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
     expect(await page.getByTestId('hud-action').textContent()).toBe(
       baselineHud.action,
     );
-    expect(await page.getByTestId('hud-phase').textContent()).toBe(
-      baselineHud.phase,
+    // Fase, turno y estado ya no son nodos del HUD: su lectura viva es F1.
+    expect(await debugText(page)).toContain(
+      `Fase: ${baseline.phase === 'player' ? 'Jugador' : 'Enemigo'} · Turno ${baseline.turn}`,
     );
-    expect(await page.getByTestId('hud-turn').textContent()).toBe(baselineHud.turn);
+    await expect(page.getByTestId('hud-phase')).toHaveCount(0);
+    await expect(page.getByTestId('hud-turn')).toHaveCount(0);
   }
 
   // F1 sí responde durante la animación y no la altera.
@@ -685,8 +684,11 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
     visible: true,
     state: 'player',
   });
-  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
-  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 2');
+  await expect(page.getByTestId('hud-phase')).toHaveCount(0);
+  await expect(page.getByTestId('hud-turn')).toHaveCount(0);
+  expect(await debugText(page)).toContain(
+    `Fase: Jugador · Turno ${afterEndTurn.turn}`,
+  );
 
   expect(consoleErrors).toEqual([]);
 });
@@ -779,9 +781,12 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   // la partida sigue en juego y el overlay de victoria no aparece todavía.
   expect(frozen.status).toBe('playing');
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  const targetEnemyAtCue = retreated.enemies[0];
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  // Antes del cue de impacto F1 conserva la vida previa del enemigo.
+  expect(await debugText(page)).toContain(
+    `${targetEnemyAtCue.id} ${targetEnemyAtCue.hp}/${targetEnemyAtCue.maxHp}`,
   );
 
   // Con un solo paso, la mitad del paso cae antes de la pausa de destino.
@@ -789,8 +794,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   const mid = await advance(page, midDelta);
   expect(mid.animation).toMatchObject({ animating: true, step: 0 });
   expectCameraFollows(mid, 'acercarse al enemigo');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  expect(await debugText(page)).toContain(
+    `${targetEnemyAtCue.id} ${targetEnemyAtCue.hp}/${targetEnemyAtCue.maxHp}`,
   );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
@@ -799,8 +805,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   // Pausa de destino: la animación sigue activa y aún no hay daño ni overlay.
   const finalPause = await advance(page, steps > 1 ? HALF_STEP : PAUSE + HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: steps });
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${retreated.enemies[0].hp}/${retreated.enemies[0].maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  expect(await debugText(page)).toContain(
+    `${targetEnemyAtCue.id} ${targetEnemyAtCue.hp}/${targetEnemyAtCue.maxHp}`,
   );
   await expect(page.getByTestId('overlay-victory')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
@@ -857,10 +864,13 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   const cleared = await defeatAllEnemies(page);
   sequenceEvents.push(...cleared.events);
   await expect(page.getByTestId('overlay-victory')).toBeVisible();
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `0/${cleared.snapshot.enemies[0].maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  await expect(page.getByTestId('hud-status')).toHaveCount(0);
+  const victoryDebug = await debugText(page);
+  expect(victoryDebug).toContain(
+    `${cleared.snapshot.enemies[0].id} 0/${cleared.snapshot.enemies[0].maxHp}`,
   );
-  await expect(page.getByTestId('hud-status')).toHaveText('Victoria');
+  expect(victoryDebug).toContain('Estado: Victoria');
   await expect(page.getByTestId('cursor')).toBeHidden();
   expect(sequenceEvents.map((event) => event.type)).toEqual(
     expect.arrayContaining(['UnitMoved', 'AttackPerformed', 'UnitDied', 'GameEnded']),
@@ -914,8 +924,11 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   });
   expect(positionOf(frozen)).toMatchObject(tileCenter(moves[0].from, frozen.tileSize));
   // El motor ya terminó la fase; la presentación todavía está en Enemigo.
-  await expect(page.getByTestId('hud-phase')).toHaveText('Enemigo');
-  await expect(page.getByTestId('hud-turn')).toHaveText(`Turno ${beforeEndTurn.turn}`);
+  expect(await debugText(page)).toContain(
+    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+  );
+  await expect(page.getByTestId('hud-phase')).toHaveCount(0);
+  await expect(page.getByTestId('hud-turn')).toHaveCount(0);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
 
@@ -930,22 +943,25 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
     'paso del enemigo',
   );
   expectCameraFollows(mid, 'fase enemiga');
-  await expect(page.getByTestId('hud-phase')).toHaveText('Enemigo');
-  await expect(page.getByTestId('hud-turn')).toHaveText(`Turno ${beforeEndTurn.turn}`);
+  expect(await debugText(page)).toContain(
+    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+  );
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'enemy-phase', testInfo);
 
   // Pausa de destino: el cursor y el turno del jugador todavía no aparecen.
   const finalPause = await advance(page, HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: 1 });
-  await expect(page.getByTestId('hud-phase')).toHaveText('Enemigo');
-  await expect(page.getByTestId('hud-turn')).toHaveText(`Turno ${beforeEndTurn.turn}`);
+  expect(await debugText(page)).toContain(
+    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+  );
   await expect(page.getByTestId('cursor')).toBeHidden();
 
   const finished = await advance(page, 1_000_000);
   expect(finished.animation.animating).toBe(false);
-  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
-  await expect(page.getByTestId('hud-turn')).toHaveText(`Turno ${beforeEndTurn.turn + 1}`);
+  expect(await debugText(page)).toContain(
+    `Fase: Jugador · Turno ${beforeEndTurn.turn + 1}`,
+  );
   await expect(page.getByTestId('cursor')).toBeVisible();
   expect(finished.cursor).toMatchObject({
     x: finished.players[0].x,

@@ -93,9 +93,10 @@ test('impacto: cue con destello, embestida, -N y tick de PV', async ({
     'data-result',
     'hit',
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${Math.max(0, adjacent.enemies[0].hp - attack!.damage)}/${enemy.maxHp}`,
-  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  expect(await snapshot(page)).toMatchObject({
+    enemies: [expect.objectContaining({ hp: Math.max(0, adjacent.enemies[0].hp - attack!.damage) })],
+  });
   await screenshot(page, 'impacto', testInfo);
   await setGrayscale(page, true);
   await screenshot(page, 'impacto-grises', testInfo);

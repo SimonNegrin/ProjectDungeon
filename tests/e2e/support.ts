@@ -29,6 +29,27 @@ export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
 }
 
+/**
+ * Texto del overlay de debug. El host lo actualiza en cada render aunque `F1`
+ * esté cerrado, así que leerlo no abre la capa ni altera capturas.
+ */
+export async function debugText(page: Page): Promise<string> {
+  return (await page.getByTestId('debug-content').textContent()) ?? '';
+}
+
+/** Abre `F1`, comprueba fragmentos y vuelve a cerrarlo sin tocar la partida. */
+export async function expectDebug(
+  page: Page,
+  fragments: readonly string[],
+): Promise<void> {
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const text = await debugText(page);
+  for (const fragment of fragments) expect(text).toContain(fragment);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
+}
+
 export interface ReachableTile {
   readonly x: number;
   readonly y: number;
