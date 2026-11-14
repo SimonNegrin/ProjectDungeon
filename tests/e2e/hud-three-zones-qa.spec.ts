@@ -272,13 +272,45 @@ test.describe('panel de inventario sobre el mapa', () => {
       expect(blocked.turn).toBe(before.turn);
       expect(blocked.lastEvents).toEqual(before.lastEvents);
 
-      // El panel conserva scroll interno y tanto la cabecera como el cierre
-      // siguen accesibles a 900×700.
+      // El panel no tiene scroll global: cabecera, columnas y cierre caben en
+      // ambos viewports; solo el contenedor del suelo puede desplazarse.
       const body = page.locator('.inventory-panel-body');
       await expect(body).toBeVisible();
-      await body.evaluate((element) => {
-        (element as HTMLElement).scrollTop = 0;
+      const scroll = await panel.evaluate((element) => {
+        const panelElement = element as HTMLElement;
+        const bodyElement = panelElement.querySelector<HTMLElement>(
+          '.inventory-panel-body',
+        );
+        const columns = [
+          ...panelElement.querySelectorAll<HTMLElement>('.inventory-column'),
+        ];
+        return {
+          panel: {
+            scrollHeight: panelElement.scrollHeight,
+            clientHeight: panelElement.clientHeight,
+          },
+          body: bodyElement
+            ? {
+                scrollHeight: bodyElement.scrollHeight,
+                clientHeight: bodyElement.clientHeight,
+              }
+            : null,
+          columns: columns.map((column) => ({
+            scrollHeight: column.scrollHeight,
+            clientHeight: column.clientHeight,
+          })),
+        };
       });
+      expect(scroll.panel.scrollHeight).toBeLessThanOrEqual(
+        scroll.panel.clientHeight + 1,
+      );
+      expect(scroll.body).not.toBeNull();
+      expect(scroll.body!.scrollHeight).toBeLessThanOrEqual(
+        scroll.body!.clientHeight + 1,
+      );
+      for (const column of scroll.columns) {
+        expect(column.scrollHeight).toBeLessThanOrEqual(column.clientHeight + 1);
+      }
       const playerLabel = await page.getByTestId('inventory-player').boundingBox();
       expect(playerLabel).not.toBeNull();
       expect(playerLabel!.y).toBeGreaterThanOrEqual(panelBox!.y - 1);
@@ -290,9 +322,6 @@ test.describe('panel de inventario sobre el mapa', () => {
         testInfo,
       );
 
-      await body.evaluate((element) => {
-        (element as HTMLElement).scrollTop = (element as HTMLElement).scrollHeight;
-      });
       const close = await page.getByTestId('inventory-close').boundingBox();
       expect(close).not.toBeNull();
       expect(close!.x).toBeGreaterThanOrEqual(panelBox!.x - 1);

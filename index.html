@@ -146,33 +146,68 @@
                   <p class="inventory-panel-mp">MP <span data-testid="inventory-mp"></span></p>
                 </header>
                 <p class="inventory-panel-help">
-                  Tab/Shift+Tab y flechas para moverte · Enter para confirmar · Cada operación cuesta 1 MP
+                  Flechas/WASD para moverte · Tab por zonas · Enter en una acción · Cada operación cuesta 1 MP
                 </p>
-                <div class="inventory-panel-grid">
-                  <section aria-label="Equipo">
+                <div class="inventory-columns">
+                  <section
+                    class="inventory-column inventory-column-equipment"
+                    data-zone="equipment"
+                    aria-label="Equipo"
+                  >
                     <h3 class="inventory-section-title">Equipo</h3>
-                    <ul class="inventory-list" data-testid="inventory-equipment"></ul>
+                    <div class="inventory-equipment-figure">
+                      <div class="inventory-figure" data-testid="inventory-figure" aria-hidden="true">
+                        <span class="inventory-figure-block inventory-figure-head"></span>
+                        <span class="inventory-figure-block inventory-figure-torso"></span>
+                        <span class="inventory-figure-block inventory-figure-arm-left"></span>
+                        <span class="inventory-figure-block inventory-figure-arm-right"></span>
+                        <span class="inventory-figure-block inventory-figure-leg-left"></span>
+                        <span class="inventory-figure-block inventory-figure-leg-right"></span>
+                      </div>
+                      <ul class="inventory-list inventory-equipment" data-testid="inventory-equipment"></ul>
+                    </div>
                   </section>
-                  <section aria-label="Mochila">
+                  <section
+                    class="inventory-column inventory-column-backpack"
+                    data-zone="backpack"
+                    aria-label="Mochila"
+                  >
                     <h3 class="inventory-section-title">
                       Mochila <span data-testid="inventory-backpack-count"></span>
                     </h3>
-                    <ul class="inventory-list" data-testid="inventory-backpack"></ul>
+                    <ul class="inventory-list inventory-backpack" data-testid="inventory-backpack"></ul>
                   </section>
                   <section
-                    aria-label="Objetos del suelo"
-                    data-testid="inventory-ground-section"
-                    hidden
+                    class="inventory-column inventory-column-right"
+                    data-zone="right"
+                    aria-label="Cadáveres y suelo"
                   >
-                    <h3 class="inventory-section-title">Suelo</h3>
-                    <p class="inventory-panel-help" data-testid="inventory-ground-hint" hidden></p>
-                    <ul class="inventory-list" data-testid="inventory-ground"></ul>
+                    <section class="inventory-cadavers" data-testid="inventory-cadavers" aria-label="Cadáveres">
+                      <h3 class="inventory-section-title">Cadáveres</h3>
+                      <p class="inventory-empty" data-testid="inventory-cadavers-empty"></p>
+                    </section>
+                    <section
+                      class="inventory-ground-section"
+                      data-testid="inventory-ground-section"
+                      aria-label="Objetos del suelo"
+                    >
+                      <h3 class="inventory-section-title">Suelo</h3>
+                      <p class="inventory-panel-help" data-testid="inventory-ground-hint" hidden></p>
+                      <div class="inventory-ground-scroll" data-testid="inventory-ground-scroll">
+                        <p class="inventory-empty" data-testid="inventory-ground-empty"></p>
+                        <ul class="inventory-list inventory-ground" data-testid="inventory-ground"></ul>
+                      </div>
+                    </section>
                   </section>
                 </div>
-                <section class="inventory-stats" aria-label="Stats efectivos" data-testid="inventory-stats">
-                  <h3 class="inventory-section-title">Stats efectivos</h3>
-                  <p class="inventory-stats-total" data-testid="inventory-stats-total"></p>
-                  <ul class="inventory-stats-list" data-testid="inventory-stats-rows"></ul>
+                <section
+                  class="inventory-actions"
+                  data-testid="inventory-actions"
+                  data-zone="actions"
+                  aria-label="Acciones del objeto seleccionado"
+                >
+                  <p class="inventory-selection" data-testid="inventory-selection"></p>
+                  <div class="inventory-actions-buttons" data-testid="inventory-actions-buttons"></div>
                 </section>
                 <p
                   class="inventory-message"
@@ -186,6 +221,7 @@
                     type="button"
                     class="inventory-panel-close"
                     data-testid="inventory-close"
+                    data-zone="close"
                   >
                     Cerrar · Esc
                   </button>

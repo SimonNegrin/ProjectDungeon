@@ -99,9 +99,13 @@ export interface InventoryPanelModel {
   readonly mp: string;
   readonly equipment: readonly PanelItem[];
   readonly backpack: readonly PanelItem[];
-  /** `null` cuando el tile del jugador no tiene objetos (R-015). */
-  readonly ground: readonly PanelItem[] | null;
+  /** Suelo del tile, siempre presente; vacío es una lista sin filas (R-015). */
+  readonly ground: readonly PanelItem[];
+  /** Cadáveres del tile: reservado para REQ-021, vacío en este corte. */
+  readonly corpses: readonly PanelItem[];
   readonly groundHint: string;
+  readonly groundEmptyHint: string;
+  readonly corpsesEmptyHint: string;
   readonly backpackCount: string;
   readonly stats: PanelStats;
 }
@@ -368,8 +372,11 @@ export function buildInventoryPanelModel(
         actions: [],
       })),
       backpack: [],
-      ground: null,
+      ground: [],
+      corpses: [],
       groundHint: '',
+      groundEmptyHint: 'No hay objetos en el suelo',
+      corpsesEmptyHint: 'No hay cadáveres en esta casilla',
       backpackCount: '0',
       stats: { total: '—', rows: [] },
     };
@@ -378,10 +385,6 @@ export function buildInventoryPanelModel(
   const groundItems = (state.groundItems ?? []).filter(
     (item) => item.x === unit.x && item.y === unit.y,
   );
-  const ground =
-    groundItems.length === 0
-      ? null
-      : groundItems.map((item) => groundRow(unit, item));
 
   return {
     playerName: unit.nombre,
@@ -390,11 +393,14 @@ export function buildInventoryPanelModel(
     backpack: Array.from({ length: unit.inventory.capacity }, (_value, index) =>
       backpackRow(unit, index),
     ),
-    ground,
+    ground: groundItems.map((item) => groundRow(unit, item)),
+    corpses: [],
     groundHint:
       groundItems.length > 1
         ? 'Recoger toma el primer objeto del tile; equipar elige la fila.'
         : '',
+    groundEmptyHint: 'No hay objetos en el suelo',
+    corpsesEmptyHint: 'No hay cadáveres en esta casilla',
     backpackCount: `${backpackCount(unit.inventory)}/${unit.inventory.capacity}`,
     stats: buildStats(unit),
   };

@@ -19,6 +19,11 @@ import type {
 } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { visibleTileRange, type TileRange } from '../../src/host/geometry';
+import {
+  findNeighbor,
+  type NavigationCell,
+  type NavigationDirection,
+} from '../../src/host/inventory-navigation';
 
 export async function snapshot(page: Page): Promise<GameSnapshot> {
   return page.evaluate(() => window.__game!.snapshot());
@@ -299,26 +304,151 @@ export function panelActionTestId(
   return `inventory-action-${kind}-${panelRowTestId(key)}`;
 }
 
+interface PanelRowInfo {
+  readonly key: string;
+  readonly testId: string;
+  readonly zone: string;
+  readonly center: { readonly x: number; readonly y: number };
+}
+
+/** Filas seleccionables del panel con su centro relativo al panel. */
+export async function panelRows(page: Page): Promise<PanelRowInfo[]> {
+  return page.evaluate(() => {
+    const panel = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-panel"]',
+    );
+    if (!panel) throw new Error('Falta el panel de inventario');
+    const panelRect = panel.getBoundingClientRect();
+    return [...panel.querySelectorAll<HTMLElement>('[data-row-key]')]
+      .filter((row) => row.dataset.empty === 'false')
+      .map((row) => {
+        const rect = row.getBoundingClientRect();
+        const zone = row.closest<HTMLElement>('[data-zone]')?.dataset.zone ?? '';
+        return {
+          key: row.dataset.rowKey ?? '',
+          testId: row.dataset.testid ?? '',
+          zone,
+          center: {
+            x: rect.left + rect.width / 2 - panelRect.left,
+            y: rect.top + rect.height / 2 - panelRect.top,
+          },
+        };
+      });
+  });
+}
+
+async function activePanelRow(page: Page): Promise<{ key: string; zone: string } | null> {
+  return page.evaluate(() => {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement)) return null;
+    const row = active.closest<HTMLElement>('[data-row-key]');
+    if (!row) return null;
+    return {
+      key: row.dataset.rowKey ?? '',
+      zone: row.closest<HTMLElement>('[data-zone]')?.dataset.zone ?? '',
+    };
+  });
+}
+
+async function activePanelTestId(page: Page): Promise<string | null> {
+  return page.evaluate(() => {
+    const active = document.activeElement;
+    return active instanceof HTMLElement ? (active.dataset.testid ?? null) : null;
+  });
+}
+
+function panelRowPath(
+  rows: readonly PanelRowInfo[],
+  fromKey: string,
+  toKey: string,
+): NavigationDirection[] | null {
+  const cells: readonly NavigationCell[] = rows.map((row) => ({
+    key: row.key,
+    zone: row.zone,
+    center: row.center,
+  }));
+  const directions: readonly NavigationDirection[] = [
+    'up',
+    'down',
+    'left',
+    'right',
+  ];
+  const queue: Array<{ key: string; path: NavigationDirection[] }> = [
+    { key: fromKey, path: [] },
+  ];
+  const seen = new Set<string>([fromKey]);
+  for (let head = 0; head < queue.length; head += 1) {
+    const current = queue[head];
+    if (current.key === toKey) return current.path;
+    for (const direction of directions) {
+      const next = findNeighbor(cells, current.key, direction);
+      if (!next || seen.has(next.key)) continue;
+      seen.add(next.key);
+      queue.push({ key: next.key, path: [...current.path, direction] });
+    }
+  }
+  return null;
+}
+
 /**
- * Lleva el foco a una acción del panel solo con `Tab` (teclado real). Falla si
- * no la alcanza; no usa `focus()` ni clics, que saltarían el recorrido modal.
+ * Selecciona una fila del panel con teclado real: `Tab` hasta su zona y
+ * flechas hasta el objeto. No usa `focus()` ni clics.
+ */
+export async function selectPanelRow(page: Page, key: string): Promise<void> {
+  const rows = await panelRows(page);
+  const target = rows.find((row) => row.key === key);
+  if (!target) throw new Error(`La fila ${key} no es seleccionable`);
+
+  for (let presses = 0; presses < 12; presses += 1) {
+    const active = await activePanelRow(page);
+    if (active?.zone === target.zone) break;
+    await page.keyboard.press('Tab');
+  }
+  const active = await activePanelRow(page);
+  if (!active || active.zone !== target.zone) {
+    throw new Error(`No se alcanzó la zona ${target.zone} con Tab`);
+  }
+  if (active.key === key) return;
+
+  const path = panelRowPath(rows, active.key, key);
+  if (!path) throw new Error(`No hay ruta espacial hasta ${key}`);
+  const keyByDirection: Record<NavigationDirection, string> = {
+    up: 'ArrowUp',
+    down: 'ArrowDown',
+    left: 'ArrowLeft',
+    right: 'ArrowRight',
+  };
+  for (const direction of path) {
+    await page.keyboard.press(keyByDirection[direction]);
+  }
+  const reached = await activePanelRow(page);
+  if (reached?.key !== key) {
+    throw new Error(`El foco quedó en ${reached?.key ?? 'ninguno'}, no en ${key}`);
+  }
+}
+
+/**
+ * Lleva el foco a una acción del panel solo con teclado real: `Tab` hasta la
+ * zona, flechas dentro de ella y `Tab` hasta la acción de ese mismo objeto.
  */
 export async function focusPanelAction(page: Page, testId: string): Promise<void> {
-  const activeTestId = async (): Promise<string | null> =>
-    page.evaluate(() => {
-      const active = document.activeElement;
-      return active instanceof HTMLElement ? (active.dataset.testid ?? null) : null;
-    });
+  const match = /^inventory-action-(equip|unequip|pickup|drop)-(.+)$/.exec(testId);
+  if (!match) throw new Error(`Test id de acción inesperado: ${testId}`);
+  const normalized = match[2];
+  const rows = await panelRows(page);
+  const row = rows.find((candidate) => panelRowTestId(candidate.key) === normalized);
+  if (!row) throw new Error(`No hay fila para la acción ${testId}`);
 
-  if ((await activeTestId()) === testId) return;
-  for (let presses = 0; presses < 96; presses += 1) {
+  await selectPanelRow(page, row.key);
+  for (let presses = 0; presses < 8; presses += 1) {
+    if ((await activePanelTestId(page)) === testId) return;
     await page.keyboard.press('Tab');
-    if ((await activeTestId()) === testId) return;
   }
+  if ((await activePanelTestId(page)) === testId) return;
   throw new Error(`No se alcanzó la acción ${testId} con Tab`);
 }
 
-/** Enfoca con `Tab` y activa la acción con `Enter`, ambas pulsaciones reales. */
+/** Enfoca con teclado y activa la acción con `Enter`, pulsaciones reales. */
 export async function pressPanelAction(page: Page, testId: string): Promise<void> {
   await focusPanelAction(page, testId);
   await page.keyboard.press('Enter');

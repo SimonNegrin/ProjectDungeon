@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0101 — in_progress: DoR cumplida; panel en tres columnas con figura de ocho huecos, mochila y cadáveres/suelo con scroll propio; navegación por proximidad — [TASK-0101](tasks/TASK-0101-panel-tres-columnas-figura.md)
+
 * 2026-11-14 — Planning — TASK-0101/0102 — backlog: panel en tres columnas con figura, mochila y columna de cadáveres/suelo con scroll y navegación por proximidad; ficha con dos bloques en el HUD derecho y submenú con `Enter` — [TASK-0101](tasks/TASK-0101-panel-tres-columnas-figura.md), [TASK-0102](tasks/TASK-0102-ficha-submenu-hud.md)
 
 * 2026-11-14 — Task — TASK-0100 — done: tres zonas con ficha izquierda, mapa 13×13 intacto y detalle derecho por tipo con LOS y «Desconocido»; maná condicional, turno y fantasma de vista; mensajes, banners y anclajes de REQ-017; panel modal solo sobre el mapa con ambos HUD visibles; verify 1278/1278 y E2E 141/141; fusión `b71346a` — [informe](../artifacts/TASK-0100/attempt-2/report.md)

@@ -297,7 +297,8 @@ test('HUD con espada, armas en el mapa, recogida en el panel y sin cambio 1-3', 
   const axeInstance = initial.groundItems.find((item) => item.id === axe!.id);
   expect(axeInstance, 'El hacha debe existir como instancia del suelo').toBeDefined();
   await pickupFromPanel(axeInstance!.id);
-  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
   await screenshot(page, 'panel-recogida', testInfo);
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();

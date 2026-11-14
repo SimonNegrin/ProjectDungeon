@@ -162,7 +162,8 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
     panelActionTestId('pickup', `ground:${groundWeapon.id}`),
   );
   await settle(page);
-  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
