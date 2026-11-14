@@ -92,7 +92,12 @@ describe('modelo del HUD', () => {
     });
     expect(model.shield).toBe(`${SHIELDS.shield.name} +${SHIELDS.shield.defense}`);
     expect(model.armor).toBe(`${ARMORS.armor.name} +${ARMORS.armor.armor}`);
-    expect(model.stats).toBe('+1 habilidad · +1 fuerza · +1 defensa');
+    expect(model.stats).toEqual([
+      '+1 habilidad',
+      '+1 fuerza',
+      '+1 defensa',
+    ]);
+    expect(model.stats.join(' ')).not.toContain('·');
     expect(model.cursorEnemyHp).toBe('—/—');
     expect(model.weaponHint).toBeNull();
   });
@@ -114,9 +119,11 @@ describe('modelo del HUD', () => {
 
     expect(model.playerName).toBe(ROSTER.warrior.name);
     expect(model.archetype).toBe(ROSTER.warrior.name);
-    expect(model.stats).toBe(
-      '+1 habilidad · +1 fuerza · +1 defensa',
-    );
+    expect(model.stats).toEqual([
+      '+1 habilidad',
+      '+1 fuerza',
+      '+1 defensa',
+    ]);
   });
 
   it('distingue el nombre editable del nombre del arquetipo', () => {
@@ -136,7 +143,7 @@ describe('modelo del HUD', () => {
     expect(warrior.playerMagicVisible).toBe(false);
     expect(warrior.playerMana).toBe('0/0');
     expect(warrior.playerManaVisible).toBe(false);
-    expect(warrior.traits).toBeNull();
+    expect(warrior.traits).toEqual([]);
     expect(warrior.condition).toBeNull();
 
     const mage = createPlayerFromArchetype('mage', {
@@ -309,7 +316,11 @@ describe('modelo del HUD', () => {
     });
     expect(model.shield).toBe('Sin escudo');
     expect(model.armor).toBe('Sin armadura');
-    expect(model.stats).toBe('+2 habilidad · +0 fuerza · +1 defensa');
+    expect(model.stats).toEqual([
+      '+2 habilidad',
+      '+0 fuerza',
+      '+1 defensa',
+    ]);
   });
 
   it('deja el arma nula cuando la unidad no tiene arma equipada', () => {

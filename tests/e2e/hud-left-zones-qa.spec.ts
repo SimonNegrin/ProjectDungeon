@@ -218,9 +218,15 @@ for (const viewport of VIEWPORTS) {
       // Arma: sprite del recorte de items.png, nombre y stats con signo.
       const sword = WEAPONS.sword;
       await expect(page.getByTestId('hud-weapon')).toHaveText(sword.name);
-      await expect(page.getByTestId('hud-weapon-stats')).toHaveText(
-        `${signed(sword.accuracy)} acierto · ${signed(weaponDamage(sword))} daño`,
-      );
+      await expect(
+        page.getByTestId('hud-weapon-stats').locator('li'),
+      ).toHaveText([
+        `${signed(sword.accuracy)} acierto`,
+        `${signed(weaponDamage(sword))} daño`,
+      ]);
+      await expect(
+        page.getByTestId('hud-stats').locator('li'),
+      ).toHaveText(['+1 habilidad', '+1 fuerza', '+1 defensa']);
       await expect(page.getByTestId('hud-weapon-sprite')).toBeVisible();
       const spriteBackground = await page
         .getByTestId('hud-weapon-sprite')

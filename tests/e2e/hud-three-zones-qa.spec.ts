@@ -408,7 +408,10 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
   await expect(allyRows).toContainText('PV');
   await expect(allyRows).toContainText('MP');
   await expect(allyRows).toContainText('Acciones');
-  await expect(allyRows).toContainText('Atributos');
+  await expect(allyRows).not.toContainText('Atributos');
+  await expect(
+    page.getByTestId('hud-cursor-stats').locator('li'),
+  ).toHaveText(['+3 habilidad', '+0 fuerza', '+1 defensa']);
   await expect(allyRows).toContainText('Arma');
   await expect(allyRows).toContainText('Escudo');
   await expect(allyRows).toContainText('Armadura');

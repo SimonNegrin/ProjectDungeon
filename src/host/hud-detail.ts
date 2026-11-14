@@ -138,10 +138,32 @@ export function armorLabel(unit: Unit | undefined): string {
   return `${profile.armor.name} ${signed(profile.absorption)}`;
 }
 
-export function statsLabel(unit: Unit | undefined): string {
-  if (!unit) return '—';
+/**
+ * Atributos del personaje como entradas de lista, una por atributo. El HUD
+ * izquierdo y la ficha del aliado consumen esta misma fuente (R-026, T-016).
+ */
+export function unitStatEntries(
+  unit: Unit | undefined,
+): readonly DetailStat[] {
+  if (!unit) return [];
   const { habilidad, fuerza, defensa } = effectiveStats(unit).stats;
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
+  return [
+    { id: 'habilidad', label: 'habilidad', value: signed(habilidad) },
+    { id: 'fuerza', label: 'fuerza', value: signed(fuerza) },
+    { id: 'defensa', label: 'defensa', value: signed(defensa) },
+  ];
+}
+
+/** Líneas de atributos en el orden del HUD; `—` sin unidad. */
+export function statLines(unit: Unit | undefined): readonly string[] {
+  const entries = unitStatEntries(unit);
+  if (entries.length === 0) return ['—'];
+  return entries.map((stat) => `${stat.value} ${stat.label}`);
+}
+
+/** Cadena de una sola línea solo para el overlay de `F1`. */
+export function statsLabel(unit: Unit | undefined): string {
+  return statLines(unit).join(' · ');
 }
 
 export function archetypeLabel(unit: Unit | undefined): string {
@@ -222,16 +244,15 @@ export function itemTraits(
 }
 
 /**
- * Traits de las definiciones equipadas. El catálogo actual no declara ninguno;
- * esta función devuelve `null` y el HUD omite el bloque sin estado vacío.
+ * Traits de las definiciones equipadas como entradas de lista. El catálogo
+ * actual no declara ninguno; el HUD oculta la lista vacía sin dejar hueco.
  */
-export function traitsLabel(unit: Unit | undefined): string | null {
-  if (!unit) return null;
+export function unitTraits(unit: Unit | undefined): readonly string[] {
+  if (!unit) return [];
   const traits = Object.values(unit.equipment)
     .filter((instance) => instance !== null)
     .flatMap((instance) => ITEMS[instance.itemId].traits);
-  if (traits.length === 0) return null;
-  return traits.map((trait) => `${trait.id}: ${trait.description}`).join(' · ');
+  return traits.map((trait) => `${trait.id}: ${trait.description}`);
 }
 
 function row(id: string, label: string, value: string): CursorDetailRow {
@@ -321,10 +342,9 @@ function allyDetail(ally: Unit): CursorDetail {
         row('pv', 'PV', formatHp(ally)),
         row('mp', 'MP', formatMp(ally)),
         row('acciones', 'Acciones', formatActions(ally)),
-        row('atributos', 'Atributos', statsLabel(ally)),
         ...(ally.mana.max > 0 ? [row('mana', 'Maná', formatMana(ally))] : []),
       ],
-      stats: [],
+      stats: unitStatEntries(ally),
       traits: [],
       sprite: null,
       vitals: [],
@@ -341,13 +361,12 @@ function allyDetail(ally: Unit): CursorDetail {
       row('pv', 'PV', formatHp(ally)),
       row('mp', 'MP', formatMp(ally)),
       row('acciones', 'Acciones', formatActions(ally)),
-      row('atributos', 'Atributos', statsLabel(ally)),
       row('arma', 'Arma', weaponLabel(ally)),
       row('escudo', 'Escudo', shieldLabel(ally)),
       row('armadura', 'Armadura', armorLabel(ally)),
       ...(ally.mana.max > 0 ? [row('mana', 'Maná', formatMana(ally))] : []),
     ],
-    stats: [],
+    stats: unitStatEntries(ally),
     traits: [],
     sprite: null,
     vitals: [],

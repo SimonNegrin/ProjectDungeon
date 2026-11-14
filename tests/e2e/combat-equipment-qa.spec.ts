@@ -160,6 +160,15 @@ function statsLabel(unit: Unit): string {
   return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
 }
 
+function statLines(unit: Unit): string[] {
+  const { habilidad, fuerza, defensa } = unit.stats;
+  return [
+    `${signed(habilidad)} habilidad`,
+    `${signed(fuerza)} fuerza`,
+    `${signed(defensa)} defensa`,
+  ];
+}
+
 function equipmentBody(unit: Unit): string {
   return `${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)}`;
 }
@@ -197,11 +206,16 @@ async function expectHudEquipment(page: Page, snap: GameSnapshot): Promise<void>
   } else {
     const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
     await expect(page.getByTestId('hud-weapon')).toHaveText(weapon.name);
-    await expect(page.getByTestId('hud-weapon-stats')).toHaveText(
-      `${signed(weapon.accuracy)} acierto · ${signed(weaponDamage(weapon))} daño`,
-    );
+    await expect(
+      page.getByTestId('hud-weapon-stats').locator('li'),
+    ).toHaveText([
+      `${signed(weapon.accuracy)} acierto`,
+      `${signed(weaponDamage(weapon))} daño`,
+    ]);
   }
-  await expect(page.getByTestId('hud-stats')).toHaveText(statsLabel(player));
+  await expect(
+    page.getByTestId('hud-stats').locator('li'),
+  ).toHaveText(statLines(player));
   // El resumen de equipo dejó la ficha izquierda (REQ-022 R-004): arma,
   // escudo y armadura se consultan en el detalle del aliado bajo el cursor.
   const detail = page.getByTestId('hud-cursor-detail');

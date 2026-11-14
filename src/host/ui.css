@@ -262,6 +262,13 @@
         font-size: var(--ui-data);
         font-variant-numeric: tabular-nums;
       }
+      .hud-list {
+        display: grid;
+        gap: calc(var(--ui-unit) * 1);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
       .hud-stats,
       .hud-condition {
         margin: 0;
