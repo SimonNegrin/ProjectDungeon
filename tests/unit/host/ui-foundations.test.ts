@@ -58,6 +58,8 @@ describe('tokens y escalas de la UI', () => {
       '--ui-raised',
       '--ui-line',
       '--ui-line-color',
+      '--ui-bevel',
+      '--ui-bevel-grow',
       '--ui-text',
       '--ui-muted',
       '--ui-accent',
@@ -71,6 +73,12 @@ describe('tokens y escalas de la UI', () => {
 
     expect(root).toMatch(/--ui-scale:\s*1\b/);
     expect(root).toMatch(/--ui-line:\s*1px/);
+    expect(root).toMatch(
+      /--ui-bevel:\s*calc\(var\(--ui-line\)\s*\*\s*2\)/,
+    );
+    expect(root).toMatch(
+      /--ui-bevel-grow:\s*calc\(var\(--ui-bevel\)\s*-\s*var\(--ui-line\)\)/,
+    );
     expect(root).toMatch(
       /--ui-unit:\s*calc\(var\(--ui-scale\)\s*\*\s*1px\)/,
     );
@@ -113,16 +121,78 @@ describe('tokens y escalas de la UI', () => {
     expect(literals, `Colores fuera de :root: ${literals.join(', ')}`).toEqual([]);
   });
 
-  it('define las utilidades outset e inset con el par claro/oscuro', () => {
+  it('pinta el bisel de 2× con contornos exteriores sin mover la caja', () => {
     const outset = block('.ui-outset');
     const inset = block('.ui-inset');
-    expect(outset).toMatch(/border-width:\s*var\(--ui-line\)/);
-    expect(outset).toMatch(
-      /border-color:\s*var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)\s+var\(--ui-bevel-dark\)\s+var\(--ui-bevel-light\)/,
+    for (const [name, body] of [
+      ['outset', outset],
+      ['inset', inset],
+    ] as const) {
+      expect(body, `${name} conserva el borde base`).toMatch(
+        /border-width:\s*var\(--ui-line\)/,
+      );
+      expect(body, `${name} no usa valores mágicos`).not.toMatch(
+        /border-width:\s*var\(--ui-bevel\)/,
+      );
+    }
+    const sharedPseudo =
+      css.match(
+        /\.ui-outset::before,\s*\.ui-inset::before,\s*\.ui-outset::after,\s*\.ui-inset::after\s*\{([\s\S]*?)\}/,
+      )?.[1] ?? '';
+    expect(sharedPseudo, 'falta el contorno compartido').toMatch(/content:\s*""/);
+    expect(sharedPseudo, 'el contorno no es absoluto').toMatch(
+      /position:\s*absolute/,
     );
-    expect(inset).toMatch(/border-width:\s*var\(--ui-line\)/);
-    expect(inset).toMatch(
-      /border-color:\s*var\(--ui-bevel-dark\)\s+var\(--ui-bevel-light\)\s+var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)/,
+    expect(sharedPseudo, 'el contorno no cubre el interior').toMatch(
+      /inset:\s*0/,
+    );
+    expect(sharedPseudo, 'el contorno no usa el bisel de 2×').toMatch(
+      /outline-width:\s*var\(--ui-bevel\)/,
+    );
+    expect(sharedPseudo, 'el contorno no ignora el puntero').toMatch(
+      /pointer-events:\s*none/,
+    );
+    for (const [selector, color] of [
+      ['.ui-outset::before', '--ui-bevel-light'],
+      ['.ui-inset::before', '--ui-bevel-dark'],
+      ['.ui-outset::after', '--ui-bevel-dark'],
+      ['.ui-inset::after', '--ui-bevel-light'],
+    ] as const) {
+      const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      expect(css, `${selector} sin color`).toMatch(
+        new RegExp(`${escaped}\\s*\\{[^}]*outline-color:\\s*var\\(${color}\\)`),
+      );
+    }
+    expect(css).toMatch(
+      /\.ui-outset::before,\s*\.ui-inset::before\s*\{[^}]*clip-path:\s*polygon\(/,
+    );
+    expect(css).toMatch(
+      /\.ui-outset::after,\s*\.ui-inset::after\s*\{[^}]*clip-path:\s*polygon\(/,
+    );
+  });
+
+  it('reserva el crecimiento exterior en las cajas que recortan', () => {
+    expect(block('.inventory-slot')).toMatch(/width:\s*var\(--ui-slot\)/);
+    expect(block('.inventory-slot')).toMatch(/height:\s*var\(--ui-slot\)/);
+    expect(block('.inventory-slot')).toMatch(/overflow:\s*visible/);
+    expect(block('.inventory-columns')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-columns')).toMatch(/padding:\s*var\(--ui-line\)/);
+    expect(block('.inventory-columns')).toMatch(
+      /margin:\s*calc\(var\(--ui-line\)\s*\*\s*-1\)/,
+    );
+    expect(block('.inventory-backpack')).toMatch(/padding:\s*var\(--ui-line\)/);
+    expect(block('.inventory-backpack')).toMatch(
+      /margin:\s*calc\(var\(--ui-line\)\s*\*\s*-1\)/,
+    );
+    expect(block('.inventory-ground')).toMatch(/padding:\s*var\(--ui-line\)/);
+    expect(block('.inventory-ground')).toMatch(
+      /margin:\s*calc\(var\(--ui-line\)\s*\*\s*-1\)/,
+    );
+    expect(block('.inventory-ground-scroll')).toMatch(
+      /padding-inline:\s*var\(--ui-line\)/,
+    );
+    expect(block('.inventory-panel-body')).toMatch(
+      /border-width:\s*var\(--ui-bevel\)/,
     );
   });
 
@@ -176,15 +246,21 @@ describe('tokens y escalas de la UI', () => {
     }
   });
 
-  it('pinta el marco exterior con un pseudo-elemento que no encoge el canvas', () => {
+  it('pinta el marco exterior con un pseudo-elemento que crece sin encoger el canvas', () => {
     const frame = block('.frame');
     expect(frame).not.toMatch(/(?:^|;)\s*border\s*:/);
     expect(frame).not.toMatch(/border-radius|box-shadow/);
+    expect(frame, 'el marco no debe recortar el bisel exterior').not.toMatch(
+      /overflow:\s*hidden/,
+    );
     const after = block('.frame::after');
     expect(after).toMatch(/content:\s*""/);
     expect(after).toMatch(/position:\s*absolute/);
-    expect(after).toMatch(/inset:\s*0/);
+    expect(after).toMatch(
+      /inset:\s*calc\(var\(--ui-bevel-grow\)\s*\*\s*-1\)/,
+    );
     expect(after).toMatch(/pointer-events:\s*none/);
+    expect(after).toMatch(/border-width:\s*var\(--ui-bevel\)/);
     expect(after).toMatch(
       /border-color:\s*var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)/,
     );
@@ -353,7 +429,7 @@ describe('panel de inventario en tres columnas', () => {
     expect(block('.inventory-panel')).toMatch(/overflow:\s*hidden/);
     expect(block('.inventory-panel-body')).toMatch(/overflow:\s*hidden/);
     expect(block('.inventory-columns')).toMatch(/overflow:\s*hidden/);
-    expect(block('.inventory-column')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-column')).toMatch(/overflow:\s*visible/);
     expect(block('.inventory-ground-scroll')).toMatch(/overflow-y:\s*auto/);
     expect(css).toMatch(/--ui-focus/);
     expect(css).toMatch(/outline:\s*var\(--ui-line\)\s+solid\s+var\(--ui-focus\)/);

@@ -1706,8 +1706,7 @@ for (const viewport of VIEWPORTS) {
         '.inventory-slot',
         '.inventory-submenu',
       ];
-      const entries = await page.evaluate((list) => {
-        const alpha = (color: string): number => {
+      const entries = await page.evaluate((list) => {        const alpha = (color: string): number => {
           const match = /rgba?\(([^)]+)\)/.exec(color);
           if (!match) return 1;
           const parts = match[1].split(',').map((part) => Number.parseFloat(part));
@@ -1729,11 +1728,29 @@ for (const viewport of VIEWPORTS) {
             backgroundAlpha: alpha(style.backgroundColor),
             borderTopWidth: style.borderTopWidth,
             borderBottomWidth: style.borderBottomWidth,
+            bevelTopWidth: getComputedStyle(node, '::before').outlineWidth,
+            bevelBottomWidth: getComputedStyle(node, '::after').outlineWidth,
             borderTopColor: style.borderTopColor,
             borderBottomColor: style.borderBottomColor,
           };
         });
       }, selectors);
+
+      const uiLine = await page.evaluate(() =>
+        Number.parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue('--ui-line'),
+        ),
+      );
+      for (const entry of entries) {
+        expect(
+          Math.abs(Number.parseFloat(entry.bevelTopWidth) - uiLine * 2),
+          `${entry.selector} bisel superior`,
+        ).toBeLessThanOrEqual(1);
+        expect(
+          Math.abs(Number.parseFloat(entry.bevelBottomWidth) - uiLine * 2),
+          `${entry.selector} bisel inferior`,
+        ).toBeLessThanOrEqual(1);
+      }
 
       for (const entry of entries) {
         expect(entry.borderRadius, `${entry.selector} usa radio`).toBe('0px');
@@ -1817,6 +1834,7 @@ test.describe('REQ-033 escala continua', () => {
       line: number;
       hudFont: number;
       slot: { width: number; height: number };
+      slotBorder: number;
       columnsGap: number;
     }> = [];
 
@@ -1832,6 +1850,7 @@ test.describe('REQ-033 escala continua', () => {
           .getBoundingClientRect();
         const hud = document.querySelector<HTMLElement>('[data-testid="hud"]')!;
         const slot = document.querySelector<HTMLElement>('.inventory-slot')!;
+        const slotBevel = getComputedStyle(slot, '::before');
         const columns = document.querySelector<HTMLElement>('.inventory-columns')!;
         const slotBox = slot.getBoundingClientRect();
         return {
@@ -1840,6 +1859,7 @@ test.describe('REQ-033 escala continua', () => {
           line: Number.parseFloat(root.getPropertyValue('--ui-line')),
           hudFont: Number.parseFloat(getComputedStyle(hud).fontSize),
           slot: { width: slotBox.width, height: slotBox.height },
+          slotBorder: Number.parseFloat(slotBevel.outlineWidth),
           columnsGap: Number.parseFloat(getComputedStyle(columns).columnGap),
         };
       });
@@ -1848,6 +1868,10 @@ test.describe('REQ-033 escala continua', () => {
       expect(measured.scale).toBeGreaterThan(0);
       expect(measured.scale).toBeCloseTo(measured.frame.height / 416, 6);
       expect(measured.line).toBeCloseTo(measured.scale, 6);
+      expect(
+        Math.abs(measured.slotBorder - measured.line * 2),
+        `bisel redondeado fuera de 2× línea: ${measured.slotBorder}`,
+      ).toBeLessThanOrEqual(1);
       expect(measured.hudFont).toBeCloseTo(measured.scale * 11.2, 3);
       expect(measured.slot.width).toBeCloseTo(34 * measured.scale, 1);
       expect(measured.slot.height).toBeCloseTo(34 * measured.scale, 1);
