@@ -27,8 +27,9 @@ import {
   formatMp,
   shieldLabel,
   signed,
+  statLines,
   statsLabel,
-  traitsLabel,
+  unitTraits,
   weaponLabel,
   type CursorDetail,
   type CursorDetailKind,
@@ -91,8 +92,8 @@ export interface HudModel {
   readonly playerManaVisible: boolean;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
-  /** Traits activos derivados de las definiciones equipadas; `null` sin traits. */
-  readonly traits: string | null;
+  /** Traits activos derivados de las definiciones equipadas; vacío sin traits. */
+  readonly traits: readonly string[];
   /** «Fantasma» con `hp <= 0`; no altera la mecánica de REQ-021. */
   readonly condition: string | null;
   /** Sugerencia discreta de terminar el turno; `null` si no aplica. */
@@ -101,8 +102,8 @@ export interface HudModel {
   readonly weapon: HudWeapon | null;
   readonly shield: string;
   readonly armor: string;
-  /** Atributos inherentes del jugador (REQ-014): habilidad, fuerza y defensa. */
-  readonly stats: string;
+  /** Atributos inherentes del jugador (REQ-014), una entrada por línea. */
+  readonly stats: readonly string[];
   /** Vida del enemigo vivo bajo el cursor; `—/—` si no hay ninguno. */
   readonly cursorEnemyHp: string;
   /** Nivel de magia del enemigo bajo el cursor; `—` si no hay ninguno. */
@@ -222,13 +223,13 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     playerMana: formatMana(player),
     playerManaVisible: (player?.mana.max ?? 0) > 0,
     action: formatActions(player),
-    traits: traitsLabel(player),
+    traits: unitTraits(player),
     condition: conditionLabel(player),
     actionSuggestion: actionSuggestion(state),
     weapon: hudWeapon(player),
     shield: shieldLabel(player),
     armor: armorLabel(player),
-    stats: statsLabel(player),
+    stats: statLines(player),
     cursorEnemyHp: formatHp(cursorEnemy),
     cursorEnemyMagic: formatMagic(cursorEnemy),
     cursorEnemyMana: formatMana(cursorEnemy),
@@ -653,16 +654,21 @@ function renderStats(list: HTMLElement, stats: readonly DetailStat[]): void {
   list.hidden = stats.length === 0;
 }
 
-/** Pinta los traits existentes; sin traits no queda texto ni hueco. */
-function renderTraits(list: HTMLElement, traits: readonly string[]): void {
+/** Pinta una lista vertical de texto; vacía se oculta sin dejar hueco. */
+function renderTextList(list: HTMLElement, values: readonly string[]): void {
   list.replaceChildren(
-    ...traits.map((trait) => {
+    ...values.map((value) => {
       const item = document.createElement('li');
-      item.textContent = trait;
+      item.textContent = value;
       return item;
     }),
   );
-  list.hidden = traits.length === 0;
+  list.hidden = values.length === 0;
+}
+
+/** Pinta los traits existentes; sin traits no queda texto ni hueco. */
+function renderTraits(list: HTMLElement, traits: readonly string[]): void {
+  renderTextList(list, traits);
 }
 
 /** Recorte de `items.png` escalado con la misma escala que los slots. */
@@ -836,17 +842,21 @@ export function createHudView(root: ParentNode): HudView {
       magicRow.hidden = !model.playerMagicVisible;
       manaRow.hidden = !model.playerManaVisible;
       action.textContent = model.action;
-      stats.textContent = model.stats;
-      traits.textContent = model.traits ?? '';
-      traits.hidden = model.traits === null;
+      renderTextList(stats, model.stats);
+      renderTextList(traits, model.traits);
       condition.textContent = model.condition ?? '';
       condition.hidden = model.condition === null;
       weaponZone.hidden = model.weapon === null;
       weapon.textContent = model.weapon?.name ?? '';
-      weaponStats.textContent =
+      renderTextList(
+        weaponStats,
         model.weapon === null
-          ? ''
-          : `${signed(model.weapon.accuracy)} acierto · ${signed(model.weapon.damage)} daño`;
+          ? []
+          : [
+              `${signed(model.weapon.accuracy)} acierto`,
+              `${signed(model.weapon.damage)} daño`,
+            ],
+      );
       if (model.weapon === null) {
         weaponSprite.hidden = true;
         weaponSprite.style.removeProperty('background-position');

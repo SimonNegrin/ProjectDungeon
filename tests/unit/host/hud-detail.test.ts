@@ -11,7 +11,9 @@ import {
   buildPanelDetail,
   cursorVisible,
   itemStats,
-  traitsLabel,
+  statLines,
+  unitStatEntries,
+  unitTraits,
 } from '../../../src/host/hud-detail';
 import { makeGridWithWalls, makeState, makeUnit } from '../game/helpers';
 
@@ -108,13 +110,15 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(detail.rows.find((row) => row.id === 'arquetipo')?.value).toBe(
       'Guerrero',
     );
-    expect(detail.rows.find((row) => row.id === 'atributos')?.value).toBe(
-      '+1 habilidad · +1 fuerza · +1 defensa',
-    );
+    expect(detail.rows.some((row) => row.id === 'atributos')).toBe(false);
     expect(detail.rows.find((row) => row.id === 'arma')?.value).toContain(
       'Espada',
     );
-    expect(detail.stats).toEqual([]);
+    expect(detail.stats).toEqual([
+      { id: 'habilidad', label: 'habilidad', value: '+1' },
+      { id: 'fuerza', label: 'fuerza', value: '+1' },
+      { id: 'defensa', label: 'defensa', value: '+1' },
+    ]);
     expect(detail.sprite).toBeNull();
     expect(JSON.stringify(detail)).not.toMatch(/mochila|inventario/i);
     // El tipo ya no se repite en eyebrow/título/subtítulo.
@@ -334,10 +338,39 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(buildCursorDetail(state, { x: 4, y: 4 }).kind).toBe('ally');
   });
 
-  it('los traits salen del catálogo equipado y hoy no hay bloque', () => {
+  it('compone una entrada por atributo sin separadores', () => {
+    const unit = makeState().players[0];
+    expect(statLines(unit)).toEqual([
+      '+1 habilidad',
+      '+1 fuerza',
+      '+1 defensa',
+    ]);
+    expect(statLines(undefined)).toEqual(['—']);
+    expect(unitStatEntries(undefined)).toEqual([]);
+    expect(JSON.stringify(unitStatEntries(unit))).not.toContain('·');
+  });
+
+  it('los traits salen del catálogo equipado como lista; sin traits no hay bloque', () => {
     const state = makeState();
-    expect(traitsLabel(state.players[0])).toBeNull();
-    expect(traitsLabel(undefined)).toBeNull();
+    expect(unitTraits(state.players[0])).toEqual([]);
+    expect(unitTraits(undefined)).toEqual([]);
+
+    const definition = ITEMS.sword as unknown as {
+      traits: readonly { id: string; description: string }[];
+    };
+    const original = definition.traits;
+    try {
+      definition.traits = [
+        { id: 'filoso', description: 'Corta más' },
+        { id: 'ligero', description: 'Pesa menos' },
+      ];
+      expect(unitTraits(state.players[0])).toEqual([
+        'filoso: Corta más',
+        'ligero: Pesa menos',
+      ]);
+    } finally {
+      definition.traits = original;
+    }
   });
 
   it('compone una fila por stat con el valor delante del nombre', () => {

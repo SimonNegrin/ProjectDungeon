@@ -51,9 +51,9 @@ test('smoke: el personaje por defecto es el Guerrero y el HUD muestra nombre y a
   await expect(page.getByTestId('hud-archetype')).toHaveText(
     ROSTER.warrior.name,
   );
-  await expect(page.getByTestId('hud-stats')).toHaveText(
-    '+1 habilidad · +1 fuerza · +1 defensa',
-  );
+  await expect(
+    page.getByTestId('hud-stats').locator('li'),
+  ).toHaveText(['+1 habilidad', '+1 fuerza', '+1 defensa']);
   await expect(page.getByTestId('hud')).toBeVisible();
 
   // La captura conserva el HUD con nombre y arquetipo para la evidencia.

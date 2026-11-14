@@ -44,9 +44,12 @@ async function expectHudWeapon(page: Page, unit: Unit): Promise<void> {
   const weapon = WEAPONS[weaponId as keyof typeof WEAPONS];
   await expect(page.getByTestId('hud-zone-weapon')).toBeVisible();
   await expect(page.getByTestId('hud-weapon')).toHaveText(weapon.name);
-  await expect(page.getByTestId('hud-weapon-stats')).toHaveText(
-    `${signed(weapon.accuracy)} acierto · ${signed(weaponDamage(weapon))} daño`,
-  );
+  await expect(
+    page.getByTestId('hud-weapon-stats').locator('li'),
+  ).toHaveText([
+    `${signed(weapon.accuracy)} acierto`,
+    `${signed(weaponDamage(weapon))} daño`,
+  ]);
 }
 
 function shieldLabel(unit: Unit): string {
@@ -63,9 +66,13 @@ function armorLabel(unit: Unit): string {
   return `${armor.name} ${signed(armor.armor)}`;
 }
 
-function statsLabel(unit: Unit): string {
+function statLines(unit: Unit): string[] {
   const { habilidad, fuerza, defensa } = unit.stats;
-  return `${signed(habilidad)} habilidad · ${signed(fuerza)} fuerza · ${signed(defensa)} defensa`;
+  return [
+    `${signed(habilidad)} habilidad`,
+    `${signed(fuerza)} fuerza`,
+    `${signed(defensa)} defensa`,
+  ];
 }
 
 function floorNeighbor(
@@ -127,9 +134,9 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
   const detail = page.getByTestId('hud-cursor-detail');
   await expect(detail).toContainText(shieldLabel(initial.players[0]));
   await expect(detail).toContainText(armorLabel(initial.players[0]));
-  await expect(page.getByTestId('hud-stats')).toHaveText(
-    statsLabel(initial.players[0]),
-  );
+  await expect(
+    page.getByTestId('hud-stats').locator('li'),
+  ).toHaveText(statLines(initial.players[0]));
   await expect(page.getByTestId('weapon-hint')).toBeHidden();
 
   // Primero una casilla adyacente para que el arma se vea sin el jugador encima.
