@@ -9,6 +9,20 @@ decided_at: 2026-11-13T23:44:14Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T23:44:14Z }
 ---
 
+> **Nota de vigencia (2026-11-14, REQ-033 v6).** La revisión visual implementada
+> en TASK-0104 a TASK-0109 mantiene la composición de pantalla, la tipografía,
+> los tokens semánticos, el panel de tres columnas, la ficha de dos bloques y el
+> submenú, pero sustituye tres decisiones de este ADR: las escalas fijas por rol
+> pasan a ratios de una **escala única derivada del marco**; el grosor de línea
+> deja de redondearse a píxel de dispositivo; y la paleta muestreada del pack se
+> sustituye por los **ocho colores opacos aprobados**. Además, la zona de
+> cadáveres ya se puebla con los del tile (TASK-0107), aunque el trasvase de
+> inventario sigue pendiente de
+> [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md). La decisión
+> técnica vive en
+> [ADR-026](ADR-026-escala-continua-relieve-vintage.md) y el alcance en
+> [REQ-033](../requirements/REQ-033-revision-visual-hud-panel.md).
+
 > **Cierre de implementación (2026-11-14).** Lo decidido aquí está implementado en
 > TASK-0099 a TASK-0102: fuente y tokens, pantalla en tres zonas, panel de tres
 > columnas con figura y navegación por proximidad, ficha de dos bloques y submenú

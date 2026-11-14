@@ -346,35 +346,70 @@ El corte anterior queda en
 
 # Interfaz y pantalla
 
-La UI sigue [REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md) y
-[ADR-025](../decisions/ADR-025-estilo-visual-ui.md): DOM sobre el marco 16:9,
-Pixelify Sans local y tokens `--ui-*` con la línea calculada desde el tile.
+La UI de juego sigue
+[REQ-033](../requirements/REQ-033-revision-visual-hud-panel.md) sobre la base de
+[REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md) y
+[ADR-025](../decisions/ADR-025-estilo-visual-ui.md); la escala continua y el
+relieve vintage se registran en
+[ADR-026](../decisions/ADR-026-escala-continua-relieve-vintage.md). DOM sobre el
+marco 16:9, Pixelify Sans local y tokens `--ui-*`.
 
-- **Tres zonas**: HUD izquierdo con la ficha del jugador activo
-  ([REQ-022](../requirements/REQ-022-hud-izquierdo-jugador.md)), mapa cuadrado de
-  13×13 y HUD derecho con el detalle bajo el cursor
-  ([REQ-023](../requirements/REQ-023-hud-derecho-detalle-cursor.md)). El HUD vive
-  dentro del marco; no queda ninguna barra superior fuera de él.
+- **Escala única**: `computeFrameLayout` deriva `scale` del marco 16:9 y el host
+  la publica como `--ui-scale` y `--ui-unit`. Tipografía, interlineado, huecos,
+  bordes, iconos, sprites, slots y submenú se calculan con
+  `calc(var(--ui-unit) * n)`; no hay tamaños fijos por componente, breakpoints
+  ni `clamp()` de viewport. `computeUiLine` publica `--ui-line` de forma lineal
+  (`scale × tile / 32`), sin redondeo a píxel de dispositivo; se acepta el render
+  fraccionario. A 900×700 la escala es 1,1737 y el cuerpo 13,15 px; a 1280×720,
+  1,6010 y 17,93 px. El overlay de `F1` queda fuera.
+- **Paleta**: ocho tokens opacos y semánticos, sin literales por componente:
+  `--ui-bg` `#2f142f` (fondo y borde oscuro), `--ui-panel` `#2a584f` (panel),
+  `--ui-raised` `#774448` (zona o sección elevada), `--ui-line-color` `#6eb8a8`
+  (línea clara y texto atenuado), `--ui-text` `#fcffc0` (texto), `--ui-accent`
+  `#ee9c5d` (acento), `--ui-danger` `#c6505a` (peligro) y `--ui-focus`
+  `#74a33f` (foco y positivo). `--ui-muted` y `--ui-positive` son alias de rol.
+- **Relieve**: `.ui-outset` (claro al noroeste, oscuro al sureste) marca
+  superficies —marco, zonas del HUD, secciones de la ficha y columnas del
+  panel—; `.ui-inset` invierte el par y marca receptáculos —slots de item y
+  ventanas de sprite del HUD—. No hay radios, sombras difusas, degradados, blur
+  ni translucidez. Un bisel comunica función: outset = superficie, inset =
+  hueco.
+- **Tres zonas**: HUD izquierdo con la ficha del jugador activo en tres zonas
+  enmarcadas —Personaje en dos columnas, Arma y Stats+Traits—
+  ([REQ-022](../requirements/REQ-022-hud-izquierdo-jugador.md)), mapa cuadrado
+  de 13×13 y HUD derecho con el detalle bajo el cursor
+  ([REQ-023](../requirements/REQ-023-hud-derecho-detalle-cursor.md)). Fase,
+  turno, PV del enemigo y estado salen del HUD y quedan solo en `F1`; las teclas
+  y la sugerencia se mantienen como texto plano al pie. El HUD vive dentro del
+  marco; no queda ninguna barra superior fuera de él.
 - **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
   siguen visibles. Tres columnas tituladas Equipo, Bolsa y Suelo, con figura de
-  equipo, rejilla 2×4 y cadáveres/suelo en rejilla; sin cabecera ni ayuda.
-  `Escape` o `I` cierran y el mapa no acepta comandos. El slot activo se marca
-  con un **cursor superpuesto** (`.inventory-cursor`) ligado al foco DOM: borde
-  de `--ui-focus` por fuera del bisel, centro transparente y movimiento con
-  `transform`; anima 100 ms solo entre vecinos horizontales de la misma fila y
-  salta al instante al cambiar de fila o zona, con scroll, al reabrir, al
-  actualizar el modelo y con `prefers-reduced-motion`.
+  equipo, rejilla 2×4 y cadáveres/suelo en rejilla; slots cuadrados, iguales y
+  solo icono; sin cabecera ni ayuda. «Bolsa» es la etiqueta de UI; el modelo y
+  la documentación siguen diciendo «mochila». `Escape` o `I` cierran y el mapa
+  no acepta comandos. La disposición preferida es la de tres columnas; la
+  alternativa 1/3 + dos filas solo se activa por medición de espacio, no por
+  breakpoint. A 900×700 las tres columnas encajan (columnas de 137,06 px y slots
+  de 39,89 px), así que la alternativa no se usa.
+- **Cursor superpuesto**: el slot activo se marca con `.inventory-cursor`, una
+  capa ligada al foco DOM con borde de `--ui-focus` por fuera del bisel y centro
+  transparente. Se coloca con `transform`, anima 100 ms solo entre vecinos
+  horizontales de la misma fila y salta al instante al cambiar de fila o zona,
+  con scroll, al reabrir, al actualizar el modelo y con
+  `prefers-reduced-motion`; no tapa el sprite ni el bisel y el foco real sigue
+  en el slot.
 - **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
-  abierto pasa a la ficha de dos bloques y `Enter` abre el submenú contextual.
-  `Tab`/`Shift+Tab` cambian de zona y las flechas o `WASD` se mueven por
-  proximidad entre objetos existentes.
-- **Límites de layout**: el panel no hace scroll global a 1280×720; los slots
-  mantienen el mismo lado en las tres columnas y a 900×700 solo se desplaza la
-  columna derecha (cadáveres y suelo). Navegar, equipar, recoger/soltar, cambiar
-  de tile o aparecer cadáveres no mueve el marco, las columnas, los títulos ni
-  los slots de equipo/bolsa; el Suelo y la ficha cambian dentro de su zona. Los
-  contenedores y el inventario de cadáver llegan con
-  [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
+  abierto pasa a la ficha de dos bloques —seleccionado y equipado, sin delta— y
+  `Enter` abre el submenú contextual. `Tab`/`Shift+Tab` cambian de zona y las
+  flechas o `WASD` se mueven por proximidad entre objetos existentes.
+- **Anti-CLS**: abrir o cerrar el panel, navegar, equipar, recoger o soltar,
+  cambiar de tile y aparecer o desaparecer cadáveres no mueven el marco, las
+  columnas, los títulos ni los slots ya colocados; los cambios ocurren dentro de
+  su zona. A 1280×720 el panel no hace scroll global; a 900×700 solo se desplaza
+  la columna derecha (cadáveres y suelo) y los slots mantienen el mismo lado en
+  las tres columnas. La medición de CLS de TASK-0108 y TASK-0109 no registra
+  desplazamientos prohibidos. Los contenedores y el inventario de cadáver llegan
+  con [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
 
 # Render del host
@@ -383,8 +418,9 @@ Pixelify Sans local y tokens `--ui-*` con la línea calculada desde el tile.
 - **Cámara**: sigue a la unidad activa, redondea a píxel entero y se limita al
   mapa. El HUD no se transforma con la cámara.
 - **Capa**: HUD en DOM, no dibujado en Canvas; el Canvas no es accesible por sí
-  solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
-  para los eventos importantes. No se depende solo del color.
+  solo, así que el HUD refleja vida, MP, acciones, maná y traits con
+  `data-testid` y `aria-live` para los eventos importantes. Fase, turno, PV del
+  enemigo y estado quedan solo en `F1`. No se depende solo del color.
 - **Panel de personaje** ([REQ-018](../requirements/REQ-018-inventario-equipo.md)):
   DOM sobre la franja del mapa, dentro del marco 16:9 y nunca dibujado en Canvas.
   Reutiliza nodos estables y `data-testid`; los iconos de objeto salen de
