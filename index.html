@@ -21,39 +21,67 @@
             ></canvas>
             <section class="hud" data-testid="hud" aria-label="Estado de la partida">
               <aside class="hud-left ui-outset" data-testid="hud-left">
-                <div
-                  class="hud-portrait ui-inset"
-                  data-testid="hud-portrait"
-                  aria-hidden="true"
-                ></div>
-                <p class="hud-player-name" data-testid="hud-player-name">—</p>
-                <p class="hud-archetype" data-testid="hud-archetype">—</p>
-                <div class="hud-fields">
-                  <span class="hud-stat">Vida <strong data-testid="hud-player-hp">20/20</strong></span>
-                  <span class="hud-stat">MP <strong data-testid="hud-player-mp">6/6</strong></span>
-                  <span class="hud-stat">Magia <strong data-testid="hud-player-magic">0</strong></span>
-                  <span class="hud-stat" data-testid="hud-mana-row"
-                    >Maná <strong data-testid="hud-player-mana">0/0</strong></span
-                  >
-                  <span class="hud-stat">Acciones <strong data-testid="hud-action">2/2</strong></span>
-                </div>
-                <p class="hud-stats" data-testid="hud-stats"></p>
-                <p class="hud-traits" data-testid="hud-traits">Sin traits activos</p>
-                <p class="hud-condition" data-testid="hud-condition" hidden></p>
-                <p class="hud-stat hud-weapon-slot">
-                  Arma <strong data-testid="hud-weapon">—</strong>
-                </p>
+                <section
+                  class="hud-zone ui-outset"
+                  data-testid="hud-zone-character"
+                  data-zone="character"
+                  aria-label="Personaje"
+                >
+                  <div
+                    class="hud-portrait ui-inset"
+                    data-testid="hud-portrait"
+                    aria-hidden="true"
+                  ></div>
+                  <div class="hud-character-data">
+                    <p class="hud-player-name" data-testid="hud-player-name">—</p>
+                    <p class="hud-archetype" data-testid="hud-archetype">—</p>
+                    <p class="hud-condition" data-testid="hud-condition" hidden></p>
+                  </div>
+                </section>
+                <section
+                  class="hud-zone ui-outset"
+                  data-testid="hud-zone-weapon"
+                  data-zone="weapon"
+                  aria-label="Arma actual"
+                  hidden
+                >
+                  <div
+                    class="hud-weapon-sprite ui-inset"
+                    data-testid="hud-weapon-sprite"
+                    aria-hidden="true"
+                  ></div>
+                  <div class="hud-weapon-data">
+                    <p class="hud-weapon-name" data-testid="hud-weapon">—</p>
+                    <p class="hud-weapon-stats" data-testid="hud-weapon-stats">—</p>
+                  </div>
+                </section>
+                <section
+                  class="hud-zone ui-outset"
+                  data-testid="hud-zone-stats"
+                  data-zone="stats"
+                  aria-label="Stats y traits"
+                >
+                  <div class="hud-fields">
+                    <span class="hud-stat">PV <strong data-testid="hud-player-hp">20/20</strong></span>
+                    <span class="hud-stat">MP <strong data-testid="hud-player-mp">6/6</strong></span>
+                    <span class="hud-stat" data-testid="hud-magic-row" hidden
+                      >Magia <strong data-testid="hud-player-magic">0</strong></span
+                    >
+                    <span class="hud-stat" data-testid="hud-mana-row" hidden
+                      >Maná <strong data-testid="hud-player-mana">0/0</strong></span
+                    >
+                    <span class="hud-stat">Acciones <strong data-testid="hud-action">2/2</strong></span>
+                  </div>
+                  <p class="hud-stats" data-testid="hud-stats"></p>
+                  <p class="hud-traits" data-testid="hud-traits" hidden></p>
+                </section>
                 <p class="hud-hint" data-testid="weapon-hint" hidden></p>
-                <p class="hud-state-line">
-                  <span class="hud-stat">Fase <strong data-testid="hud-phase">Jugador</strong></span>
-                  <span class="hud-stat">Enemigo <strong data-testid="hud-enemy-hp">10/10</strong></span>
-                  <span class="hud-stat" data-testid="hud-turn">Turno 1</span>
-                  <span class="hud-stat" data-testid="hud-status">En juego</span>
-                </p>
-                <p class="hud-keys" data-testid="hud-keys">
-                  Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · E terminar turno · R reiniciar · F1 debug
-                </p>
-                <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
+                <div class="hud-footer">
+                  <p class="hud-keys" data-testid="hud-keys">
+                    Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · E terminar turno · R reiniciar · F1 debug
+                  </p>
+                  <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
+                </div>
                 <p
                   class="hud-message"
                   data-testid="hud-message"
