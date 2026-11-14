@@ -4,22 +4,38 @@ id: TASK-0099
 title: "UI: fuente pixel, tokens y regla de línea"
 description: "Incluir Pixelify Sans con su licencia en public/, definir los tokens semánticos y las escalas tipográficas, y calcular el grosor de línea desde la escala del marco."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-032
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, T-001, T-002, T-004, T-009]
 depends_on: []
 unlocks: []
 created_at: 2026-11-13T23:59:04Z
-completed_at:
+completed_at: 2026-11-14T00:18:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0099/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T23:59:04Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T00:18:00Z
+    note: >-
+      Intento 1 verificado (commits `4b4152f` y `74aaf9f`). Reejecutados
+      `pnpm run verify` (1259/1259, build y bundle) y `pnpm run test:e2e`
+      (134/134) con timeout de 120 s y 180 s. Diff revisado: `index.html`,
+      `src/host/ui.css`, `src/host/layout.ts`, `src/host/main.ts`,
+      `public/fonts/pixelify-sans/**`, tests nuevos y artefactos; sin cambios
+      en `src/game/**`, `package.json` ni tests existentes debilitados.
+      Capturas de HUD, panel y tabla de caracteres revisadas a 1280×720 y
+      900×700; la fuente se sirve desde `/fonts/...`, `document.fonts` la
+      resuelve y no hay peticiones externas. Se acepta la resolución técnica
+      `--ui-line` = grosor calculado y `--ui-line-color` = color de línea,
+      porque la ficha usa el mismo nombre para ambos; los ocho colores
+      semánticos quedan cubiertos. El E2E de línea usa dpr 2 para demostrar
+      el recálculo visible; a dpr 1 ambos viewports redondean a 1 px.
 ---
 
 # Objetivo

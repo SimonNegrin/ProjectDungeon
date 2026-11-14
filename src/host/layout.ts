@@ -85,6 +85,27 @@ export function computeFrameLayout(
 }
 
 /**
+ * Grosor de la línea de UI equivalente a un píxel de arte del mapa ya escalado.
+ * Se redondea a píxel de dispositivo para no dibujar medio píxel, y nunca baja
+ * de `1 / dpr` para que el borde no desaparezca. Entradas no finitas o no
+ * positivas caen a un mínimo seguro de un píxel de dispositivo.
+ */
+export function computeUiLine(
+  tileSize: number,
+  frameScale: number,
+  devicePixelRatio: number,
+): number {
+  const dpr =
+    Number.isFinite(devicePixelRatio) && devicePixelRatio > 0 ? devicePixelRatio : 1;
+  const safeTileSize = Number.isFinite(tileSize) && tileSize > 0 ? tileSize : TILE_SIZE;
+  const safeScale = Number.isFinite(frameScale) && frameScale > 0 ? frameScale : 0;
+  const artPixel = safeScale * (safeTileSize / TILE_SIZE);
+  const snapped = Math.round(artPixel * dpr) / dpr;
+  const safeSnapped = Number.isFinite(snapped) ? snapped : 0;
+  return Math.max(1 / dpr, safeSnapped);
+}
+
+/**
  * Coordenadas del mapa expresadas como porcentaje del marco completo. El HUD y
  * el feedback viven fuera del mapa, así que se posicionan respecto al marco
  * usando estos porcentajes (el mapa empieza en el 21,875 % del ancho).

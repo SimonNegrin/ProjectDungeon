@@ -1,0 +1,8 @@
+
+Running 3 tests using 3 workers
+
+  ✓  3 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:152:3 › grosor de línea derivado del marco › --ui-line cambia entre 1280×720 y 900×700 sin mover el canvas (1.6s)
+  ✓  1 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:92:1 › sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones externas (1.7s)
+  ✓  2 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:234:1 › capturas de HUD, panel y tabla de caracteres a 1280×720 y 900×700 (2.3s)
+
+  3 passed (4.6s)
