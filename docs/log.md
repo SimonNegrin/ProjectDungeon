@@ -5,6 +5,14 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-13
 
+* 2026-11-13 — Requirement — REQ-022 — v2: HUD izquierdo con nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná solo cuando el personaje lo necesita; inventario y equipo se consultan en el panel con `I` — [REQ-022](requirements/REQ-022-hud-izquierdo-jugador.md)
+
+* 2026-11-13 — Requirement — REQ-032 — v1 (nueva): identidad pixel del pack con Pixelify Sans incluida, tokens semánticos, línea del píxel escalado, pantalla en tres zonas, panel de tres columnas con figura humana, navegación al objeto más próximo con flechas o `WASD`, detalle en el HUD derecho y submenú con `Enter` — [REQ-032](requirements/REQ-032-estilo-visual-interaccion-ui.md)
+
+* 2026-11-13 — Decision — ADR-025 — aceptado: estilo visual e interacción de la UI; tokens, tipografía, línea, tres zonas, figura de equipo, ficha doble y submenú contextual — [ADR-025](decisions/ADR-025-estilo-visual-ui.md)
+
+* 2026-11-13 — Requirement — REQ-018/022/023 — enmiendas v6/v2/v2: panel en tres columnas sin stats en la rejilla, suelo siempre visible y cadáveres; HUD izquierdo sin inventario; HUD derecho con seleccionado y equipado — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+
 * 2026-11-13 — Fricción — Arnés — `task-runner` no puede editar `docs/**` (permisos y prompt) pero TASK-0097 es documental; se usó `python3` como workaround; `deferred` a `requirements-writer` con `harness-keeper` — [informe](../artifacts/TASK-0097/attempt-1/report.md)
 
 * 2026-11-13 — Task — TASK-0097 — done: glosario, `I`/`Escape`, arquitectura del catálogo, instancias, stats y panel, y vigencia de REQ-010/REQ-026, ADR-021 e índice; límite visual documentado como aceptado; docs:check 471 documentos y verify 1249/1249; fusión `b78047b` — [informe](../artifacts/TASK-0097/attempt-1/report.md)

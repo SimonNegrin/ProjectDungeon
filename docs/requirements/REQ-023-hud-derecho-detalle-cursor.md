@@ -4,14 +4,19 @@ id: REQ-023
 title: HUD derecho de detalle bajo el cursor
 description: "Columna derecha del marco con las stats exactas de la unidad, objeto, contenedor o puerta bajo el cursor, limitadas a la línea de visión de un jugador vivo."
 status: draft
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:05:00Z
-updated_at: 2026-11-11T13:05:00Z
+updated_at: 2026-11-13T23:44:56Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:05:00Z }
 verified:
+  - by: human:simon
+    at: 2026-11-13T23:44:56Z
+    note: >-
+      Aprueba la v2: el HUD derecho muestra el detalle del cursor y, con el panel
+      abierto, el objeto seleccionado junto al equipado en ese hueco, sin delta.
 ---
 
 # Contexto
@@ -37,6 +42,8 @@ los detalles de presentación y el tratamiento de algunos estados.
   estado y contenido solo si el contenedor está abierto.
 - [REQ-021](REQ-021-muerte-fantasma-resurreccion.md): el fantasma puede
   inspeccionar cofres; el panel de un vivo no hereda esa capacidad.
+- [REQ-032](REQ-032-estilo-visual-interaccion-ui.md): el HUD derecho también
+  presenta el objeto seleccionado en el panel abierto, con el equipado al lado.
 
 # Geometría compartida
 
@@ -64,6 +71,7 @@ columna izquierda ni cambia el mapa.
 | R-006 | Casilla sin unidad ni objeto: describe el terreno relevante (suelo, muro, entrada, salida). | Suelo, muro, entrada y salida se distinguen con texto. |
 | R-007 | Sin línea de visión de ningún jugador vivo, el panel muestra «desconocido» y no revela tipo, stats ni contenido. | Tests con muro entre el jugador y la casilla: el panel no filtra la identidad de lo oculto. |
 | R-008 | El panel respeta la niebla de guerra y la percepción existentes; no crea un canal de información nuevo. | Un enemigo no percibido no aparece detallado aunque el cursor esté encima. |
+| R-009 | Con el panel de inventario abierto, el HUD derecho muestra el detalle del objeto seleccionado y, en un segundo bloque, el equipado en ese hueco; sin delta numérico. Al cerrar el panel vuelve al detalle del cursor. | Navegar por la rejilla cambia la ficha; el bloque del equipado dice «vacío» cuando no hay pieza; abrir y cerrar no altera el estado. |
 
 # Requisitos técnicos
 
@@ -108,7 +116,7 @@ columna izquierda ni cambia el mapa.
 - Revelar trampas o contenido de cofres cerrados.
 - Interacción desde el panel (abrir, atacar, coger).
 - Tooltips flotantes sobre el mapa.
-- Comparación de equipo o simulación de combate.
+- Comparación de equipo fuera del panel de inventario y simulación de combate.
 - Arte final de iconos.
 
 # Preguntas abiertas
@@ -128,6 +136,7 @@ columna izquierda ni cambia el mapa.
 | 2026-11-11 | Se muestran stats exactas de lo visible, no información cualitativa. | human:simon | aceptada |
 | 2026-11-11 | Las stats exactas exigen línea de visión de un jugador vivo; sin ella, «desconocido». | human:simon | aceptada |
 | 2026-11-11 | Un cofre cerrado muestra estado y tipo, nunca contenido ni trampa. | human:simon | aceptada |
+| 2026-11-13 | Con el panel abierto, el HUD derecho muestra el seleccionado y el equipado en ese hueco, sin delta; al cerrar vuelve al cursor. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

@@ -2,16 +2,23 @@
 type: Requirement Sheet
 id: REQ-022
 title: HUD izquierdo del jugador activo
-description: "Columna izquierda del marco 16:9 con miniatura, stats, inventario y equipo del jugador activo; retira el HUD actual fuera del marco."
+description: "Columna izquierda del marco 16:9 con la ficha del jugador activo: nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná cuando el personaje lo tenga; inventario y equipo se consultan en el panel con I."
 status: draft
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:00:00Z
-updated_at: 2026-11-11T13:00:00Z
+updated_at: 2026-11-13T23:54:32Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:00:00Z }
 verified:
+  - by: human:simon
+    at: 2026-11-13T23:54:32Z
+    note: >-
+      Aprueba la v2: la columna muestra nombre, arquetipo, PV, MP, acciones,
+      atributos con efecto, traits activos y maná actual/máximo solo cuando el
+      personaje lo necesita; inventario y equipo se consultan en el panel con
+      `I`. El retrato sigue abierto.
 ---
 
 # Contexto
@@ -33,6 +40,9 @@ atributos y si el inventario del panel es interactivo o solo informativo.
   laterales negros. Esta hoja los ocupa sin cambiar el viewport ni el marco.
 - [REQ-017](REQ-017-feedback-visual-eventos.md) coloca textos y banners respecto
   al mapa y al HUD exterior. Esta hoja redefine su anclaje dentro del marco.
+- [REQ-032](REQ-032-estilo-visual-interaccion-ui.md) fija la identidad visual y
+  retira el inventario y el equipo resumidos de esta columna: el detalle y la
+  gestión viven en el panel de `I`.
 
 # Geometría compartida
 
@@ -56,13 +66,13 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El HUD del jugador vive en la columna izquierda del marco 16:9 y sustituye al HUD exterior. | No queda HUD de juego fuera del marco; la columna izquierda muestra al jugador activo. |
-| R-002 | La columna muestra miniatura o retrato, nombre y arquetipo del jugador activo. | Al cambiar de jugador activo, miniatura, nombre y arquetipo cambian en el mismo turno. |
-| R-003 | La columna muestra PV, MP, **acciones restantes**, **maná actual/máximo** y los atributos con efecto vigente del personaje. | Los valores coinciden con el estado del motor; no se muestran atributos sin efecto como si funcionaran. |
-| R-004 | La columna muestra el inventario y el equipo del jugador activo de forma resumida. | Se ven los objetos equipados y la ocupación del inventario sin abrir otra pantalla. |
-| R-005 | En estado fantasma, la columna indica la condición y muestra el MP intrínseco; oculta inventario y equipo. | Un jugador muerto no ve inventario ni equipo propios; ve su estado fantasma y su MP. |
+| R-002 | La columna muestra el nombre y el arquetipo del jugador activo, con miniatura o retrato cuando se decida su forma. | Al cambiar de jugador activo, nombre y arquetipo cambian en el mismo turno. |
+| R-003 | La columna muestra PV, MP, **acciones restantes**, los atributos con efecto vigente y los **traits activos** del personaje. Muestra **maná actual/máximo** solo cuando el personaje tiene maná (máximo mayor que cero); si no, la línea se omite sin dejar hueco. | Los valores coinciden con el estado del motor; los traits activos y sus suelos se leen sin abrir el panel; un personaje sin maná no muestra una línea vacía ni un cero engañoso. |
+| R-004 | El inventario y el equipo **no** se muestran en esta columna: se consultan en el panel de `I` ([REQ-018](REQ-018-inventario-equipo.md), [REQ-032](REQ-032-estilo-visual-interaccion-ui.md)). | La columna no lista objetos ni huecos; la gestión completa ocurre en el panel. |
+| R-005 | En estado fantasma, la columna indica la condición y muestra el MP intrínseco; el inventario y el equipo ya no forman parte de esta columna. | Un jugador muerto ve su estado fantasma y su MP; no hay objetos que ocultar o revelar aquí. |
 | R-006 | En hotseat, la columna sigue automáticamente al jugador activo. | Cada turno muestra al jugador correcto sin acción manual. |
 | R-007 | La información se lee en una columna de ~162 px lógicos sin texto ilegible. | QA visual a 1280×720 y 1920×1080: texto legible, sin recortes ni solapes. |
-| R-008 | El panel es informativo en este corte: no equipa, no usa objetos ni abre inventario. | Las teclas de juego no interactúan con el panel; no hay comandos nuevos. |
+| R-008 | La columna es informativa: no tiene comandos propios. Equipar, recoger y soltar ocurren en el panel de `I`. | Ninguna tecla nueva actúa sobre la columna; el panel se abre con `I` desde cualquier punto del turno. |
 
 # Requisitos técnicos
 
@@ -103,7 +113,8 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 # Fuera de alcance
 
 - El panel derecho del cursor (`REQ-023`).
-- Interacción con inventario o equipo desde el panel.
+- La gestión de inventario y equipo, que vive en el panel de `I`
+  ([REQ-018](REQ-018-inventario-equipo.md), [REQ-032](REQ-032-estilo-visual-interaccion-ui.md)).
 - Pantalla completa de inventario o personaje.
 - Rediseño del mapa, del viewport o del marco 16:9.
 - Arte final de retratos e iconos.
@@ -111,21 +122,19 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 
 # Preguntas abiertas
 
-1. **Atributos visibles.** ¿Se muestran los ocho o un subconjunto (PV, MP,
-   habilidad, fuerza, defensa, resistencia)? Provisional: subconjunto con efecto.
-2. **Inventario resumido.** ¿Iconos con cantidad, lista de nombres o solo
-   ocupación? Provisional: iconos con cantidad y tooltip textual.
-3. **Miniatura.** ¿Sprite del personaje, retrato propio o silueta por arquetipo?
-4. **Panel interactivo.** ¿Se abre el inventario desde aquí en un corte futuro?
-5. **Estados de equipo.** ¿Qué se muestra si el jugador no tiene arma o armadura?
+1. **Miniatura.** ¿Sprite del personaje, retrato propio o silueta por arquetipo?
+   El pack no trae retratos.
+2. **Suelos de traits.** Cómo se indica un trait recortado por el suelo (MP ≥ 0,
+   acciones ≥ 1) sin que parezca activo.
 
 # Decisiones
 
 | Fecha | Decisión | Quién | Estado |
 |---|---|---|---|
 | 2026-11-11 | El HUD del jugador activo ocupa la columna izquierda del marco y sustituye al HUD exterior. | human:simon | aceptada |
-| 2026-11-11 | La columna muestra miniatura, stats, inventario y equipo. | human:simon | aceptada |
-| 2026-11-11 | El panel es informativo; la interacción queda fuera de este corte. | requirements-writer | provisional |
+| 2026-11-13 | La columna muestra nombre, arquetipo, PV, MP, acciones, atributos con efecto y traits activos; el inventario y el equipo se consultan en el panel con `I`. | human:simon | aceptada |
+| 2026-11-13 | El maná se añade a la columna solo cuando el personaje lo necesita (máximo mayor que cero); sin maná, la línea se omite. | human:simon | aceptada |
+| 2026-11-13 | El panel es informativo en lo que respecta a esta columna; la interacción vive en el panel de inventario. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

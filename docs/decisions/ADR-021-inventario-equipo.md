@@ -9,6 +9,13 @@ decided_at: 2026-11-11T18:00:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 ---
 
+> **Nota de vigencia (2026-11-13, v6 de REQ-018).** La composición visual y de
+> interacción del panel pasa a [ADR-025](ADR-025-estilo-visual-ui.md) y
+> [REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md): tres
+> columnas de un tercio, equipo en figura humana, detalle del objeto en el HUD
+> derecho con el equipado, submenú contextual y cadáveres del tile en la columna
+> derecha. El modelo de instancias, huecos y costes no cambia.
+
 > **Nota de vigencia (2026-11-13).** El modelo sigue vigente con tres
 > actualizaciones: el campo de traits ya está en uso y el panel muestra traits y
 > desglose de stats ([REQ-019](../requirements/REQ-019-traits-objetos.md));

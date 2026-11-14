@@ -4,11 +4,11 @@ id: REQ-018
 title: Inventario y equipo por personaje
 description: "Ocho huecos de equipo, ocho de mochila y un panel único de gestión; equipar, recoger y soltar cuestan 1 MP, equipar desde el suelo o un contenedor va directo al hueco, el catálogo inicial se limita a armas, escudos y armaduras y el arma solo se cambia desde el panel. Sustituye el modelo de tres armas y la recogida con G de REQ-010."
 status: stable
-version: 5
+version: 6
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-13T21:29:30Z
+updated_at: 2026-11-13T23:44:56Z
 related_tasks: [TASK-0093, TASK-0094, TASK-0095, TASK-0096, TASK-0097, TASK-0098]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
@@ -39,6 +39,16 @@ verified:
       Aprueba la v5: enmienda R-004. Este corte no trae arma a dos manos
       jugable; la regla vive en el modelo y en sus unitarios y el E2E de dos
       manos con escudo se traslada a la tarea de REQ-019 que añade la maza.
+  - by: human:simon
+    at: 2026-11-13T23:44:56Z
+    note: >-
+      Aprueba la v6: el panel pasa a tres columnas con la figura humana, la
+      rejilla deja de mostrar stats y traits (se leen en el HUD derecho con el
+      equipado al lado y sin delta), el suelo se muestra siempre y los cadáveres
+      del tile entran en la columna derecha con scroll; sin cambios de reglas ni
+      costes ([REQ-032](REQ-032-estilo-visual-interaccion-ui.md)). La v6 describe
+      el panel objetivo y **no está implementada**: el código sigue con el panel
+      de la v5 hasta que se ejecuten las tareas de REQ-032.
 ---
 
 # Contexto
@@ -129,7 +139,7 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 | R-012 | Equipar y desequipar cuestan **1 MP** y no gastan acción, en cualquier situación, con o sin enemigos alertados, y también al hacerlo desde el suelo o un contenedor. | El contador de acciones no cambia; con 0 MP se rechaza; la regla no depende del estado de alarma; equipar desde fuera de la mochila no cobra además la transferencia. |
 | R-013 | Recoger y soltar cuestan **1 MP** y no gastan acción. Con la mochila llena, recoger se rechaza sin mover nada. Soltar una pieza equipada la desequipa y la deja en la casilla. | Recoger con la mochila llena no altera ni el suelo ni la mochila; soltar libera un hueco; soltar desde un hueco de equipo no pasa por la mochila. |
 | R-014 | El equipo no se apila: dos espadas iguales son dos instancias y ocupan dos huecos. No hay durabilidad ni afijos en este corte. | El número de objetos y de huecos ocupados coinciden; no existe una pila de equipo. |
-| R-015 | La gestión de equipo y mochila ocurre en un **único panel modal** sobre el mapa, abierto con `I`. El panel reúne el equipo, la mochila y los objetos del suelo del tile del jugador. | `I` abre el panel siempre, haya o no objetos en el suelo; si no hay, la zona del suelo no aparece. |
+| R-015 | La gestión de equipo y mochila ocurre en un **único panel modal** sobre el mapa, abierto con `I`. El panel reúne el equipo, la mochila, los objetos del suelo del tile y los cadáveres del tile. | `I` abre el panel siempre, haya o no objetos en el suelo; el suelo se muestra siempre y los cadáveres se apilan encima con su nombre, con scroll propio cuando no caben (REQ-032). |
 | R-016 | Desde el panel se equipa, se desequipa, se recoge y se suelta. `G` desaparece y no recoge por sí mismo. | No queda ninguna acción de recogida fuera del panel; recoger mueve el objeto del suelo a la mochila. |
 | R-017 | El cambio de arma se hace **solo** desde el panel: no hay atajos de cambio rápido ni ranuras `1`-`3`. | Un ataque siempre usa el arma equipada en el hueco; cambiarla exige abrir el panel y pagar 1 MP. |
 | R-018 | El equipo inicial es exactamente la tabla de [REQ-015](REQ-015-roster-arquetipos.md): arma temática y, si corresponde, armadura y escudo. Los cinco huecos secundarios arrancan vacíos. | El Guerrero empieza con espada, armadura 1 y escudo 1; ningún arquetipo empieza con casco, botas, guantes, collar ni anillo. |
@@ -148,7 +158,7 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 | T-005 | Equipar, desequipar, recoger y soltar son operaciones atómicas: validan hueco, categoría, manos y capacidad antes de mover; si fallan, no dejan cambios parciales. La capacidad se valida sobre el estado resultante: si el objeto entrante viene de la mochila, su hueco cuenta como libre; si viene del suelo o de un contenedor, no libera ningún hueco de mochila. | Tests de invariantes: no se duplica, no se pierde y no se supera la capacidad; el intercambio con la mochila llena no se rechaza; equipar desde el suelo con la mochila llena se rechaza sin mover nada. |
 | T-006 | La regla de dos manos se aplica en el modelo: un arma a dos manos ocupa el hueco de arma y bloquea el escudo; el escudo vuelve a la mochila y, si no cabe, la operación se rechaza entera. Equipar un escudo con un arma a dos manos puesta se rechaza sin desequipar el arma. | El modelo no permite un estado con arma a dos manos y escudo equipados; no hay pérdida de objetos en el rechazo; ambos lados del conflicto se comportan igual. |
 | T-007 | El motor sigue siendo puro: sin DOM, sin red y sin relojes; el host presenta y traduce input. | `src/game/` no importa `src/host/`; los tests del motor corren sin DOM. |
-| T-008 | El host presenta un panel modal **en DOM** sobre el marco 16:9, nunca dibujado en Canvas, con tres zonas: equipo, mochila y suelo del tile del jugador. La zona de suelo se omite si está vacía. Cada objeto muestra sus traits y el desglose de stats efectivos. | El panel coincide con el estado; se puede gestionar todo solo con teclado; hay foco visible y comparación antes de equipar; el trait se lee antes de equipar y el total se explica; el Canvas sigue siendo solo el mundo. |
+| T-008 | El host presenta un panel modal **en DOM** sobre el marco 16:9, nunca dibujado en Canvas, con tres columnas: equipo en figura humana de ocho posiciones, mochila de ocho casillas y columna de cadáveres y suelo. La rejilla no muestra stats ni traits: el detalle del objeto seleccionado se lee en el HUD derecho, con el objeto equipado en ese hueco al lado (REQ-032). | El panel coincide con el estado; se puede gestionar todo solo con teclado; hay foco visible espacial y comparación de stats en el HUD derecho antes de equipar; el Canvas sigue siendo solo el mundo. |
 | T-009 | El input del panel es `I`: abre siempre en el turno del jugador activo, cierra con `Escape` y bloquea los comandos del mapa mientras está abierto. Abrir el panel no cuesta MP ni acción; los costes se cobran al confirmar cada operación. El panel se refresca con el estado de presentación, no con el snapshot final. | Con el panel abierto, el mapa no acepta comandos; no se abre en fase enemiga, durante una animación ni en el turno de un fantasma; `G` no existe; el panel no muestra un objeto recogido antes de su cue. |
 | T-010 | El snapshot de debug expone mochila, equipo por hueco, capacidad y objetos del suelo. | La UI y `F1` leen del mismo estado; no hay listas duplicadas. |
 | T-011 | El arte de objetos sale de `items.png` mediante el mapa de `items.txt` ([ADR-006](../decisions/ADR-006-arte-placeholder-32rogues.md)); el catálogo referencia el sprite, no lo incrusta. | Cada objeto del catálogo tiene sprite; cambiar el pack no cambia la lógica. |
@@ -259,6 +269,7 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 | 2026-11-13 | Equipar desde el suelo o un contenedor cuesta 1 MP y va directo al hueco; el sustituido vuelve a la mochila y si no cabe se rechaza entero. | human:simon | aceptada |
 | 2026-11-13 | Soltar una pieza equipada cuesta 1 MP, la desequipa y la deja en la casilla (REQ-026 R-010). | human:simon | aceptada |
 | 2026-11-13 | Enmienda R-004: este corte no trae arma a dos manos jugable; la regla vive en el modelo y sus unitarios, y el E2E de dos manos con escudo se traslada a la tarea de REQ-019 que añade la maza. | human:simon | aceptada |
+| 2026-11-13 | v6: panel en tres columnas con figura humana, rejilla sin stats (detalle en el HUD derecho con el equipado), suelo siempre visible y cadáveres con scroll; sin cambios de reglas ni costes. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
