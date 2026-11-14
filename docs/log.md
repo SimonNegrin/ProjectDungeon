@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — REQ-033 — v8 aparcada: precisar R-025/R-030 con medidas pintadas (2/3 px y 4/6 px), anclar la cuantización de Chromium y el desborde de piernas, y alinear T-002; sin cambios de reglas ni aspecto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
 * 2026-11-14 — Task — TASK-0121 — done: un solo helper de auditoría de CLS en `support.ts`, esquema común y filtro alineado con P-006; recogida de 4 objetos en el Suelo sin shifts prohibidos; specs 32/32, E2E 215/215 y verify 1332/1332; fusión `158e09c` — [informe](../artifacts/TASK-0121/attempt-1/report.md)
 
 * 2026-11-14 — Docs — Arnés — QA visual mide interiores con `getBoundingClientRect()` + padding/token y tolerancia ±1, no con el borde computado; workflow documenta que `pnpm run test:e2e -- <spec>` no filtra y remite a `pnpm run test:e2e <spec>`; docs:check 563 documentos — [QA visual](harness/visual-qa.md)
