@@ -1,0 +1,82 @@
+[
+  {
+    "viewport": "1280x720",
+    "panel": {
+      "scrollHeight": 666,
+      "clientHeight": 666,
+      "scrollWidth": 666,
+      "clientWidth": 666
+    },
+    "body": {
+      "scrollHeight": 626,
+      "clientHeight": 626,
+      "scrollWidth": 626,
+      "clientWidth": 626
+    },
+    "columns": [
+      {
+        "scrollHeight": 556,
+        "clientHeight": 556,
+        "scrollWidth": 185,
+        "clientWidth": 185
+      },
+      {
+        "scrollHeight": 556,
+        "clientHeight": 556,
+        "scrollWidth": 185,
+        "clientWidth": 185
+      },
+      {
+        "scrollHeight": 556,
+        "clientHeight": 556,
+        "scrollWidth": 185,
+        "clientWidth": 185
+      }
+    ],
+    "ground": {
+      "scrollTop": 0,
+      "scrollHeight": 517,
+      "clientHeight": 517
+    }
+  },
+  {
+    "viewport": "900x700",
+    "panel": {
+      "scrollHeight": 488,
+      "clientHeight": 488,
+      "scrollWidth": 488,
+      "clientWidth": 488
+    },
+    "body": {
+      "scrollHeight": 458,
+      "clientHeight": 458,
+      "scrollWidth": 458,
+      "clientWidth": 458
+    },
+    "columns": [
+      {
+        "scrollHeight": 405,
+        "clientHeight": 405,
+        "scrollWidth": 135,
+        "clientWidth": 135
+      },
+      {
+        "scrollHeight": 405,
+        "clientHeight": 405,
+        "scrollWidth": 135,
+        "clientWidth": 135
+      },
+      {
+        "scrollHeight": 405,
+        "clientHeight": 405,
+        "scrollWidth": 135,
+        "clientWidth": 135
+      }
+    ],
+    "ground": {
+      "scrollTop": 465,
+      "scrollHeight": 842,
+      "clientHeight": 377
+    }
+  }
+]

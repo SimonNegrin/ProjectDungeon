@@ -133,8 +133,8 @@ describe('tokens y escalas de la UI', () => {
     expect(block('.hud-keys')).toMatch(/font-size:\s*var\(--ui-help\)/);
     expect(block('.hud-detail-title')).toMatch(/font-size:\s*var\(--ui-title\)/);
     expect(block('.inventory-panel-title')).toMatch(/font-size:\s*var\(--ui-title\)/);
-    expect(block('.inventory-panel-mp')).toMatch(/font-size:\s*var\(--ui-data\)/);
-    expect(block('.inventory-panel-help')).toMatch(/font-size:\s*var\(--ui-help\)/);
+    expect(block('.inventory-section-title')).toMatch(/font-size:\s*var\(--ui-data\)/);
+    expect(block('.inventory-corpse-name')).toMatch(/font-size:\s*var\(--ui-help\)/);
     expect(block('.spell-row')).toMatch(/font-size:\s*var\(--ui-body\)/);
     expect(block('.damage-feedback')).toMatch(
       /font-size:\s*calc\(var\(--ui-unit\)\s*\*/,
@@ -221,7 +221,7 @@ describe('relieve y elementos de la UI de juego', () => {
 
   it('aplica inset a los huecos de item y al retrato', () => {
     expect(html).toContain('class="hud-portrait ui-inset"');
-    expect(panelView).toContain('`inventory-row ui-inset ${className}`');
+    expect(panelView).toContain('`inventory-slot ui-inset ${className}`');
   });
 
   it('compone el HUD izquierdo en tres zonas con pie fuera de ellas', () => {
@@ -287,7 +287,7 @@ describe('relieve y elementos de la UI de juego', () => {
 });
 
 describe('panel de inventario en tres columnas', () => {
-  it('el HTML declara tres columnas, figura, mochila y derecha sin stats', () => {
+  it('el HTML declara tres columnas tituladas, figura, bolsa y suelo sin estado vacío', () => {
     expect(html).toContain('class="inventory-columns"');
     expect(html).toContain('data-zone="equipment"');
     expect(html).toContain('data-zone="backpack"');
@@ -296,6 +296,16 @@ describe('panel de inventario en tres columnas', () => {
     expect(html).toContain('data-testid="inventory-cadavers"');
     expect(html).toContain('data-testid="inventory-ground-scroll"');
     expect(html).toContain('data-testid="inventory-submenu"');
+    expect(html).toContain('id="inventory-title"');
+    expect(html).toMatch(/>Equipo<\/h3>/);
+    expect(html).toMatch(/>\s*Bolsa <span data-testid="inventory-backpack-count"><\/span>/);
+    expect(html).toMatch(/>Suelo<\/h3>/);
+    expect(html).not.toContain('data-testid="inventory-player"');
+    expect(html).not.toContain('data-testid="inventory-mp"');
+    expect(html).not.toContain('inventory-panel-help');
+    expect(html).not.toContain('inventory-panel-header');
+    expect(html).not.toContain('No hay objetos');
+    expect(html).not.toContain('No hay cadáveres');
     expect(html).not.toContain('data-testid="inventory-actions"');
     expect(html).not.toContain('inventory-actions-buttons');
     expect(html).not.toContain('inventory-stats');

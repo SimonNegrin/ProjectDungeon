@@ -1,0 +1,8 @@
+TASK-0016 performance
+seed=279837264 size=32x32 runs=9 threshold_generation_ms=100
+generation_source=browser dynamic import /src/game/index.ts createInitialState({ seed })
+generation_ms min=2.90 median=3.30 p95=5.10 max=5.10
+generation_values_ms 5.10, 3.90, 3.30, 3.00, 4.70, 4.90, 3.20, 3.00, 2.90
+frames_window_1 p50=16.70 p95=16.80 max=16.80
+frames_window_1_values_ms 16.70, 16.70, 16.70, 16.70, 16.60, 16.80, 16.50, 16.70, 16.60, 16.70, 16.60, 16.70, 16.70, 16.70, 16.60, 16.70, 16.70, 16.60, 16.80, 16.60, 16.60, 16.60, 16.80, 16.60, 16.80, 16.60, 16.70, 16.60, 16.70, 16.60, 16.70, 16.70, 16.60, 16.60, 16.70, 16.80, 16.80, 16.60, 16.50, 16.70, 16.70, 16.60, 16.70, 16.60, 16.70
+frame_threshold p95_ms=50 max_ms=100

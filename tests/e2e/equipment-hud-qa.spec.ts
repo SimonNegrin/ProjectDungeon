@@ -162,14 +162,19 @@ test('arma en el mapa, pista del panel y HUD de equipo', async ({ page }, testIn
 
   await page.keyboard.press('i');
   await expect(page.getByTestId('inventory-panel')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
   await pressPanelAction(
     page,
     panelActionTestId('pickup', `ground:${groundWeapon.id}`),
   );
   await settle(page);
-  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
-  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
+  await expect(
+    page.locator('.inventory-column-right .inventory-section-title'),
+  ).toHaveText('Suelo');
+  await expect(page.locator('.inventory-ground-row')).toHaveCount(0);
+  await expect(page.getByTestId('inventory-panel')).not.toContainText('No hay objetos');
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();
   await expect(page.getByTestId('weapon-hint')).toBeHidden();

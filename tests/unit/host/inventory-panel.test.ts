@@ -55,13 +55,10 @@ describe('modelo del panel de personaje', () => {
     expect(model.backpackCount).toBe('0/8');
   });
 
-  it('mantiene el suelo siempre presente y lista sus objetos si los hay', () => {
+  it('mantiene el suelo sin textos de estado y lista sus objetos si los hay', () => {
     const empty = buildInventoryPanelModel(makeState());
     expect(empty.ground).toEqual([]);
     expect(empty.corpses).toEqual([]);
-    expect(empty.groundHint).toBe('');
-    expect(empty.groundEmptyHint).toContain('No hay objetos');
-    expect(empty.corpsesEmptyHint).toContain('No hay cadáveres');
 
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
@@ -77,7 +74,53 @@ describe('modelo del panel de personaje', () => {
       ITEMS.axe.name,
       ITEMS.hammer.name,
     ]);
-    expect(model.groundHint).toContain('primer objeto');
+    expect(model.backpackCount).toBe('0/8');
+  });
+
+  it('deriva los cadáveres del tile con nombre propio o tipo del bestiario', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
+        makeUnit({
+          id: 'player-2',
+          nombre: 'Bruja',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          hp: 0,
+        }),
+      ],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          nombre: 'guardia',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 4,
+          y: 4,
+          hp: 0,
+        }),
+        makeUnit({
+          id: 'enemy-2',
+          faction: 'enemy',
+          enemyType: 'brute',
+          x: 9,
+          y: 9,
+          hp: 0,
+        }),
+      ],
+    });
+
+    const corpses = buildInventoryPanelModel(state).corpses;
+    expect(corpses.map((corpse) => corpse.name)).toEqual([
+      'Bruja',
+      'Centinela',
+    ]);
+    expect(corpses.map((corpse) => corpse.sheet)).toEqual([
+      'rogues',
+      'monsters',
+    ]);
+    expect(corpses.every((corpse) => corpse.sprite.sw === 32)).toBe(true);
   });
 
   it('el icono de cada fila usa el mismo recorte de items.png que el mundo', () => {
@@ -455,7 +498,6 @@ describe('integración del panel con el motor y los cues', () => {
     expect(beforeModel.backpack.some((entry) => entry.name === ITEMS[item.itemId].name)).toBe(
       false,
     );
-    expect(beforeModel.mp).toBe(`${state.players[0].mp}/${state.players[0].maxMp}`);
 
     const afterCue = presentationState(
       result.state,
@@ -468,9 +510,6 @@ describe('integración del panel con el motor y los cues', () => {
       afterModel.ground?.some((entry) => entry.key === `ground:${item.id}`) ?? false,
     ).toBe(false);
     expect(afterModel.backpack[0].name).toBe(ITEMS[item.itemId].name);
-    expect(afterModel.mp).toBe(
-      `${result.state.players[0].mp}/${result.state.players[0].maxMp}`,
-    );
   });
 
   function expectUniqueInstances(state: GameState): void {

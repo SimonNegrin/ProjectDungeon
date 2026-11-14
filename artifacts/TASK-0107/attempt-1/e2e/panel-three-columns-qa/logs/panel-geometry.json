@@ -1,0 +1,858 @@
+[
+  {
+    "viewport": "1280x720",
+    "panel": {
+      "left": 307,
+      "top": 16,
+      "right": 973,
+      "bottom": 682,
+      "width": 666,
+      "height": 666
+    },
+    "columns": [
+      {
+        "selector": "inventory-column-equipment",
+        "rect": {
+          "left": 346.40625,
+          "top": 52.203125,
+          "right": 533.59375,
+          "bottom": 610.03125,
+          "width": 187.1875,
+          "height": 557.828125
+        }
+      },
+      {
+        "selector": "inventory-column-backpack",
+        "rect": {
+          "left": 546.390625,
+          "top": 52.203125,
+          "right": 733.59375,
+          "bottom": 610.03125,
+          "width": 187.203125,
+          "height": 557.828125
+        }
+      },
+      {
+        "selector": "inventory-column-right",
+        "rect": {
+          "left": 746.390625,
+          "top": 52.203125,
+          "right": 933.59375,
+          "bottom": 610.03125,
+          "width": 187.203125,
+          "height": 557.828125
+        }
+      }
+    ],
+    "titles": [
+      {
+        "text": "Equipo",
+        "rect": {
+          "left": 353.796875,
+          "top": 59.59375,
+          "right": 526.203125,
+          "bottom": 80.53125,
+          "width": 172.40625,
+          "height": 20.9375
+        }
+      },
+      {
+        "text": "Bolsa 8/8",
+        "rect": {
+          "left": 553.78125,
+          "top": 59.59375,
+          "right": 726.203125,
+          "bottom": 80.53125,
+          "width": 172.421875,
+          "height": 20.9375
+        }
+      },
+      {
+        "text": "Suelo",
+        "rect": {
+          "left": 753.78125,
+          "top": 59.59375,
+          "right": 926.203125,
+          "bottom": 80.53125,
+          "width": 172.421875,
+          "height": 20.9375
+        }
+      }
+    ],
+    "slots": [
+      {
+        "key": "slot:weapon",
+        "rect": {
+          "left": 470.390625,
+          "top": 374.375,
+          "right": 524.8125,
+          "bottom": 428.796875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 471.390625,
+          "top": 375.375,
+          "right": 523.8125,
+          "bottom": 427.796875,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "slot:shield",
+        "rect": {
+          "left": 355.171875,
+          "top": 374.375,
+          "right": 409.59375,
+          "bottom": 428.796875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 356.171875,
+          "top": 375.375,
+          "right": 408.59375,
+          "bottom": 427.796875,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "slot:armor",
+        "rect": {
+          "left": 412.78125,
+          "top": 316.765625,
+          "right": 467.203125,
+          "bottom": 371.1875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 413.78125,
+          "top": 317.765625,
+          "right": 466.203125,
+          "bottom": 370.1875,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "slot:head",
+        "rect": {
+          "left": 412.78125,
+          "top": 201.546875,
+          "right": 467.203125,
+          "bottom": 255.96875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:feet",
+        "rect": {
+          "left": 412.78125,
+          "top": 431.984375,
+          "right": 467.203125,
+          "bottom": 486.40625,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:hands",
+        "rect": {
+          "left": 412.78125,
+          "top": 374.375,
+          "right": 467.203125,
+          "bottom": 428.796875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:neck",
+        "rect": {
+          "left": 355.171875,
+          "top": 259.15625,
+          "right": 409.59375,
+          "bottom": 313.578125,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:ring",
+        "rect": {
+          "left": 470.390625,
+          "top": 259.15625,
+          "right": 524.8125,
+          "bottom": 313.578125,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": null
+      },
+      {
+        "key": "backpack:0",
+        "rect": {
+          "left": 583.96875,
+          "top": 85.328125,
+          "right": 638.390625,
+          "bottom": 139.75,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 584.96875,
+          "top": 86.328125,
+          "right": 637.390625,
+          "bottom": 138.75,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:1",
+        "rect": {
+          "left": 641.578125,
+          "top": 85.328125,
+          "right": 696,
+          "bottom": 139.75,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 642.578125,
+          "top": 86.328125,
+          "right": 695,
+          "bottom": 138.75,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:2",
+        "rect": {
+          "left": 583.96875,
+          "top": 142.9375,
+          "right": 638.390625,
+          "bottom": 197.359375,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 584.96875,
+          "top": 143.9375,
+          "right": 637.390625,
+          "bottom": 196.359375,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:3",
+        "rect": {
+          "left": 641.578125,
+          "top": 142.9375,
+          "right": 696,
+          "bottom": 197.359375,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 642.578125,
+          "top": 143.9375,
+          "right": 695,
+          "bottom": 196.359375,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:4",
+        "rect": {
+          "left": 583.96875,
+          "top": 200.546875,
+          "right": 638.390625,
+          "bottom": 254.96875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 584.96875,
+          "top": 201.546875,
+          "right": 637.390625,
+          "bottom": 253.96875,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:5",
+        "rect": {
+          "left": 641.578125,
+          "top": 200.546875,
+          "right": 696,
+          "bottom": 254.96875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 642.578125,
+          "top": 201.546875,
+          "right": 695,
+          "bottom": 253.96875,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:6",
+        "rect": {
+          "left": 583.96875,
+          "top": 258.15625,
+          "right": 638.390625,
+          "bottom": 312.578125,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 584.96875,
+          "top": 259.15625,
+          "right": 637.390625,
+          "bottom": 311.578125,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "backpack:7",
+        "rect": {
+          "left": 641.578125,
+          "top": 258.15625,
+          "right": 696,
+          "bottom": 312.578125,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 642.578125,
+          "top": 259.15625,
+          "right": 695,
+          "bottom": 311.578125,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "ground:item-test-ground-0",
+        "rect": {
+          "left": 753.78125,
+          "top": 85.328125,
+          "right": 808.203125,
+          "bottom": 139.75,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 754.78125,
+          "top": 86.328125,
+          "right": 807.203125,
+          "bottom": 138.75,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "rect": {
+          "left": 811.390625,
+          "top": 85.328125,
+          "right": 865.8125,
+          "bottom": 139.75,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 812.390625,
+          "top": 86.328125,
+          "right": 864.8125,
+          "bottom": 138.75,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "ground:item-test-ground-2",
+        "rect": {
+          "left": 753.78125,
+          "top": 142.9375,
+          "right": 808.203125,
+          "bottom": 197.359375,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 754.78125,
+          "top": 143.9375,
+          "right": 807.203125,
+          "bottom": 196.359375,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "rect": {
+          "left": 811.390625,
+          "top": 142.9375,
+          "right": 865.8125,
+          "bottom": 197.359375,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "sprite": {
+          "left": 812.390625,
+          "top": 143.9375,
+          "right": 864.8125,
+          "bottom": 196.359375,
+          "width": 52.421875,
+          "height": 52.421875
+        }
+      }
+    ]
+  },
+  {
+    "viewport": "900x700",
+    "panel": {
+      "left": 205.875,
+      "top": 94.875,
+      "right": 694.125,
+      "bottom": 583.125,
+      "width": 488.25,
+      "height": 488.25
+    },
+    "columns": [
+      {
+        "selector": "inventory-column-equipment",
+        "rect": {
+          "left": 235.03125,
+          "top": 121.6875,
+          "right": 372.09375,
+          "bottom": 528.9375,
+          "width": 137.0625,
+          "height": 407.25
+        }
+      },
+      {
+        "selector": "inventory-column-backpack",
+        "rect": {
+          "left": 381.46875,
+          "top": 121.6875,
+          "right": 518.53125,
+          "bottom": 528.9375,
+          "width": 137.0625,
+          "height": 407.25
+        }
+      },
+      {
+        "selector": "inventory-column-right",
+        "rect": {
+          "left": 527.90625,
+          "top": 121.6875,
+          "right": 664.96875,
+          "bottom": 528.9375,
+          "width": 137.0625,
+          "height": 407.25
+        }
+      }
+    ],
+    "titles": [
+      {
+        "text": "Equipo",
+        "rect": {
+          "left": 240.71875,
+          "top": 127.375,
+          "right": 366.40625,
+          "bottom": 142.71875,
+          "width": 125.6875,
+          "height": 15.34375
+        }
+      },
+      {
+        "text": "Bolsa 8/8",
+        "rect": {
+          "left": 387.15625,
+          "top": 127.375,
+          "right": 512.84375,
+          "bottom": 142.71875,
+          "width": 125.6875,
+          "height": 15.34375
+        }
+      },
+      {
+        "text": "Suelo",
+        "rect": {
+          "left": 533.59375,
+          "top": 127.375,
+          "right": 659.28125,
+          "bottom": 142.71875,
+          "width": 125.6875,
+          "height": 15.34375
+        }
+      }
+    ],
+    "slots": [
+      {
+        "key": "slot:weapon",
+        "rect": {
+          "left": 325.84375,
+          "top": 357.03125,
+          "right": 365.734375,
+          "bottom": 396.921875,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 326.84375,
+          "top": 358.03125,
+          "right": 364.734375,
+          "bottom": 395.921875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "slot:shield",
+        "rect": {
+          "left": 241.375,
+          "top": 357.03125,
+          "right": 281.265625,
+          "bottom": 396.921875,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 242.375,
+          "top": 358.03125,
+          "right": 280.265625,
+          "bottom": 395.921875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "slot:armor",
+        "rect": {
+          "left": 283.609375,
+          "top": 314.796875,
+          "right": 323.5,
+          "bottom": 354.6875,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 284.609375,
+          "top": 315.796875,
+          "right": 322.5,
+          "bottom": 353.6875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "slot:head",
+        "rect": {
+          "left": 283.609375,
+          "top": 230.328125,
+          "right": 323.5,
+          "bottom": 270.21875,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:feet",
+        "rect": {
+          "left": 283.609375,
+          "top": 399.265625,
+          "right": 323.5,
+          "bottom": 439.15625,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:hands",
+        "rect": {
+          "left": 283.609375,
+          "top": 357.03125,
+          "right": 323.5,
+          "bottom": 396.921875,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:neck",
+        "rect": {
+          "left": 241.375,
+          "top": 272.5625,
+          "right": 281.265625,
+          "bottom": 312.453125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": null
+      },
+      {
+        "key": "slot:ring",
+        "rect": {
+          "left": 325.84375,
+          "top": 272.5625,
+          "right": 365.734375,
+          "bottom": 312.453125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": null
+      },
+      {
+        "key": "backpack:0",
+        "rect": {
+          "left": 408.9375,
+          "top": 146.234375,
+          "right": 448.828125,
+          "bottom": 186.125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 409.9375,
+          "top": 147.234375,
+          "right": 447.828125,
+          "bottom": 185.125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:1",
+        "rect": {
+          "left": 451.171875,
+          "top": 146.234375,
+          "right": 491.0625,
+          "bottom": 186.125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 452.171875,
+          "top": 147.234375,
+          "right": 490.0625,
+          "bottom": 185.125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:2",
+        "rect": {
+          "left": 408.9375,
+          "top": 188.46875,
+          "right": 448.828125,
+          "bottom": 228.359375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 409.9375,
+          "top": 189.46875,
+          "right": 447.828125,
+          "bottom": 227.359375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:3",
+        "rect": {
+          "left": 451.171875,
+          "top": 188.46875,
+          "right": 491.0625,
+          "bottom": 228.359375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 452.171875,
+          "top": 189.46875,
+          "right": 490.0625,
+          "bottom": 227.359375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:4",
+        "rect": {
+          "left": 408.9375,
+          "top": 230.703125,
+          "right": 448.828125,
+          "bottom": 270.59375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 409.9375,
+          "top": 231.703125,
+          "right": 447.828125,
+          "bottom": 269.59375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:5",
+        "rect": {
+          "left": 451.171875,
+          "top": 230.703125,
+          "right": 491.0625,
+          "bottom": 270.59375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 452.171875,
+          "top": 231.703125,
+          "right": 490.0625,
+          "bottom": 269.59375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:6",
+        "rect": {
+          "left": 408.9375,
+          "top": 272.9375,
+          "right": 448.828125,
+          "bottom": 312.828125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 409.9375,
+          "top": 273.9375,
+          "right": 447.828125,
+          "bottom": 311.828125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "backpack:7",
+        "rect": {
+          "left": 451.171875,
+          "top": 272.9375,
+          "right": 491.0625,
+          "bottom": 312.828125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 452.171875,
+          "top": 273.9375,
+          "right": 490.0625,
+          "bottom": 311.828125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "ground:item-test-ground-0",
+        "rect": {
+          "left": 533.59375,
+          "top": 146.234375,
+          "right": 573.484375,
+          "bottom": 186.125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 534.59375,
+          "top": 147.234375,
+          "right": 572.484375,
+          "bottom": 185.125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "ground:item-test-ground-1",
+        "rect": {
+          "left": 575.828125,
+          "top": 146.234375,
+          "right": 615.71875,
+          "bottom": 186.125,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 576.828125,
+          "top": 147.234375,
+          "right": 614.71875,
+          "bottom": 185.125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "ground:item-test-ground-2",
+        "rect": {
+          "left": 533.59375,
+          "top": 188.46875,
+          "right": 573.484375,
+          "bottom": 228.359375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 534.59375,
+          "top": 189.46875,
+          "right": 572.484375,
+          "bottom": 227.359375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      {
+        "key": "ground:item-test-ground-3",
+        "rect": {
+          "left": 575.828125,
+          "top": 188.46875,
+          "right": 615.71875,
+          "bottom": 228.359375,
+          "width": 39.890625,
+          "height": 39.890625
+        },
+        "sprite": {
+          "left": 576.828125,
+          "top": 189.46875,
+          "right": 614.71875,
+          "bottom": 227.359375,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      }
+    ]
+  }
+]

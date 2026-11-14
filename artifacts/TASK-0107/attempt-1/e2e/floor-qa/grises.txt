@@ -1,0 +1,8 @@
+TASK-0022 escala de grises · captura de sala convertida a luminancia
+formula=0.2126R+0.7152G+0.0722B
+source=damero-sala.png (1280x720)
+pair (3,21) p0 vs (4,21) p1
+rgb_means a=13.00,21.00,25.00 b=20.00,37.00,40.00
+grey_luminance a=19.588 b=33.602 delta=14.014
+threshold_min_luminance=5
+output=artifacts/TASK-0022/attempt-1/floor-qa/screenshots/gris.png

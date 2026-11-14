@@ -1,0 +1,6 @@
+TASK-0024 lista blanca y familias
+seed=279837264
+decorated=130 whitelist=31
+families_seen=blood,blueBrick,bones,dirt,grass,mushroom,pebbles,plant,redBrick
+row_mapping dirt=9 blueBrick=10 bones=11 verified=dirt,blueBrick,bones
+visual=artifacts/TASK-0024/attempt-1/floor-qa-ambient/screenshots/familias-9-10-11.png
