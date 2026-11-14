@@ -8,8 +8,8 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T11:00:00Z
-updated_at: 2026-11-11T15:35:00Z
-related_tasks: []
+updated_at: 2026-11-14T23:35:43Z
+related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T11:00:00Z }
 verified:
   - by: human:simon

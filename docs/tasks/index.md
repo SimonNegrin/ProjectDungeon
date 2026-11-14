@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **121**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -111,6 +111,35 @@ Total: **121**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0118](TASK-0118-docs-correccion-visual-adr.md) | Docs: corrección visual, ADR y glosario | `done` | REQ-033 | TASK-0117 | P1 |
 | [TASK-0119](TASK-0119-reapertura-submenu-teclado.md) | Bug: el submenú no reabre con teclado tras una acción del panel | `done` | REQ-032 | — | P1 |
 | [TASK-0120](TASK-0120-reloj-feedback-bucle-render.md) | Bug: el reloj de feedback no caduca y el host repinta a 60 fps | `done` | REQ-017 | — | P1 |
+| [TASK-0122](TASK-0122-motor-configuracion-partida-constructor-unico.md) | Motor: configuración de partida y constructor único | `backlog` | REQ-016 | — | P1 |
+| [TASK-0123](TASK-0123-host-menu-principal-paso-1.md) | Host: menú principal y paso 1 | `backlog` | REQ-016 | TASK-0122 | P1 |
+| [TASK-0124](TASK-0124-host-pantalla-jugador-roster-nombre.md) | Host: pantalla de jugador (roster, nombre, navegación) | `backlog` | REQ-016 | TASK-0122, TASK-0123 | P1 |
+| [TASK-0125](TASK-0125-host-ficha-arquetipo-miniaturas.md) | Host: ficha de arquetipo y miniaturas | `backlog` | REQ-016 | TASK-0122, TASK-0123, TASK-0124 | P1 |
+| [TASK-0126](TASK-0126-host-resumen-empezar-estado-inicial.md) | Host: resumen, Empezar y estado inicial | `backlog` | REQ-016 | TASK-0124, TASK-0125 | P1 |
+| [TASK-0127](TASK-0127-render-variante-mapa-miniatura-hud.md) | Render: variante en mapa y miniatura HUD | `backlog` | REQ-016 | TASK-0122, TASK-0124, TASK-0125 | P1 |
+| [TASK-0129](TASK-0129-qa-e2e-pantalla-inicio.md) | QA/E2E de la pantalla de inicio | `backlog` | REQ-016 | TASK-0123, TASK-0124, TASK-0125, TASK-0126, TASK-0127 | P1 |
+| [TASK-0130](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md) | Motor: saqueabilidad, lootPolicy y RNG de botín | `backlog` | REQ-034 | TASK-0122 | P1 |
+| [TASK-0131](TASK-0131-motor-muerte-jugador-cadaver-contenedor.md) | Motor: muerte de jugador y cadáver contenedor | `backlog` | REQ-021 | TASK-0122 | P1 |
+| [TASK-0132](TASK-0132-motor-fantasma-turno-mp-accion.md) | Motor: fantasma con turno, MP y una acción | `backlog` | REQ-021 | TASK-0131 | P1 |
+| [TASK-0133](TASK-0133-motor-cadaver-enemigo-descarte.md) | Motor: cadáver de enemigo y descarte | `backlog` | REQ-034 | TASK-0130, TASK-0131 | P1 |
+| [TASK-0134](TASK-0134-motor-estado-partida-snapshot.md) | Motor: estado de partida (party, activo, ronda) y snapshot | `backlog` | REQ-031 | TASK-0122, TASK-0130, TASK-0131, TASK-0132, TASK-0133 | P1 |
+| [TASK-0135](TASK-0135-host-render-cadaveres-contenedores.md) | Host/render: cadáveres desde contenedores | `backlog` | REQ-034 | TASK-0127, TASK-0133, TASK-0134 | P1 |
+| [TASK-0136](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md) | Host/panel: saqueo en el mismo tile y coste 0 | `backlog` | REQ-034 | TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135 | P1 |
+| [TASK-0138](TASK-0138-motor-esquema-v1-manifiesto-round-trip.md) | Motor: esquema v1, manifiesto y round-trip | `backlog` | REQ-024 | TASK-0133, TASK-0134 | P1 |
+| [TASK-0139](TASK-0139-host-pausa-global-menu-cinco-botones.md) | Host: pausa global y menú de cinco botones | `backlog` | REQ-024 | TASK-0123, TASK-0126, TASK-0134 | P1 |
+| [TASK-0140](TASK-0140-host-guardar-zip.md) | Host: guardar .zip | `backlog` | REQ-024 | TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
+| [TASK-0141](TASK-0141-host-cargar-zip-json-menu-pausa.md) | Host: cargar .zip/.json desde menú y pausa | `backlog` | REQ-024 | TASK-0123, TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
+| [TASK-0142](TASK-0142-qa-e2e-botin.md) | QA/E2E de botín y cadáveres | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0141 | P1 |
+| [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `backlog` | REQ-024 | TASK-0139, TASK-0140, TASK-0141 | P1 |
+| [TASK-0146](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md) | Motor: turno por jugador, EndTurn, fase enemiga y ronda | `backlog` | REQ-031 | TASK-0132, TASK-0134 | P1 |
+| [TASK-0147](TASK-0147-motor-muerte-turno-derrota-wipe.md) | Motor: muerte en turno y derrota por wipe | `backlog` | REQ-031 | TASK-0131, TASK-0146 | P1 |
+| [TASK-0148](TASK-0148-motor-resurreccion-indice-recursos.md) | Motor: resurrección por índice y recursos | `backlog` | REQ-031 | TASK-0131, TASK-0134, TASK-0146 | P1 |
+| [TASK-0149](TASK-0149-host-n-retirada-e-r-esc-pausa.md) | Host: N, retirada de E/R, Esc pausa y bloqueo | `backlog` | REQ-031 | TASK-0139, TASK-0146 | P1 |
+| [TASK-0150](TASK-0150-host-relevo-camara-paneo.md) | Host: relevo por cámara y paneo | `backlog` | REQ-031 | TASK-0127, TASK-0146, TASK-0149 | P1 |
+| [TASK-0151](TASK-0151-host-hud-jugador-n-de-m-ronda.md) | Host/HUD: Jugador N de M, ficha activo y Ronda N | `backlog` | REQ-031 | TASK-0146, TASK-0150 | P1 |
+| [TASK-0152](TASK-0152-host-fase-enemiga-master-mueve.md) | Host: fase enemiga (El master mueve, actor/objetivo) | `backlog` | REQ-031 | TASK-0146, TASK-0150, TASK-0151 | P1 |
+| [TASK-0153](TASK-0153-host-resultado-victoria-derrota.md) | Host: resultado Victoria/Derrota con Nueva y Cargar | `backlog` | REQ-031 | TASK-0126, TASK-0141, TASK-0146, TASK-0147 | P1 |
+| [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `backlog` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -125,11 +154,61 @@ Total: **121**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 | [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `done` | REQ-022 | TASK-0105 | P2 |
 | [TASK-0121](TASK-0121-e2e-observer-cls-compartido.md) | E2E: observer de CLS compartido y alineado con P-006 | `done` | REQ-033 | — | P2 |
+| [TASK-0128](TASK-0128-docs-adr-006-glosario-alcance-arranque.md) | Docs: ADR-006, glosario y alcance del arranque | `backlog` | REQ-016 | TASK-0127 | P2 |
+| [TASK-0137](TASK-0137-host-contenedor-zip.md) | Host: contenedor .zip | `backlog` | REQ-024 | — | P2 |
+| [TASK-0143](TASK-0143-docs-adr-030-glosario-botin.md) | Docs: ADR-030 y glosario de botín | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
+| [TASK-0145](TASK-0145-docs-adr-028-documentacion-guardado.md) | Docs: ADR-028 y documentación de guardado | `backlog` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
+| [TASK-0155](TASK-0155-docs-adr-029-documentacion-hotseat.md) | Docs: ADR-029 y documentación de hotseat | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
+| [TASK-0156](TASK-0156-requisitos-enmiendas-arranque.md) | Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031 | `backlog` | REQ-016 | TASK-0127 | P2 |
+| [TASK-0157](TASK-0157-requisitos-enmiendas-botin.md) | Requisitos: enmiendas de botín | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
+| [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `backlog` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
+| [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
+
+# backlog
+
+* [TASK-0122 — Motor: configuración de partida y constructor único](TASK-0122-motor-configuracion-partida-constructor-unico.md)
+* [TASK-0123 — Host: menú principal y paso 1](TASK-0123-host-menu-principal-paso-1.md)
+* [TASK-0124 — Host: pantalla de jugador (roster, nombre, navegación)](TASK-0124-host-pantalla-jugador-roster-nombre.md)
+* [TASK-0125 — Host: ficha de arquetipo y miniaturas](TASK-0125-host-ficha-arquetipo-miniaturas.md)
+* [TASK-0126 — Host: resumen, Empezar y estado inicial](TASK-0126-host-resumen-empezar-estado-inicial.md)
+* [TASK-0127 — Render: variante en mapa y miniatura HUD](TASK-0127-render-variante-mapa-miniatura-hud.md)
+* [TASK-0129 — QA/E2E de la pantalla de inicio](TASK-0129-qa-e2e-pantalla-inicio.md)
+* [TASK-0130 — Motor: saqueabilidad, lootPolicy y RNG de botín](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md)
+* [TASK-0131 — Motor: muerte de jugador y cadáver contenedor](TASK-0131-motor-muerte-jugador-cadaver-contenedor.md)
+* [TASK-0132 — Motor: fantasma con turno, MP y una acción](TASK-0132-motor-fantasma-turno-mp-accion.md)
+* [TASK-0133 — Motor: cadáver de enemigo y descarte](TASK-0133-motor-cadaver-enemigo-descarte.md)
+* [TASK-0134 — Motor: estado de partida (party, activo, ronda) y snapshot](TASK-0134-motor-estado-partida-snapshot.md)
+* [TASK-0135 — Host/render: cadáveres desde contenedores](TASK-0135-host-render-cadaveres-contenedores.md)
+* [TASK-0136 — Host/panel: saqueo en el mismo tile y coste 0](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md)
+* [TASK-0138 — Motor: esquema v1, manifiesto y round-trip](TASK-0138-motor-esquema-v1-manifiesto-round-trip.md)
+* [TASK-0139 — Host: pausa global y menú de cinco botones](TASK-0139-host-pausa-global-menu-cinco-botones.md)
+* [TASK-0140 — Host: guardar .zip](TASK-0140-host-guardar-zip.md)
+* [TASK-0141 — Host: cargar .zip/.json desde menú y pausa](TASK-0141-host-cargar-zip-json-menu-pausa.md)
+* [TASK-0142 — QA/E2E de botín y cadáveres](TASK-0142-qa-e2e-botin.md)
+* [TASK-0144 — QA/E2E de pausa, guardado y carga](TASK-0144-qa-e2e-pausa-guardado-carga.md)
+* [TASK-0146 — Motor: turno por jugador, EndTurn, fase enemiga y ronda](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md)
+* [TASK-0147 — Motor: muerte en turno y derrota por wipe](TASK-0147-motor-muerte-turno-derrota-wipe.md)
+* [TASK-0148 — Motor: resurrección por índice y recursos](TASK-0148-motor-resurreccion-indice-recursos.md)
+* [TASK-0149 — Host: N, retirada de E/R, Esc pausa y bloqueo](TASK-0149-host-n-retirada-e-r-esc-pausa.md)
+* [TASK-0150 — Host: relevo por cámara y paneo](TASK-0150-host-relevo-camara-paneo.md)
+* [TASK-0151 — Host/HUD: Jugador N de M, ficha activo y Ronda N](TASK-0151-host-hud-jugador-n-de-m-ronda.md)
+* [TASK-0152 — Host: fase enemiga (El master mueve, actor/objetivo)](TASK-0152-host-fase-enemiga-master-mueve.md)
+* [TASK-0153 — Host: resultado Victoria/Derrota con Nueva y Cargar](TASK-0153-host-resultado-victoria-derrota.md)
+* [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
+* [TASK-0128 — Docs: ADR-006, glosario y alcance del arranque](TASK-0128-docs-adr-006-glosario-alcance-arranque.md)
+* [TASK-0137 — Host: contenedor .zip](TASK-0137-host-contenedor-zip.md)
+* [TASK-0143 — Docs: ADR-030 y glosario de botín](TASK-0143-docs-adr-030-glosario-botin.md)
+* [TASK-0145 — Docs: ADR-028 y documentación de guardado](TASK-0145-docs-adr-028-documentacion-guardado.md)
+* [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
+* [TASK-0156 — Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031](TASK-0156-requisitos-enmiendas-arranque.md)
+* [TASK-0157 — Requisitos: enmiendas de botín](TASK-0157-requisitos-enmiendas-botin.md)
+* [TASK-0158 — Requisitos: notas de guardado en REQ-016 y REQ-031](TASK-0158-requisitos-notas-guardado.md)
+* [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 
 # done
 
