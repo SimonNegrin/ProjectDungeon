@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Playtest — REQ-033 — validada por `human:simon`: la interfaz del corte funciona en playtest, sin defectos bloqueantes; queda solo decidir el retrato estático del HUD frente a REQ-022 R-002 — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
 * 2026-11-14 — Milestone — REQ-033 — completada con TASK-0104 a TASK-0110 `done`: escala continua, paleta, relieve inset/outset, HUD en tres zonas, ficha y panel nuevos (encaje a 900×700; R-021 no se abre), cursor, CLS 0 y ADR-026; pendiente el retrato del HUD contra REQ-022 R-002 — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
 
 * 2026-11-14 — Docs — TASK-0110 — done: arquitectura con escala única, ocho colores, outset/inset, cursor superpuesto y anti-CLS; glosario con escala de UI, outset, inset, Bolsa y cursor de selección; ADR-026 y notas de vigencia de ADR-021/025; docs:check y verify 1317/1317; fusión `eab91ef` — [informe](../artifacts/TASK-0110/attempt-1/report.md)
