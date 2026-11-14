@@ -885,9 +885,15 @@
         flex: 1 1 auto;
         min-height: 0;
       }
+      /* La figura acompaña a la rejilla superior: mide lo mismo que las cinco
+         filas y queda detrás de los slots, sin cabeza propia. */
       .inventory-figure {
         position: absolute;
-        inset: 0;
+        top: 0;
+        left: 50%;
+        width: calc(var(--ui-slot) * 3 + var(--ui-unit) * 4);
+        height: calc(var(--ui-slot) * 5 + var(--ui-unit) * 8);
+        transform: translateX(-50%);
         pointer-events: none;
       }
       .inventory-figure-block {
@@ -895,41 +901,35 @@
         background: var(--ui-line-color);
         border: var(--ui-line) solid var(--ui-line-color);
       }
-      .inventory-figure-head {
-        top: 2%;
-        left: 44%;
-        width: 12%;
-        height: 9%;
-      }
       .inventory-figure-torso {
-        top: 34%;
-        left: 36%;
-        width: 28%;
-        height: 30%;
+        top: calc(var(--ui-slot) + var(--ui-unit) * 2);
+        left: 35%;
+        width: 30%;
+        height: calc(var(--ui-slot) * 2 + var(--ui-unit) * 2);
       }
       .inventory-figure-arm-left {
-        top: 40%;
-        left: 26%;
+        top: calc(var(--ui-slot) + var(--ui-unit) * 3);
+        left: 22%;
         width: 8%;
-        height: 24%;
+        height: calc(var(--ui-slot) * 2 + var(--ui-unit) * 4);
       }
       .inventory-figure-arm-right {
-        top: 40%;
-        right: 26%;
+        top: calc(var(--ui-slot) + var(--ui-unit) * 3);
+        right: 22%;
         width: 8%;
-        height: 24%;
+        height: calc(var(--ui-slot) * 2 + var(--ui-unit) * 4);
       }
       .inventory-figure-leg-left {
-        top: 66%;
-        left: 38%;
+        top: calc(var(--ui-slot) * 3 + var(--ui-unit) * 6);
+        left: 37%;
         width: 9%;
-        height: 28%;
+        height: calc(var(--ui-slot) * 3 + var(--ui-unit) * 4);
       }
       .inventory-figure-leg-right {
-        top: 66%;
-        right: 38%;
+        top: calc(var(--ui-slot) * 3 + var(--ui-unit) * 6);
+        right: 37%;
         width: 9%;
-        height: 28%;
+        height: calc(var(--ui-slot) * 3 + var(--ui-unit) * 4);
       }
       .inventory-equipment {
         position: absolute;
@@ -938,7 +938,7 @@
         grid-template-columns: repeat(3, var(--ui-slot));
         grid-template-rows: repeat(5, var(--ui-slot));
         gap: calc(var(--ui-unit) * 2);
-        align-content: center;
+        align-content: start;
         justify-content: center;
       }
       /* Un único componente de slot: cuadrado, inset y solo icono (S-001/S-004).
