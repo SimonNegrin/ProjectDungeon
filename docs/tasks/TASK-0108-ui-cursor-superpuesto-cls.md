@@ -4,7 +4,7 @@ id: TASK-0108
 title: "UI: cursor superpuesto y anti-CLS"
 description: "Añadir un marco de selección que sigue al foco con transición corta, salta en cambios grandes o scroll y no produce Content Shift, respetando movimiento reducido."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-022, R-023, R-024, P-006, T-013, T-014]
