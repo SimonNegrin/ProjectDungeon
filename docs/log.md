@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0117 — done: QA visual v7 a 900×700 y 1280×720 con 12 tests; bisel pintado 2/3 px, listas verticales, panel arriba con piernas visibles, siluetas y cursor 4×/150 ms; verify 1330/1330 y E2E 208/208; fusión `2dd75b3` — [informe](../artifacts/TASK-0117/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0116 — done: cursor #fcffc0 con borde 4×, sobre el contenido y bajo el submenú; anima cualquier cambio de slot en 150 ms y salta al instante en apertura, resize, scroll, actualización o movimiento reducido; foco DOM y CLS 0; verify 1330/1330 y E2E 196/196; fusión `375b9ba` — [informe](../artifacts/TASK-0116/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0115 — done: los ocho slots de Equipo vacíos muestran su silueta sólida `#6eb8a8` desde la tabla única de `items.png`; el slot lleno conserva solo el sprite y la silueta reaparece al desequipar; Bolsa y Suelo sin capa, bisel y geometría estables; verify 1328/1328 y E2E 195/195; fusión `876d996` — [informe](../artifacts/TASK-0115/attempt-1/report.md)

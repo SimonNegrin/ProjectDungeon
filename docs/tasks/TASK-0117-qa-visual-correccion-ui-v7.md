@@ -23,8 +23,8 @@ verified:
   - by: task-lead
     at: 2026-11-14T17:36:00Z
     note: >-
-      Intento 1 verificado (spec `739901d`, informe `2ac08fe`; fusión pendiente
-      al registrar esta nota). Reejecutados `pnpm run verify` (120 s; 94
+      Intento 1 verificado (spec `739901d`, informe `2ac08fe`; fusión
+      `2dd75b3`). Reejecutados `pnpm run verify` (120 s; 94
       archivos, 1.330/1.330, tsc, build y bundle) y `pnpm run test:e2e` (180 s;
       208/208) sin que reapareciera `generated-map-qa`. Spec nuevo con 12 tests
       (6 por viewport) y capturas/logs en `artifacts/TASK-0117/attempt-1/`.
