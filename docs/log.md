@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Playtest — REQ-018/REQ-032 — el usuario aprueba el panel tras probarlo: tres columnas, figura de equipo, ficha de dos bloques y submenú con `Enter`; playtest del hito UI superado — [REQ-018](requirements/REQ-018-inventario-equipo.md)
+
+* 2026-11-14 — Planning — TASK-0103 — backlog: cierre del hito UI con arquitectura, glosario, controles, vigencia de ADR-021/025 y QA visual final; la edición documental la asume `task-lead` por ADR-016 — [TASK-0103](tasks/TASK-0103-cierre-hito-ui-docs-qa.md)
+
 * 2026-11-14 — Task — TASK-0102 — done: ficha de dos bloques en el HUD derecho (seleccionado y equipado, sin delta) y submenú contextual con `Enter`, coste de 1 MP, opciones por contexto y rechazos; barra de acciones retirada, N-008 por instancia y foco sin programa; verify 1298/1298 y E2E 150/150 (17 focalizados); fusión `011a345` — [informe](../artifacts/TASK-0102/attempt-1/report.md)
 
 * 2026-11-14 — Fricción — Arnés — `E2E_ARTIFACTS_DIR` escribe bajo `<spec>/screenshots` mientras la ficha de tarea pide capturas en la raíz del intento; copia manual registrada; `deferred` a `harness-keeper` — [informe](../artifacts/TASK-0102/attempt-1/report.md)
