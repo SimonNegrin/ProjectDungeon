@@ -234,15 +234,7 @@
               hidden
             >
               <div class="inventory-panel-body ui-outset">
-                <header class="inventory-panel-header">
-                  <h2 class="inventory-panel-title" id="inventory-title">
-                    Personaje · <span data-testid="inventory-player"></span>
-                  </h2>
-                  <p class="inventory-panel-mp">MP <span data-testid="inventory-mp"></span></p>
-                </header>
-                <p class="inventory-panel-help">
-                  Flechas/WASD para moverte · Tab por zonas · Enter abre acciones · Cada operación cuesta 1 MP
-                </p>
+                <h2 class="inventory-panel-title" id="inventory-title">Inventario</h2>
                 <div class="inventory-columns">
                   <section
                     class="inventory-column inventory-column-equipment ui-outset"
@@ -265,34 +257,33 @@
                   <section
                     class="inventory-column inventory-column-backpack ui-outset"
                     data-zone="backpack"
-                    aria-label="Mochila"
+                    aria-label="Bolsa"
                   >
                     <h3 class="inventory-section-title">
-                      Mochila <span data-testid="inventory-backpack-count"></span>
+                      Bolsa <span data-testid="inventory-backpack-count"></span>
                     </h3>
                     <ul class="inventory-list inventory-backpack" data-testid="inventory-backpack"></ul>
                   </section>
                   <section
                     class="inventory-column inventory-column-right ui-outset"
                     data-zone="right"
-                    aria-label="Cadáveres y suelo"
+                    aria-label="Suelo"
                   >
-                    <section class="inventory-cadavers" data-testid="inventory-cadavers" aria-label="Cadáveres">
-                      <h3 class="inventory-section-title">Cadáveres</h3>
-                      <p class="inventory-empty" data-testid="inventory-cadavers-empty"></p>
-                    </section>
-                    <section
-                      class="inventory-ground-section"
-                      data-testid="inventory-ground-section"
-                      aria-label="Objetos del suelo"
-                    >
-                      <h3 class="inventory-section-title">Suelo</h3>
-                      <p class="inventory-panel-help" data-testid="inventory-ground-hint" hidden></p>
-                      <div class="inventory-ground-scroll" data-testid="inventory-ground-scroll">
-                        <p class="inventory-empty" data-testid="inventory-ground-empty"></p>
+                    <h3 class="inventory-section-title">Suelo</h3>
+                    <div class="inventory-ground-scroll" data-testid="inventory-ground-scroll">
+                      <ul
+                        class="inventory-list inventory-cadavers"
+                        data-testid="inventory-cadavers"
+                        aria-label="Cadáveres"
+                        hidden
+                      ></ul>
+                      <div
+                        class="inventory-ground-section"
+                        data-testid="inventory-ground-section"
+                      >
                         <ul class="inventory-list inventory-ground" data-testid="inventory-ground"></ul>
                       </div>
-                    </section>
+                    </div>
                   </section>
                 </div>
                 <p
@@ -316,7 +307,7 @@
                     data-testid="inventory-close"
                     data-zone="close"
                   >
-                    Cerrar · Esc
+                    Cerrar
                   </button>
                 </footer>
               </div>

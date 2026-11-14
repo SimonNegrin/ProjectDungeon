@@ -17,6 +17,8 @@
         --ui-body: calc(var(--ui-scale) * 11.2px);
         --ui-data: calc(var(--ui-scale) * 10.9px);
         --ui-help: calc(var(--ui-scale) * 10.1px);
+        /* Celda de inventario: 32 px lógicos de arte más el bisel inset. */
+        --ui-slot: calc(var(--ui-unit) * 32 + var(--ui-line) * 2);
         /* Paleta semántica opaca de ocho colores (REQ-033 R-004/R-005). */
         --ui-bg: #2f142f;
         --ui-panel: #2a584f;
@@ -756,33 +758,18 @@
         background: var(--ui-panel);
         overflow: hidden;
       }
-      .inventory-panel-header {
-        display: flex;
-        flex: 0 0 auto;
-        flex-wrap: wrap;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: calc(var(--ui-unit) * 4) calc(var(--ui-unit) * 12);
-        border-bottom: var(--ui-line) solid var(--ui-line-color);
-        padding-bottom: calc(var(--ui-unit) * 4);
-      }
+      /* Título accesible oculto; el diálogo conserva nombre y cierre (R-015). */
       .inventory-panel-title {
+        position: absolute;
+        width: var(--ui-line);
+        height: var(--ui-line);
         margin: 0;
-        color: var(--ui-accent);
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        color: var(--ui-text);
         font-size: var(--ui-title);
-        letter-spacing: 0.04em;
-      }
-      .inventory-panel-mp {
-        margin: 0;
-        color: var(--ui-muted);
-        font-size: var(--ui-data);
-      }
-      .inventory-panel-help {
-        flex: 0 0 auto;
-        margin: calc(var(--ui-unit) * 4) 0 calc(var(--ui-unit) * 6);
-        color: var(--ui-muted);
-        font-size: var(--ui-help);
-        line-height: 1.35;
+        white-space: nowrap;
       }
       .inventory-columns {
         display: grid;
@@ -795,18 +782,19 @@
       .inventory-column {
         display: flex;
         flex-direction: column;
-        gap: calc(var(--ui-unit) * 4);
+        gap: calc(var(--ui-unit) * 3);
         min-width: 0;
         min-height: 0;
-        padding: calc(var(--ui-unit) * 6);
+        padding: calc(var(--ui-unit) * 4);
         background: var(--ui-raised);
         overflow: hidden;
       }
       .inventory-section-title {
         flex: 0 0 auto;
-        margin: 0 0 calc(var(--ui-unit) * 2);
+        margin: 0;
         color: var(--ui-text);
         font-size: var(--ui-data);
+        line-height: 1.2;
         letter-spacing: 0.04em;
       }
       .inventory-list {
@@ -868,86 +856,68 @@
       .inventory-equipment {
         position: absolute;
         inset: 0;
-      }
-      .inventory-row {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        display: grid;
+        grid-template-columns: repeat(3, var(--ui-slot));
+        grid-template-rows: repeat(5, var(--ui-slot));
+        gap: calc(var(--ui-unit) * 2);
+        align-content: center;
         justify-content: center;
-        gap: var(--ui-line);
+      }
+      /* Un único componente de slot: cuadrado, inset y solo icono (S-001/S-004). */
+      .inventory-slot {
+        position: relative;
+        width: var(--ui-slot);
+        height: var(--ui-slot);
         min-width: 0;
-        padding: calc(var(--ui-unit) * 2) calc(var(--ui-unit) * 3);
+        padding: 0;
         background: var(--ui-bg);
         overflow: hidden;
       }
-      .inventory-row[data-empty="true"] .inventory-row-name {
-        color: var(--ui-muted);
-      }
-      .inventory-slot {
-        position: absolute;
-        z-index: 2;
-        width: 32%;
-        height: calc(var(--ui-unit) * 52);
-      }
       .inventory-slot-head {
-        top: 0;
-        left: 34%;
+        grid-column: 2;
+        grid-row: 1;
       }
       .inventory-slot-neck {
-        top: 18%;
-        left: 0;
+        grid-column: 1;
+        grid-row: 2;
       }
       .inventory-slot-ring {
-        top: 18%;
-        right: 0;
+        grid-column: 3;
+        grid-row: 2;
       }
       .inventory-slot-armor {
-        top: 38%;
-        left: 34%;
+        grid-column: 2;
+        grid-row: 3;
       }
       .inventory-slot-shield {
-        top: 62%;
-        left: 0;
+        grid-column: 1;
+        grid-row: 4;
       }
       .inventory-slot-hands {
-        top: 62%;
-        left: 34%;
+        grid-column: 2;
+        grid-row: 4;
       }
       .inventory-slot-weapon {
-        top: 62%;
-        right: 0;
+        grid-column: 3;
+        grid-row: 4;
       }
       .inventory-slot-feet {
-        bottom: 0;
-        left: 34%;
+        grid-column: 2;
+        grid-row: 5;
       }
       .inventory-backpack {
         display: grid;
-        flex: 1 1 auto;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: repeat(4, minmax(0, 1fr));
-        gap: calc(var(--ui-unit) * 4);
+        flex: 0 0 auto;
+        grid-template-columns: repeat(2, var(--ui-slot));
+        grid-template-rows: repeat(4, var(--ui-slot));
+        gap: calc(var(--ui-unit) * 2);
+        align-content: start;
+        justify-content: center;
         min-height: 0;
         overflow: hidden;
-      }
-      .inventory-backpack-cell {
-        min-height: 0;
       }
       .inventory-column-right {
-        gap: calc(var(--ui-unit) * 4);
-      }
-      .inventory-cadavers {
-        flex: 0 0 auto;
-        max-height: 34%;
-        overflow: hidden;
-      }
-      .inventory-ground-section {
-        display: flex;
-        flex: 1 1 auto;
-        flex-direction: column;
-        min-height: 0;
-        border-top: var(--ui-line) solid var(--ui-line-color);
-        padding-top: calc(var(--ui-unit) * 3);
+        gap: calc(var(--ui-unit) * 3);
       }
       .inventory-ground-scroll {
         flex: 1 1 auto;
@@ -955,53 +925,67 @@
         overflow-x: hidden;
         overflow-y: auto;
       }
+      .inventory-ground-section {
+        min-height: 0;
+      }
       .inventory-ground {
         display: grid;
-        gap: calc(var(--ui-unit) * 3);
+        grid-template-columns: repeat(2, var(--ui-slot));
+        gap: calc(var(--ui-unit) * 2);
+        align-content: start;
+        justify-content: start;
       }
-      .inventory-ground-row {
-        align-items: flex-start;
-        min-height: calc(var(--ui-unit) * 34);
+      .inventory-cadavers {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: calc(var(--ui-unit) * 2);
+        margin: 0 0 calc(var(--ui-unit) * 3);
       }
-      .inventory-empty {
-        margin: calc(var(--ui-unit) * 2) 0;
-        color: var(--ui-muted);
+      .inventory-corpse {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--ui-unit);
+        min-width: 0;
+        padding: calc(var(--ui-unit) * 2);
+        background: var(--ui-bg);
+      }
+      .inventory-corpse-sprite {
+        width: calc(var(--ui-unit) * 32);
+        height: calc(var(--ui-unit) * 32);
+        background-repeat: no-repeat;
+        image-rendering: pixelated;
+      }
+      .inventory-corpse-sprite[data-sheet="rogues"] {
+        background-image: url('/assets/32rogues/rogues.png');
+        background-size: calc(var(--ui-unit) * 224) calc(var(--ui-unit) * 224);
+      }
+      .inventory-corpse-sprite[data-sheet="monsters"] {
+        background-image: url('/assets/32rogues/monsters.png');
+        background-size: calc(var(--ui-unit) * 384) calc(var(--ui-unit) * 416);
+      }
+      .inventory-corpse-name {
+        max-width: 100%;
+        color: var(--ui-text);
         font-size: var(--ui-help);
-        line-height: 1.3;
+        line-height: 1.1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       /* Icono de objeto: mismo recorte de items.png que el mundo, en DOM. */
-      .inventory-row-icon {
-        flex: 0 0 auto;
-        width: calc(var(--ui-unit) * 24);
-        height: calc(var(--ui-unit) * 24);
+      .inventory-slot-icon {
+        position: absolute;
+        inset: 0;
         background-image: url('/assets/32rogues/items.png');
         background-repeat: no-repeat;
         background-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
         image-rendering: pixelated;
       }
-      .inventory-row-name {
-        max-width: 100%;
-        color: var(--ui-text);
-        font-size: var(--ui-help);
-        font-weight: 700;
-        line-height: 1.1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .inventory-row-state {
-        max-width: 100%;
-        color: var(--ui-muted);
-        font-size: var(--ui-help);
-        line-height: 1.1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .inventory-row:focus-visible,
-      .inventory-row.is-selected {
+      .inventory-slot:focus-visible,
+      .inventory-slot.is-selected {
         outline: var(--ui-line) solid var(--ui-focus);
-        outline-offset: 0;
+        outline-offset: calc(var(--ui-line) * 2);
       }
       .inventory-submenu {
         position: absolute;

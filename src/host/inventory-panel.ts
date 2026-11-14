@@ -7,6 +7,7 @@
  * `effectiveStats`/`aggregateEffectiveStats`; aquí no se suma equipo a mano.
  */
 
+import { BESTIARY } from '../game/bestiary';
 import {
   EQUIPMENT_SLOTS,
   ITEMS,
@@ -32,6 +33,7 @@ import type {
   RejectionReason,
   Unit,
 } from '../game/types';
+import { GOBLIN_RECT, KNIGHT_RECT, type SpriteRect } from './assets';
 
 export const PANEL_SLOT_LABELS: Readonly<Record<EquipmentSlot, string>> = {
   weapon: 'Arma',
@@ -123,18 +125,24 @@ export interface PanelStats {
   readonly rows: readonly PanelStatsRow[];
 }
 
+/**
+ * Cadáver de presentación en el tile del jugador (REQ-033 R-014). No tiene
+ * acciones ni entra en la navegación: solo aporta sprite y nombre/tipo.
+ */
+export interface PanelCorpse {
+  readonly key: string;
+  readonly name: string;
+  readonly sheet: 'rogues' | 'monsters';
+  readonly sprite: SpriteRect;
+}
+
 export interface InventoryPanelModel {
-  readonly playerName: string;
-  readonly mp: string;
   readonly equipment: readonly PanelItem[];
   readonly backpack: readonly PanelItem[];
   /** Suelo del tile, siempre presente; vacío es una lista sin filas (R-015). */
   readonly ground: readonly PanelItem[];
-  /** Cadáveres del tile: reservado para REQ-021, vacío en este corte. */
-  readonly corpses: readonly PanelItem[];
-  readonly groundHint: string;
-  readonly groundEmptyHint: string;
-  readonly corpsesEmptyHint: string;
+  /** Cadáveres del tile; vacío no reserva sección ni texto (R-014). */
+  readonly corpses: readonly PanelCorpse[];
   readonly backpackCount: string;
   readonly stats: PanelStats;
 }
@@ -387,6 +395,31 @@ function unitForPanel(state: GameState, unitId?: string): Unit | undefined {
 }
 
 /**
+ * Cadáveres del tile del jugador. Los jugadores conservan su nombre propio y
+ * los enemigos muestran el tipo del bestiario; el sprite es el de unidad que
+ * ya usa el render, sin arte nuevo. No se ordena por RNG.
+ */
+function buildCorpses(state: GameState, unit: Unit): readonly PanelCorpse[] {
+  return [...state.players, ...state.enemies]
+    .filter(
+      (candidate) =>
+        candidate.hp <= 0 &&
+        candidate.x === unit.x &&
+        candidate.y === unit.y,
+    )
+    .map((candidate) => {
+      const enemyType = candidate.faction === 'enemy' ? candidate.enemyType : null;
+      const enemy = enemyType !== null;
+      return {
+        key: `corpse:${candidate.id}`,
+        name: enemyType === null ? candidate.nombre : BESTIARY[enemyType].name,
+        sheet: enemy ? 'monsters' : 'rogues',
+        sprite: enemy ? GOBLIN_RECT : KNIGHT_RECT,
+      } satisfies PanelCorpse;
+    });
+}
+
+/**
  * Construye el modelo del panel. Sin jugador devuelve un modelo vacío estable;
  * el host nunca abre el panel en ese caso.
  */
@@ -397,8 +430,6 @@ export function buildInventoryPanelModel(
   const unit = unitForPanel(state, unitId);
   if (!unit) {
     return {
-      playerName: '—',
-      mp: '—/—',
       equipment: EQUIPMENT_SLOTS.map((slot) => ({
         key: `slot:${slot}`,
         empty: true,
@@ -414,9 +445,6 @@ export function buildInventoryPanelModel(
       backpack: [],
       ground: [],
       corpses: [],
-      groundHint: '',
-      groundEmptyHint: 'No hay objetos en el suelo',
-      corpsesEmptyHint: 'No hay cadáveres en esta casilla',
       backpackCount: '0',
       stats: { total: '—', rows: [] },
     };
@@ -427,20 +455,12 @@ export function buildInventoryPanelModel(
   );
 
   return {
-    playerName: unit.nombre,
-    mp: `${unit.mp}/${unit.maxMp}`,
     equipment: EQUIPMENT_SLOTS.map((slot) => equipmentRow(unit, slot)),
     backpack: Array.from({ length: unit.inventory.capacity }, (_value, index) =>
       backpackRow(unit, index),
     ),
     ground: groundItems.map((item) => groundRow(unit, item)),
-    corpses: [],
-    groundHint:
-      groundItems.length > 1
-        ? 'Recoger toma el primer objeto del tile; equipar elige la fila.'
-        : '',
-    groundEmptyHint: 'No hay objetos en el suelo',
-    corpsesEmptyHint: 'No hay cadáveres en esta casilla',
+    corpses: buildCorpses(state, unit),
     backpackCount: `${backpackCount(unit.inventory)}/${unit.inventory.capacity}`,
     stats: buildStats(unit),
   };

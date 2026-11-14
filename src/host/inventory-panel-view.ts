@@ -14,6 +14,7 @@ import {
   buildInventoryPanelModel,
   buildPanelMenu,
   type InventoryPanelModel,
+  type PanelCorpse,
   type PanelItem,
   type PanelMenuOption,
   type PanelSelection,
@@ -33,8 +34,16 @@ interface CellView {
   readonly zone: string;
   readonly root: HTMLLIElement;
   readonly icon: HTMLElement;
+}
+
+interface CorpseView {
+  readonly root: HTMLLIElement;
+  readonly sprite: HTMLElement;
   readonly name: HTMLElement;
-  readonly state: HTMLElement;
+}
+
+function spritePosition(rect: { readonly x: number; readonly y: number }): string {
+  return `calc(var(--ui-unit) * ${-rect.x}) calc(var(--ui-unit) * ${-rect.y})`;
 }
 
 export interface InventoryPanelView {
@@ -116,29 +125,21 @@ function createCell(
   className: string,
 ): CellView {
   const root = document.createElement('li');
-  root.className = `inventory-row ui-inset ${className}`;
+  root.className = `inventory-slot ui-inset ${className}`;
   root.dataset.testid = `inventory-${rowTestId(key)}`;
   root.dataset.rowKey = key;
   root.dataset.zone = zone;
 
   const icon = document.createElement('span');
-  icon.className = 'inventory-row-icon';
+  icon.className = 'inventory-slot-icon';
   icon.dataset.testid = `inventory-${rowTestId(key)}-icon`;
   icon.setAttribute('aria-hidden', 'true');
   icon.hidden = true;
 
-  const name = document.createElement('span');
-  name.className = 'inventory-row-name';
-  name.dataset.testid = `inventory-${rowTestId(key)}-name`;
-
-  const state = document.createElement('span');
-  state.className = 'inventory-row-state';
-  state.dataset.testid = `inventory-${rowTestId(key)}-state`;
-
-  root.append(icon, name, state);
+  root.append(icon);
   parent.append(root);
 
-  return { key, zone, root, icon, name, state };
+  return { key, zone, root, icon };
 }
 
 /** Icono DOM con el mismo recorte que el mundo: fondo CSS sobre `items.png`. */
@@ -149,16 +150,13 @@ function updateIcon(icon: HTMLElement, item: PanelItem): void {
     icon.style.removeProperty('background-position');
     return;
   }
-  icon.style.backgroundPosition = `calc(var(--ui-scale) * ${-rect.x}px) calc(var(--ui-scale) * ${-rect.y}px)`;
+  icon.style.backgroundPosition = spritePosition(rect);
 }
 
 function updateCell(view: CellView, item: PanelItem): void {
   view.root.dataset.empty = String(item.empty);
   view.root.classList.toggle('is-empty', item.empty);
   updateIcon(view.icon, item);
-  view.name.textContent = item.name;
-  // El nombre ya dice «Vacío»; el estado solo informa de objetos presentes.
-  view.state.textContent = item.empty ? '' : stateLabel(view.key);
 
   if (item.empty) {
     view.root.removeAttribute('tabindex');
@@ -173,21 +171,41 @@ function updateCell(view: CellView, item: PanelItem): void {
   view.root.setAttribute('aria-label', `${item.name}, ${stateLabel(view.key)}`);
 }
 
+function createCorpse(corpse: PanelCorpse): CorpseView {
+  const root = document.createElement('li');
+  root.className = 'inventory-corpse';
+  root.dataset.testid = `inventory-corpse-${rowTestId(corpse.key)}`;
+  root.dataset.corpseKey = corpse.key;
+  root.setAttribute('aria-label', corpse.name);
+
+  const sprite = document.createElement('span');
+  sprite.className = 'inventory-corpse-sprite';
+  sprite.dataset.sheet = corpse.sheet;
+  sprite.style.backgroundPosition = spritePosition({
+    x: corpse.sprite.sx,
+    y: corpse.sprite.sy,
+  });
+  sprite.setAttribute('aria-hidden', 'true');
+
+  const name = document.createElement('span');
+  name.className = 'inventory-corpse-name';
+  name.textContent = corpse.name;
+
+  root.append(sprite, name);
+  return { root, sprite, name };
+}
+
 export function createInventoryPanelView(
   root: ParentNode,
   options: InventoryPanelOptions = {},
 ): InventoryPanelView {
   const panel = requireElement(root, 'inventory-panel');
-  const player = requireElement(root, 'inventory-player');
-  const mp = requireElement(root, 'inventory-mp');
   const backpackCount = requireElement(root, 'inventory-backpack-count');
   const equipmentList = requireElement(root, 'inventory-equipment');
   const backpackList = requireElement(root, 'inventory-backpack');
   const groundList = requireElement(root, 'inventory-ground');
   const groundScroll = requireElement(root, 'inventory-ground-scroll');
-  const groundHint = requireElement(root, 'inventory-ground-hint');
-  const groundEmpty = requireElement(root, 'inventory-ground-empty');
-  const cadaversEmpty = requireElement(root, 'inventory-cadavers-empty');
+  const cadaversList = requireElement(root, 'inventory-cadavers');
   const message = requireElement(root, 'inventory-message');
   const submenu = requireElement(root, 'inventory-submenu');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
@@ -537,8 +555,6 @@ export function createInventoryPanelView(
     const previousCenter = previousKey === null ? null : centerOf(previousKey);
 
     model = next;
-    player.textContent = next.playerName;
-    mp.textContent = next.mp;
     backpackCount.textContent = next.backpackCount;
 
     for (const item of next.equipment) {
@@ -582,12 +598,8 @@ export function createInventoryPanelView(
       groundCells.delete(key);
     }
 
-    groundHint.textContent = next.groundHint;
-    groundHint.hidden = next.groundHint === '';
-    groundEmpty.textContent = next.groundEmptyHint;
-    groundEmpty.hidden = next.ground.length > 0;
-    cadaversEmpty.textContent = next.corpsesEmptyHint;
-    cadaversEmpty.hidden = next.corpses.length > 0;
+    cadaversList.replaceChildren(...next.corpses.map((corpse) => createCorpse(corpse).root));
+    cadaversList.hidden = next.corpses.length === 0;
 
     currentCells = readCells();
 
