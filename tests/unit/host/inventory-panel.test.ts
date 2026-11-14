@@ -11,6 +11,7 @@ import {
   buildInventoryPanelModel,
   buildPanelMenu,
   rejectionMessage,
+  samePanelMenu,
 } from '../../../src/host/inventory-panel';
 import { buildMotionTimeline, presentationState } from '../../../src/host/motion';
 import { buildPresentationEvents } from '../../../src/host/presentation';
@@ -394,6 +395,49 @@ describe('submenú contextual del panel', () => {
 
     expect(JSON.stringify(state)).toBe(before);
     expect(state.players[0].mp).toBe(6);
+  });
+
+  it('dos menús del mismo objeto y estado son equivalentes', () => {
+    const state = menuState();
+
+    expect(
+      samePanelMenu(
+        buildPanelMenu(state, 'ground:ground-axe'),
+        buildPanelMenu(state, 'ground:ground-axe'),
+      ),
+    ).toBe(true);
+  });
+
+  it('detecta cambios de disponibilidad u opciones del menú', () => {
+    const withMp = buildPanelMenu(menuState(), 'backpack:0');
+    const withoutMp = buildPanelMenu(menuState({ mp: 0 }), 'backpack:0');
+    expect(samePanelMenu(withMp, withoutMp)).toBe(false);
+
+    const full: readonly ItemId[] = [
+      'axe',
+      'dagger',
+      'knife',
+      'hammer',
+      'electric-sword',
+      'arcane-dagger',
+      'plate',
+      'shield',
+    ];
+    const fullState = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: full,
+        }),
+      ],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+    });
+    const roomy = buildPanelMenu(menuState(), 'ground:ground-axe');
+    const crowded = buildPanelMenu(fullState, 'ground:ground-axe');
+    expect(samePanelMenu(roomy, crowded)).toBe(false);
   });
 });
 

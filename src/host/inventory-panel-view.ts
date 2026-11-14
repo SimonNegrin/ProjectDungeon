@@ -17,6 +17,7 @@ import type { GameState } from '../game/types';
 import {
   buildInventoryPanelModel,
   buildPanelMenu,
+  samePanelMenu,
   type InventoryPanelModel,
   type PanelCorpse,
   type PanelItem,
@@ -306,6 +307,9 @@ export function createInventoryPanelView(
   let menuOpen = false;
   let menuIndex = 0;
   let menuOptions: readonly PanelMenuOption[] = [];
+  /** Objeto para el que se abrió el menú; N-008 compara su identidad. */
+  let menuKey: string | null = null;
+  let menuInstanceId: string | null = null;
   let cursorPlacement: CursorPlacement | null = null;
   let cursorSize = { width: 0, height: 0 };
 
@@ -604,6 +608,8 @@ export function createInventoryPanelView(
     menuOpen = false;
     menuOptions = [];
     menuIndex = 0;
+    menuKey = null;
+    menuInstanceId = null;
     renderMenu();
     if (wasOpen && focusObject) focusSelectedOrClose();
   }
@@ -614,6 +620,8 @@ export function createInventoryPanelView(
     if (options.length === 0) return false;
     menuOptions = options;
     menuIndex = 0;
+    menuKey = selectedKey;
+    menuInstanceId = itemForKey(selectedKey)?.instanceId ?? null;
     menuOpen = true;
     renderMenu();
     return true;
@@ -720,7 +728,6 @@ export function createInventoryPanelView(
   };
 
   const renderModel = (state: GameState, mode: 'open' | 'update'): void => {
-    if (menuOpen) closeMenu(false);
     currentState = state;
     const next = buildInventoryPanelModel(state);
     // El centro y la identidad anteriores se miden antes de retirar o vaciar
@@ -815,6 +822,37 @@ export function createInventoryPanelView(
           : (firstInReadingOrder(currentCells)?.key ?? null);
     }
     lastKey = selectedKey ?? lastKey;
+
+    // El submenú sobrevive a los refrescos que no cambian su objeto ni lo que
+    // ofrece: tras una acción, el host repinta a 60 fps con el mismo estado.
+    // Solo se cierra si la selección desaparece, la instancia cambia o las
+    // acciones/coste/disponibilidad dejan de coincidir (N-008).
+    if (menuOpen) {
+      const menuItem = selectedKey === null ? null : itemForKey(selectedKey);
+      const sameSelection =
+        selectedKey !== null &&
+        selectedKey === menuKey &&
+        menuItem !== null &&
+        !menuItem.empty &&
+        menuItem.instanceId === menuInstanceId;
+      const nextOptions =
+        sameSelection && selectedKey !== null
+          ? buildPanelMenu(state, selectedKey)
+          : [];
+      if (
+        sameSelection &&
+        selectedKey !== null &&
+        samePanelMenu(menuOptions, nextOptions)
+      ) {
+        menuOptions = nextOptions;
+        menuIndex = Math.min(menuIndex, nextOptions.length - 1);
+        setMenuActive(menuIndex);
+        positionMenu();
+      } else {
+        closeMenu(false);
+      }
+    }
+
     applySelection(false, true);
 
     const active = focusedElement();

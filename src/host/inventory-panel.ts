@@ -420,6 +420,31 @@ function buildCorpses(state: GameState, unit: Unit): readonly PanelCorpse[] {
 }
 
 /**
+ * Dos menús son equivalentes cuando ofrecen las mismas acciones para el mismo
+ * objeto, con el mismo coste y disponibilidad. La vista conserva el submenú
+ * abierto si un refresco no cambia lo que el jugador puede confirmar.
+ */
+export function samePanelMenu(
+  previous: readonly PanelMenuOption[],
+  next: readonly PanelMenuOption[],
+): boolean {
+  return (
+    previous.length === next.length &&
+    previous.every((option, index) => {
+      const candidate = next[index];
+      return (
+        option.kind === candidate.kind &&
+        option.label === candidate.label &&
+        option.costLabel === candidate.costLabel &&
+        option.disabled === candidate.disabled &&
+        option.reason === candidate.reason &&
+        JSON.stringify(option.command) === JSON.stringify(candidate.command)
+      );
+    })
+  );
+}
+
+/**
  * Construye el modelo del panel. Sin jugador devuelve un modelo vacío estable;
  * el host nunca abre el panel en ese caso.
  */
