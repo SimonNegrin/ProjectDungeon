@@ -270,8 +270,8 @@ secundarios arrancan vacíos y el equipo inicial de cada arquetipo es la tabla d
 martillo están en el mapa; la espada electrizada y la daga arcana existen como
 datos. El juego tiene ocho huecos de equipo y ocho de mochila por personaje; el
 arma se cambia **solo** desde el panel abierto con `I`, cuesta 1 MP y no gasta
-acción; `G` ya no existe y la recogida también se hace desde el panel
-([REQ-018](../requirements/REQ-018-inventario-equipo.md)). En este corte existen
+acción, y la recogida también se hace desde el panel; no hay atajos de cambio
+rápido ([REQ-018](../requirements/REQ-018-inventario-equipo.md)). En este corte existen
 ataque cuerpo a cuerpo y hechizos; el alcance físico a distancia queda como valor
 futuro.
 
@@ -347,17 +347,27 @@ Flujo de una fase enemiga:
 
 # Controles provisionales
 
+## Mapa
+
 | Tecla | Acción |
 |---|---|
 | `WASD` / flechas | Mover el cursor un tile en 4 direcciones. |
 | `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
 | `F` | Atacar al enemigo bajo el cursor si está adyacente. |
-| `I` | Abrir o cerrar el panel de personaje: equipo, mochila y suelo del tile. |
-| `Escape` | Cerrar el panel de personaje. |
 | `E` | Terminar turno. |
 | `R` | Reiniciar la sala. |
 | `F1` | Alternar overlay de debug. |
 | `F2` | Generar una semilla nueva en modo debug. |
+
+## Panel de personaje
+
+| Tecla | Acción |
+|---|---|
+| `I` / `Escape` | Abrir o cerrar el panel; `Escape` también cierra el submenú sin ejecutar. |
+| `WASD` / flechas | Navegar al objeto más próximo en esa dirección sobre las tres columnas. |
+| `Tab` / `Shift+Tab` | Saltar a la zona siguiente o anterior: equipo, mochila, suelo y cerrar. |
+| `Enter` | Abrir el submenú del objeto seleccionado; dentro, ejecutar la opción activa. |
+| `↑` / `↓` | Recorrer las opciones del submenú; `←`/`→` no hacen nada. |
 
 En el futuro hotseat se reutilizarán las mismas teclas para el jugador activo.
 En la fase remota, el móvil enviará comandos equivalentes.

@@ -9,6 +9,13 @@ decided_at: 2026-11-11T18:00:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 ---
 
+> **Cierre del hito UI (2026-11-14).** La composición visual y de interacción
+> queda implementada en TASK-0099 a TASK-0102: pantalla en tres zonas, panel de
+> tres columnas con figura de equipo, ficha de dos bloques en el HUD derecho y
+> submenú contextual como único camino de acción. Los contenedores y cofres
+> siguen pendientes de [REQ-020](../requirements/REQ-020-cofres-saqueo.md); el
+> modelo de instancias, huecos y costes no cambia.
+
 > **Nota de vigencia (2026-11-13, v6 de REQ-018).** La composición visual y de
 > interacción del panel pasa a [ADR-025](ADR-025-estilo-visual-ui.md) y
 > [REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md): tres

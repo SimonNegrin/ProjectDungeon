@@ -9,6 +9,15 @@ decided_at: 2026-11-13T23:44:14Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T23:44:14Z }
 ---
 
+> **Cierre de implementación (2026-11-14).** Lo decidido aquí está implementado en
+> TASK-0099 a TASK-0102: fuente y tokens, pantalla en tres zonas, panel de tres
+> columnas con figura y navegación por proximidad, ficha de dos bloques y submenú
+> contextual. Los contenedores y el inventario de cadáveres siguen pendientes de
+> [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
+> [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md); la zona de
+> cadáveres existe vacía y con scroll propio. `G` y `1`-`3` no son caminos
+> vigentes.
+
 # Contexto
 
 La UI del juego se construyó por acumulación: tipografía de sistema, paneles con
