@@ -1,0 +1,52 @@
+[
+  {
+    "phase": "open",
+    "shifts": []
+  },
+  {
+    "phase": "navigate",
+    "shifts": []
+  },
+  {
+    "phase": "equip",
+    "shifts": [
+      {
+        "value": 0.0008596614201863607,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          "unknown"
+        ]
+      },
+      {
+        "value": 0.0008596614201863607,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          "unknown"
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup",
+    "shifts": [
+      {
+        "value": 0.0006391176780064901,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          "unknown",
+          "unknown",
+          "li[inventory-ground-item-test-ground-1]",
+          "li[inventory-ground-item-test-ground-2]",
+          "li[inventory-ground-item-test-ground-3]"
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "reopen",
+    "shifts": []
+  }
+]

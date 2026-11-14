@@ -1,0 +1,840 @@
+[
+  {
+    "viewport": "900x700",
+    "layout": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "left": 234.859375,
+          "top": 121.515625,
+          "right": 372.03125,
+          "bottom": 529.109375,
+          "width": 137.171875,
+          "height": 407.59375
+        },
+        {
+          "left": 381.40625,
+          "top": 121.515625,
+          "right": 518.578125,
+          "bottom": 529.109375,
+          "width": 137.171875,
+          "height": 407.59375
+        },
+        {
+          "left": 527.953125,
+          "top": 121.515625,
+          "right": 665.125,
+          "bottom": 529.109375,
+          "width": 137.171875,
+          "height": 407.59375
+        }
+      ],
+      "columnRowGaps": [
+        3.52103,
+        3.52103,
+        3.52103
+      ],
+      "titles": [
+        {
+          "left": 240.546875,
+          "top": 127.203125,
+          "right": 366.34375,
+          "bottom": 142.546875,
+          "width": 125.796875,
+          "height": 15.34375
+        },
+        {
+          "left": 387.09375,
+          "top": 127.203125,
+          "right": 512.890625,
+          "bottom": 142.546875,
+          "width": 125.796875,
+          "height": 15.34375
+        },
+        {
+          "left": 533.640625,
+          "top": 127.203125,
+          "right": 659.4375,
+          "bottom": 142.546875,
+          "width": 125.796875,
+          "height": 15.34375
+        }
+      ],
+      "titleFontSizes": [
+        12.7931,
+        12.7931,
+        12.7931
+      ],
+      "equipmentFigure": {
+        "left": 240.546875,
+        "top": 146.0625,
+        "right": 366.34375,
+        "bottom": 523.421875,
+        "width": 125.796875,
+        "height": 377.359375
+      },
+      "equipmentList": {
+        "left": 240.546875,
+        "top": 146.0625,
+        "right": 366.34375,
+        "bottom": 523.421875,
+        "width": 125.796875,
+        "height": 377.359375
+      },
+      "backpackList": {
+        "left": 385.921875,
+        "top": 144.890625,
+        "right": 514.0625,
+        "bottom": 313.828125,
+        "width": 128.140625,
+        "height": 168.9375
+      },
+      "groundList": {
+        "left": 532.46875,
+        "top": 144.890625,
+        "right": 660.609375,
+        "bottom": 229.359375,
+        "width": 128.140625,
+        "height": 84.46875
+      },
+      "equipment": [
+        {
+          "key": "slot:weapon",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:feet",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:hands",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:neck",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "slot:ring",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        }
+      ],
+      "backpack": [
+        {
+          "key": "backpack:0",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:2",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:3",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:4",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:5",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:6",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "backpack:7",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        }
+      ],
+      "ground": [
+        {
+          "key": "ground:item-test-ground-0",
+          "rect": {
+            "left": 533.640625,
+            "top": 146.0625,
+            "right": 573.53125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "rect": {
+            "left": 575.875,
+            "top": 146.0625,
+            "right": 615.765625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-2",
+          "rect": {
+            "left": 533.640625,
+            "top": 188.296875,
+            "right": 573.53125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-3",
+          "rect": {
+            "left": 575.875,
+            "top": 188.296875,
+            "right": 615.765625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          }
+        }
+      ],
+      "figure": {
+        "rect": {
+          "left": 241.234375,
+          "top": 146.0625,
+          "right": 365.640625,
+          "bottom": 354.96875,
+          "width": 124.40625,
+          "height": 208.90625
+        },
+        "ariaHidden": "true",
+        "tabIndex": null,
+        "pointerEvents": "none",
+        "blocks": [
+          {
+            "className": "inventory-figure-block inventory-figure-torso",
+            "rect": {
+              "left": 284.765625,
+              "top": 188.3125,
+              "right": 322.078125,
+              "bottom": 270.46875,
+              "width": 37.3125,
+              "height": 82.15625
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-arm-left",
+            "rect": {
+              "left": 268.59375,
+              "top": 189.484375,
+              "right": 278.53125,
+              "bottom": 273.984375,
+              "width": 9.9375,
+              "height": 84.5
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-arm-right",
+            "rect": {
+              "left": 328.34375,
+              "top": 189.484375,
+              "right": 338.28125,
+              "bottom": 273.984375,
+              "width": 9.9375,
+              "height": 84.5
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-leg-left",
+            "rect": {
+              "left": 287.25,
+              "top": 272.8125,
+              "right": 298.4375,
+              "bottom": 397.21875,
+              "width": 11.1875,
+              "height": 124.40625
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-leg-right",
+            "rect": {
+              "left": 308.4375,
+              "top": 272.8125,
+              "right": 319.625,
+              "bottom": 397.21875,
+              "width": 11.1875,
+              "height": 124.40625
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "viewport": "1280x720",
+    "layout": {
+      "frame": {
+        "left": 48,
+        "top": 16,
+        "right": 1232,
+        "bottom": 682,
+        "width": 1184,
+        "height": 666
+      },
+      "panel": {
+        "left": 307,
+        "top": 16,
+        "right": 973,
+        "bottom": 682,
+        "width": 666,
+        "height": 666
+      },
+      "body": {
+        "left": 324.609375,
+        "top": 33.609375,
+        "right": 955.390625,
+        "bottom": 664.390625,
+        "width": 630.78125,
+        "height": 630.78125
+      },
+      "columns": [
+        {
+          "left": 346.8125,
+          "top": 52.609375,
+          "right": 533.734375,
+          "bottom": 609.625,
+          "width": 186.921875,
+          "height": 557.015625
+        },
+        {
+          "left": 546.53125,
+          "top": 52.609375,
+          "right": 733.453125,
+          "bottom": 609.625,
+          "width": 186.921875,
+          "height": 557.015625
+        },
+        {
+          "left": 746.25,
+          "top": 52.609375,
+          "right": 933.171875,
+          "bottom": 609.625,
+          "width": 186.921875,
+          "height": 557.015625
+        }
+      ],
+      "columnRowGaps": [
+        4.80288,
+        4.80288,
+        4.80288
+      ],
+      "titles": [
+        {
+          "left": 354.203125,
+          "top": 60,
+          "right": 526.34375,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        },
+        {
+          "left": 553.921875,
+          "top": 60,
+          "right": 726.0625,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        },
+        {
+          "left": 753.640625,
+          "top": 60,
+          "right": 925.78125,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        }
+      ],
+      "titleFontSizes": [
+        17.4505,
+        17.4505,
+        17.4505
+      ],
+      "equipmentFigure": {
+        "left": 354.203125,
+        "top": 85.734375,
+        "right": 526.34375,
+        "bottom": 602.234375,
+        "width": 172.140625,
+        "height": 516.5
+      },
+      "equipmentList": {
+        "left": 354.203125,
+        "top": 85.734375,
+        "right": 526.34375,
+        "bottom": 602.234375,
+        "width": 172.140625,
+        "height": 516.5
+      },
+      "backpackList": {
+        "left": 552.328125,
+        "top": 84.140625,
+        "right": 727.65625,
+        "bottom": 314.578125,
+        "width": 175.328125,
+        "height": 230.4375
+      },
+      "groundList": {
+        "left": 752.046875,
+        "top": 84.140625,
+        "right": 927.375,
+        "bottom": 199.359375,
+        "width": 175.328125,
+        "height": 115.21875
+      },
+      "equipment": [
+        {
+          "key": "slot:weapon",
+          "rect": {
+            "left": 470.671875,
+            "top": 258.5625,
+            "right": 525.09375,
+            "bottom": 312.984375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:shield",
+          "rect": {
+            "left": 355.453125,
+            "top": 258.5625,
+            "right": 409.875,
+            "bottom": 312.984375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:armor",
+          "rect": {
+            "left": 413.0625,
+            "top": 200.953125,
+            "right": 467.484375,
+            "bottom": 255.375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:head",
+          "rect": {
+            "left": 413.0625,
+            "top": 85.734375,
+            "right": 467.484375,
+            "bottom": 140.15625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:feet",
+          "rect": {
+            "left": 413.0625,
+            "top": 316.171875,
+            "right": 467.484375,
+            "bottom": 370.59375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:hands",
+          "rect": {
+            "left": 413.0625,
+            "top": 258.5625,
+            "right": 467.484375,
+            "bottom": 312.984375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:neck",
+          "rect": {
+            "left": 355.453125,
+            "top": 143.34375,
+            "right": 409.875,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "slot:ring",
+          "rect": {
+            "left": 470.671875,
+            "top": 143.34375,
+            "right": 525.09375,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        }
+      ],
+      "backpack": [
+        {
+          "key": "backpack:0",
+          "rect": {
+            "left": 583.96875,
+            "top": 85.734375,
+            "right": 638.390625,
+            "bottom": 140.15625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:1",
+          "rect": {
+            "left": 641.578125,
+            "top": 85.734375,
+            "right": 696,
+            "bottom": 140.15625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:2",
+          "rect": {
+            "left": 583.96875,
+            "top": 143.34375,
+            "right": 638.390625,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:3",
+          "rect": {
+            "left": 641.578125,
+            "top": 143.34375,
+            "right": 696,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:4",
+          "rect": {
+            "left": 583.96875,
+            "top": 200.953125,
+            "right": 638.390625,
+            "bottom": 255.375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:5",
+          "rect": {
+            "left": 641.578125,
+            "top": 200.953125,
+            "right": 696,
+            "bottom": 255.375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:6",
+          "rect": {
+            "left": 583.96875,
+            "top": 258.5625,
+            "right": 638.390625,
+            "bottom": 312.984375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "backpack:7",
+          "rect": {
+            "left": 641.578125,
+            "top": 258.5625,
+            "right": 696,
+            "bottom": 312.984375,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        }
+      ],
+      "ground": [
+        {
+          "key": "ground:item-test-ground-0",
+          "rect": {
+            "left": 753.640625,
+            "top": 85.734375,
+            "right": 808.0625,
+            "bottom": 140.15625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "rect": {
+            "left": 811.25,
+            "top": 85.734375,
+            "right": 865.671875,
+            "bottom": 140.15625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "ground:item-test-ground-2",
+          "rect": {
+            "left": 753.640625,
+            "top": 143.34375,
+            "right": 808.0625,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        },
+        {
+          "key": "ground:item-test-ground-3",
+          "rect": {
+            "left": 811.25,
+            "top": 143.34375,
+            "right": 865.671875,
+            "bottom": 197.765625,
+            "width": 54.421875,
+            "height": 54.421875
+          }
+        }
+      ],
+      "figure": {
+        "rect": {
+          "left": 355.421875,
+          "top": 85.734375,
+          "right": 525.109375,
+          "bottom": 370.703125,
+          "width": 169.6875,
+          "height": 284.96875
+        },
+        "ariaHidden": "true",
+        "tabIndex": null,
+        "pointerEvents": "none",
+        "blocks": [
+          {
+            "className": "inventory-figure-block inventory-figure-torso",
+            "rect": {
+              "left": 414.8125,
+              "top": 143.359375,
+              "right": 465.71875,
+              "bottom": 255.421875,
+              "width": 50.90625,
+              "height": 112.0625
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-arm-left",
+            "rect": {
+              "left": 392.75,
+              "top": 144.96875,
+              "right": 406.3125,
+              "bottom": 260.234375,
+              "width": 13.5625,
+              "height": 115.265625
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-arm-right",
+            "rect": {
+              "left": 474.21875,
+              "top": 144.96875,
+              "right": 487.78125,
+              "bottom": 260.234375,
+              "width": 13.5625,
+              "height": 115.265625
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-leg-left",
+            "rect": {
+              "left": 418.203125,
+              "top": 258.625,
+              "right": 433.46875,
+              "bottom": 428.3125,
+              "width": 15.265625,
+              "height": 169.6875
+            }
+          },
+          {
+            "className": "inventory-figure-block inventory-figure-leg-right",
+            "rect": {
+              "left": 447.0625,
+              "top": 258.625,
+              "right": 462.328125,
+              "bottom": 428.3125,
+              "width": 15.265625,
+              "height": 169.6875
+            }
+          }
+        ]
+      }
+    }
+  }
+]
