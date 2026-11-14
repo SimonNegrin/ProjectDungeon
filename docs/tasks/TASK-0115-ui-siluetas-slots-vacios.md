@@ -4,22 +4,38 @@ id: TASK-0115
 title: "UI: siluetas sólidas en slots de equipamiento vacíos"
 description: "Mostrar en cada slot de equipamiento vacío una silueta sólida del objeto representativo del hueco, derivada de items.png y oculta al equipar."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-019, R-020, R-029, P-008, S-001, S-005, T-010, T-017]
 depends_on: [TASK-0114]
 unlocks: [TASK-0117]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T16:57:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0115/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T16:57:00Z
+    note: >-
+      Intento 1 verificado (código `23113e1`, informe `8cdf792`; fusión
+      `876d996`). Reejecutados `pnpm run verify` (120 s; 94 archivos,
+      1328/1328, tsc, build y bundle) y `pnpm run test:e2e` (180 s; 195/195).
+      Los ocho slots de Equipo vacíos pintan la silueta de su tabla única
+      `EQUIPMENT_SILHOUETTES` con el recorte exacto de `items.txt` y color
+      `#6eb8a8`; capa propia `aria-hidden`, `pointer-events: none`, sin foco ni
+      clics. El slot lleno oculta la máscara y conserva solo el sprite; al
+      desequipar reaparece. Bolsa y Suelo no crean capa; tamaño, bisel,
+      geometría y encaje no cambian, sin CLS. Diff revisado: solo
+      `src/game/equipment.ts`, `src/host/inventory-panel-view.ts`,
+      `src/host/ui.css`, dos tests nuevos y artefactos; sin cursor, figura,
+      reglas, navegación, `items.png` ni docs, y sin tests existentes
+      modificados. Capturas a 900×700 y 1280×720 revisadas.
 ---
 
 # Objetivo

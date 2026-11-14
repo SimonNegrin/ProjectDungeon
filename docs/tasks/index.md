@@ -105,7 +105,7 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0112](TASK-0112-ui-biseles-gruesos-crecimiento.md) | UI: biseles de 2× línea y crecimiento hacia fuera | `done` | REQ-033 | — | P1 |
 | [TASK-0113](TASK-0113-ui-listas-verticales-stats-traits.md) | UI: listas verticales de stats y traits | `done` | REQ-033 | — | P1 |
 | [TASK-0114](TASK-0114-ui-panel-arriba-figura-sin-cabeza.md) | UI: panel alineado arriba y figura sin cabeza | `done` | REQ-033 | TASK-0112 | P1 |
-| [TASK-0115](TASK-0115-ui-siluetas-slots-vacios.md) | UI: siluetas sólidas en slots de equipamiento vacíos | `backlog` | REQ-033 | TASK-0114 | P1 |
+| [TASK-0115](TASK-0115-ui-siluetas-slots-vacios.md) | UI: siluetas sólidas en slots de equipamiento vacíos | `done` | REQ-033 | TASK-0114 | P1 |
 | [TASK-0116](TASK-0116-ui-cursor-panel-alineado.md) | UI: cursor del panel alineado con el mapa | `backlog` | REQ-033 | TASK-0112, TASK-0114 | P1 |
 | [TASK-0117](TASK-0117-qa-visual-correccion-ui-v7.md) | QA visual de la corrección de UI v7 | `backlog` | REQ-033 | TASK-0112, TASK-0113, TASK-0114, TASK-0115, TASK-0116 | P1 |
 | [TASK-0118](TASK-0118-docs-correccion-visual-adr.md) | Docs: corrección visual, ADR y glosario | `backlog` | REQ-033 | TASK-0117 | P1 |
@@ -130,7 +130,6 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0115 — UI: siluetas sólidas en slots de equipamiento vacíos](TASK-0115-ui-siluetas-slots-vacios.md)
 * [TASK-0116 — UI: cursor del panel alineado con el mapa](TASK-0116-ui-cursor-panel-alineado.md)
 * [TASK-0117 — QA visual de la corrección de UI v7](TASK-0117-qa-visual-correccion-ui-v7.md)
 * [TASK-0118 — Docs: corrección visual, ADR y glosario](TASK-0118-docs-correccion-visual-adr.md)
@@ -237,6 +236,7 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0112 — UI: biseles de 2× línea y crecimiento hacia fuera](TASK-0112-ui-biseles-gruesos-crecimiento.md)
 * [TASK-0113 — UI: listas verticales de stats y traits](TASK-0113-ui-listas-verticales-stats-traits.md)
 * [TASK-0114 — UI: panel alineado arriba y figura sin cabeza](TASK-0114-ui-panel-arriba-figura-sin-cabeza.md)
+* [TASK-0115 — UI: siluetas sólidas en slots de equipamiento vacíos](TASK-0115-ui-siluetas-slots-vacios.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
