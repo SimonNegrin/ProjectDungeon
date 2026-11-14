@@ -5,6 +5,12 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0121 — done: un solo helper de auditoría de CLS en `support.ts`, esquema común y filtro alineado con P-006; recogida de 4 objetos en el Suelo sin shifts prohibidos; specs 32/32, E2E 215/215 y verify 1332/1332; fusión `158e09c` — [informe](../artifacts/TASK-0121/attempt-1/report.md)
+
+* 2026-11-14 — Docs — Arnés — QA visual mide interiores con `getBoundingClientRect()` + padding/token y tolerancia ±1, no con el borde computado; workflow documenta que `pnpm run test:e2e -- <spec>` no filtra y remite a `pnpm run test:e2e <spec>`; docs:check 563 documentos — [QA visual](harness/visual-qa.md)
+
+* 2026-11-14 — Planning — TASK-0121 — ready: observer de CLS compartido para los cuatro specs, esquema único y filtro alineado con P-006; cobertura de recogida con 4 objetos en el Suelo; sin cambios de UI ni de reglas — [TASK-0121](tasks/TASK-0121-e2e-observer-cls-compartido.md)
+
 * 2026-11-14 — Task — TASK-0120 — done: el feedback transitorio vuelve a consumirse con el reloj real; banner y textos caducan y el host deja de repintar en reposo (`raf: 0`); A/B 3/3, verify 1332/1332 y E2E 214/214; fusión `bd8a62d` — [informe](../artifacts/TASK-0120/attempt-1/report.md)
 
 * 2026-11-14 — Planning — TASK-0120 — backlog: el reloj de feedback no caduca y el host repinta a 60 fps tras cualquier acción; reproducción en TASK-0119 y criterios propios de REQ-017; pendiente de revisión del usuario — [TASK-0120](tasks/TASK-0120-reloj-feedback-bucle-render.md)
