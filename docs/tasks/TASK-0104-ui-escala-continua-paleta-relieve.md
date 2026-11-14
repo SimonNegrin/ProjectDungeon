@@ -4,7 +4,7 @@ id: TASK-0104
 title: "UI: escala continua, paleta y relieve vintage"
 description: "Derivar una escala única del marco, aplicar los ocho colores y sustituir radios, sombras y degradados por biseles outset/inset en la UI de juego."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-002, R-003, R-004, R-005, R-016, R-018, T-001, T-002, T-003, T-011]
