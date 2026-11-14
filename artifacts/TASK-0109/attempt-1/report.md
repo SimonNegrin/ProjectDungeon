@@ -79,13 +79,13 @@ Mirar sobre todo `tres-columnas-900x700.png`, `tres-zonas-900x700.png`,
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `artifactPath(testInfo,'logs',name)` se sobrescribe entre viewports: fullyParallel usa workers distintos y solo queda el último. | Antes del arreglo, `cursor.json`/`cls.json` solo contenían 1280×720. | Añadir `<viewport>` como segmento de ruta. | Cualquier spec QA multi-viewport que capture logs con el mismo nombre. | Que el brief incluya `<vp>` en la ruta o `artifactPath` acepte ámbito estable. | Bajo; solo rutas. | `pending` |
+| `artifactPath(testInfo,'logs',name)` se sobrescribe entre viewports: fullyParallel usa workers distintos y solo queda el último. | Antes del arreglo, `cursor.json`/`cls.json` solo contenían 1280×720. | Añadir `<viewport>` como segmento de ruta. | Cualquier spec QA multi-viewport que capture logs con el mismo nombre. | Que el brief incluya `<vp>` en la ruta o `artifactPath` acepte ámbito estable. | Bajo; solo rutas. | `deferred (harness-keeper)` |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
-| `brief_bytes` | 4081 |
-| `report_bytes` | 4049 |
+| `brief_bytes` | 4084 |
+| `report_bytes` | 4067 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
