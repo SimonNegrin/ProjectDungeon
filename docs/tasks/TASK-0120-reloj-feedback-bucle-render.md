@@ -4,22 +4,35 @@ id: TASK-0120
 title: "Bug: el reloj de feedback no caduca y el host repinta a 60 fps"
 description: "Tras cualquier feedback transitorio, el host repinta cada frame y los banners y textos no desaparecen; restaurar el consumo del reloj de presentación de REQ-017."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-017
 requirement_ids: [R-011, R-016, T-005]
 depends_on: []
 unlocks: []
 created_at: 2026-11-14T20:06:00Z
-completed_at:
-assignee: task-runner
-attempts: 0
+completed_at: 2026-11-14T20:25:00Z
+assignee: task-lead
+attempts: 1
 artifacts: artifacts/TASK-0120/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T20:06:00Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T20:25:00Z
+    note: >-
+      Intento 1 verificado (fix `bd56ad0`; informe `768b929`). Reejecutados
+      `pnpm run verify` (94 archivos, 1332/1332, build y bundle) y
+      `pnpm run test:e2e` (214/214). A/B propio del spec nuevo revirtiendo
+      `src/host/main.ts`: 3 failed sin el arreglo y 3/3 con él
+      (`lead-verify/ab-before.txt`, `ab-after.txt`). Evidencia previa y posterior
+      en `attempt-1/before/` y `after/`: banner `+ Hacha` visible a los 2 s con
+      61 renders/s antes; oculto con `raf: 0` y `mutations: 0` después; textos de
+      impacto y fallo caducan sin reiniciar su animación. Diff limitado a
+      `src/host/main.ts` y el spec nuevo; sin `src/game/**`, duraciones, beats,
+      orden, aspecto, `setTimeout` ni tests existentes tocados.
 ---
 
 # Objetivo
@@ -52,19 +65,19 @@ Evidencia: `artifacts/TASK-0119/lead-repro/confirm-loop.txt`,
 
 # Criterios de aceptación
 
-- [ ] Tras un banner de 800 ms (recoger o cambiar de arma), desaparece al agotar
+- [x] Tras un banner de 800 ms (recoger o cambiar de arma), desaparece al agotar
       su duración real y no queda visible indefinidamente.
-- [ ] Los textos de daño (`-N`, `Fallo`, 1000 ms) desaparecen al agotarse, con un
+- [x] Los textos de daño (`-N`, `Fallo`, 1000 ms) desaparecen al agotarse, con un
       máximo de tres y sin reiniciar su animación en frames sucesivos.
-- [ ] En reposo, con el feedback agotado, no queda un bucle de render: durante
+- [x] En reposo, con el feedback agotado, no queda un bucle de render: durante
       1 s no se repite por frame la actualización de HUD/panel; el conteo de
       renders vuelve a cero (instrumentado en el test).
-- [ ] `advance(ms)` sigue siendo determinista y equivalente al reloj real, sin
+- [x] `advance(ms)` sigue siendo determinista y equivalente al reloj real, sin
       `setTimeout` para el feedback (REQ-017 T-005).
-- [ ] `EnemyPhaseStarted`, `PlayerTurnStarted`, `AlarmRaised` y los beats
+- [x] `EnemyPhaseStarted`, `PlayerTurnStarted`, `AlarmRaised` y los beats
       conservan duración, orden y aspecto (R-014/R-016); no se toca el motor.
-- [ ] `pnpm run verify` y `pnpm run test:e2e` pasan sin debilitar tests.
-- [ ] Reproducción guardada antes del arreglo (banner vivo a los 2 s y renders
+- [x] `pnpm run verify` y `pnpm run test:e2e` pasan sin debilitar tests.
+- [x] Reproducción guardada antes del arreglo (banner vivo a los 2 s y renders
       continuos) y después.
 
 # Plan de test
@@ -80,10 +93,10 @@ Evidencia: `artifacts/TASK-0119/lead-repro/confirm-loop.txt`,
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0120/attempt-1/report.md`
-- [ ] Salida del E2E fallando antes y pasando después
-- [ ] Salida de `pnpm run verify` y del E2E completo
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0120/attempt-1/report.md`
+- [x] Salida del E2E fallando antes y pasando después
+- [x] Salida de `pnpm run verify` y del E2E completo
+- [x] Commit SHA
 
 # Restricciones
 

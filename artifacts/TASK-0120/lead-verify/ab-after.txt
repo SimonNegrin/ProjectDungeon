@@ -1,0 +1,8 @@
+
+Running 3 tests using 3 workers
+
+  ✓  3 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:136:1 › TASK-0120: el banner de recogida caduca en tiempo real y el render se detiene (3.3s)
+  ✓  1 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de fallo caduca sin reiniciar su animación (3.8s)
+  ✓  2 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de impacto caduca sin reiniciar su animación (4.3s)
+
+  3 passed (5.5s)
