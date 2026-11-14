@@ -318,6 +318,40 @@ function sameRect(a: ItemSpriteRect, b: ItemSpriteRect): boolean {
   return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
+/** Silueta aprobada de un hueco: etiqueta de `items.txt` y su celda. */
+export interface EquipmentSilhouette {
+  /** Etiqueta exacta de `items.txt`; documenta el objeto representativo. */
+  readonly label: string;
+  readonly rect: ItemSpriteRect;
+}
+
+function silhouetteFromLabel(label: string): EquipmentSilhouette {
+  const rect = rectFromLabel(label);
+  if (rect === null) {
+    throw new Error(`Etiqueta de silueta no válida: ${label}`);
+  }
+  return { label, rect };
+}
+
+/**
+ * Tabla única de las ocho siluetas de equipamiento (REQ-033 R-029/S-005).
+ * Las piezas que ya existen en el catálogo reutilizan su sprite; los cinco
+ * huecos secundarios declaran aquí su celda. Ningún componente duplica estos
+ * recortes: la vista solo traduce `rect` a `mask-position`.
+ */
+export const EQUIPMENT_SILHOUETTES: Readonly<
+  Record<EquipmentSlot, EquipmentSilhouette>
+> = {
+  weapon: { label: ITEMS.sword.sprite.label, rect: ITEMS.sword.sprite.rect },
+  shield: { label: ITEMS.shield.sprite.label, rect: ITEMS.shield.sprite.rect },
+  armor: { label: ITEMS.armor.sprite.label, rect: ITEMS.armor.sprite.rect },
+  head: silhouetteFromLabel('16.e. helm'),
+  feet: silhouetteFromLabel('15.b. leather boots'),
+  hands: silhouetteFromLabel('14.b. leather gloves'),
+  neck: silhouetteFromLabel('17.b. metal pendant'),
+  ring: silhouetteFromLabel('18.b. gold band ring'),
+};
+
 /**
  * Valida un catálogo de objetos: IDs únicos, categoría y hueco coherentes,
  * manos 1|2, paquetes de daño de REQ-029, traits vacíos, modificadores

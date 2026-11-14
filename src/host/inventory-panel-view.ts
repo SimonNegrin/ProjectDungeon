@@ -8,7 +8,11 @@
  * centro de cada celda y el módulo puro resuelve el vecino.
  */
 
-import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../game/equipment';
+import {
+  EQUIPMENT_SILHOUETTES,
+  EQUIPMENT_SLOTS,
+  type EquipmentSlot,
+} from '../game/equipment';
 import type { GameState } from '../game/types';
 import {
   buildInventoryPanelModel,
@@ -34,6 +38,8 @@ interface CellView {
   readonly zone: string;
   readonly root: HTMLLIElement;
   readonly icon: HTMLElement;
+  /** Solo en los huecos de Equipo; Bolsa y Suelo no pintan silueta. */
+  readonly silhouette: HTMLElement | null;
 }
 
 interface CorpseView {
@@ -159,6 +165,25 @@ function directionForKey(key: string): NavigationDirection | null {
   }
 }
 
+/** La silueta es exclusiva del hueco de Equipo vacío (REQ-033 R-029/S-005). */
+export function showsEquipmentSilhouette(zone: string, empty: boolean): boolean {
+  return zone === 'equipment' && empty;
+}
+
+function createSilhouette(key: string, testId: string): HTMLElement {
+  const slot = key.slice('slot:'.length) as EquipmentSlot;
+  const rect = EQUIPMENT_SILHOUETTES[slot].rect;
+  const silhouette = document.createElement('span');
+  silhouette.className = 'inventory-slot-silhouette';
+  silhouette.dataset.testid = `${testId}-silhouette`;
+  silhouette.setAttribute('aria-hidden', 'true');
+  silhouette.hidden = true;
+  // La tabla única vive en `equipment.ts`; aquí solo se traduce su recorte.
+  silhouette.style.maskPosition = spritePosition(rect);
+  silhouette.style.webkitMaskPosition = spritePosition(rect);
+  return silhouette;
+}
+
 function createCell(
   parent: HTMLElement,
   key: string,
@@ -177,10 +202,16 @@ function createCell(
   icon.setAttribute('aria-hidden', 'true');
   icon.hidden = true;
 
+  const silhouette =
+    zone === 'equipment'
+      ? createSilhouette(key, `inventory-${rowTestId(key)}`)
+      : null;
+
   root.append(icon);
+  if (silhouette) root.append(silhouette);
   parent.append(root);
 
-  return { key, zone, root, icon };
+  return { key, zone, root, icon, silhouette };
 }
 
 /** Icono DOM con el mismo recorte que el mundo: fondo CSS sobre `items.png`. */
@@ -198,6 +229,9 @@ function updateCell(view: CellView, item: PanelItem): void {
   view.root.dataset.empty = String(item.empty);
   view.root.classList.toggle('is-empty', item.empty);
   updateIcon(view.icon, item);
+  if (view.silhouette) {
+    view.silhouette.hidden = !showsEquipmentSilhouette(view.zone, item.empty);
+  }
 
   if (item.empty) {
     view.root.removeAttribute('tabindex');
