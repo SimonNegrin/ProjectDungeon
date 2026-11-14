@@ -78,13 +78,13 @@ antes de los 150 ms con el bucle de feedback vivo.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `pnpm run test:e2e -- <spec>` ejecuta toda la suite; el `--` llega literal a Playwright | Primera corrida: `playwright test -- tests/...`, «Running 210 tests»; con `pnpm exec playwright test <spec>`, 3 | `pnpm exec playwright test <ruta>` | Cualquier spec suelto pierde tiempo y mezcla evidencia | Documentar el filtro por ruta con `pnpm exec playwright test` | Bajo; solo documentación | `pending` |
+| `pnpm run test:e2e -- <spec>` ejecuta toda la suite; el `--` llega literal a Playwright | Primera corrida: `playwright test -- tests/...`, «Running 210 tests»; con `pnpm exec playwright test <spec>`, 3 | `pnpm exec playwright test <ruta>` | Cualquier spec suelto pierde tiempo y mezcla evidencia | Documentar el filtro por ruta con `pnpm exec playwright test` | Bajo; solo documentación | `deferred` (harness-keeper) |
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2555 |
-| `report_bytes` | 3929 |
+| `report_bytes` | 3947 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
