@@ -315,10 +315,10 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(buildCursorDetail(state, { x: 4, y: 4 }).kind).toBe('ally');
   });
 
-  it('los traits salen del catálogo equipado y hoy están vacíos', () => {
+  it('los traits salen del catálogo equipado y hoy no hay bloque', () => {
     const state = makeState();
-    expect(traitsLabel(state.players[0])).toBe('Sin traits activos');
-    expect(traitsLabel(undefined)).toBe('Sin traits activos');
+    expect(traitsLabel(state.players[0])).toBeNull();
+    expect(traitsLabel(undefined)).toBeNull();
   });
 });
 

@@ -140,14 +140,14 @@ export function conditionLabel(unit: Unit | undefined): string | null {
 
 /**
  * Traits de las definiciones equipadas. El catálogo actual no declara ninguno;
- * esta función devuelve el estado vacío real y no inventa notas de recorte.
+ * esta función devuelve `null` y el HUD omite el bloque sin estado vacío.
  */
-export function traitsLabel(unit: Unit | undefined): string {
-  if (!unit) return 'Sin traits activos';
+export function traitsLabel(unit: Unit | undefined): string | null {
+  if (!unit) return null;
   const traits = Object.values(unit.equipment)
     .filter((instance) => instance !== null)
     .flatMap((instance) => ITEMS[instance.itemId].traits);
-  if (traits.length === 0) return 'Sin traits activos';
+  if (traits.length === 0) return null;
   return traits.map((trait) => `${trait.id}: ${trait.description}`).join(' · ');
 }
 

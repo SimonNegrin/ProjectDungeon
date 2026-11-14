@@ -224,6 +224,48 @@ describe('relieve y elementos de la UI de juego', () => {
     expect(panelView).toContain('`inventory-row ui-inset ${className}`');
   });
 
+  it('compone el HUD izquierdo en tres zonas con pie fuera de ellas', () => {
+    const zones = html.match(/class="hud-zone ui-outset"/g) ?? [];
+    expect(zones).toHaveLength(3);
+    for (const [zone, label] of [
+      ['character', 'Personaje'],
+      ['weapon', 'Arma actual'],
+      ['stats', 'Stats y traits'],
+    ] as const) {
+      const tag =
+        html.match(
+          new RegExp(`<section[^>]*data-testid="hud-zone-${zone}"[^>]*>`),
+        )?.[0] ?? '';
+      expect(tag, `Falta la zona ${zone}`).toContain('hud-zone ui-outset');
+      expect(tag).toContain(`data-zone="${zone}"`);
+      expect(tag).toContain(`aria-label="${label}"`);
+    }
+
+    const left =
+      html.match(/<aside class="hud-left ui-outset"[\s\S]*?<\/aside>/)?.[0] ?? '';
+    expect(left).toContain('class="hud-portrait ui-inset"');
+    for (const retired of ['hud-phase', 'hud-enemy-hp', 'hud-turn', 'hud-status']) {
+      expect(left, `El HUD izquierdo no debe declarar ${retired}`).not.toContain(
+        `data-testid="${retired}"`,
+      );
+    }
+
+    const lastZone = html.indexOf('data-testid="hud-zone-stats"');
+    const footer = html.indexOf('class="hud-footer"');
+    const keys = html.indexOf('data-testid="hud-keys"');
+    const suggestion = html.indexOf('data-testid="hud-suggestion"');
+    expect(footer).toBeGreaterThan(lastZone);
+    expect(keys).toBeGreaterThan(footer);
+    expect(suggestion).toBeGreaterThan(keys);
+    expect(left).toContain('class="hud-footer"');
+    expect(block('.hud-zone')).toMatch(/background:\s*var\(--ui-raised\)/);
+    expect(block('.hud-zone')).toMatch(/padding:\s*calc\(var\(--ui-unit\)\s*\*/);
+    expect(block('.hud-zone[data-zone="character"]')).toMatch(
+      /grid-template-columns:\s*auto\s+minmax\(0,\s*1fr\)/,
+    );
+    expect(block('.hud-footer')).toMatch(/margin-top:\s*auto/);
+  });
+
   it('no deja radios ni sombras en las reglas del HUD', () => {
     const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
       .filter((match) => /\.hud/.test(match[1]))

@@ -143,6 +143,8 @@ test.describe('hechizos, HUD y feedback', () => {
       await openState(page, spellScenario());
 
       // HUD de magia/maná del jugador y del enemigo bajo el cursor.
+      await expect(page.getByTestId('hud-magic-row')).toBeVisible();
+      await expect(page.getByTestId('hud-mana-row')).toBeVisible();
       await expect(page.getByTestId('hud-player-magic')).toHaveText('4');
       await expect(page.getByTestId('hud-player-mana')).toHaveText('16/16');
       await expect(page.getByTestId('hud-action')).toHaveText('3/3');
@@ -383,4 +385,15 @@ test.describe('hechizos, HUD y feedback', () => {
       expect(outOfRange.rng).toEqual(beforeRange.rng);
     });
   }
+
+  test('las filas de magia y maná se ocultan sin magia', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await openState(page, spellScenario({ magicLevel: 0, mana: 0, manaMax: 0 }));
+
+    await expect(page.getByTestId('hud-zone-stats')).toBeVisible();
+    await expect(page.getByTestId('hud-magic-row')).toBeHidden();
+    await expect(page.getByTestId('hud-mana-row')).toBeHidden();
+    await expect(page.getByTestId('hud-player-magic')).toBeHidden();
+    await expect(page.getByTestId('hud-player-mana')).toBeHidden();
+  });
 });

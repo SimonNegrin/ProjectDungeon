@@ -5,7 +5,7 @@ import {
   type Unit,
 } from '../../../src/game/index';
 import type { Position } from '../../../src/game/types';
-import { buildHudModel } from '../../../src/host/hud';
+import { buildDebugModel, buildHudModel } from '../../../src/host/hud';
 import { translateKey } from '../../../src/host/input';
 import { GameSession } from '../../../src/host/session';
 import {
@@ -113,9 +113,28 @@ describe('sesión de juego', () => {
     ]);
     expect(session.state.enemies[0]).toMatchObject({ hp: targetHp });
     expect(session.state.players[0].actions.remaining).toBe(1);
-    expect(buildHudModel(session.state).enemyHp).toBe(
-      `${targetHp}/${initial.enemies[0].maxHp}`,
-    );
+    // La vida del enemigo ya no vive en el HUD: F1 la conserva.
+    const debug = buildDebugModel(
+      session.state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      result.events,
+      {
+        x: 6,
+        y: 5,
+        visible: true,
+        kind: 'enemy',
+        state: 'enemy',
+        path: [],
+        cost: 0,
+        withinMp: true,
+        strongSteps: 0,
+      },
+    ).lines.join('\n');
+    expect(debug).toContain(`Vida: player-1`);
+    expect(debug).toContain(`enemy-1 ${targetHp}/${initial.enemies[0].maxHp}`);
+    expect(buildHudModel(session.state)).not.toHaveProperty('enemyHp');
   });
 
   it('la muerte del enemigo emite UnitDied y GameEnded con victoria', () => {

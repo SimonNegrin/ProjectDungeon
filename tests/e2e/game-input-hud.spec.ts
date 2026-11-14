@@ -30,8 +30,6 @@ async function expectHud(
     playerHp?: string;
     playerMp?: string;
     action?: string;
-    phase?: string;
-    enemyHp?: string;
   },
 ): Promise<void> {
   if (values.playerHp !== undefined) {
@@ -43,12 +41,16 @@ async function expectHud(
   if (values.action !== undefined) {
     await expect(page.getByTestId('hud-action')).toHaveText(values.action);
   }
-  if (values.phase !== undefined) {
-    await expect(page.getByTestId('hud-phase')).toHaveText(values.phase);
-  }
-  if (values.enemyHp !== undefined) {
-    await expect(page.getByTestId('hud-enemy-hp')).toHaveText(values.enemyHp);
-  }
+}
+
+/** Fase, turno, vida enemiga y estado solo viven en el overlay de `F1`. */
+async function expectDebug(page: Page, fragments: readonly string[]): Promise<void> {
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const text = (await page.getByTestId('debug-content').textContent()) ?? '';
+  for (const fragment of fragments) expect(text).toContain(fragment);
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
 }
 
 test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async ({
@@ -77,10 +79,15 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     playerHp: '20/20',
     playerMp: '6/6',
     action: '2/2',
-    phase: 'Jugador',
-    enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
   });
-  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
+  // Fase, turno y vida enemiga ya no están en el HUD izquierdo.
+  for (const retired of ['hud-phase', 'hud-enemy-hp', 'hud-turn', 'hud-status']) {
+    await expect(page.getByTestId(retired)).toHaveCount(0);
+  }
+  await expectDebug(page, [
+    'Fase: Jugador · Turno 1',
+    `Enemigo: (${startEnemy.x}, ${startEnemy.y}) · HP ${startEnemy.hp}/${startEnemy.maxHp}`,
+  ]);
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
   await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse');
   await expect(page.getByTestId('hud-keys')).toContainText('F atacar');
@@ -209,9 +216,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterMiss.status).toBe(beforeMiss.status);
   await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
   await expectHud(page, {
-    enemyHp: `${startEnemy.hp}/${startEnemy.maxHp}`,
     action: '2/2',
   });
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  await expectDebug(page, [
+    `Enemigo: (${startEnemy.x}, ${startEnemy.y}) · HP ${startEnemy.hp}/${startEnemy.maxHp}`,
+  ]);
 
   const rejected = await page.evaluate(() =>
     window.__game!.dispatch({
@@ -289,9 +299,8 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   // Durante el beat del ataque queda 1/2; el contador no cae a 0 hasta el
   // segundo ataque. Se comprueba en el cue, de forma determinista.
   await expect(page.getByTestId('hud-action')).toHaveText('1/2');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${playerAttack!.targetHp}/${durableEnemy.maxHp}`,
-  );
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
   await screenshot(page, 'attack', testInfo);
 
   // E termina el turno, ejecuta la fase enemiga y devuelve el control.
@@ -329,8 +338,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     playerHp: `${afterEndTurn.players[0].hp}/20`,
     playerMp: '6/6',
     action: '2/2',
-    phase: 'Jugador',
   });
+  await expect(page.getByTestId('hud-phase')).toHaveCount(0);
+  await expectDebug(page, [`Fase: Jugador · Turno ${afterEndTurn.turn}`]);
 
   // Moverse sobre el enemigo adyacente ataca sin moverse: victoria.
   await moveCursorTo(page, afterEndTurn.enemies[0].x, afterEndTurn.enemies[0].y);

@@ -4,7 +4,7 @@ id: TASK-0105
 title: "UI: HUD izquierdo en tres zonas"
 description: "Recomponer la columna izquierda en Personaje, Arma y Stats+Traits, con el sprite a la izquierda de la ficha y las teclas y la sugerencia al pie."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-001, R-007, R-008, T-005]
@@ -13,7 +13,7 @@ unlocks: [TASK-0109]
 created_at: 2026-11-14T12:02:44Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0105/
 priority: P1
 risk: medium

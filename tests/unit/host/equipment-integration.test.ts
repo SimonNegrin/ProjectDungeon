@@ -39,9 +39,12 @@ describe('integración de recogida y equipo con el HUD', () => {
 
     expect(picked.players[0].equipment.weapon?.itemId).toBe('sword');
     expect(backpackItemIds(picked)).toEqual([item.itemId]);
-    expect(buildHudModel(picked).weapon).toBe(
-      `${WEAPONS.sword.name} +${WEAPONS.sword.accuracy}/+${weaponDamage(WEAPONS.sword)}`,
-    );
+    expect(buildHudModel(picked).weapon).toMatchObject({
+      name: WEAPONS.sword.name,
+      accuracy: WEAPONS.sword.accuracy,
+      damage: weaponDamage(WEAPONS.sword),
+      sprite: ITEMS.sword.sprite.rect,
+    });
     expect(buildHudModel(picked).weaponHint).toBeNull();
   });
 
@@ -99,8 +102,12 @@ describe('integración de recogida y equipo con el HUD', () => {
     expect(equipped.players[0].equipment.weapon?.itemId).toBe(first.itemId);
     expect(equipped.players[0].mp).toBe(mpBefore - 1);
     expect(equipped.players[0].actions).toEqual(actionsBefore);
-    expect(buildHudModel(equipped).weapon).toBe(
-      `${WEAPONS[first.itemId as keyof typeof WEAPONS].name} +${WEAPONS[first.itemId as keyof typeof WEAPONS].accuracy}/+${weaponDamage(WEAPONS[first.itemId as keyof typeof WEAPONS])}`,
-    );
+    const weapon = WEAPONS[first.itemId as keyof typeof WEAPONS];
+    expect(buildHudModel(equipped).weapon).toMatchObject({
+      name: weapon.name,
+      accuracy: weapon.accuracy,
+      damage: weaponDamage(weapon),
+      sprite: ITEMS[first.itemId as keyof typeof ITEMS].sprite.rect,
+    });
   });
 });

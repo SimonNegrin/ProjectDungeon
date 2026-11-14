@@ -1,7 +1,8 @@
-import { EQUIPMENT_SLOTS, ITEMS } from '../game/equipment';
+import { EQUIPMENT_SLOTS, ITEMS, type ItemSpriteRect } from '../game/equipment';
 import { backpackCount, type ItemInstance } from '../game/inventory';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { alarmRadius, visionRadius } from '../game/perception';
+import { effectiveStats } from '../game/stats';
 import {
   pathLength,
   wideCorridorStretch,
@@ -23,6 +24,7 @@ import {
   formatMana,
   formatMp,
   shieldLabel,
+  signed,
   statsLabel,
   traitsLabel,
   weaponLabel,
@@ -38,6 +40,17 @@ import { PANEL_SLOT_LABELS } from './inventory-panel';
 export const KEYS_HELP =
   'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
 
+export interface HudWeapon {
+  /** Nombre del arma equipada. */
+  readonly name: string;
+  /** Acierto del arma; la vista lo muestra con signo. */
+  readonly accuracy: number;
+  /** Suma de los paquetes de daño; la vista la muestra con signo. */
+  readonly damage: number;
+  /** Recorte de `items.png`, el mismo que usa el panel de inventario. */
+  readonly sprite: ItemSpriteRect;
+}
+
 export interface HudModel {
   /** Nombre de instancia del jugador. */
   readonly playerName: string;
@@ -47,22 +60,22 @@ export interface HudModel {
   readonly playerMp: string;
   /** Nivel de magia único del jugador (REQ-025 R-011). */
   readonly playerMagic: string;
+  /** `false` si el jugador no tiene magia y la fila se omite sin dejar hueco. */
+  readonly playerMagicVisible: boolean;
   /** Maná actual/máximo del jugador; `0/0` sin magia. */
   readonly playerMana: string;
   /** `false` si el jugador no tiene maná y la fila se omite sin dejar hueco. */
   readonly playerManaVisible: boolean;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
-  /** Traits activos derivados de las definiciones equipadas. */
-  readonly traits: string;
+  /** Traits activos derivados de las definiciones equipadas; `null` sin traits. */
+  readonly traits: string | null;
   /** «Fantasma» con `hp <= 0`; no altera la mecánica de REQ-021. */
   readonly condition: string | null;
   /** Sugerencia discreta de terminar el turno; `null` si no aplica. */
   readonly actionSuggestion: string | null;
-  readonly phase: string;
-  readonly enemyHp: string;
-  /** Arma equipada con sus valores del catálogo. */
-  readonly weapon: string;
+  /** Arma equipada; `null` sin arma y la zona se oculta sin texto vacío. */
+  readonly weapon: HudWeapon | null;
   readonly shield: string;
   readonly armor: string;
   /** Atributos inherentes del jugador (REQ-014): habilidad, fuerza y defensa. */
@@ -84,8 +97,6 @@ export interface HudModel {
   readonly cursorDetail: CursorDetail;
   /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
   readonly weaponHint: string | null;
-  readonly turn: string;
-  readonly status: string;
   readonly keys: string;
   readonly overlays: {
     readonly victory: boolean;
@@ -141,10 +152,25 @@ function itemAtPlayer(
   );
 }
 
+/** Arma equipada con su recorte de sprite; `null` sin arma. */
+function hudWeapon(unit: Unit | undefined): HudWeapon | null {
+  if (!unit) return null;
+  const profile = effectiveStats(unit);
+  if (profile.weapon === null) return null;
+  return {
+    name: profile.weapon.name,
+    accuracy: profile.accuracy,
+    damage: profile.weapon.damagePackets.reduce(
+      (total, packet) => total + packet.amount,
+      0,
+    ),
+    sprite: profile.weapon.sprite.rect,
+  };
+}
+
 /** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
 export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = state.players[0];
-  const enemy = state.enemies[0];
   const groundItem = itemAtPlayer(state, player);
   const cursorDetail = buildCursorDetail(state, cursor);
   // La compatibilidad del HUD solo publica datos de un enemigo visible; sin
@@ -161,15 +187,14 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     playerHp: formatHp(player),
     playerMp: formatMp(player),
     playerMagic: formatMagic(player),
+    playerMagicVisible: (player?.stats.magicLevel ?? 0) > 0,
     playerMana: formatMana(player),
     playerManaVisible: (player?.mana.max ?? 0) > 0,
     action: formatActions(player),
     traits: traitsLabel(player),
     condition: conditionLabel(player),
     actionSuggestion: actionSuggestion(state),
-    phase: phaseLabel(state),
-    enemyHp: formatHp(enemy),
-    weapon: weaponLabel(player),
+    weapon: hudWeapon(player),
     shield: shieldLabel(player),
     armor: armorLabel(player),
     stats: statsLabel(player),
@@ -182,8 +207,6 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     weaponHint: groundItem
       ? `I panel · ${ITEMS[groundItem.itemId].name} en el suelo`
       : null,
-    turn: `Turno ${state.turn}`,
-    status: statusLabel(state),
     keys: KEYS_HELP,
     overlays: {
       victory: state.status === 'victory',
@@ -594,17 +617,17 @@ export function createHudView(root: ParentNode): HudView {
   const playerMp = requireElement(root, 'hud-player-mp');
   const playerMagic = requireElement(root, 'hud-player-magic');
   const playerMana = requireElement(root, 'hud-player-mana');
+  const magicRow = requireElement(root, 'hud-magic-row');
   const manaRow = requireElement(root, 'hud-mana-row');
   const action = requireElement(root, 'hud-action');
   const stats = requireElement(root, 'hud-stats');
   const traits = requireElement(root, 'hud-traits');
   const condition = requireElement(root, 'hud-condition');
+  const weaponZone = requireElement(root, 'hud-zone-weapon');
   const weapon = requireElement(root, 'hud-weapon');
+  const weaponStats = requireElement(root, 'hud-weapon-stats');
+  const weaponSprite = requireElement(root, 'hud-weapon-sprite');
   const actionSuggestion = requireElement(root, 'hud-suggestion');
-  const phase = requireElement(root, 'hud-phase');
-  const enemyHp = requireElement(root, 'hud-enemy-hp');
-  const turn = requireElement(root, 'hud-turn');
-  const status = requireElement(root, 'hud-status');
   const keys = requireElement(root, 'hud-keys');
   const weaponHint = requireElement(root, 'weapon-hint');
   const victory = requireElement(root, 'overlay-victory');
@@ -727,19 +750,30 @@ export function createHudView(root: ParentNode): HudView {
       playerMp.textContent = model.playerMp;
       playerMagic.textContent = model.playerMagic;
       playerMana.textContent = model.playerMana;
+      magicRow.hidden = !model.playerMagicVisible;
       manaRow.hidden = !model.playerManaVisible;
       action.textContent = model.action;
       stats.textContent = model.stats;
-      traits.textContent = model.traits;
+      traits.textContent = model.traits ?? '';
+      traits.hidden = model.traits === null;
       condition.textContent = model.condition ?? '';
       condition.hidden = model.condition === null;
-      weapon.textContent = model.weapon;
+      weaponZone.hidden = model.weapon === null;
+      weapon.textContent = model.weapon?.name ?? '';
+      weaponStats.textContent =
+        model.weapon === null
+          ? ''
+          : `${signed(model.weapon.accuracy)} acierto · ${signed(model.weapon.damage)} daño`;
+      if (model.weapon === null) {
+        weaponSprite.hidden = true;
+        weaponSprite.style.removeProperty('background-position');
+      } else {
+        weaponSprite.hidden = false;
+        const { x, y } = model.weapon.sprite;
+        weaponSprite.style.backgroundPosition = `calc(var(--ui-scale) * ${-x}px) calc(var(--ui-scale) * ${-y}px)`;
+      }
       actionSuggestion.textContent = model.actionSuggestion ?? '';
       actionSuggestion.hidden = model.actionSuggestion === null;
-      phase.textContent = model.phase;
-      enemyHp.textContent = model.enemyHp;
-      turn.textContent = model.turn;
-      status.textContent = model.status;
       keys.textContent = model.keys;
       cursorEnemyHp.textContent = model.cursorEnemyHp;
       cursorEnemyMagic.textContent = model.cursorEnemyMagic;

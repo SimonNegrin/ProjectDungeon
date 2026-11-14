@@ -35,13 +35,13 @@ const PX_TOLERANCE = 1;
 
 const HUD_TEST_IDS = [
   'hud',
+  'hud-zone-character',
+  'hud-zone-stats',
+  'hud-portrait',
   'hud-player-hp',
   'hud-player-mp',
   'hud-action',
-  'hud-phase',
-  'hud-enemy-hp',
-  'hud-turn',
-  'hud-status',
+  'hud-stats',
   'hud-keys',
 ] as const;
 
@@ -667,7 +667,7 @@ test('el enemigo empieza fuera del viewport y sigue fuera mientras la distancia 
   expect(consoleErrors).toEqual([]);
 });
 
-test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserva flash y daño', async ({
+test('el HUD muestra vida, MP, acción y arma; el ataque conserva flash y daño', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
@@ -678,11 +678,19 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
   await expect(page.getByTestId('hud-player-hp')).toHaveText('20/20');
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
   await expect(page.getByTestId('hud-action')).toHaveText('2/2');
-  await expect(page.getByTestId('hud-phase')).toHaveText('Jugador');
-  await expect(page.getByTestId('hud-turn')).toHaveText('Turno 1');
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${initialEnemy.hp}/${initialEnemy.maxHp}`,
+  // Fase, turno, estado y vida enemiga salen del HUD y siguen en F1.
+  for (const retired of ['hud-phase', 'hud-turn', 'hud-enemy-hp', 'hud-status']) {
+    await expect(page.getByTestId(retired)).toHaveCount(0);
+  }
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const initialDebug = (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(initialDebug).toContain('Fase: Jugador · Turno 1');
+  expect(initialDebug).toContain(
+    `Enemigo: (${initialEnemy.x}, ${initialEnemy.y}) · HP ${initialEnemy.hp}/${initialEnemy.maxHp}`,
   );
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   // Solo enemy-1: el resto de la guardia con su MP por tipo puede matar al
   // jugador durante el trayecto; el combate y sus aserciones no cambian.
@@ -725,9 +733,19 @@ test('el HUD muestra vida, MP, acción, fase, turno y enemigo; el ataque conserv
       }),
     ]),
   );
-  await expect(page.getByTestId('hud-enemy-hp')).toHaveText(
-    `${playerAttack!.targetHp}/${initialEnemy.maxHp}`,
+  await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
+  await page.waitForFunction(
+    () => !window.__game!.snapshot().animation.animating,
   );
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeVisible();
+  const afterAttackDebug =
+    (await page.getByTestId('debug-content').textContent()) ?? '';
+  expect(afterAttackDebug).toContain(
+    `Vida: player-1 ${afterAttack.players[0].hp}/${afterAttack.players[0].maxHp} · enemy-1 ${playerAttack!.targetHp}/${initialEnemy.maxHp}`,
+  );
+  await page.keyboard.press('F1');
+  await expect(page.getByTestId('debug-overlay')).toBeHidden();
   await expect(page.getByTestId('hud-action')).toHaveText('1/2');
 
   expect(consoleErrors).toEqual([]);

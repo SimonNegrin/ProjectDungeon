@@ -125,6 +125,43 @@
         background-position: 0 calc(var(--ui-unit) * -64);
         image-rendering: pixelated;
       }
+      /* Tres zonas enmarcadas sobre el panel; el pie queda fuera. */
+      .hud-zone {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 4);
+        min-width: 0;
+        padding: calc(var(--ui-unit) * 6);
+        background: var(--ui-raised);
+      }
+      .hud-zone[data-zone="character"] {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: start;
+        gap: calc(var(--ui-unit) * 6);
+      }
+      .hud-zone[data-zone="weapon"] {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: calc(var(--ui-unit) * 6);
+      }
+      .hud-weapon-sprite {
+        flex: 0 0 auto;
+        width: calc(var(--ui-unit) * 32);
+        height: calc(var(--ui-unit) * 32);
+        background-image: url("/assets/32rogues/items.png");
+        background-repeat: no-repeat;
+        background-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
+        image-rendering: pixelated;
+      }
+      .hud-character-data,
+      .hud-weapon-data {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 2);
+        min-width: 0;
+      }
       .hud-player-name {
         margin: 0;
         color: var(--ui-text);
@@ -143,16 +180,12 @@
       .hud-hint {
         color: var(--ui-accent);
       }
-      .hud-fields,
-      .hud-state-line {
+      .hud-fields {
         display: flex;
         flex-wrap: wrap;
-        gap: var(--ui-line) calc(var(--ui-unit) * 10);
-        margin: 0;
-      }
-      .hud-fields {
         flex-direction: column;
         gap: var(--ui-line);
+        margin: 0;
       }
       .hud-stat {
         display: flex;
@@ -161,9 +194,6 @@
         gap: 0 calc(var(--ui-unit) * 6);
         margin: 0;
         color: var(--ui-muted);
-      }
-      .hud-state-line .hud-stat {
-        justify-content: flex-start;
       }
       .hud-stat strong {
         color: var(--ui-text);
@@ -182,8 +212,24 @@
         font-size: var(--ui-data);
         font-weight: 700;
       }
-      .hud-weapon-slot {
-        gap: calc(var(--ui-unit) * 4);
+      .hud-weapon-name {
+        margin: 0;
+        color: var(--ui-text);
+        font-size: var(--ui-body);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .hud-weapon-stats {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+        line-height: 1.35;
+      }
+      .hud-footer {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 2);
+        margin-top: auto;
       }
       /* Bandas del enemigo bajo cursor: solo con línea de visión (REQ-029). */
       .hud-cursor-bands {
@@ -197,7 +243,7 @@
         color: var(--ui-text);
         font-variant-numeric: tabular-nums;
       }
-      .hud-stat strong.is-pulsing {
+      .hud-weapon-name.is-pulsing {
         animation: hud-slot-pulse var(--hud-pulse-ms, 350ms) steps(2, end) 1;
       }
       @keyframes hud-slot-pulse {
@@ -206,7 +252,7 @@
         100% { color: var(--ui-text); }
       }
       .hud-keys {
-        margin: auto 0 0;
+        margin: 0;
         color: var(--ui-muted);
         font-size: var(--ui-help);
         line-height: 1.35;
@@ -1086,7 +1132,7 @@
          también omite sacudida, retorno, fundido y tween; esta regla cubre las
          animaciones CSS que viven en el DOM. */
       @media (prefers-reduced-motion: reduce) {
-        .hud-stat strong.is-pulsing,
+        .hud-weapon-name.is-pulsing,
         .cursor.is-shaking,
         .cursor.is-returning,
         .spot-marker,

@@ -156,6 +156,35 @@ test('dos ataques, cierre manual con E, sugerencia y movimiento sin acciones', a
   await expect(suggestion).toHaveText(
     'Sin acciones ni MP: pulsa E para terminar el turno',
   );
+  // El pie no es una zona: teclas y sugerencia viven fuera de los marcos.
+  const footerPlacement = await page.evaluate(() => {
+    const suggestion = document.querySelector<HTMLElement>(
+      '[data-testid="hud-suggestion"]',
+    );
+    const keys = document.querySelector<HTMLElement>('[data-testid="hud-keys"]');
+    const stats = document.querySelector<HTMLElement>(
+      '[data-testid="hud-zone-stats"]',
+    );
+    return {
+      insideZone: Boolean(
+        suggestion?.closest('.hud-zone') || keys?.closest('.hud-zone'),
+      ),
+      keysBeforeSuggestion: Boolean(
+        keys && suggestion &&
+          keys.getBoundingClientRect().top <=
+            suggestion.getBoundingClientRect().top,
+      ),
+      belowStats: Boolean(
+        suggestion && stats &&
+          suggestion.getBoundingClientRect().top >= stats.getBoundingClientRect().bottom,
+      ),
+    };
+  });
+  expect(footerPlacement).toEqual({
+    insideZone: false,
+    keysBeforeSuggestion: true,
+    belowStats: true,
+  });
 
   await waitForCanvasStable(page);
   await screenshot(page, 'acciones-sin-mp-1280x720', testInfo);

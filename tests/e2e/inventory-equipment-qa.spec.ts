@@ -304,7 +304,9 @@ test('panel: equipar y desequipar con teclado y 1 MP sin acción', async ({
 
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();
-  await expect(page.getByTestId('hud-weapon')).toHaveText('Sin arma');
+  // Sin arma la zona entera se oculta: no queda el texto «Sin arma».
+  await expect(page.getByTestId('hud-zone-weapon')).toBeHidden();
+  await expect(page.getByTestId('hud-weapon')).toBeHidden();
   expect(consoleErrors).toEqual([]);
 });
 
