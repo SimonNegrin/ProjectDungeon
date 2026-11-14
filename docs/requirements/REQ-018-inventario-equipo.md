@@ -4,11 +4,11 @@ id: REQ-018
 title: Inventario y equipo por personaje
 description: "Ocho huecos de equipo, ocho de mochila y un panel único de gestión; equipar, recoger y soltar cuestan 1 MP, equipar desde el suelo o un contenedor va directo al hueco, el catálogo inicial se limita a armas, escudos y armaduras y el arma solo se cambia desde el panel. Sustituye el modelo de tres armas y la recogida con G de REQ-010."
 status: stable
-version: 7
+version: 8
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-14T02:14:13Z
+updated_at: 2026-11-14T11:56:14Z
 related_tasks: [TASK-0093, TASK-0094, TASK-0095, TASK-0096, TASK-0097, TASK-0098, TASK-0101, TASK-0102, TASK-0103]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
@@ -57,6 +57,15 @@ verified:
       navegación por proximidad, ficha de dos bloques y submenú contextual). El
       usuario hizo playtest del panel y lo aprueba. El HUD derecho queda reducido
       a los tipos existentes; contenedores y cofres llegan con REQ-020.
+  - by: human:simon
+    at: 2026-11-14T11:56:14Z
+    note: >-
+      Aprueba la v8: [REQ-033](REQ-033-revision-visual-hud-panel.md) v6 añade
+      títulos Equipo/Bolsa/Suelo, mantiene la figura humana, usa «Bolsa» como
+      etiqueta de UI, pone la rejilla de cadáveres y suelo en la columna derecha,
+      adopta slots cuadrados inset con sprites centrados, admite la distribución
+      alternativa 1/3 + dos filas y exige ausencia de Content Shift y cursor
+      superpuesto con transición.
 ---
 
 # Contexto
@@ -102,6 +111,11 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 
 # Enmiendas a documentos vigentes
 
+- [REQ-033](REQ-033-revision-visual-hud-panel.md) v6: el panel se titula
+  Equipo/Bolsa/Suelo, conserva la figura humana, usa «Bolsa» como etiqueta de UI,
+  pone cadáveres y suelo en rejilla en la columna derecha, adopta slots cuadrados
+  inset, admite la distribución alternativa 1/3 + dos filas y exige ausencia de
+  Content Shift y cursor superpuesto con transición.
 - [REQ-010](REQ-010-combate-equipo-acierto-defensa.md): su recogida con `G`, el
   auto-equipado y el cambio con `1`-`3` quedan sustituidos por `I` y el panel de
   esta hoja. La armadura y el escudo fijos pasan a ser objetos de hueco.

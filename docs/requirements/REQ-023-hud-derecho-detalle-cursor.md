@@ -4,11 +4,11 @@ id: REQ-023
 title: HUD derecho de detalle bajo el cursor
 description: "Columna derecha del marco con las stats exactas de la unidad, objeto, contenedor o puerta bajo el cursor, limitadas a la línea de visión de un jugador vivo."
 status: stable
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:05:00Z
-updated_at: 2026-11-14T00:20:17Z
+updated_at: 2026-11-14T11:56:14Z
 related_tasks: [TASK-0100, TASK-0102]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:05:00Z }
 verified:
@@ -19,6 +19,13 @@ verified:
       terreno, puertas y «desconocido»), stats en números, del enemigo arma,
       escudo y armadura, del aliado sin inventario y actualización por tile; los
       cofres llegan cuando REQ-020 los coloque.
+  - by: human:simon
+    at: 2026-11-14T11:56:14Z
+    note: >-
+      Aprueba la v4: [REQ-033](REQ-033-revision-visual-hud-panel.md) v6 elimina
+      el tipo duplicado, los subtítulos y las descripciones; el objeto muestra
+      sprite y stats verticales; los traits solo aparecen si existen y la ficha
+      del panel mantiene dos secciones enmarcadas con la etiqueta «Equipado».
 ---
 
 # Contexto
@@ -46,6 +53,9 @@ los detalles de presentación y el tratamiento de algunos estados.
   inspeccionar cofres; el panel de un vivo no hereda esa capacidad.
 - [REQ-032](REQ-032-estilo-visual-interaccion-ui.md): el HUD derecho también
   presenta el objeto seleccionado en el panel abierto, con el equipado al lado.
+- [REQ-033](REQ-033-revision-visual-hud-panel.md) v6: la ficha elimina el tipo
+  duplicado, los subtítulos y las descripciones; el objeto muestra sprite y
+  stats verticales, y los traits solo aparecen si existen.
 
 # Geometría compartida
 

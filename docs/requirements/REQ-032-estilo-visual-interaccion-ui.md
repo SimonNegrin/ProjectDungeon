@@ -4,11 +4,11 @@ id: REQ-032
 title: Estilo visual e interacción de la UI
 description: "Identidad pixel derivada de 32rogues, tipografía Pixelify Sans, línea de píxel escalado, pantalla en tres zonas, panel en tres columnas con figura de equipo, detalle del objeto en el HUD derecho con comparación y submenú contextual con Enter."
 status: stable
-version: 2
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T23:44:14Z
-updated_at: 2026-11-14T00:16:51Z
+updated_at: 2026-11-14T11:56:14Z
 related_tasks: [TASK-0099, TASK-0100, TASK-0101, TASK-0102, TASK-0103]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T23:44:14Z }
 verified:
@@ -29,6 +29,13 @@ verified:
       Aprueba la v2: se aclara el nombre de los tokens tras TASK-0099
       (`--ui-line-color` para el color y `--ui-line` para el grosor calculado);
       sin cambios de diseño.
+  - by: human:simon
+    at: 2026-11-14T11:56:14Z
+    note: >-
+      Aprueba la v3: [REQ-033](REQ-033-revision-visual-hud-panel.md) v6
+      sustituye la paleta, la escala continua, el relieve vintage, la
+      composición de los HUD y las reglas del panel; se conservan la fuente, la
+      identidad pixel, la navegación y el submenú.
 ---
 
 # Contexto
@@ -47,6 +54,10 @@ contenido de los HUD sigue en [REQ-022](REQ-022-hud-izquierdo-jugador.md) y
 
 # Enmienda a documentos vigentes
 
+- [REQ-033](REQ-033-revision-visual-hud-panel.md) v6: revisión visual vigente.
+  Sustituye la paleta, la escala, el relieve, la composición de los HUD y las
+  reglas del panel; conserva la identidad pixel, la fuente, la navegación y el
+  submenú de esta hoja.
 - [REQ-018](REQ-018-inventario-equipo.md) v6: el panel deja de mostrar stats y
   traits en la rejilla, la zona de suelo deja de ocultarse cuando está vacía y
   R-015 incluye los cadáveres del tile.

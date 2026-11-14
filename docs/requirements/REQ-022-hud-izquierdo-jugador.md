@@ -4,11 +4,11 @@ id: REQ-022
 title: HUD izquierdo del jugador activo
 description: "Columna izquierda del marco 16:9 con la ficha del jugador activo: nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná cuando el personaje lo tenga; inventario y equipo se consultan en el panel con I."
 status: stable
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:00:00Z
-updated_at: 2026-11-14T00:20:17Z
+updated_at: 2026-11-14T11:56:14Z
 related_tasks: [TASK-0100]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:00:00Z }
 verified:
@@ -19,6 +19,13 @@ verified:
       atributos con efecto, traits activos y maná solo cuando el personaje lo
       necesita; el retrato es la miniatura del sprite; inventario y equipo se
       consultan en el panel con `I`.
+  - by: human:simon
+    at: 2026-11-14T11:56:14Z
+    note: >-
+      Aprueba la v4: [REQ-033](REQ-033-revision-visual-hud-panel.md) v6 organiza
+      la columna en tres zonas (Personaje, Arma y Stats+Traits), con Personaje
+      en dos columnas; salen fase, turno, PV del enemigo y estado, y se mantienen
+      teclas y sugerencia al pie.
 ---
 
 # Contexto
@@ -43,6 +50,10 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 - [REQ-032](REQ-032-estilo-visual-interaccion-ui.md) fija la identidad visual y
   retira el inventario y el equipo resumidos de esta columna: el detalle y la
   gestión viven en el panel de `I`.
+- [REQ-033](REQ-033-revision-visual-hud-panel.md) v6: la columna se organiza en
+  tres zonas (Personaje, Arma y Stats+Traits); Personaje va en dos columnas con
+  el sprite a la izquierda; salen fase, turno, PV del enemigo y estado; teclas y
+  sugerencia se mantienen al pie.
 
 # Geometría compartida
 

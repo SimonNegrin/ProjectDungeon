@@ -5,6 +5,24 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0104 a TASK-0110 — backlog: escala/paleta/relieve, HUD izquierdo, ficha derecha, panel con layout preferido, cursor/CLS, QA visual y docs; TASK-0104 `ready` y el resto en cadena; la distribución alternativa del panel queda condicionada al QA de TASK-0107 y no se crea — [TASK-0104](tasks/TASK-0104-ui-escala-continua-paleta-relieve.md)
+
+* 2026-11-14 — Requirement — REQ-033 — stable v6: aprobado el texto; enmiendas REQ-032 v3, REQ-022 v4, REQ-023 v4 y REQ-018 v8 para escala continua, vintage, tres zonas, ficha simplificada, títulos Equipo/Bolsa/Suelo, slots inset, distribución alternativa, anti-CLS y cursor superpuesto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v6: adoptado el cursor superpuesto del panel con transición de 80-120 ms, salto instantáneo en cambios grandes o scroll y sin animación con movimiento reducido; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v5: distribución alternativa 1/3 + dos filas con scroll horizontal en la fila inferior, regla anti-CLS y de interacción suave; queda abierta la propuesta de cursor superpuesto con transición; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v4: panel con títulos Equipo/Bolsa/Suelo, «Bolsa» solo como etiqueta de UI, figura humana mantenida en Equipo, rejilla 2×4 en Bolsa y rejilla derecha para cadáveres (sprite y nombre o tipo) y suelo; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v3: la zona Personaje del HUD izquierdo se compone en dos columnas, sprite a la izquierda y nombre/arquetipo/condición a la derecha; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — v2: añadida la identidad vintage de roguelike de los 80 y 90, el lenguaje inset = hueco / outset = superficie y el encaje centrado de sprites en los slots; sin cambios de reglas; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Requirement — REQ-033 — creada (borrador v1): revisión visual y simplificación de HUD y panel con escala continua anclada a 900×700, paleta de ocho colores, tres zonas en el HUD izquierdo, ficha derecha sin rótulos redundantes, panel con slots cuadrados inset y cadáveres solo si existen; pendiente de revisión del texto — [REQ-033](requirements/REQ-033-revision-visual-hud-panel.md)
+
+* 2026-11-14 — Docs — índice de requisitos — alineadas las versiones de REQ-018 (v6→v7) y REQ-032 (v1→v2) con sus hojas; sin cambio de reglas — [índice](requirements/index.md)
+
 * 2026-11-14 — Harness — Definition of Ready — una tarea no mezcla dos dominios de cambio (estructura, navegación, render, datos) y el QA visual de UI va en una tarea `qa` posterior; medido: duración mediana 14→28 min y 26→63 ficheros por tarea, con criterios estables — [DoR](quality/definition-of-ready-done.md#tarea-lista-para-ejecutar)
 
 * 2026-11-14 — Harness — validador — `task_type` validado contra un conjunto y aviso si una tarea `docs` no cerrada se asigna a `task-runner`; `harness-keeper` puede editar `scripts/**` — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)
