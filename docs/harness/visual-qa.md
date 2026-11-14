@@ -41,6 +41,13 @@ verificable.
 - Los controles de un experimento cambian el estado.
 - La generación es reproducible con la misma semilla.
 
+# Geometría y relieve
+
+- `getComputedStyle().borderWidth` y `outlineWidth` cuantizan a píxel entero
+  aunque el token de escala sea fraccionario. Mide interiores con
+  `getBoundingClientRect()` y padding/token, con tolerancia ±1 px; no derives el
+  interior del ancho computado del borde.
+
 # Qué dejar al humano
 
 Sensación de juego, legibilidad, comodidad de cámara, ritmo de turnos, arte,

@@ -323,3 +323,7 @@ pnpm run verify         # Tests + build
 
 `pnpm test -- <archivo>` no filtra: pnpm reenvía el separador y Vitest ejecuta
 todos los archivos. Para un subconjunto, usa `pnpm exec vitest run <archivo>`.
+
+`pnpm run test:e2e -- <spec>` tampoco filtra: pnpm reenvía el `--` literal y
+Playwright ejecuta la suite completa. Para un subconjunto, usa
+`pnpm run test:e2e <spec>` o `pnpm exec playwright test <spec>`.
