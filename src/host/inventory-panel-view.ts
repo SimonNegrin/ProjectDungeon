@@ -90,11 +90,10 @@ export interface CursorTransitionOptions {
 /**
  * Decide si un cambio de selección puede animar el cursor.
  *
- * Solo se anima un vecino horizontal de la misma zona y la misma fila: el
- * resto de casos (primera colocación, cambio de zona/fila, salto largo, scroll,
- * actualización del modelo o movimiento reducido) se aplica al instante.
- * El ancho del slot acota la distancia horizontal: un vecino inmediato dista
- * como mucho `slot + gap`, mientras que dos pasos ya quedan fuera de 1,5×.
+ * Cualquier cambio de slot anima, incluidas filas, columnas y saltos entre
+ * zonas (REQ-033 R-031/T-014). Se aplica al instante en la primera colocación,
+ * al repetir la misma clave, con `prefers-reduced-motion` y en los ciclos que
+ * fuerzan colocación: reapertura, scroll, resize y actualización del modelo.
  */
 export function cursorTransition(
   previous: CursorPlacement | null,
@@ -103,11 +102,7 @@ export function cursorTransition(
 ): CursorMotion {
   if (options.forceInstant || options.reducedMotion) return 'instant';
   if (previous === null || previous.key === next.key) return 'instant';
-  if (previous.zone !== next.zone) return 'instant';
-  if (Math.abs(previous.center.y - next.center.y) > 1) return 'instant';
-  const horizontal = Math.abs(previous.center.x - next.center.x);
-  const maxStep = Math.max(previous.width, next.width) * 1.5;
-  return horizontal > 0 && horizontal <= maxStep ? 'animate' : 'instant';
+  return 'animate';
 }
 
 function requireElement<T extends HTMLElement>(
@@ -385,12 +380,31 @@ export function createInventoryPanelView(
     options.onSelectionChange?.(selectionFor(selectedKey));
   };
 
-  /** Grosor del bisel vigente; la caja del cursor lo pinta por fuera. */
+  /** Grosor de la línea base vigente; el cursor se mide con ella. */
   const cursorLine = (): number => {
     const value = Number.parseFloat(
       getComputedStyle(panel).getPropertyValue('--ui-line'),
     );
     return Number.isFinite(value) && value > 0 ? value : 1;
+  };
+
+  /** Grosor real del borde del cursor (4× línea, REQ-033 R-030/T-015). */
+  const cursorBorder = (): number => {
+    const value = Number.parseFloat(getComputedStyle(cursor).borderTopWidth);
+    return Number.isFinite(value) && value > 0 ? value : cursorLine() * 4;
+  };
+
+  /**
+   * Crecimiento exterior del bisel de un slot. El cursor arranca justo fuera
+   * de esa pintura para no tapar el relieve del slot (R-030/T-018).
+   */
+  const bevelGrowth = (element: HTMLElement): number => {
+    const bevel = Number.parseFloat(
+      getComputedStyle(element, '::before').outlineWidth,
+    );
+    return Number.isFinite(bevel) && bevel > 0
+      ? Math.max(0, bevel - cursorLine())
+      : cursorLine();
   };
 
   const placementFor = (view: CellView): CursorPlacement | null => {
@@ -424,9 +438,13 @@ export function createInventoryPanelView(
 
     const panelRect = panel.getBoundingClientRect();
     const rect = view.root.getBoundingClientRect();
-    const line = cursorLine();
-    const width = rect.width + line * 2;
-    const height = rect.height + line * 2;
+    // El cursor arranca donde acaba el bisel del slot: el borde de 4× queda
+    // por fuera y no cubre el sprite ni el relieve (R-030/T-018).
+    const border = cursorBorder();
+    const grow = bevelGrowth(view.root);
+    const outset = border + grow;
+    const width = rect.width + outset * 2;
+    const height = rect.height + outset * 2;
     if (cursorSize.width !== width) {
       cursor.style.width = `${width}px`;
       cursorSize.width = width;
@@ -440,8 +458,8 @@ export function createInventoryPanelView(
       reducedMotion: options.reducedMotion,
       forceInstant,
     });
-    const x = rect.left - panelRect.left - line;
-    const y = rect.top - panelRect.top - line;
+    const x = rect.left - panelRect.left - outset;
+    const y = rect.top - panelRect.top - outset;
     cursor.hidden = false;
     if (motion === 'instant') {
       // `data-instant` desactiva la transición, el reflow fija la posición y

@@ -4,7 +4,7 @@ id: TASK-0116
 title: "UI: cursor del panel alineado con el mapa"
 description: "Pintar el cursor del panel en amarillo pálido con borde de 4×, por encima del panel salvo el submenú, y animar cualquier cambio de slot."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-024, R-030, R-031, T-014, T-018]

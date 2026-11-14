@@ -661,6 +661,7 @@ interface CursorSnapshot {
   readonly selectedKey: string;
   readonly activeKey: string | null;
   readonly line: number;
+  readonly bevel: number;
   readonly cursor: Rect;
   readonly slot: Rect | null;
   readonly cursorHidden: boolean;
@@ -707,6 +708,9 @@ async function cursorSnapshot(page: Page): Promise<CursorSnapshot> {
     const line = Number.parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--ui-line'),
     );
+    const bevel = slot
+      ? Number.parseFloat(getComputedStyle(slot, '::before').outlineWidth)
+      : line * 2;
     const centerX =
       cursor.getBoundingClientRect().left + cursor.getBoundingClientRect().width / 2;
     const centerY =
@@ -720,6 +724,7 @@ async function cursorSnapshot(page: Page): Promise<CursorSnapshot> {
           ? (active.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey ?? null)
           : null,
       line,
+      bevel,
       cursor: box(cursor),
       slot: slot ? box(slot) : null,
       cursorHidden: cursor.hidden,
@@ -807,14 +812,15 @@ function cursorSlotDelta(snapshot: CursorSnapshot): number {
   if (snapshot.slot === null) return Number.POSITIVE_INFINITY;
   const slot = snapshot.slot;
   const cursor = snapshot.cursor;
-  const line = snapshot.line;
+  const grow = Math.max(0, snapshot.bevel - snapshot.line);
+  const outset = grow + snapshot.borderTopWidth;
   return Math.max(
-    Math.abs(cursor.left - (slot.left - line)),
-    Math.abs(cursor.top - (slot.top - line)),
-    Math.abs(cursor.right - (slot.right + line)),
-    Math.abs(cursor.bottom - (slot.bottom + line)),
-    Math.abs(cursor.width - (slot.width + line * 2)),
-    Math.abs(cursor.height - (slot.height + line * 2)),
+    Math.abs(cursor.left - (slot.left - outset)),
+    Math.abs(cursor.top - (slot.top - outset)),
+    Math.abs(cursor.right - (slot.right + outset)),
+    Math.abs(cursor.bottom - (slot.bottom + outset)),
+    Math.abs(cursor.width - (slot.width + outset * 2)),
+    Math.abs(cursor.height - (slot.height + outset * 2)),
   );
 }
 
@@ -855,8 +861,12 @@ function expectCursorTransitions(
     'transform',
   );
   const duration = Number.parseFloat(snapshotCursor.transitionDuration) * 1000;
-  expect(duration, `${label}: duración fuera de 80-120 ms`).toBeGreaterThanOrEqual(80);
-  expect(duration, `${label}: duración fuera de 80-120 ms`).toBeLessThanOrEqual(120);
+  expect(duration, `${label}: duración fuera de 140-160 ms`).toBeGreaterThanOrEqual(140);
+  expect(duration, `${label}: duración fuera de 140-160 ms`).toBeLessThanOrEqual(160);
+  expect(
+    Math.abs(snapshotCursor.borderTopWidth - snapshotCursor.line * 4),
+    `${label}: borde fuera de 4× línea`,
+  ).toBeLessThanOrEqual(1);
   expect(snapshotCursor.transform, `${label}: sin transform`).not.toBe('none');
   expect(snapshotCursor.activeKey, `${label}: foco DOM fuera del slot`).toBe(
     snapshotCursor.selectedKey,
@@ -871,7 +881,7 @@ function expectCursorTransitions(
     `${label}: bisel del cursor`,
   ).toBeGreaterThan(0);
   expect(snapshotCursor.borderTopColor, `${label}: color del cursor`).toBe(
-    'rgb(116, 163, 63)',
+    'rgb(252, 255, 192)',
   );
 }
 
@@ -1453,23 +1463,39 @@ for (const viewport of VIEWPORTS) {
       expectCursorTransitions(horizontal, `${suffix} vecino horizontal`);
       expectCursorAroundSlot(horizontal, `${suffix} vecino horizontal`);
 
-      // Cambio de fila: sin transición y posición final correcta.
+      // Cambio de fila: también anima (R-031).
       await resetCursorAudit(page);
       await page.keyboard.press('ArrowDown');
-      await nextFrames(page);
+      await waitForCursorOnSlot(page);
       const verticalAudit = await readCursorAudit(page);
-      expect(verticalAudit.runs, 'cambio de fila debe ser instantáneo').toBe(0);
+      expect(verticalAudit.runs, 'cambio de fila debe animar').toBeGreaterThan(0);
+      expect(verticalAudit.properties).toContain('transform');
       const vertical = await cursorSnapshot(page);
       expect(vertical.selectedKey).toBe('backpack:3');
       expectCursorAroundSlot(vertical, `${suffix} cambio de fila`);
       await screenshot(page, `cursor-salto-${suffix}`, testInfo);
 
-      // Cambio de zona con Tab: instantáneo.
+      // Cambio de columna (Bolsa → Equipo): anima con el foco real en el slot.
+      await selectPanelRow(page, 'backpack:0');
+      await resetCursorAudit(page);
+      await page.keyboard.press('ArrowLeft');
+      await waitForCursorOnSlot(page);
+      const crossAudit = await readCursorAudit(page);
+      expect(crossAudit.runs, 'cambio de columna debe animar').toBeGreaterThan(0);
+      expect(crossAudit.properties).toContain('transform');
+      const crossColumn = await cursorSnapshot(page);
+      expect(crossColumn.selectedKey.startsWith('slot:')).toBe(true);
+      expect(crossColumn.activeKey).toBe(crossColumn.selectedKey);
+      expectCursorAroundSlot(crossColumn, `${suffix} cambio de columna`);
+
+      // Cambio de zona con Tab: anima.
+      await selectPanelRow(page, 'backpack:0');
       await resetCursorAudit(page);
       await page.keyboard.press('Tab');
-      await nextFrames(page);
+      await waitForCursorOnSlot(page);
       const zoneAudit = await readCursorAudit(page);
-      expect(zoneAudit.runs, 'cambio de zona debe ser instantáneo').toBe(0);
+      expect(zoneAudit.runs, 'cambio de zona debe animar').toBeGreaterThan(0);
+      expect(zoneAudit.properties).toContain('transform');
       const zone = await cursorSnapshot(page);
       expect(zone.selectedKey.startsWith('ground:')).toBe(true);
       expectCursorAroundSlot(zone, `${suffix} cambio de zona`);
@@ -1479,8 +1505,9 @@ for (const viewport of VIEWPORTS) {
         initial,
         horizontal,
         vertical,
+        crossColumn,
         zone,
-        audits: { horizontalAudit, verticalAudit, zoneAudit },
+        audits: { horizontalAudit, verticalAudit, crossAudit, zoneAudit },
       }, suffix);
 
       // Movimiento reducido: sin transición ni animación.
@@ -1507,9 +1534,10 @@ for (const viewport of VIEWPORTS) {
         initial,
         horizontal,
         vertical,
+        crossColumn,
         zone,
         reduced,
-        audits: { horizontalAudit, verticalAudit, zoneAudit, reducedAudit },
+        audits: { horizontalAudit, verticalAudit, crossAudit, zoneAudit, reducedAudit },
       }, suffix);
     });
 
