@@ -1,14 +1,16 @@
-import { ITEMS } from '../game/equipment';
+import {
+  ITEMS,
+  type ItemAttribute,
+  type ItemDefinition,
+  type ItemSpriteRect,
+  type ItemTrait,
+} from '../game/equipment';
 import { hasLineOfSight } from '../game/perception';
 import { rosterEntry } from '../game/roster';
 import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
 import type { GameState, Position, Unit } from '../game/types';
-import {
-  itemStatsText,
-  PANEL_SLOT_LABELS,
-  type PanelSelection,
-} from './inventory-panel';
+import type { PanelSelection } from './inventory-panel';
 import { profileRows, type BandRow } from './damage-labels';
 
 /**
@@ -30,6 +32,13 @@ export interface CursorDetailRow {
   readonly value: string;
 }
 
+/** Stat de un objeto: valor delante del nombre, p. ej. `+3 Acierto`. */
+export interface DetailStat {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+}
+
 /**
  * Composición pura de la columna derecha. Es de solo lectura: se deriva del
  * snapshot y no guarda ni muta estado de juego.
@@ -37,8 +46,13 @@ export interface CursorDetailRow {
 export interface CursorDetail {
   readonly kind: CursorDetailKind;
   readonly title: string;
-  readonly subtitle: string | null;
   readonly rows: readonly CursorDetailRow[];
+  /** Stats de un objeto, una fila por stat; vacío en el resto de tipos. */
+  readonly stats: readonly DetailStat[];
+  /** Traits legibles; vacío cuando el catálogo no declara ninguno. */
+  readonly traits: readonly string[];
+  /** Recorte de `items.png`; `null` cuando la casilla no es un objeto. */
+  readonly sprite: ItemSpriteRect | null;
   /** PV y magia/maná del enemigo visible, con IDs estables de compatibilidad. */
   readonly vitals: readonly CursorDetailRow[];
   readonly notes: readonly string[];
@@ -49,17 +63,18 @@ export interface CursorDetail {
 export const UNKNOWN_TITLE = 'Desconocido';
 
 /**
- * Ficha del HUD derecho con el panel abierto (REQ-023 R-009 / REQ-032 R-011).
+ * Ficha del HUD derecho con el panel abierto (REQ-023 R-009 / REQ-033 R-011).
  * Dos bloques independientes: el objeto seleccionado y el equipado en su hueco.
  * No hay comparación ni delta numérico.
  */
 export interface PanelDetailBlock {
   readonly id: 'selected' | 'equipped';
+  /** Etiqueta pequeña opcional; el bloque seleccionado no lleva «Seleccionado». */
+  readonly label: string | null;
   readonly title: string;
-  readonly subtitle: string;
-  readonly rows: readonly CursorDetailRow[];
-  readonly traits: string;
-  readonly description: string;
+  readonly stats: readonly DetailStat[];
+  readonly traits: readonly string[];
+  readonly sprite: ItemSpriteRect | null;
   readonly empty: boolean;
 }
 
@@ -138,6 +153,71 @@ export function conditionLabel(unit: Unit | undefined): string | null {
   return unit && unit.hp <= 0 ? 'Fantasma' : null;
 }
 
+/** Atributos numéricos del catálogo, en el orden en que los lee la ficha. */
+const ITEM_ATTRIBUTE_LABELS: readonly (readonly [ItemAttribute, string])[] = [
+  ['habilidad', 'Habilidad'],
+  ['fuerza', 'Fuerza'],
+  ['defensa', 'Defensa'],
+  ['punteria', 'Puntería'],
+  ['acciones', 'Acciones'],
+];
+
+function damageTotal(item: ItemDefinition): number {
+  return item.damagePackets.reduce(
+    (total, packet) => total + packet.amount,
+    0,
+  );
+}
+
+/**
+ * Stats de un objeto, uno por fila y con el valor delante (`+3 Acierto`). Solo
+ * lee el catálogo: los modificadores primero y después el dato de la categoría.
+ */
+export function itemStats(item: ItemDefinition): readonly DetailStat[] {
+  const stats: DetailStat[] = ITEM_ATTRIBUTE_LABELS.flatMap(
+    ([attribute, label]) => {
+      const value = item.modifiers[attribute];
+      return value === undefined
+        ? []
+        : [{ id: `mod-${attribute}`, label, value: signed(value) }];
+    },
+  );
+  switch (item.category) {
+    case 'weapon':
+      stats.push(
+        {
+          id: 'acierto',
+          label: 'Acierto',
+          value: signed(item.accuracy ?? 0),
+        },
+        { id: 'dano', label: 'Daño', value: signed(damageTotal(item)) },
+      );
+      break;
+    case 'armor':
+      stats.push({
+        id: 'absorcion',
+        label: 'Absorción',
+        value: signed(item.absorption ?? 0),
+      });
+      break;
+    case 'shield':
+      stats.push({
+        id: 'defensa',
+        label: 'Defensa',
+        value: signed(item.evasion ?? 0),
+      });
+      break;
+  }
+  return stats;
+}
+
+/** Traits del catálogo, uno por línea; vacío cuando no existen. */
+export function itemTraits(
+  traits: readonly ItemTrait[],
+): readonly string[] {
+  return traits.map((trait) => `${trait.id}: ${trait.description}`);
+}
+
 /**
  * Traits de las definiciones equipadas. El catálogo actual no declara ninguno;
  * esta función devuelve `null` y el HUD omite el bloque sin estado vacío.
@@ -159,8 +239,10 @@ function unknown(notes: readonly string[] = []): CursorDetail {
   return {
     kind: 'unknown',
     title: UNKNOWN_TITLE,
-    subtitle: null,
     rows: [],
+    stats: [],
+    traits: [],
+    sprite: null,
     vitals: [],
     notes,
     bands: null,
@@ -210,13 +292,15 @@ function enemyDetail(enemy: Unit): CursorDetail {
   return {
     kind: 'enemy',
     title: enemy.nombre,
-    subtitle: 'Enemigo',
     rows: [
       row('arma', 'Arma', weaponLabel(enemy)),
       row('escudo', 'Escudo', shieldLabel(enemy)),
       row('armadura', 'Armadura', armorLabel(enemy)),
       row('acciones', 'Acciones', formatActions(enemy)),
     ],
+    stats: [],
+    traits: [],
+    sprite: null,
     vitals,
     notes: [],
     bands: profileRows(enemy.stats.resistencia),
@@ -229,7 +313,6 @@ function allyDetail(ally: Unit): CursorDetail {
     return {
       kind: 'ally',
       title: ally.nombre,
-      subtitle: `Aliado · ${archetypeLabel(ally)}`,
       rows: [
         row('estado', 'Estado', condition),
         row('pv', 'PV', formatHp(ally)),
@@ -238,6 +321,9 @@ function allyDetail(ally: Unit): CursorDetail {
         row('atributos', 'Atributos', statsLabel(ally)),
         ...(ally.mana.max > 0 ? [row('mana', 'Maná', formatMana(ally))] : []),
       ],
+      stats: [],
+      traits: [],
+      sprite: null,
       vitals: [],
       notes: ['Fantasma: sin equipo ni inventario'],
       bands: null,
@@ -247,7 +333,6 @@ function allyDetail(ally: Unit): CursorDetail {
   return {
     kind: 'ally',
     title: ally.nombre,
-    subtitle: 'Aliado',
     rows: [
       row('arquetipo', 'Arquetipo', archetypeLabel(ally)),
       row('pv', 'PV', formatHp(ally)),
@@ -259,6 +344,9 @@ function allyDetail(ally: Unit): CursorDetail {
       row('armadura', 'Armadura', armorLabel(ally)),
       ...(ally.mana.max > 0 ? [row('mana', 'Maná', formatMana(ally))] : []),
     ],
+    stats: [],
+    traits: [],
+    sprite: null,
     vitals: [],
     notes: [],
     bands: null,
@@ -274,8 +362,10 @@ function doorDetail(door: Door): CursorDetail {
   return {
     kind: 'door',
     title: 'Puerta',
-    subtitle: null,
     rows,
+    stats: [],
+    traits: [],
+    sprite: null,
     vitals: [],
     notes: [],
     bands: null,
@@ -291,8 +381,10 @@ function terrainDetail(state: GameState, cursor: Position): CursorDetail {
     return {
       kind: 'terrain',
       title: 'Entrada',
-      subtitle: null,
-      rows: [row('terreno', 'Terreno', 'Entrada')],
+      rows: [],
+      stats: [],
+      traits: [],
+      sprite: null,
       vitals: [],
       notes: [],
       bands: null,
@@ -307,8 +399,10 @@ function terrainDetail(state: GameState, cursor: Position): CursorDetail {
     return {
       kind: 'terrain',
       title: 'Salida',
-      subtitle: null,
-      rows: [row('terreno', 'Terreno', 'Salida')],
+      rows: [],
+      stats: [],
+      traits: [],
+      sprite: null,
       vitals: [],
       notes: [],
       bands: null,
@@ -320,8 +414,10 @@ function terrainDetail(state: GameState, cursor: Position): CursorDetail {
   return {
     kind: 'terrain',
     title: tile === 'wall' ? 'Muro' : 'Suelo',
-    subtitle: null,
-    rows: [row('terreno', 'Terreno', tile === 'wall' ? 'Muro' : 'Suelo')],
+    rows: [],
+    stats: [],
+    traits: [],
+    sprite: null,
     vitals: [],
     notes: [],
     bands: null,
@@ -348,11 +444,14 @@ export function buildCursorDetail(state: GameState, cursor?: Position): CursorDe
     (entry) => entry.x === cursor.x && entry.y === cursor.y,
   );
   if (item) {
+    const definition = ITEMS[item.itemId];
     return {
       kind: 'item',
-      title: ITEMS[item.itemId].name,
-      subtitle: 'Objeto en el suelo',
+      title: definition.name,
       rows: [row('ubicacion', 'Ubicación', 'Suelo')],
+      stats: itemStats(definition),
+      traits: itemTraits(definition.traits),
+      sprite: definition.sprite.rect,
       vitals: [],
       notes: [],
       bands: null,
@@ -369,32 +468,15 @@ export function buildCursorDetail(state: GameState, cursor?: Position): CursorDe
   return terrainDetail(state, cursor);
 }
 
-function panelZoneLabel(selection: PanelSelection): string {
-  if (selection.zone === 'equipment' || selection.key.startsWith('slot:')) {
-    return 'Equipado';
-  }
-  if (selection.zone === 'backpack' || selection.key.startsWith('backpack:')) {
-    return 'En mochila';
-  }
-  return 'En el suelo';
-}
-
-function panelTraits(
-  traits: readonly { readonly id: string; readonly description: string }[],
-): string {
-  if (traits.length === 0) return 'Sin traits activos';
-  return traits.map((trait) => `${trait.id}: ${trait.description}`).join(' · ');
-}
-
 function selectedBlock(selection: PanelSelection): PanelDetailBlock {
   const item = ITEMS[selection.itemId];
   return {
     id: 'selected',
+    label: null,
     title: item.name,
-    subtitle: panelZoneLabel(selection),
-    rows: [{ id: 'stats', label: 'Stats', value: itemStatsText(item) }],
-    traits: panelTraits(item.traits),
-    description: item.description,
+    stats: itemStats(item),
+    traits: itemTraits(item.traits),
+    sprite: item.sprite.rect,
     empty: false,
   };
 }
@@ -404,29 +486,26 @@ function equippedBlock(
   selection: PanelSelection,
 ): PanelDetailBlock {
   const item = ITEMS[selection.itemId];
-  const slotLabel = PANEL_SLOT_LABELS[item.slot] ?? String(item.slot);
   const equipped = unit?.equipment[item.slot] ?? null;
   if (!equipped) {
     return {
       id: 'equipped',
+      label: 'Equipado',
       title: 'Vacío',
-      subtitle: `Equipado · ${slotLabel}`,
-      rows: [],
-      traits: 'Sin traits activos',
-      description: 'Sin objeto equipado en este hueco',
+      stats: [],
+      traits: [],
+      sprite: null,
       empty: true,
     };
   }
   const equippedItem = ITEMS[equipped.itemId];
   return {
     id: 'equipped',
+    label: 'Equipado',
     title: equippedItem.name,
-    subtitle: `Equipado · ${slotLabel}`,
-    rows: [
-      { id: 'stats', label: 'Stats', value: itemStatsText(equippedItem) },
-    ],
-    traits: panelTraits(equippedItem.traits),
-    description: equippedItem.description,
+    stats: itemStats(equippedItem),
+    traits: itemTraits(equippedItem.traits),
+    sprite: equippedItem.sprite.rect,
     empty: false,
   };
 }

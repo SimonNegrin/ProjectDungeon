@@ -7,6 +7,7 @@ import {
   createPlayerFromArchetype,
   createRoomGrid,
   createRng,
+  ITEMS,
   type GameState,
   type Grid,
   type Position,
@@ -361,6 +362,9 @@ test('el detalle cambia por tile sin tocar el estado del motor', async ({ page }
     'enemy',
   );
   await expect(page.getByTestId('hud-cursor-title')).toHaveText(enemy.nombre);
+  await expect(page.getByTestId('hud-cursor-kind')).toHaveText('Enemigo');
+  await expect(page.getByTestId('hud-cursor-sprite')).toBeHidden();
+  await expect(page.getByTestId('hud-cursor-stats')).toBeHidden();
   await expect(page.getByTestId('hud-cursor-vitals')).toBeVisible();
   await expect(page.getByTestId('hud-cursor-enemy-hp')).toHaveText(
     `${enemy.hp}/${enemy.maxHp}`,
@@ -421,6 +425,13 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
     'item',
   );
   await expect(page.getByTestId('hud-cursor-title')).toHaveText('Hacha');
+  await expect(page.getByTestId('hud-cursor-sprite')).toBeVisible();
+  await expect(page.getByTestId('hud-cursor-stats')).toContainText('+2 Acierto');
+  await expect(page.getByTestId('hud-cursor-stats')).toContainText('+5 Daño');
+  await expect(page.getByTestId('hud-cursor-traits')).toBeHidden();
+  await expect(page.getByTestId('hud-cursor-detail')).not.toContainText(
+    ITEMS.axe.description,
+  );
   await expect(page.getByTestId('hud-cursor-rows')).not.toContainText(
     /cantidad|x1|×1/i,
   );
@@ -439,6 +450,8 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
     'terrain',
   );
   await expect(page.getByTestId('hud-cursor-title')).toHaveText('Entrada');
+  await expect(page.getByTestId('hud-cursor-kind')).toHaveText('Terreno');
+  await expect(page.getByTestId('hud-cursor-rows')).toBeHidden();
   await screenshot(page, 'detalle-entrada', testInfo);
 
   await moveCursorTo(page, 3, 8);
@@ -447,6 +460,7 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
     'door',
   );
   await expect(page.getByTestId('hud-cursor-title')).toHaveText('Puerta');
+  await expect(page.getByTestId('hud-cursor-kind')).toBeHidden();
   await expect(page.getByTestId('hud-cursor-rows')).toContainText('Rejilla');
   await expect(page.getByTestId('hud-cursor-detail')).not.toContainText(
     /abre|cerrada|llave/i,
@@ -455,6 +469,9 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
 
   await moveCursorTo(page, 5, 7);
   await expect(page.getByTestId('hud-cursor-title')).toHaveText('Suelo');
+  await expect(page.getByTestId('hud-cursor-kind')).toHaveText('Terreno');
+  // El tipo de terreno no se repite en una fila que copie el título.
+  await expect(page.getByTestId('hud-cursor-rows')).toBeHidden();
   await screenshot(page, 'detalle-terreno-suelo', testInfo);
 
   await moveCursorTo(page, 4, 8);
@@ -490,6 +507,7 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
     'unknown',
   );
   await expect(page.getByTestId('hud-cursor-title')).toHaveText('Desconocido');
+  await expect(page.getByTestId('hud-cursor-kind')).toBeHidden();
   await expect(page.getByTestId('hud-cursor-detail')).not.toContainText(
     hidden.nombre,
   );

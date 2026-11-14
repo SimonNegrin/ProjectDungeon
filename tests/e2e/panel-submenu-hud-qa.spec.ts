@@ -140,21 +140,29 @@ test('submenú y ficha: equipar, desequipar, recoger y soltar sin gastar al abri
   await expect(page.getByTestId('hud-panel-selected-title')).toHaveText(
     ITEMS.axe.name,
   );
-  await expect(page.getByTestId('hud-panel-selected-subtitle')).toHaveText(
-    'En mochila',
+  await expect(page.getByTestId('hud-panel-selected-label')).toBeHidden();
+  await expect(page.getByTestId('hud-panel-selected-sprite')).toBeVisible();
+  await expect(page.getByTestId('hud-panel-selected-stats')).toContainText(
+    '+2 Acierto',
   );
+  await expect(page.getByTestId('hud-panel-selected-stats')).toContainText(
+    '+5 Daño',
+  );
+  await expect(page.getByTestId('hud-panel-selected-traits')).toBeHidden();
   await expect(page.getByTestId('hud-panel-equipped-title')).toHaveText(
     ITEMS.sword.name,
   );
-  await expect(page.getByTestId('hud-panel-equipped-subtitle')).toHaveText(
-    'Equipado · Arma',
+  await expect(page.getByTestId('hud-panel-equipped-label')).toHaveText(
+    'Equipado',
   );
-  await expect(page.getByTestId('hud-panel-selected-description')).toContainText(
-    ITEMS.axe.description,
+  await expect(page.getByTestId('hud-panel-equipped-sprite')).toBeVisible();
+  await expect(page.getByTestId('hud-panel-equipped-stats')).toContainText(
+    '+3 Acierto',
   );
-  await expect(page.getByTestId('hud-panel-selected-traits')).toHaveText(
-    'Sin traits activos',
+  await expect(page.getByTestId('hud-panel-detail')).not.toContainText(
+    'Seleccionado',
   );
+  await expect(page.getByTestId('hud-panel-detail')).not.toContainText('Stats');
 
   // Abrir y cerrar el submenú no gasta MP ni despacha.
   const beforeMenu = await snapshot(page);
@@ -207,9 +215,12 @@ test('submenú y ficha: equipar, desequipar, recoger y soltar sin gastar al abri
     ITEMS.axe.name,
   );
   await expect(page.getByTestId('hud-panel-equipped-title')).toHaveText('Vacío');
-  await expect(page.getByTestId('hud-panel-equipped-subtitle')).toHaveText(
-    'Equipado · Arma',
+  await expect(page.getByTestId('hud-panel-equipped-label')).toHaveText(
+    'Equipado',
   );
+  await expect(page.getByTestId('hud-panel-equipped-sprite')).toBeHidden();
+  await expect(page.getByTestId('hud-panel-equipped-stats')).toBeHidden();
+  await expect(page.getByTestId('hud-panel-equipped-traits')).toBeHidden();
   await screenshot(page, 'ficha-hueco-vacio-1280x720', testInfo);
 
   // Recoger: el foco sigue a la instancia hasta su nueva fila.
@@ -243,9 +254,10 @@ test('submenú y ficha: equipar, desequipar, recoger y soltar sin gastar al abri
   expect(dropped.players[0].mp).toBe(before.players[0].mp - 4);
   expect(await selectedKey(page)).toBe('ground:item-test-ground-0');
   expect(await activeKey(page)).toBe('ground:item-test-ground-0');
-  await expect(page.getByTestId('hud-panel-selected-subtitle')).toHaveText(
-    'En el suelo',
+  await expect(page.getByTestId('hud-panel-selected-title')).toHaveText(
+    ITEMS.hammer.name,
   );
+  await expect(page.getByTestId('hud-panel-selected-sprite')).toBeVisible();
   await screenshot(page, 'ficha-objeto-suelo-1280x720', testInfo);
 
   // Al cerrar, el HUD derecho vuelve al detalle del cursor.
