@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Review — REQ-016 — verificado: `renderer.ts` dibuja `KNIGHT_RECT` para todo jugador; no se abre tarea porque la selección de arquetipo/variante llega con REQ-016/REQ-031 (fase 2) y el render por variante se incluirá entonces — [REQ-016](requirements/REQ-016-pantalla-inicio-configuracion.md)
+
 * 2026-11-14 — Task — TASK-0111 — done: retrato del HUD por arquetipo activo (guerrero, mago y pícaro con recortes 32×32 de `rogues.png`); retrato, nombre y arquetipo cambian juntos sin CLS; verify 1319/1319 y E2E 187/187; capturas a 900×700 y 1280×720; fusión `315533c` — [informe](../artifacts/TASK-0111/attempt-1/report.md)
 
 * 2026-11-14 — Planning — TASK-0111 — ready: retrato del HUD por jugador activo; corrige la miniatura estática detectada en el QA de TASK-0109 contra REQ-022 R-002 — [TASK-0111](tasks/TASK-0111-ui-retrato-hud-jugador-activo.md)
