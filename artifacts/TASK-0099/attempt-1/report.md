@@ -8,6 +8,14 @@ report_status: success
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T00:20:00Z }
 artifacts: artifacts/TASK-0099/attempt-1/
 verified:
+  - by: task-lead
+    at: 2026-11-14T00:18:00Z
+    note: >-
+      Intento 1 verificado: `pnpm run verify` (1259/1259) y
+      `pnpm run test:e2e` (134/134) reejecutados; capturas y diff revisados.
+      Se aceptan las dos desviaciones: `--ui-line` es el grosor y
+      `--ui-line-color` el color, y el E2E de línea usa dpr 2 para que el
+      redondeo produzca valores distintos.
 ---
 
 # Estado
@@ -56,13 +64,26 @@ verified:
 1. **`--ui-line` con dos significados.** Síntoma: color en ficha, grosor en
    detalle. Evidencia: ficha §Criterios y `brief-detalle.md` §Línea. Workaround:
    `--ui-line-color`. Reutilizable en tokens de UI. Propuesta: fijar ese nombre
-   en plantilla/REQ-032. Coste bajo. `pending`.
+   en plantilla/REQ-032. Coste bajo. `accepted`: el lead fija `--ui-line` como
+   grosor calculado y `--ui-line-color` como color; la ficha queda pendiente de
+   una aclaración documental, sin cambio de criterio.
 2. **Diferencia de línea a dos viewports con dpr 1.** Síntoma: el brief pide
    valores distintos a 1280×720 y 900×700, pero el redondeo da 1 px en ambos.
    Evidencia: `logs/ui-foundations-line.json`. Workaround: E2E a dpr 2.
    Reutilizable en líneas escaladas. Propuesta: fijar dpr o usar 1920×1080.
-   Coste bajo. `pending`.
+   Coste bajo. `accepted`: la recalculación se demuestra a dpr 2 y no cambia el
+   contrato de la tarea; la unidad es píxel de dispositivo.
 
 # Preguntas
 
-¿Se confirman `--ui-line-color` y el E2E a dpr 2 como evidencia aceptable?
+Resueltas por `task-lead`: se aceptan `--ui-line-color` como color de línea y el
+E2E a dpr 2 como evidencia del recálculo. No bloquean el cierre.
+
+# Métricas de handoff
+
+| Métrica | Valor |
+|---|---|
+| `brief_bytes` | 3154 |
+| `report_bytes` | 3600 |
+| `overflow` | `none` |
+| `criteria_failed` | 0 |
