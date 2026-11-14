@@ -92,10 +92,33 @@ describe('panel de inventario en tres columnas', () => {
     expect(html).toContain('data-testid="inventory-figure"');
     expect(html).toContain('data-testid="inventory-cadavers"');
     expect(html).toContain('data-testid="inventory-ground-scroll"');
-    expect(html).toContain('data-testid="inventory-actions"');
+    expect(html).toContain('data-testid="inventory-submenu"');
+    expect(html).not.toContain('data-testid="inventory-actions"');
+    expect(html).not.toContain('inventory-actions-buttons');
     expect(html).not.toContain('inventory-stats');
     expect(html).not.toContain('inventory-row-comparison');
     expect(html).not.toContain('inventory-row-traits');
+  });
+
+  it('el submenú usa tokens, sin literales, radios ni sombras', () => {
+    expect(block('.inventory-submenu')).toMatch(/position:\s*absolute/);
+    expect(block('.inventory-submenu')).toMatch(
+      /border:\s*var\(--ui-line\)\s+solid\s+var\(--ui-line-color\)/,
+    );
+    expect(block('.inventory-submenu-option[data-active="true"]')).toMatch(
+      /border-color:\s*var\(--ui-focus\)/,
+    );
+    expect(css).toMatch(/\.inventory-submenu-reason\s*\{/);
+    for (const selector of [
+      '.inventory-submenu',
+      '.inventory-submenu-option',
+      '.inventory-submenu-cost',
+      '.inventory-submenu-reason',
+    ]) {
+      expect(block(selector), `${selector} usa radio o sombra`).not.toMatch(
+        /border-radius|box-shadow|text-shadow/i,
+      );
+    }
   });
 
   it('las reglas del panel usan tokens, foco visible y scroll solo en el suelo', () => {

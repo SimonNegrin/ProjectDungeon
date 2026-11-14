@@ -12,6 +12,7 @@ import {
   panelActionTestId,
   panelRowTestId,
   pressPanelAction,
+  selectPanelRow,
   settle,
   snapshot,
 } from './support';
@@ -382,7 +383,20 @@ test('mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada
   await openPanel(page);
   await expect(page.getByTestId('inventory-backpack-count')).toHaveText('8/8');
 
-  await pressPanelAction(page, panelActionTestId('pickup', `ground:${groundId}`));
+  // Con la mochila llena «Recoger» no se ofrece; equipar desde el suelo sí, y
+  // el motor lo rechaza sin mover nada.
+  await selectPanelRow(page, `ground:${groundId}`);
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('inventory-submenu')).toBeVisible();
+  await expect(
+    page.getByTestId('inventory-submenu-option-pickup'),
+  ).toHaveCount(0);
+  await expect(
+    page.getByTestId('inventory-submenu-option-equip'),
+  ).toHaveCount(1);
+  await page.keyboard.press('Escape');
+
+  await pressPanelAction(page, panelActionTestId('equip', `ground:${groundId}`));
   await settle(page);
   await expect(page.getByTestId('inventory-message')).toHaveText(
     'La mochila está llena',
@@ -423,7 +437,7 @@ test('mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada
   expect(consoleErrors).toEqual([]);
 });
 
-test('sin MP: equipar se rechaza y no altera el estado ni gasta acción', async ({
+test('sin MP: equipar aparece no disponible con motivo y no altera el estado ni gasta acción', async ({
   page,
 }) => {
   const initial = await openScenario(page, { inventory: ['axe'], mp: 0 });
@@ -432,11 +446,15 @@ test('sin MP: equipar se rechaza y no altera el estado ni gasta acción', async 
   await expect(page.getByTestId('inventory-mp')).toHaveText(
     `0/${initial.players[0].maxMp}`,
   );
-  await pressPanelAction(page, panelActionTestId('equip', 'backpack:0'));
+  await selectPanelRow(page, 'backpack:0');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('inventory-submenu')).toBeVisible();
+  const equip = page.getByTestId('inventory-submenu-option-equip');
+  await expect(equip).toHaveAttribute('aria-disabled', 'true');
+  await expect(equip).toContainText('Sin MP para esta operación');
+  await page.keyboard.press('Enter');
   await settle(page);
-  await expect(page.getByTestId('inventory-message')).toHaveText(
-    'Sin MP para esta operación',
-  );
+  await expect(page.getByTestId('inventory-message')).toBeHidden();
   const after = await snapshot(page);
   expect(after.players[0].mp).toBe(0);
   expect(after.players[0].actions).toEqual(before.players[0].actions);

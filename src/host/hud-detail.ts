@@ -4,6 +4,11 @@ import { rosterEntry } from '../game/roster';
 import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
 import type { GameState, Position, Unit } from '../game/types';
+import {
+  itemStatsText,
+  PANEL_SLOT_LABELS,
+  type PanelSelection,
+} from './inventory-panel';
 import { profileRows, type BandRow } from './damage-labels';
 
 /**
@@ -42,6 +47,26 @@ export interface CursorDetail {
 }
 
 export const UNKNOWN_TITLE = 'Desconocido';
+
+/**
+ * Ficha del HUD derecho con el panel abierto (REQ-023 R-009 / REQ-032 R-011).
+ * Dos bloques independientes: el objeto seleccionado y el equipado en su hueco.
+ * No hay comparación ni delta numérico.
+ */
+export interface PanelDetailBlock {
+  readonly id: 'selected' | 'equipped';
+  readonly title: string;
+  readonly subtitle: string;
+  readonly rows: readonly CursorDetailRow[];
+  readonly traits: string;
+  readonly description: string;
+  readonly empty: boolean;
+}
+
+export interface PanelDetail {
+  readonly kind: 'panel';
+  readonly blocks: readonly [PanelDetailBlock, PanelDetailBlock];
+}
 
 export const DOOR_STYLE_LABELS = {
   wood: 'Madera',
@@ -342,4 +367,85 @@ export function buildCursorDetail(state: GameState, cursor?: Position): CursorDe
   if (door) return doorDetail(door);
 
   return terrainDetail(state, cursor);
+}
+
+function panelZoneLabel(selection: PanelSelection): string {
+  if (selection.zone === 'equipment' || selection.key.startsWith('slot:')) {
+    return 'Equipado';
+  }
+  if (selection.zone === 'backpack' || selection.key.startsWith('backpack:')) {
+    return 'En mochila';
+  }
+  return 'En el suelo';
+}
+
+function panelTraits(
+  traits: readonly { readonly id: string; readonly description: string }[],
+): string {
+  if (traits.length === 0) return 'Sin traits activos';
+  return traits.map((trait) => `${trait.id}: ${trait.description}`).join(' · ');
+}
+
+function selectedBlock(selection: PanelSelection): PanelDetailBlock {
+  const item = ITEMS[selection.itemId];
+  return {
+    id: 'selected',
+    title: item.name,
+    subtitle: panelZoneLabel(selection),
+    rows: [{ id: 'stats', label: 'Stats', value: itemStatsText(item) }],
+    traits: panelTraits(item.traits),
+    description: item.description,
+    empty: false,
+  };
+}
+
+function equippedBlock(
+  unit: Unit | undefined,
+  selection: PanelSelection,
+): PanelDetailBlock {
+  const item = ITEMS[selection.itemId];
+  const slotLabel = PANEL_SLOT_LABELS[item.slot] ?? String(item.slot);
+  const equipped = unit?.equipment[item.slot] ?? null;
+  if (!equipped) {
+    return {
+      id: 'equipped',
+      title: 'Vacío',
+      subtitle: `Equipado · ${slotLabel}`,
+      rows: [],
+      traits: 'Sin traits activos',
+      description: 'Sin objeto equipado en este hueco',
+      empty: true,
+    };
+  }
+  const equippedItem = ITEMS[equipped.itemId];
+  return {
+    id: 'equipped',
+    title: equippedItem.name,
+    subtitle: `Equipado · ${slotLabel}`,
+    rows: [
+      { id: 'stats', label: 'Stats', value: itemStatsText(equippedItem) },
+    ],
+    traits: panelTraits(equippedItem.traits),
+    description: equippedItem.description,
+    empty: false,
+  };
+}
+
+/**
+ * Compone la ficha de dos bloques sin comparar ni restar stats. Resuelve la
+ * misma unidad que el panel (`players.find(hp > 0) ?? players[0]`).
+ */
+export function buildPanelDetail(
+  state: GameState,
+  selection: PanelSelection,
+  unitId?: string,
+): PanelDetail {
+  const unit =
+    unitId !== undefined
+      ? state.players.find((player) => player.id === unitId)
+      : (state.players.find((player) => player.hp > 0) ?? state.players[0]);
+  return {
+    kind: 'panel',
+    blocks: [selectedBlock(selection), equippedBlock(unit, selection)],
+  };
 }

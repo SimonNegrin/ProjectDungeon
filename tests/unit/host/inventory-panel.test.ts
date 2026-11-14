@@ -4,11 +4,12 @@ import {
   createInitialState,
   reduce,
 } from '../../../src/game/index';
-import { ITEMS } from '../../../src/game/equipment';
+import { ITEMS, type ItemId } from '../../../src/game/equipment';
 import { allInstances } from '../../../src/game/inventory';
 import type { GameState } from '../../../src/game/types';
 import {
   buildInventoryPanelModel,
+  buildPanelMenu,
   rejectionMessage,
 } from '../../../src/host/inventory-panel';
 import { buildMotionTimeline, presentationState } from '../../../src/host/motion';
@@ -228,6 +229,128 @@ describe('modelo del panel de personaje', () => {
       'El objeto no encaja en ese hueco',
     );
     expect(rejectionMessage('wall')).toBe('Operación rechazada');
+  });
+});
+
+describe('submenú contextual del panel', () => {
+  function menuState(overrides: { readonly mp?: number } = {}): GameState {
+    return makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          mp: overrides.mp,
+          weapons: ['dagger'],
+          equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+        }),
+      ],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+    });
+  }
+
+  it('publica instancia e identidad en las filas para seguir el foco', () => {
+    const model = buildInventoryPanelModel(menuState());
+    expect(model.equipment[0]).toMatchObject({
+      instanceId: 'item-player-1-weapon',
+      itemId: 'sword',
+    });
+    expect(model.backpack[0]).toMatchObject({
+      instanceId: 'item-player-1-backpack-0',
+      itemId: 'dagger',
+    });
+    expect(model.ground[0]).toMatchObject({
+      instanceId: 'ground-axe',
+      itemId: 'axe',
+    });
+    expect(model.equipment[1]).toMatchObject({
+      instanceId: null,
+      itemId: null,
+    });
+  });
+
+  it('ofrece las acciones válidas por contexto en el orden del modelo', () => {
+    const state = menuState();
+    const cost = '1 MP';
+
+    const equipped = buildPanelMenu(state, 'slot:weapon');
+    expect(equipped.map((option) => option.kind)).toEqual(['unequip', 'drop']);
+    expect(equipped.map((option) => option.label)).toEqual([
+      'Desequipar',
+      'Soltar',
+    ]);
+    expect(equipped.every((option) => option.costLabel === cost)).toBe(true);
+    expect(equipped.every((option) => option.disabled === false)).toBe(true);
+    expect(equipped[0].command).toEqual({
+      type: 'UnequipItem',
+      unitId: 'player-1',
+      slot: 'weapon',
+    });
+
+    const backpack = buildPanelMenu(state, 'backpack:0');
+    expect(backpack.map((option) => option.kind)).toEqual(['equip', 'drop']);
+    expect(backpack[0].command).toEqual({
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'backpack',
+      index: 0,
+    });
+
+    const ground = buildPanelMenu(state, 'ground:ground-axe');
+    expect(ground.map((option) => option.kind)).toEqual(['pickup', 'equip']);
+    expect(ground[0].command).toEqual({ type: 'PickUp', unitId: 'player-1' });
+  });
+
+  it('con 0 MP marca todas las opciones como no disponibles con motivo', () => {
+    const options = buildPanelMenu(menuState({ mp: 0 }), 'backpack:0');
+
+    expect(options).toHaveLength(2);
+    for (const option of options) {
+      expect(option.disabled).toBe(true);
+      expect(option.reason).toBe(rejectionMessage('no-mp'));
+    }
+  });
+
+  it('con la mochila llena no ofrece recoger pero sí equipar desde el suelo', () => {
+    const full: readonly ItemId[] = [
+      'axe',
+      'dagger',
+      'knife',
+      'hammer',
+      'electric-sword',
+      'arcane-dagger',
+      'plate',
+      'shield',
+    ];
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: full,
+        }),
+      ],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+    });
+
+    const options = buildPanelMenu(state, 'ground:ground-axe');
+    expect(options.map((option) => option.kind)).toEqual(['equip']);
+    expect(options[0].disabled).toBe(false);
+  });
+
+  it('construir el menú no despacha, no muta el estado ni gasta MP', () => {
+    const state = menuState();
+    const before = JSON.stringify(state);
+
+    buildPanelMenu(state, 'slot:weapon');
+    buildPanelMenu(state, 'backpack:0');
+    buildPanelMenu(state, 'ground:ground-axe');
+
+    expect(JSON.stringify(state)).toBe(before);
+    expect(state.players[0].mp).toBe(6);
   });
 });
 

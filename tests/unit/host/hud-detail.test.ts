@@ -3,10 +3,12 @@ import {
   BESTIARY,
   createPlayerFromArchetype,
 } from '../../../src/game/index';
+import { ITEMS } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
 import {
   buildCursorDetail,
+  buildPanelDetail,
   cursorVisible,
   traitsLabel,
 } from '../../../src/host/hud-detail';
@@ -317,6 +319,103 @@ describe('detalle bajo el cursor por tipo', () => {
     const state = makeState();
     expect(traitsLabel(state.players[0])).toBe('Sin traits activos');
     expect(traitsLabel(undefined)).toBe('Sin traits activos');
+  });
+});
+
+describe('ficha de dos bloques con el panel abierto', () => {
+  function panelState(): GameState {
+    return makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['axe'],
+          equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+        }),
+      ],
+      groundItems: [{ id: 'ground-plate', itemId: 'plate', x: 4, y: 4 }],
+    });
+  }
+
+  it('muestra el seleccionado y el equipado en su hueco, sin delta', () => {
+    const detail = buildPanelDetail(panelState(), {
+      key: 'backpack:0',
+      itemId: 'axe',
+      instanceId: 'item-player-1-backpack-0',
+      zone: 'backpack',
+    });
+
+    expect(detail.kind).toBe('panel');
+    expect(detail.blocks).toHaveLength(2);
+    const [selected, equipped] = detail.blocks;
+    expect(selected).toMatchObject({
+      id: 'selected',
+      title: ITEMS.axe.name,
+      subtitle: 'En mochila',
+      empty: false,
+    });
+    expect(selected.rows.find((row) => row.id === 'stats')?.value).toContain(
+      'acierto',
+    );
+    expect(selected.traits).toBe('Sin traits activos');
+    expect(selected.description).toBe(ITEMS.axe.description);
+
+    expect(equipped).toMatchObject({
+      id: 'equipped',
+      title: ITEMS.sword.name,
+      subtitle: 'Equipado · Arma',
+      empty: false,
+    });
+    expect(equipped.description).toBe(ITEMS.sword.description);
+    // Sin comparación ni delta: no hay filas antes/después.
+    const serialized = JSON.stringify(detail);
+    expect(serialized).not.toMatch(/before|after|antes|después/);
+  });
+
+  it('el bloque equipado dice «Vacío» y no inventa filas cuando el hueco está libre', () => {
+    const detail = buildPanelDetail(panelState(), {
+      key: 'ground:ground-plate',
+      itemId: 'plate',
+      instanceId: 'ground-plate',
+      zone: 'right',
+    });
+
+    expect(detail.blocks[0].subtitle).toBe('En el suelo');
+    expect(detail.blocks[1]).toMatchObject({
+      id: 'equipped',
+      title: 'Vacío',
+      subtitle: 'Equipado · Armadura',
+      rows: [],
+      empty: true,
+    });
+  });
+
+  it('con el objeto equipado seleccionado mantiene dos bloques independientes', () => {
+    const detail = buildPanelDetail(panelState(), {
+      key: 'slot:weapon',
+      itemId: 'sword',
+      instanceId: 'item-player-1-weapon',
+      zone: 'equipment',
+    });
+
+    expect(detail.blocks[0].subtitle).toBe('Equipado');
+    expect(detail.blocks[0].title).toBe(ITEMS.sword.name);
+    expect(detail.blocks[1].title).toBe(ITEMS.sword.name);
+    expect(detail.blocks[0].rows).toEqual(detail.blocks[1].rows);
+  });
+
+  it('no altera el detalle del cursor', () => {
+    const state = panelState();
+    const before = buildCursorDetail(state, { x: 4, y: 4 });
+    buildPanelDetail(state, {
+      key: 'backpack:0',
+      itemId: 'axe',
+      instanceId: 'item-player-1-backpack-0',
+      zone: 'backpack',
+    });
+    expect(buildCursorDetail(state, { x: 4, y: 4 })).toEqual(before);
   });
 });
 

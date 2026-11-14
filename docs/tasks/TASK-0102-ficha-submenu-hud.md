@@ -4,22 +4,42 @@ id: TASK-0102
 title: "Ficha del objeto en el HUD derecho y submenú contextual"
 description: "Mostrar en el HUD derecho el objeto seleccionado junto al equipado en ese hueco, y abrir con Enter un submenú con las acciones válidas, su coste y sus rechazos."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-023
 requirement_ids: [R-004, R-009, T-005]
 depends_on: [TASK-0101]
 unlocks: []
 created_at: 2026-11-14T00:20:17Z
-completed_at:
+completed_at: 2026-11-14T02:14:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0102/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T00:20:17Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T02:14:00Z
+    note: >-
+      Intento 1 verificado (código `81ff674`, corrección de evidencia `9242f1e`;
+      artefactos `fadbde3` y `6b613c9`). Dos bloques en el HUD derecho con
+      stats, traits y descripción, equipado o «Vacío», sin delta; submenú
+      flotante con `Enter`, opciones por contexto, coste `1 MP`, 0 MP
+      deshabilitado con motivo, mochila llena sin «recoger», `Escape` sin
+      ejecutar, flechas e izquierda/derecha inertes; barra de acciones retirada
+      y `Tab` equipo → mochila → derecha → cerrar. N-008 sigue la instancia al
+      cambiar de zona; abrir/cerrar no despacha ni gasta MP. Reejecutados
+      `pnpm run verify` (1298/1298, build y bundle) y la suite E2E completa
+      (150/150) más los tres specs focalizados (17/17) con timeouts de 120 s y
+      180 s, sin procesos huérfanos. Revisado el diff completo: `src/host/**`,
+      `index.html`, `tests/**` y artefactos; sin cambios en `src/game/**`,
+      requisitos, arnés, plantillas ni dependencias. Capturas limpias de
+      submenú y ficha a 1280×720 y 900×700, con geometría sin solape; se
+      corrigió una colisión de nombres de captura entre tests. Fricción de
+      `E2E_ARTIFACTS_DIR` clasificada como arnés/documentación y `deferred` a
+      `harness-keeper`.
 ---
 
 # Objetivo

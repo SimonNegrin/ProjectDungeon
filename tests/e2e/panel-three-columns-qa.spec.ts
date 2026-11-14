@@ -9,8 +9,9 @@ import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
   openState,
-  panelRowTestId,
+  panelActionTestId,
   panelRows,
+  pressPanelAction,
   selectPanelRow,
   settle,
   snapshot,
@@ -149,13 +150,6 @@ async function tabUntilZone(
     if ((await activeZone(page)) === zone) return;
   }
   throw new Error(`No se alcanzó la parada ${zone} con ${key}`);
-}
-
-async function activeTestId(page: Page): Promise<string> {
-  return page.evaluate(() => {
-    const active = document.activeElement;
-    return active instanceof HTMLElement ? (active.dataset.testid ?? '') : '';
-  });
 }
 
 interface ScrollMetrics {
@@ -342,47 +336,50 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
     const zone = (await activeZone(page)) ?? '';
     if (zone !== zones[zones.length - 1]) zones.push(zone);
   }
-  expect(zones.slice(0, 8)).toEqual([
+  expect(zones.slice(0, 5)).toEqual([
     'backpack',
-    'actions:backpack',
     'right',
-    'actions:right',
     'close',
     'equipment',
-    'actions:equipment',
     'backpack',
   ]);
 
-  // Equipo: Tab desde la fila cae en una acción del mismo objeto sin cambiar
-  // la selección; Shift+Tab vuelve a la fila.
+  // Equipo: Enter abre el submenú del objeto seleccionado sin mover la
+  // selección; Escape lo cierra y devuelve el foco a la fila.
   await selectPanelRow(page, 'slot:armor');
   const equipmentKey = await selectedKey(page);
   expect(equipmentKey).toBe('slot:armor');
   await screenshot(page, 'foco-fila-equipo-1280x720', testInfo);
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('actions:equipment');
-  expect(await activeTestId(page)).toContain(
-    `inventory-action-unequip-${panelRowTestId(equipmentKey)}`,
-  );
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('inventory-submenu')).toBeVisible();
+  await expect(
+    page.locator(
+      '[data-testid="inventory-submenu"] [data-kind="unequip"][data-active="true"]',
+    ),
+  ).toHaveCount(1);
   expect(await selectedKey(page)).toBe(equipmentKey);
-  await screenshot(page, 'foco-acciones-equipo-1280x720', testInfo);
-  await page.keyboard.press('Shift+Tab');
+  await screenshot(page, 'submenu-equipo-1280x720', testInfo);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-submenu')).toBeHidden();
   expect(await activeZone(page)).toBe('equipment');
   expect(await activeKey(page)).toBe(equipmentKey);
   expect(await selectedKey(page)).toBe(equipmentKey);
 
-  // Mochila: misma parada de acciones y misma coherencia de selección.
+  // Mochila: mismo camino; el submenú ofrece equipar y soltar.
   await selectPanelRow(page, 'backpack:1');
   expect(await selectedKey(page)).toBe('backpack:1');
   await screenshot(page, 'foco-fila-mochila-1280x720', testInfo);
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('actions:backpack');
-  expect(await activeTestId(page)).toContain(
-    `inventory-action-equip-${panelRowTestId('backpack:1')}`,
-  );
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('inventory-submenu')).toBeVisible();
+  await expect(
+    page.locator(
+      '[data-testid="inventory-submenu"] [data-kind="equip"][data-active="true"]',
+    ),
+  ).toHaveCount(1);
   expect(await selectedKey(page)).toBe('backpack:1');
-  await screenshot(page, 'foco-acciones-mochila-1280x720', testInfo);
-  await page.keyboard.press('Shift+Tab');
+  await screenshot(page, 'submenu-mochila-1280x720', testInfo);
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-submenu')).toBeHidden();
   expect(await activeZone(page)).toBe('backpack');
   expect(await activeKey(page)).toBe('backpack:1');
   expect(await selectedKey(page)).toBe('backpack:1');
@@ -397,15 +394,10 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
   // mochila más próxima a su centro anterior, no al principio del panel.
   await selectPanelRow(page, 'ground:item-test-ground-0');
   const beforePickup = await snapshot(page);
-  for (let press = 0; press < 8; press += 1) {
-    const testId = await page.evaluate(() => {
-      const active = document.activeElement;
-      return active instanceof HTMLElement ? (active.dataset.testid ?? '') : '';
-    });
-    if (testId.startsWith('inventory-action-pickup-')) break;
-    await page.keyboard.press('Tab');
-  }
-  await page.keyboard.press('Enter');
+  await pressPanelAction(
+    page,
+    panelActionTestId('pickup', 'ground:item-test-ground-0'),
+  );
   await settle(page);
   const afterPickup = await snapshot(page);
   expect(afterPickup.players[0].mp).toBe(beforePickup.players[0].mp - 1);

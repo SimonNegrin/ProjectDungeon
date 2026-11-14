@@ -34,8 +34,12 @@ import {
 } from './feedback-overlay-view';
 import { gridPixelSize, TILE_SIZE } from './geometry';
 import { createDebugView, createHudView, createNoticeView } from './hud';
+import { buildPanelDetail } from './hud-detail';
 import { canOpenCharacterPanel, isManagedKey, translateKey } from './input';
-import { rejectionMessage } from './inventory-panel';
+import {
+  rejectionMessage,
+  type PanelSelection,
+} from './inventory-panel';
 import { createInventoryPanelView } from './inventory-panel-view';
 import {
   INITIAL_SPELL_MENU,
@@ -318,6 +322,8 @@ async function boot(): Promise<void> {
   let spellMenu: SpellMenuSelection = { ...INITIAL_SPELL_MENU };
   /** Panel de personaje: modal DOM que bloquea los comandos del mapa. */
   let panelOpen = false;
+  /** Objeto seleccionado en el panel; gobierna la ficha del HUD derecho. */
+  let panelSelection: PanelSelection | null = null;
   /** Motivo del último rechazo del panel; se limpia al confirmar otro cambio. */
   let panelMessage: string | null = null;
   /** Detectores que iniciaron un episodio con `EnemySpotted`. */
@@ -340,8 +346,21 @@ async function boot(): Promise<void> {
   const hudView = createHudView(gameRoot);
   const spellMenuView = createSpellMenuView(gameRoot);
   const inventoryPanelView = createInventoryPanelView(frame, {
-    onCommand: (action) => dispatchPanelCommand(action.command),
+    onCommand: (option) => dispatchPanelCommand(option.command),
     onClose: () => closePanel(),
+    onSelectionChange: (selection) => {
+      panelSelection = selection;
+      // Navegar no reconstruye mapa ni panel: solo se refresca la ficha.
+      if (!panelOpen) return;
+      hudView.update(
+        session.state,
+        cursorStatus,
+        { weaponPulseMs: null },
+        panelSelection === null
+          ? null
+          : buildPanelDetail(session.state, panelSelection),
+      );
+    },
   });
   const debugView = createDebugView(gameRoot);
   const feedbackView = createDamageFeedbackView(frame, {
@@ -459,9 +478,14 @@ async function boot(): Promise<void> {
       }
       const displayCursor = presentationCursor(animation);
       const slotPulse = weaponSlotPulseAt(animation.timeline, elapsed);
-      hudView.update(display, displayCursor, {
-        weaponPulseMs: slotPulse?.durationMs ?? null,
-      });
+      hudView.update(
+        display,
+        displayCursor,
+        { weaponPulseMs: slotPulse?.durationMs ?? null },
+        panelOpen && panelSelection !== null
+          ? buildPanelDetail(display, panelSelection)
+          : null,
+      );
       spellMenuView.update(display, spellMenu);
       // El panel lee el estado de presentación: no adelanta el objeto de un cue.
       inventoryPanelView.update(display);
@@ -493,7 +517,14 @@ async function boot(): Promise<void> {
         debug: debugView.isOpen(),
       });
     }
-    hudView.update(state, cursorStatus, { weaponPulseMs: null });
+    hudView.update(
+      state,
+      cursorStatus,
+      { weaponPulseMs: null },
+      panelOpen && panelSelection !== null
+        ? buildPanelDetail(state, panelSelection)
+        : null,
+    );
     spellMenuView.update(state, spellMenu);
     inventoryPanelView.update(state);
     cursorView.update(cursorStatus, camera);
@@ -848,6 +879,7 @@ async function boot(): Promise<void> {
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
     panelOpen = false;
+    panelSelection = null;
     panelMessage = null;
     inventoryPanelView.close();
     session.load(state, generator);
@@ -881,6 +913,7 @@ async function boot(): Promise<void> {
       clearTransientFeedback();
       spellMenu = { ...INITIAL_SPELL_MENU };
       panelOpen = false;
+      panelSelection = null;
       panelMessage = null;
       inventoryPanelView.close();
       debugView.close();
@@ -936,6 +969,7 @@ async function boot(): Promise<void> {
   const openPanel = (): void => {
     if (panelOpen || !canOpenCharacterPanel(session.state)) return;
     panelOpen = true;
+    panelSelection = null;
     panelMessage = null;
     inventoryPanelView.open(session.state);
     render();
@@ -944,6 +978,7 @@ async function boot(): Promise<void> {
   const closePanel = (): void => {
     if (!panelOpen) return;
     panelOpen = false;
+    panelSelection = null;
     panelMessage = null;
     inventoryPanelView.close();
     render();
@@ -974,6 +1009,7 @@ async function boot(): Promise<void> {
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
     panelOpen = false;
+    panelSelection = null;
     panelMessage = null;
     inventoryPanelView.close();
     session.regenerate(nextSeed(session.seed));
