@@ -953,6 +953,22 @@
         background: var(--ui-bg);
         overflow: visible;
       }
+      /* Silueta del hueco vacío: capa propia, fuera del bisel (`.ui-inset`) y
+         del icono. La tabla de recortes vive en `EQUIPMENT_SILHOUETTES`; aquí
+         solo se fija el tamaño de la hoja y el color sólido. */
+      .inventory-slot-silhouette {
+        position: absolute;
+        inset: 0;
+        background: var(--ui-line-color);
+        -webkit-mask-image: url('/assets/32rogues/items.png');
+        mask-image: url('/assets/32rogues/items.png');
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
+        mask-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
+        image-rendering: pixelated;
+        pointer-events: none;
+      }
       .inventory-slot-head {
         grid-column: 2;
         grid-row: 1;
