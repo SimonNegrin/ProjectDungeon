@@ -7,6 +7,7 @@ import {
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
   equipmentFromLegacy,
+  GameConfigError,
   inventoryFromIds,
   isOccupied,
   isWallAt,
@@ -15,7 +16,11 @@ import {
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   reduce,
+  type ArchetypeId,
   type GameState,
+  type MapGenerator,
+  type PlayerConfig,
+  type PlayerVariant,
   type Position,
   type RngState,
   type WeaponId,
@@ -223,6 +228,175 @@ describe('engine state', () => {
         { type: 'CommandRejected', commandType: 'Move', reason: 'game-over' },
       ]);
     }
+  });
+});
+
+describe('configuración de partida', () => {
+  const sixPlayers: readonly PlayerConfig[] = [
+    { archetypeId: 'warrior', variant: 1, name: 'Ada' },
+    { archetypeId: 'rogue', variant: 2, name: 'Boric' },
+    { archetypeId: 'mage', variant: 1, name: '' },
+    { archetypeId: 'cleric', variant: 2, name: 'Dara' },
+    { archetypeId: 'archer', variant: 1, name: 'Eli' },
+    { archetypeId: 'barbarian', variant: 2, name: 'Fen' },
+  ];
+
+  function configError(run: () => unknown): GameConfigError {
+    try {
+      run();
+    } catch (error) {
+      expect(error).toBeInstanceOf(GameConfigError);
+      return error as GameConfigError;
+    }
+    throw new Error('Se esperaba un GameConfigError');
+  }
+
+  it('crea un jugador con arquetipo, variante y nombre de la configuración', () => {
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+      players: [{ archetypeId: 'rogue', variant: 2, name: 'Ada' }],
+    });
+    const spawns = state.map?.spawns;
+
+    expect(state.players).toHaveLength(1);
+    expect(state.players[0]).toMatchObject({
+      id: 'player-1',
+      archetypeId: 'rogue',
+      variant: 2,
+      nombre: 'Ada',
+      x: spawns?.party?.[0]?.x ?? spawns?.player.x,
+      y: spawns?.party?.[0]?.y ?? spawns?.player.y,
+    });
+    expect(state.enemies.every((enemy) => enemy.variant === null)).toBe(true);
+    expect(state.config).toEqual({
+      seed: 279837264,
+      players: [{ archetypeId: 'rogue', variant: 2, name: 'Ada' }],
+    });
+  });
+
+  it('con seis jugadores conserva el orden de turno y ocupa seis huecos', () => {
+    const state = createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+      players: sixPlayers,
+    });
+    const spawns = state.map?.spawns;
+
+    expect(state.players).toHaveLength(6);
+    expect(
+      state.players.map(({ id, archetypeId, variant, nombre }) => ({
+        id,
+        archetypeId,
+        variant,
+        nombre,
+      })),
+    ).toEqual([
+      { id: 'player-1', archetypeId: 'warrior', variant: 1, nombre: 'Ada' },
+      { id: 'player-2', archetypeId: 'rogue', variant: 2, nombre: 'Boric' },
+      { id: 'player-3', archetypeId: 'mage', variant: 1, nombre: 'Mago' },
+      { id: 'player-4', archetypeId: 'cleric', variant: 2, nombre: 'Dara' },
+      { id: 'player-5', archetypeId: 'archer', variant: 1, nombre: 'Eli' },
+      { id: 'player-6', archetypeId: 'barbarian', variant: 2, nombre: 'Fen' },
+    ]);
+    expect(state.players.map(({ x, y }) => ({ x, y }))).toEqual(
+      spawns?.party?.slice(0, 6),
+    );
+    expect(state.config?.players).toEqual(sixPlayers);
+  });
+
+  it('un nombre vacío toma el del arquetipo y el resto se guarda tal cual', () => {
+    const state = createInitialState({
+      generator: new BspMapGenerator(),
+      players: [
+        { archetypeId: 'warrior', variant: 1, name: '' },
+        { archetypeId: 'mage', variant: 2, name: '  ' },
+      ],
+    });
+
+    expect(state.players.map((player) => player.nombre)).toEqual(['Guerrero', '  ']);
+    expect(state.config?.players.map((player) => player.name)).toEqual(['', '  ']);
+  });
+
+  it('serializa la configuración y normaliza la semilla en el estado', () => {
+    const state = createInitialState({
+      seed: 4294967297,
+      generator: new BspMapGenerator(),
+      players: sixPlayers,
+    });
+    const parsed = JSON.parse(JSON.stringify(state)) as GameState;
+
+    expect(state.config?.seed).toBe(normalizeSeed(4294967297));
+    expect(state.map?.seed).toBe(normalizeSeed(4294967297));
+    expect(state.rng.seed).toBe(normalizeSeed(4294967297));
+    expect(parsed).toEqual(state);
+    expect(parsed.config).toEqual(state.config);
+    expect(JSON.parse(JSON.stringify(state.config))).toEqual(state.config);
+  });
+
+  it('rechaza N fuera de 1..6 con error tipado', () => {
+    expect(
+      configError(() => createInitialState({ players: [] })).code,
+    ).toBe('player-count');
+    expect(
+      configError(() => createInitialState({ players: [...sixPlayers, sixPlayers[0]] }))
+        .code,
+    ).toBe('player-count');
+  });
+
+  it('rechaza arquetipos y variantes que no existen con error tipado', () => {
+    expect(
+      configError(() =>
+        createInitialState({
+          players: [
+            { archetypeId: 'dragon' as ArchetypeId, variant: 1, name: '' },
+          ],
+        }),
+      ).code,
+    ).toBe('unknown-archetype');
+
+    for (const variant of [0, 3] as const) {
+      expect(
+        configError(() =>
+          createInitialState({
+            players: [
+              { archetypeId: 'warrior', variant: variant as PlayerVariant, name: '' },
+            ],
+          }),
+        ).code,
+      ).toBe('invalid-variant');
+    }
+  });
+
+  it('rechaza semillas no finitas o no enteras sin generar el mapa', () => {
+    const generated: number[] = [];
+    const spy: MapGenerator = {
+      id: 'spy',
+      generate(seed, options) {
+        generated.push(seed);
+        return new BspMapGenerator().generate(seed, options);
+      },
+    };
+
+    for (const seed of [Number.NaN, Number.POSITIVE_INFINITY, 1.5]) {
+      expect(
+        configError(() => createInitialState({ seed, generator: spy })).code,
+      ).toBe('invalid-seed');
+    }
+    expect(generated).toEqual([]);
+  });
+
+  it('Restart reconstruye desde state.config conservando la party y la semilla', () => {
+    const state = createInitialState({ seed: 279837264, players: sixPlayers });
+
+    const result = reduce(state, { type: 'Restart' });
+
+    expect(result.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(result.state.config).toEqual(state.config);
+    expect(result.state.players.map(({ id, variant, nombre }) => ({ id, variant, nombre }))).toEqual(
+      state.players.map(({ id, variant, nombre }) => ({ id, variant, nombre })),
+    );
+    expect(result.state).toEqual(state);
   });
 });
 

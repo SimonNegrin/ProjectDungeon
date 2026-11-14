@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BspMapGenerator,
   createInitialState,
+  type PlayerConfig,
   type Unit,
 } from '../../../src/game/index';
 import type { Position } from '../../../src/game/types';
@@ -289,5 +290,69 @@ describe('sesión de juego', () => {
     ]);
     expect(result.state).toBe(before);
     expect(session.state).toBe(before);
+  });
+});
+
+describe('sesión y configuración de partida', () => {
+  const players: readonly PlayerConfig[] = [
+    { archetypeId: 'warrior', variant: 1, name: 'Ada' },
+    { archetypeId: 'rogue', variant: 2, name: 'Boric' },
+    { archetypeId: 'mage', variant: 1, name: '' },
+    { archetypeId: 'cleric', variant: 2, name: 'Dara' },
+    { archetypeId: 'archer', variant: 1, name: 'Eli' },
+    { archetypeId: 'barbarian', variant: 2, name: 'Fen' },
+  ];
+  const config = { seed: 279837264, generator: new BspMapGenerator(), players };
+  const party = (state: { readonly players: readonly Unit[] }) =>
+    state.players.map(({ id, archetypeId, variant, nombre }) => ({
+      id,
+      archetypeId,
+      variant,
+      nombre,
+    }));
+
+  it('arranca con el constructor único y dos llamadas equivalentes son idénticas', () => {
+    const first = new GameSession(config);
+    const second = new GameSession(config);
+
+    expect(first.state).toEqual(createInitialState(config));
+    expect(JSON.stringify(first.state)).toBe(JSON.stringify(second.state));
+    expect(first.seed).toBe(279837264);
+    expect(party(first.state)).toEqual([
+      { id: 'player-1', archetypeId: 'warrior', variant: 1, nombre: 'Ada' },
+      { id: 'player-2', archetypeId: 'rogue', variant: 2, nombre: 'Boric' },
+      { id: 'player-3', archetypeId: 'mage', variant: 1, nombre: 'Mago' },
+      { id: 'player-4', archetypeId: 'cleric', variant: 2, nombre: 'Dara' },
+      { id: 'player-5', archetypeId: 'archer', variant: 1, nombre: 'Eli' },
+      { id: 'player-6', archetypeId: 'barbarian', variant: 2, nombre: 'Fen' },
+    ]);
+  });
+
+  it('Restart y regenerate conservan la party de la configuración', () => {
+    const session = new GameSession(config);
+    const expected = party(session.state);
+
+    const restarted = session.dispatch({ type: 'Restart' });
+    expect(restarted.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(party(session.state)).toEqual(expected);
+    expect(session.state.config?.players).toEqual(players);
+
+    session.regenerate(123456789);
+    expect(session.seed).toBe(123456789);
+    expect(party(session.state)).toEqual(expected);
+    expect(session.state.config?.players).toEqual(players);
+  });
+
+  it('load toma seed y party de state.config y los conserva en Restart', () => {
+    const loaded = createInitialState(config);
+    const session = new GameSession(makeState());
+
+    session.load(loaded, new BspMapGenerator());
+    const restarted = session.dispatch({ type: 'Restart' });
+
+    expect(restarted.events).toEqual([{ type: 'GameRestarted' }]);
+    expect(session.seed).toBe(279837264);
+    expect(party(session.state)).toEqual(party(loaded));
+    expect(session.state.map).toEqual(loaded.map);
   });
 });

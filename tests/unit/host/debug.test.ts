@@ -6,6 +6,7 @@ import {
 } from '../../../src/host/cursor';
 import { BspMapGenerator, BESTIARY, ROSTER, createInitialState, reduce } from '../../../src/game/index';
 import type { GameState, RngState } from '../../../src/game/types';
+import type { PlayerConfig } from '../../../src/game/config';
 import { createDebugApi } from '../../../src/host/debug';
 import {
   planDecoration,
@@ -349,6 +350,39 @@ describe('snapshot del mapa generado', () => {
     expect(snapshot.doors.every((door) => door.orientation === 'horizontal' || door.orientation === 'vertical')).toBe(
       true,
     );
+  });
+
+  it('expone la configuración clonada y null en estados manuales', () => {
+    const players: readonly PlayerConfig[] = [
+      { archetypeId: 'warrior', variant: 1, name: 'Ada' },
+      { archetypeId: 'rogue', variant: 2, name: 'Boric' },
+    ];
+    const session = new GameSession({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+      players,
+    });
+    const api = createDebugApi(
+      () => ({
+        state: session.state,
+        camera: { x: 0, y: 0 },
+        bounds: { maxX: 608, maxY: 608 },
+        viewport: { width: 416, height: 416 },
+        tileSize: 32,
+        assetsLoaded: true,
+        lastEvents: [],
+        cursor: deriveCursorStatus(session.state, cursorAtPlayer(session.state.players[0])),
+      }),
+      (command) => session.dispatch(command),
+    );
+
+    const snapshot = api.snapshot();
+
+    expect(snapshot.config).toEqual({ seed: 279837264, players });
+    expect(snapshot.config).not.toBe(session.state.config);
+    expect(snapshot.config?.players).not.toBe(session.state.config?.players);
+    expect(snapshot.players.map((player) => player.variant)).toEqual([1, 2]);
+    expect(setup().snapshot().config).toBeNull();
   });
 
   it('expone entrada, salida, enemigos, bocas, puntos calientes y caverna de growth', () => {
