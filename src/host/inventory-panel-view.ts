@@ -61,6 +61,47 @@ export interface InventoryPanelOptions {
   readonly onClose?: () => void;
   /** Publica la selección para la ficha del HUD derecho. */
   readonly onSelectionChange?: (selection: PanelSelection | null) => void;
+  /** Preferencia del sistema: sin transición para el cursor (R-024/T-014). */
+  readonly reducedMotion?: boolean;
+}
+
+/** Medida del cursor relativa al panel: centro del slot y ancho del slot. */
+export interface CursorPlacement {
+  readonly key: string;
+  readonly zone: string;
+  readonly center: { readonly x: number; readonly y: number };
+  readonly width: number;
+}
+
+export type CursorMotion = 'animate' | 'instant';
+
+export interface CursorTransitionOptions {
+  readonly reducedMotion?: boolean;
+  /** Scroll, reapertura, actualización del modelo o redimensionado. */
+  readonly forceInstant?: boolean;
+}
+
+/**
+ * Decide si un cambio de selección puede animar el cursor.
+ *
+ * Solo se anima un vecino horizontal de la misma zona y la misma fila: el
+ * resto de casos (primera colocación, cambio de zona/fila, salto largo, scroll,
+ * actualización del modelo o movimiento reducido) se aplica al instante.
+ * El ancho del slot acota la distancia horizontal: un vecino inmediato dista
+ * como mucho `slot + gap`, mientras que dos pasos ya quedan fuera de 1,5×.
+ */
+export function cursorTransition(
+  previous: CursorPlacement | null,
+  next: CursorPlacement,
+  options: CursorTransitionOptions = {},
+): CursorMotion {
+  if (options.forceInstant || options.reducedMotion) return 'instant';
+  if (previous === null || previous.key === next.key) return 'instant';
+  if (previous.zone !== next.zone) return 'instant';
+  if (Math.abs(previous.center.y - next.center.y) > 1) return 'instant';
+  const horizontal = Math.abs(previous.center.x - next.center.x);
+  const maxStep = Math.max(previous.width, next.width) * 1.5;
+  return horizontal > 0 && horizontal <= maxStep ? 'animate' : 'instant';
 }
 
 function requireElement<T extends HTMLElement>(
@@ -209,6 +250,7 @@ export function createInventoryPanelView(
   const message = requireElement(root, 'inventory-message');
   const submenu = requireElement(root, 'inventory-submenu');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
+  const cursor = requireElement(root, 'inventory-cursor');
 
   const equipmentCells = new Map<EquipmentSlot, CellView>();
   for (const slot of EQUIPMENT_SLOTS) {
@@ -235,6 +277,8 @@ export function createInventoryPanelView(
   let menuOpen = false;
   let menuIndex = 0;
   let menuOptions: readonly PanelMenuOption[] = [];
+  let cursorPlacement: CursorPlacement | null = null;
+  let cursorSize = { width: 0, height: 0 };
 
   const cellView = (key: string): CellView | null => {
     for (const view of equipmentCells.values()) {
@@ -307,8 +351,81 @@ export function createInventoryPanelView(
     options.onSelectionChange?.(selectionFor(selectedKey));
   };
 
-  const revealRow = (view: CellView): void => {
-    if (view.zone !== 'right' || !groundList.contains(view.root)) return;
+  /** Grosor del bisel vigente; la caja del cursor lo pinta por fuera. */
+  const cursorLine = (): number => {
+    const value = Number.parseFloat(
+      getComputedStyle(panel).getPropertyValue('--ui-line'),
+    );
+    return Number.isFinite(value) && value > 0 ? value : 1;
+  };
+
+  const placementFor = (view: CellView): CursorPlacement | null => {
+    if (!view.root.isConnected) return null;
+    const panelRect = panel.getBoundingClientRect();
+    const rect = view.root.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return null;
+    return {
+      key: view.key,
+      zone: view.zone,
+      center: {
+        x: rect.left + rect.width / 2 - panelRect.left,
+        y: rect.top + rect.height / 2 - panelRect.top,
+      },
+      width: rect.width,
+    };
+  };
+
+  const hideCursor = (): void => {
+    cursor.hidden = true;
+    cursorPlacement = null;
+  };
+
+  const placeCursor = (forceInstant: boolean): void => {
+    const view = selectedKey === null ? null : cellView(selectedKey);
+    const placement = view ? placementFor(view) : null;
+    if (!view || !placement) {
+      hideCursor();
+      return;
+    }
+
+    const panelRect = panel.getBoundingClientRect();
+    const rect = view.root.getBoundingClientRect();
+    const line = cursorLine();
+    const width = rect.width + line * 2;
+    const height = rect.height + line * 2;
+    if (cursorSize.width !== width) {
+      cursor.style.width = `${width}px`;
+      cursorSize.width = width;
+    }
+    if (cursorSize.height !== height) {
+      cursor.style.height = `${height}px`;
+      cursorSize.height = height;
+    }
+
+    const motion = cursorTransition(cursorPlacement, placement, {
+      reducedMotion: options.reducedMotion,
+      forceInstant,
+    });
+    const x = rect.left - panelRect.left - line;
+    const y = rect.top - panelRect.top - line;
+    cursor.hidden = false;
+    if (motion === 'instant') {
+      // `data-instant` desactiva la transición, el reflow fija la posición y
+      // retirar el atributo deja lista la siguiente animación (R-024/T-014).
+      cursor.dataset.instant = 'true';
+      cursor.style.transform = `translate(${x}px, ${y}px)`;
+      void cursor.offsetWidth;
+      delete cursor.dataset.instant;
+    } else {
+      delete cursor.dataset.instant;
+      cursor.style.transform = `translate(${x}px, ${y}px)`;
+    }
+    cursorPlacement = placement;
+  };
+
+  const revealRow = (view: CellView): boolean => {
+    if (view.zone !== 'right' || !groundList.contains(view.root)) return false;
+    const before = groundScroll.scrollTop;
     const rowRect = view.root.getBoundingClientRect();
     const scrollRect = groundScroll.getBoundingClientRect();
     if (rowRect.top < scrollRect.top) {
@@ -316,20 +433,21 @@ export function createInventoryPanelView(
     } else if (rowRect.bottom > scrollRect.bottom) {
       groundScroll.scrollTop += rowRect.bottom - scrollRect.bottom;
     }
+    return groundScroll.scrollTop !== before;
   };
 
-  const focusRow = (view: CellView): void => {
+  const focusRow = (view: CellView): boolean => {
     view.root.focus({ preventScroll: true });
-    revealRow(view);
+    return revealRow(view);
   };
 
-  const focusSelectedOrClose = (): void => {
+  const focusSelectedOrClose = (): boolean => {
     const view = selectedKey === null ? null : cellView(selectedKey);
     if (view && view.root.dataset.empty === 'false') {
-      focusRow(view);
-      return;
+      return focusRow(view);
     }
     closeButton.focus();
+    return false;
   };
 
   function positionMenu(): void {
@@ -455,7 +573,7 @@ export function createInventoryPanelView(
     options.onCommand?.(option);
   }
 
-  const applySelection = (focus: boolean): void => {
+  const applySelection = (focus: boolean, instantCursor = false): void => {
     for (const view of [
       ...equipmentCells.values(),
       ...backpackCells.values(),
@@ -463,7 +581,8 @@ export function createInventoryPanelView(
     ]) {
       const occupied = view.root.dataset.empty === 'false';
       const selected = occupied && view.key === selectedKey;
-      view.root.classList.toggle('is-selected', selected);
+      // El resaltado lo pinta `.inventory-cursor`; `aria-current` conserva la
+      // semántica y el foco DOM no se mueve a la capa del cursor (R-024).
       view.root.setAttribute('aria-current', selected ? 'true' : 'false');
       if (occupied) view.root.tabIndex = selected ? 0 : -1;
     }
@@ -473,14 +592,20 @@ export function createInventoryPanelView(
       const view = cellView(selectedKey);
       if (view) zoneLastKey.set(view.zone, selectedKey);
     }
-    if (!focus) return;
+    if (!focus) {
+      placeCursor(instantCursor);
+      return;
+    }
     if (selectedKey !== null) {
       const view = cellView(selectedKey);
       if (view) {
-        focusRow(view);
+        // El scroll del Suelo recoloca el cursor sin transición (R-024).
+        const scrolled = focusRow(view);
+        placeCursor(instantCursor || scrolled);
         return;
       }
     }
+    hideCursor();
     closeButton.focus();
   };
 
@@ -638,7 +763,7 @@ export function createInventoryPanelView(
           : (firstInReadingOrder(currentCells)?.key ?? null);
     }
     lastKey = selectedKey ?? lastKey;
-    applySelection(false);
+    applySelection(false, true);
 
     const active = focusedElement();
     const activeInside = active !== null && panel.contains(active);
@@ -656,12 +781,44 @@ export function createInventoryPanelView(
       (!activeInside || !activeStillValid || focusOnAnotherRow)
     ) {
       focusSelectedOrClose();
+      // El foco puede haber desplazado el Suelo: recolocar sin transición.
+      placeCursor(true);
     }
   };
 
   closeButton.addEventListener('click', () => {
     options.onClose?.();
   });
+
+  // El cursor solo existe mientras el foco está en un slot; al ir a «Cerrar»
+  // o al salir del panel se oculta sin tocar el foco real (R-024).
+  panel.addEventListener('focusin', (event) => {
+    if (panel.hidden) return;
+    const target = event.target;
+    const row =
+      target instanceof Element
+        ? target.closest<HTMLElement>('[data-row-key]')
+        : null;
+    if (!row) {
+      hideCursor();
+      return;
+    }
+    if (cursorPlacement === null) placeCursor(true);
+  });
+
+  groundScroll.addEventListener(
+    'scroll',
+    () => {
+      if (panel.hidden) return;
+      placeCursor(true);
+    },
+    { passive: true },
+  );
+
+  new ResizeObserver(() => {
+    if (panel.hidden) return;
+    placeCursor(true);
+  }).observe(panel);
 
   // Si el foco escapa por cualquier vía (clic en el fondo, fila retirada), el
   // diálogo modal lo recupera; nunca deja el teclado fuera mientras está abierto.
@@ -753,11 +910,16 @@ export function createInventoryPanelView(
       panel.hidden = false;
       message.hidden = true;
       message.textContent = '';
+      // Abrir es una primera colocación: el cursor ya está en el slot, sin
+      // animarse desde la posición de la sesión anterior.
+      cursorPlacement = null;
       renderModel(state, 'open');
       focusSelectedOrClose();
+      placeCursor(true);
     },
     close(): void {
       closeMenu(false);
+      hideCursor();
       panel.hidden = true;
       message.hidden = true;
       message.textContent = '';
