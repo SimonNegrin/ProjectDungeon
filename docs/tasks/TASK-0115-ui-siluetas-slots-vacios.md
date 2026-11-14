@@ -4,7 +4,7 @@ id: TASK-0115
 title: "UI: siluetas sólidas en slots de equipamiento vacíos"
 description: "Mostrar en cada slot de equipamiento vacío una silueta sólida del objeto representativo del hueco, derivada de items.png y oculta al equipar."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-019, R-020, R-029, P-008, S-001, S-005, T-010, T-017]
