@@ -8,6 +8,7 @@ import { equipmentFromLegacy, inventoryFromIds } from '../../src/game/inventory'
 import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
+  focusPanelAction,
   openState,
   panelActionTestId,
   pressPanelAction,
@@ -146,6 +147,7 @@ interface CursorSnapshot {
   readonly selectedKey: string;
   readonly activeKey: string | null;
   readonly line: number;
+  readonly bevel: number;
   readonly cursor: Rect;
   readonly slot: Rect | null;
   readonly cursorHidden: boolean;
@@ -192,6 +194,9 @@ async function cursorSnapshot(page: Page): Promise<CursorSnapshot> {
     const line = Number.parseFloat(
       getComputedStyle(document.documentElement).getPropertyValue('--ui-line'),
     );
+    const bevel = slot
+      ? Number.parseFloat(getComputedStyle(slot, '::before').outlineWidth)
+      : line * 2;
     const centerX = cursor.getBoundingClientRect().left + cursor.getBoundingClientRect().width / 2;
     const centerY = cursor.getBoundingClientRect().top + cursor.getBoundingClientRect().height / 2;
     const atCenter = document.elementFromPoint(centerX, centerY);
@@ -203,6 +208,7 @@ async function cursorSnapshot(page: Page): Promise<CursorSnapshot> {
           ? (active.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey ?? null)
           : null,
       line,
+      bevel,
       cursor: box(cursor),
       slot: slot ? box(slot) : null,
       cursorHidden: cursor.hidden,
@@ -222,6 +228,50 @@ async function cursorSnapshot(page: Page): Promise<CursorSnapshot> {
         atCenter instanceof Element
           ? (atCenter.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey ?? null)
           : null,
+    };
+  });
+}
+
+interface LayerInfo {
+  readonly selector: string;
+  readonly position: string;
+  readonly zIndex: number | null;
+}
+
+interface CursorLayers {
+  readonly cursor: LayerInfo;
+  readonly submenu: LayerInfo;
+  readonly content: readonly LayerInfo[];
+}
+
+async function cursorLayers(page: Page): Promise<CursorLayers> {
+  return page.evaluate(() => {
+    const panel = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-panel"]',
+    );
+    if (!panel) throw new Error('Falta el panel');
+    const info = (selector: string): LayerInfo => {
+      const element = panel.querySelector<HTMLElement>(selector);
+      if (!element) throw new Error(`Falta ${selector}`);
+      const style = getComputedStyle(element);
+      const raw = style.zIndex;
+      return {
+        selector,
+        position: style.position,
+        zIndex: raw === 'auto' ? null : Number.parseInt(raw, 10),
+      };
+    };
+    return {
+      cursor: info('[data-testid="inventory-cursor"]'),
+      submenu: info('[data-testid="inventory-submenu"]'),
+      content: [
+        info('.inventory-column-equipment'),
+        info('.inventory-column-backpack'),
+        info('.inventory-column-right'),
+        info('.inventory-section-title'),
+        info('.inventory-slot'),
+        info('.inventory-figure'),
+      ],
     };
   });
 }
@@ -290,25 +340,31 @@ function expectCursorAroundSlot(
   expect(snapshotCursor.slot, `${label}: falta el slot`).not.toBeNull();
   const slot = snapshotCursor.slot!;
   const cursor = snapshotCursor.cursor;
-  const line = snapshotCursor.line;
-  expect(Math.abs(cursor.left - (slot.left - line)), `${label}: borde izquierdo`).toBeLessThanOrEqual(
+  const grow = Math.max(0, snapshotCursor.bevel - snapshotCursor.line);
+  const outset = grow + snapshotCursor.borderTopWidth;
+  expect(Math.abs(cursor.left - (slot.left - outset)), `${label}: borde izquierdo`).toBeLessThanOrEqual(
     0.6,
   );
-  expect(Math.abs(cursor.top - (slot.top - line)), `${label}: borde superior`).toBeLessThanOrEqual(
+  expect(Math.abs(cursor.top - (slot.top - outset)), `${label}: borde superior`).toBeLessThanOrEqual(
     0.6,
   );
-  expect(Math.abs(cursor.right - (slot.right + line)), `${label}: borde derecho`).toBeLessThanOrEqual(
+  expect(Math.abs(cursor.right - (slot.right + outset)), `${label}: borde derecho`).toBeLessThanOrEqual(
     0.6,
   );
-  expect(Math.abs(cursor.bottom - (slot.bottom + line)), `${label}: borde inferior`).toBeLessThanOrEqual(
+  expect(Math.abs(cursor.bottom - (slot.bottom + outset)), `${label}: borde inferior`).toBeLessThanOrEqual(
     0.6,
   );
-  expect(Math.abs(cursor.width - (slot.width + line * 2)), `${label}: ancho`).toBeLessThanOrEqual(
+  expect(Math.abs(cursor.width - (slot.width + outset * 2)), `${label}: ancho`).toBeLessThanOrEqual(
     0.6,
   );
-  expect(Math.abs(cursor.height - (slot.height + line * 2)), `${label}: alto`).toBeLessThanOrEqual(
+  expect(Math.abs(cursor.height - (slot.height + outset * 2)), `${label}: alto`).toBeLessThanOrEqual(
     0.6,
   );
+  // El borde empieza justo donde acaba el bisel del slot: no lo tapa (R-030).
+  expect(
+    cursor.left + snapshotCursor.borderTopWidth,
+    `${label}: el borde tapa el bisel`,
+  ).toBeGreaterThanOrEqual(slot.left - grow - 0.6);
 }
 
 function expectCursorTransitions(
@@ -327,8 +383,15 @@ function expectCursorTransitions(
     'transform',
   );
   const duration = Number.parseFloat(snapshotCursor.transitionDuration) * 1000;
-  expect(duration, `${label}: duración fuera de 80-120 ms`).toBeGreaterThanOrEqual(80);
-  expect(duration, `${label}: duración fuera de 80-120 ms`).toBeLessThanOrEqual(120);
+  expect(duration, `${label}: duración fuera de 140-160 ms`).toBeGreaterThanOrEqual(140);
+  expect(duration, `${label}: duración fuera de 140-160 ms`).toBeLessThanOrEqual(160);
+  expect(
+    Math.abs(snapshotCursor.borderTopWidth - snapshotCursor.line * 4),
+    `${label}: borde fuera de 4× línea`,
+  ).toBeLessThanOrEqual(1);
+  expect(snapshotCursor.borderTopColor, `${label}: color del cursor`).toBe(
+    'rgb(252, 255, 192)',
+  );
   expect(snapshotCursor.transform, `${label}: sin transform`).not.toBe('none');
   expect(snapshotCursor.activeKey, `${label}: foco DOM fuera del slot`).toBe(
     snapshotCursor.selectedKey,
@@ -525,7 +588,7 @@ test('cursor superpuesto: marco, transición y foco real en el slot', async ({
   await selectPanelRow(page, 'backpack:0');
   await resetCursorAudit(page);
   await page.keyboard.press('ArrowRight');
-  await page.waitForTimeout(160);
+  await page.waitForTimeout(200);
   const horizontalAudit = await readCursorAudit(page);
   expect(horizontalAudit.runs, 'vecino horizontal debe animar').toBeGreaterThan(0);
   expect(horizontalAudit.properties).toContain('transform');
@@ -534,22 +597,40 @@ test('cursor superpuesto: marco, transición y foco real en el slot', async ({
   expectCursorTransitions(horizontal, 'vecino horizontal');
   expectCursorAroundSlot(horizontal, 'vecino horizontal');
 
-  // Cambio de fila: sin transición, posición final correcta.
+  // Cambio de fila dentro de la misma columna: también anima (R-031).
   await resetCursorAudit(page);
   await page.keyboard.press('ArrowDown');
-  await page.waitForTimeout(160);
+  await page.waitForTimeout(200);
   const verticalAudit = await readCursorAudit(page);
-  expect(verticalAudit.runs, 'cambio de fila debe ser instantáneo').toBe(0);
+  expect(verticalAudit.runs, 'cambio de fila debe animar').toBeGreaterThan(0);
+  expect(verticalAudit.properties).toContain('transform');
   const vertical = await cursorSnapshot(page);
   expect(vertical.selectedKey).toBe('backpack:3');
+  expectCursorTransitions(vertical, 'cambio de fila');
   expectCursorAroundSlot(vertical, 'cambio de fila');
 
-  // Cambio de zona con Tab: instantáneo y foco intacto.
+  // Cambio de columna (Bolsa → Equipo): anima y conserva el foco real.
+  await selectPanelRow(page, 'backpack:0');
+  await resetCursorAudit(page);
+  await page.keyboard.press('ArrowLeft');
+  await page.waitForTimeout(200);
+  const crossAudit = await readCursorAudit(page);
+  expect(crossAudit.runs, 'cambio de columna debe animar').toBeGreaterThan(0);
+  expect(crossAudit.properties).toContain('transform');
+  const crossColumn = await cursorSnapshot(page);
+  expect(crossColumn.selectedKey.startsWith('slot:')).toBe(true);
+  expectCursorTransitions(crossColumn, 'cambio de columna');
+  expectCursorAroundSlot(crossColumn, 'cambio de columna');
+  await screenshot(page, 'cursor-columna-900x700', testInfo);
+
+  // Cambio de zona con Tab: anima y el foco sigue en el slot.
+  await selectPanelRow(page, 'backpack:0');
   await resetCursorAudit(page);
   await page.keyboard.press('Tab');
-  await page.waitForTimeout(160);
+  await page.waitForTimeout(200);
   const zoneAudit = await readCursorAudit(page);
-  expect(zoneAudit.runs, 'cambio de zona debe ser instantáneo').toBe(0);
+  expect(zoneAudit.runs, 'cambio de zona debe animar').toBeGreaterThan(0);
+  expect(zoneAudit.properties).toContain('transform');
   const zone = await cursorSnapshot(page);
   expect(zone.selectedKey.startsWith('ground:')).toBe(true);
   expectCursorTransitions(zone, 'cambio de zona');
@@ -586,7 +667,7 @@ test('cursor superpuesto: marco, transición y foco real en el slot', async ({
   await resetCursorAudit(page);
   await selectPanelRow(page, 'backpack:0');
   await page.keyboard.press('ArrowRight');
-  await page.waitForTimeout(160);
+  await page.waitForTimeout(200);
   const wideAudit = await readCursorAudit(page);
   expect(wideAudit.runs).toBeGreaterThan(0);
   const wide = await cursorSnapshot(page);
@@ -597,10 +678,56 @@ test('cursor superpuesto: marco, transición y foco real en el slot', async ({
     initial,
     horizontal,
     vertical,
+    crossColumn,
     zone,
     wide,
-    audits: { horizontalAudit, verticalAudit, zoneAudit, wideAudit },
+    audits: { horizontalAudit, verticalAudit, crossAudit, zoneAudit, wideAudit },
   });
+});
+
+test('cursor: capa por encima del panel y por debajo del submenú', async ({
+  page,
+}, testInfo) => {
+  await openScenario(
+    page,
+    { inventory: FULL_BACKPACK, ground: FOUR_GROUND },
+    { width: 900, height: 700 },
+  );
+  await openPanel(page);
+  await selectPanelRow(page, 'backpack:0');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('inventory-submenu')).toBeVisible();
+  await page.waitForTimeout(50);
+
+  const layers = await cursorLayers(page);
+  expect(layers.cursor.zIndex, 'el cursor debe crear capa propia').not.toBeNull();
+  expect(layers.cursor.zIndex!).toBeGreaterThan(0);
+  expect(layers.submenu.zIndex, 'el submenú debe crear capa propia').not.toBeNull();
+  expect(
+    layers.submenu.zIndex!,
+    'el submenú debe quedar por encima del cursor',
+  ).toBeGreaterThan(layers.cursor.zIndex!);
+  for (const content of layers.content) {
+    expect(
+      content.zIndex,
+      `${content.selector} no debe quedar por encima del cursor`,
+    ).toBeNull();
+  }
+
+  // Con el submenú abierto el cursor sigue rodeando el slot y su borde no
+  // invade el bisel del slot (R-030/T-018).
+  const snapshot = await cursorSnapshot(page);
+  expectCursorAroundSlot(snapshot, 'submenú abierto');
+  const grow = Math.max(0, snapshot.bevel - snapshot.line);
+  expect(
+    snapshot.cursor.left + snapshot.borderTopWidth,
+    'el borde del cursor tapa el bisel del slot',
+  ).toBeGreaterThanOrEqual(snapshot.slot!.left - grow - 0.6);
+
+  await screenshot(page, 'cursor-submenu-900x700', testInfo);
+  await writeLog(testInfo, 'cursor-layers.json', { layers, cursor: snapshot });
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-submenu')).toBeHidden();
 });
 
 test('cursor: scroll instantáneo, pulsaciones rápidas y movimiento reducido', async ({
@@ -613,7 +740,16 @@ test('cursor: scroll instantáneo, pulsaciones rápidas y movimiento reducido', 
   );
   await openPanel(page);
   await selectPanelRow(page, 'backpack:0');
+  await page.waitForTimeout(200);
+
+  // Resize: el cursor se recoloca sin transición (R-031).
   await resetCursorAudit(page);
+  await page.setViewportSize({ width: 1000, height: 720 });
+  await page.waitForTimeout(200);
+  const resizeAudit = await readCursorAudit(page);
+  expect(resizeAudit.runs, 'resize debe ser instantáneo').toBe(0);
+  const resized = await cursorSnapshot(page);
+  expectCursorAroundSlot(resized, 'resize');
 
   // Pulsaciones rápidas: el cursor termina exactamente sobre el foco.
   for (const key of [
@@ -636,6 +772,22 @@ test('cursor: scroll instantáneo, pulsaciones rápidas y movimiento reducido', 
   const rapid = await cursorSnapshot(page);
   expect(rapid.activeKey).toBe(rapid.selectedKey);
   expectCursorAroundSlot(rapid, 'pulsaciones rápidas');
+
+  // Actualizar el modelo recoloca el cursor al instante aunque la instancia
+  // cambie de zona (R-031/T-014).
+  await selectPanelRow(page, 'backpack:0');
+  await page.waitForTimeout(200);
+  await focusPanelAction(page, panelActionTestId('equip', 'backpack:0'));
+  await page.waitForTimeout(200);
+  await resetCursorAudit(page);
+  await page.keyboard.press('Enter');
+  await settle(page);
+  const updateAudit = await readCursorAudit(page);
+  expect(updateAudit.runs, 'actualizar el modelo debe ser instantáneo').toBe(0);
+  const updated = await cursorSnapshot(page);
+  expect(updated.selectedKey).toBe('slot:weapon');
+  expect(updated.activeKey).toBe('slot:weapon');
+  expectCursorAroundSlot(updated, 'actualización del modelo');
 
   // Scroll del Suelo: el cursor se recoloca sin transición.
   await openScenario(
@@ -685,11 +837,13 @@ test('cursor: scroll instantáneo, pulsaciones rápidas y movimiento reducido', 
   expectCursorAroundSlot(reduced, 'reduced motion');
   await screenshot(page, 'cursor-reduced-motion-900x700', testInfo);
   await writeLog(testInfo, 'cursor-scroll-reduced.json', {
+    resized,
     rapid,
+    updated,
     scrolled,
     scrollTop,
     reduced,
-    audits: { scrollAudit, reducedAudit },
+    audits: { resizeAudit, updateAudit, scrollAudit, reducedAudit },
   });
 });
 

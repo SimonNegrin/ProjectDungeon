@@ -231,8 +231,8 @@ for (const viewport of VIEWPORTS) {
       'cursor del mapa',
     ).toBeLessThanOrEqual(1);
     expect(
-      Math.abs(after.panelCursorBorder - after.line),
-      'cursor del panel sigue a 1×',
+      Math.abs(after.panelCursorBorder - after.line * 4),
+      'cursor del panel a 4×',
     ).toBeLessThanOrEqual(1);
 
     for (const current of after.boxes) {

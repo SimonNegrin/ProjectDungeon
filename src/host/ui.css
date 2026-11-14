@@ -1092,15 +1092,18 @@
       .inventory-slot:focus-visible {
         outline: none;
       }
+      /* Capa de presentación con el amarillo del cursor del mapa y borde de
+         4× (R-030). Por encima de columnas, títulos, slots y figura; el
+         submenú contextual conserva su capa superior (z-index 30, R-031). */
       .inventory-cursor {
         position: absolute;
         z-index: 10;
         top: 0;
         left: 0;
         background: transparent;
-        border: var(--ui-line) solid var(--ui-focus);
+        border: calc(var(--ui-line) * 4) solid var(--ui-text);
         pointer-events: none;
-        transition: transform 100ms linear;
+        transition: transform 150ms linear;
         will-change: transform;
       }
       .inventory-cursor[data-instant="true"] {
