@@ -210,13 +210,23 @@ exactamente en un sitio.
 - **Separación motor/host del panel**: `src/host/inventory-panel.ts` es el modelo
   puro que convierte el estado en filas, comparaciones y comandos sin tocar el
   DOM; `src/host/inventory-panel-view.ts` es la vista DOM del modal, con filas
-  estables, foco atrapado y `Escape`/`I` gestionados por el host. El host solo
+  estables, foco visible y `Escape`/`I` gestionados por el host. El host solo
   despacha el comando confirmado: costes y rechazos vienen del motor.
-- **Límite visual conocido**: a 1280×720 el cuerpo del panel mide 692 px de
-  contenido para 508 px visibles, y a 900×700 mide 692/454 (1090/454 con la
-  mochila llena). El panel hace scroll interno y el desglose de stats no cabe
-  entero. Es un límite de layout aceptado, no un fallo de reglas ni algo
-  resuelto en este corte.
+- **Panel de tres columnas**: el modelo expone `equipment`, `backpack`, `ground`
+  y `corpses`, y la vista los pinta en tres columnas de un tercio: figura humana
+  de ocho huecos (`inventory-figure`), ocho casillas de mochila y columna derecha
+  con los cadáveres apilados arriba y el suelo siempre abajo. La columna derecha
+  tiene scroll propio; a 1280×720 el panel completo con mochila llena y cuatro
+  objetos en el suelo no hace scroll. `src/host/inventory-navigation.ts` resuelve
+  la navegación por proximidad (`findNeighbor`, `nearestTo` y `cycleZone`).
+- **Ficha y submenú**: con el panel abierto, `src/host/hud-detail.ts` compone
+  `buildPanelDetail` en dos bloques independientes —el objeto seleccionado y el
+  equipado en ese hueco, con stats, traits y descripción, o «Vacío»—, sin delta
+  numérico. `buildPanelMenu` publica las opciones del submenú
+  (`PanelMenuOption`) por contexto, con el coste de 1 MP anunciado, la opción
+  deshabilitada con su motivo si falta MP y sin «recoger» con la mochila llena;
+  `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este es el único
+  camino de acción.
 
 Ver [ADR-021](../decisions/ADR-021-inventario-equipo.md).
 
@@ -330,6 +340,30 @@ El corte anterior queda en
 [ADR-010](../decisions/ADR-010-damero-decoracion-presentacion.md) y
 [REQ-007](../requirements/REQ-007-damero-decoracion-suelo.md).
 
+# Interfaz y pantalla
+
+La UI sigue [REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md) y
+[ADR-025](../decisions/ADR-025-estilo-visual-ui.md): DOM sobre el marco 16:9,
+Pixelify Sans local y tokens `--ui-*` con la línea calculada desde el tile.
+
+- **Tres zonas**: HUD izquierdo con la ficha del jugador activo
+  ([REQ-022](../requirements/REQ-022-hud-izquierdo-jugador.md)), mapa cuadrado de
+  13×13 y HUD derecho con el detalle bajo el cursor
+  ([REQ-023](../requirements/REQ-023-hud-derecho-detalle-cursor.md)). El HUD vive
+  dentro del marco; no queda ninguna barra superior fuera de él.
+- **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
+  siguen visibles. Tres columnas de un tercio: figura de equipo, mochila y
+  cadáveres/suelo. `Escape` o `I` cierran y el mapa no acepta comandos.
+- **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
+  abierto pasa a la ficha de dos bloques y `Enter` abre el submenú contextual.
+  `Tab`/`Shift+Tab` cambian de zona y las flechas o `WASD` se mueven por
+  proximidad entre objetos existentes.
+- **Límites de layout**: el panel no hace scroll global a 1280×720; a 900×700
+  solo se desplaza la columna derecha (cadáveres y suelo). Los contenedores y el
+  inventario de cadáver llegan con
+  [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
+  [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
+
 # Render del host
 
 - **Canvas 2D** con resolución lógica fija y escalado por `devicePixelRatio`.
@@ -339,11 +373,13 @@ El corte anterior queda en
   solo, así que el HUD refleja vida, turno y fase con `data-testid` y `aria-live`
   para los eventos importantes. No se depende solo del color.
 - **Panel de personaje** ([REQ-018](../requirements/REQ-018-inventario-equipo.md)):
-  DOM sobre el marco 16:9, nunca dibujado en Canvas. Reutiliza nodos estables y
-  `data-testid`; los iconos de objeto salen de `items.png` como fondo CSS
-  posicionado. El modal se abre fuera del bucle de render, lee el snapshot al
-  abrirse y se refresca con los eventos del motor. La navegación es por teclado
-  con foco atrapado, `role="dialog"`, `aria-modal` y `Escape` para cerrar.
+  DOM sobre la franja del mapa, dentro del marco 16:9 y nunca dibujado en Canvas.
+  Reutiliza nodos estables y `data-testid`; los iconos de objeto salen de
+  `items.png` como fondo CSS posicionado. El modal se abre fuera del bucle de
+  render, lee el snapshot al abrirse y se refresca con los eventos del motor. La
+  navegación es por teclado con foco visible y atrapado en el diálogo
+  (`role="dialog"`, `aria-modal`): flechas o `WASD` por proximidad, `Tab` por
+  zonas, `Enter` abre el submenú y `Escape`/`I` cierran.
 - **Panel y timeline** ([ADR-017](../decisions/ADR-017-feedback-visual-eventos.md)):
   el panel no añade eventos ni cues propios. Los comandos que lanza (recoger,
   equipar, soltar) siguen produciendo sus beats de mundo, y el panel se refresca

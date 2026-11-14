@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Planning — TASK-0103 — in_progress: DoR cumplida (REQ-032 v2 y REQ-018 v7 aceptados, TASK-0102 done); cierre documental y QA visual — [TASK-0103](tasks/TASK-0103-cierre-hito-ui-docs-qa.md)
+
 * 2026-11-14 — Playtest — REQ-018/REQ-032 — el usuario aprueba el panel tras probarlo: tres columnas, figura de equipo, ficha de dos bloques y submenú con `Enter`; playtest del hito UI superado — [REQ-018](requirements/REQ-018-inventario-equipo.md)
 
 * 2026-11-14 — Planning — TASK-0103 — backlog: cierre del hito UI con arquitectura, glosario, controles, vigencia de ADR-021/025 y QA visual final; la edición documental la asume `task-lead` por ADR-016 — [TASK-0103](tasks/TASK-0103-cierre-hito-ui-docs-qa.md)

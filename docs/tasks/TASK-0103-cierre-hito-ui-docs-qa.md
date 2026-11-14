@@ -4,7 +4,7 @@ id: TASK-0103
 title: "Cierre del hito UI: documentación y QA visual"
 description: "Reflejar el panel y los HUD implementados en arquitectura, glosario y economía de turno, corregir las notas de vigencia y cerrar con QA visual a 1280×720 y 900×700."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-032
 requirement_ids: [T-007, T-008]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-14T02:14:13Z
 completed_at:
 assignee: task-lead
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0103/
 priority: P1
 risk: low
