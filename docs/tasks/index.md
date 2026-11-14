@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **119**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -109,6 +109,7 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0116](TASK-0116-ui-cursor-panel-alineado.md) | UI: cursor del panel alineado con el mapa | `done` | REQ-033 | TASK-0112, TASK-0114 | P1 |
 | [TASK-0117](TASK-0117-qa-visual-correccion-ui-v7.md) | QA visual de la corrección de UI v7 | `done` | REQ-033 | TASK-0112, TASK-0113, TASK-0114, TASK-0115, TASK-0116 | P1 |
 | [TASK-0118](TASK-0118-docs-correccion-visual-adr.md) | Docs: corrección visual, ADR y glosario | `done` | REQ-033 | TASK-0117 | P1 |
+| [TASK-0119](TASK-0119-reapertura-submenu-teclado.md) | Bug: el submenú no reabre con teclado tras una acción del panel | `ready` | REQ-032 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -122,6 +123,10 @@ Total: **118**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 | [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `done` | REQ-022 | TASK-0105 | P2 |
+
+# ready
+
+* [TASK-0119 — Bug: el submenú no reabre con teclado tras una acción del panel](TASK-0119-reapertura-submenu-teclado.md)
 
 # blocked
 
