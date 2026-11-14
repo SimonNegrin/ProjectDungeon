@@ -4,22 +4,42 @@ id: TASK-0117
 title: "QA visual de la corrección de UI v7"
 description: "Cubrir en navegador y capturas el relieve de 2×, las listas verticales, el panel alineado, las siluetas y el cursor nuevo a 900×700 y 1280×720."
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-033
 requirement_ids: [R-025, R-026, R-027, R-028, R-029, R-030, R-031, S-006, P-007, P-008, T-008]
 depends_on: [TASK-0112, TASK-0113, TASK-0114, TASK-0115, TASK-0116]
 unlocks: [TASK-0118]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T17:36:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0117/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T17:36:00Z
+    note: >-
+      Intento 1 verificado (spec `739901d`, informe `2ac08fe`; fusión pendiente
+      al registrar esta nota). Reejecutados `pnpm run verify` (120 s; 94
+      archivos, 1.330/1.330, tsc, build y bundle) y `pnpm run test:e2e` (180 s;
+      208/208) sin que reapareciera `generated-map-qa`. Spec nuevo con 12 tests
+      (6 por viewport) y capturas/logs en `artifacts/TASK-0117/attempt-1/`.
+      Bisel: token 2,347/3,202 px y pintado real 2/3 px, interior A/B ≤0,81 px,
+      sin solapes ni CLS prohibido y cursor del mapa intacto; la cuantización de
+      Chromium se registra sin maquillar como en TASK-0112/T-002. Listas
+      verticales sin `·` en ambos HUD; panel arriba, casco primero, sin cabeza y
+      piernas >2 px bajo la caja (42,25/57,61 px) con `overflow` visible;
+      siluetas de los ocho slots vacíos con `#6eb8a8`, el lleno solo sprite y
+      Bolsa/Suelo sin capa; cursor `#fcffc0` de 4× con capas 10 < 30, 150 ms en
+      horizontal/vertical/columna e instantáneo en apertura, resize, scroll,
+      modelo y reducido. Diff revisado: solo el spec nuevo y artefactos; sin
+      cambios en producción, requisitos, arnés, plantillas ni tests existentes,
+      y sin tests borrados, saltados o debilitados. Capturas revisadas a 900×700
+      y 1280×720.
 ---
 
 # Objetivo

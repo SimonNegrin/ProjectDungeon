@@ -1,0 +1,806 @@
+{
+  "viewport": "1280x720",
+  "tokensBefore": {
+    "line": 1.6009615384615385,
+    "bevelToken": "calc(1.6009615384615385px * 2)",
+    "bevel": 3
+  },
+  "tokens": {
+    "line": 1.6009615384615385,
+    "bevelToken": "calc(1.6009615384615385px * 2)",
+    "bevel": 3
+  },
+  "boxes": [
+    {
+      "name": "hud",
+      "outer": {
+        "left": 48,
+        "top": 16,
+        "right": 307,
+        "bottom": 682,
+        "width": 259,
+        "height": 666
+      },
+      "inner": {
+        "left": 65.0096,
+        "top": 29.8077,
+        "right": 289.9904,
+        "bottom": 668.1923,
+        "width": 224.9808,
+        "height": 638.3846000000001
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 12.8077,
+        "left": 16.0096,
+        "right": 16.0096,
+        "bottom": 12.8077
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 46,
+      "paintedTop": 14
+    },
+    {
+      "name": "zona",
+      "outer": {
+        "left": 65,
+        "top": 29.796875,
+        "right": 290,
+        "bottom": 153.4375,
+        "width": 225,
+        "height": 123.640625
+      },
+      "inner": {
+        "left": 75.60577,
+        "top": 40.402645,
+        "right": 279.39423,
+        "bottom": 142.83173,
+        "width": 203.78846,
+        "height": 102.42908499999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 9.60577,
+        "left": 9.60577,
+        "right": 9.60577,
+        "bottom": 9.60577
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 63,
+      "paintedTop": 27.796875
+    },
+    {
+      "name": "columna",
+      "outer": {
+        "left": 346.8125,
+        "top": 52.609375,
+        "right": 533.734375,
+        "bottom": 609.625,
+        "width": 186.921875,
+        "height": 557.015625
+      },
+      "inner": {
+        "left": 354.21635,
+        "top": 60.013225,
+        "right": 526.330525,
+        "bottom": 602.22115,
+        "width": 172.114175,
+        "height": 542.2079249999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 6.40385,
+        "left": 6.40385,
+        "right": 6.40385,
+        "bottom": 6.40385
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 344.8125,
+      "paintedTop": 50.609375
+    },
+    {
+      "name": "slot",
+      "outer": {
+        "left": 413.0625,
+        "top": 85.734375,
+        "right": 467.484375,
+        "bottom": 140.15625,
+        "width": 54.421875,
+        "height": 54.421875
+      },
+      "inner": {
+        "left": 414.0625,
+        "top": 86.734375,
+        "right": 466.484375,
+        "bottom": 139.15625,
+        "width": 52.421875,
+        "height": 52.421875
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 411.0625,
+      "paintedTop": 83.734375
+    },
+    {
+      "name": "boton",
+      "outer": {
+        "left": 843.6875,
+        "top": 616.015625,
+        "right": 933.1875,
+        "bottom": 645.390625,
+        "width": 89.5,
+        "height": 29.375
+      },
+      "inner": {
+        "left": 857.4952,
+        "top": 620.217545,
+        "right": 919.3798,
+        "bottom": 641.188705,
+        "width": 61.884600000000006,
+        "height": 20.971159999999998
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 3.20192,
+        "left": 12.8077,
+        "right": 12.8077,
+        "bottom": 3.20192
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 841.6875,
+      "paintedTop": 614.015625
+    }
+  ],
+  "oneX": [
+    {
+      "name": "hud",
+      "outer": {
+        "left": 48,
+        "top": 16,
+        "right": 307,
+        "bottom": 682,
+        "width": 259,
+        "height": 666
+      },
+      "inner": {
+        "left": 65.0096,
+        "top": 29.8077,
+        "right": 289.9904,
+        "bottom": 668.1923,
+        "width": 224.9808,
+        "height": 638.3846000000001
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 12.8077,
+        "left": 16.0096,
+        "right": 16.0096,
+        "bottom": 12.8077
+      },
+      "bevelWidth": 1,
+      "pseudoActive": true,
+      "paintedLeft": 48,
+      "paintedTop": 16
+    },
+    {
+      "name": "zona",
+      "outer": {
+        "left": 65,
+        "top": 29.796875,
+        "right": 290,
+        "bottom": 153.4375,
+        "width": 225,
+        "height": 123.640625
+      },
+      "inner": {
+        "left": 75.60577,
+        "top": 40.402645,
+        "right": 279.39423,
+        "bottom": 142.83173,
+        "width": 203.78846,
+        "height": 102.42908499999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 9.60577,
+        "left": 9.60577,
+        "right": 9.60577,
+        "bottom": 9.60577
+      },
+      "bevelWidth": 1,
+      "pseudoActive": true,
+      "paintedLeft": 65,
+      "paintedTop": 29.796875
+    },
+    {
+      "name": "columna",
+      "outer": {
+        "left": 346.40625,
+        "top": 52.203125,
+        "right": 533.59375,
+        "bottom": 610.03125,
+        "width": 187.1875,
+        "height": 557.828125
+      },
+      "inner": {
+        "left": 353.8101,
+        "top": 59.606975,
+        "right": 526.1899,
+        "bottom": 602.6274,
+        "width": 172.3798,
+        "height": 543.0204249999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 6.40385,
+        "left": 6.40385,
+        "right": 6.40385,
+        "bottom": 6.40385
+      },
+      "bevelWidth": 1,
+      "pseudoActive": true,
+      "paintedLeft": 346.40625,
+      "paintedTop": 52.203125
+    },
+    {
+      "name": "slot",
+      "outer": {
+        "left": 412.78125,
+        "top": 85.328125,
+        "right": 467.203125,
+        "bottom": 139.75,
+        "width": 54.421875,
+        "height": 54.421875
+      },
+      "inner": {
+        "left": 413.78125,
+        "top": 86.328125,
+        "right": 466.203125,
+        "bottom": 138.75,
+        "width": 52.421875,
+        "height": 52.421875
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "bevelWidth": 1,
+      "pseudoActive": true,
+      "paintedLeft": 412.78125,
+      "paintedTop": 85.328125
+    },
+    {
+      "name": "boton",
+      "outer": {
+        "left": 844.09375,
+        "top": 616.421875,
+        "right": 933.59375,
+        "bottom": 645.796875,
+        "width": 89.5,
+        "height": 29.375
+      },
+      "inner": {
+        "left": 857.90145,
+        "top": 620.623795,
+        "right": 919.78605,
+        "bottom": 641.594955,
+        "width": 61.884600000000006,
+        "height": 20.971159999999998
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 3.20192,
+        "left": 12.8077,
+        "right": 12.8077,
+        "bottom": 3.20192
+      },
+      "bevelWidth": 1,
+      "pseudoActive": true,
+      "paintedLeft": 844.09375,
+      "paintedTop": 616.421875
+    }
+  ],
+  "twoX": [
+    {
+      "name": "hud",
+      "outer": {
+        "left": 48,
+        "top": 16,
+        "right": 307,
+        "bottom": 682,
+        "width": 259,
+        "height": 666
+      },
+      "inner": {
+        "left": 65.0096,
+        "top": 29.8077,
+        "right": 289.9904,
+        "bottom": 668.1923,
+        "width": 224.9808,
+        "height": 638.3846000000001
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 12.8077,
+        "left": 16.0096,
+        "right": 16.0096,
+        "bottom": 12.8077
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 46,
+      "paintedTop": 14
+    },
+    {
+      "name": "zona",
+      "outer": {
+        "left": 65,
+        "top": 29.796875,
+        "right": 290,
+        "bottom": 153.4375,
+        "width": 225,
+        "height": 123.640625
+      },
+      "inner": {
+        "left": 75.60577,
+        "top": 40.402645,
+        "right": 279.39423,
+        "bottom": 142.83173,
+        "width": 203.78846,
+        "height": 102.42908499999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 9.60577,
+        "left": 9.60577,
+        "right": 9.60577,
+        "bottom": 9.60577
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 63,
+      "paintedTop": 27.796875
+    },
+    {
+      "name": "columna",
+      "outer": {
+        "left": 346.8125,
+        "top": 52.609375,
+        "right": 533.734375,
+        "bottom": 609.625,
+        "width": 186.921875,
+        "height": 557.015625
+      },
+      "inner": {
+        "left": 354.21635,
+        "top": 60.013225,
+        "right": 526.330525,
+        "bottom": 602.22115,
+        "width": 172.114175,
+        "height": 542.2079249999999
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 6.40385,
+        "left": 6.40385,
+        "right": 6.40385,
+        "bottom": 6.40385
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 344.8125,
+      "paintedTop": 50.609375
+    },
+    {
+      "name": "slot",
+      "outer": {
+        "left": 413.0625,
+        "top": 85.734375,
+        "right": 467.484375,
+        "bottom": 140.15625,
+        "width": 54.421875,
+        "height": 54.421875
+      },
+      "inner": {
+        "left": 414.0625,
+        "top": 86.734375,
+        "right": 466.484375,
+        "bottom": 139.15625,
+        "width": 52.421875,
+        "height": 52.421875
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 0,
+        "left": 0,
+        "right": 0,
+        "bottom": 0
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 411.0625,
+      "paintedTop": 83.734375
+    },
+    {
+      "name": "boton",
+      "outer": {
+        "left": 843.6875,
+        "top": 616.015625,
+        "right": 933.1875,
+        "bottom": 645.390625,
+        "width": 89.5,
+        "height": 29.375
+      },
+      "inner": {
+        "left": 857.4952,
+        "top": 620.217545,
+        "right": 919.3798,
+        "bottom": 641.188705,
+        "width": 61.884600000000006,
+        "height": 20.971159999999998
+      },
+      "border": {
+        "top": 1,
+        "left": 1,
+        "right": 1,
+        "bottom": 1
+      },
+      "padding": {
+        "top": 3.20192,
+        "left": 12.8077,
+        "right": 12.8077,
+        "bottom": 3.20192
+      },
+      "bevelWidth": 3,
+      "pseudoActive": true,
+      "paintedLeft": 841.6875,
+      "paintedTop": 614.015625
+    }
+  ],
+  "painted": [
+    {
+      "id": "columna-equipo",
+      "side": "left",
+      "edge": 346,
+      "y": 331,
+      "background": "rgb(42, 88, 79)",
+      "insideBackground": "rgb(119, 68, 72)",
+      "fullPixels": 3,
+      "weightedWidth": 3,
+      "pixels": [
+        {
+          "offset": -4,
+          "color": "rgb(42, 88, 79)",
+          "coverage": 0
+        },
+        {
+          "offset": -3,
+          "color": "rgb(42, 88, 79)",
+          "coverage": 0
+        },
+        {
+          "offset": -2,
+          "color": "rgb(42, 88, 79)",
+          "coverage": 0
+        },
+        {
+          "offset": -1,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 0,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 1,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 2,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 3,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 4,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 5,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 6,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 7,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        }
+      ]
+    },
+    {
+      "id": "slot-bolsa-1",
+      "side": "right",
+      "edge": 696,
+      "y": 113,
+      "background": "rgb(119, 68, 72)",
+      "insideBackground": "rgb(47, 20, 47)",
+      "fullPixels": 3,
+      "weightedWidth": 3,
+      "pixels": [
+        {
+          "offset": -4,
+          "color": "rgb(47, 20, 47)",
+          "coverage": 0
+        },
+        {
+          "offset": -3,
+          "color": "rgb(47, 20, 47)",
+          "coverage": 0
+        },
+        {
+          "offset": -2,
+          "color": "rgb(47, 20, 47)",
+          "coverage": 0
+        },
+        {
+          "offset": -1,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 0,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 1,
+          "color": "rgb(110, 184, 168)",
+          "coverage": 1
+        },
+        {
+          "offset": 2,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 3,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 4,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 5,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 6,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        },
+        {
+          "offset": 7,
+          "color": "rgb(119, 68, 72)",
+          "coverage": 0
+        }
+      ]
+    }
+  ],
+  "shifts": [],
+  "panel": {
+    "frame": {
+      "left": 48,
+      "top": 16,
+      "right": 1232,
+      "bottom": 682,
+      "width": 1184,
+      "height": 666
+    },
+    "panel": {
+      "left": 307,
+      "top": 16,
+      "right": 973,
+      "bottom": 682,
+      "width": 666,
+      "height": 666
+    },
+    "body": {
+      "left": 324.609375,
+      "top": 33.609375,
+      "right": 955.390625,
+      "bottom": 664.390625,
+      "width": 630.78125,
+      "height": 630.78125
+    },
+    "columns": [
+      {
+        "left": 346.8125,
+        "top": 52.609375,
+        "right": 533.734375,
+        "bottom": 609.625,
+        "width": 186.921875,
+        "height": 557.015625
+      },
+      {
+        "left": 546.53125,
+        "top": 52.609375,
+        "right": 733.453125,
+        "bottom": 609.625,
+        "width": 186.921875,
+        "height": 557.015625
+      },
+      {
+        "left": 746.25,
+        "top": 52.609375,
+        "right": 933.171875,
+        "bottom": 609.625,
+        "width": 186.921875,
+        "height": 557.015625
+      }
+    ],
+    "titles": [
+      {
+        "text": "Equipo",
+        "rect": {
+          "left": 354.203125,
+          "top": 60,
+          "right": 526.34375,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        }
+      },
+      {
+        "text": "Bolsa 2/8",
+        "rect": {
+          "left": 553.921875,
+          "top": 60,
+          "right": 726.0625,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        }
+      },
+      {
+        "text": "Suelo",
+        "rect": {
+          "left": 753.640625,
+          "top": 60,
+          "right": 925.78125,
+          "bottom": 80.9375,
+          "width": 172.140625,
+          "height": 20.9375
+        }
+      }
+    ]
+  },
+  "mapCursor": {
+    "before": {
+      "borderTopWidth": 3,
+      "color": "rgb(252, 255, 192)",
+      "hidden": false,
+      "rect": {
+        "left": 614.375,
+        "top": 425.84375,
+        "right": 665.59375,
+        "bottom": 477.0625,
+        "width": 51.21875,
+        "height": 51.21875
+      }
+    },
+    "after": {
+      "borderTopWidth": 3,
+      "color": "rgb(252, 255, 192)",
+      "hidden": false,
+      "rect": {
+        "left": 614.375,
+        "top": 425.84375,
+        "right": 665.59375,
+        "bottom": 477.0625,
+        "width": 51.21875,
+        "height": 51.21875
+      }
+    }
+  }
+}
