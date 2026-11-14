@@ -12,9 +12,11 @@ import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../game/equipment';
 import type { GameState } from '../game/types';
 import {
   buildInventoryPanelModel,
+  buildPanelMenu,
   type InventoryPanelModel,
-  type PanelAction,
   type PanelItem,
+  type PanelMenuOption,
+  type PanelSelection,
 } from './inventory-panel';
 import {
   cycleZone,
@@ -44,10 +46,12 @@ export interface InventoryPanelView {
 }
 
 export interface InventoryPanelOptions {
-  /** Comando confirmado desde una barra de acciones; el host lo despacha. */
-  readonly onCommand?: (action: PanelAction) => void;
+  /** Comando confirmado desde el submenú; el host lo despacha. */
+  readonly onCommand?: (option: PanelMenuOption) => void;
   /** El botón de cerrar pide al host que cierre el panel. */
   readonly onClose?: () => void;
+  /** Publica la selección para la ficha del HUD derecho. */
+  readonly onSelectionChange?: (selection: PanelSelection | null) => void;
 }
 
 function requireElement<T extends HTMLElement>(
@@ -184,10 +188,8 @@ export function createInventoryPanelView(
   const groundHint = requireElement(root, 'inventory-ground-hint');
   const groundEmpty = requireElement(root, 'inventory-ground-empty');
   const cadaversEmpty = requireElement(root, 'inventory-cadavers-empty');
-  const selection = requireElement(root, 'inventory-selection');
-  const actionsSection = requireElement(root, 'inventory-actions');
-  const actionsButtons = requireElement(root, 'inventory-actions-buttons');
   const message = requireElement(root, 'inventory-message');
+  const submenu = requireElement(root, 'inventory-submenu');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
 
   const equipmentCells = new Map<EquipmentSlot, CellView>();
@@ -208,11 +210,13 @@ export function createInventoryPanelView(
   const zoneLastKey = new Map<string, string>();
   let currentCells: readonly NavigationCell[] = [];
   let model: InventoryPanelModel | null = null;
+  let currentState: GameState | null = null;
   let selectedKey: string | null = null;
   let lastKey: string | null = null;
   let previousFocus: HTMLElement | null = null;
-  let focusSelectedRequested = false;
-  let actionsSignature = '';
+  let menuOpen = false;
+  let menuIndex = 0;
+  let menuOptions: readonly PanelMenuOption[] = [];
 
   const cellView = (key: string): CellView | null => {
     for (const view of equipmentCells.values()) {
@@ -261,8 +265,29 @@ export function createInventoryPanelView(
     );
   };
 
-  const actionButtons = (): HTMLButtonElement[] =>
-    [...actionsButtons.querySelectorAll<HTMLButtonElement>('button.inventory-action')];
+  const selectionFor = (key: string | null): PanelSelection | null => {
+    const item = itemForKey(key);
+    const view = key === null ? null : cellView(key);
+    if (
+      !item ||
+      item.empty ||
+      item.itemId === null ||
+      item.instanceId === null ||
+      !view
+    ) {
+      return null;
+    }
+    return {
+      key: item.key,
+      itemId: item.itemId,
+      instanceId: item.instanceId,
+      zone: view.zone,
+    };
+  };
+
+  const emitSelection = (): void => {
+    options.onSelectionChange?.(selectionFor(selectedKey));
+  };
 
   const revealRow = (view: CellView): void => {
     if (view.zone !== 'right' || !groundList.contains(view.root)) return;
@@ -289,44 +314,128 @@ export function createInventoryPanelView(
     closeButton.focus();
   };
 
-  const renderActions = (): void => {
-    const item = itemForKey(selectedKey);
-    const actions = item?.actions ?? [];
-    selection.textContent = item
-      ? `${item.name} · ${item.empty ? 'Vacío' : stateLabel(item.key)}`
-      : 'Sin objeto seleccionado';
+  function positionMenu(): void {
+    const rowView = selectedKey === null ? null : cellView(selectedKey);
+    if (!rowView) return;
+    const panelRect = panel.getBoundingClientRect();
+    const rowRect = rowView.root.getBoundingClientRect();
+    const columnRect =
+      rowView.root.closest<HTMLElement>('.inventory-column')?.getBoundingClientRect() ??
+      rowRect;
+    const menuRect = submenu.getBoundingClientRect();
+    const gap = 6;
+    const minLeft = 4;
+    const maxLeft = Math.max(minLeft, panelRect.width - menuRect.width - 4);
+    const rightOfColumn = columnRect.right - panelRect.left + gap;
+    const leftOfColumn =
+      columnRect.left - panelRect.left - menuRect.width - gap;
 
-    // Cada zona tiene su propia parada de acciones: la barra se identifica con
-    // la zona del objeto seleccionado para el ciclo de `Tab`.
-    const selectedView = selectedKey === null ? null : cellView(selectedKey);
-    actionsSection.dataset.zone = selectedView
-      ? `actions:${selectedView.zone}`
-      : 'actions';
+    let left = rowView.zone === 'right' ? leftOfColumn : rightOfColumn;
+    if (left < minLeft) left = rightOfColumn;
+    if (left > maxLeft) left = leftOfColumn;
+    left = Math.min(Math.max(minLeft, left), maxLeft);
 
-    const signature = `${selectedKey ?? ''}|${actions
-      .map((action) => `${action.kind}:${action.label}:${JSON.stringify(action.command)}`)
-      .join('|')}`;
-    if (signature === actionsSignature) return;
-    actionsSignature = signature;
+    const maxTop = Math.max(4, panelRect.height - menuRect.height - 4);
+    const top = Math.min(Math.max(4, rowRect.top - panelRect.top), maxTop);
+    submenu.style.left = `${left}px`;
+    submenu.style.top = `${top}px`;
+  }
 
-    actionsButtons.replaceChildren(
-      ...actions.map((action) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'inventory-action';
-        button.dataset.testid = `inventory-action-${action.kind}-${rowTestId(
-          selectedKey ?? '',
-        )}`;
-        button.dataset.action = action.kind;
-        button.textContent = action.label;
-        button.addEventListener('click', () => {
-          focusSelectedRequested = true;
-          options.onCommand?.(action);
+  function setMenuActive(index: number): void {
+    if (!menuOpen) return;
+    menuIndex = Math.min(Math.max(0, index), menuOptions.length - 1);
+    const options = [
+      ...submenu.querySelectorAll<HTMLElement>('[role="menuitem"]'),
+    ];
+    options.forEach((element, position) => {
+      const active = position === menuIndex;
+      element.dataset.active = String(active);
+      element.setAttribute('aria-selected', String(active));
+    });
+    const active = options[menuIndex];
+    if (active) submenu.setAttribute('aria-activedescendant', active.id);
+  }
+
+  function renderMenu(): void {
+    if (!menuOpen) {
+      submenu.hidden = true;
+      submenu.replaceChildren();
+      submenu.removeAttribute('aria-activedescendant');
+      return;
+    }
+
+    submenu.hidden = false;
+    submenu.replaceChildren(
+      ...menuOptions.map((option, index) => {
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.id = `inventory-submenu-option-${option.kind}`;
+        element.className = 'inventory-submenu-option';
+        element.dataset.testid = `inventory-submenu-option-${option.kind}`;
+        element.dataset.kind = option.kind;
+        element.dataset.active = String(index === menuIndex);
+        element.setAttribute('role', 'menuitem');
+        element.tabIndex = -1;
+        element.setAttribute('aria-selected', String(index === menuIndex));
+        element.setAttribute('aria-disabled', String(option.disabled));
+
+        const label = document.createElement('span');
+        label.className = 'inventory-submenu-label';
+        label.textContent = option.label;
+        const cost = document.createElement('span');
+        cost.className = 'inventory-submenu-cost';
+        cost.textContent = option.costLabel;
+        element.append(label, cost);
+
+        if (option.disabled && option.reason !== null) {
+          const reason = document.createElement('span');
+          reason.className = 'inventory-submenu-reason';
+          reason.textContent = option.reason;
+          element.append(reason);
+        }
+
+        element.addEventListener('click', () => {
+          if (option.disabled) return;
+          executeOption(option);
         });
-        return button;
+        return element;
       }),
     );
-  };
+
+    const active = submenu.querySelector<HTMLElement>(
+      `[role="menuitem"]:nth-child(${menuIndex + 1})`,
+    );
+    if (active) submenu.setAttribute('aria-activedescendant', active.id);
+    submenu.style.left = '0px';
+    submenu.style.top = '0px';
+    positionMenu();
+  }
+
+  function closeMenu(focusObject: boolean): void {
+    const wasOpen = menuOpen;
+    menuOpen = false;
+    menuOptions = [];
+    menuIndex = 0;
+    renderMenu();
+    if (wasOpen && focusObject) focusSelectedOrClose();
+  }
+
+  function openMenu(): boolean {
+    if (currentState === null || selectedKey === null) return false;
+    const options = buildPanelMenu(currentState, selectedKey);
+    if (options.length === 0) return false;
+    menuOptions = options;
+    menuIndex = 0;
+    menuOpen = true;
+    renderMenu();
+    return true;
+  }
+
+  function executeOption(option: PanelMenuOption): void {
+    if (option.disabled) return;
+    closeMenu(true);
+    options.onCommand?.(option);
+  }
 
   const applySelection = (focus: boolean): void => {
     for (const view of [
@@ -341,7 +450,7 @@ export function createInventoryPanelView(
       if (occupied) view.root.tabIndex = selected ? 0 : -1;
     }
     panel.dataset.selectedKey = selectedKey ?? '';
-    renderActions();
+    emitSelection();
     if (selectedKey !== null) {
       const view = cellView(selectedKey);
       if (view) zoneLastKey.set(view.zone, selectedKey);
@@ -372,40 +481,19 @@ export function createInventoryPanelView(
 
   const availableZones = (): string[] => {
     const zones: string[] = [];
-    // Cada zona con objetos aporta su fila y su parada de acciones. Las paradas
-    // vacías se omiten porque no hay zona a la que asociarlas.
+    // `Tab` visita solo zonas con objetos; las vacías no son paradas.
     for (const zone of ['equipment', 'backpack', 'right'] as const) {
       if (!currentCells.some((cell) => cell.zone === zone)) continue;
-      zones.push(zone, `actions:${zone}`);
+      zones.push(zone);
     }
     zones.push('close');
     return zones;
   };
 
-  const focusZone = (zone: string | null, backwards: boolean): void => {
+  const focusZone = (zone: string | null): void => {
     if (zone === null) return;
     if (zone === 'close') {
       closeButton.focus();
-      return;
-    }
-    if (zone.startsWith('actions:')) {
-      // La parada de acciones pertenece a una zona concreta. Al entrar desde su
-      // fila la selección ya es la correcta y no cambia; al volver desde la
-      // zona siguiente se recupera el objeto recordado de esta zona para que
-      // la barra describa siempre el objeto de la parada.
-      const owner = zone.slice('actions:'.length);
-      const selectedView = selectedKey === null ? null : cellView(selectedKey);
-      if (!selectedView || selectedView.zone !== owner) {
-        const zoneCells = currentCells.filter((cell) => cell.zone === owner);
-        const remembered = zoneLastKey.get(owner);
-        const target =
-          zoneCells.find((cell) => cell.key === remembered) ??
-          firstInReadingOrder(zoneCells);
-        if (!target) return;
-        selectByKey(target.key, false);
-      }
-      const buttons = actionButtons();
-      (backwards ? buttons[buttons.length - 1] : buttons[0])?.focus();
       return;
     }
     const zoneCells = currentCells.filter((cell) => cell.zone === zone);
@@ -416,8 +504,8 @@ export function createInventoryPanelView(
       firstInReadingOrder(zoneCells);
     if (!target) return;
     // `Tab` salta de zona, no recorre objetos: al entrar se selecciona el
-    // recordado (o el primero por lectura) para que foco, `aria-current`,
-    // barra de acciones y detalle describan siempre el mismo objeto.
+    // recordado (o el primero por lectura) para que foco, `aria-current` y la
+    // ficha describan siempre el mismo objeto.
     selectByKey(target.key, true);
   };
 
@@ -425,18 +513,6 @@ export function createInventoryPanelView(
     const active = focusedElement();
     const currentZone = zoneOf(active);
     const backwards = event.shiftKey;
-
-    if (currentZone?.startsWith('actions:')) {
-      const buttons = actionButtons();
-      const index = active === null ? -1 : buttons.indexOf(active as HTMLButtonElement);
-      const target = buttons[index + (backwards ? -1 : 1)];
-      if (target) {
-        event.preventDefault();
-        target.focus();
-        return;
-      }
-    }
-
     const zones = availableZones();
     const next = cycleZone(zones, currentZone, backwards);
     if (next === null) {
@@ -445,14 +521,19 @@ export function createInventoryPanelView(
       return;
     }
     event.preventDefault();
-    focusZone(next, backwards);
+    focusZone(next);
   };
 
   const renderModel = (state: GameState, mode: 'open' | 'update'): void => {
+    if (menuOpen) closeMenu(false);
+    currentState = state;
     const next = buildInventoryPanelModel(state);
-    // El centro anterior se mide antes de retirar o vaciar filas: es la
-    // referencia de N-008 cuando el objeto seleccionado desaparece.
+    // El centro y la identidad anteriores se miden antes de retirar o vaciar
+    // filas: son la referencia de N-008 cuando el objeto cambia de zona o
+    // desaparece.
     const previousKey = selectedKey;
+    const previousItem = itemForKey(previousKey);
+    const previousInstanceId = previousItem?.instanceId ?? null;
     const previousCenter = previousKey === null ? null : centerOf(previousKey);
 
     model = next;
@@ -515,6 +596,22 @@ export function createInventoryPanelView(
         lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
           ? lastKey
           : (firstInReadingOrder(currentCells)?.key ?? null);
+    } else if (previousInstanceId !== null) {
+      // N-008 por identidad: equipar, desequipar, recoger y soltar pueden mover
+      // la instancia a otra zona; el foco la sigue a su nueva clave.
+      const moved = [...next.equipment, ...next.backpack, ...next.ground].find(
+        (item) => item.instanceId === previousInstanceId,
+      );
+      if (moved && currentCells.some((cell) => cell.key === moved.key)) {
+        selectedKey = moved.key;
+      } else if (previousCenter !== null) {
+        selectedKey = nearestTo(currentCells, previousCenter)?.key ?? null;
+      } else {
+        selectedKey =
+          lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
+            ? lastKey
+            : (firstInReadingOrder(currentCells)?.key ?? null);
+      }
     } else if (
       selectedKey !== null &&
       currentCells.some((cell) => cell.key === selectedKey)
@@ -537,14 +634,16 @@ export function createInventoryPanelView(
     const activeStillValid =
       activeKey === undefined ||
       currentCells.some((cell) => cell.key === activeKey);
+    // N-008/N-010: si el objeto cambió de clave o el foco quedó en otra fila,
+    // el foco real sigue a la selección; el botón de cerrar no se secuestra.
+    const focusOnAnotherRow =
+      activeKey !== undefined && activeKey !== selectedKey;
 
-    if (!panel.hidden) {
-      if (focusSelectedRequested) {
-        focusSelectedRequested = false;
-        focusSelectedOrClose();
-      } else if (!activeInside || !activeStillValid) {
-        focusSelectedOrClose();
-      }
+    if (
+      !panel.hidden &&
+      (!activeInside || !activeStillValid || focusOnAnotherRow)
+    ) {
+      focusSelectedOrClose();
     }
   };
 
@@ -565,10 +664,65 @@ export function createInventoryPanelView(
     if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) {
       return;
     }
+    // `event.repeat` no debe ejecutar dos veces ni recorrer el menú a saltos.
+    if (event.repeat) return;
+
+    if (menuOpen) {
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault();
+          event.stopPropagation();
+          setMenuActive(menuIndex + 1);
+          return;
+        case 'ArrowUp':
+          event.preventDefault();
+          event.stopPropagation();
+          setMenuActive(menuIndex - 1);
+          return;
+        case 'ArrowLeft':
+        case 'ArrowRight':
+          // Izquierda/derecha no hacen nada, pero no deben mover el foco.
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        case 'Tab':
+          // El submenú no atrapa el foco: se queda en el objeto que lo abrió.
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        case 'Escape':
+          event.preventDefault();
+          event.stopPropagation();
+          closeMenu(true);
+          return;
+        case 'Enter': {
+          event.preventDefault();
+          event.stopPropagation();
+          const option = menuOptions[menuIndex];
+          // Una opción deshabilitada ya muestra su motivo; no despacha.
+          if (option && !option.disabled) executeOption(option);
+          return;
+        }
+        default:
+          return;
+      }
+    }
+
     if (event.key === 'Tab') {
       handleTab(event);
       return;
     }
+
+    if (event.key === 'Enter') {
+      const activeKey = focusedElement()
+        ?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+      if (activeKey === undefined || activeKey !== selectedKey) return;
+      event.preventDefault();
+      event.stopPropagation();
+      openMenu();
+      return;
+    }
+
     const direction = directionForKey(event.key);
     if (direction === null) return;
     event.preventDefault();
@@ -591,10 +745,11 @@ export function createInventoryPanelView(
       focusSelectedOrClose();
     },
     close(): void {
+      closeMenu(false);
       panel.hidden = true;
       message.hidden = true;
       message.textContent = '';
-      focusSelectedRequested = false;
+      options.onSelectionChange?.(null);
       if (previousFocus?.isConnected) previousFocus.focus();
       previousFocus = null;
     },

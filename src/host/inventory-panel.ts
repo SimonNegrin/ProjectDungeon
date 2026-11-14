@@ -15,7 +15,11 @@ import {
   type ItemId,
   type ItemSpriteRect,
 } from '../game/equipment';
-import { backpackCount, type GroundItem } from '../game/inventory';
+import {
+  backpackCount,
+  INVENTORY_OPERATION_COST,
+  type GroundItem,
+} from '../game/inventory';
 import {
   aggregateEffectiveStats,
   effectiveStats,
@@ -60,6 +64,27 @@ export interface PanelAction {
   readonly command: Command;
 }
 
+/**
+ * Opción del submenú contextual (`Enter` sobre el objeto). Añade el coste y el
+ * motivo al comando; construirla no despacha ni gasta MP.
+ */
+export interface PanelMenuOption extends PanelAction {
+  /** Coste anunciado antes de confirmar, p. ej. `1 MP`. */
+  readonly costLabel: string;
+  /** `true` con MP insuficiente: la opción se muestra con su motivo. */
+  readonly disabled: boolean;
+  /** Motivo legible cuando la opción no está disponible. */
+  readonly reason: string | null;
+}
+
+/** Selección publicada por la vista para la ficha del HUD derecho. */
+export interface PanelSelection {
+  readonly key: string;
+  readonly itemId: ItemId;
+  readonly instanceId: string;
+  readonly zone: string;
+}
+
 /** Comparación antes/después de equipar un objeto concreto. */
 export interface PanelComparisonRow {
   readonly label: string;
@@ -72,6 +97,10 @@ export interface PanelItem {
   readonly key: string;
   /** `true` para huecos vacíos: no hay acciones ni comparación. */
   readonly empty: boolean;
+  /** Definición del catálogo; `null` en un hueco vacío. */
+  readonly itemId: ItemId | null;
+  /** Identidad de instancia; N-008 la sigue cuando la fila cambia de zona. */
+  readonly instanceId: string | null;
   readonly name: string;
   readonly detail: string;
   /** Recorte de `items.png` que comparte con el objeto dibujado en el suelo. */
@@ -149,7 +178,8 @@ function modifierText(item: ItemDefinition): string {
   return parts.join(' · ');
 }
 
-function itemStatsText(item: ItemDefinition): string {
+/** Texto de stats de un objeto; la ficha del HUD reutiliza esta composición. */
+export function itemStatsText(item: ItemDefinition): string {
   const parts = [modifierText(item), itemDetail(item)].filter((part) => part !== '');
   return parts.length > 0 ? parts.join(' · ') : 'Sin cambios en stats';
 }
@@ -259,6 +289,8 @@ function equipmentRow(unit: Unit, slot: EquipmentSlot): PanelItem {
   const base = {
     key: `slot:${slot}`,
     empty: instance === null,
+    itemId: instance ? instance.itemId : null,
+    instanceId: instance ? instance.id : null,
     comparison: [] as readonly PanelComparisonRow[],
     name: instance ? itemName(ITEMS[instance.itemId]) : 'Vacío',
     detail: instance ? itemDetail(ITEMS[instance.itemId]) : slotLabel(slot),
@@ -290,6 +322,8 @@ function backpackRow(unit: Unit, index: number): PanelItem {
     return {
       key: `backpack:${index}`,
       empty: true,
+      itemId: null,
+      instanceId: null,
       name: 'Vacío',
       detail: `Hueco ${index + 1}`,
       sprite: null,
@@ -302,6 +336,8 @@ function backpackRow(unit: Unit, index: number): PanelItem {
   return {
     key: `backpack:${index}`,
     empty: false,
+    itemId: instance.itemId,
+    instanceId: instance.id,
     name: itemName(item),
     detail: `${itemDetail(item)} · ${slotLabel(item.slot)}`,
     sprite: item.sprite.rect,
@@ -316,6 +352,8 @@ function groundRow(unit: Unit, item: GroundItem): PanelItem {
   return {
     key: `ground:${item.id}`,
     empty: false,
+    itemId: item.itemId,
+    instanceId: item.id,
     name: `${definition.name}`,
     detail: `${itemDetail(definition)} · ${slotLabel(definition.slot)}`,
     sprite: definition.sprite.rect,
@@ -364,6 +402,8 @@ export function buildInventoryPanelModel(
       equipment: EQUIPMENT_SLOTS.map((slot) => ({
         key: `slot:${slot}`,
         empty: true,
+        itemId: null,
+        instanceId: null,
         name: 'Vacío',
         detail: slotLabel(slot),
         sprite: null,
@@ -423,4 +463,50 @@ const REJECTION_MESSAGES: Readonly<Partial<Record<RejectionReason, string>>> = {
 /** Motivo legible de un rechazo del motor; nunca deja la operación sin texto. */
 export function rejectionMessage(reason: RejectionReason): string {
   return REJECTION_MESSAGES[reason] ?? 'Operación rechazada';
+}
+
+function panelRow(
+  model: InventoryPanelModel,
+  key: string,
+): PanelItem | undefined {
+  return (
+    model.equipment.find((item) => item.key === key) ??
+    model.backpack.find((item) => item.key === key) ??
+    model.ground.find((item) => item.key === key)
+  );
+}
+
+/**
+ * Opciones del submenú contextual para el objeto seleccionado, en el orden del
+ * modelo. Solo lectura: no despacha, no muta el estado y no gasta MP.
+ *
+ * - El coste se anuncia siempre antes de confirmar.
+ * - Con MP insuficiente la opción queda deshabilitada con el motivo del motor.
+ * - Con la mochila llena se omite `pickup`; `equip` desde el suelo sigue
+ *   ofreciéndose porque el intercambio puede caber y el motor decide.
+ */
+export function buildPanelMenu(
+  state: GameState,
+  key: string,
+  unitId?: string,
+): readonly PanelMenuOption[] {
+  const unit = unitForPanel(state, unitId);
+  if (!unit) return [];
+  const item = panelRow(buildInventoryPanelModel(state, unitId), key);
+  if (!item || item.empty) return [];
+
+  const full =
+    backpackCount(unit.inventory) >= unit.inventory.capacity;
+  const actions = item.actions.filter(
+    (action) => !(action.kind === 'pickup' && full),
+  );
+  const disabled = unit.mp < INVENTORY_OPERATION_COST;
+  const costLabel = `${INVENTORY_OPERATION_COST} MP`;
+
+  return actions.map((action) => ({
+    ...action,
+    costLabel,
+    disabled,
+    reason: disabled ? rejectionMessage('no-mp') : null,
+  }));
 }

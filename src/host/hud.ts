@@ -28,6 +28,8 @@ import {
   weaponLabel,
   type CursorDetail,
   type CursorDetailKind,
+  type PanelDetail,
+  type PanelDetailBlock,
 } from './hud-detail';
 import type { Viewport } from './geometry';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
@@ -533,7 +535,12 @@ export interface HudFeedback {
 }
 
 export interface HudView {
-  update(state: GameState, cursor?: Position, feedback?: HudFeedback): void;
+  update(
+    state: GameState,
+    cursor?: Position,
+    feedback?: HudFeedback,
+    panelDetail?: PanelDetail | null,
+  ): void;
 }
 
 const DETAIL_KIND_LABELS: Readonly<Record<CursorDetailKind, string>> = {
@@ -620,7 +627,14 @@ export function createHudView(root: ParentNode): HudView {
   const cursorEnemyMana = requireElement(root, 'hud-cursor-enemy-mana');
   const cursorBands = ensureCursorBands(root, detail);
 
+  const panelDetailSection = requireElement(root, 'hud-panel-detail');
+  const panelBlocks = {
+    selected: requireElement(root, 'hud-panel-selected'),
+    equipped: requireElement(root, 'hud-panel-equipped'),
+  };
+
   let lastDetailKey: string | null = null;
+  let lastPanelKey: string | null = null;
 
   const renderDetail = (value: CursorDetail): void => {
     const key = JSON.stringify(value);
@@ -657,8 +671,55 @@ export function createHudView(root: ParentNode): HudView {
     }
   };
 
+  const renderPanelBlock = (
+    block: PanelDetailBlock,
+    element: HTMLElement,
+  ): void => {
+    const prefix = `hud-panel-${block.id}`;
+    const title = requireElement(element, `${prefix}-title`);
+    const subtitle = requireElement(element, `${prefix}-subtitle`);
+    const rows = requireElement(element, `${prefix}-rows`);
+    const traits = requireElement(element, `${prefix}-traits`);
+    const description = requireElement(element, `${prefix}-description`);
+
+    element.dataset.empty = String(block.empty);
+    title.textContent = block.title;
+    subtitle.textContent = block.subtitle;
+    subtitle.hidden = block.subtitle === '';
+    rows.replaceChildren(
+      ...block.rows.map((row) => {
+        const item = document.createElement('div');
+        item.className = 'hud-detail-row';
+        item.dataset.row = row.id;
+        const label = document.createElement('dt');
+        label.textContent = row.label;
+        const valueNode = document.createElement('dd');
+        valueNode.textContent = row.value;
+        item.append(label, valueNode);
+        return item;
+      }),
+    );
+    traits.textContent = block.traits;
+    traits.hidden = block.traits === '';
+    description.textContent = block.description;
+    description.hidden = block.description === '';
+  };
+
+  const renderPanelDetail = (value: PanelDetail): void => {
+    const key = JSON.stringify(value);
+    if (key === lastPanelKey) return;
+    lastPanelKey = key;
+    renderPanelBlock(value.blocks[0], panelBlocks.selected);
+    renderPanelBlock(value.blocks[1], panelBlocks.equipped);
+  };
+
   return {
-    update(state: GameState, cursor?: Position, feedback?: HudFeedback): void {
+    update(
+      state: GameState,
+      cursor?: Position,
+      feedback?: HudFeedback,
+      panelDetail?: PanelDetail | null,
+    ): void {
       const model = buildHudModel(state, cursor);
       playerName.textContent = model.playerName;
       archetype.textContent = model.archetype;
@@ -683,10 +744,18 @@ export function createHudView(root: ParentNode): HudView {
       cursorEnemyHp.textContent = model.cursorEnemyHp;
       cursorEnemyMagic.textContent = model.cursorEnemyMagic;
       cursorEnemyMana.textContent = model.cursorEnemyMana;
-      vitals.hidden = model.cursorDetail.kind !== 'enemy';
-      magicVital.hidden = !model.cursorEnemyMagicVisible;
-      manaVital.hidden = !model.cursorEnemyMagicVisible;
+      const panelOpen = panelDetail !== null && panelDetail !== undefined;
+      detail.hidden = panelOpen;
+      panelDetailSection.hidden = !panelOpen;
+      vitals.hidden = panelOpen || model.cursorDetail.kind !== 'enemy';
+      magicVital.hidden = panelOpen || !model.cursorEnemyMagicVisible;
+      manaVital.hidden = panelOpen || !model.cursorEnemyMagicVisible;
       renderDetail(model.cursorDetail);
+      // El detalle del cursor se mantiene compuesto bajo la ficha: al cerrar
+      // el panel basta con volver a mostrarlo y las bandas recuperan su estado.
+      cursorBands.group.hidden =
+        panelOpen || model.cursorDetail.bands === null;
+      if (panelOpen) renderPanelDetail(panelDetail);
       weaponHint.textContent = model.weaponHint ?? '';
       weaponHint.hidden = model.weaponHint === null;
       victory.hidden = !model.overlays.victory;

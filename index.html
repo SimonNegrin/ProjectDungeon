@@ -86,6 +86,38 @@
                     >
                   </p>
                 </section>
+                <section
+                  class="hud-detail hud-panel-detail"
+                  data-testid="hud-panel-detail"
+                  data-kind="panel"
+                  aria-live="polite"
+                  hidden
+                >
+                  <section
+                    class="hud-detail-block"
+                    data-testid="hud-panel-selected"
+                    data-empty="false"
+                  >
+                    <p class="hud-detail-eyebrow">Seleccionado</p>
+                    <h2 class="hud-detail-title" data-testid="hud-panel-selected-title">—</h2>
+                    <p class="hud-detail-subtitle" data-testid="hud-panel-selected-subtitle" hidden></p>
+                    <dl class="hud-detail-rows" data-testid="hud-panel-selected-rows"></dl>
+                    <p class="hud-detail-traits" data-testid="hud-panel-selected-traits" hidden></p>
+                    <p class="hud-detail-description" data-testid="hud-panel-selected-description" hidden></p>
+                  </section>
+                  <section
+                    class="hud-detail-block"
+                    data-testid="hud-panel-equipped"
+                    data-empty="false"
+                  >
+                    <p class="hud-detail-eyebrow">Equipado en el hueco</p>
+                    <h2 class="hud-detail-title" data-testid="hud-panel-equipped-title">—</h2>
+                    <p class="hud-detail-subtitle" data-testid="hud-panel-equipped-subtitle" hidden></p>
+                    <dl class="hud-detail-rows" data-testid="hud-panel-equipped-rows"></dl>
+                    <p class="hud-detail-traits" data-testid="hud-panel-equipped-traits" hidden></p>
+                    <p class="hud-detail-description" data-testid="hud-panel-equipped-description" hidden></p>
+                  </section>
+                </section>
               </aside>
             </section>
             <section class="spell-list" data-testid="spell-list" aria-label="Hechizos" hidden>
@@ -146,7 +178,7 @@
                   <p class="inventory-panel-mp">MP <span data-testid="inventory-mp"></span></p>
                 </header>
                 <p class="inventory-panel-help">
-                  Flechas/WASD para moverte · Tab por zonas · Enter en una acción · Cada operación cuesta 1 MP
+                  Flechas/WASD para moverte · Tab por zonas · Enter abre acciones · Cada operación cuesta 1 MP
                 </p>
                 <div class="inventory-columns">
                   <section
@@ -200,15 +232,6 @@
                     </section>
                   </section>
                 </div>
-                <section
-                  class="inventory-actions"
-                  data-testid="inventory-actions"
-                  data-zone="actions"
-                  aria-label="Acciones del objeto seleccionado"
-                >
-                  <p class="inventory-selection" data-testid="inventory-selection"></p>
-                  <div class="inventory-actions-buttons" data-testid="inventory-actions-buttons"></div>
-                </section>
                 <p
                   class="inventory-message"
                   data-testid="inventory-message"
@@ -216,6 +239,13 @@
                   aria-live="polite"
                   hidden
                 ></p>
+                <section
+                  class="inventory-submenu"
+                  data-testid="inventory-submenu"
+                  role="menu"
+                  aria-label="Acciones del objeto seleccionado"
+                  hidden
+                ></section>
                 <footer class="inventory-panel-footer">
                   <button
                     type="button"

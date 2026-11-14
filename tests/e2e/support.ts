@@ -301,7 +301,7 @@ export function panelActionTestId(
   kind: 'equip' | 'unequip' | 'pickup' | 'drop',
   key: string,
 ): string {
-  return `inventory-action-${kind}-${panelRowTestId(key)}`;
+  return `inventory-submenu-option-${kind}-${panelRowTestId(key)}`;
 }
 
 interface PanelRowInfo {
@@ -347,13 +347,6 @@ async function activePanelRow(page: Page): Promise<{ key: string; zone: string }
       key: row.dataset.rowKey ?? '',
       zone: row.closest<HTMLElement>('[data-zone]')?.dataset.zone ?? '',
     };
-  });
-}
-
-async function activePanelTestId(page: Page): Promise<string | null> {
-  return page.evaluate(() => {
-    const active = document.activeElement;
-    return active instanceof HTMLElement ? (active.dataset.testid ?? null) : null;
   });
 }
 
@@ -428,24 +421,53 @@ export async function selectPanelRow(page: Page, key: string): Promise<void> {
 }
 
 /**
- * Lleva el foco a una acción del panel solo con teclado real: `Tab` hasta la
- * zona, flechas dentro de ella y `Tab` hasta la acción de ese mismo objeto.
+ * Lleva el foco a una opción del submenú solo con teclado real: selecciona la
+ * fila con `Tab` + flechas, abre el submenú con `Enter` y recorre las opciones
+ * con `ArrowUp`/`ArrowDown`. No usa `focus()` ni clics.
  */
 export async function focusPanelAction(page: Page, testId: string): Promise<void> {
-  const match = /^inventory-action-(equip|unequip|pickup|drop)-(.+)$/.exec(testId);
+  const match = /^inventory-submenu-option-(equip|unequip|pickup|drop)-(.+)$/.exec(
+    testId,
+  );
   if (!match) throw new Error(`Test id de acción inesperado: ${testId}`);
+  const kind = match[1] as 'equip' | 'unequip' | 'pickup' | 'drop';
   const normalized = match[2];
   const rows = await panelRows(page);
   const row = rows.find((candidate) => panelRowTestId(candidate.key) === normalized);
   if (!row) throw new Error(`No hay fila para la acción ${testId}`);
 
   await selectPanelRow(page, row.key);
-  for (let presses = 0; presses < 8; presses += 1) {
-    if ((await activePanelTestId(page)) === testId) return;
-    await page.keyboard.press('Tab');
+  await page.keyboard.press('Enter');
+  const menu = page.getByTestId('inventory-submenu');
+  await expect(menu).toBeVisible();
+
+  const options = page.locator(
+    '[data-testid="inventory-submenu"] [role="menuitem"]',
+  );
+  const kinds = await options.evaluateAll((elements) =>
+    elements.map((element) => (element as HTMLElement).dataset.kind ?? ''),
+  );
+  const target = kinds.indexOf(kind);
+  if (target < 0) {
+    throw new Error(`El submenú de ${row.key} no ofrece ${kind}`);
   }
-  if ((await activePanelTestId(page)) === testId) return;
-  throw new Error(`No se alcanzó la acción ${testId} con Tab`);
+  const active = await options.evaluateAll((elements) =>
+    elements.findIndex((element) => element.dataset.active === 'true'),
+  );
+  const current = active < 0 ? 0 : active;
+  const key = target > current ? 'ArrowDown' : 'ArrowUp';
+  for (let steps = 0; steps < Math.abs(target - current); steps += 1) {
+    await page.keyboard.press(key);
+  }
+
+  const activeOption = page.locator(
+    `[data-testid="inventory-submenu"] [data-kind="${kind}"][data-active="true"]`,
+  );
+  await expect(activeOption).toHaveCount(1);
+  if ((await activeOption.getAttribute('aria-disabled')) === 'true') {
+    const reason = (await activeOption.textContent()) ?? '';
+    throw new Error(`La opción ${kind} no está disponible: ${reason.trim()}`);
+  }
 }
 
 /** Enfoca con teclado y activa la acción con `Enter`, pulsaciones reales. */
