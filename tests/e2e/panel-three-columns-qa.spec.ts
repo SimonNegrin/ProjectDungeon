@@ -428,7 +428,7 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
   expect(await activeKey(page)).toBe('ground:item-test-ground-1');
 });
 
-test('scroll: a 1280×720 nada desborda; a 900×700 solo el suelo se desplaza', async ({
+test('scroll: a 1280×720 solo el suelo puede desplazarse; a 900×700 también', async ({
   page,
 }, testInfo) => {
   const log: Array<Record<string, unknown>> = [];
@@ -444,7 +444,10 @@ test('scroll: a 1280×720 nada desborda; a 900×700 solo el suelo se desplaza', 
   for (const [index, column] of desktop.columns.entries()) {
     expectNoVerticalScroll(column, `columna ${index + 1} 1280`);
   }
-  expectNoVerticalScroll(desktop.ground, 'suelo 1280');
+  // REQ-033 R-013: con la escala nueva el suelo puede no caber; el panel, el
+  // cuerpo y las columnas siguen sin desplazarse.
+  expect(desktop.ground, 'suelo 1280 debe existir').not.toBeNull();
+  expect(desktop.ground!.scrollTop).toBe(0);
   log.push({ viewport: '1280x720', ...desktop });
   await screenshot(page, 'scroll-sin-desborde-1280x720', testInfo);
 

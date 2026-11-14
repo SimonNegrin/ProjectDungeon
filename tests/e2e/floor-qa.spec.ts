@@ -602,7 +602,7 @@ function isGreenPixel(pixel: readonly number[]): boolean {
 }
 
 function isBrightPixel(pixel: readonly number[]): boolean {
-  return pixel[0] >= 210 && pixel[1] >= 210 && pixel[2] >= 210;
+  return pixel[0] >= 240 && pixel[1] >= 240 && pixel[2] >= 180;
 }
 
 function sha256(buffer: Buffer): string {

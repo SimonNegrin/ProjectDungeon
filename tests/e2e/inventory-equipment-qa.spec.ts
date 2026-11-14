@@ -506,7 +506,9 @@ test('sprites del panel coinciden con el objeto y F1 expone mochila, equipo, cap
     (element) => (element as HTMLElement).style.backgroundPosition,
   );
   const rect = ITEMS.axe.sprite.rect;
-  expect(background).toBe(`-${rect.x}px -${rect.y}px`);
+  expect(background).toBe(
+    `calc(var(--ui-scale) * -${rect.x}px) calc(var(--ui-scale) * -${rect.y}px)`,
+  );
 
   await page.keyboard.press('Escape');
   await page.keyboard.press('F1');
@@ -558,7 +560,17 @@ test('capturas 1280×720 y 900×700: mochila llena con cuatro objetos y suelo va
       expectNoScroll(column, `columna ${index + 1}`);
     }
     if (viewport.width === 1280) {
-      expectNoScroll(fullMetrics.groundScroll, 'suelo a 1280×720');
+      // REQ-033 R-013: con la escala nueva cuatro objetos pueden no caber en el
+      // suelo; el desplazamiento debe quedar confinado a su zona y no mover el
+      // panel, el cuerpo ni las columnas (que ya se han comprobado sin scroll).
+      const ground = fullMetrics.groundScroll;
+      expect(ground, 'suelo a 1280×720').not.toBeNull();
+      expect(ground!.scrollWidth, 'el suelo no recorta en horizontal').toBeLessThanOrEqual(
+        ground!.clientWidth + 1,
+      );
+      expect(ground!.scrollHeight, 'el suelo desplaza en vertical').toBeGreaterThan(
+        ground!.clientHeight,
+      );
     }
     metrics.push({
       viewport: suffix,

@@ -3,6 +3,10 @@ import { describe, expect, it } from 'vitest';
 
 const css = readFileSync(new URL('../../../src/host/ui.css', import.meta.url), 'utf8');
 const html = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
+const panelView = readFileSync(
+  new URL('../../../src/host/inventory-panel-view.ts', import.meta.url),
+  'utf8',
+);
 const fontDirectory = new URL('../../../public/fonts/pixelify-sans/', import.meta.url);
 const readme = readFileSync(new URL('README.txt', fontDirectory), 'utf8');
 const ofl = readFileSync(new URL('OFL.txt', fontDirectory), 'utf8');
@@ -12,18 +16,46 @@ function block(selector: string): string {
   return css.match(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([\\s\\S]*?)\\}`))?.[1] ?? '';
 }
 
+interface CssRule {
+  selector: string;
+  body: string;
+}
+
+/** Reglas de la UI de juego; deja fuera las excepciones documentadas. */
+function gameRules(): CssRule[] {
+  const isExcluded = (selector: string): boolean =>
+    selector === ':root' ||
+    selector.startsWith('.debug-overlay') ||
+    selector === 'footer' ||
+    selector.startsWith('footer ') ||
+    selector === '.stage' ||
+    selector === '.frame' ||
+    selector === 'canvas';
+  return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+    .map((match) => ({
+      selector: match[1].replace(/\/\*[\s\S]*?\*\//g, '').trim(),
+      body: match[2],
+    }))
+    .filter((rule) => !isExcluded(rule.selector))
+    .filter((rule) => !rule.selector.startsWith('@'))
+    .filter((rule) => !/^(?:from|to|\d+%)$/.test(rule.selector));
+}
+
 describe('tokens y escalas de la UI', () => {
   const root = css.match(/:root\s*\{([\s\S]*?)\}/)?.[1] ?? '';
 
-  it('declara en un único :root la familia, las escalas y los ocho colores', () => {
+  it('declara en un único :root la escala, los roles y los ocho colores exactos', () => {
     for (const token of [
       '--ui-font',
+      '--ui-scale',
+      '--ui-unit',
       '--ui-title',
       '--ui-body',
       '--ui-data',
       '--ui-help',
       '--ui-bg',
       '--ui-panel',
+      '--ui-raised',
       '--ui-line',
       '--ui-line-color',
       '--ui-text',
@@ -31,29 +63,132 @@ describe('tokens y escalas de la UI', () => {
       '--ui-accent',
       '--ui-danger',
       '--ui-focus',
+      '--ui-bevel-light',
+      '--ui-bevel-dark',
     ]) {
       expect(root, `Falta ${token} en :root`).toMatch(new RegExp(`${token}\\s*:`));
     }
 
+    expect(root).toMatch(/--ui-scale:\s*1\b/);
     expect(root).toMatch(/--ui-line:\s*1px/);
-    expect(root).toMatch(/--ui-bg:\s*#06080c/i);
-    expect(root).toMatch(/--ui-panel:\s*#0d141d/i);
-    expect(root).toMatch(/--ui-line-color:\s*#22303f/i);
-    expect(root).toMatch(/--ui-text:\s*#edf2f7/i);
-    expect(root).toMatch(/--ui-muted:\s*#9aa7b8/i);
-    expect(root).toMatch(/--ui-accent:\s*#e8b86d/i);
-    expect(root).toMatch(/--ui-danger:\s*#f87171/i);
-    expect(root).toMatch(/--ui-focus:\s*#ffd166/i);
+    expect(root).toMatch(
+      /--ui-unit:\s*calc\(var\(--ui-scale\)\s*\*\s*1px\)/,
+    );
+    expect(root).toMatch(
+      /--ui-title:\s*calc\(var\(--ui-scale\)\s*\*\s*14px\)/,
+    );
+    expect(root).toMatch(
+      /--ui-body:\s*calc\(var\(--ui-scale\)\s*\*\s*11\.2px\)/,
+    );
+    expect(root).toMatch(
+      /--ui-data:\s*calc\(var\(--ui-scale\)\s*\*\s*10\.9px\)/,
+    );
+    expect(root).toMatch(
+      /--ui-help:\s*calc\(var\(--ui-scale\)\s*\*\s*10\.1px\)/,
+    );
   });
 
-  it('aplica las escalas por rol a HUD, panel y ayuda', () => {
+  it('usa la paleta aprobada con alfa opaco y sin colores inventados', () => {
+    const expected: Array<[string, string]> = [
+      ['--ui-bg', '#2f142f'],
+      ['--ui-panel', '#2a584f'],
+      ['--ui-raised', '#774448'],
+      ['--ui-line-color', '#6eb8a8'],
+      ['--ui-text', '#fcffc0'],
+      ['--ui-accent', '#ee9c5d'],
+      ['--ui-danger', '#c6505a'],
+      ['--ui-focus', '#74a33f'],
+    ];
+    for (const [token, color] of expected) {
+      expect(root).toMatch(new RegExp(`${token}:\\s*${color}`, 'i'));
+    }
+    expect(root).toMatch(/--ui-muted:\s*var\(--ui-line-color\)/);
+    expect(root).toMatch(/--ui-positive:\s*var\(--ui-focus\)/);
+    expect(root).toMatch(/--ui-bevel-light:\s*var\(--ui-line-color\)/);
+    expect(root).toMatch(/--ui-bevel-dark:\s*var\(--ui-bg\)/);
+
+    const literals = gameRules().flatMap(
+      (rule) => rule.body.match(/#[0-9a-f]{3,8}\b/gi) ?? [],
+    );
+    expect(literals, `Colores fuera de :root: ${literals.join(', ')}`).toEqual([]);
+  });
+
+  it('define las utilidades outset e inset con el par claro/oscuro', () => {
+    const outset = block('.ui-outset');
+    const inset = block('.ui-inset');
+    expect(outset).toMatch(/border-width:\s*var\(--ui-line\)/);
+    expect(outset).toMatch(
+      /border-color:\s*var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)\s+var\(--ui-bevel-dark\)\s+var\(--ui-bevel-light\)/,
+    );
+    expect(inset).toMatch(/border-width:\s*var\(--ui-line\)/);
+    expect(inset).toMatch(
+      /border-color:\s*var\(--ui-bevel-dark\)\s+var\(--ui-bevel-light\)\s+var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)/,
+    );
+  });
+
+  it('aplica las escalas por rol a HUD, panel, hechizos y feedback', () => {
     expect(block('body')).toMatch(/font-family:\s*var\(--ui-font\)/);
     expect(block('.hud')).toMatch(/font-size:\s*var\(--ui-body\)/);
     expect(block('.hud-stat strong')).toMatch(/font-size:\s*var\(--ui-data\)/);
     expect(block('.hud-keys')).toMatch(/font-size:\s*var\(--ui-help\)/);
+    expect(block('.hud-detail-title')).toMatch(/font-size:\s*var\(--ui-title\)/);
     expect(block('.inventory-panel-title')).toMatch(/font-size:\s*var\(--ui-title\)/);
     expect(block('.inventory-panel-mp')).toMatch(/font-size:\s*var\(--ui-data\)/);
     expect(block('.inventory-panel-help')).toMatch(/font-size:\s*var\(--ui-help\)/);
+    expect(block('.spell-row')).toMatch(/font-size:\s*var\(--ui-body\)/);
+    expect(block('.damage-feedback')).toMatch(
+      /font-size:\s*calc\(var\(--ui-unit\)\s*\*/,
+    );
+  });
+
+  it('no deja tamaños fijos, clamp, literales ni vocabulario moderno en la UI de juego', () => {
+    const rules = gameRules();
+    expect(rules.length).toBeGreaterThan(30);
+
+    for (const rule of rules) {
+      const label = rule.selector;
+      expect(rule.body, `${label} usa un color literal`).not.toMatch(
+        /rgba?\(|#[0-9a-f]{3,8}\b|color-mix\(/i,
+      );
+      expect(rule.body, `${label} usa un degradado`).not.toMatch(
+        /(?:linear|radial|conic)-gradient\(/i,
+      );
+      if (rule.selector !== '.perception-radius') {
+        expect(rule.body, `${label} usa radio`).not.toMatch(/border-radius/i);
+      }
+      expect(rule.body, `${label} usa sombra`).not.toMatch(
+        /box-shadow|text-shadow/i,
+      );
+      expect(rule.body, `${label} usa blur o translucidez`).not.toMatch(
+        /backdrop-filter|filter:\s*blur\(|opacity:\s*0?\.[0-9]+/i,
+      );
+      expect(rule.body, `${label} usa clamp()`).not.toMatch(/clamp\(/i);
+      expect(rule.body, `${label} usa rem`).not.toMatch(/\brem\b/i);
+
+      for (const match of rule.body.matchAll(/font-size:\s*([^;]+)/gi)) {
+        expect(match[1].trim(), `${label} fija font-size`).toMatch(
+          /^(?:var\(--ui-(?:title|body|data|help)\)|calc\(var\(--ui-unit\)\s*\*[^)]*\))$/,
+        );
+      }
+      expect(rule.body, `${label} fija un borde en px`).not.toMatch(
+        /border(?:-[a-z]+)?\s*:[^;]*\d+px/i,
+      );
+    }
+  });
+
+  it('pinta el marco exterior con un pseudo-elemento que no encoge el canvas', () => {
+    const frame = block('.frame');
+    expect(frame).not.toMatch(/(?:^|;)\s*border\s*:/);
+    expect(frame).not.toMatch(/border-radius|box-shadow/);
+    const after = block('.frame::after');
+    expect(after).toMatch(/content:\s*""/);
+    expect(after).toMatch(/position:\s*absolute/);
+    expect(after).toMatch(/inset:\s*0/);
+    expect(after).toMatch(/pointer-events:\s*none/);
+    expect(after).toMatch(
+      /border-color:\s*var\(--ui-bevel-light\)\s+var\(--ui-bevel-dark\)/,
+    );
+    expect(after).toMatch(/z-index:\s*1/);
   });
 
   it('enlaza la hoja desde index.html sin bloque <style> inline', () => {
@@ -65,8 +200,31 @@ describe('tokens y escalas de la UI', () => {
   });
 });
 
-describe('tokens del HUD interior', () => {
-  it('no deja literales de color ni grosores de píxel en las reglas del HUD', () => {
+describe('relieve y elementos de la UI de juego', () => {
+  it('aplica outset a HUD, ficha, panel, hechizos, submenú, banner y overlay', () => {
+    for (const fragment of [
+      'class="hud-left ui-outset"',
+      'class="hud-right ui-outset"',
+      'class="hud-detail-block ui-outset"',
+      'class="spell-list ui-outset"',
+      'class="feedback-banner ui-outset"',
+      'class="inventory-panel-body ui-outset"',
+      'class="inventory-column inventory-column-equipment ui-outset"',
+      'class="inventory-column inventory-column-backpack ui-outset"',
+      'class="inventory-column inventory-column-right ui-outset"',
+      'class="inventory-submenu ui-outset"',
+      'class="overlay ui-outset"',
+    ]) {
+      expect(html, `Falta ${fragment}`).toContain(fragment);
+    }
+  });
+
+  it('aplica inset a los huecos de item y al retrato', () => {
+    expect(html).toContain('class="hud-portrait ui-inset"');
+    expect(panelView).toContain('`inventory-row ui-inset ${className}`');
+  });
+
+  it('no deja radios ni sombras en las reglas del HUD', () => {
     const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
       .filter((match) => /\.hud/.test(match[1]))
       .map((match) => ({ selector: match[1].trim(), body: match[2] }));
@@ -78,6 +236,9 @@ describe('tokens del HUD interior', () => {
       );
       expect(rule.body, `${rule.selector} usa un grosor literal`).not.toMatch(
         /border(?:-[a-z]+)?\s*:[^;]*\d+px/i,
+      );
+      expect(rule.body, `${rule.selector} usa radio o sombra`).not.toMatch(
+        /border-radius|box-shadow|text-shadow/i,
       );
     }
   });
@@ -102,9 +263,7 @@ describe('panel de inventario en tres columnas', () => {
 
   it('el submenú usa tokens, sin literales, radios ni sombras', () => {
     expect(block('.inventory-submenu')).toMatch(/position:\s*absolute/);
-    expect(block('.inventory-submenu')).toMatch(
-      /border:\s*var\(--ui-line\)\s+solid\s+var\(--ui-line-color\)/,
-    );
+    expect(block('.inventory-submenu')).toMatch(/background:\s*var\(--ui-panel\)/);
     expect(block('.inventory-submenu-option[data-active="true"]')).toMatch(
       /border-color:\s*var\(--ui-focus\)/,
     );

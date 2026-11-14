@@ -109,51 +109,51 @@ describe('layout de presentación', () => {
 });
 
 describe('grosor de línea de la UI', () => {
-  it('equivale a un píxel de arte escalado redondeado a píxel de dispositivo', () => {
-    const expected: Array<[number, number, number]> = [
-      [1, 1, 1],
-      [1, 2, 1],
-      [1.25, 1, 1],
-      [1.25, 2, 1.5],
-      [1.5, 1, 2],
-      [1.5, 2, 1.5],
-      [2.5, 1, 3],
-      [2.5, 2, 2.5],
-    ];
+  it('es lineal respecto a la escala del marco, sin redondeo ni dpr', () => {
+    expect(computeUiLine(32, 1)).toBe(1);
+    expect(computeUiLine(32, 0.5)).toBe(0.5);
+    expect(computeUiLine(32, 1.25)).toBe(1.25);
+    expect(computeUiLine(32, 1.596153846)).toBeCloseTo(1.596153846, 10);
+    // La firma ya no acepta dpr: solo tile y escala.
+    expect(computeUiLine.length).toBe(2);
+  });
 
-    for (const [scale, dpr, line] of expected) {
-      expect(computeUiLine(32, scale, dpr)).toBe(line);
-      expect(Number.isInteger(computeUiLine(32, scale, dpr) * dpr)).toBe(true);
-    }
+  it('acepta valores fraccionarios y no los cuantiza a píxeles enteros', () => {
+    const line = computeUiLine(32, 488.25 / 416);
+    expect(Number.isInteger(line)).toBe(false);
+    expect(line).toBeCloseTo(488.25 / 416, 10);
+    expect(computeUiLine(32, 664 / 416)).not.toBe(computeUiLine(32, 665 / 416));
+  });
+
+  it('dos escalas cercanas producen valores cercanos y proporcionales', () => {
+    const a = computeUiLine(32, 1.2);
+    const b = computeUiLine(32, 1.2001);
+    expect(b - a).toBeCloseTo(0.0001, 10);
+    expect(b).toBeGreaterThan(a);
+    expect(computeUiLine(32, 2) / computeUiLine(32, 1)).toBeCloseTo(2, 10);
   });
 
   it('escala con el tamaño de tile además de con la escala del marco', () => {
-    expect(computeUiLine(64, 1, 1)).toBe(2);
-    expect(computeUiLine(16, 1, 2)).toBe(0.5);
-    expect(computeUiLine(16, 1, 1)).toBe(1);
+    expect(computeUiLine(64, 1)).toBe(2);
+    expect(computeUiLine(16, 1)).toBe(0.5);
+    expect(computeUiLine(48, 1.5)).toBeCloseTo(2.25, 10);
   });
 
-  it('nunca baja de un píxel de dispositivo', () => {
-    expect(computeUiLine(32, 0.1, 2)).toBe(0.5);
-    expect(computeUiLine(32, 0, 1)).toBe(1);
-  });
-
-  it('usa un fallback finito y positivo con entradas degeneradas', () => {
+  it('usa un fallback finito y seguro con entradas degeneradas', () => {
     const cases: Array<[number, number, number]> = [
       [0, 1, 1],
       [-32, 1, 1],
-      [32, -1, 1],
-      [32, Number.NaN, 2],
-      [32, 1, 0],
-      [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.NaN],
+      [32, -1, 0],
+      [32, Number.NaN, 0],
+      [32, 0, 0],
+      [Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, 0],
     ];
 
-    for (const [tileSize, scale, dpr] of cases) {
-      const line = computeUiLine(tileSize, scale, dpr);
+    for (const [tileSize, scale, expected] of cases) {
+      const line = computeUiLine(tileSize, scale);
       expect(Number.isFinite(line)).toBe(true);
-      expect(line).toBeGreaterThan(0);
-      const effectiveDpr = Number.isFinite(dpr) && dpr > 0 ? dpr : 1;
-      expect(line).toBeGreaterThanOrEqual(1 / effectiveDpr);
+      expect(line).toBeGreaterThanOrEqual(0);
+      expect(line).toBe(expected);
     }
   });
 });
