@@ -1,0 +1,2 @@
+0c4ee7c feat(TASK-0122): configuración serializable y constructor único
+1b75673 test(TASK-0122): cubre config, arranque único y Restart
