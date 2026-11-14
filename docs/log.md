@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0102 — done: ficha de dos bloques en el HUD derecho (seleccionado y equipado, sin delta) y submenú contextual con `Enter`, coste de 1 MP, opciones por contexto y rechazos; barra de acciones retirada, N-008 por instancia y foco sin programa; verify 1298/1298 y E2E 150/150 (17 focalizados); fusión `011a345` — [informe](../artifacts/TASK-0102/attempt-1/report.md)
+
+* 2026-11-14 — Fricción — Arnés — `E2E_ARTIFACTS_DIR` escribe bajo `<spec>/screenshots` mientras la ficha de tarea pide capturas en la raíz del intento; copia manual registrada; `deferred` a `harness-keeper` — [informe](../artifacts/TASK-0102/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0101 — done: panel en tres columnas con figura de ocho huecos, mochila 2×4 y cadáveres/suelo con scroll; navegación espacial, foco coherente y parada de acciones por zona; verify 1288/1288 y E2E 145/145; fusión `8adbd00` — [informe](../artifacts/TASK-0101/attempt-3/report.md)
 
 * 2026-11-14 — Planning — TASK-0101 — in_progress: DoR cumplida; panel en tres columnas con figura de ocho huecos, mochila y cadáveres/suelo con scroll propio; navegación por proximidad — [TASK-0101](tasks/TASK-0101-panel-tres-columnas-figura.md)

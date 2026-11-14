@@ -93,7 +93,7 @@ Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0099](TASK-0099-ui-fuente-tokens-linea.md) | UI: fuente pixel, tokens y regla de línea | `done` | REQ-032 | — | P1 |
 | [TASK-0100](TASK-0100-pantalla-tres-zonas-hud.md) | UI: pantalla en tres zonas con HUD izquierdo y derecho | `done` | REQ-032 | TASK-0099 | P1 |
 | [TASK-0101](TASK-0101-panel-tres-columnas-figura.md) | Panel de inventario en tres columnas con figura de equipo | `done` | REQ-018 | TASK-0099, TASK-0100 | P1 |
-| [TASK-0102](TASK-0102-ficha-submenu-hud.md) | Ficha del objeto en el HUD derecho y submenú contextual | `backlog` | REQ-023 | TASK-0101 | P1 |
+| [TASK-0102](TASK-0102-ficha-submenu-hud.md) | Ficha del objeto en el HUD derecho y submenú contextual | `done` | REQ-023 | TASK-0101 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -111,10 +111,6 @@ Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
-
-# backlog
-
-* [TASK-0102 — Ficha del objeto en el HUD derecho y submenú contextual](TASK-0102-ficha-submenu-hud.md)
 
 # done
 
@@ -206,6 +202,7 @@ Total: **102**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0099 — UI: fuente pixel, tokens y regla de línea](TASK-0099-ui-fuente-tokens-linea.md)
 * [TASK-0100 — UI: pantalla en tres zonas con HUD izquierdo y derecho](TASK-0100-pantalla-tres-zonas-hud.md)
 * [TASK-0101 — Panel de inventario en tres columnas con figura de equipo](TASK-0101-panel-tres-columnas-figura.md)
+* [TASK-0102 — Ficha del objeto en el HUD derecho y submenú contextual](TASK-0102-ficha-submenu-hud.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
