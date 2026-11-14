@@ -1,0 +1,386 @@
+{
+  "before": {
+    "line": 1.6009615384615385,
+    "bevel": 1,
+    "boxes": [
+      {
+        "name": "hud",
+        "outer": {
+          "left": 48,
+          "top": 16,
+          "right": 307,
+          "bottom": 682,
+          "width": 259,
+          "height": 666
+        },
+        "inner": {
+          "left": 65.0096,
+          "top": 29.8077,
+          "right": 289.9904,
+          "bottom": 668.1923,
+          "width": 224.9808,
+          "height": 638.3846000000001
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 48,
+        "paintedTop": 16
+      },
+      {
+        "name": "zona",
+        "outer": {
+          "left": 65,
+          "top": 29.796875,
+          "right": 290,
+          "bottom": 153.4375,
+          "width": 225,
+          "height": 123.640625
+        },
+        "inner": {
+          "left": 75.60577,
+          "top": 40.402645,
+          "right": 279.39423,
+          "bottom": 142.83173,
+          "width": 203.78846,
+          "height": 102.42908499999999
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 65,
+        "paintedTop": 29.796875
+      },
+      {
+        "name": "ficha",
+        "outer": {
+          "left": 990,
+          "top": 29.796875,
+          "right": 1215,
+          "bottom": 152.15625,
+          "width": 225,
+          "height": 122.359375
+        },
+        "inner": {
+          "left": 997.40385,
+          "top": 37.200725,
+          "right": 1207.59615,
+          "bottom": 144.7524,
+          "width": 210.1923,
+          "height": 107.55167499999999
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 990,
+        "paintedTop": 29.796875
+      },
+      {
+        "name": "cuerpo-panel",
+        "outer": {
+          "left": 326.203125,
+          "top": 35.203125,
+          "right": 953.796875,
+          "bottom": 662.796875,
+          "width": 627.59375,
+          "height": 627.59375
+        },
+        "inner": {
+          "left": 346.414625,
+          "top": 52.212725,
+          "right": 933.585375,
+          "bottom": 645.787275,
+          "width": 587.17075,
+          "height": 593.57455
+        },
+        "borderTop": 1,
+        "pseudoActive": false,
+        "paintedLeft": 326.203125,
+        "paintedTop": 35.203125
+      },
+      {
+        "name": "columna",
+        "outer": {
+          "left": 346.40625,
+          "top": 52.203125,
+          "right": 533.59375,
+          "bottom": 610.03125,
+          "width": 187.1875,
+          "height": 557.828125
+        },
+        "inner": {
+          "left": 353.8101,
+          "top": 59.606975,
+          "right": 526.1899,
+          "bottom": 602.6274,
+          "width": 172.3798,
+          "height": 543.0204249999999
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 346.40625,
+        "paintedTop": 52.203125
+      },
+      {
+        "name": "slot",
+        "outer": {
+          "left": 412.78125,
+          "top": 316.765625,
+          "right": 467.203125,
+          "bottom": 371.1875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "inner": {
+          "left": 413.78125,
+          "top": 317.765625,
+          "right": 466.203125,
+          "bottom": 370.1875,
+          "width": 52.421875,
+          "height": 52.421875
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 412.78125,
+        "paintedTop": 316.765625
+      },
+      {
+        "name": "boton",
+        "outer": {
+          "left": 844.09375,
+          "top": 616.421875,
+          "right": 933.59375,
+          "bottom": 645.796875,
+          "width": 89.5,
+          "height": 29.375
+        },
+        "inner": {
+          "left": 857.90145,
+          "top": 620.623795,
+          "right": 919.78605,
+          "bottom": 641.594955,
+          "width": 61.884600000000006,
+          "height": 20.971159999999998
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 844.09375,
+        "paintedTop": 616.421875
+      },
+      {
+        "name": "submenu",
+        "outer": {
+          "left": 539.734375,
+          "top": 316.765625,
+          "right": 719.453125,
+          "bottom": 393.484375,
+          "width": 179.71875,
+          "height": 76.71875
+        },
+        "inner": {
+          "left": 547.138225,
+          "top": 324.169475,
+          "right": 712.049275,
+          "bottom": 386.080525,
+          "width": 164.91105,
+          "height": 61.911049999999996
+        },
+        "borderTop": 1,
+        "pseudoActive": true,
+        "paintedLeft": 539.734375,
+        "paintedTop": 316.765625
+      }
+    ],
+    "mapCursorBorder": 3,
+    "panelCursorBorder": 1
+  },
+  "after": {
+    "line": 1.6009615384615385,
+    "bevel": 3,
+    "boxes": [
+      {
+        "name": "hud",
+        "outer": {
+          "left": 48,
+          "top": 16,
+          "right": 307,
+          "bottom": 682,
+          "width": 259,
+          "height": 666
+        },
+        "inner": {
+          "left": 65.0096,
+          "top": 29.8077,
+          "right": 289.9904,
+          "bottom": 668.1923,
+          "width": 224.9808,
+          "height": 638.3846000000001
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 46,
+        "paintedTop": 14
+      },
+      {
+        "name": "zona",
+        "outer": {
+          "left": 65,
+          "top": 29.796875,
+          "right": 290,
+          "bottom": 153.4375,
+          "width": 225,
+          "height": 123.640625
+        },
+        "inner": {
+          "left": 75.60577,
+          "top": 40.402645,
+          "right": 279.39423,
+          "bottom": 142.83173,
+          "width": 203.78846,
+          "height": 102.42908499999999
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 63,
+        "paintedTop": 27.796875
+      },
+      {
+        "name": "ficha",
+        "outer": {
+          "left": 990,
+          "top": 29.796875,
+          "right": 1215,
+          "bottom": 152.15625,
+          "width": 225,
+          "height": 122.359375
+        },
+        "inner": {
+          "left": 997.40385,
+          "top": 37.200725,
+          "right": 1207.59615,
+          "bottom": 144.7524,
+          "width": 210.1923,
+          "height": 107.55167499999999
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 988,
+        "paintedTop": 27.796875
+      },
+      {
+        "name": "cuerpo-panel",
+        "outer": {
+          "left": 324.609375,
+          "top": 33.609375,
+          "right": 955.390625,
+          "bottom": 664.390625,
+          "width": 630.78125,
+          "height": 630.78125
+        },
+        "inner": {
+          "left": 346.820875,
+          "top": 52.618975,
+          "right": 933.179125,
+          "bottom": 645.381025,
+          "width": 586.35825,
+          "height": 592.76205
+        },
+        "borderTop": 3,
+        "pseudoActive": false,
+        "paintedLeft": 324.609375,
+        "paintedTop": 33.609375
+      },
+      {
+        "name": "columna",
+        "outer": {
+          "left": 346.8125,
+          "top": 52.609375,
+          "right": 533.734375,
+          "bottom": 609.625,
+          "width": 186.921875,
+          "height": 557.015625
+        },
+        "inner": {
+          "left": 354.21635,
+          "top": 60.013225,
+          "right": 526.330525,
+          "bottom": 602.22115,
+          "width": 172.114175,
+          "height": 542.2079249999999
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 344.8125,
+        "paintedTop": 50.609375
+      },
+      {
+        "name": "slot",
+        "outer": {
+          "left": 413.0625,
+          "top": 316.765625,
+          "right": 467.484375,
+          "bottom": 371.1875,
+          "width": 54.421875,
+          "height": 54.421875
+        },
+        "inner": {
+          "left": 414.0625,
+          "top": 317.765625,
+          "right": 466.484375,
+          "bottom": 370.1875,
+          "width": 52.421875,
+          "height": 52.421875
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 411.0625,
+        "paintedTop": 314.765625
+      },
+      {
+        "name": "boton",
+        "outer": {
+          "left": 843.6875,
+          "top": 616.015625,
+          "right": 933.1875,
+          "bottom": 645.390625,
+          "width": 89.5,
+          "height": 29.375
+        },
+        "inner": {
+          "left": 857.4952,
+          "top": 620.217545,
+          "right": 919.3798,
+          "bottom": 641.188705,
+          "width": 61.884600000000006,
+          "height": 20.971159999999998
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 841.6875,
+        "paintedTop": 614.015625
+      },
+      {
+        "name": "submenu",
+        "outer": {
+          "left": 539.734375,
+          "top": 316.765625,
+          "right": 719.453125,
+          "bottom": 393.484375,
+          "width": 179.71875,
+          "height": 76.71875
+        },
+        "inner": {
+          "left": 547.138225,
+          "top": 324.169475,
+          "right": 712.049275,
+          "bottom": 386.080525,
+          "width": 164.91105,
+          "height": 61.911049999999996
+        },
+        "borderTop": 3,
+        "pseudoActive": true,
+        "paintedLeft": 537.734375,
+        "paintedTop": 314.765625
+      }
+    ],
+    "mapCursorBorder": 3,
+    "panelCursorBorder": 1
+  }
+}
