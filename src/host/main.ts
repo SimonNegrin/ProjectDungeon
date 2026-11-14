@@ -566,7 +566,7 @@ async function boot(): Promise<void> {
     }
   };
 
-  const scheduleTextFrame = (): void => {
+  const scheduleTextFrame = (resetClock = false): void => {
     if (
       !hasTransientFeedback() ||
       animation !== null ||
@@ -575,7 +575,10 @@ async function boot(): Promise<void> {
     ) {
       return;
     }
-    textLastFrameTime = undefined;
+    // El reloj solo se reinicia al abrir una tanda de feedback. En cada
+    // reenganche desde `textTick` se conserva la marca para que el delta sea
+    // monotónico y los textos/banners se consuman.
+    if (resetClock) textLastFrameTime = undefined;
     textFrameHandle = window.requestAnimationFrame(textTick);
   };
 
@@ -775,7 +778,7 @@ async function boot(): Promise<void> {
 
     cursorStatus = deriveCursorStatus(state, cursor);
     render();
-    if (!wasManual) scheduleTextFrame();
+    if (!wasManual) scheduleTextFrame(true);
   };
 
   const advanceAnimation = (deltaMs: number): void => {

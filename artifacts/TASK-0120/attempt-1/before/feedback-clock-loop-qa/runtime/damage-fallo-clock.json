@@ -1,0 +1,45 @@
+{
+  "atAnimationEnd": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": false,
+      "text": "Fallo",
+      "opacity": "1",
+      "transform": "translate(-50%, calc(-100% - 1px))"
+    },
+    "animating": false
+  },
+  "fading": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": false,
+      "text": "Fallo",
+      "opacity": "1",
+      "transform": "translate(-50%, calc(-100% - 1px))"
+    },
+    "animating": false
+  },
+  "idle": {
+    "raf": 60,
+    "mutations": 60
+  },
+  "atTwoSeconds": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": false,
+      "text": "Fallo",
+      "opacity": "1",
+      "transform": "translate(-50%, calc(-100% - 1px))"
+    },
+    "animating": false
+  }
+}
