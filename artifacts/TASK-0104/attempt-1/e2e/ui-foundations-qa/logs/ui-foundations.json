@@ -1,0 +1,26 @@
+[
+  {
+    "viewport": "1280x720",
+    "uiLine": "1.6009615384615385px",
+    "uiScale": "1.6009615384615385",
+    "fontReady": true,
+    "fits": {
+      "scrollWidth": 1254,
+      "clientWidth": 1254,
+      "scrollHeight": 120,
+      "clientHeight": 120
+    }
+  },
+  {
+    "viewport": "900x700",
+    "uiLine": "1.1736778846153846px",
+    "uiScale": "1.1736778846153846",
+    "fontReady": true,
+    "fits": {
+      "scrollWidth": 874,
+      "clientWidth": 874,
+      "scrollHeight": 92,
+      "clientHeight": 92
+    }
+  }
+]
