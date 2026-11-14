@@ -1,0 +1,66 @@
+[
+  {
+    "phase": "open",
+    "shifts": []
+  },
+  {
+    "phase": "navigate",
+    "shifts": [
+      {
+        "value": 0.0007102554012345679,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "section[hud-panel-equipped].hud-detail-block.ui-outset",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "equip",
+    "shifts": [
+      {
+        "value": 0.0007102554012345679,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "section[hud-panel-equipped].hud-detail-block.ui-outset",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup",
+    "shifts": []
+  },
+  {
+    "phase": "drop",
+    "shifts": []
+  },
+  {
+    "phase": "close",
+    "shifts": []
+  },
+  {
+    "phase": "reopen",
+    "shifts": []
+  },
+  {
+    "phase": "corpses",
+    "shifts": []
+  },
+  {
+    "phase": "no-corpses",
+    "shifts": []
+  },
+  {
+    "phase": "tile",
+    "shifts": []
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "viewport": "900x700",
+    "frame": {
+      "width": 868,
+      "height": 488.25
+    },
+    "scale": 1.1736778846153846,
+    "line": 1.1736778846153846,
+    "hudFont": 13.1452,
+    "slot": {
+      "width": 39.890625,
+      "height": 39.890625
+    },
+    "columnsGap": 9.38942
+  },
+  {
+    "viewport": "901x700",
+    "frame": {
+      "width": 869,
+      "height": 488.8125
+    },
+    "scale": 1.1750300480769231,
+    "line": 1.1750300480769231,
+    "hudFont": 13.1603,
+    "slot": {
+      "width": 39.9375,
+      "height": 39.9375
+    },
+    "columnsGap": 9.40024
+  },
+  {
+    "viewport": "1024x720",
+    "frame": {
+      "width": 992,
+      "height": 558
+    },
+    "scale": 1.341346153846154,
+    "line": 1.341346153846154,
+    "hudFont": 15.0231,
+    "slot": {
+      "width": 45.59375,
+      "height": 45.59375
+    },
+    "columnsGap": 10.7308
+  },
+  {
+    "viewport": "1100x720",
+    "frame": {
+      "width": 1068,
+      "height": 600.75
+    },
+    "scale": 1.4441105769230769,
+    "line": 1.4441105769230769,
+    "hudFont": 16.174,
+    "slot": {
+      "width": 49.09375,
+      "height": 49.09375
+    },
+    "columnsGap": 11.5529
+  },
+  {
+    "viewport": "1280x720",
+    "frame": {
+      "width": 1184,
+      "height": 666
+    },
+    "scale": 1.6009615384615385,
+    "line": 1.6009615384615385,
+    "hudFont": 17.9308,
+    "slot": {
+      "width": 54.421875,
+      "height": 54.421875
+    },
+    "columnsGap": 12.8077
+  }
+]

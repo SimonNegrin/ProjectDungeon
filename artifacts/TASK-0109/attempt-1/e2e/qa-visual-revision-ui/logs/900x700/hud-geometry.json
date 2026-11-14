@@ -1,0 +1,490 @@
+[
+  {
+    "scene": "tres-zonas",
+    "viewport": "900x700",
+    "left": {
+      "left": 16,
+      "top": 94.875,
+      "right": 205.875,
+      "bottom": 583.125,
+      "width": 189.875,
+      "height": 488.25
+    },
+    "character": {
+      "left": 28.734375,
+      "top": 105.25,
+      "right": 193.140625,
+      "bottom": 196.421875,
+      "width": 164.40625,
+      "height": 91.171875
+    },
+    "weapon": {
+      "left": 28.734375,
+      "top": 201.109375,
+      "right": 193.140625,
+      "bottom": 267.28125,
+      "width": 164.40625,
+      "height": 66.171875
+    },
+    "stats": {
+      "left": 28.734375,
+      "top": 271.96875,
+      "right": 193.140625,
+      "bottom": 375.0625,
+      "width": 164.40625,
+      "height": 103.09375
+    },
+    "portrait": {
+      "left": 36.765625,
+      "top": 113.28125,
+      "right": 111.875,
+      "bottom": 188.390625,
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "name": {
+      "left": 118.90625,
+      "top": 113.28125,
+      "right": 185.109375,
+      "bottom": 129.046875,
+      "width": 66.203125,
+      "height": 15.765625
+    },
+    "keys": {
+      "left": 28.734375,
+      "top": 476.75,
+      "right": 193.140625,
+      "bottom": 572.75,
+      "width": 164.40625,
+      "height": 96
+    },
+    "suggestion": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "leftStyle": {
+      "background": "rgb(42, 88, 79)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "characterStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "weaponStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "statsStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "keysStyle": {
+      "background": "rgba(0, 0, 0, 0)",
+      "borderTopWidth": "0px",
+      "borderBottomWidth": "0px"
+    },
+    "hiddenRows": {
+      "magic": {
+        "hidden": true,
+        "height": 0
+      },
+      "mana": {
+        "hidden": true,
+        "height": 0
+      },
+      "traits": {
+        "hidden": true,
+        "height": 0
+      }
+    },
+    "footerOutsideZones": true,
+    "suggestionOutsideZones": true,
+    "overflow": {
+      "scrollHeight": 486,
+      "clientHeight": 486
+    },
+    "hudText": " Ada Guerrero Espada +3 acierto · +3 daño PV 20/20 MP 6/6 Magia 0 Maná 0/0 Acciones 2/2 +1 habilidad · +1 fuerza · +1 defensa Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug "
+  },
+  {
+    "scene": "sin-mana-sin-traits",
+    "viewport": "900x700",
+    "left": {
+      "left": 16,
+      "top": 94.875,
+      "right": 205.875,
+      "bottom": 583.125,
+      "width": 189.875,
+      "height": 488.25
+    },
+    "character": {
+      "left": 28.734375,
+      "top": 105.25,
+      "right": 193.140625,
+      "bottom": 196.421875,
+      "width": 164.40625,
+      "height": 91.171875
+    },
+    "weapon": {
+      "left": 28.734375,
+      "top": 201.109375,
+      "right": 193.140625,
+      "bottom": 267.28125,
+      "width": 164.40625,
+      "height": 66.171875
+    },
+    "stats": {
+      "left": 28.734375,
+      "top": 271.96875,
+      "right": 193.140625,
+      "bottom": 375.0625,
+      "width": 164.40625,
+      "height": 103.09375
+    },
+    "portrait": {
+      "left": 36.765625,
+      "top": 113.28125,
+      "right": 111.875,
+      "bottom": 188.390625,
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "name": {
+      "left": 118.90625,
+      "top": 113.28125,
+      "right": 185.109375,
+      "bottom": 129.046875,
+      "width": 66.203125,
+      "height": 15.765625
+    },
+    "keys": {
+      "left": 28.734375,
+      "top": 476.75,
+      "right": 193.140625,
+      "bottom": 572.75,
+      "width": 164.40625,
+      "height": 96
+    },
+    "suggestion": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "leftStyle": {
+      "background": "rgb(42, 88, 79)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "characterStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "weaponStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "statsStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "keysStyle": {
+      "background": "rgba(0, 0, 0, 0)",
+      "borderTopWidth": "0px",
+      "borderBottomWidth": "0px"
+    },
+    "hiddenRows": {
+      "magic": {
+        "hidden": true,
+        "height": 0
+      },
+      "mana": {
+        "hidden": true,
+        "height": 0
+      },
+      "traits": {
+        "hidden": true,
+        "height": 0
+      }
+    },
+    "footerOutsideZones": true,
+    "suggestionOutsideZones": true,
+    "overflow": {
+      "scrollHeight": 486,
+      "clientHeight": 486
+    },
+    "hudText": " Ada Guerrero Espada +3 acierto · +3 daño PV 20/20 MP 6/6 Magia 0 Maná 0/0 Acciones 2/2 +1 habilidad · +1 fuerza · +1 defensa Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug "
+  },
+  {
+    "scene": "con-mana",
+    "viewport": "900x700",
+    "left": {
+      "left": 16,
+      "top": 94.875,
+      "right": 205.875,
+      "bottom": 583.125,
+      "width": 189.875,
+      "height": 488.25
+    },
+    "character": {
+      "left": 28.734375,
+      "top": 105.25,
+      "right": 193.140625,
+      "bottom": 196.421875,
+      "width": 164.40625,
+      "height": 91.171875
+    },
+    "weapon": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "stats": {
+      "left": 28.734375,
+      "top": 201.109375,
+      "right": 193.140625,
+      "bottom": 338.546875,
+      "width": 164.40625,
+      "height": 137.4375
+    },
+    "portrait": {
+      "left": 36.765625,
+      "top": 113.28125,
+      "right": 111.875,
+      "bottom": 188.390625,
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "name": {
+      "left": 118.90625,
+      "top": 113.28125,
+      "right": 185.109375,
+      "bottom": 129.046875,
+      "width": 66.203125,
+      "height": 15.765625
+    },
+    "keys": {
+      "left": 28.734375,
+      "top": 476.75,
+      "right": 193.140625,
+      "bottom": 572.75,
+      "width": 164.40625,
+      "height": 96
+    },
+    "suggestion": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "leftStyle": {
+      "background": "rgb(42, 88, 79)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "characterStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "weaponStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "statsStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "keysStyle": {
+      "background": "rgba(0, 0, 0, 0)",
+      "borderTopWidth": "0px",
+      "borderBottomWidth": "0px"
+    },
+    "hiddenRows": {
+      "magic": {
+        "hidden": false,
+        "height": 16
+      },
+      "mana": {
+        "hidden": false,
+        "height": 16
+      },
+      "traits": {
+        "hidden": true,
+        "height": 0
+      }
+    },
+    "footerOutsideZones": true,
+    "suggestionOutsideZones": true,
+    "overflow": {
+      "scrollHeight": 486,
+      "clientHeight": 486
+    },
+    "hudText": " Mira Mago PV 12/12 MP 5/5 Magia 4 Maná 16/16 Acciones 2/2 +0 habilidad · -1 fuerza · +0 defensa Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug "
+  },
+  {
+    "scene": "con-traits",
+    "viewport": "900x700",
+    "left": {
+      "left": 16,
+      "top": 94.875,
+      "right": 205.875,
+      "bottom": 583.125,
+      "width": 189.875,
+      "height": 488.25
+    },
+    "character": {
+      "left": 28.734375,
+      "top": 105.25,
+      "right": 193.140625,
+      "bottom": 196.421875,
+      "width": 164.40625,
+      "height": 91.171875
+    },
+    "weapon": {
+      "left": 28.734375,
+      "top": 201.109375,
+      "right": 193.140625,
+      "bottom": 267.28125,
+      "width": 164.40625,
+      "height": 66.171875
+    },
+    "stats": {
+      "left": 28.734375,
+      "top": 271.96875,
+      "right": 193.140625,
+      "bottom": 395.75,
+      "width": 164.40625,
+      "height": 123.78125
+    },
+    "portrait": {
+      "left": 36.765625,
+      "top": 113.28125,
+      "right": 111.875,
+      "bottom": 188.390625,
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "name": {
+      "left": 118.90625,
+      "top": 113.28125,
+      "right": 185.109375,
+      "bottom": 129.046875,
+      "width": 66.203125,
+      "height": 15.765625
+    },
+    "keys": {
+      "left": 28.734375,
+      "top": 476.75,
+      "right": 193.140625,
+      "bottom": 572.75,
+      "width": 164.40625,
+      "height": 96
+    },
+    "suggestion": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    },
+    "leftStyle": {
+      "background": "rgb(42, 88, 79)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "characterStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "weaponStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "statsStyle": {
+      "background": "rgb(119, 68, 72)",
+      "borderTopWidth": "1px",
+      "borderTopColor": "rgb(110, 184, 168)",
+      "borderBottomColor": "rgb(47, 20, 47)",
+      "borderStyle": "solid"
+    },
+    "keysStyle": {
+      "background": "rgba(0, 0, 0, 0)",
+      "borderTopWidth": "0px",
+      "borderBottomWidth": "0px"
+    },
+    "hiddenRows": {
+      "magic": {
+        "hidden": true,
+        "height": 0
+      },
+      "mana": {
+        "hidden": true,
+        "height": 0
+      },
+      "traits": {
+        "hidden": false,
+        "height": 16
+      }
+    },
+    "footerOutsideZones": true,
+    "suggestionOutsideZones": true,
+    "overflow": {
+      "scrollHeight": 486,
+      "clientHeight": 486
+    },
+    "hudText": " Ada Guerrero Espada +3 acierto · +3 daño PV 20/20 MP 6/6 Magia 0 Maná 0/0 Acciones 2/2 +1 habilidad · +1 fuerza · +1 defensa filoso: Corta más Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug "
+  }
+]
