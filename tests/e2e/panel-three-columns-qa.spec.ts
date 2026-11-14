@@ -7,7 +7,14 @@ import { type ItemId } from '../../src/game/equipment';
 import { equipmentFromLegacy, inventoryFromIds } from '../../src/game/inventory';
 import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
-import { openState, panelRows, selectPanelRow, settle, snapshot } from './support';
+import {
+  openState,
+  panelRowTestId,
+  panelRows,
+  selectPanelRow,
+  settle,
+  snapshot,
+} from './support';
 
 const SEED = 279837264;
 const FULL_BACKPACK: readonly ItemId[] = [
@@ -130,6 +137,25 @@ async function expectFocusMatchesSelection(page: Page): Promise<void> {
   const focused = await activeKey(page);
   if (focused === null) return;
   expect(await selectedKey(page)).toBe(focused);
+}
+
+async function tabUntilZone(
+  page: Page,
+  zone: string,
+  key: 'Tab' | 'Shift+Tab' = 'Tab',
+): Promise<void> {
+  for (let presses = 0; presses < 14; presses += 1) {
+    await page.keyboard.press(key);
+    if ((await activeZone(page)) === zone) return;
+  }
+  throw new Error(`No se alcanzó la parada ${zone} con ${key}`);
+}
+
+async function activeTestId(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const active = document.activeElement;
+    return active instanceof HTMLElement ? (active.dataset.testid ?? '') : '';
+  });
 }
 
 interface ScrollMetrics {
@@ -316,16 +342,49 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
     const zone = (await activeZone(page)) ?? '';
     if (zone !== zones[zones.length - 1]) zones.push(zone);
   }
-  expect(zones.slice(0, 6)).toEqual([
+  expect(zones.slice(0, 8)).toEqual([
     'backpack',
+    'actions:backpack',
     'right',
-    'actions',
+    'actions:right',
     'close',
     'equipment',
+    'actions:equipment',
     'backpack',
   ]);
 
+  // Equipo: Tab desde la fila cae en una acción del mismo objeto sin cambiar
+  // la selección; Shift+Tab vuelve a la fila.
+  await selectPanelRow(page, 'slot:armor');
+  const equipmentKey = await selectedKey(page);
+  expect(equipmentKey).toBe('slot:armor');
+  await screenshot(page, 'foco-fila-equipo-1280x720', testInfo);
+  await page.keyboard.press('Tab');
+  expect(await activeZone(page)).toBe('actions:equipment');
+  expect(await activeTestId(page)).toContain(
+    `inventory-action-unequip-${panelRowTestId(equipmentKey)}`,
+  );
+  expect(await selectedKey(page)).toBe(equipmentKey);
+  await screenshot(page, 'foco-acciones-equipo-1280x720', testInfo);
+  await page.keyboard.press('Shift+Tab');
+  expect(await activeZone(page)).toBe('equipment');
+  expect(await activeKey(page)).toBe(equipmentKey);
+  expect(await selectedKey(page)).toBe(equipmentKey);
+
+  // Mochila: misma parada de acciones y misma coherencia de selección.
   await selectPanelRow(page, 'backpack:1');
+  expect(await selectedKey(page)).toBe('backpack:1');
+  await screenshot(page, 'foco-fila-mochila-1280x720', testInfo);
+  await page.keyboard.press('Tab');
+  expect(await activeZone(page)).toBe('actions:backpack');
+  expect(await activeTestId(page)).toContain(
+    `inventory-action-equip-${panelRowTestId('backpack:1')}`,
+  );
+  expect(await selectedKey(page)).toBe('backpack:1');
+  await screenshot(page, 'foco-acciones-mochila-1280x720', testInfo);
+  await page.keyboard.press('Shift+Tab');
+  expect(await activeZone(page)).toBe('backpack');
+  expect(await activeKey(page)).toBe('backpack:1');
   expect(await selectedKey(page)).toBe('backpack:1');
   await expectFocusMatchesSelection(page);
   await page.keyboard.press('Escape');
@@ -361,21 +420,18 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
   // regresar al recordado de cada zona, no al primero ni al último global.
   await selectPanelRow(page, 'backpack:1');
   expect(await selectedKey(page)).toBe('backpack:1');
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('right');
+  await tabUntilZone(page, 'right');
   await expectFocusMatchesSelection(page);
 
   await selectPanelRow(page, 'ground:item-test-ground-1');
   expect(await selectedKey(page)).toBe('ground:item-test-ground-1');
   await expectFocusMatchesSelection(page);
 
-  await page.keyboard.press('Shift+Tab');
-  expect(await activeZone(page)).toBe('backpack');
+  await tabUntilZone(page, 'backpack', 'Shift+Tab');
   expect(await selectedKey(page)).toBe('backpack:1');
   expect(await activeKey(page)).toBe('backpack:1');
 
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('right');
+  await tabUntilZone(page, 'right');
   expect(await selectedKey(page)).toBe('ground:item-test-ground-1');
   expect(await activeKey(page)).toBe('ground:item-test-ground-1');
 });

@@ -428,11 +428,8 @@ export async function selectPanelRow(page: Page, key: string): Promise<void> {
 }
 
 /**
- * Lleva el foco a una acción del panel: selecciona el objeto con `Tab` de zona y
- * flechas, y activa después su botón. En la zona derecha el `Tab` siguiente cae
- * directamente en la barra; para equipo y mochila el ciclo de zonas selecciona
- * el objeto recordado al entrar, así que se enfoca el botón ya renderizado del
- * objeto elegido (la activación sigue siendo `Enter` real).
+ * Lleva el foco a una acción del panel solo con teclado real: `Tab` hasta la
+ * zona, flechas dentro de ella y `Tab` hasta la acción de ese mismo objeto.
  */
 export async function focusPanelAction(page: Page, testId: string): Promise<void> {
   const match = /^inventory-action-(equip|unequip|pickup|drop)-(.+)$/.exec(testId);
@@ -443,22 +440,12 @@ export async function focusPanelAction(page: Page, testId: string): Promise<void
   if (!row) throw new Error(`No hay fila para la acción ${testId}`);
 
   await selectPanelRow(page, row.key);
+  for (let presses = 0; presses < 8; presses += 1) {
+    if ((await activePanelTestId(page)) === testId) return;
+    await page.keyboard.press('Tab');
+  }
   if ((await activePanelTestId(page)) === testId) return;
-
-  if (row.zone === 'right') {
-    for (let presses = 0; presses < 4; presses += 1) {
-      await page.keyboard.press('Tab');
-      if ((await activePanelTestId(page)) === testId) return;
-    }
-  }
-
-  await selectPanelRow(page, row.key);
-  const action = page.getByTestId(testId);
-  await expect(action).toBeVisible();
-  await action.focus();
-  if ((await activePanelTestId(page)) !== testId) {
-    throw new Error(`No se alcanzó la acción ${testId}`);
-  }
+  throw new Error(`No se alcanzó la acción ${testId} con Tab`);
 }
 
 /** Enfoca con teclado y activa la acción con `Enter`, pulsaciones reales. */

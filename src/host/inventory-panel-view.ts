@@ -185,6 +185,7 @@ export function createInventoryPanelView(
   const groundEmpty = requireElement(root, 'inventory-ground-empty');
   const cadaversEmpty = requireElement(root, 'inventory-cadavers-empty');
   const selection = requireElement(root, 'inventory-selection');
+  const actionsSection = requireElement(root, 'inventory-actions');
   const actionsButtons = requireElement(root, 'inventory-actions-buttons');
   const message = requireElement(root, 'inventory-message');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
@@ -295,6 +296,13 @@ export function createInventoryPanelView(
       ? `${item.name} · ${item.empty ? 'Vacío' : stateLabel(item.key)}`
       : 'Sin objeto seleccionado';
 
+    // Cada zona tiene su propia parada de acciones: la barra se identifica con
+    // la zona del objeto seleccionado para el ciclo de `Tab`.
+    const selectedView = selectedKey === null ? null : cellView(selectedKey);
+    actionsSection.dataset.zone = selectedView
+      ? `actions:${selectedView.zone}`
+      : 'actions';
+
     const signature = `${selectedKey ?? ''}|${actions
       .map((action) => `${action.kind}:${action.label}:${JSON.stringify(action.command)}`)
       .join('|')}`;
@@ -364,10 +372,12 @@ export function createInventoryPanelView(
 
   const availableZones = (): string[] => {
     const zones: string[] = [];
-    if (currentCells.some((cell) => cell.zone === 'equipment')) zones.push('equipment');
-    if (currentCells.some((cell) => cell.zone === 'backpack')) zones.push('backpack');
-    if (currentCells.some((cell) => cell.zone === 'right')) zones.push('right');
-    if (actionButtons().length > 0) zones.push('actions');
+    // Cada zona con objetos aporta su fila y su parada de acciones. Las paradas
+    // vacías se omiten porque no hay zona a la que asociarlas.
+    for (const zone of ['equipment', 'backpack', 'right'] as const) {
+      if (!currentCells.some((cell) => cell.zone === zone)) continue;
+      zones.push(zone, `actions:${zone}`);
+    }
     zones.push('close');
     return zones;
   };
@@ -378,7 +388,22 @@ export function createInventoryPanelView(
       closeButton.focus();
       return;
     }
-    if (zone === 'actions') {
+    if (zone.startsWith('actions:')) {
+      // La parada de acciones pertenece a una zona concreta. Al entrar desde su
+      // fila la selección ya es la correcta y no cambia; al volver desde la
+      // zona siguiente se recupera el objeto recordado de esta zona para que
+      // la barra describa siempre el objeto de la parada.
+      const owner = zone.slice('actions:'.length);
+      const selectedView = selectedKey === null ? null : cellView(selectedKey);
+      if (!selectedView || selectedView.zone !== owner) {
+        const zoneCells = currentCells.filter((cell) => cell.zone === owner);
+        const remembered = zoneLastKey.get(owner);
+        const target =
+          zoneCells.find((cell) => cell.key === remembered) ??
+          firstInReadingOrder(zoneCells);
+        if (!target) return;
+        selectByKey(target.key, false);
+      }
       const buttons = actionButtons();
       (backwards ? buttons[buttons.length - 1] : buttons[0])?.focus();
       return;
@@ -401,7 +426,7 @@ export function createInventoryPanelView(
     const currentZone = zoneOf(active);
     const backwards = event.shiftKey;
 
-    if (currentZone === 'actions') {
+    if (currentZone?.startsWith('actions:')) {
       const buttons = actionButtons();
       const index = active === null ? -1 : buttons.indexOf(active as HTMLButtonElement);
       const target = buttons[index + (backwards ? -1 : 1)];
