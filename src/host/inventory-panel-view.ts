@@ -116,7 +116,7 @@ function createCell(
   className: string,
 ): CellView {
   const root = document.createElement('li');
-  root.className = `inventory-row ${className}`;
+  root.className = `inventory-row ui-inset ${className}`;
   root.dataset.testid = `inventory-${rowTestId(key)}`;
   root.dataset.rowKey = key;
   root.dataset.zone = zone;
@@ -149,7 +149,7 @@ function updateIcon(icon: HTMLElement, item: PanelItem): void {
     icon.style.removeProperty('background-position');
     return;
   }
-  icon.style.backgroundPosition = `-${rect.x}px -${rect.y}px`;
+  icon.style.backgroundPosition = `calc(var(--ui-scale) * ${-rect.x}px) calc(var(--ui-scale) * ${-rect.y}px)`;
 }
 
 function updateCell(view: CellView, item: PanelItem): void {

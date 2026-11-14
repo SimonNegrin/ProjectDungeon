@@ -159,17 +159,14 @@ export function createFrameEffectView(frame: ParentNode): FrameEffectView {
   return {
     update(effects): void {
       if (effects.gameEndedFlash > 0) {
-        element.style.borderColor = '#ffffff';
         apply('game-ended', effects.gameEndedFlash);
         return;
       }
       if (effects.alarmBorder) {
-        element.style.borderColor = '#e8b86d';
         apply('alarm', 1);
         return;
       }
       if (effects.enemyPhaseTint > 0) {
-        element.style.borderColor = '#7fb3d5';
         apply('enemy-phase', effects.enemyPhaseTint);
         return;
       }

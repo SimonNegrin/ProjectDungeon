@@ -1,0 +1,56 @@
+{
+  "fontCheck": true,
+  "glyphChecks": [
+    {
+      "size": 16,
+      "ok": true
+    },
+    {
+      "size": 12.8,
+      "ok": true
+    },
+    {
+      "size": 12.48,
+      "ok": true
+    },
+    {
+      "size": 11.52,
+      "ok": true
+    }
+  ],
+  "fontResponses": [
+    {
+      "url": "http://127.0.0.1:4173/fonts/pixelify-sans/PixelifySans-VariableFont_wght.ttf",
+      "status": 200
+    }
+  ],
+  "external": [],
+  "families": {
+    "body": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "16px"
+    },
+    "hud": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "17.9308px"
+    },
+    "hudData": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "17.4505px"
+    },
+    "hudHelp": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "16.1697px"
+    },
+    "panelTitle": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "22.4135px"
+    },
+    "panelHelp": {
+      "family": "\"Pixelify Sans\", ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+      "size": "16.1697px"
+    }
+  },
+  "uiLine": "1.6009615384615385px",
+  "uiScale": "1.6009615384615385"
+}

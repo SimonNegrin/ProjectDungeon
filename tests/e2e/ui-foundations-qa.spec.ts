@@ -11,6 +11,7 @@ const VIEWPORTS = [
   { width: 1280, height: 720 },
   { width: 900, height: 700 },
 ] as const;
+const FRAME_LOGICAL_HEIGHT = 416;
 
 interface NetworkAudit {
   readonly external: string[];
@@ -89,6 +90,93 @@ function uiLine(page: Page): Promise<string> {
   );
 }
 
+function uiScale(page: Page): Promise<string> {
+  return page.evaluate(() =>
+    getComputedStyle(document.documentElement).getPropertyValue('--ui-scale').trim(),
+  );
+}
+
+interface FrameMeasurement {
+  line: string;
+  scale: string;
+  dpr: number;
+  frame: { x: number; y: number; width: number; height: number };
+  canvas: { x: number; y: number; width: number; height: number };
+  internal: { width: number; height: number };
+  hudFont: string;
+}
+
+async function measureFrame(page: Page): Promise<FrameMeasurement> {
+  return page.evaluate(() => {
+    const frame = document
+      .querySelector<HTMLElement>('[data-testid="frame"]')!
+      .getBoundingClientRect();
+    const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')!;
+    const canvasBox = canvas.getBoundingClientRect();
+    const hud = document.querySelector<HTMLElement>('[data-testid="hud"]')!;
+    return {
+      line: getComputedStyle(document.documentElement)
+        .getPropertyValue('--ui-line')
+        .trim(),
+      scale: getComputedStyle(document.documentElement)
+        .getPropertyValue('--ui-scale')
+        .trim(),
+      dpr: window.devicePixelRatio,
+      frame: { x: frame.x, y: frame.y, width: frame.width, height: frame.height },
+      canvas: {
+        x: canvasBox.x,
+        y: canvasBox.y,
+        width: canvasBox.width,
+        height: canvasBox.height,
+      },
+      internal: { width: canvas.width, height: canvas.height },
+      hudFont: getComputedStyle(hud).fontSize,
+    };
+  });
+}
+
+interface StyleAuditEntry {
+  selector: string;
+  borderRadius: string;
+  boxShadow: string;
+  textShadow: string;
+  backdropFilter: string;
+  filter: string;
+  backgroundImage: string;
+  backgroundColor: string;
+  borderTopColor: string;
+  borderBottomColor: string;
+}
+
+async function auditStyles(page: Page, selectors: string[]): Promise<StyleAuditEntry[]> {
+  return page.evaluate((list) => {
+    return list.map((selector) => {
+      const element = document.querySelector<HTMLElement>(selector);
+      if (!element) throw new Error(`Falta ${selector} para la auditoría de estilos`);
+      const style = getComputedStyle(element);
+      return {
+        selector,
+        borderRadius: style.borderRadius,
+        boxShadow: style.boxShadow,
+        textShadow: style.textShadow,
+        backdropFilter: style.backdropFilter,
+        filter: style.filter,
+        backgroundImage: style.backgroundImage,
+        backgroundColor: style.backgroundColor,
+        borderTopColor: style.borderTopColor,
+        borderBottomColor: style.borderBottomColor,
+      };
+    });
+  }, selectors);
+}
+
+function alpha(backgroundColor: string): number {
+  const match = /rgba?\(([^)]+)\)/.exec(backgroundColor);
+  if (!match) return 1;
+  const parts = match[1].split(',').map((part) => Number.parseFloat(part));
+  return parts.length === 4 ? parts[3] : 1;
+}
+
 test('sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones externas', async ({
   page,
 }, testInfo) => {
@@ -141,76 +229,42 @@ test('sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones exter
     external: audit.external,
     families: { body, hud, hudData, hudHelp, panelTitle, panelHelp },
     uiLine: await uiLine(page),
+    uiScale: await uiScale(page),
   });
 });
 
-test.describe('grosor de línea derivado del marco', () => {
-  // A dpr 1 las escalas 1,17 y 1,44 se redondean ambas a 1 px de dispositivo;
-  // con dpr 2 el redondeo deja valores distintos y demuestra que se recalcula.
+test.describe('línea y escala continuas derivadas del marco', () => {
   test.use({ deviceScaleFactor: 2 });
 
-  test('--ui-line cambia entre 1280×720 y 900×700 sin mover el canvas', async ({
+  test('--ui-line es frame.height / 416 y no se cuantiza al redimensionar', async ({
     page,
   }, testInfo) => {
     await openGame(page, 1280, 720);
-    const first = await page.evaluate(() => {
-      const frame = document
-        .querySelector<HTMLElement>('[data-testid="frame"]')!
-        .getBoundingClientRect();
-      const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')!;
-      const canvasBox = canvas.getBoundingClientRect();
-      return {
-        line: getComputedStyle(document.documentElement)
-          .getPropertyValue('--ui-line')
-          .trim(),
-        dpr: window.devicePixelRatio,
-        frame: { x: frame.x, y: frame.y, width: frame.width, height: frame.height },
-        canvas: {
-          x: canvasBox.x,
-          y: canvasBox.y,
-          width: canvasBox.width,
-          height: canvasBox.height,
-        },
-        internal: { width: canvas.width, height: canvas.height },
-      };
-    });
+    const first = await measureFrame(page);
 
     expect(first.dpr).toBe(2);
     expect(first.line).toMatch(/^\d+(\.\d+)?px$/);
     expect(first.internal).toEqual({ width: 2218, height: 1248 });
+    const firstLine = Number.parseFloat(first.line);
+    expect(firstLine).toBeCloseTo(first.frame.height / FRAME_LOGICAL_HEIGHT, 6);
+    expect(Math.abs(firstLine * first.dpr - Math.round(firstLine * first.dpr))).toBeGreaterThan(
+      1e-6,
+    );
 
     await page.setViewportSize({ width: 900, height: 700 });
     await expect.poll(async () => uiLine(page)).not.toBe(first.line);
+    const second = await measureFrame(page);
 
-    const second = await page.evaluate(() => {
-      const frame = document
-        .querySelector<HTMLElement>('[data-testid="frame"]')!
-        .getBoundingClientRect();
-      const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')!;
-      const canvasBox = canvas.getBoundingClientRect();
-      return {
-        line: getComputedStyle(document.documentElement)
-          .getPropertyValue('--ui-line')
-          .trim(),
-        dpr: window.devicePixelRatio,
-        frame: { x: frame.x, y: frame.y, width: frame.width, height: frame.height },
-        canvas: {
-          x: canvasBox.x,
-          y: canvasBox.y,
-          width: canvasBox.width,
-          height: canvasBox.height,
-        },
-        internal: { width: canvas.width, height: canvas.height },
-      };
-    });
+    await page.setViewportSize({ width: 901, height: 700 });
+    await expect.poll(async () => uiLine(page)).not.toBe(second.line);
+    const third = await measureFrame(page);
 
-    expect(second.line).toMatch(/^\d+(\.\d+)?px$/);
-    expect(second.internal).toEqual(first.internal);
-
-    for (const measurement of [first, second]) {
+    for (const measurement of [first, second, third]) {
       const line = Number.parseFloat(measurement.line);
-      expect(Number.isInteger(line * measurement.dpr)).toBe(true);
-      expect(line).toBeGreaterThanOrEqual(1 / measurement.dpr);
+      expect(line).toBeCloseTo(measurement.frame.height / FRAME_LOGICAL_HEIGHT, 6);
+      expect(Math.abs(line * measurement.dpr - Math.round(line * measurement.dpr))).toBeGreaterThan(
+        1e-6,
+      );
       // El canvas ocupa el marco sin desplazamiento ni deformación.
       expect(Math.abs(measurement.canvas.x - measurement.frame.x)).toBeLessThanOrEqual(0.5);
       expect(Math.abs(measurement.canvas.y - measurement.frame.y)).toBeLessThanOrEqual(0.5);
@@ -222,16 +276,114 @@ test.describe('grosor de línea derivado del marco', () => {
       ).toBeLessThanOrEqual(0.5);
     }
 
-    expect(first.line).not.toBe(second.line);
+    // Un píxel de ventana mueve la línea de forma continua, sin saltos de 1 px.
+    const secondLine = Number.parseFloat(second.line);
+    const thirdLine = Number.parseFloat(third.line);
+    expect(thirdLine).toBeGreaterThan(secondLine);
+    expect(thirdLine - secondLine).toBeLessThan(0.01);
 
     await writeLog(testInfo, 'ui-foundations-line.json', {
-      first: { line: first.line, dpr: first.dpr, frame: first.frame },
-      second: { line: second.line, dpr: second.dpr, frame: second.frame },
+      first: { line: first.line, scale: first.scale, dpr: first.dpr, frame: first.frame },
+      second: { line: second.line, scale: second.scale, dpr: second.dpr, frame: second.frame },
+      third: { line: third.line, scale: third.scale, dpr: third.dpr, frame: third.frame },
     });
+  });
+
+  test('el cuerpo sigue la altura del marco: ≈12,8 px a 900×700 y ≈18,8 px a 1280×720', async ({
+    page,
+  }, testInfo) => {
+    const measurements: Array<{
+      viewport: string;
+      frameHeight: number;
+      scale: string;
+      line: string;
+      hudFont: number;
+      ratio: number;
+    }> = [];
+
+    for (const viewport of VIEWPORTS) {
+      await openGame(page, viewport.width, viewport.height);
+      const measurement = await measureFrame(page);
+      const size = Number.parseFloat(measurement.hudFont);
+      const scale = Number.parseFloat(measurement.scale);
+      measurements.push({
+        viewport: `${viewport.width}x${viewport.height}`,
+        frameHeight: measurement.frame.height,
+        scale: measurement.scale,
+        line: measurement.line,
+        hudFont: size,
+        ratio: size / measurement.frame.height,
+      });
+
+      expect(scale).toBeCloseTo(measurement.frame.height / FRAME_LOGICAL_HEIGHT, 6);
+      expect(size).toBeCloseTo(scale * 11.2, 3);
+      expect(Number.parseFloat(measurement.line)).toBeCloseTo(
+        measurement.frame.height / FRAME_LOGICAL_HEIGHT,
+        6,
+      );
+    }
+
+    const at900 = measurements.find((entry) => entry.viewport === '900x700')!;
+    const at1280 = measurements.find((entry) => entry.viewport === '1280x720')!;
+    expect(at900.hudFont).toBeGreaterThanOrEqual(11.8);
+    expect(at900.hudFont).toBeLessThanOrEqual(13.8);
+    expect(at1280.hudFont).toBeGreaterThanOrEqual(17.8);
+    expect(at1280.hudFont).toBeLessThanOrEqual(19.8);
+    // La relación cuerpo/altura no depende de la resolución: la UI escala sola.
+    expect(at900.ratio).toBeCloseTo(at1280.ratio, 6);
+
+    await writeLog(testInfo, 'ui-foundations-scale.json', measurements);
   });
 });
 
-test('capturas de HUD, panel y tabla de caracteres a 1280×720 y 900×700', async ({
+test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucidez', async ({
+  page,
+}, testInfo) => {
+  await openGame(page, 1280, 720);
+  await page.keyboard.press('i');
+  await expect(page.getByTestId('inventory-panel')).toBeVisible();
+
+  const selectors = [
+    '.hud-left',
+    '.hud-right',
+    '.hud-detail-block',
+    '.inventory-panel-body',
+    '.inventory-column',
+    '.inventory-row',
+    '.inventory-submenu',
+    '.spell-list',
+    '.feedback-banner',
+    '.damage-feedback',
+    '.cursor',
+    '.overlay',
+    '.overlay button',
+  ];
+  const entries = await auditStyles(page, selectors);
+
+  for (const entry of entries) {
+    expect(entry.borderRadius, `${entry.selector} usa radio`).toBe('0px');
+    expect(entry.boxShadow, `${entry.selector} usa sombra`).toBe('none');
+    expect(entry.textShadow, `${entry.selector} usa text-shadow`).toBe('none');
+    expect(entry.backdropFilter, `${entry.selector} usa backdrop-filter`).toBe('none');
+    expect(entry.filter, `${entry.selector} usa filter`).toBe('none');
+    expect(entry.backgroundImage, `${entry.selector} usa degradado`).toBe('none');
+    expect([0, 1], `${entry.selector} usa fondo translúcido`).toContain(
+      alpha(entry.backgroundColor),
+    );
+  }
+
+  // Bisel: claro al noroeste, oscuro al sureste en superficies y huecos.
+  const outset = entries.find((entry) => entry.selector === '.hud-left')!;
+  expect(outset.borderTopColor).toBe('rgb(110, 184, 168)');
+  expect(outset.borderBottomColor).toBe('rgb(47, 20, 47)');
+  const inset = entries.find((entry) => entry.selector === '.inventory-row')!;
+  expect(inset.borderTopColor).toBe('rgb(47, 20, 47)');
+  expect(inset.borderBottomColor).toBe('rgb(110, 184, 168)');
+
+  await writeLog(testInfo, 'ui-foundations-styles.json', entries);
+});
+
+test('capturas de HUD, panel, hechizos y overlays a 1280×720 y 900×700', async ({
   page,
 }, testInfo) => {
   const measurements: unknown[] = [];
@@ -242,11 +394,52 @@ test('capturas de HUD, panel y tabla de caracteres a 1280×720 y 900×700', asyn
 
     await screenshot(page, testInfo, `hud-${suffix}`);
 
+    await page.keyboard.press('q');
+    await expect(page.getByTestId('spell-list')).toBeVisible();
+    await screenshot(page, testInfo, `spells-${suffix}`);
+    await page.keyboard.press('q');
+    await expect(page.getByTestId('spell-list')).toBeHidden();
+
     await page.keyboard.press('i');
     await expect(page.getByTestId('inventory-panel')).toBeVisible();
     await screenshot(page, testInfo, `panel-${suffix}`);
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('inventory-panel')).toBeHidden();
+
+    await page.evaluate(() => {
+      const victory = document.querySelector<HTMLElement>(
+        '[data-testid="overlay-victory"]',
+      );
+      if (!victory) throw new Error('Falta el overlay de victoria');
+      victory.hidden = false;
+    });
+    await screenshot(page, testInfo, `overlay-victory-${suffix}`);
+    await page.evaluate(() => {
+      const victory = document.querySelector<HTMLElement>(
+        '[data-testid="overlay-victory"]',
+      );
+      if (victory) victory.hidden = true;
+    });
+
+    await page.evaluate(() => {
+      const banner = document.querySelector<HTMLElement>(
+        '[data-testid="feedback-banner"]',
+      );
+      if (!banner) throw new Error('Falta el banner de feedback');
+      banner.hidden = false;
+      banner.textContent = 'Recoges Hacha';
+      banner.dataset.bannerKind = 'pickup';
+    });
+    await screenshot(page, testInfo, `overlay-banner-${suffix}`);
+    await page.evaluate(() => {
+      const banner = document.querySelector<HTMLElement>(
+        '[data-testid="feedback-banner"]',
+      );
+      if (!banner) return;
+      banner.hidden = true;
+      banner.textContent = '';
+      delete banner.dataset.bannerKind;
+    });
 
     await page.evaluate(() => {
       const sample = document.createElement('aside');
@@ -294,6 +487,7 @@ test('capturas de HUD, panel y tabla de caracteres a 1280×720 y 900×700', asyn
     measurements.push({
       viewport: suffix,
       uiLine: await uiLine(page),
+      uiScale: await uiScale(page),
       fontReady: await page.evaluate(() => document.fonts.check('16px "Pixelify Sans"')),
       fits,
     });

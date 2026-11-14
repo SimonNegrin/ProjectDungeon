@@ -4,22 +4,43 @@ id: TASK-0104
 title: "UI: escala continua, paleta y relieve vintage"
 description: "Derivar una escala única del marco, aplicar los ocho colores y sustituir radios, sombras y degradados por biseles outset/inset en la UI de juego."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-002, R-003, R-004, R-005, R-016, R-018, T-001, T-002, T-003, T-011]
 depends_on: []
 unlocks: [TASK-0105, TASK-0106, TASK-0107]
 created_at: 2026-11-14T12:02:44Z
-completed_at:
+completed_at: 2026-11-14T12:28:58Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0104/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T12:02:44Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T12:28:58Z
+    note: >-
+      Intento 1 verificado (código `cad8a62`, tests `adad30c`, evidencia
+      `e35977d`). Una escala `--ui-scale` desde el marco con roles derivados;
+      `computeUiLine` lineal sin dpr ni redondeo. Medido: 900×700 → marco
+      488,25 px, cuerpo 13,1452 px, línea 1,1737; 1280×720 → marco 666 px,
+      cuerpo 17,9308 px, línea 1,6010; relación cuerpo/altura constante
+      0,026923 y ambos dentro de ±1 px. Ocho colores en tokens, biseles
+      outset/inset claro/oscuro, sin radios/sombras/degradados/blur ni
+      translucidez en la UI de juego; el marco exterior usa `::after` y no
+      encoge el canvas. Reejecutados con timeout `pnpm run verify` (120 s:
+      1305/1305, tsc, build y bundle) y `pnpm run test:e2e` (180 s: 152/152),
+      sin procesos huérfanos. Revisado el diff completo: `src/host/**`,
+      `index.html`, `tests/**` y artefactos; sin cambios en `src/game/**`,
+      requisitos, arnés, plantillas, dependencias ni TASK-0105..0110. Capturas
+      de HUD, panel, hechizos, banner, victoria y cursor a ambos tamaños.
+      Desviación aceptada: con la escala nueva el suelo puede desplazarse a
+      1280×720; REQ-033 R-013 lo permite y TASK-0107 recompondrá el panel. Se
+      adaptaron las aserciones de scroll y el umbral de brillo de `floor-qa` al
+      texto `#fcffc0`, sin retirar cobertura. Sin fricción nueva.
 ---
 
 # Objetivo

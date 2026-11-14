@@ -133,7 +133,7 @@ test('cursor inicial, teclado en cuatro direcciones y borde del viewport', async
   }
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'solid',
-    borderColor: 'rgba(255, 255, 255, 0.92)',
+    borderColor: 'rgb(252, 255, 192)',
   });
   await screenshot(page, 'cursor-player', testInfo);
 
@@ -209,7 +209,7 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'double',
-    borderColor: 'rgb(248, 113, 113)',
+    borderColor: 'rgb(198, 80, 90)',
   });
 
   await restart(page);
@@ -217,7 +217,7 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'solid',
-    borderColor: 'rgba(255, 255, 255, 0.92)',
+    borderColor: 'rgb(252, 255, 192)',
   });
 
   // Verde: destino a dos pasos, por debajo del MP; camino completo en tono fuerte.
@@ -253,7 +253,7 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   await expect(page.locator('[data-testid="cursor-path-point"].is-faded')).toHaveCount(0);
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'solid',
-    borderColor: 'rgb(74, 222, 128)',
+    borderColor: 'rgb(116, 163, 63)',
   });
   await screenshot(page, 'cursor-path-green', testInfo);
 
@@ -283,7 +283,7 @@ test('estados, patrones de borde y caminos verde y ámbar en dos tonos', async (
   expect(amber.cursor.path.length - amber.players[0].mp).toBeGreaterThan(0);
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'dashed',
-    borderColor: 'rgb(251, 191, 36)',
+    borderColor: 'rgb(238, 156, 93)',
   });
   await screenshot(page, 'cursor-path-amber', testInfo);
 
@@ -446,7 +446,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   await expect(page.locator('[data-testid="cursor"] .cursor-mark')).toBeVisible();
   expect(await cursorVisual(page)).toMatchObject({
     borderStyle: 'double',
-    borderColor: 'rgb(248, 113, 113)',
+    borderColor: 'rgb(198, 80, 90)',
   });
   await screenshot(page, 'cursor-enemy', testInfo);
 
