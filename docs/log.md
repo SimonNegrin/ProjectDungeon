@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0109 — done: QA visual de REQ-033 con 35 capturas a 900×700 y 1280×720; tres columnas encajan a 900×700 (columnas 137,06, slots 39,89), escala continua, paleta y biseles, ficha, cadáveres, cursor y CLS 0; verify 1317/1317 y E2E 183/183; fusión `d2f1a21`; retrato estático fuera de REQ-033, pendiente de decisión — [informe](../artifacts/TASK-0109/attempt-1/report.md)
+
 * 2026-11-14 — Task — TASK-0108 — done: cursor superpuesto del panel ligado al foco, transición de 100 ms solo entre vecinos horizontales e instantáneo en fila/zona, scroll, reapertura y movimiento reducido; CLS 0 en marco, columnas, títulos y slots de equipo/bolsa; verify 1317/1317 y E2E 170/170; fusión `31a0080` — [informe](../artifacts/TASK-0108/attempt-1/report.md)
 
 * 2026-11-14 — Task — TASK-0107 — done: panel con títulos Equipo/Bolsa/Suelo, slots cuadrados inset, cadáveres y suelo en rejilla; encaje 900×700 medido sin solapes (columnas 137,06 px, slots 39,89 px); no se abre la alternativa; verify 1310/1310, E2E 167/167; fusión `b026d69` — [informe](../artifacts/TASK-0107/attempt-1/report.md)

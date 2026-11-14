@@ -3,15 +3,15 @@ type: Task
 id: TASK-0109
 title: "QA visual de la revisión de UI"
 description: "Cubrir en navegador escala, paleta, tres zonas, ficha, panel, slots, cadáveres, cursor y CLS con capturas a 900×700 y 1280×720."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: test
 requirement: REQ-033
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-018, R-019, R-020, R-021, R-022, R-023, R-024, T-008]
 depends_on: [TASK-0105, TASK-0106, TASK-0107, TASK-0108]
 unlocks: [TASK-0110]
 created_at: 2026-11-14T12:02:44Z
-completed_at:
+completed_at: 2026-11-14T14:12:00Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0109/
@@ -20,6 +20,23 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T12:02:44Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T14:12:00Z
+    note: >-
+      Intento 1 verificado (código `2e303c8`, informe `2987245`; fusión
+      `d2f1a21`). Reejecutados `pnpm run verify` (93 archivos, 1317/1317, tsc,
+      build y bundle) y `pnpm run test:e2e` (183/183) con timeouts de 240 s.
+      Spec nuevo `qa-visual-revision-ui` con 13 tests y 35 capturas a 900×700 y
+      1280×720; sin cambios en `src/**`, `index.html`, `public/**`, requisitos,
+      arnés ni tests existentes, y sin tests debilitados. Tres columnas encajan
+      a 900×700: panel 488,25, columnas 137,0625, slot 39,890625, títulos a
+      `top` 127,375, sin solapes ni recortes. Escala continua (900→901 =
+      0,001352 px de línea), ocho colores y biseles, ficha sin rótulos
+      redundantes, cadáveres condicionales, cursor con transición solo en
+      vecinos horizontales y CLS 0 en marco/panel/columnas/títulos/slots.
+      Observación no bloqueante: el retrato del HUD no varía por arquetipo;
+      contradice REQ-022 R-002, es previo a TASK-0105 y queda fuera de REQ-033.
+      Fricción de `artifactPath` multi-viewport diferida a `harness-keeper`.
 ---
 
 # Objetivo
