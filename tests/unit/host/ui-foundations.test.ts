@@ -389,6 +389,40 @@ describe('panel de inventario en tres columnas', () => {
     expect(html).not.toContain('inventory-row-traits');
   });
 
+  it('retira la cabeza de la figura y ata el resto a la rejilla superior', () => {
+    const figure =
+      html.match(/<div class="inventory-figure"[\s\S]*?<\/div>/)?.[0] ?? '';
+    expect(figure).toContain('aria-hidden="true"');
+    expect(figure).not.toContain('inventory-figure-head');
+    expect(figure.match(/inventory-figure-block/g) ?? []).toHaveLength(5);
+    for (const part of [
+      'torso',
+      'arm-left',
+      'arm-right',
+      'leg-left',
+      'leg-right',
+    ]) {
+      expect(figure, `la figura pierde ${part}`).toContain(
+        `inventory-figure-${part}`,
+      );
+    }
+    expect(css).not.toContain('inventory-figure-head');
+    expect(block('.inventory-figure')).toMatch(/top:\s*0/);
+    expect(block('.inventory-figure')).toMatch(/var\(--ui-slot\)/);
+    expect(block('.inventory-figure')).toMatch(/var\(--ui-unit\)/);
+    expect(block('.inventory-figure')).toMatch(/pointer-events:\s*none/);
+  });
+
+  it('la rejilla de Equipo y las columnas arrancan arriba', () => {
+    expect(block('.inventory-equipment')).toMatch(/align-content:\s*start/);
+    expect(block('.inventory-equipment')).not.toMatch(/align-content:\s*center/);
+    expect(block('.inventory-column')).not.toMatch(/justify-content:\s*center/);
+    expect(block('.inventory-backpack')).toMatch(/align-content:\s*start/);
+    expect(block('.inventory-ground')).toMatch(/align-content:\s*start/);
+    expect(block('.inventory-slot-head')).toMatch(/grid-row:\s*1/);
+    expect(block('.inventory-slot-head')).toMatch(/grid-column:\s*2/);
+  });
+
   it('el submenú usa tokens, sin literales, radios ni sombras', () => {
     expect(block('.inventory-submenu')).toMatch(/position:\s*absolute/);
     expect(block('.inventory-submenu')).toMatch(/background:\s*var\(--ui-panel\)/);
