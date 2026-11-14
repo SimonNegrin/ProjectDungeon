@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0120 — done: el feedback transitorio vuelve a consumirse con el reloj real; banner y textos caducan y el host deja de repintar en reposo (`raf: 0`); A/B 3/3, verify 1332/1332 y E2E 214/214; fusión `bd8a62d` — [informe](../artifacts/TASK-0120/attempt-1/report.md)
+
 * 2026-11-14 — Planning — TASK-0120 — backlog: el reloj de feedback no caduca y el host repinta a 60 fps tras cualquier acción; reproducción en TASK-0119 y criterios propios de REQ-017; pendiente de revisión del usuario — [TASK-0120](tasks/TASK-0120-reloj-feedback-bucle-render.md)
 
 * 2026-11-14 — Task — TASK-0119 — done: el submenú sobrevive a los refrescos de estado si no cambian selección ni opciones; se cierra solo al cambiar clave, instancia u opciones; E2E nuevo 3/3 (2 fallos antes del arreglo), suite 211/211 y verify 1332/1332; fusión `c15d6b8` — [informe](../artifacts/TASK-0119/attempt-1/report.md)
