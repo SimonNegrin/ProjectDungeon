@@ -4,22 +4,39 @@ id: TASK-0116
 title: "UI: cursor del panel alineado con el mapa"
 description: "Pintar el cursor del panel en amarillo pálido con borde de 4×, por encima del panel salvo el submenú, y animar cualquier cambio de slot."
 status: stable
-task_status: ready
+task_status: done
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-024, R-030, R-031, T-014, T-018]
 depends_on: [TASK-0112, TASK-0114]
 unlocks: [TASK-0117]
 created_at: 2026-11-14T15:30:34Z
-completed_at:
+completed_at: 2026-11-14T17:12:30Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0116/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T15:30:34Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T17:12:30Z
+    note: >-
+      Intento 1 verificado (código `3410f32`, informe `4bccb33`; fusión
+      `375b9ba`). Reejecutados `pnpm run verify` (120 s; 94 archivos,
+      1330/1330, tsc, build y bundle) y `pnpm run test:e2e` (180 s; 196/196).
+      Cursor `rgb(252,255,192)` con borde 4× (4 px a 900×700 y 6 px a
+      1280×720), caja fuera del bisel del slot, capas cursor 10 < submenú 30 y
+      contenido sin `z-index`, transición `transform` de 150 ms en horizontal,
+      vertical y entre columnas; apertura, resize, scroll, actualización del
+      modelo y modo reducido instantáneos; foco DOM y `aria-current` en el
+      slot; pulsaciones rápidas y CLS a 0. Diff revisado: solo
+      `src/host/inventory-panel-view.ts`, `src/host/ui.css`, tests de cursor y
+      artefactos; sin tocar cursor del mapa, `--ui-bevel`, pseudos `.ui-*`,
+      figura, rejilla, siluetas, navegación ni requisitos. Tests de 80-120 ms y
+      1× adaptados a la nueva regla sin retirar cobertura. Capturas revisadas a
+      900×700 y 1280×720.
 ---
 
 # Objetivo
