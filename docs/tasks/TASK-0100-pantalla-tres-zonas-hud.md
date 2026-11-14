@@ -4,7 +4,7 @@ id: TASK-0100
 title: "UI: pantalla en tres zonas con HUD izquierdo y derecho"
 description: "Retirar el HUD superior y componer HUD izquierdo con la ficha del jugador activo, mapa de 13×13 y HUD derecho con el detalle del cursor, sin perder casillas visibles ni mensajes."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-032
 requirement_ids: [R-006, R-007, T-001, T-003, T-006]
