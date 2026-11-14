@@ -4,22 +4,59 @@ id: TASK-0101
 title: "Panel de inventario en tres columnas con figura de equipo"
 description: "Sustituir la rejilla actual por tres columnas: figura humana con ocho huecos, mochila de ocho casillas y columna de cadáveres y suelo con scroll, con navegación por proximidad."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-018
 requirement_ids: [R-015, T-008]
 depends_on: [TASK-0099, TASK-0100]
 unlocks: [TASK-0102]
 created_at: 2026-11-14T00:20:17Z
-completed_at:
+completed_at: 2026-11-14T01:42:25Z
 assignee: task-runner
-attempts: 0
+attempts: 3
 artifacts: artifacts/TASK-0101/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T00:20:17Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T01:42:25Z
+    note: >-
+      Intentos 1 a 3 verificados (código `b692254`, `e94a56b` y `f11949c`;
+      artefactos `ed70125`, `f0607a1` y `80e5c5f`). El intento 1 se rechazó
+      porque `Tab` movía el foco sin actualizar la selección y dejaba la barra
+      de acciones y `aria-current` describiendo otro objeto; el intento 2 lo
+      corrigió pero dejó las acciones de equipo y mochila solo accesibles con
+      `.focus()` programático. El intento 3 añade una parada de acciones por
+      zona (`equipo → acciones → mochila → acciones → derecha → acciones →
+      cerrar`) y el E2E vuelve a llegar a todas las acciones con `Tab`, flechas
+      y `Enter` reales. Reejecutados `pnpm run verify` (1288/1288, build y
+      bundle) y `pnpm run test:e2e` (145/145) con timeouts de 120 s y 180 s, sin
+      procesos huérfanos; un primer pase completo falló en
+      `generated-map-qa.spec.ts` por una posición de enemigo ajena al panel, y
+      tanto el test aislado como la suite completa repitieron en verde. Diff
+      revisado: `index.html`, `src/host/inventory-navigation.ts`,
+      `inventory-panel.ts`, `inventory-panel-view.ts`, `ui.css`, tests y
+      artefactos; sin cambios en `src/game/**`, `src/host/main.ts`,
+      `package.json`, `pnpm-lock.yaml`, `docs/requirements/**`,
+      `docs/harness/**` ni `docs/templates/**`. Comprobados los criterios: tres
+      columnas de un tercio y modal solo sobre el mapa con ambos HUD, `I` y
+      `Escape`; ocho huecos absolutos con icono, nombre accesible y estado, y
+      vacíos visibles no seleccionables; ocho casillas de mochila sin stats ni
+      traits; derecha con cadáveres reservados vacíos y suelo siempre visible
+      con scroll propio; navegación N-001 a N-010 (N-011 queda para TASK-0102);
+      foco visible y conservado al reabrir y tras operar; scroll medido a
+      1280×720 (sin desbordes) y 900×700 (solo el suelo); operaciones con 1 MP,
+      rechazos sin mover nada y apertura/navegación sin coste; tests nuevos de
+      navegación, estructura y E2E de teclado, sin tests saltados ni foco
+      programático en los helpers. Desviaciones conocidas: la parada de
+      acciones por zona es el puente hasta el submenú de TASK-0102; los
+      cadáveres quedan reservados sin trasvase; a 900×700 algún nombre se
+      recorta visualmente pero conserva `aria-label` completo. Fricción de
+      artefactos por spec: `rejected` como cambio de arnés, porque
+      `tests/e2e/artifacts.ts` ya documenta la ruta por spec y la imprecisión
+      estaba en el brief; sin dueño pendiente.
 ---
 
 # Objetivo

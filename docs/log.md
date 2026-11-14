@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0101 — done: panel en tres columnas con figura de ocho huecos, mochila 2×4 y cadáveres/suelo con scroll; navegación espacial, foco coherente y parada de acciones por zona; verify 1288/1288 y E2E 145/145; fusión `8adbd00` — [informe](../artifacts/TASK-0101/attempt-3/report.md)
+
 * 2026-11-14 — Planning — TASK-0101 — in_progress: DoR cumplida; panel en tres columnas con figura de ocho huecos, mochila y cadáveres/suelo con scroll propio; navegación por proximidad — [TASK-0101](tasks/TASK-0101-panel-tres-columnas-figura.md)
 
 * 2026-11-14 — Planning — TASK-0101/0102 — backlog: panel en tres columnas con figura, mochila y columna de cadáveres/suelo con scroll y navegación por proximidad; ficha con dos bloques en el HUD derecho y submenú con `Enter` — [TASK-0101](tasks/TASK-0101-panel-tres-columnas-figura.md), [TASK-0102](tasks/TASK-0102-ficha-submenu-hud.md)
