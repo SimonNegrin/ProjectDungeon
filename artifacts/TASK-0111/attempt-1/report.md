@@ -36,7 +36,7 @@ ni paleta.
 | `pnpm run test:e2e` | 187 passed (1,6 min) | `e2e-output.txt` |
 | `hud-portrait-qa` focalizado | 4 passed; capturas con `E2E_ARTIFACTS_DIR` | `e2e/hud-portrait-qa/` |
 
-`docs:check` mantiene avisos históricos de tamaño; ningún fallo.
+`docs:check` solo emite avisos de tamaño (incluido este informe); ningún fallo.
 
 # Evidencia visual
 
@@ -73,6 +73,6 @@ ni paleta.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2539 |
-| `report_bytes` | 3276 |
+| `report_bytes` | 3290 |
 | `overflow` | `none` |
 | `criteria_failed` | `none` |
