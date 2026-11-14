@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **120**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **121**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -124,6 +124,11 @@ Total: **120**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 | [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `done` | REQ-022 | TASK-0105 | P2 |
+| [TASK-0121](TASK-0121-e2e-observer-cls-compartido.md) | E2E: observer de CLS compartido y alineado con P-006 | `ready` | REQ-033 | — | P2 |
+
+# ready
+
+* [TASK-0121 — E2E: observer de CLS compartido y alineado con P-006](TASK-0121-e2e-observer-cls-compartido.md)
 
 # blocked
 
