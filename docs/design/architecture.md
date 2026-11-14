@@ -221,8 +221,9 @@ exactamente en un sitio.
   la navegación por proximidad (`findNeighbor`, `nearestTo` y `cycleZone`).
 - **Ficha y submenú**: con el panel abierto, `src/host/hud-detail.ts` compone
   `buildPanelDetail` en dos bloques independientes —el objeto seleccionado y el
-  equipado en ese hueco, con stats, traits y descripción, o «Vacío»—, sin delta
-  numérico. `buildPanelMenu` publica las opciones del submenú
+  equipado en ese hueco, con sprite, stats verticales y traits solo si existen,
+  o «Vacío»—, sin descripciones ni delta numérico. `buildPanelMenu` publica las
+  opciones del submenú
   (`PanelMenuOption`) por contexto, con el coste de 1 MP anunciado, la opción
   deshabilitada con su motivo si falta MP y sin «recoger» con la mochila llena;
   `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este es el único
