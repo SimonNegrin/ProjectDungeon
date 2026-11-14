@@ -15,13 +15,16 @@ import {
 import { artifactPath } from './artifacts';
 import {
   expectDebug,
+  expectNoForbiddenShifts,
   openState,
   panelActionTestId,
   pressPanelAction,
   reachableVisibleTiles,
+  resetLayoutShifts,
   selectPanelRow,
   settle,
   snapshot,
+  startLayoutShiftAudit,
 } from './support';
 
 const SEED = 279837264;
@@ -886,103 +889,6 @@ function expectCursorTransitions(
 }
 
 /* -------------------------------- CLS --------------------------------- */
-
-async function startLayoutShiftAudit(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    interface ShiftSource {
-      label: string;
-      forbidden: boolean;
-    }
-    interface ShiftRecord {
-      value: number;
-      hadRecentInput: boolean;
-      forbidden: boolean;
-      sources: ShiftSource[];
-    }
-    const shifts: ShiftRecord[] = [];
-    (window as unknown as { __layoutShifts: ShiftRecord[] }).__layoutShifts = shifts;
-    const describe = (node: Element): string => {
-      const testId = node.getAttribute('data-testid');
-      return `${node.tagName.toLowerCase()}${testId ? `[${testId}]` : ''}${
-        node.classList.length > 0 ? `.${[...node.classList].join('.')}` : ''
-      }`;
-    };
-    if (typeof PerformanceObserver === 'undefined') return;
-    const observer = new PerformanceObserver((list) => {
-      for (const raw of list.getEntries()) {
-        const entry = raw as PerformanceEntry & {
-          value?: number;
-          hadRecentInput?: boolean;
-          sources?: ReadonlyArray<{ node?: Node | null }>;
-        };
-        const sources = (entry.sources ?? []).map((source) => {
-          const node = source.node;
-          if (!(node instanceof Element)) {
-            return { label: 'unknown', forbidden: false };
-          }
-          const forbidden =
-            node.getAttribute('data-testid') === 'frame' ||
-            Boolean(
-              node.closest(
-                '[data-testid="inventory-panel"], .inventory-panel-body, .inventory-columns, .inventory-column, .inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-              ),
-            );
-          return { label: describe(node), forbidden };
-        });
-        shifts.push({
-          value: entry.value ?? 0,
-          hadRecentInput: entry.hadRecentInput ?? false,
-          forbidden: sources.some((source) => source.forbidden),
-          sources,
-        });
-      }
-    });
-    observer.observe({ type: 'layout-shift', buffered: false });
-    (window as unknown as { __layoutObserver?: PerformanceObserver }).__layoutObserver =
-      observer;
-  });
-}
-
-async function readLayoutShifts(page: Page) {
-  return page.evaluate(
-    () =>
-      (
-        window as unknown as {
-          __layoutShifts: Array<{
-            value: number;
-            hadRecentInput: boolean;
-            forbidden: boolean;
-            sources: Array<{ label: string; forbidden: boolean }>;
-          }>;
-        }
-      ).__layoutShifts,
-  );
-}
-
-async function resetLayoutShifts(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts = (
-      window as unknown as {
-        __layoutShifts: Array<unknown>;
-      }
-    ).__layoutShifts;
-    if (shifts) shifts.length = 0;
-  });
-}
-
-async function expectNoForbiddenShifts(
-  page: Page,
-  label: string,
-): Promise<Awaited<ReturnType<typeof readLayoutShifts>>> {
-  await nextFrames(page);
-  const shifts = await readLayoutShifts(page);
-  const forbidden = shifts.filter((shift) => shift.forbidden);
-  expect(
-    forbidden,
-    `${label}: layout shifts de marco/panel/slots: ${JSON.stringify(forbidden)}`,
-  ).toEqual([]);
-  return shifts;
-}
 
 function expectRectEqual(actual: Rect, expected: Rect, label: string): void {
   for (const edge of ['left', 'top', 'right', 'bottom', 'width', 'height'] as const) {

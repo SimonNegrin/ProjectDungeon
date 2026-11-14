@@ -23,12 +23,15 @@ import {
 import { itemStats } from '../../src/host/hud-detail';
 import { artifactPath } from './artifacts';
 import {
+  expectNoForbiddenShifts,
   focusPanelAction,
   openState,
   panelActionTestId,
   pressPanelAction,
+  resetLayoutShifts,
   selectPanelRow,
   settle,
+  startLayoutShiftAudit,
 } from './support';
 
 const SEED = 279837264;
@@ -1068,89 +1071,6 @@ async function mapCursor(page: Page): Promise<MapCursor> {
       },
     };
   });
-}
-
-/* --------------------------------- CLS --------------------------------- */
-
-interface LayoutShiftRecord {
-  readonly value: number;
-  readonly forbidden: boolean;
-  readonly sources: readonly string[];
-}
-
-async function startLayoutShiftAudit(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts: LayoutShiftRecord[] = [];
-    (window as unknown as { __uiQaShifts: LayoutShiftRecord[] }).__uiQaShifts =
-      shifts;
-    if (typeof PerformanceObserver === 'undefined') return;
-    const describe = (node: Element): string => {
-      const testId = node.getAttribute('data-testid');
-      return `${node.tagName.toLowerCase()}${testId ? `[${testId}]` : ''}`;
-    };
-    const observer = new PerformanceObserver((list) => {
-      for (const raw of list.getEntries()) {
-        const entry = raw as PerformanceEntry & {
-          value?: number;
-          sources?: ReadonlyArray<{ node?: Node | null }>;
-        };
-        const sources = (entry.sources ?? []).map((source) => {
-          const node = source.node;
-          return node instanceof Element ? describe(node) : 'unknown';
-        });
-        const forbidden = (entry.sources ?? []).some((source) => {
-          const node = source.node;
-          if (!(node instanceof Element)) return false;
-          return (
-            node.matches(
-              '[data-testid="frame"], [data-testid="inventory-panel"], .inventory-panel-body, .inventory-columns, .inventory-column, .inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-            ) ||
-            Boolean(
-              node.closest(
-                '.inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-              ),
-            )
-          );
-        });
-        shifts.push({
-          value: entry.value ?? 0,
-          forbidden,
-          sources,
-        });
-      }
-    });
-    observer.observe({ type: 'layout-shift', buffered: false });
-    (window as unknown as { __uiQaObserver?: PerformanceObserver }).__uiQaObserver =
-      observer;
-  });
-}
-
-async function readLayoutShifts(page: Page): Promise<LayoutShiftRecord[]> {
-  return page.evaluate(
-    () =>
-      (window as unknown as { __uiQaShifts: LayoutShiftRecord[] }).__uiQaShifts,
-  );
-}
-
-async function resetLayoutShifts(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts = (window as unknown as { __uiQaShifts: LayoutShiftRecord[] })
-      .__uiQaShifts;
-    if (shifts) shifts.length = 0;
-  });
-}
-
-async function expectNoForbiddenShifts(
-  page: Page,
-  label: string,
-): Promise<LayoutShiftRecord[]> {
-  await nextFrames(page);
-  const shifts = await readLayoutShifts(page);
-  expect(
-    shifts.filter((shift) => shift.forbidden),
-    `${label}: layout shifts prohibidos`,
-  ).toEqual([]);
-  return shifts;
 }
 
 /* -------------------------------- TESTS -------------------------------- */

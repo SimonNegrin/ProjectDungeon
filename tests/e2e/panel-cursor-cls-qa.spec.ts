@@ -8,14 +8,17 @@ import { equipmentFromLegacy, inventoryFromIds } from '../../src/game/inventory'
 import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
+  expectNoForbiddenShifts,
   focusPanelAction,
   openState,
   panelActionTestId,
   pressPanelAction,
   reachableVisibleTiles,
+  resetLayoutShifts,
   selectPanelRow,
   settle,
   snapshot,
+  startLayoutShiftAudit,
 } from './support';
 
 const SEED = 279837264;
@@ -480,94 +483,6 @@ function expectPanelStable(before: Geometry, after: Geometry, label: string): vo
   });
 }
 
-interface LayoutShiftSource {
-  readonly label: string;
-  readonly forbidden: boolean;
-}
-
-interface LayoutShiftRecord {
-  readonly value: number;
-  readonly hadRecentInput: boolean;
-  readonly forbidden: boolean;
-  readonly sources: readonly LayoutShiftSource[];
-}
-
-async function startLayoutShiftAudit(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts: LayoutShiftRecord[] = [];
-    (window as unknown as { __layoutShifts: LayoutShiftRecord[] }).__layoutShifts =
-      shifts;
-    const describe = (node: Element): string => {
-      const testId = node.getAttribute('data-testid');
-      return `${node.tagName.toLowerCase()}${testId ? `[${testId}]` : ''}${
-        node.classList.length > 0 ? `.${[...node.classList].join('.')}` : ''
-      }`;
-    };
-    if (typeof PerformanceObserver === 'undefined') return;
-    const observer = new PerformanceObserver((list) => {
-      for (const raw of list.getEntries()) {
-        const entry = raw as PerformanceEntry & {
-          value?: number;
-          hadRecentInput?: boolean;
-          sources?: ReadonlyArray<{ node?: Node | null }>;
-        };
-        const sources = (entry.sources ?? []).map((source) => {
-          const node = source.node;
-          if (!(node instanceof Element)) {
-            return { label: 'unknown', forbidden: false };
-          }
-          // El presupuesto es 0 para el marco, el panel, sus columnas,
-          // títulos y slots de equipo/bolsa. Los cambios dentro de la ficha
-          // del HUD o del Suelo pertenecen a su propia zona (P-006).
-          const forbidden =
-            node.getAttribute('data-testid') === 'frame' ||
-            Boolean(
-              node.closest(
-                '[data-testid="inventory-panel"], .inventory-panel-body, .inventory-columns, .inventory-column, .inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-              ),
-            );
-          return { label: describe(node), forbidden };
-        });
-        shifts.push({
-          value: entry.value ?? 0,
-          hadRecentInput: entry.hadRecentInput ?? false,
-          forbidden: sources.some((source) => source.forbidden),
-          sources,
-        });
-      }
-    });
-    observer.observe({ type: 'layout-shift', buffered: false });
-    (window as unknown as { __layoutObserver?: PerformanceObserver })
-      .__layoutObserver = observer;
-  });
-}
-
-async function readLayoutShifts(page: Page): Promise<LayoutShiftRecord[]> {
-  return page.evaluate(
-    () =>
-      (window as unknown as { __layoutShifts: LayoutShiftRecord[] })
-        .__layoutShifts,
-  );
-}
-
-async function expectNoForbiddenShifts(
-  page: Page,
-  label: string,
-): Promise<LayoutShiftRecord[]> {
-  const shifts = await readLayoutShifts(page);
-  const forbidden = shifts.filter((shift) => shift.forbidden);
-  expect(forbidden, `${label}: layout shifts de marco/panel/slots`).toEqual([]);
-  return shifts;
-}
-
-async function resetLayoutShifts(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts = (window as unknown as { __layoutShifts: LayoutShiftRecord[] })
-      .__layoutShifts;
-    if (shifts) shifts.length = 0;
-  });
-}
-
 test('cursor superpuesto: marco, transición y foco real en el slot', async ({
   page,
 }, testInfo) => {
@@ -979,4 +894,38 @@ test('CLS: marco, panel, columnas, títulos y slots estables', async ({
     shifts: await expectNoForbiddenShifts(page, 'cambio de tile'),
   });
   await writeLog(testInfo, 'cls-geometry.json', log);
+});
+
+test('CLS: recoger los cuatro objetos del Suelo no desplaza el panel', async ({
+  page,
+}, testInfo) => {
+  await openScenario(
+    page,
+    { inventory: ['axe', 'dagger'], ground: FOUR_GROUND },
+    { width: 1280, height: 720 },
+  );
+  await openPanel(page);
+  const baseline = await panelGeometry(page);
+  await startLayoutShiftAudit(page);
+
+  const log: unknown[] = [];
+  for (let index = 0; index < FOUR_GROUND.length; index += 1) {
+    const key = `ground:item-test-ground-${index}`;
+    const phase = `recoger ${index + 1}`;
+    await resetLayoutShifts(page);
+    await pressPanelAction(page, panelActionTestId('pickup', key));
+    await settle(page);
+    const after = await panelGeometry(page);
+    expectPanelStable(baseline, after, phase);
+    log.push({
+      phase: `pickup-${index + 1}`,
+      shifts: await expectNoForbiddenShifts(page, phase),
+    });
+  }
+
+  await expect(
+    page.locator('.inventory-column-right [data-row-key^="ground:"]'),
+  ).toHaveCount(0);
+  await screenshot(page, 'cls-pickup-four-1280x720', testInfo);
+  await writeLog(testInfo, 'cls-pickup-four.json', log);
 });
