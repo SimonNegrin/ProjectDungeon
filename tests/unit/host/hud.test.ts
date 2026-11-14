@@ -17,6 +17,7 @@ import {
   type GameEvent,
 } from '../../../src/game/index';
 import type { GameState } from '../../../src/game/types';
+import type { ArchetypeId } from '../../../src/game/roster';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import { buildInventoryPanelModel } from '../../../src/host/inventory-panel';
 import type { CursorStatus } from '../../../src/host/cursor';
@@ -33,6 +34,19 @@ const PLAYER_CURSOR: CursorStatus = {
   withinMp: true,
   strongSteps: 0,
 };
+
+/** Recortes de `rogues.png` esperados para cada arquetipo (brief de TASK-0111). */
+const PORTRAIT_CASES: ReadonlyArray<readonly [ArchetypeId, number, number]> = [
+  ['warrior', 0, 32],
+  ['barbarian', 0, 96],
+  ['rogue', 96, 0],
+  ['archer', 64, 0],
+  ['mage', 32, 128],
+  ['cleric', 96, 64],
+  ['spellblade', 96, 96],
+  ['cook', 96, 160],
+  ['farmer', 0, 160],
+];
 
 function attack(state: GameState): GameState {
   return reduce(state, {
@@ -190,6 +204,70 @@ describe('modelo del HUD', () => {
     expect(
       buildHudModel(makeState({ players: [second, first] })).playerName,
     ).toBe('Boric');
+  });
+
+  it('deriva la miniatura del arquetipo del jugador activo', () => {
+    for (const [id, sx, sy] of PORTRAIT_CASES) {
+      const player = createPlayerFromArchetype(id, {
+        id: 'player-1',
+        position: { x: 4, y: 4 },
+      });
+      const model = buildHudModel(makeState({ players: [player] }));
+      expect(model.portrait, `recorte de ${id}`).toEqual({
+        sx,
+        sy,
+        sw: 32,
+        sh: 32,
+      });
+    }
+
+    // Los nueve recortes son distintos: ningún arquetipo comparte miniatura.
+    const positions = new Set(
+      PORTRAIT_CASES.map(([, sx, sy]) => `${sx},${sy}`),
+    );
+    expect(positions.size).toBe(PORTRAIT_CASES.length);
+
+    // La miniatura sigue al jugador activo de la lista, no a un índice fijo.
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+    const rogue = createPlayerFromArchetype('rogue', {
+      id: 'player-2',
+      position: { x: 5, y: 4 },
+    });
+    expect(
+      buildHudModel(makeState({ players: [warrior, rogue] })).portrait,
+    ).toMatchObject({ sx: 0, sy: 32 });
+    expect(
+      buildHudModel(makeState({ players: [rogue, warrior] })).portrait,
+    ).toMatchObject({ sx: 96, sy: 0 });
+  });
+
+  it('deja la miniatura nula sin jugador o sin arquetipo conocido', () => {
+    expect(buildHudModel(makeState({ players: [] })).portrait).toBeNull();
+
+    const synthetic = makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x: 4,
+      y: 4,
+    });
+    expect(synthetic.archetypeId).toBeNull();
+    expect(
+      buildHudModel(makeState({ players: [synthetic] })).portrait,
+    ).toBeNull();
+
+    const unknown = {
+      ...createPlayerFromArchetype('warrior', {
+        id: 'player-1',
+        position: { x: 4, y: 4 },
+      }),
+      archetypeId: 'unknown' as ArchetypeId,
+    };
+    expect(
+      buildHudModel(makeState({ players: [unknown] })).portrait,
+    ).toBeNull();
   });
 
   it('la ayuda estática de index.html coincide con las teclas nuevas', () => {

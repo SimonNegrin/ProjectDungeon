@@ -1,5 +1,6 @@
 import { EQUIPMENT_SLOTS, ITEMS, type ItemSpriteRect } from '../game/equipment';
 import { backpackCount, type ItemInstance } from '../game/inventory';
+import type { ArchetypeId } from '../game/roster';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { alarmRadius, visionRadius } from '../game/perception';
 import { effectiveStats } from '../game/stats';
@@ -11,6 +12,7 @@ import {
   type Room,
 } from '../game/map';
 import type { Camera, CameraBounds } from './camera';
+import type { SpriteRect } from './assets';
 import type { CursorState, CursorStatus } from './cursor';
 import { DAMAGE_TYPES, formatProfile, type BandRow } from './damage-labels';
 import {
@@ -52,11 +54,31 @@ export interface HudWeapon {
   readonly sprite: ItemSpriteRect;
 }
 
+/**
+ * Recorte de `rogues.png` de la miniatura del HUD: celda de 32×32 sobre la
+ * rejilla de 7×7. La hoja se pinta a 448 px lógicos (2× el arte), así que la
+ * vista duplica la posición del recorte. Solo lectura: el catálogo del roster
+ * decide el arquetipo y el host su sprite.
+ */
+export const PORTRAIT_RECTS: Readonly<Record<ArchetypeId, SpriteRect>> = {
+  warrior: { sx: 0, sy: 32, sw: 32, sh: 32 },
+  barbarian: { sx: 0, sy: 96, sw: 32, sh: 32 },
+  rogue: { sx: 96, sy: 0, sw: 32, sh: 32 },
+  archer: { sx: 64, sy: 0, sw: 32, sh: 32 },
+  mage: { sx: 32, sy: 128, sw: 32, sh: 32 },
+  cleric: { sx: 96, sy: 64, sw: 32, sh: 32 },
+  spellblade: { sx: 96, sy: 96, sw: 32, sh: 32 },
+  cook: { sx: 96, sy: 160, sw: 32, sh: 32 },
+  farmer: { sx: 0, sy: 160, sw: 32, sh: 32 },
+};
+
 export interface HudModel {
   /** Nombre de instancia del jugador. */
   readonly playerName: string;
   /** Nombre del arquetipo del jugador; `—` si no tiene. */
   readonly archetype: string;
+  /** Recorte de `rogues.png` del arquetipo activo; `null` sin jugador. */
+  readonly portrait: SpriteRect | null;
   readonly playerHp: string;
   readonly playerMp: string;
   /** Nivel de magia único del jugador (REQ-025 R-011). */
@@ -169,6 +191,13 @@ function hudWeapon(unit: Unit | undefined): HudWeapon | null {
   };
 }
 
+/** Recorte de la miniatura derivado del arquetipo; `null` sin jugador o sin mapa. */
+function portraitRect(player: Unit | undefined): SpriteRect | null {
+  const id = player?.archetypeId;
+  if (!id) return null;
+  return PORTRAIT_RECTS[id] ?? null;
+}
+
 /** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
 export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = state.players[0];
@@ -185,6 +214,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   return {
     playerName: player?.nombre ?? '—',
     archetype: archetypeLabel(player),
+    portrait: portraitRect(player),
     playerHp: formatHp(player),
     playerMp: formatMp(player),
     playerMagic: formatMagic(player),
@@ -648,10 +678,30 @@ function renderSprite(
   element.style.backgroundPosition = `calc(var(--ui-scale) * ${-sprite.x}px) calc(var(--ui-scale) * ${-sprite.y}px)`;
 }
 
+/**
+ * Miniatura del jugador activo. La hoja se pinta al doble (448 sobre 224), de
+ * modo que el recorte de 32 px avanza 64 px; se usa `--ui-scale` igual que el
+ * sprite del arma para no duplicar la escala publicada por el host.
+ */
+function renderPortrait(
+  element: HTMLElement,
+  portrait: SpriteRect | null,
+): void {
+  element.hidden = portrait === null;
+  if (portrait === null) {
+    element.style.removeProperty('background-position');
+    return;
+  }
+  const x = portrait.sx * 2;
+  const y = portrait.sy * 2;
+  element.style.backgroundPosition = `calc(var(--ui-scale) * ${-x}px) calc(var(--ui-scale) * ${-y}px)`;
+}
+
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
   const playerName = requireElement(root, 'hud-player-name');
   const archetype = requireElement(root, 'hud-archetype');
+  const portrait = requireElement(root, 'hud-portrait');
   const playerHp = requireElement(root, 'hud-player-hp');
   const playerMp = requireElement(root, 'hud-player-mp');
   const playerMagic = requireElement(root, 'hud-player-magic');
@@ -778,6 +828,7 @@ export function createHudView(root: ParentNode): HudView {
       const model = buildHudModel(state, cursor);
       playerName.textContent = model.playerName;
       archetype.textContent = model.archetype;
+      renderPortrait(portrait, model.portrait);
       playerHp.textContent = model.playerHp;
       playerMp.textContent = model.playerMp;
       playerMagic.textContent = model.playerMagic;

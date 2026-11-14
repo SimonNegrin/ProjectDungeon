@@ -1,0 +1,123 @@
+{
+  "viewport": "1280x720",
+  "scale": 1.6009615384615385,
+  "samples": {
+    "warrior": {
+      "name": "Guerrero",
+      "archetype": "Guerrero",
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundSize": {
+        "x": 448.00014414414414,
+        "y": 448.00014414414414
+      },
+      "imageRendering": "pixelated",
+      "scale": 1.6009615384615385,
+      "position": {
+        "x": 0,
+        "y": -64.00028828828829
+      },
+      "box": {
+        "x": 75.59375,
+        "y": 40.390625,
+        "width": 102.453125,
+        "height": 102.453125,
+        "right": 178.046875,
+        "bottom": 142.84375
+      },
+      "nameBox": {
+        "x": 187.640625,
+        "y": 40.390625,
+        "width": 91.765625,
+        "height": 21.515625,
+        "right": 279.40625,
+        "bottom": 61.90625
+      },
+      "character": {
+        "x": 65,
+        "y": 29.796875,
+        "width": 225,
+        "height": 123.640625,
+        "right": 290,
+        "bottom": 153.4375
+      }
+    },
+    "mage": {
+      "name": "Mago",
+      "archetype": "Mago",
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundSize": {
+        "x": 448.00014414414414,
+        "y": 448.00014414414414
+      },
+      "imageRendering": "pixelated",
+      "scale": 1.6009615384615385,
+      "position": {
+        "x": -64.00028828828829,
+        "y": -255.99990390390388
+      },
+      "box": {
+        "x": 75.59375,
+        "y": 40.390625,
+        "width": 102.453125,
+        "height": 102.453125,
+        "right": 178.046875,
+        "bottom": 142.84375
+      },
+      "nameBox": {
+        "x": 187.640625,
+        "y": 40.390625,
+        "width": 91.765625,
+        "height": 21.515625,
+        "right": 279.40625,
+        "bottom": 61.90625
+      },
+      "character": {
+        "x": 65,
+        "y": 29.796875,
+        "width": 225,
+        "height": 123.640625,
+        "right": 290,
+        "bottom": 153.4375
+      }
+    },
+    "rogue": {
+      "name": "Pícaro",
+      "archetype": "Pícaro",
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundSize": {
+        "x": 448.00014414414414,
+        "y": 448.00014414414414
+      },
+      "imageRendering": "pixelated",
+      "scale": 1.6009615384615385,
+      "position": {
+        "x": -192.00024024024023,
+        "y": 0
+      },
+      "box": {
+        "x": 75.59375,
+        "y": 40.390625,
+        "width": 102.453125,
+        "height": 102.453125,
+        "right": 178.046875,
+        "bottom": 142.84375
+      },
+      "nameBox": {
+        "x": 187.640625,
+        "y": 40.390625,
+        "width": 91.765625,
+        "height": 21.515625,
+        "right": 279.40625,
+        "bottom": 61.90625
+      },
+      "character": {
+        "x": 65,
+        "y": 29.796875,
+        "width": 225,
+        "height": 123.640625,
+        "right": 290,
+        "bottom": 153.4375
+      }
+    }
+  }
+}
