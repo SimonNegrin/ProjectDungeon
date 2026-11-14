@@ -66,7 +66,7 @@ No apareció el flake de EXP-004; no hizo falta `VITEST_MAX_WORKERS=2`.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El brief pide capturar traits, pero el catálogo exige `traits: []` y el validador los rechaza. | `src/game/equipment.ts:384`; fixture del E2E | Inyectar un trait en runtime y restaurarlo | Toda verificación de traits o pasivos chocará con el catálogo vacío | Documentar el fixture o eximir la captura | Bajo; solo test | `pending` |
+| El brief pide capturar traits, pero el catálogo exige `traits: []` y el validador los rechaza. | `src/game/equipment.ts:384`; fixture del E2E | Inyectar un trait en runtime y restaurarlo | Toda verificación de traits o pasivos chocará con el catálogo vacío | Documentar el fixture o eximir la captura | Bajo; solo test | `deferred (harness-keeper)` |
 
 # Métricas de handoff
 

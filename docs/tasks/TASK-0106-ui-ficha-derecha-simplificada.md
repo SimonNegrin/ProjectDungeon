@@ -39,7 +39,7 @@ verified:
       tareas 0107-0110. Las aserciones retiradas se sustituyeron por ausencia y
       cobertura equivalente, sin debilitar tests. Capturas revisadas a 900×700 y
       1280×720. La fricción del catálogo sin traits queda `deferred` a
-      `requirements-writer`/`harness-keeper` por ser un fixture de test.
+      `harness-keeper` por ser un fixture de test.
 ---
 
 # Objetivo
