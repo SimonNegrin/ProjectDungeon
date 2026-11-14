@@ -125,6 +125,13 @@ async function activeZone(page: Page): Promise<string | null> {
   });
 }
 
+/** Coherencia N-010: si el foco cae en un objeto, ese objeto es el seleccionado. */
+async function expectFocusMatchesSelection(page: Page): Promise<void> {
+  const focused = await activeKey(page);
+  if (focused === null) return;
+  expect(await selectedKey(page)).toBe(focused);
+}
+
 interface ScrollMetrics {
   readonly panel: { scrollHeight: number; clientHeight: number; scrollWidth: number; clientWidth: number };
   readonly body: { scrollHeight: number; clientHeight: number; scrollWidth: number; clientWidth: number } | null;
@@ -305,6 +312,7 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
   const zones: string[] = [(await activeZone(page)) ?? ''];
   for (let press = 0; press < 12; press += 1) {
     await page.keyboard.press('Tab');
+    await expectFocusMatchesSelection(page);
     const zone = (await activeZone(page)) ?? '';
     if (zone !== zones[zones.length - 1]) zones.push(zone);
   }
@@ -317,9 +325,9 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
     'backpack',
   ]);
 
-  const kept = await selectPanelRow(page, 'backpack:1');
-  expect(kept).toBeUndefined();
+  await selectPanelRow(page, 'backpack:1');
   expect(await selectedKey(page)).toBe('backpack:1');
+  await expectFocusMatchesSelection(page);
   await page.keyboard.press('Escape');
   await page.keyboard.press('i');
   await expect(page.getByTestId('inventory-panel')).toBeVisible();
@@ -348,20 +356,28 @@ test('Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar', 
   expect(rowsAfterPickup.some((row) => row.key === key)).toBe(true);
   expect(await activeKey(page)).toBe(key);
 
-  // Cada zona conserva su último objeto al volver con Tab.
+  // Memoria por zona no vacua: cambia de objeto en mochila, salta a la derecha,
+  // cambia de objeto allí y vuelve con Shift+Tab/Tab. Foco y selección deben
+  // regresar al recordado de cada zona, no al primero ni al último global.
   await selectPanelRow(page, 'backpack:1');
+  expect(await selectedKey(page)).toBe('backpack:1');
   await page.keyboard.press('Tab');
   expect(await activeZone(page)).toBe('right');
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('actions');
-  for (let press = 0; press < 6 && (await activeZone(page)) !== 'close'; press += 1) {
-    await page.keyboard.press('Tab');
-  }
-  expect(await activeZone(page)).toBe('close');
-  await page.keyboard.press('Tab');
-  expect(await activeZone(page)).toBe('equipment');
-  await page.keyboard.press('Tab');
+  await expectFocusMatchesSelection(page);
+
+  await selectPanelRow(page, 'ground:item-test-ground-1');
+  expect(await selectedKey(page)).toBe('ground:item-test-ground-1');
+  await expectFocusMatchesSelection(page);
+
+  await page.keyboard.press('Shift+Tab');
+  expect(await activeZone(page)).toBe('backpack');
   expect(await selectedKey(page)).toBe('backpack:1');
+  expect(await activeKey(page)).toBe('backpack:1');
+
+  await page.keyboard.press('Tab');
+  expect(await activeZone(page)).toBe('right');
+  expect(await selectedKey(page)).toBe('ground:item-test-ground-1');
+  expect(await activeKey(page)).toBe('ground:item-test-ground-1');
 });
 
 test('scroll: a 1280×720 nada desborda; a 900×700 solo el suelo se desplaza', async ({

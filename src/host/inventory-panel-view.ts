@@ -390,13 +390,10 @@ export function createInventoryPanelView(
       zoneCells.find((cell) => cell.key === remembered) ??
       firstInReadingOrder(zoneCells);
     if (!target) return;
-    // `Tab` recorre zonas: enfoca el objeto recordado sin cambiar la selección,
-    // que solo mueven las flechas o la regla de foco tras una operación.
-    const view = cellView(target.key);
-    if (view) {
-      zoneLastKey.set(zone, target.key);
-      focusRow(view);
-    }
+    // `Tab` salta de zona, no recorre objetos: al entrar se selecciona el
+    // recordado (o el primero por lectura) para que foco, `aria-current`,
+    // barra de acciones y detalle describan siempre el mismo objeto.
+    selectByKey(target.key, true);
   };
 
   const handleTab = (event: KeyboardEvent): void => {

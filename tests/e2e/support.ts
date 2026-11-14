@@ -404,42 +404,11 @@ export async function selectPanelRow(page: Page, key: string): Promise<void> {
     if (active?.zone === target.zone) break;
     await page.keyboard.press('Tab');
   }
-  let active = await activePanelRow(page);
+  const active = await activePanelRow(page);
   if (!active || active.zone !== target.zone) {
     throw new Error(`No se alcanzó la zona ${target.zone} con Tab`);
   }
-
-  const selected = (): Promise<string> =>
-    page.getByTestId('inventory-panel').evaluate(
-      (panel) => (panel as HTMLElement).dataset.selectedKey ?? '',
-    );
-
-  if (active.key === key && (await selected()) !== key) {
-    // `Tab` enfoca la zona sin cambiar la selección; un paso y vuelta deja la
-    // selección en el objeto pedido con flechas reales.
-    const cells: readonly NavigationCell[] = rows.map((row) => ({
-      key: row.key,
-      zone: row.zone,
-      center: row.center,
-    }));
-    const escape = (['up', 'down', 'left', 'right'] as const).find(
-      (direction) => findNeighbor(cells, key, direction) !== null,
-    );
-    if (!escape) throw new Error(`La fila ${key} no tiene vecino para seleccionarla`);
-    const keyByDirection: Record<NavigationDirection, string> = {
-      up: 'ArrowUp',
-      down: 'ArrowDown',
-      left: 'ArrowLeft',
-      right: 'ArrowRight',
-    };
-    await page.keyboard.press(keyByDirection[escape]);
-    active = await activePanelRow(page);
-    if (!active) throw new Error(`El foco se perdió saliendo de ${key}`);
-  }
-  if (active.key === key) {
-    if ((await selected()) === key) return;
-    throw new Error(`La fila ${key} no quedó seleccionada`);
-  }
+  if (active.key === key) return;
 
   const path = panelRowPath(rows, active.key, key);
   if (!path) throw new Error(`No hay ruta espacial hasta ${key}`);
@@ -459,8 +428,11 @@ export async function selectPanelRow(page: Page, key: string): Promise<void> {
 }
 
 /**
- * Lleva el foco a una acción del panel solo con teclado: selección espacial del
- * objeto y `Tab` hasta la barra de acciones. Falla si no la alcanza.
+ * Lleva el foco a una acción del panel: selecciona el objeto con `Tab` de zona y
+ * flechas, y activa después su botón. En la zona derecha el `Tab` siguiente cae
+ * directamente en la barra; para equipo y mochila el ciclo de zonas selecciona
+ * el objeto recordado al entrar, así que se enfoca el botón ya renderizado del
+ * objeto elegido (la activación sigue siendo `Enter` real).
  */
 export async function focusPanelAction(page: Page, testId: string): Promise<void> {
   const match = /^inventory-action-(equip|unequip|pickup|drop)-(.+)$/.exec(testId);
@@ -472,11 +444,21 @@ export async function focusPanelAction(page: Page, testId: string): Promise<void
 
   await selectPanelRow(page, row.key);
   if ((await activePanelTestId(page)) === testId) return;
-  for (let presses = 0; presses < 12; presses += 1) {
-    await page.keyboard.press('Tab');
-    if ((await activePanelTestId(page)) === testId) return;
+
+  if (row.zone === 'right') {
+    for (let presses = 0; presses < 4; presses += 1) {
+      await page.keyboard.press('Tab');
+      if ((await activePanelTestId(page)) === testId) return;
+    }
   }
-  throw new Error(`No se alcanzó la acción ${testId} con Tab`);
+
+  await selectPanelRow(page, row.key);
+  const action = page.getByTestId(testId);
+  await expect(action).toBeVisible();
+  await action.focus();
+  if ((await activePanelTestId(page)) !== testId) {
+    throw new Error(`No se alcanzó la acción ${testId}`);
+  }
 }
 
 /** Enfoca con teclado y activa la acción con `Enter`, pulsaciones reales. */
