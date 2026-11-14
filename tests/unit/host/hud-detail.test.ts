@@ -10,6 +10,7 @@ import {
   buildCursorDetail,
   buildPanelDetail,
   cursorVisible,
+  itemStats,
   traitsLabel,
 } from '../../../src/host/hud-detail';
 import { makeGridWithWalls, makeState, makeUnit } from '../game/helpers';
@@ -48,7 +49,9 @@ describe('detalle bajo el cursor por tipo', () => {
 
     expect(detail.kind).toBe('enemy');
     expect(detail.title).toBe(BESTIARY.sentinel.name);
-    expect(detail.subtitle).toBe('Enemigo');
+    // Un único indicador: el tipo no se repite en un subtítulo.
+    expect('subtitle' in detail).toBe(false);
+    expect(JSON.stringify(detail)).not.toContain('"Enemigo"');
     expect(detail.rows.map((row) => row.id)).toEqual([
       'arma',
       'escudo',
@@ -111,7 +114,11 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(detail.rows.find((row) => row.id === 'arma')?.value).toContain(
       'Espada',
     );
+    expect(detail.stats).toEqual([]);
+    expect(detail.sprite).toBeNull();
     expect(JSON.stringify(detail)).not.toMatch(/mochila|inventario/i);
+    // El tipo ya no se repite en eyebrow/título/subtítulo.
+    expect(JSON.stringify(detail)).not.toContain('"Aliado"');
   });
 
   it('en fantasma, el aliado muestra estado y MP sin equipo ni inventario', () => {
@@ -141,7 +148,7 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(JSON.stringify(detail)).not.toMatch(/mochila/i);
   });
 
-  it('describe un objeto del suelo por su nombre sin inventar cantidad', () => {
+  it('describe un objeto del suelo con sprite y stats verticales, sin descripción', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
       groundItems: [{ id: 'item-1', itemId: 'axe', x: 6, y: 5 }],
@@ -150,8 +157,15 @@ describe('detalle bajo el cursor por tipo', () => {
     const detail = buildCursorDetail(state, { x: 6, y: 5 });
     expect(detail.kind).toBe('item');
     expect(detail.title).toBe('Hacha');
-    expect(detail.subtitle).toBe('Objeto en el suelo');
+    expect('subtitle' in detail).toBe(false);
     expect(detail.rows.map((row) => row.id)).toEqual(['ubicacion']);
+    expect(detail.sprite).toEqual(ITEMS.axe.sprite.rect);
+    expect(detail.stats).toEqual([
+      { id: 'acierto', label: 'Acierto', value: '+2' },
+      { id: 'dano', label: 'Daño', value: '+5' },
+    ]);
+    expect(detail.traits).toEqual([]);
+    expect(JSON.stringify(detail)).not.toContain(ITEMS.axe.description);
     expect(JSON.stringify(detail)).not.toMatch(/cantidad|x1|×1|\d+\s*ud/i);
   });
 
@@ -196,7 +210,7 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(detail.rows).toEqual([{ id: 'sala', label: 'Sala', value: '1' }]);
   });
 
-  it('describe suelo y muro cuando la casilla está vacía', () => {
+  it('describe suelo y muro cuando la casilla está vacía, sin repetir el título', () => {
     const floor = buildCursorDetail(
       makeState({
         players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
@@ -205,7 +219,7 @@ describe('detalle bajo el cursor por tipo', () => {
     );
     expect(floor.kind).toBe('terrain');
     expect(floor.title).toBe('Suelo');
-    expect(floor.rows[0]?.value).toBe('Suelo');
+    expect(floor.rows).toEqual([]);
 
     const wallState = makeState({
       grid: makeGridWithWalls([{ x: 6, y: 5 }]),
@@ -214,6 +228,7 @@ describe('detalle bajo el cursor por tipo', () => {
     const wall = buildCursorDetail(wallState, { x: 6, y: 5 });
     expect(wall.kind).toBe('terrain');
     expect(wall.title).toBe('Muro');
+    expect(wall.rows).toEqual([]);
   });
 
   it('da prioridad a la entrada y la salida sobre suelo o muro', () => {
@@ -224,6 +239,7 @@ describe('detalle bajo el cursor por tipo', () => {
       { entrance: { roomId: 1, position: { x: 6, y: 5 } } },
     );
     expect(buildCursorDetail(entrance, { x: 6, y: 5 }).title).toBe('Entrada');
+    expect(buildCursorDetail(entrance, { x: 6, y: 5 }).rows).toEqual([]);
 
     const grid = makeGridWithWalls([{ x: 6, y: 5 }]);
     const exit = withMap(
@@ -288,6 +304,9 @@ describe('detalle bajo el cursor por tipo', () => {
       kind: 'unknown',
       title: 'Desconocido',
       rows: [],
+      stats: [],
+      traits: [],
+      sprite: null,
       bands: null,
     });
     expect(JSON.stringify(detail)).not.toContain('Oculto');
@@ -319,6 +338,19 @@ describe('detalle bajo el cursor por tipo', () => {
     const state = makeState();
     expect(traitsLabel(state.players[0])).toBeNull();
     expect(traitsLabel(undefined)).toBeNull();
+  });
+
+  it('compone una fila por stat con el valor delante del nombre', () => {
+    expect(itemStats(ITEMS.sword).map((stat) => `${stat.value} ${stat.label}`)).toEqual([
+      '+3 Acierto',
+      '+3 Daño',
+    ]);
+    expect(itemStats(ITEMS.armor).map((stat) => `${stat.value} ${stat.label}`)).toEqual([
+      '+1 Absorción',
+    ]);
+    expect(itemStats(ITEMS.shield).map((stat) => `${stat.value} ${stat.label}`)).toEqual([
+      '+1 Defensa',
+    ]);
   });
 });
 
@@ -352,29 +384,37 @@ describe('ficha de dos bloques con el panel abierto', () => {
     const [selected, equipped] = detail.blocks;
     expect(selected).toMatchObject({
       id: 'selected',
+      label: null,
       title: ITEMS.axe.name,
-      subtitle: 'En mochila',
       empty: false,
     });
-    expect(selected.rows.find((row) => row.id === 'stats')?.value).toContain(
-      'acierto',
-    );
-    expect(selected.traits).toBe('Sin traits activos');
-    expect(selected.description).toBe(ITEMS.axe.description);
+    expect(selected.stats).toEqual([
+      { id: 'acierto', label: 'Acierto', value: '+2' },
+      { id: 'dano', label: 'Daño', value: '+5' },
+    ]);
+    expect(selected.traits).toEqual([]);
+    expect(selected.sprite).toEqual(ITEMS.axe.sprite.rect);
+    expect(JSON.stringify(detail)).not.toContain(ITEMS.axe.description);
 
     expect(equipped).toMatchObject({
       id: 'equipped',
+      label: 'Equipado',
       title: ITEMS.sword.name,
-      subtitle: 'Equipado · Arma',
       empty: false,
     });
-    expect(equipped.description).toBe(ITEMS.sword.description);
+    expect(equipped.stats).toEqual([
+      { id: 'acierto', label: 'Acierto', value: '+3' },
+      { id: 'dano', label: 'Daño', value: '+3' },
+    ]);
+    expect(equipped.sprite).toEqual(ITEMS.sword.sprite.rect);
+    expect(JSON.stringify(detail)).not.toContain(ITEMS.sword.description);
+    expect(JSON.stringify(detail)).not.toContain('Seleccionado');
     // Sin comparación ni delta: no hay filas antes/después.
     const serialized = JSON.stringify(detail);
     expect(serialized).not.toMatch(/before|after|antes|después/);
   });
 
-  it('el bloque equipado dice «Vacío» y no inventa filas cuando el hueco está libre', () => {
+  it('el bloque equipado dice «Vacío» y no inventa sprite, stats ni traits', () => {
     const detail = buildPanelDetail(panelState(), {
       key: 'ground:ground-plate',
       itemId: 'plate',
@@ -382,12 +422,20 @@ describe('ficha de dos bloques con el panel abierto', () => {
       zone: 'right',
     });
 
-    expect(detail.blocks[0].subtitle).toBe('En el suelo');
+    expect(detail.blocks[0]).toMatchObject({
+      id: 'selected',
+      label: null,
+      title: ITEMS.plate.name,
+      empty: false,
+    });
+    expect(detail.blocks[0].sprite).toEqual(ITEMS.plate.sprite.rect);
     expect(detail.blocks[1]).toMatchObject({
       id: 'equipped',
+      label: 'Equipado',
       title: 'Vacío',
-      subtitle: 'Equipado · Armadura',
-      rows: [],
+      stats: [],
+      traits: [],
+      sprite: null,
       empty: true,
     });
   });
@@ -400,10 +448,31 @@ describe('ficha de dos bloques con el panel abierto', () => {
       zone: 'equipment',
     });
 
-    expect(detail.blocks[0].subtitle).toBe('Equipado');
+    expect(detail.blocks[0].label).toBeNull();
+    expect(detail.blocks[1].label).toBe('Equipado');
     expect(detail.blocks[0].title).toBe(ITEMS.sword.name);
     expect(detail.blocks[1].title).toBe(ITEMS.sword.name);
-    expect(detail.blocks[0].rows).toEqual(detail.blocks[1].rows);
+    expect(detail.blocks[0].stats).toEqual(detail.blocks[1].stats);
+  });
+
+  it('los traits se muestran solo cuando el catálogo los declara', () => {
+    const definition = ITEMS.axe as unknown as {
+      traits: readonly { id: string; description: string }[];
+    };
+    const original = definition.traits;
+    try {
+      definition.traits = [{ id: 'filoso', description: 'Corta más' }];
+      const detail = buildPanelDetail(panelState(), {
+        key: 'backpack:0',
+        itemId: 'axe',
+        instanceId: 'item-player-1-backpack-0',
+        zone: 'backpack',
+      });
+      expect(detail.blocks[0].traits).toEqual(['filoso: Corta más']);
+      expect(detail.blocks[0].stats).toHaveLength(2);
+    } finally {
+      definition.traits = original;
+    }
   });
 
   it('no altera el detalle del cursor', () => {
