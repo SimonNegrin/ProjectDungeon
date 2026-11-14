@@ -3,20 +3,22 @@ type: Requirement Sheet
 id: REQ-023
 title: HUD derecho de detalle bajo el cursor
 description: "Columna derecha del marco con las stats exactas de la unidad, objeto, contenedor o puerta bajo el cursor, limitadas a la línea de visión de un jugador vivo."
-status: draft
-version: 2
+status: stable
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:05:00Z
-updated_at: 2026-11-13T23:44:56Z
-related_tasks: []
+updated_at: 2026-11-14T00:20:17Z
+related_tasks: [TASK-0100]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:05:00Z }
 verified:
   - by: human:simon
-    at: 2026-11-13T23:44:56Z
+    at: 2026-11-14T00:20:17Z
     note: >-
-      Aprueba la v2: el HUD derecho muestra el detalle del cursor y, con el panel
-      abierto, el objeto seleccionado junto al equipado en ese hueco, sin delta.
+      Aprueba la v3: detalle completo de lo que existe hoy (unidades, objetos,
+      terreno, puertas y «desconocido»), stats en números, del enemigo arma,
+      escudo y armadura, del aliado sin inventario y actualización por tile; los
+      cofres llegan cuando REQ-020 los coloque.
 ---
 
 # Contexto
@@ -121,12 +123,8 @@ columna izquierda ni cambia el mapa.
 
 # Preguntas abiertas
 
-1. **Formato de las stats.** ¿Números, barras o ambos? ¿PV actual/máximo?
-2. **Equipo del enemigo.** ¿Se listan todas las piezas o solo arma y armadura?
-3. **Aliados.** ¿Se muestra su inventario o solo stats y estado?
-4. **Puertas.** ¿Se distingue la zona o el estilo, o solo «puerta»?
-5. **Casilla vacía.** ¿El panel se queda vacío o describe siempre el terreno?
-6. **Rendimiento del cursor.** ¿Actualización por tile o solo al detenerse?
+Ninguna. El formato es numérico; los cofres y contenedores aparecen cuando
+[REQ-020](REQ-020-cofres-saqueo.md) los coloque en el mundo.
 
 # Decisiones
 
@@ -137,6 +135,12 @@ columna izquierda ni cambia el mapa.
 | 2026-11-11 | Las stats exactas exigen línea de visión de un jugador vivo; sin ella, «desconocido». | human:simon | aceptada |
 | 2026-11-11 | Un cofre cerrado muestra estado y tipo, nunca contenido ni trampa. | human:simon | aceptada |
 | 2026-11-13 | Con el panel abierto, el HUD derecho muestra el seleccionado y el equipado en ese hueco, sin delta; al cerrar vuelve al cursor. | human:simon | aceptada |
+| 2026-11-14 | Stats en números (PV actual/máximo incluidos), sin barras. | human:simon | aceptada |
+| 2026-11-14 | Del enemigo se listan arma, escudo y armadura; no el resto de piezas. | human:simon | aceptada |
+| 2026-11-14 | Del aliado se muestran stats y estado, nunca inventario. | human:simon | aceptada |
+| 2026-11-14 | La puerta se describe por tipo y zona si el dato existe; si no, «puerta». | human:simon | aceptada |
+| 2026-11-14 | La casilla vacía describe siempre el terreno. | human:simon | aceptada |
+| 2026-11-14 | La consulta se actualiza por tile; sin esperas al detenerse. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

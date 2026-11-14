@@ -3,22 +3,22 @@ type: Requirement Sheet
 id: REQ-022
 title: HUD izquierdo del jugador activo
 description: "Columna izquierda del marco 16:9 con la ficha del jugador activo: nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná cuando el personaje lo tenga; inventario y equipo se consultan en el panel con I."
-status: draft
-version: 2
+status: stable
+version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:00:00Z
-updated_at: 2026-11-13T23:54:32Z
-related_tasks: []
+updated_at: 2026-11-14T00:20:17Z
+related_tasks: [TASK-0100]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:00:00Z }
 verified:
   - by: human:simon
-    at: 2026-11-13T23:54:32Z
+    at: 2026-11-14T00:20:17Z
     note: >-
-      Aprueba la v2: la columna muestra nombre, arquetipo, PV, MP, acciones,
-      atributos con efecto, traits activos y maná actual/máximo solo cuando el
-      personaje lo necesita; inventario y equipo se consultan en el panel con
-      `I`. El retrato sigue abierto.
+      Aprueba la v3: la columna muestra nombre, arquetipo, PV, MP, acciones,
+      atributos con efecto, traits activos y maná solo cuando el personaje lo
+      necesita; el retrato es la miniatura del sprite; inventario y equipo se
+      consultan en el panel con `I`.
 ---
 
 # Contexto
@@ -66,7 +66,7 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 | ID | Requisito | Aceptación |
 |---|---|---|
 | R-001 | El HUD del jugador vive en la columna izquierda del marco 16:9 y sustituye al HUD exterior. | No queda HUD de juego fuera del marco; la columna izquierda muestra al jugador activo. |
-| R-002 | La columna muestra el nombre y el arquetipo del jugador activo, con miniatura o retrato cuando se decida su forma. | Al cambiar de jugador activo, nombre y arquetipo cambian en el mismo turno. |
+| R-002 | La columna muestra el nombre y el arquetipo del jugador activo, con una **miniatura del sprite del personaje** del pack a píxel entero. | Al cambiar de jugador activo, miniatura, nombre y arquetipo cambian en el mismo turno; el sprite no se ve borroso ni interpolado. |
 | R-003 | La columna muestra PV, MP, **acciones restantes**, los atributos con efecto vigente y los **traits activos** del personaje. Muestra **maná actual/máximo** solo cuando el personaje tiene maná (máximo mayor que cero); si no, la línea se omite sin dejar hueco. | Los valores coinciden con el estado del motor; los traits activos y sus suelos se leen sin abrir el panel; un personaje sin maná no muestra una línea vacía ni un cero engañoso. |
 | R-004 | El inventario y el equipo **no** se muestran en esta columna: se consultan en el panel de `I` ([REQ-018](REQ-018-inventario-equipo.md), [REQ-032](REQ-032-estilo-visual-interaccion-ui.md)). | La columna no lista objetos ni huecos; la gestión completa ocurre en el panel. |
 | R-005 | En estado fantasma, la columna indica la condición y muestra el MP intrínseco; el inventario y el equipo ya no forman parte de esta columna. | Un jugador muerto ve su estado fantasma y su MP; no hay objetos que ocultar o revelar aquí. |
@@ -122,10 +122,8 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 
 # Preguntas abiertas
 
-1. **Miniatura.** ¿Sprite del personaje, retrato propio o silueta por arquetipo?
-   El pack no trae retratos.
-2. **Suelos de traits.** Cómo se indica un trait recortado por el suelo (MP ≥ 0,
-   acciones ≥ 1) sin que parezca activo.
+Ninguna. El retrato queda cerrado como miniatura del sprite del personaje y el
+recorte de traits se marca con una nota junto al trait.
 
 # Decisiones
 
@@ -134,7 +132,8 @@ atributos y si el inventario del panel es interactivo o solo informativo.
 | 2026-11-11 | El HUD del jugador activo ocupa la columna izquierda del marco y sustituye al HUD exterior. | human:simon | aceptada |
 | 2026-11-13 | La columna muestra nombre, arquetipo, PV, MP, acciones, atributos con efecto y traits activos; el inventario y el equipo se consultan en el panel con `I`. | human:simon | aceptada |
 | 2026-11-13 | El maná se añade a la columna solo cuando el personaje lo necesita (máximo mayor que cero); sin maná, la línea se omite. | human:simon | aceptada |
-| 2026-11-13 | El panel es informativo en lo que respecta a esta columna; la interacción vive en el panel de inventario. | human:simon | aceptada |
+| 2026-11-14 | El retrato es la miniatura del sprite del personaje a píxel entero; no hay arte nuevo. | human:simon | aceptada |
+| 2026-11-14 | Un trait recortado por su suelo se muestra con una nota de recorte; no se oculta ni se pinta como activo. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

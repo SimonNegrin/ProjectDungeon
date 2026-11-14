@@ -11,6 +11,12 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 * 2026-11-14 — Planning — TASK-0099 — ready: DoR cumplida; primera tarea de REQ-032, con fuente pixel, tokens semánticos, escalas y `--ui-line` calculada desde la escala del marco — [TASK-0099](tasks/TASK-0099-ui-fuente-tokens-linea.md)
 
+* 2026-11-14 — Requirement — REQ-032 — v2: nombres de token aclarados tras TASK-0099 (`--ui-line-color` color, `--ui-line` grosor); cierra la fricción del intento 1 — [REQ-032](requirements/REQ-032-estilo-visual-interaccion-ui.md)
+
+* 2026-11-14 — Requirement — REQ-022/023 — stable v3: retrato como sprite, maná condicional, detalle por tipo con stats numéricas, puertas por tipo y zona, terreno siempre descrito y consulta por tile; sin preguntas abiertas — [REQ-022](requirements/REQ-022-hud-izquierdo-jugador.md), [REQ-023](requirements/REQ-023-hud-derecho-detalle-cursor.md)
+
+* 2026-11-14 — Planning — TASK-0100 — backlog: pantalla en tres zonas con HUD izquierdo (REQ-022 v3) y derecho (REQ-023 v3), mapa 13×13 intacto y anclajes de REQ-017 conservados; depende de TASK-0099 — [TASK-0100](tasks/TASK-0100-pantalla-tres-zonas-hud.md)
+
 ## 2026-11-13
 
 * 2026-11-13 — Requirement — REQ-022 — v2: HUD izquierdo con nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná solo cuando el personaje lo necesita; inventario y equipo se consultan en el panel con `I` — [REQ-022](requirements/REQ-022-hud-izquierdo-jugador.md)

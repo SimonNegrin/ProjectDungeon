@@ -33,10 +33,10 @@ px de tile.
    todos los navegadores objetivo la soportan. Escalas fijas por rol; se validan
    acentos, diéresis y signos de apertura en cada escala.
 3. **Tokens semánticos.** Un único bloque de variables (`--ui-bg`,
-   `--ui-panel`, `--ui-line`, `--ui-text`, `--ui-muted`, `--ui-accent`,
-   `--ui-danger`, `--ui-focus`) del que salen todos los componentes. Paleta
-   muestreada del pack en la implementación; ningún componente define color,
-   grosor ni escala.
+   `--ui-panel`, `--ui-line-color`, `--ui-text`, `--ui-muted`, `--ui-accent`,
+   `--ui-danger`, `--ui-focus`) del que salen todos los componentes, más
+   `--ui-line` para el grosor calculado. Paleta muestreada del pack en la
+   implementación; ningún componente define color, grosor ni escala.
 4. **Línea.** El grosor se calcula desde el tamaño de tile y la escala del marco
    (`layout.ts`), redondeado a píxel de dispositivo, para que se lea como un
    píxel del mapa a cualquier resolución. Los bordes inset y outset son el

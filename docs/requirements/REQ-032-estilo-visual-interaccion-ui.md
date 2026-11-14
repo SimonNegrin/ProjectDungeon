@@ -4,12 +4,12 @@ id: REQ-032
 title: Estilo visual e interacción de la UI
 description: "Identidad pixel derivada de 32rogues, tipografía Pixelify Sans, línea de píxel escalado, pantalla en tres zonas, panel en tres columnas con figura de equipo, detalle del objeto en el HUD derecho con comparación y submenú contextual con Enter."
 status: stable
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T23:44:14Z
-updated_at: 2026-11-13T23:54:32Z
-related_tasks: []
+updated_at: 2026-11-14T00:16:51Z
+related_tasks: [TASK-0099, TASK-0100]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T23:44:14Z }
 verified:
   - by: human:simon
@@ -23,6 +23,12 @@ verified:
       entre objetos existentes, detalle del objeto en el HUD derecho con el
       equipado, `Enter` con submenú contextual y cadáveres reservados hasta
       REQ-021.
+  - by: human:simon
+    at: 2026-11-14T00:16:51Z
+    note: >-
+      Aprueba la v2: se aclara el nombre de los tokens tras TASK-0099
+      (`--ui-line-color` para el color y `--ui-line` para el grosor calculado);
+      sin cambios de diseño.
 ---
 
 # Contexto
@@ -108,7 +114,7 @@ casillas.
 
 | ID | Requisito | Aceptación |
 |---|---|---|
-| T-001 | Los tokens visuales viven en un único bloque de variables y los componentes los consumen; no hay literales duplicados de color, grosor ni escala. | Cambiar un token se refleja en toda la UI; `docs:check` y los tests de UI no encuentran literales fuera de la fuente. |
+| T-001 | Los tokens visuales viven en un único bloque de variables y los componentes los consumen; no hay literales duplicados de color, grosor ni escala. El color de línea es `--ui-line-color` y el grosor calculado, `--ui-line`. | Cambiar un token se refleja en toda la UI; `docs:check` y los tests de UI no encuentran literales fuera de la fuente. |
 | T-002 | La línea se deriva del tamaño de tile y de la escala del marco en `layout.ts`; se redondea a píxel de dispositivo. | A varias escalas el grosor sigue siendo coherente con el píxel de arte; no hay saltos ni bordes de medio píxel. |
 | T-003 | La UI sigue en DOM sobre el marco; el Canvas solo dibuja el mundo y conserva 13×13. | Sin cambios en el render del mapa; capturas sin desplazamiento de tiles. |
 | T-004 | La fuente y su licencia se incluyen en `public/` y se sirven desde el propio build; sin dependencias nuevas ni red. | `package.json` y `pnpm-lock.yaml` no cambian; sin peticiones externas en el arranque. |
