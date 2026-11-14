@@ -194,6 +194,126 @@ test.describe('pantalla en tres zonas', () => {
   }
 });
 
+test.describe('panel de inventario sobre el mapa', () => {
+  for (const viewport of VIEWPORTS) {
+    test(`cubre solo el mapa y deja ambos HUD visibles a ${viewport.width}×${viewport.height}`, async ({
+      page,
+    }, testInfo) => {
+      await page.setViewportSize(viewport);
+      await openBspState(page, 279837264);
+      await settle(page);
+
+      const before = await snapshot(page);
+      const leftBefore = await page.getByTestId('hud-left').boundingBox();
+      const rightBefore = await page.getByTestId('hud-right').boundingBox();
+      await expect(page.getByTestId('hud-left')).toBeVisible();
+      await expect(page.getByTestId('hud-right')).toBeVisible();
+
+      await page.keyboard.press('i');
+      const panel = page.getByTestId('inventory-panel');
+      await expect(panel).toBeVisible();
+
+      const frame = await page.getByTestId('frame').boundingBox();
+      const left = await page.getByTestId('hud-left').boundingBox();
+      const right = await page.getByTestId('hud-right').boundingBox();
+      const panelBox = await panel.boundingBox();
+      const mapBox = await page.evaluate(() => {
+        const element = document.querySelector<HTMLElement>('.map-overlay');
+        if (!element) throw new Error('Falta .map-overlay');
+        const rect = element.getBoundingClientRect();
+        return {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+          right: rect.right,
+          bottom: rect.bottom,
+        };
+      });
+      expect(frame).not.toBeNull();
+      expect(left).not.toBeNull();
+      expect(right).not.toBeNull();
+      expect(panelBox).not.toBeNull();
+
+      // El modal ocupa la franja central del mapa, no el marco completo.
+      expect(panelBox!.x).toBeGreaterThanOrEqual(mapBox.x - 1);
+      expect(panelBox!.y).toBeGreaterThanOrEqual(frame!.y - 1);
+      expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(
+        mapBox.right + 1,
+      );
+      expect(panelBox!.y + panelBox!.height).toBeLessThanOrEqual(
+        frame!.y + frame!.height + 1,
+      );
+
+      // Las columnas quedan fuera de la capa modal y siguen visibles.
+      expect(panelBox!.x).toBeGreaterThanOrEqual(left!.x + left!.width - 1);
+      expect(panelBox!.x + panelBox!.width).toBeLessThanOrEqual(right!.x + 1);
+      await expect(page.getByTestId('hud-left')).toBeVisible();
+      await expect(page.getByTestId('hud-right')).toBeVisible();
+      expect(left).toEqual(leftBefore);
+      expect(right).toEqual(rightBefore);
+
+      // El panel sigue bloqueando el mapa mientras está abierto.
+      for (const key of ['w', 'ArrowUp', 'f', 'g']) {
+        await page.keyboard.press(key);
+      }
+      await settle(page);
+      const blocked = await snapshot(page);
+      expect(blocked.players[0]).toMatchObject({
+        x: before.players[0].x,
+        y: before.players[0].y,
+        mp: before.players[0].mp,
+        actions: before.players[0].actions,
+      });
+      expect(blocked.cursor).toMatchObject({
+        x: before.cursor.x,
+        y: before.cursor.y,
+      });
+      expect(blocked.turn).toBe(before.turn);
+      expect(blocked.lastEvents).toEqual(before.lastEvents);
+
+      // El panel conserva scroll interno y tanto la cabecera como el cierre
+      // siguen accesibles a 900×700.
+      const body = page.locator('.inventory-panel-body');
+      await expect(body).toBeVisible();
+      await body.evaluate((element) => {
+        (element as HTMLElement).scrollTop = 0;
+      });
+      const playerLabel = await page.getByTestId('inventory-player').boundingBox();
+      expect(playerLabel).not.toBeNull();
+      expect(playerLabel!.y).toBeGreaterThanOrEqual(panelBox!.y - 1);
+      expect(playerLabel!.y).toBeLessThan(panelBox!.y + panelBox!.height);
+
+      await screenshot(
+        page,
+        `panel-abierto-${viewport.width}x${viewport.height}`,
+        testInfo,
+      );
+
+      await body.evaluate((element) => {
+        (element as HTMLElement).scrollTop = (element as HTMLElement).scrollHeight;
+      });
+      const close = await page.getByTestId('inventory-close').boundingBox();
+      expect(close).not.toBeNull();
+      expect(close!.x).toBeGreaterThanOrEqual(panelBox!.x - 1);
+      expect(close!.x + close!.width).toBeLessThanOrEqual(
+        panelBox!.x + panelBox!.width + 1,
+      );
+      expect(close!.y).toBeGreaterThanOrEqual(panelBox!.y - 1);
+      expect(close!.y + close!.height).toBeLessThanOrEqual(
+        panelBox!.y + panelBox!.height + 1,
+      );
+
+      await page.keyboard.press('Escape');
+      await expect(panel).toBeHidden();
+      await page.keyboard.press('i');
+      await expect(panel).toBeVisible();
+      await page.keyboard.press('i');
+      await expect(panel).toBeHidden();
+    });
+  }
+});
+
 test('el detalle cambia por tile sin tocar el estado del motor', async ({ page }, testInfo) => {
   const player = createPlayerFromArchetype('warrior', {
     id: 'player-1',

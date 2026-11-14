@@ -631,7 +631,10 @@
       /* Panel modal de personaje: DOM sobre el marco, nunca Canvas. */
       .inventory-panel {
         position: absolute;
-        inset: 0;
+        top: 0;
+        bottom: 0;
+        left: 21.875%;
+        width: 56.25%;
         z-index: 20;
         display: grid;
         place-items: center;
