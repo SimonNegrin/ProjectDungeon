@@ -75,7 +75,7 @@ Base real: `panel-submenu-hud-qa/screenshots/`. Copias en `screenshots/`:
 
 | Síntoma | Evidencia | Workaround | Reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `E2E_ARTIFACTS_DIR` crea `<spec>/screenshots` y el brief pide capturas en la raíz del intento | `tests/e2e/artifacts.ts`; copia manual a `attempt-1/screenshots/` | Ejecutar el spec focalizado con la variable y copiar las capturas clave | Se repite en TASK-0048, TASK-0101 y esta tarea | Permitir una ruta sin segmento de spec o documentar la copia | Bajo; solo arnés/docs | `pending` |
+| `E2E_ARTIFACTS_DIR` crea `<spec>/screenshots` y el brief pide capturas en la raíz del intento | `tests/e2e/artifacts.ts`; copia manual a `attempt-1/screenshots/` | Ejecutar el spec focalizado con la variable y copiar las capturas clave | Se repite en TASK-0048, TASK-0101 y esta tarea | Permitir una ruta sin segmento de spec o documentar la copia | Bajo; solo arnés/docs | `deferred (harness-keeper)` |
 
 # Métricas de handoff
 
