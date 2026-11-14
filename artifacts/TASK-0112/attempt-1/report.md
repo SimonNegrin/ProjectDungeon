@@ -70,7 +70,7 @@ el contorno crece hacia fuera. Deltas interiores ≤0,82 px.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `getComputedStyle().borderWidth/outlineWidth` redondea a entero aunque el token de escala sea fraccionario; medir interiores con ese valor da falsos desplazamientos | `logs/biseles-900x700.json`, `logs/biseles-1280x720.json` | Medir con `getBoundingClientRect` + padding/token y tolerancia ±1; no derivar interiores del ancho computado del borde | Afecta a toda la QA de relieve y a futuras tareas 0113–0118 | Añadir la nota al protocolo de QA visual del arnés | Bajo; solo documentación de verificación | `pending` |
+| `getComputedStyle().borderWidth/outlineWidth` redondea a entero aunque el token de escala sea fraccionario; medir interiores con ese valor da falsos desplazamientos | `logs/biseles-900x700.json`, `logs/biseles-1280x720.json` | Medir con `getBoundingClientRect` + padding/token y tolerancia ±1; no derivar interiores del ancho computado del borde | Afecta a toda la QA de relieve y a futuras tareas 0113–0118 | Añadir la nota al protocolo de QA visual del arnés | Bajo; solo documentación de verificación | `deferred` |
 
 # Métricas de handoff
 
