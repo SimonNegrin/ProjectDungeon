@@ -351,8 +351,10 @@ La UI de juego sigue
 [REQ-032](../requirements/REQ-032-estilo-visual-interaccion-ui.md) y
 [ADR-025](../decisions/ADR-025-estilo-visual-ui.md); la escala continua y el
 relieve vintage se registran en
-[ADR-026](../decisions/ADR-026-escala-continua-relieve-vintage.md). DOM sobre el
-marco 16:9, Pixelify Sans local y tokens `--ui-*`.
+[ADR-026](../decisions/ADR-026-escala-continua-relieve-vintage.md) y la
+corrección v7 en
+[ADR-027](../decisions/ADR-027-correccion-visual-v7.md). DOM sobre el marco 16:9,
+Pixelify Sans local y tokens `--ui-*`.
 
 - **Escala única**: `computeFrameLayout` deriva `scale` del marco 16:9 y el host
   la publica como `--ui-scale` y `--ui-unit`. Tipografía, interlineado, huecos,
@@ -360,8 +362,13 @@ marco 16:9, Pixelify Sans local y tokens `--ui-*`.
   `calc(var(--ui-unit) * n)`; no hay tamaños fijos por componente, breakpoints
   ni `clamp()` de viewport. `computeUiLine` publica `--ui-line` de forma lineal
   (`scale × tile / 32`), sin redondeo a píxel de dispositivo; se acepta el render
-  fraccionario. A 900×700 la escala es 1,1737 y el cuerpo 13,15 px; a 1280×720,
-  1,6010 y 17,93 px. El overlay de `F1` queda fuera.
+  fraccionario. El relieve de cajas usa `--ui-bevel = 2 × --ui-line` y el cursor
+  `4 × --ui-line`; ambos derivan de la misma línea y crecen hacia fuera. Chromium
+  pinta el borde/outline cuantizado a píxel entero (2/3 px a 900×700/1280×720
+  frente a 2,35/3,20 px del token): se acepta como limitación conocida y la
+  geometría se valida con `getBoundingClientRect`. A 900×700 la escala es 1,1737
+  y el cuerpo 13,15 px; a 1280×720, 1,6010 y 17,93 px. El overlay de `F1` queda
+  fuera.
 - **Paleta**: ocho tokens opacos y semánticos, sin literales por componente:
   `--ui-bg` `#2f142f` (fondo y borde oscuro), `--ui-panel` `#2a584f` (panel),
   `--ui-raised` `#774448` (zona o sección elevada), `--ui-line-color` `#6eb8a8`
@@ -373,7 +380,9 @@ marco 16:9, Pixelify Sans local y tokens `--ui-*`.
   panel—; `.ui-inset` invierte el par y marca receptáculos —slots de item y
   ventanas de sprite del HUD—. No hay radios, sombras difusas, degradados, blur
   ni translucidez. Un bisel comunica función: outset = superficie, inset =
-  hueco.
+  hueco. Todos miden `2 × --ui-line` y se pintan con contornos exteriores en L;
+  el área interior de la caja y su contenido no se reducen ni se desplazan
+  (δ interior ≤0,82 px).
 - **Tres zonas**: HUD izquierdo con la ficha del jugador activo en tres zonas
   enmarcadas —Personaje en dos columnas, Arma y Stats+Traits—
   ([REQ-022](../requirements/REQ-022-hud-izquierdo-jugador.md)), mapa cuadrado
@@ -385,23 +394,36 @@ marco 16:9, Pixelify Sans local y tokens `--ui-*`.
   pinta el recorte 32×32 de `rogues.png` que `PORTRAIT_RECTS` asigna al
   `archetypeId` del jugador activo; cambia en el mismo render que el nombre y el
   arquetipo sin alterar su caja. El render del mapa sigue usando el recorte del
-  caballero para todos los jugadores y queda fuera de esta corrección.
+  caballero para todos los jugadores y queda fuera de esta corrección. Stats y
+  traits se pintan como listas verticales (`ul`/`li`), una entrada por línea y
+  sin separador `·`, con la misma estructura en el HUD izquierdo y en la ficha
+  derecha; PV, MP y acciones conservan su formato.
 - **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
   siguen visibles. Tres columnas tituladas Equipo, Bolsa y Suelo, con figura de
   equipo, rejilla 2×4 y cadáveres/suelo en rejilla; slots cuadrados, iguales y
-  solo icono; sin cabecera ni ayuda. «Bolsa» es la etiqueta de UI; el modelo y
-  la documentación siguen diciendo «mochila». `Escape` o `I` cierran y el mapa
-  no acepta comandos. La disposición preferida es la de tres columnas; la
+  solo icono; sin cabecera ni ayuda. Las tres columnas alinean su contenido
+  arriba: el título queda arriba y el contenido empieza inmediatamente debajo;
+  en Equipo el casco ocupa la fila superior central y no hay bloque de cabeza,
+  solo torso, brazos y piernas. La figura mide las cinco filas de la rejilla y
+  sus piernas desbordan la caja por abajo de forma intencionada para verse bajo
+  los pies. Los ocho slots de Equipo vacíos muestran una silueta sólida
+  `--ui-line-color` (#6eb8a8) derivada de `items.png`; la silueta desaparece con
+  objeto equipado y Bolsa y Suelo no crean esa capa. «Bolsa» es la etiqueta de
+  UI; el modelo y la documentación siguen diciendo «mochila». `Escape` o `I`
+  cierran y el mapa no acepta comandos. La disposición preferida es la de tres
+  columnas; la
   alternativa 1/3 + dos filas solo se activa por medición de espacio, no por
   breakpoint. A 900×700 las tres columnas encajan (columnas de 137,06 px y slots
   de 39,89 px), así que la alternativa no se usa.
 - **Cursor superpuesto**: el slot activo se marca con `.inventory-cursor`, una
-  capa ligada al foco DOM con borde de `--ui-focus` por fuera del bisel y centro
-  transparente. Se coloca con `transform`, anima 100 ms solo entre vecinos
-  horizontales de la misma fila y salta al instante al cambiar de fila o zona,
-  con scroll, al reabrir, al actualizar el modelo y con
+  capa ligada al foco DOM con borde de `4 × --ui-line` y color `--ui-text`
+  (#fcffc0), el mismo del cursor del mapa en estado de jugador; centro
+  transparente y `z-index` 10, por encima de columnas, slots, títulos y figura
+  pero por debajo del submenú (30). Se coloca con `transform` y anima cualquier
+  cambio de slot —fila, columna o zona— en 150 ms lineales; salta al instante al
+  abrir, con scroll, al redimensionar, al actualizar el modelo y con
   `prefers-reduced-motion`; no tapa el sprite ni el bisel y el foco real sigue
-  en el slot.
+  en el slot. El cursor del mapa conserva su color y su ancho.
 - **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
   abierto pasa a la ficha de dos bloques —seleccionado y equipado, sin delta— y
   `Enter` abre el submenú contextual. `Tab`/`Shift+Tab` cambian de zona y las
