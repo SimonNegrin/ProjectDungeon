@@ -229,6 +229,11 @@
       }
     ]
   },
+  "screenshots": {
+    "panelCursor": "cursor-panel-900x700.png",
+    "submenu": "cursor-submenu-900x700.png",
+    "mapCursor": "cursor-mapa-900x700.png"
+  },
   "audits": {
     "horizontalAudit": {
       "runs": 1,

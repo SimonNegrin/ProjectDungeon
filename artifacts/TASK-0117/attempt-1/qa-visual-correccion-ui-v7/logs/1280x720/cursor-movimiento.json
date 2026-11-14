@@ -229,6 +229,11 @@
       }
     ]
   },
+  "screenshots": {
+    "panelCursor": "cursor-panel-1280x720.png",
+    "submenu": "cursor-submenu-1280x720.png",
+    "mapCursor": "cursor-mapa-1280x720.png"
+  },
   "audits": {
     "horizontalAudit": {
       "runs": 1,
@@ -249,8 +254,10 @@
       ]
     },
     "crossAudit": {
-      "runs": 1,
+      "runs": 3,
       "properties": [
+        "transform",
+        "transform",
         "transform"
       ],
       "elapsed": [

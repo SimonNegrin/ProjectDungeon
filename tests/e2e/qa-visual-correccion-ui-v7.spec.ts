@@ -594,6 +594,13 @@ interface PanelLayout {
       readonly hasTabIndex: boolean;
     }>;
   };
+  readonly overflow: {
+    readonly figure: string;
+    readonly figureContainer: string;
+    readonly list: string;
+    readonly column: string;
+    readonly body: string;
+  };
 }
 
 async function panelLayout(page: Page): Promise<PanelLayout> {
@@ -607,7 +614,18 @@ async function panelLayout(page: Page): Promise<PanelLayout> {
     const figure = panel.querySelector<HTMLElement>('[data-testid="inventory-figure"]');
     const head = panel.querySelector<HTMLElement>('[data-row-key="slot:head"]');
     const equipmentList = panel.querySelector<HTMLElement>('[data-testid="inventory-equipment"]');
-    if (!body || !figure || !head || !equipmentList) {
+    const equipmentFigure =
+      panel.querySelector<HTMLElement>('.inventory-equipment-figure');
+    const equipmentColumn =
+      panel.querySelector<HTMLElement>('.inventory-column-equipment');
+    if (
+      !body ||
+      !figure ||
+      !head ||
+      !equipmentList ||
+      !equipmentFigure ||
+      !equipmentColumn
+    ) {
       throw new Error('Falta el cuerpo, la figura, el casco o la rejilla');
     }
     const rect = (element: Element): Rect => {
@@ -646,9 +664,7 @@ async function panelLayout(page: Page): Promise<PanelLayout> {
       titles: [...panel.querySelectorAll<HTMLElement>('.inventory-section-title')].map(
         (title) => ({ text: title.textContent?.trim() ?? '', rect: rect(title) }),
       ),
-      equipmentFigure: rect(
-        panel.querySelector<HTMLElement>('.inventory-equipment-figure')!,
-      ),
+      equipmentFigure: rect(equipmentFigure),
       equipmentList: rect(equipmentList),
       head: rect(head),
       backpack: slots('.inventory-backpack .inventory-slot'),
@@ -668,6 +684,13 @@ async function panelLayout(page: Page): Promise<PanelLayout> {
             hasTabIndex: block.hasAttribute('tabindex'),
           }),
         ),
+      },
+      overflow: {
+        figure: getComputedStyle(figure).overflow,
+        figureContainer: getComputedStyle(equipmentFigure).overflow,
+        list: getComputedStyle(equipmentList).overflow,
+        column: getComputedStyle(equipmentColumn).overflow,
+        body: getComputedStyle(body).overflow,
       },
     };
   });
@@ -1407,18 +1430,19 @@ for (const viewport of VIEWPORTS) {
         viewport,
       );
       const layout = await panelLayout(page);
-      const legBottom = Math.max(
-        ...layout.figure.blocks
-          .filter((block) => block.className.includes('inventory-figure-leg'))
-          .map((block) => block.rect.bottom),
+      const legs = layout.figure.blocks.filter((block) =>
+        block.className.includes('inventory-figure-leg'),
       );
+      const legBottom = Math.max(...legs.map((leg) => leg.rect.bottom));
+      const legOverhang = legBottom - layout.figure.rect.bottom;
       await writeLog(
         testInfo,
         'panel.json',
         {
           viewport: suffix,
           layout,
-          legOverhang: legBottom - layout.figure.rect.bottom,
+          legOverhang,
+          legs,
         },
         suffix,
       );
@@ -1493,6 +1517,32 @@ for (const viewport of VIEWPORTS) {
         );
         expect(block.hasTabIndex, 'bloque de figura con tabindex').toBe(false);
       }
+
+      // Las piernas deben verse por debajo de la caja de cinco filas. No basta
+      // con registrar el desborde: una regresión que las recorte debe fallar.
+      expect(legs, 'faltan las dos piernas').toHaveLength(2);
+      for (const leg of legs) {
+        expect(
+          leg.rect.bottom - layout.figure.rect.bottom,
+          'la pierna queda dentro de la caja de cinco filas',
+        ).toBeGreaterThan(2);
+      }
+      expect(legOverhang, 'las piernas no desbordan la caja').toBeGreaterThan(2);
+      for (const key of [
+        'figure',
+        'figureContainer',
+        'list',
+        'column',
+      ] as const) {
+        expect(
+          layout.overflow[key],
+          `${key} recorta las piernas (${layout.overflow[key]})`,
+        ).not.toMatch(/hidden|clip/);
+      }
+      expect(
+        legBottom,
+        'el cuerpo del panel recorta las piernas',
+      ).toBeLessThanOrEqual(layout.body.bottom);
 
       const allSlots = [...layout.equipment, ...layout.backpack, ...layout.ground];
       const side = allSlots[0].rect.width;
@@ -1648,6 +1698,7 @@ for (const viewport of VIEWPORTS) {
       expect(cross.selectedKey.startsWith('slot:')).toBe(true);
       expectCursorStyle(cross, `${suffix} columna`);
       expectCursorAroundSlot(cross, `${suffix} columna`);
+      await screenshot(page, `cursor-panel-${suffix}`, testInfo);
 
       await selectPanelRow(page, 'backpack:0');
       await page.waitForTimeout(200);
@@ -1664,7 +1715,7 @@ for (const viewport of VIEWPORTS) {
       await page.keyboard.press('Escape');
       await expect(page.getByTestId('inventory-panel')).toBeHidden();
       const mapAfterPanel = await mapCursor(page);
-      await screenshot(page, `cursor-${suffix}`, testInfo);
+      await screenshot(page, `cursor-mapa-${suffix}`, testInfo);
 
       await writeLog(
         testInfo,
@@ -1677,6 +1728,11 @@ for (const viewport of VIEWPORTS) {
           cross,
           submenuCursor,
           layers,
+          screenshots: {
+            panelCursor: `cursor-panel-${suffix}.png`,
+            submenu: `cursor-submenu-${suffix}.png`,
+            mapCursor: `cursor-mapa-${suffix}.png`,
+          },
           audits: { horizontalAudit, verticalAudit, crossAudit },
           shifts,
           mapCursor: { before: mapBeforePanel, after: mapAfterPanel },

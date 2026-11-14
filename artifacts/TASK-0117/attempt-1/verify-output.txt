@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (135):
+Avisos (136):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - docs/tasks/TASK-0070-exp-003-tres-tablas-ui.md: tarea de 663 palabras; objetivo ≤600
@@ -136,7 +136,8 @@ Avisos (135):
 - artifacts/TASK-0114/attempt-1/brief.md: handoff de 2596 B; objetivo ≤2560 B
 - artifacts/TASK-0116/attempt-1/brief.md: handoff de 2585 B; objetivo ≤2560 B
 - artifacts/TASK-0117/attempt-1/brief.md: handoff de 3862 B; objetivo ≤2560 B
-OK: 550 documentos, 118 tareas, 6 experimentos.
+- artifacts/TASK-0117/attempt-1/report.md: handoff de 3369 B; objetivo ≤2560 B
+OK: 551 documentos, 118 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -146,11 +147,11 @@ $ vitest run
 
  Test Files  94 passed (94)
       Tests  1330 passed (1330)
-   Start at  17:22:42
-   Duration  10.50s (tests 89%, import 8%, transform 2%, worker 1%)
+   Start at  17:31:20
+   Duration  11.20s (tests 89%, import 8%, transform 2%, worker 1%)
 
-    Isolate  94 workers spawned · ~109ms startup each (spawn + environment, per file)
-             at least ~1.35s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  94 workers spawned · ~112ms startup each (spawn + environment, per file)
+             at least ~1.39s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -161,6 +162,6 @@ computing gzip size...
 dist/index.html                 15.97 kB │ gzip:  2.56 kB
 dist/assets/main-S-ZcL_of.css   24.19 kB │ gzip:  4.69 kB
 dist/assets/main-yOkYqs-6.js   196.84 kB │ gzip: 65.13 kB
-✓ built in 456ms
+✓ built in 477ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 16 dist files and 70 production modules; no forbidden markers.

@@ -417,7 +417,40 @@
           "hasTabIndex": false
         }
       ]
+    },
+    "overflow": {
+      "figure": "visible",
+      "figureContainer": "visible",
+      "list": "visible",
+      "column": "visible",
+      "body": "hidden"
     }
   },
-  "legOverhang": 42.25
+  "legOverhang": 42.25,
+  "legs": [
+    {
+      "className": "inventory-figure-block inventory-figure-leg-left",
+      "rect": {
+        "left": 287.25,
+        "top": 272.8125,
+        "right": 298.4375,
+        "bottom": 397.21875,
+        "width": 11.1875,
+        "height": 124.40625
+      },
+      "hasTabIndex": false
+    },
+    {
+      "className": "inventory-figure-block inventory-figure-leg-right",
+      "rect": {
+        "left": 308.4375,
+        "top": 272.8125,
+        "right": 319.625,
+        "bottom": 397.21875,
+        "width": 11.1875,
+        "height": 124.40625
+      },
+      "hasTabIndex": false
+    }
+  ]
 }
