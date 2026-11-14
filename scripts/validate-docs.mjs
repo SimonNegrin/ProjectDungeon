@@ -26,6 +26,7 @@ const experiments = [];
 
 const OKF_STATUS = new Set(['draft', 'stable', 'deprecated']);
 const TASK_STATUS = new Set(['backlog', 'ready', 'in_progress', 'blocked', 'review', 'done']);
+const TASK_TYPE = new Set(['feature', 'experiment', 'test', 'qa', 'docs', 'harness', 'refactor']);
 const EXPERIMENT_STATUS = new Set(['proposed', 'building', 'ready', 'decided', 'archived']);
 
 // Topes de ADR-009. Solo se aplican de TASK-0021 en adelante; lo anterior es
@@ -127,6 +128,16 @@ for (const concept of concepts) {
     }
     if (data.task_status && !TASK_STATUS.has(data.task_status)) {
       error(`${rel}: task_status inválido ${data.task_status}`);
+    }
+    if (data.task_type && !TASK_TYPE.has(data.task_type)) {
+      error(`${rel}: task_type inválido ${data.task_type}`);
+    }
+    if (
+      data.task_type === 'docs' &&
+      data.task_status !== 'done' &&
+      data.assignee === 'task-runner'
+    ) {
+      warn(`${rel}: tarea docs asignada a task-runner; el ejecutor sale del destino`);
     }
     if (data.task_status === 'done' && !data.completed_at) {
       error(`${rel}: tarea done sin completed_at`);

@@ -109,6 +109,22 @@ Una pregunta por experimento, shell compartido y decisión registrada. Ver
 7. Si no se resuelve, escala.
 8. Al cerrar, actualiza la tarea, el tablero y el log.
 
+## Quién ejecuta una tarea `docs`
+
+`task-runner` no edita `docs/`, así que una tarea `docs` no pasa por él. El
+ejecutor sale del destino de la edición, y una tarea `docs` toca un solo
+dominio: si mezcla varios, se divide al crearla.
+
+| Destino | Ejecutor |
+|---|---|
+| `docs/design/**`, `docs/glossary.md`, `docs/decisions/**`, `docs/log.md` | `task-lead` ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md)) |
+| `docs/requirements/**` | `requirements-writer` |
+| `docs/harness/**`, `docs/templates/**`, `AGENTS.md` | `harness-keeper`, fuera del flujo de tareas |
+
+`task-runner` sigue en código, tests, experimentos y artefactos. Escribir un
+documento desde el shell no es una excepción: si el destino no está en su
+allowlist, devuelve `blocked`.
+
 # Traspaso a una sesión de ejecución
 
 La conversación de requisitos y la ejecución pueden vivir en sesiones distintas.

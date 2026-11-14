@@ -46,7 +46,9 @@ Campos por tipo:
   `related_tasks`.
 - **Tarea**: `id`, `task_status`, `task_type`, `requirement`, `requirement_ids`,
   `depends_on`, `unlocks`, `created_at`, `completed_at`, `assignee`, `attempts`,
-  `artifacts`, `priority`, `risk`.
+  `artifacts`, `priority`, `risk`. `task_type` ∈ `feature`, `experiment`,
+  `test`, `qa`, `docs`, `harness`, `refactor`; `docs` elige `assignee` por
+  destino ([workflow](workflow.md#quién-ejecuta-una-tarea-docs)).
 - **Experimento**: `id`, `question`, `related_requirements`, `parameters`,
   `decision`, `decided_by`, `decided_at`, `experiment_status`.
 

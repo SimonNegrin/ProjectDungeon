@@ -5,6 +5,12 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Harness — validador — `task_type` validado contra un conjunto y aviso si una tarea `docs` no cerrada se asigna a `task-runner`; `harness-keeper` puede editar `scripts/**` — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)
+
+* 2026-11-14 — Harness — tareas `docs` — el ejecutor sale del destino (lead: diseño, glosario, decisiones y log; requirements-writer: requisitos; harness-keeper: arnés) y `task-runner` no las ejecuta ni las escribe por shell; sin permisos nuevos — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)
+
+* 2026-11-14 — Harness — plantilla de tarea — aclarada la ruta de capturas: `<spec>/screenshots/` y no `attempt-N/screenshots/` a secas; sin cambio de regla — [plantilla](templates/task.md)
+
 * 2026-11-14 — Task — TASK-0103 — done: cierre documental del hito UI (tres zonas, panel de tres columnas, ficha de dos bloques, submenú y controles) y QA visual final; verify 1298/1298 y E2E 150/150; fusión `0d1a912` — [informe](../artifacts/TASK-0103/attempt-1/report.md)
 
 * 2026-11-14 — Planning — TASK-0103 — in_progress: DoR cumplida (REQ-032 v2 y REQ-018 v7 aceptados, TASK-0102 done); cierre documental y QA visual — [TASK-0103](tasks/TASK-0103-cierre-hito-ui-docs-qa.md)

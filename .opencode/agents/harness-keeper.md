@@ -18,6 +18,9 @@ permissions:
   - action: edit
     resource: ".opencode/**"
     effect: allow
+  - action: edit
+    resource: "scripts/**"
+    effect: allow
   - action: subagent
     resource: "*"
     effect: deny

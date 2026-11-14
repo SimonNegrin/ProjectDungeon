@@ -72,7 +72,9 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 
 - [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`
 - [ ] Salida de tests
-- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR`, en `<spec>/screenshots/`)
+- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR`, en `<spec>/screenshots/`; no
+      `attempt-N/screenshots/` a secas: el helper siempre añade el segmento del
+      spec)
 - [ ] Commit SHA
 
 # Restricciones
@@ -93,6 +95,9 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 - `depends_on` y `unlocks` usan IDs y son simétricos.
 - Solo se planifica el milestone actual; las tareas caducan si cambia el
   requisito.
+- `docs` no se asigna a `task-runner`: `assignee` es el dueño del destino
+  (`task-lead` para diseño, glosario, decisiones y log; `requirements-writer`
+  para requisitos; `harness-keeper` para arnés y plantillas).
 
 # Atomicidad
 

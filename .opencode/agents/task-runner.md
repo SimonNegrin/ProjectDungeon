@@ -98,8 +98,11 @@ experimentos en [docs/harness/experiments.md](../../docs/harness/experiments.md)
 - No borres, saltes o debilites tests para pasar.
 - No ocultes fallos ni desviaciones.
 - No hagas refactors no relacionados.
-- No edites `docs/` ni `experiment.md`; el lead o el requirements-writer lo
-  hacen.
+- No edites `docs/` ni `experiment.md`; el lead, el requirements-writer o el
+  harness-keeper lo hacen.
+- Tampoco escribas un documento desde el shell (`python3`, `cat >`, `sed -i`,
+  `tee`): si el destino no está en tu allowlist de `edit`, devuelve `blocked` y
+  dilo en el informe.
 - No importes código de `experiments/` desde producción.
 
 # Fricción reutilizable
