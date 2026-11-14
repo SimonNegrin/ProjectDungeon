@@ -99,8 +99,15 @@
                 >
                   <p class="hud-detail-eyebrow" data-testid="hud-cursor-kind">Desconocido</p>
                   <h2 class="hud-detail-title" data-testid="hud-cursor-title">Desconocido</h2>
-                  <p class="hud-detail-subtitle" data-testid="hud-cursor-subtitle" hidden></p>
+                  <span
+                    class="hud-detail-sprite"
+                    data-testid="hud-cursor-sprite"
+                    aria-hidden="true"
+                    hidden
+                  ></span>
                   <dl class="hud-detail-rows" data-testid="hud-cursor-rows"></dl>
+                  <ul class="hud-detail-stats" data-testid="hud-cursor-stats" hidden></ul>
+                  <ul class="hud-detail-traits" data-testid="hud-cursor-traits" hidden></ul>
                   <p class="hud-detail-notes" data-testid="hud-cursor-notes" hidden></p>
                   <p class="hud-detail-vitals" data-testid="hud-cursor-vitals" hidden>
                     <span class="hud-detail-vital" data-vital="pv"
@@ -126,24 +133,52 @@
                     data-testid="hud-panel-selected"
                     data-empty="false"
                   >
-                    <p class="hud-detail-eyebrow">Seleccionado</p>
+                    <p
+                      class="hud-detail-eyebrow"
+                      data-testid="hud-panel-selected-label"
+                      hidden
+                    ></p>
                     <h2 class="hud-detail-title" data-testid="hud-panel-selected-title">—</h2>
-                    <p class="hud-detail-subtitle" data-testid="hud-panel-selected-subtitle" hidden></p>
-                    <dl class="hud-detail-rows" data-testid="hud-panel-selected-rows"></dl>
-                    <p class="hud-detail-traits" data-testid="hud-panel-selected-traits" hidden></p>
-                    <p class="hud-detail-description" data-testid="hud-panel-selected-description" hidden></p>
+                    <span
+                      class="hud-detail-sprite"
+                      data-testid="hud-panel-selected-sprite"
+                      aria-hidden="true"
+                      hidden
+                    ></span>
+                    <ul
+                      class="hud-detail-stats"
+                      data-testid="hud-panel-selected-stats"
+                      hidden
+                    ></ul>
+                    <ul
+                      class="hud-detail-traits"
+                      data-testid="hud-panel-selected-traits"
+                      hidden
+                    ></ul>
                   </section>
                   <section
                     class="hud-detail-block ui-outset"
                     data-testid="hud-panel-equipped"
                     data-empty="false"
                   >
-                    <p class="hud-detail-eyebrow">Equipado en el hueco</p>
+                    <p class="hud-detail-eyebrow" data-testid="hud-panel-equipped-label">Equipado</p>
                     <h2 class="hud-detail-title" data-testid="hud-panel-equipped-title">—</h2>
-                    <p class="hud-detail-subtitle" data-testid="hud-panel-equipped-subtitle" hidden></p>
-                    <dl class="hud-detail-rows" data-testid="hud-panel-equipped-rows"></dl>
-                    <p class="hud-detail-traits" data-testid="hud-panel-equipped-traits" hidden></p>
-                    <p class="hud-detail-description" data-testid="hud-panel-equipped-description" hidden></p>
+                    <span
+                      class="hud-detail-sprite"
+                      data-testid="hud-panel-equipped-sprite"
+                      aria-hidden="true"
+                      hidden
+                    ></span>
+                    <ul
+                      class="hud-detail-stats"
+                      data-testid="hud-panel-equipped-stats"
+                      hidden
+                    ></ul>
+                    <ul
+                      class="hud-detail-traits"
+                      data-testid="hud-panel-equipped-traits"
+                      hidden
+                    ></ul>
                   </section>
                 </section>
               </aside>

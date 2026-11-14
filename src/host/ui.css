@@ -279,14 +279,35 @@
         font-size: var(--ui-title);
         line-height: 1.15;
       }
-      .hud-detail-subtitle,
+      /* Sprite de objeto: mismo recorte de items.png que el mundo y el panel. */
+      .hud-detail-sprite {
+        flex: 0 0 auto;
+        width: calc(var(--ui-unit) * 32);
+        height: calc(var(--ui-unit) * 32);
+        background-image: url('/assets/32rogues/items.png');
+        background-repeat: no-repeat;
+        background-size: calc(var(--ui-unit) * 352) calc(var(--ui-unit) * 832);
+        image-rendering: pixelated;
+      }
       .hud-detail-notes,
-      .hud-detail-traits,
-      .hud-detail-description {
+      .hud-detail-traits {
         margin: 0;
         color: var(--ui-muted);
         font-size: var(--ui-help);
         line-height: 1.35;
+      }
+      .hud-detail-stats,
+      .hud-detail-traits {
+        display: grid;
+        gap: calc(var(--ui-unit) * 1);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .hud-detail-stats {
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+        font-variant-numeric: tabular-nums;
       }
       .hud-detail-block {
         display: flex;

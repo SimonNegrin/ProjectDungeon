@@ -30,6 +30,7 @@ import {
   weaponLabel,
   type CursorDetail,
   type CursorDetailKind,
+  type DetailStat,
   type PanelDetail,
   type PanelDetailBlock,
 } from './hud-detail';
@@ -609,6 +610,44 @@ function ensureCursorBands(
   return { group, rows };
 }
 
+/** Pinta una lista de stats con el valor delante (`+3 Acierto`). */
+function renderStats(list: HTMLElement, stats: readonly DetailStat[]): void {
+  list.replaceChildren(
+    ...stats.map((stat) => {
+      const item = document.createElement('li');
+      item.dataset.stat = stat.id;
+      item.textContent = `${stat.value} ${stat.label}`;
+      return item;
+    }),
+  );
+  list.hidden = stats.length === 0;
+}
+
+/** Pinta los traits existentes; sin traits no queda texto ni hueco. */
+function renderTraits(list: HTMLElement, traits: readonly string[]): void {
+  list.replaceChildren(
+    ...traits.map((trait) => {
+      const item = document.createElement('li');
+      item.textContent = trait;
+      return item;
+    }),
+  );
+  list.hidden = traits.length === 0;
+}
+
+/** Recorte de `items.png` escalado con la misma escala que los slots. */
+function renderSprite(
+  element: HTMLElement,
+  sprite: ItemSpriteRect | null,
+): void {
+  element.hidden = sprite === null;
+  if (sprite === null) {
+    element.style.removeProperty('background-position');
+    return;
+  }
+  element.style.backgroundPosition = `calc(var(--ui-scale) * ${-sprite.x}px) calc(var(--ui-scale) * ${-sprite.y}px)`;
+}
+
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
   const playerName = requireElement(root, 'hud-player-name');
@@ -636,8 +675,10 @@ export function createHudView(root: ParentNode): HudView {
   const detail = requireElement(root, 'hud-cursor-detail');
   const detailKind = requireElement(root, 'hud-cursor-kind');
   const detailTitle = requireElement(root, 'hud-cursor-title');
-  const detailSubtitle = requireElement(root, 'hud-cursor-subtitle');
+  const detailSprite = requireElement(root, 'hud-cursor-sprite');
   const detailRows = requireElement(root, 'hud-cursor-rows');
+  const detailStats = requireElement(root, 'hud-cursor-stats');
+  const detailTraits = requireElement(root, 'hud-cursor-traits');
   const detailNotes = requireElement(root, 'hud-cursor-notes');
   const vitals = requireElement(root, 'hud-cursor-vitals');
   const magicVital = vitals.querySelector<HTMLElement>('[data-vital="magic"]');
@@ -665,10 +706,12 @@ export function createHudView(root: ParentNode): HudView {
     lastDetailKey = key;
 
     detail.dataset.kind = value.kind;
-    detailKind.textContent = DETAIL_KIND_LABELS[value.kind];
+    const kindLabel = DETAIL_KIND_LABELS[value.kind];
+    detailKind.textContent = kindLabel;
+    // Un único indicador de tipo: si la etiqueta repite el título, se oculta.
+    detailKind.hidden = kindLabel === value.title;
     detailTitle.textContent = value.title;
-    detailSubtitle.textContent = value.subtitle ?? '';
-    detailSubtitle.hidden = value.subtitle === null;
+    renderSprite(detailSprite, value.sprite);
 
     detailRows.replaceChildren(
       ...value.rows.map((row) => {
@@ -683,6 +726,9 @@ export function createHudView(root: ParentNode): HudView {
         return item;
       }),
     );
+    detailRows.hidden = value.rows.length === 0;
+    renderStats(detailStats, value.stats);
+    renderTraits(detailTraits, value.traits);
 
     detailNotes.textContent = value.notes.join(' · ');
     detailNotes.hidden = value.notes.length === 0;
@@ -699,33 +745,19 @@ export function createHudView(root: ParentNode): HudView {
     element: HTMLElement,
   ): void => {
     const prefix = `hud-panel-${block.id}`;
+    const label = requireElement(element, `${prefix}-label`);
     const title = requireElement(element, `${prefix}-title`);
-    const subtitle = requireElement(element, `${prefix}-subtitle`);
-    const rows = requireElement(element, `${prefix}-rows`);
+    const sprite = requireElement(element, `${prefix}-sprite`);
+    const stats = requireElement(element, `${prefix}-stats`);
     const traits = requireElement(element, `${prefix}-traits`);
-    const description = requireElement(element, `${prefix}-description`);
 
     element.dataset.empty = String(block.empty);
+    label.textContent = block.label ?? '';
+    label.hidden = block.label === null;
     title.textContent = block.title;
-    subtitle.textContent = block.subtitle;
-    subtitle.hidden = block.subtitle === '';
-    rows.replaceChildren(
-      ...block.rows.map((row) => {
-        const item = document.createElement('div');
-        item.className = 'hud-detail-row';
-        item.dataset.row = row.id;
-        const label = document.createElement('dt');
-        label.textContent = row.label;
-        const valueNode = document.createElement('dd');
-        valueNode.textContent = row.value;
-        item.append(label, valueNode);
-        return item;
-      }),
-    );
-    traits.textContent = block.traits;
-    traits.hidden = block.traits === '';
-    description.textContent = block.description;
-    description.hidden = block.description === '';
+    renderSprite(sprite, block.sprite);
+    renderStats(stats, block.stats);
+    renderTraits(traits, block.traits);
   };
 
   const renderPanelDetail = (value: PanelDetail): void => {
