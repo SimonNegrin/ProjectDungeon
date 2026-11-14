@@ -358,15 +358,22 @@ Pixelify Sans local y tokens `--ui-*` con la línea calculada desde el tile.
 - **Panel modal**: se abre con `I` y solo cubre la franja del mapa; los dos HUD
   siguen visibles. Tres columnas tituladas Equipo, Bolsa y Suelo, con figura de
   equipo, rejilla 2×4 y cadáveres/suelo en rejilla; sin cabecera ni ayuda.
-  `Escape` o `I` cierran y el mapa no acepta comandos.
+  `Escape` o `I` cierran y el mapa no acepta comandos. El slot activo se marca
+  con un **cursor superpuesto** (`.inventory-cursor`) ligado al foco DOM: borde
+  de `--ui-focus` por fuera del bisel, centro transparente y movimiento con
+  `transform`; anima 100 ms solo entre vecinos horizontales de la misma fila y
+  salta al instante al cambiar de fila o zona, con scroll, al reabrir, al
+  actualizar el modelo y con `prefers-reduced-motion`.
 - **Detalle y acción**: el HUD derecho muestra el detalle del cursor; con el panel
   abierto pasa a la ficha de dos bloques y `Enter` abre el submenú contextual.
   `Tab`/`Shift+Tab` cambian de zona y las flechas o `WASD` se mueven por
   proximidad entre objetos existentes.
 - **Límites de layout**: el panel no hace scroll global a 1280×720; los slots
   mantienen el mismo lado en las tres columnas y a 900×700 solo se desplaza la
-  columna derecha (cadáveres y suelo). Los contenedores y el inventario de
-  cadáver llegan con
+  columna derecha (cadáveres y suelo). Navegar, equipar, recoger/soltar, cambiar
+  de tile o aparecer cadáveres no mueve el marco, las columnas, los títulos ni
+  los slots de equipo/bolsa; el Suelo y la ficha cambian dentro de su zona. Los
+  contenedores y el inventario de cadáver llegan con
   [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
 
