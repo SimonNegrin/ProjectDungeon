@@ -72,7 +72,7 @@ siguen solo en `F1`.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| `pnpm run test` falla a veces en `EXP-004` (barrido 3×200, 5 s) solo con los 92 workers por defecto; mismo fallo en `HEAD` limpio | `verify-output.txt` intermitente; `--maxWorkers=2` verde (1307) | `VITEST_MAX_WORKERS=2` o `--no-file-parallelism` | Cualquier tarea bloquea el gate sin relación con su cambio | Subir `testTimeout` de ese archivo o acotar el barrido en vitest.config | Bajo: solo experimentos | `pending` |
+| `pnpm run test` falla a veces en `EXP-004` (barrido 3×200, 5 s) solo con los 92 workers por defecto; mismo fallo en `HEAD` limpio | `verify-output.txt` intermitente; `--maxWorkers=2` verde (1307) | `VITEST_MAX_WORKERS=2` o `--no-file-parallelism` | Cualquier tarea bloquea el gate sin relación con su cambio | Subir `testTimeout` de ese archivo o acotar el barrido en vitest.config | Bajo: solo experimentos | `deferred (harness-keeper)` |
 
 # Métricas de handoff
 
