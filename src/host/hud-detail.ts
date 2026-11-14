@@ -6,7 +6,7 @@ import {
   type ItemTrait,
 } from '../game/equipment';
 import { hasLineOfSight } from '../game/perception';
-import { rosterEntry } from '../game/roster';
+import { ROSTER } from '../game/roster';
 import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
 import type { GameState, Position, Unit } from '../game/types';
@@ -145,7 +145,10 @@ export function statsLabel(unit: Unit | undefined): string {
 }
 
 export function archetypeLabel(unit: Unit | undefined): string {
-  return unit?.archetypeId ? rosterEntry(unit.archetypeId).name : '—';
+  const id = unit?.archetypeId;
+  // Un snapshot con un id fuera del roster no debe romper el HUD: el arquetipo
+  // queda como guion y la miniatura cae en el recorte seguro (`null`).
+  return id && id in ROSTER ? ROSTER[id].name : '—';
 }
 
 /** La condición fantasma solo se muestra; no toca la mecánica de REQ-021. */
