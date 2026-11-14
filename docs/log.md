@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-14
 
+* 2026-11-14 — Task — TASK-0099 — done: Pixelify Sans variable local con OFL y crédito, tokens `--ui-*` y escalas por rol, `--ui-line` calculada desde tile y marco con redondeo a píxel de dispositivo y recálculo al redimensionar; verify 1259/1259 y E2E 134/134; capturas y tabla de caracteres; fusión `eadc42d` — [informe](../artifacts/TASK-0099/attempt-1/report.md)
+
 * 2026-11-14 — Planning — TASK-0099 — ready: DoR cumplida; primera tarea de REQ-032, con fuente pixel, tokens semánticos, escalas y `--ui-line` calculada desde la escala del marco — [TASK-0099](tasks/TASK-0099-ui-fuente-tokens-linea.md)
 
 ## 2026-11-13
