@@ -4,7 +4,7 @@ id: TASK-0106
 title: "UI: ficha derecha simplificada"
 description: "Eliminar el tipo duplicado, subtítulos y descripciones de la ficha derecha; mostrar sprite y stats verticales y dejar los traits solo cuando existan."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-001, R-009, R-010, R-011, T-006]
