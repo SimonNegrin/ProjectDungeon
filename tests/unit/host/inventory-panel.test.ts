@@ -54,10 +54,13 @@ describe('modelo del panel de personaje', () => {
     expect(model.backpackCount).toBe('0/8');
   });
 
-  it('omite la zona del suelo si el tile está vacío y lista sus objetos si los hay', () => {
+  it('mantiene el suelo siempre presente y lista sus objetos si los hay', () => {
     const empty = buildInventoryPanelModel(makeState());
-    expect(empty.ground).toBeNull();
+    expect(empty.ground).toEqual([]);
+    expect(empty.corpses).toEqual([]);
     expect(empty.groundHint).toBe('');
+    expect(empty.groundEmptyHint).toContain('No hay objetos');
+    expect(empty.corpsesEmptyHint).toContain('No hay cadáveres');
 
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],

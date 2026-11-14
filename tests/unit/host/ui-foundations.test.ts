@@ -83,6 +83,49 @@ describe('tokens del HUD interior', () => {
   });
 });
 
+describe('panel de inventario en tres columnas', () => {
+  it('el HTML declara tres columnas, figura, mochila y derecha sin stats', () => {
+    expect(html).toContain('class="inventory-columns"');
+    expect(html).toContain('data-zone="equipment"');
+    expect(html).toContain('data-zone="backpack"');
+    expect(html).toContain('data-zone="right"');
+    expect(html).toContain('data-testid="inventory-figure"');
+    expect(html).toContain('data-testid="inventory-cadavers"');
+    expect(html).toContain('data-testid="inventory-ground-scroll"');
+    expect(html).toContain('data-testid="inventory-actions"');
+    expect(html).not.toContain('inventory-stats');
+    expect(html).not.toContain('inventory-row-comparison');
+    expect(html).not.toContain('inventory-row-traits');
+  });
+
+  it('las reglas del panel usan tokens, foco visible y scroll solo en el suelo', () => {
+    const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+      .filter((match) => /\.inventory/.test(match[1]))
+      .map((match) => ({ selector: match[1].trim(), body: match[2] }));
+
+    expect(rules.length).toBeGreaterThan(20);
+    for (const rule of rules) {
+      expect(rule.body, `${rule.selector} usa un color literal`).not.toMatch(
+        /rgba?\(|#[0-9a-f]{3,8}\b/i,
+      );
+      expect(rule.body, `${rule.selector} usa un grosor literal`).not.toMatch(
+        /border(?:-[a-z]+)?\s*:[^;]*\d+px/i,
+      );
+      expect(rule.body, `${rule.selector} usa radio o sombra`).not.toMatch(
+        /border-radius|box-shadow|text-shadow/i,
+      );
+    }
+
+    expect(block('.inventory-panel')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-panel-body')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-columns')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-column')).toMatch(/overflow:\s*hidden/);
+    expect(block('.inventory-ground-scroll')).toMatch(/overflow-y:\s*auto/);
+    expect(css).toMatch(/--ui-focus/);
+    expect(css).toMatch(/outline:\s*var\(--ui-line\)\s+solid\s+var\(--ui-focus\)/);
+  });
+});
+
 describe('fuente Pixelify Sans incluida en el build', () => {
   it('la sirve desde /fonts con la variable 400–700 y swap', () => {
     const face = css.match(/@font-face\s*\{([\s\S]*?)\}/)?.[1] ?? '';

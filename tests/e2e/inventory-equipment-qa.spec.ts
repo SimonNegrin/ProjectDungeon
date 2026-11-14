@@ -132,33 +132,79 @@ function groundName(instanceId: string) {
   return `[data-testid="${rowTestId(`ground:${instanceId}`)}-name"]`;
 }
 
-function panelMetrics(page: Page): Promise<{
-  readonly width: number;
-  readonly height: number;
+interface BoxMetrics {
   readonly scrollWidth: number;
   readonly scrollHeight: number;
   readonly clientWidth: number;
   readonly clientHeight: number;
-  readonly bodyScrollHeight: number | null;
-  readonly bodyClientHeight: number | null;
+}
+
+function panelMetrics(page: Page): Promise<{
+  readonly width: number;
+  readonly height: number;
+  readonly panel: BoxMetrics;
+  readonly body: BoxMetrics | null;
+  readonly columns: Array<BoxMetrics | null>;
+  readonly groundScroll: BoxMetrics | null;
 }> {
   return page.getByTestId('inventory-panel').evaluate((element) => {
     const panel = element as HTMLElement;
     const body = panel.querySelector<HTMLElement>('.inventory-panel-body');
+    const columns = [
+      ...panel.querySelectorAll<HTMLElement>('.inventory-column'),
+    ];
+    const ground = panel.querySelector<HTMLElement>(
+      '[data-testid="inventory-ground-scroll"]',
+    );
     return {
       width: panel.getBoundingClientRect().width,
       height: panel.getBoundingClientRect().height,
-      scrollWidth: panel.scrollWidth,
-      scrollHeight: panel.scrollHeight,
-      clientWidth: panel.clientWidth,
-      clientHeight: panel.clientHeight,
-      bodyScrollHeight: body?.scrollHeight ?? null,
-      bodyClientHeight: body?.clientHeight ?? null,
+      panel: {
+        scrollWidth: panel.scrollWidth,
+        scrollHeight: panel.scrollHeight,
+        clientWidth: panel.clientWidth,
+        clientHeight: panel.clientHeight,
+      },
+      body: body
+        ? {
+            scrollWidth: body.scrollWidth,
+            scrollHeight: body.scrollHeight,
+            clientWidth: body.clientWidth,
+            clientHeight: body.clientHeight,
+          }
+        : null,
+      columns: columns.map((column) => ({
+        scrollWidth: column.scrollWidth,
+        scrollHeight: column.scrollHeight,
+        clientWidth: column.clientWidth,
+        clientHeight: column.clientHeight,
+      })),
+      groundScroll: ground
+        ? {
+            scrollWidth: ground.scrollWidth,
+            scrollHeight: ground.scrollHeight,
+            clientWidth: ground.clientWidth,
+            clientHeight: ground.clientHeight,
+          }
+        : null,
     };
   });
 }
 
-test('panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se omite', async ({
+function expectNoScroll(
+  metrics: BoxMetrics | null,
+  label: string,
+): void {
+  expect(metrics, `${label} debe existir`).not.toBeNull();
+  expect(metrics!.scrollWidth, `${label} recorta en horizontal`).toBeLessThanOrEqual(
+    metrics!.clientWidth + 1,
+  );
+  expect(metrics!.scrollHeight, `${label} recorta en vertical`).toBeLessThanOrEqual(
+    metrics!.clientHeight + 1,
+  );
+}
+
+test('panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío sigue visible', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
@@ -167,7 +213,8 @@ test('panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se
   expect(initial.players[0].equipment.weapon?.itemId).toBe('sword');
 
   await openPanel(page);
-  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
   await expect(page.getByTestId('inventory-player')).toHaveText(
     initial.players[0].nombre,
   );
@@ -211,7 +258,7 @@ test('panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío se
   expect(consoleErrors).toEqual([]);
 });
 
-test('panel: equipar y desequipar con teclado, comparación, desglose y 1 MP sin acción', async ({
+test('panel: equipar y desequipar con teclado y 1 MP sin acción', async ({
   page,
 }, testInfo) => {
   const consoleErrors = watchConsole(page);
@@ -222,17 +269,12 @@ test('panel: equipar y desequipar con teclado, comparación, desglose y 1 MP sin
 
   await expect(page.getByTestId('inventory-backpack-count')).toHaveText('1/8');
   await expect(page.locator(backpackName(0))).toHaveText('Hacha');
-  const comparison = page
-    .getByTestId('inventory-backpack-0')
-    .locator('.inventory-row-comparison');
-  await expect(comparison).toContainText('Antes → después:');
-  await expect(comparison).toContainText('Acierto');
-  await expect(page.getByTestId('inventory-stats-total')).toContainText('Habilidad');
-  await expect(page.getByTestId('inventory-stats-rows')).toContainText('Base:');
-  await expect(page.getByTestId('inventory-stats-rows')).toContainText(
-    'Espada (Arma):',
-  );
-  await screenshot(page, 'panel-comparacion', testInfo);
+  // La rejilla no muestra stats, traits ni comparación (REQ-032 R-009); el
+  // modelo conserva la comparación y el desglose para TASK-0102.
+  await expect(page.getByTestId('inventory-stats')).toHaveCount(0);
+  await expect(page.locator('.inventory-row-comparison')).toHaveCount(0);
+  await expect(page.locator('.inventory-row-traits')).toHaveCount(0);
+  await screenshot(page, 'panel-tres-columnas', testInfo);
 
   await pressPanelAction(page, panelActionTestId('equip', 'backpack:0'));
   await settle(page);
@@ -285,7 +327,8 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   expect(afterPickup.players[0].actions).toEqual(before.players[0].actions);
   expect(afterPickup.groundItems).toHaveLength(0);
   expect(afterPickup.players[0].inventory.items[0]?.itemId).toBe('axe');
-  await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+  await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
   await expect(page.locator(backpackName(0))).toHaveText('Hacha');
 
   await pressPanelAction(page, panelActionTestId('drop', 'backpack:0'));
@@ -297,6 +340,7 @@ test('panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acci�
   expect(afterDrop.groundItems[0].itemId).toBe('axe');
   expect(afterDrop.players[0].inventory.items.filter(Boolean)).toHaveLength(0);
   await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+  await expect(page.getByTestId('inventory-ground-empty')).toBeHidden();
 
   const dropped = afterDrop.groundItems[0];
   await pressPanelAction(page, panelActionTestId('pickup', `ground:${dropped.id}`));
@@ -461,7 +505,7 @@ test('sprites del panel coinciden con el objeto y F1 expone mochila, equipo, cap
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
 });
 
-test('capturas 1280×720 y 900×700: panel abierto, mochila llena y suelo vacío', async ({
+test('capturas 1280×720 y 900×700: mochila llena con cuatro objetos y suelo vacío', async ({
   page,
 }, testInfo) => {
   const metrics: Array<Record<string, unknown>> = [];
@@ -471,37 +515,49 @@ test('capturas 1280×720 y 900×700: panel abierto, mochila llena y suelo vacío
     await openScenario(page, { inventory: ['dagger'], ground: ['axe'] }, viewport);
     await openPanel(page);
     await screenshot(page, `panel-abierto-${suffix}`, testInfo);
-    metrics.push({ viewport: suffix, state: 'panel-abierto', ...(await panelMetrics(page)) });
-    await page
-      .locator('.inventory-panel-body')
-      .evaluate((element) => {
-        (element as HTMLElement).scrollTop = (element as HTMLElement).scrollHeight;
-      });
-    await screenshot(page, `panel-abierto-${suffix}-inferior`, testInfo);
+    const openMetrics = await panelMetrics(page);
+    expectNoScroll(openMetrics.panel, 'panel abierto');
+    expectNoScroll(openMetrics.body, 'cuerpo abierto');
+    metrics.push({ viewport: suffix, state: 'panel-abierto', ...openMetrics });
     await page.keyboard.press('Escape');
 
-    await openScenario(page, { inventory: FULL_BACKPACK }, viewport);
+    await openScenario(
+      page,
+      {
+        inventory: FULL_BACKPACK,
+        ground: ['axe', 'dagger', 'knife', 'hammer'],
+      },
+      viewport,
+    );
     await openPanel(page);
     await expect(page.getByTestId('inventory-backpack-count')).toHaveText('8/8');
-    await screenshot(page, `mochila-llena-${suffix}`, testInfo);
+    await expect(page.locator('.inventory-ground-row')).toHaveCount(4);
+    await screenshot(page, `mochila-llena-4-objetos-${suffix}`, testInfo);
+    const fullMetrics = await panelMetrics(page);
+    expectNoScroll(fullMetrics.panel, 'panel con mochila llena');
+    expectNoScroll(fullMetrics.body, 'cuerpo con mochila llena');
+    for (const [index, column] of fullMetrics.columns.entries()) {
+      expectNoScroll(column, `columna ${index + 1}`);
+    }
+    if (viewport.width === 1280) {
+      expectNoScroll(fullMetrics.groundScroll, 'suelo a 1280×720');
+    }
     metrics.push({
       viewport: suffix,
-      state: 'mochila-llena',
-      ...(await panelMetrics(page)),
+      state: 'mochila-llena-4-objetos',
+      ...fullMetrics,
     });
-    await page
-      .locator('.inventory-panel-body')
-      .evaluate((element) => {
-        (element as HTMLElement).scrollTop = (element as HTMLElement).scrollHeight;
-      });
-    await screenshot(page, `mochila-llena-${suffix}-inferior`, testInfo);
     await page.keyboard.press('Escape');
 
     await openScenario(page, { inventory: ['dagger'] }, viewport);
     await openPanel(page);
-    await expect(page.getByTestId('inventory-ground-section')).toBeHidden();
+    await expect(page.getByTestId('inventory-ground-section')).toBeVisible();
+    await expect(page.getByTestId('inventory-ground-empty')).toBeVisible();
     await screenshot(page, `suelo-vacio-${suffix}`, testInfo);
-    metrics.push({ viewport: suffix, state: 'suelo-vacio', ...(await panelMetrics(page)) });
+    const emptyMetrics = await panelMetrics(page);
+    expectNoScroll(emptyMetrics.panel, 'panel con suelo vacío');
+    expectNoScroll(emptyMetrics.body, 'cuerpo con suelo vacío');
+    metrics.push({ viewport: suffix, state: 'suelo-vacio', ...emptyMetrics });
     await page.keyboard.press('Escape');
   }
   await writeLog(testInfo, 'panel-metrics.json', metrics);

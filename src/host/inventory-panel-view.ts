@@ -1,13 +1,14 @@
 /**
- * Vista DOM del panel de personaje (REQ-018 T-008/T-009).
+ * Vista DOM del panel de personaje (REQ-018 T-008, REQ-032 N-001 a N-010).
  *
- * Vive dentro del marco 16:9, nunca en Canvas. Reutiliza filas y botones
- * estables para que el foco no se pierda en cada refresco, atrapa `Tab` dentro
- * del diálogo y deja `Escape`/`I` al host. La vista no valida: solo pinta el
- * modelo y despacha el comando de la acción confirmada.
+ * Vive dentro del marco 16:9, nunca en Canvas. Presenta tres columnas de un
+ * tercio: figura de equipo, mochila y columna derecha con cadáveres y suelo. La
+ * rejilla no muestra stats ni traits; el detalle llegará al HUD derecho en
+ * TASK-0102. La navegación es espacial sobre un plano único: la vista inyecta el
+ * centro de cada celda y el módulo puro resuelve el vecino.
  */
 
-import { EQUIPMENT_SLOTS } from '../game/equipment';
+import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../game/equipment';
 import type { GameState } from '../game/types';
 import {
   buildInventoryPanelModel,
@@ -15,15 +16,23 @@ import {
   type PanelAction,
   type PanelItem,
 } from './inventory-panel';
+import {
+  cycleZone,
+  findNeighbor,
+  firstInReadingOrder,
+  nearestTo,
+  type NavigationCell,
+  type NavigationDirection,
+  type NavigationPoint,
+} from './inventory-navigation';
 
-interface PanelRowView {
-  readonly root: HTMLElement;
+interface CellView {
+  readonly key: string;
+  readonly zone: string;
+  readonly root: HTMLLIElement;
   readonly icon: HTMLElement;
   readonly name: HTMLElement;
-  readonly detail: HTMLElement;
-  readonly traits: HTMLElement;
-  readonly comparison: HTMLElement;
-  readonly buttons: ReadonlyMap<PanelAction['kind'], HTMLButtonElement>;
+  readonly state: HTMLElement;
 }
 
 export interface InventoryPanelView {
@@ -35,7 +44,7 @@ export interface InventoryPanelView {
 }
 
 export interface InventoryPanelOptions {
-  /** Comando confirmado desde una fila; el host lo despacha y decide. */
+  /** Comando confirmado desde una barra de acciones; el host lo despacha. */
   readonly onCommand?: (action: PanelAction) => void;
   /** El botón de cerrar pide al host que cierre el panel. */
   readonly onClose?: () => void;
@@ -62,18 +71,51 @@ function rowTestId(key: string): string {
   return key.replace(/[^a-zA-Z0-9-]+/g, '-');
 }
 
-function createRow(
+function stateLabel(key: string): string {
+  if (key.startsWith('slot:')) return 'Equipado';
+  if (key.startsWith('backpack:')) return 'En mochila';
+  return 'En el suelo';
+}
+
+function directionForKey(key: string): NavigationDirection | null {
+  switch (key) {
+    case 'ArrowUp':
+      return 'up';
+    case 'ArrowDown':
+      return 'down';
+    case 'ArrowLeft':
+      return 'left';
+    case 'ArrowRight':
+      return 'right';
+    default:
+      break;
+  }
+  if (key.length !== 1) return null;
+  switch (key.toLowerCase()) {
+    case 'w':
+      return 'up';
+    case 's':
+      return 'down';
+    case 'a':
+      return 'left';
+    case 'd':
+      return 'right';
+    default:
+      return null;
+  }
+}
+
+function createCell(
   parent: HTMLElement,
   key: string,
-  kinds: readonly PanelAction['kind'][],
-): PanelRowView {
+  zone: string,
+  className: string,
+): CellView {
   const root = document.createElement('li');
-  root.className = 'inventory-row';
+  root.className = `inventory-row ${className}`;
   root.dataset.testid = `inventory-${rowTestId(key)}`;
   root.dataset.rowKey = key;
-
-  const header = document.createElement('div');
-  header.className = 'inventory-row-header';
+  root.dataset.zone = zone;
 
   const icon = document.createElement('span');
   icon.className = 'inventory-row-icon';
@@ -85,42 +127,17 @@ function createRow(
   name.className = 'inventory-row-name';
   name.dataset.testid = `inventory-${rowTestId(key)}-name`;
 
-  const detail = document.createElement('span');
-  detail.className = 'inventory-row-detail';
+  const state = document.createElement('span');
+  state.className = 'inventory-row-state';
+  state.dataset.testid = `inventory-${rowTestId(key)}-state`;
 
-  header.append(icon, name, detail);
-
-  const traits = document.createElement('p');
-  traits.className = 'inventory-row-traits';
-
-  const comparison = document.createElement('p');
-  comparison.className = 'inventory-row-comparison';
-
-  const actions = document.createElement('div');
-  actions.className = 'inventory-row-actions';
-
-  const buttons = new Map<PanelAction['kind'], HTMLButtonElement>();
-  for (const kind of kinds) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'inventory-action';
-    button.dataset.testid = `inventory-action-${kind}-${rowTestId(key)}`;
-    button.dataset.action = kind;
-    actions.append(button);
-    buttons.set(kind, button);
-  }
-
-  root.append(header, traits, comparison, actions);
+  root.append(icon, name, state);
   parent.append(root);
 
-  return { root, icon, name, detail, traits, comparison, buttons };
+  return { key, zone, root, icon, name, state };
 }
 
-/**
- * Icono DOM con el mismo recorte que el mundo: fondo CSS posicionado sobre
- * `items.png`, nunca un canvas. La hoja y el tamaño viven en `index.html`; aquí
- * solo se desplaza la ventana al `rect` del catálogo.
- */
+/** Icono DOM con el mismo recorte que el mundo: fondo CSS sobre `items.png`. */
 function updateIcon(icon: HTMLElement, item: PanelItem): void {
   const rect = item.sprite;
   icon.hidden = item.empty || rect === null;
@@ -131,42 +148,25 @@ function updateIcon(icon: HTMLElement, item: PanelItem): void {
   icon.style.backgroundPosition = `-${rect.x}px -${rect.y}px`;
 }
 
-function updateRow(
-  view: PanelRowView,
-  item: PanelItem,
-  onCommand: (action: PanelAction) => void,
-): void {
+function updateCell(view: CellView, item: PanelItem): void {
   view.root.dataset.empty = String(item.empty);
   view.root.classList.toggle('is-empty', item.empty);
   updateIcon(view.icon, item);
   view.name.textContent = item.name;
-  view.detail.textContent = item.detail;
+  // El nombre ya dice «Vacío»; el estado solo informa de objetos presentes.
+  view.state.textContent = item.empty ? '' : stateLabel(view.key);
 
-  const hasTraits = item.traits.length > 0;
-  view.traits.hidden = item.empty;
-  view.traits.textContent = hasTraits
-    ? `Traits: ${item.traits.join(' · ')}`
-    : 'Traits: —';
-
-  const hasComparison = item.comparison.length > 0;
-  view.comparison.hidden = item.empty || !hasComparison;
-  view.comparison.textContent = hasComparison
-    ? `Antes → después: ${item.comparison
-        .map((row) => `${row.label} ${row.before} → ${row.after}`)
-        .join(' · ')}`
-    : '';
-
-  for (const [kind, button] of view.buttons) {
-    const action = item.actions.find((candidate) => candidate.kind === kind);
-    button.hidden = action === undefined;
-    if (!action) {
-      button.textContent = '';
-      button.onclick = null;
-      continue;
-    }
-    button.textContent = action.label;
-    button.onclick = () => onCommand(action);
+  if (item.empty) {
+    view.root.removeAttribute('tabindex');
+    view.root.setAttribute('aria-disabled', 'true');
+    view.root.setAttribute(
+      'aria-label',
+      `${item.detail}: vacío, no seleccionable`,
+    );
+    return;
   }
+  view.root.removeAttribute('aria-disabled');
+  view.root.setAttribute('aria-label', `${item.name}, ${stateLabel(view.key)}`);
 }
 
 export function createInventoryPanelView(
@@ -179,108 +179,351 @@ export function createInventoryPanelView(
   const backpackCount = requireElement(root, 'inventory-backpack-count');
   const equipmentList = requireElement(root, 'inventory-equipment');
   const backpackList = requireElement(root, 'inventory-backpack');
-  const groundSection = requireElement(root, 'inventory-ground-section');
-  const groundHint = requireElement(root, 'inventory-ground-hint');
   const groundList = requireElement(root, 'inventory-ground');
-  const statsTotal = requireElement(root, 'inventory-stats-total');
-  const statsRows = requireElement(root, 'inventory-stats-rows');
+  const groundScroll = requireElement(root, 'inventory-ground-scroll');
+  const groundHint = requireElement(root, 'inventory-ground-hint');
+  const groundEmpty = requireElement(root, 'inventory-ground-empty');
+  const cadaversEmpty = requireElement(root, 'inventory-cadavers-empty');
+  const selection = requireElement(root, 'inventory-selection');
+  const actionsButtons = requireElement(root, 'inventory-actions-buttons');
   const message = requireElement(root, 'inventory-message');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
 
-  const equipmentRows = new Map<string, PanelRowView>();
+  const equipmentCells = new Map<EquipmentSlot, CellView>();
   for (const slot of EQUIPMENT_SLOTS) {
-    equipmentRows.set(
-      `slot:${slot}`,
-      createRow(equipmentList, `slot:${slot}`, ['unequip', 'drop']),
+    equipmentCells.set(
+      slot,
+      createCell(
+        equipmentList,
+        `slot:${slot}`,
+        'equipment',
+        `inventory-slot inventory-slot-${slot}`,
+      ),
     );
   }
 
-  const backpackRows = new Map<string, PanelRowView>();
-  const groundRows = new Map<string, PanelRowView>();
+  const backpackCells = new Map<number, CellView>();
+  const groundCells = new Map<string, CellView>();
+  const zoneLastKey = new Map<string, string>();
+  let currentCells: readonly NavigationCell[] = [];
+  let model: InventoryPanelModel | null = null;
+  let selectedKey: string | null = null;
+  let lastKey: string | null = null;
   let previousFocus: HTMLElement | null = null;
+  let focusSelectedRequested = false;
+  let actionsSignature = '';
 
-  const onCommand = (action: PanelAction): void => {
-    options.onCommand?.(action);
+  const cellView = (key: string): CellView | null => {
+    for (const view of equipmentCells.values()) {
+      if (view.key === key) return view;
+    }
+    for (const view of backpackCells.values()) {
+      if (view.key === key) return view;
+    }
+    return groundCells.get(key) ?? null;
   };
 
-  const focusables = (): readonly HTMLElement[] => {
-    const nodes = panel.querySelectorAll<HTMLElement>(
-      'button:not([disabled]):not([hidden])',
+  const centerOf = (key: string): NavigationPoint | null => {
+    const view = cellView(key);
+    if (!view || !view.root.isConnected || view.root.dataset.empty === 'true') {
+      return null;
+    }
+    const panelRect = panel.getBoundingClientRect();
+    const rect = view.root.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - panelRect.left,
+      y: rect.top + rect.height / 2 - panelRect.top,
+    };
+  };
+
+  const readCells = (): readonly NavigationCell[] => {
+    const cells: NavigationCell[] = [];
+    for (const view of [
+      ...equipmentCells.values(),
+      ...backpackCells.values(),
+      ...groundCells.values(),
+    ]) {
+      if (!view.root.isConnected || view.root.dataset.empty === 'true') continue;
+      const center = centerOf(view.key);
+      if (center) cells.push({ key: view.key, zone: view.zone, center });
+    }
+    return cells;
+  };
+
+  const itemForKey = (key: string | null): PanelItem | null => {
+    if (!model || key === null) return null;
+    return (
+      model.equipment.find((item) => item.key === key) ??
+      model.backpack.find((item) => item.key === key) ??
+      model.ground.find((item) => item.key === key) ??
+      null
     );
-    return [...nodes].filter((node) => node.offsetParent !== null);
   };
 
-  const focusFirst = (): void => {
-    const first = focusables()[0];
-    first?.focus();
-  };
+  const actionButtons = (): HTMLButtonElement[] =>
+    [...actionsButtons.querySelectorAll<HTMLButtonElement>('button.inventory-action')];
 
-  const ensureBackpackRow = (key: string): PanelRowView => {
-    const existing = backpackRows.get(key);
-    if (existing) return existing;
-    const created = createRow(backpackList, key, ['equip', 'drop']);
-    backpackRows.set(key, created);
-    return created;
-  };
-
-  const ensureGroundRow = (key: string): PanelRowView => {
-    const existing = groundRows.get(key);
-    if (existing) return existing;
-    const created = createRow(groundList, key, ['pickup', 'equip']);
-    groundRows.set(key, created);
-    return created;
-  };
-
-  const renderModel = (model: InventoryPanelModel): void => {
-    player.textContent = model.playerName;
-    mp.textContent = model.mp;
-    backpackCount.textContent = model.backpackCount;
-
-    for (const item of model.equipment) {
-      const row = equipmentRows.get(item.key);
-      if (row) updateRow(row, item, onCommand);
+  const revealRow = (view: CellView): void => {
+    if (view.zone !== 'right' || !groundList.contains(view.root)) return;
+    const rowRect = view.root.getBoundingClientRect();
+    const scrollRect = groundScroll.getBoundingClientRect();
+    if (rowRect.top < scrollRect.top) {
+      groundScroll.scrollTop -= scrollRect.top - rowRect.top;
+    } else if (rowRect.bottom > scrollRect.bottom) {
+      groundScroll.scrollTop += rowRect.bottom - scrollRect.bottom;
     }
+  };
 
-    for (const item of model.backpack) {
-      updateRow(ensureBackpackRow(item.key), item, onCommand);
+  const focusRow = (view: CellView): void => {
+    view.root.focus({ preventScroll: true });
+    revealRow(view);
+  };
+
+  const focusSelectedOrClose = (): void => {
+    const view = selectedKey === null ? null : cellView(selectedKey);
+    if (view && view.root.dataset.empty === 'false') {
+      focusRow(view);
+      return;
     }
-    for (const [key, row] of backpackRows) {
-      const present = model.backpack.some((item) => item.key === key);
-      if (!present) {
-        row.root.remove();
-        backpackRows.delete(key);
+    closeButton.focus();
+  };
+
+  const renderActions = (): void => {
+    const item = itemForKey(selectedKey);
+    const actions = item?.actions ?? [];
+    selection.textContent = item
+      ? `${item.name} · ${item.empty ? 'Vacío' : stateLabel(item.key)}`
+      : 'Sin objeto seleccionado';
+
+    const signature = `${selectedKey ?? ''}|${actions
+      .map((action) => `${action.kind}:${action.label}:${JSON.stringify(action.command)}`)
+      .join('|')}`;
+    if (signature === actionsSignature) return;
+    actionsSignature = signature;
+
+    actionsButtons.replaceChildren(
+      ...actions.map((action) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'inventory-action';
+        button.dataset.testid = `inventory-action-${action.kind}-${rowTestId(
+          selectedKey ?? '',
+        )}`;
+        button.dataset.action = action.kind;
+        button.textContent = action.label;
+        button.addEventListener('click', () => {
+          focusSelectedRequested = true;
+          options.onCommand?.(action);
+        });
+        return button;
+      }),
+    );
+  };
+
+  const applySelection = (focus: boolean): void => {
+    for (const view of [
+      ...equipmentCells.values(),
+      ...backpackCells.values(),
+      ...groundCells.values(),
+    ]) {
+      const occupied = view.root.dataset.empty === 'false';
+      const selected = occupied && view.key === selectedKey;
+      view.root.classList.toggle('is-selected', selected);
+      view.root.setAttribute('aria-current', selected ? 'true' : 'false');
+      if (occupied) view.root.tabIndex = selected ? 0 : -1;
+    }
+    panel.dataset.selectedKey = selectedKey ?? '';
+    renderActions();
+    if (selectedKey !== null) {
+      const view = cellView(selectedKey);
+      if (view) zoneLastKey.set(view.zone, selectedKey);
+    }
+    if (!focus) return;
+    if (selectedKey !== null) {
+      const view = cellView(selectedKey);
+      if (view) {
+        focusRow(view);
+        return;
+      }
+    }
+    closeButton.focus();
+  };
+
+  const selectByKey = (key: string, focus: boolean): void => {
+    selectedKey = key;
+    lastKey = key;
+    applySelection(focus);
+  };
+
+  const zoneOf = (element: HTMLElement | null): string | null => {
+    if (!element) return null;
+    if (element === closeButton) return 'close';
+    const zone = element.closest<HTMLElement>('[data-zone]');
+    return zone?.dataset.zone ?? null;
+  };
+
+  const availableZones = (): string[] => {
+    const zones: string[] = [];
+    if (currentCells.some((cell) => cell.zone === 'equipment')) zones.push('equipment');
+    if (currentCells.some((cell) => cell.zone === 'backpack')) zones.push('backpack');
+    if (currentCells.some((cell) => cell.zone === 'right')) zones.push('right');
+    if (actionButtons().length > 0) zones.push('actions');
+    zones.push('close');
+    return zones;
+  };
+
+  const focusZone = (zone: string | null, backwards: boolean): void => {
+    if (zone === null) return;
+    if (zone === 'close') {
+      closeButton.focus();
+      return;
+    }
+    if (zone === 'actions') {
+      const buttons = actionButtons();
+      (backwards ? buttons[buttons.length - 1] : buttons[0])?.focus();
+      return;
+    }
+    const zoneCells = currentCells.filter((cell) => cell.zone === zone);
+    if (zoneCells.length === 0) return;
+    const remembered = zoneLastKey.get(zone);
+    const target =
+      zoneCells.find((cell) => cell.key === remembered) ??
+      firstInReadingOrder(zoneCells);
+    if (!target) return;
+    // `Tab` recorre zonas: enfoca el objeto recordado sin cambiar la selección,
+    // que solo mueven las flechas o la regla de foco tras una operación.
+    const view = cellView(target.key);
+    if (view) {
+      zoneLastKey.set(zone, target.key);
+      focusRow(view);
+    }
+  };
+
+  const handleTab = (event: KeyboardEvent): void => {
+    const active = focusedElement();
+    const currentZone = zoneOf(active);
+    const backwards = event.shiftKey;
+
+    if (currentZone === 'actions') {
+      const buttons = actionButtons();
+      const index = active === null ? -1 : buttons.indexOf(active as HTMLButtonElement);
+      const target = buttons[index + (backwards ? -1 : 1)];
+      if (target) {
+        event.preventDefault();
+        target.focus();
+        return;
       }
     }
 
-    const ground = model.ground;
-    groundSection.hidden = ground === null;
-    groundHint.textContent = model.groundHint;
-    groundHint.hidden = model.groundHint === '';
-    for (const item of ground ?? []) {
-      updateRow(ensureGroundRow(item.key), item, onCommand);
+    const zones = availableZones();
+    const next = cycleZone(zones, currentZone, backwards);
+    if (next === null) {
+      event.preventDefault();
+      closeButton.focus();
+      return;
     }
-    const groundKeys = new Set((ground ?? []).map((item) => item.key));
-    for (const [key, row] of groundRows) {
+    event.preventDefault();
+    focusZone(next, backwards);
+  };
+
+  const renderModel = (state: GameState, mode: 'open' | 'update'): void => {
+    const next = buildInventoryPanelModel(state);
+    // El centro anterior se mide antes de retirar o vaciar filas: es la
+    // referencia de N-008 cuando el objeto seleccionado desaparece.
+    const previousKey = selectedKey;
+    const previousCenter = previousKey === null ? null : centerOf(previousKey);
+
+    model = next;
+    player.textContent = next.playerName;
+    mp.textContent = next.mp;
+    backpackCount.textContent = next.backpackCount;
+
+    for (const item of next.equipment) {
+      const slot = item.key.slice('slot:'.length) as EquipmentSlot;
+      const view = equipmentCells.get(slot);
+      if (view) updateCell(view, item);
+    }
+
+    for (const item of next.backpack) {
+      const index = Number(item.key.slice('backpack:'.length));
+      let view = backpackCells.get(index);
+      if (!view) {
+        view = createCell(
+          backpackList,
+          `backpack:${index}`,
+          'backpack',
+          'inventory-backpack-cell',
+        );
+        backpackCells.set(index, view);
+      }
+      updateCell(view, item);
+    }
+    for (const [index, view] of backpackCells) {
+      if (index < next.backpack.length) continue;
+      view.root.remove();
+      backpackCells.delete(index);
+    }
+
+    const groundKeys = new Set(next.ground.map((item) => item.key));
+    for (const item of next.ground) {
+      let view = groundCells.get(item.key);
+      if (!view) {
+        view = createCell(groundList, item.key, 'right', 'inventory-ground-row');
+        groundCells.set(item.key, view);
+      }
+      updateCell(view, item);
+    }
+    for (const [key, view] of groundCells) {
       if (groundKeys.has(key)) continue;
-      row.root.remove();
-      groundRows.delete(key);
+      view.root.remove();
+      groundCells.delete(key);
     }
 
-    statsTotal.textContent = model.stats.total;
-    statsRows.replaceChildren(
-      ...model.stats.rows.map((row) => {
-        const entry = document.createElement('li');
-        entry.className = 'inventory-stats-row';
-        const label = document.createElement('strong');
-        label.textContent = `${row.label}: `;
-        entry.append(label, row.value);
-        return entry;
-      }),
-    );
+    groundHint.textContent = next.groundHint;
+    groundHint.hidden = next.groundHint === '';
+    groundEmpty.textContent = next.groundEmptyHint;
+    groundEmpty.hidden = next.ground.length > 0;
+    cadaversEmpty.textContent = next.corpsesEmptyHint;
+    cadaversEmpty.hidden = next.corpses.length > 0;
 
-    // Un refresco puede retirar la fila enfocada (recoger, soltar). El foco
-    // vuelve al panel para que `Tab` siga atrapado y la navegación no se rompa.
-    if (!panel.hidden && !panel.contains(document.activeElement)) focusFirst();
+    currentCells = readCells();
+
+    if (mode === 'open') {
+      selectedKey =
+        lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
+          ? lastKey
+          : (firstInReadingOrder(currentCells)?.key ?? null);
+    } else if (
+      selectedKey !== null &&
+      currentCells.some((cell) => cell.key === selectedKey)
+    ) {
+      // El objeto sigue existiendo: se conserva la selección (N-007/N-008).
+    } else if (previousCenter !== null) {
+      selectedKey = nearestTo(currentCells, previousCenter)?.key ?? null;
+    } else {
+      selectedKey =
+        lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
+          ? lastKey
+          : (firstInReadingOrder(currentCells)?.key ?? null);
+    }
+    lastKey = selectedKey ?? lastKey;
+    applySelection(false);
+
+    const active = focusedElement();
+    const activeInside = active !== null && panel.contains(active);
+    const activeKey = active?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+    const activeStillValid =
+      activeKey === undefined ||
+      currentCells.some((cell) => cell.key === activeKey);
+
+    if (!panel.hidden) {
+      if (focusSelectedRequested) {
+        focusSelectedRequested = false;
+        focusSelectedOrClose();
+      } else if (!activeInside || !activeStillValid) {
+        focusSelectedOrClose();
+      }
+    }
   };
 
   closeButton.addEventListener('click', () => {
@@ -293,28 +536,27 @@ export function createInventoryPanelView(
     if (panel.hidden) return;
     const target = event.target;
     if (target instanceof Node && panel.contains(target)) return;
-    focusFirst();
+    focusSelectedOrClose();
   });
 
-  // Atrapa el foco dentro del diálogo y permite recorrer acciones con flechas.
   panel.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab' && event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey) {
       return;
     }
-    const nodes = focusables();
-    if (nodes.length === 0) return;
-    const current = nodes.indexOf(document.activeElement as HTMLElement);
-    const backwards =
-      event.key === 'ArrowUp' || (event.key === 'Tab' && event.shiftKey);
-    const delta = backwards ? -1 : 1;
-    const next =
-      current < 0
-        ? event.shiftKey
-          ? nodes.length - 1
-          : 0
-        : (current + delta + nodes.length) % nodes.length;
+    if (event.key === 'Tab') {
+      handleTab(event);
+      return;
+    }
+    const direction = directionForKey(event.key);
+    if (direction === null) return;
     event.preventDefault();
-    nodes[next].focus();
+    const activeKey = focusedElement()
+      ?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+    const origin = activeKey ?? selectedKey;
+    if (origin === null) return;
+    const target = findNeighbor(currentCells, origin, direction);
+    if (target === null) return; // Sin rebote en el borde.
+    selectByKey(target.key, true);
   });
 
   return {
@@ -323,13 +565,14 @@ export function createInventoryPanelView(
       panel.hidden = false;
       message.hidden = true;
       message.textContent = '';
-      renderModel(buildInventoryPanelModel(state));
-      focusFirst();
+      renderModel(state, 'open');
+      focusSelectedOrClose();
     },
     close(): void {
       panel.hidden = true;
       message.hidden = true;
       message.textContent = '';
+      focusSelectedRequested = false;
       if (previousFocus?.isConnected) previousFocus.focus();
       previousFocus = null;
     },
@@ -338,7 +581,7 @@ export function createInventoryPanelView(
     },
     update(state: GameState): void {
       if (panel.hidden) return;
-      renderModel(buildInventoryPanelModel(state));
+      renderModel(state, 'update');
     },
     setMessage(value: string | null): void {
       message.textContent = value ?? '';
