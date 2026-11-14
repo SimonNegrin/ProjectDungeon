@@ -1420,3 +1420,139 @@ export async function retreatEnemyOutOfReach(
 
   throw new Error('No se consiguió que el enemigo quedara fuera de alcance.');
 }
+
+/* ------------------------------- CLS audit ------------------------------- */
+
+export interface LayoutShiftSource {
+  readonly label: string;
+  readonly forbidden: boolean;
+}
+
+export interface LayoutShiftRecord {
+  readonly value: number;
+  readonly hadRecentInput: boolean;
+  readonly forbidden: boolean;
+  readonly sources: readonly LayoutShiftSource[];
+}
+
+/**
+ * Arranca la auditoría de layout-shift en la página. El callback inyectado con
+ * `page.evaluate` es autocontenido: no referencia imports ni closures del
+ * módulo; solo los globales `__layoutShifts` y `__layoutObserver`.
+ *
+ * P-006: el presupuesto es 0 para el armazón, el panel, su body, el contenedor
+ * de columnas, los títulos y los slots de Equipo/Bolsa ya colocados. El
+ * contenido del Suelo (objetos y cadáveres) pertenece a su zona y no es
+ * prohibido por sí mismo.
+ */
+export async function startLayoutShiftAudit(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const shifts: Array<{
+      value: number;
+      hadRecentInput: boolean;
+      forbidden: boolean;
+      sources: Array<{ label: string; forbidden: boolean }>;
+    }> = [];
+    (window as unknown as { __layoutShifts: typeof shifts }).__layoutShifts =
+      shifts;
+    const describe = (node: Element): string => {
+      const testId = node.getAttribute('data-testid');
+      return `${node.tagName.toLowerCase()}${testId ? `[${testId}]` : ''}${
+        node.classList.length > 0 ? `.${[...node.classList].join('.')}` : ''
+      }`;
+    };
+    if (typeof PerformanceObserver === 'undefined') return;
+    const observer = new PerformanceObserver((list) => {
+      for (const raw of list.getEntries()) {
+        const entry = raw as PerformanceEntry & {
+          value?: number;
+          hadRecentInput?: boolean;
+          sources?: ReadonlyArray<{ node?: Node | null }>;
+        };
+        const sources = (entry.sources ?? []).map((source) => {
+          const node = source.node;
+          if (!(node instanceof Element)) {
+            return { label: 'unknown', forbidden: false };
+          }
+          const forbidden =
+            node.matches(
+              '[data-testid="frame"], [data-testid="inventory-panel"], .inventory-panel-body, .inventory-columns, .inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
+            ) ||
+            Boolean(
+              node.closest(
+                '.inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
+              ),
+            );
+          return { label: describe(node), forbidden };
+        });
+        shifts.push({
+          value: entry.value ?? 0,
+          hadRecentInput: entry.hadRecentInput ?? false,
+          forbidden: sources.some((source) => source.forbidden),
+          sources,
+        });
+      }
+    });
+    observer.observe({ type: 'layout-shift', buffered: false });
+    (window as unknown as { __layoutObserver?: PerformanceObserver })
+      .__layoutObserver = observer;
+  });
+}
+
+/** Devuelve los registros observados desde el arranque o el último reset. */
+export async function readLayoutShifts(
+  page: Page,
+): Promise<LayoutShiftRecord[]> {
+  return page.evaluate(
+    () =>
+      (
+        window as unknown as {
+          __layoutShifts: Array<{
+            value: number;
+            hadRecentInput: boolean;
+            forbidden: boolean;
+            sources: Array<{ label: string; forbidden: boolean }>;
+          }>;
+        }
+      ).__layoutShifts,
+  );
+}
+
+/** Vacía el buffer de registros sin detener el observer. */
+export async function resetLayoutShifts(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const shifts = (window as unknown as { __layoutShifts: unknown[] })
+      .__layoutShifts;
+    if (shifts) shifts.length = 0;
+  });
+}
+
+/**
+ * Espera dos frames y falla si hay algún shift prohibido. Devuelve todos los
+ * registros para que el test pueda guardarlos como evidencia; un shift real
+ * prohibido no se silencia.
+ */
+export async function expectNoForbiddenShifts(
+  page: Page,
+  label: string,
+): Promise<LayoutShiftRecord[]> {
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        let seen = 0;
+        const step = (): void => {
+          seen += 1;
+          if (seen >= 2) resolve();
+          else requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }),
+  );
+  const shifts = await readLayoutShifts(page);
+  const forbidden = shifts.filter((shift) => shift.forbidden);
+  expect(
+    forbidden,
+    `${label}: layout shifts de marco/panel/slots: ${JSON.stringify(forbidden)}`,
+  ).toEqual([]);
+  return shifts;
+}

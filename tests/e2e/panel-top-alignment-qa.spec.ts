@@ -8,11 +8,14 @@ import { equipmentFromLegacy, inventoryFromIds } from '../../src/game/inventory'
 import type { GameState } from '../../src/game/types';
 import { artifactPath } from './artifacts';
 import {
+  expectNoForbiddenShifts,
   openState,
   panelActionTestId,
   pressPanelAction,
+  resetLayoutShifts,
   selectPanelRow,
   settle,
+  startLayoutShiftAudit,
 } from './support';
 
 const SEED = 279837264;
@@ -335,84 +338,6 @@ function expectStable(before: PanelLayout, after: PanelLayout, label: string): v
     expectRectEqual(after.backpack[index].rect, slot.rect, `${label}: ${slot.key}`);
   });
   expectRectEqual(after.ground[0].rect, before.ground[0].rect, `${label}: suelo`);
-}
-
-interface LayoutShiftRecord {
-  readonly value: number;
-  readonly hadRecentInput: boolean;
-  readonly forbidden: boolean;
-  readonly sources: readonly string[];
-}
-
-async function startLayoutShiftAudit(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts: LayoutShiftRecord[] = [];
-    (window as unknown as { __layoutShifts: LayoutShiftRecord[] }).__layoutShifts =
-      shifts;
-    if (typeof PerformanceObserver === 'undefined') return;
-    const observer = new PerformanceObserver((list) => {
-      for (const raw of list.getEntries()) {
-        const entry = raw as PerformanceEntry & {
-          value?: number;
-          hadRecentInput?: boolean;
-          sources?: ReadonlyArray<{ node?: Node | null }>;
-        };
-        const sources = (entry.sources ?? []).map((source) => {
-          const node = source.node;
-          if (!(node instanceof Element)) return 'unknown';
-          const testId = node.getAttribute('data-testid');
-          return `${node.tagName.toLowerCase()}${testId ? `[${testId}]` : ''}`;
-        });
-        const forbidden = (entry.sources ?? []).some((source) => {
-          const node = source.node;
-          if (!(node instanceof Element)) return false;
-          // Solo el armazón y las cajas estables del panel; el Suelo gestiona
-          // su propia reordenación al recoger o soltar (P-006).
-          return (
-            node.matches(
-              '[data-testid="frame"], [data-testid="inventory-panel"], .inventory-panel-body, .inventory-columns, .inventory-column, .inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-            ) ||
-            Boolean(
-              node.closest(
-                '.inventory-section-title, .inventory-column-equipment .inventory-slot, .inventory-column-backpack .inventory-slot',
-              ),
-            )
-          );
-        });
-        shifts.push({
-          value: entry.value ?? 0,
-          hadRecentInput: entry.hadRecentInput ?? false,
-          forbidden,
-          sources,
-        });
-      }
-    });
-    observer.observe({ type: 'layout-shift', buffered: false });
-  });
-}
-
-async function expectNoForbiddenShifts(
-  page: Page,
-  label: string,
-): Promise<LayoutShiftRecord[]> {
-  const shifts = await page.evaluate(
-    () =>
-      (window as unknown as { __layoutShifts: LayoutShiftRecord[] })
-        .__layoutShifts,
-  );
-  expect(
-    shifts.filter((shift) => shift.forbidden),
-    `${label}: layout shifts de marco, panel o columnas`,
-  ).toEqual([]);
-  return shifts;
-}
-
-async function resetLayoutShifts(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const shifts = (window as unknown as { __layoutShifts: LayoutShiftRecord[] })
-      .__layoutShifts;
-    if (shifts) shifts.length = 0;
-  });
 }
 
 test('panel arriba: títulos, rejillas y casco en la primera fila', async ({
