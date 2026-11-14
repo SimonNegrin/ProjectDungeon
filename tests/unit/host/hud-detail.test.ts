@@ -419,7 +419,8 @@ describe('ficha de dos bloques con el panel abierto', () => {
   });
 });
 
-describe('solo lectura del modelo del HUD', () => {  it('buildHudModel y buildCursorDetail no mutan estado ni RNG', () => {
+describe('solo lectura del modelo del HUD', () => {
+  it('buildHudModel y buildCursorDetail no mutan estado ni RNG', () => {
     const state = enemyState();
     const before = JSON.stringify(state);
     const rngBefore = state.rng;

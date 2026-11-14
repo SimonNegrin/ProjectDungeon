@@ -383,7 +383,7 @@ test('posiciones y capturas 1280×720 y 900×700 sin tapar la columna', async ({
     await selectPanelRow(page, 'backpack:0');
     await page.keyboard.press('Enter');
     await expect(page.getByTestId('inventory-submenu')).toBeVisible();
-    await screenshot(page, `submenu-${suffix}`, testInfo);
+    await screenshot(page, `submenu-posiciones-${suffix}`, testInfo);
 
     const geometry = await page.evaluate(() => {
       const row = document.querySelector<HTMLElement>('[data-row-key="backpack:0"]');
@@ -425,18 +425,20 @@ test('posiciones y capturas 1280×720 y 900×700 sin tapar la columna', async ({
     expect(g.menu.top).toBeGreaterThanOrEqual(g.panel.top - 1);
     expect(g.menu.bottom).toBeLessThanOrEqual(g.panel.bottom + 1);
 
+    log.push({ viewport: suffix, ...g });
+
+    // Cerrar el submenú deja el panel abierto: la ficha se captura limpia.
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('inventory-submenu')).toBeHidden();
+    expect(await activeKey(page)).toBe('backpack:0');
     await expect(page.getByTestId('hud-panel-selected-title')).toHaveText(
       ITEMS.axe.name,
     );
     await expect(page.getByTestId('hud-panel-equipped-title')).toHaveText(
       ITEMS.sword.name,
     );
-    await screenshot(page, `ficha-dos-bloques-${suffix}`, testInfo);
-    log.push({ viewport: suffix, ...g });
+    await screenshot(page, `ficha-posiciones-${suffix}`, testInfo);
 
-    await page.keyboard.press('Escape');
-    await expect(page.getByTestId('inventory-submenu')).toBeHidden();
-    expect(await activeKey(page)).toBe('backpack:0');
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('inventory-panel')).toBeHidden();
   }
