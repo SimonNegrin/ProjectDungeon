@@ -1,0 +1,22 @@
+
+Running 17 tests using 4 workers
+
+  ✓   3 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:208:1 › panel: I abre, Escape cierra, el mapa queda bloqueado y el suelo vacío sigue visible (1.5s)
+  ✓   4 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:262:1 › panel: equipar y desequipar con teclado y 1 MP sin acción (1.6s)
+  ✓   1 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:373:1 › mochila llena: recoger y equipar desde el suelo se rechazan sin mover nada; el intercambio de mochila sí cabe (1.7s)
+  ✓   2 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:311:1 › panel: recoger, soltar y soltar un equipado cuestan 1 MP y no gastan acción (2.1s)
+  ✓   5 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:440:1 › sin MP: equipar aparece no disponible con motivo y no altera el estado ni gasta acción (818ms)
+  ✓   7 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:495:1 › sprites del panel coinciden con el objeto y F1 expone mochila, equipo, capacidad y suelo (860ms)
+  ✓   6 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:465:1 › G y 1-3 no recogen ni cambian de arma; el panel es el único camino (1.2s)
+  ✓  10 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:258:1 › submenú: flechas, izquierda/derecha inertes y Enter una sola vez (924ms)
+  ✓  11 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:291:1 › 0 MP: opciones no disponibles con motivo y sin despacho (1.1s)
+  ✓   9 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:129:1 › submenú y ficha: equipar, desequipar, recoger y soltar sin gastar al abrir (2.2s)
+  ✓  12 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:341:1 › mochila llena: no se ofrece recoger y equipar desde el suelo se rechaza (1.0s)
+  ✓   8 [chromium] › tests/e2e/inventory-equipment-qa.spec.ts:526:1 › capturas 1280×720 y 900×700: mochila llena con cuatro objetos y suelo vacío (3.0s)
+  ✓  13 [chromium] › tests/e2e/panel-submenu-hud-qa.spec.ts:370:1 › posiciones y capturas 1280×720 y 900×700 sin tapar la columna (1.3s)
+  ✓  14 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:200:1 › tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son paradas (1.6s)
+  ✓  16 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:431:1 › scroll: a 1280×720 nada desborda; a 900×700 solo el suelo se desplaza (1.1s)
+  ✓  15 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:277:1 › flechas y WASD recorren el plano, sin rebote y con empate determinista (1.8s)
+  ✓  17 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:323:1 › Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar (1.5s)
+
+  17 passed (8.2s)
