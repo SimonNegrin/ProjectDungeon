@@ -4,22 +4,31 @@ id: TASK-0121
 title: "E2E: observer de CLS compartido y alineado con P-006"
 description: "Extraer a un único helper Node-side el observer de layout-shift que hoy copian cuatro specs de QA visual, con un esquema común y un filtro que solo prohíbe el armazón, el panel, las columnas, los títulos y los slots de Equipo/Bolsa."
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-033
 requirement_ids: [P-006]
 depends_on: []
 unlocks: []
 created_at: 2026-11-14T20:37:07Z
-completed_at:
+completed_at: 2026-11-14T20:52:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0121/
 priority: P2
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T20:37:07Z }
 verified:
+  - by: task-lead
+    at: 2026-11-14T20:52:00Z
+    note: >-
+      Intento 1 verificado (test `8ab2b98`; informe `e960e6a`). Diff revisado:
+      helper único en `support.ts`, cuatro specs sin copias inline ni aserciones
+      debilitadas. Reejecutados los cuatro specs (32/32), `pnpm run test:e2e`
+      (215/215) y `pnpm run verify` (94 archivos, 1332/1332, build y bundle);
+      salidas en `lead-verify/`. Log de recogida de 4 objetos sin ningún
+      `forbidden: true`.
 ---
 
 # Objetivo
@@ -52,26 +61,26 @@ Evidencia: `artifacts/TASK-0114/attempt-1/report.md:58` (fricción `deferred`).
 
 # Criterios de aceptación
 
-- [ ] Existe un único helper Node-side (`startLayoutShiftAudit`,
+- [x] Existe un único helper Node-side (`startLayoutShiftAudit`,
       `readLayoutShifts`, `resetLayoutShifts`, `expectNoForbiddenShifts`) en
       `tests/e2e/support.ts` o en un módulo propio; no queda ninguna copia
       inline del observer.
-- [ ] El callback inyectado con `page.evaluate` es autocontenido: no captura
+- [x] El callback inyectado con `page.evaluate` es autocontenido: no captura
       imports ni closures del módulo; usa un único nombre de global para los
       shifts.
-- [ ] Se considera prohibido solo un shift cuyo nodo sea el armazón, el panel, su
+- [x] Se considera prohibido solo un shift cuyo nodo sea el armazón, el panel, su
       body, el contenedor de columnas, un título o un slot de Equipo/Bolsa ya
       colocado. El contenido del Suelo (objetos y cadáveres) no es prohibido por
       sí mismo.
-- [ ] El registro conserva `value`, `hadRecentInput` y `sources`, con el mismo
+- [x] El registro conserva `value`, `hadRecentInput` y `sources`, con el mismo
       esquema en los cuatro specs.
-- [ ] Los cuatro specs importan el helper y siguen pasando; no se borran,
+- [x] Los cuatro specs importan el helper y siguen pasando; no se borran,
       saltan ni debilitan aserciones.
-- [ ] Hay cobertura E2E de recoger con 4 objetos en el Suelo sin shifts
+- [x] Hay cobertura E2E de recoger con 4 objetos en el Suelo sin shifts
       prohibidos.
-- [ ] Si al corregir el filtro aparece un shift real prohibido, no se silencia:
+- [x] Si al corregir el filtro aparece un shift real prohibido, no se silencia:
       se registra y se escala como otra tarea.
-- [ ] `pnpm exec playwright test` sobre los cuatro specs y `pnpm run verify`
+- [x] `pnpm exec playwright test` sobre los cuatro specs y `pnpm run verify`
       pasan; `task-lead` reejecuta ambos.
 
 # Plan de test
@@ -86,10 +95,10 @@ Evidencia: `artifacts/TASK-0114/attempt-1/report.md:58` (fricción `deferred`).
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0121/attempt-1/report.md`
-- [ ] Salida del E2E de los cuatro specs y de `pnpm run test:e2e`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0121/attempt-1/report.md`
+- [x] Salida del E2E de los cuatro specs y de `pnpm run test:e2e`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
