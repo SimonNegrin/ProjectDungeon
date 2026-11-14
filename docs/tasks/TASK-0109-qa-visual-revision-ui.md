@@ -4,7 +4,7 @@ id: TASK-0109
 title: "QA visual de la revisión de UI"
 description: "Cubrir en navegador escala, paleta, tres zonas, ficha, panel, slots, cadáveres, cursor y CLS con capturas a 900×700 y 1280×720."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: test
 requirement: REQ-033
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-018, R-019, R-020, R-021, R-022, R-023, R-024, T-008]
