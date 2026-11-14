@@ -4,7 +4,7 @@ id: TASK-0107
 title: "UI: panel con títulos y layout preferido"
 description: "Recomponer el panel en tres columnas con títulos Equipo, Bolsa y Suelo, figura humana, slots inset, columna derecha con cadáveres y suelo en rejilla y sin cabecera ni ayuda."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-012, R-013, R-014, R-015, R-019, R-020, P-001, P-002, P-003, P-004, S-001, S-002, S-003, S-004, T-007]
