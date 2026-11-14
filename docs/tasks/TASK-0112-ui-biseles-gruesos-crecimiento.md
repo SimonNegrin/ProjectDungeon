@@ -4,7 +4,7 @@ id: TASK-0112
 title: "UI: biseles de 2× línea y crecimiento hacia fuera"
 description: "Aplicar un bisel de 2× la línea base a todos los outset/inset, sin reducir el área interior ni desplazar el contenido."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-033
 requirement_ids: [R-006, R-025, T-002, T-015]
