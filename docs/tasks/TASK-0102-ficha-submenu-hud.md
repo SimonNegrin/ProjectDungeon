@@ -40,6 +40,9 @@ con las acciones válidas y su coste.
   rechazos legibles.
 - La composición tipada del HUD derecho está en `src/host/hud-detail.ts`; el panel
   y su input, en `src/host/inventory-panel.ts`.
+- TASK-0101 dejó una barra de acciones por zona para que el teclado llegue a
+  todas las operaciones. Esta tarea **sustituye esa barra por el submenú
+  flotante**: no conviven dos caminos para la misma acción.
 
 # Criterios de aceptación
 
@@ -50,7 +53,9 @@ con las acciones válidas y su coste.
       parpadeo; con el panel abierto, la ficha manda sobre la casilla del cursor.
 - [ ] `Enter` abre un submenú flotante junto al objeto con las acciones válidas
       según contexto —equipar, desequipar, soltar, recoger—; abrir y cerrar no
-      ejecutan nada ni gastan MP.
+      ejecutan nada ni gastan MP. La barra de acciones por zona de TASK-0101 se
+      retira: el submenú es el único camino y el teclado debe llegar a él sin
+      foco programático.
 - [ ] Cada opción anuncia su coste de 1 MP antes de confirmar; con 0 MP aparece
       como no disponible con el motivo; con la mochila llena no se ofrece
       «recoger».
@@ -90,6 +95,8 @@ con las acciones válidas y su coste.
   motor y se cobran al ejecutar.
 - No implementar cofres ni inventario de cadáver (REQ-020/021).
 - No rediseñar la rejilla ni la figura de equipo: ya vienen de TASK-0101.
+- No dejar la barra de acciones como camino paralelo: si se retira, sus tests se
+  adaptan al submenú sin perder cobertura.
 - Sin dependencias nuevas.
 
 # No objetivos
