@@ -9,6 +9,18 @@ decided_at: 2026-11-14T14:15:00Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T14:15:00Z }
 ---
 
+> **Nota de vigencia (2026-11-14, REQ-033 v7).** La corrección implementada en
+> TASK-0112 a TASK-0117 mantiene la escala continua, la paleta, los slots, el
+> panel y el anti-CLS, pero sustituye dos decisiones de este ADR: el bisel de las
+> cajas pasa a **2 × `--ui-line`** con crecimiento hacia fuera y el cursor del
+> panel pasa a **`--ui-text` con borde de 4 × `--ui-line`**, transición de
+> 140-160 ms entre cualquier par de slots y capa por debajo del submenú. Además,
+> stats y traits se leen como listas verticales, las columnas se alinean arriba,
+> la figura pierde el bloque de cabeza y los slots de equipo vacíos muestran
+> silueta. La decisión técnica vive en
+> [ADR-027](ADR-027-correccion-visual-v7.md) y el alcance en
+> [REQ-033](../requirements/REQ-033-revision-visual-hud-panel.md).
+
 # Contexto
 
 [ADR-025](ADR-025-estilo-visual-ui.md) fijó la identidad pixel, la tipografía, los
