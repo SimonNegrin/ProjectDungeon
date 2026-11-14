@@ -39,8 +39,10 @@ siguen solo en `F1`.
 
 | Comando | Timeout | Resultado | Evidencia |
 |---|---|---|---|
-| `pnpm run verify` | 240 s | verde: 1307 tests, 92 archivos | `verify-output.txt` |
-| `E2E_ARTIFACTS_DIR=artifacts/TASK-0105/attempt-1/e2e pnpm run test:e2e` | 600 s | verde: 163 tests | `e2e-output.txt` |
+| `pnpm run verify` | 240 s | verde (pasada registrada; el comando tarda ~13 s) | `verify-output.txt` |
+| `pnpm run verify` | 120 s | fallo intermitente preexistente de `EXP-004` | `verify-flake-output.txt` |
+| `VITEST_MAX_WORKERS=2 pnpm run verify` | 120 s | verde reproducible: 1307 tests | `verify-tuned-output.txt` |
+| `E2E_ARTIFACTS_DIR=artifacts/TASK-0105/attempt-1/e2e pnpm run test:e2e` | 180 s | verde: 163 tests | `e2e-output.txt` |
 
 # Evidencia visual
 
@@ -54,11 +56,10 @@ siguen solo en `F1`.
 
 # Desviaciones
 
-- `pnpm run verify` falló de forma intermitente por un test de
-  `experiments/EXP-004` (timeout de 5 s con los 92 workers por defecto). Se
-  reprodujo idéntico en un worktree limpio de `HEAD`, sin cambios de esta tarea;
-  pasa aislado y con `--maxWorkers=2`. La ejecución final en verde está en
-  `verify-output.txt`. Sin cambios en el alcance.
+- `pnpm run verify` falla de forma intermitente por el timeout de 5 s de
+  `EXP-004` con los 92 workers por defecto; se reprodujo igual en `HEAD` limpio.
+  Pasa aislado y con `VITEST_MAX_WORKERS=2` (`verify-tuned-output.txt`). Sin
+  cambios de alcance.
 
 # Problemas conocidos y preguntas abiertas
 
@@ -78,6 +79,6 @@ siguen solo en `F1`.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2889 |
-| `report_bytes` | 3839 |
+| `report_bytes` | 3979 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
