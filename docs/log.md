@@ -3,6 +3,10 @@
 Índice de una línea por evento. Las entradas anteriores al 2026-11-08, escritas
 con formato largo, están en [historial detallado](log-detalle.md).
 
+## 2026-11-14
+
+* 2026-11-14 — Planning — TASK-0099 — ready: DoR cumplida; primera tarea de REQ-032, con fuente pixel, tokens semánticos, escalas y `--ui-line` calculada desde la escala del marco — [TASK-0099](tasks/TASK-0099-ui-fuente-tokens-linea.md)
+
 ## 2026-11-13
 
 * 2026-11-13 — Requirement — REQ-022 — v2: HUD izquierdo con nombre, arquetipo, PV, MP, acciones, atributos con efecto, traits activos y maná solo cuando el personaje lo necesita; inventario y equipo se consultan en el panel con `I` — [REQ-022](requirements/REQ-022-hud-izquierdo-jugador.md)

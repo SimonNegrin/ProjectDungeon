@@ -4,7 +4,7 @@ id: TASK-0099
 title: "UI: fuente pixel, tokens y regla de línea"
 description: "Incluir Pixelify Sans con su licencia en public/, definir los tokens semánticos y las escalas tipográficas, y calcular el grosor de línea desde la escala del marco."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-032
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, T-001, T-002, T-004, T-009]
