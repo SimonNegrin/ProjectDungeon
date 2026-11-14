@@ -146,6 +146,10 @@ interface StyleAuditEntry {
   backgroundColor: string;
   borderTopColor: string;
   borderBottomColor: string;
+  borderTopWidth: string;
+  borderBottomWidth: string;
+  bevelTopWidth: string;
+  bevelBottomWidth: string;
 }
 
 async function auditStyles(page: Page, selectors: string[]): Promise<StyleAuditEntry[]> {
@@ -165,6 +169,10 @@ async function auditStyles(page: Page, selectors: string[]): Promise<StyleAuditE
         backgroundColor: style.backgroundColor,
         borderTopColor: style.borderTopColor,
         borderBottomColor: style.borderBottomColor,
+        borderTopWidth: style.borderTopWidth,
+        borderBottomWidth: style.borderBottomWidth,
+        bevelTopWidth: getComputedStyle(element, '::before').outlineWidth,
+        bevelBottomWidth: getComputedStyle(element, '::after').outlineWidth,
       };
     });
   }, selectors);
@@ -379,6 +387,40 @@ test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucid
   const inset = entries.find((entry) => entry.selector === '.inventory-slot')!;
   expect(inset.borderTopColor).toBe('rgb(47, 20, 47)');
   expect(inset.borderBottomColor).toBe('rgb(110, 184, 168)');
+
+  // Bisel de 2× la línea base en todos los componentes con relieve.
+  const line = Number.parseFloat(await uiLine(page));
+  for (const selector of [
+    '.hud-left',
+    '.hud-right',
+    '.hud-detail-block',
+    '.inventory-panel-body',
+    '.inventory-column',
+    '.inventory-slot',
+    '.inventory-submenu',
+    '.spell-list',
+    '.feedback-banner',
+    '.overlay',
+    '.overlay button',
+  ]) {
+    const entry = entries.find((candidate) => candidate.selector === selector)!;
+    const bevelTop =
+      selector === '.inventory-panel-body'
+        ? entry.borderTopWidth
+        : entry.bevelTopWidth;
+    const bevelBottom =
+      selector === '.inventory-panel-body'
+        ? entry.borderBottomWidth
+        : entry.bevelBottomWidth;
+    expect(
+      Math.abs(Number.parseFloat(bevelTop) - line * 2),
+      `${selector} bisel superior`,
+    ).toBeLessThanOrEqual(1);
+    expect(
+      Math.abs(Number.parseFloat(bevelBottom) - line * 2),
+      `${selector} bisel inferior`,
+    ).toBeLessThanOrEqual(1);
+  }
 
   await writeLog(testInfo, 'ui-foundations-styles.json', entries);
 });

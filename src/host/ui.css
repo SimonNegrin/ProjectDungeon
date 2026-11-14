@@ -17,7 +17,8 @@
         --ui-body: calc(var(--ui-scale) * 11.2px);
         --ui-data: calc(var(--ui-scale) * 10.9px);
         --ui-help: calc(var(--ui-scale) * 10.1px);
-        /* Celda de inventario: 32 px lógicos de arte más el bisel inset. */
+        /* Pista del slot: 32 px lógicos de arte más dos líneas base. La caja
+           exterior crece por fuera con el bisel sin mover la rejilla. */
         --ui-slot: calc(var(--ui-unit) * 32 + var(--ui-line) * 2);
         /* Paleta semántica opaca de ocho colores (REQ-033 R-004/R-005). */
         --ui-bg: #2f142f;
@@ -35,20 +36,80 @@
         --ui-bevel-dark: var(--ui-bg);
         /* Reserva estática del grosor; el host la recalcula al redimensionar. */
         --ui-line: 1px;
+        /* Bisel de 2× la línea base y crecimiento exterior que compensa el
+           borde para no reducir el área interior (REQ-033 R-025/T-015). */
+        --ui-bevel: calc(var(--ui-line) * 2);
+        --ui-bevel-grow: calc(var(--ui-bevel) - var(--ui-line));
         --frame-width: 100%;
       }
-      /* Relieve reutilizable: outset = superficie, inset = receptáculo. */
+      /* Relieve reutilizable: outset = superficie, inset = receptáculo. El
+         borde base conserva la caja; el pseudo-elemento pinta el bisel de 2×
+         por fuera para no reducir el área interior. */
       .ui-outset {
+        position: relative;
         border-width: var(--ui-line);
         border-style: solid;
         border-color: var(--ui-bevel-light) var(--ui-bevel-dark)
           var(--ui-bevel-dark) var(--ui-bevel-light);
       }
       .ui-inset {
+        position: relative;
         border-width: var(--ui-line);
         border-style: solid;
         border-color: var(--ui-bevel-dark) var(--ui-bevel-light)
           var(--ui-bevel-light) var(--ui-bevel-dark);
+      }
+      .ui-outset::before,
+      .ui-inset::before,
+      .ui-outset::after,
+      .ui-inset::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        outline-width: var(--ui-bevel);
+        outline-style: solid;
+        outline-offset: 0;
+        pointer-events: none;
+      }
+      /* Noroeste claro y sureste oscuro: dos capas de contorno recortadas por
+         mitades en L, sin afectar al flujo ni al scroll. */
+      .ui-outset::before,
+      .ui-inset::before {
+        clip-path: polygon(
+          -100% -100%,
+          200% -100%,
+          200% 0,
+          0 0,
+          0 200%,
+          -100% 200%
+        );
+      }
+      .ui-outset::after,
+      .ui-inset::after {
+        clip-path: polygon(
+          100% -100%,
+          200% -100%,
+          200% 200%,
+          -100% 200%,
+          -100% 100%,
+          100% 100%
+        );
+      }
+      .ui-outset::before {
+        outline-color: var(--ui-bevel-light);
+      }
+      .ui-inset::before {
+        outline-color: var(--ui-bevel-dark);
+      }
+      .ui-outset::after {
+        outline-color: var(--ui-bevel-dark);
+      }
+      .ui-inset::after {
+        outline-color: var(--ui-bevel-light);
+      }
+      .inventory-panel-body::before,
+      .inventory-panel-body::after {
+        content: none;
       }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
@@ -105,7 +166,6 @@
         gap: calc(var(--ui-unit) * 4);
         min-width: 0;
         min-height: 0;
-        margin: 0;
         padding: calc(var(--ui-unit) * 8) calc(var(--ui-unit) * 10);
         background: var(--ui-panel);
         color: var(--ui-muted);
@@ -369,18 +429,17 @@
       }
       .frame {
         position: absolute;
-        overflow: hidden;
         background: #000;
       }
       /* Marco exterior sin `border` normal: no encoge el canvas (frame-qa).
-         Se pinta como pseudo-elemento encima del borde del canvas. */
+         Se pinta como pseudo-elemento que crece hacia fuera del marco. */
       .frame::after {
         content: "";
         position: absolute;
-        inset: 0;
+        inset: calc(var(--ui-bevel-grow) * -1);
         z-index: 1;
         pointer-events: none;
-        border-width: var(--ui-line);
+        border-width: var(--ui-bevel);
         border-style: solid;
         border-color: var(--ui-bevel-light) var(--ui-bevel-dark)
           var(--ui-bevel-dark) var(--ui-bevel-light);
@@ -749,13 +808,19 @@
         overflow: hidden;
       }
       .inventory-panel-body {
+        position: static;
         display: flex;
         flex-direction: column;
-        width: min(100%, calc(var(--ui-unit) * 820));
-        height: 100%;
+        width: min(
+          calc(100% + var(--ui-bevel-grow) * 2),
+          calc(var(--ui-unit) * 820 + var(--ui-bevel-grow) * 2)
+        );
+        height: calc(100% + var(--ui-bevel-grow) * 2);
         min-height: 0;
         padding: calc(var(--ui-unit) * 10) calc(var(--ui-unit) * 12);
         background: var(--ui-panel);
+        border-width: var(--ui-bevel);
+        margin: calc(var(--ui-bevel-grow) * -1);
         overflow: hidden;
       }
       /* Título accesible oculto; el diálogo conserva nombre y cierre (R-015). */
@@ -777,6 +842,10 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: calc(var(--ui-unit) * 8);
         min-height: 0;
+        /* Hueco de una línea para que el bisel exterior de las columnas no se
+           recorte; el margen negativo conserva la rejilla. */
+        padding: var(--ui-line);
+        margin: calc(var(--ui-line) * -1);
         overflow: hidden;
       }
       .inventory-column {
@@ -787,7 +856,9 @@
         min-height: 0;
         padding: calc(var(--ui-unit) * 4);
         background: var(--ui-raised);
-        overflow: hidden;
+        /* El bisel de 2× se pinta por fuera; no debe recortarlo el propio
+           contenedor. El contenido cabe en la rejilla (QA de panel). */
+        overflow: visible;
       }
       .inventory-section-title {
         flex: 0 0 auto;
@@ -863,7 +934,9 @@
         align-content: center;
         justify-content: center;
       }
-      /* Un único componente de slot: cuadrado, inset y solo icono (S-001/S-004). */
+      /* Un único componente de slot: cuadrado, inset y solo icono (S-001/S-004).
+         La caja exterior crece fuera de la pista con el bisel; el interior de
+         32u queda intacto. */
       .inventory-slot {
         position: relative;
         width: var(--ui-slot);
@@ -871,7 +944,7 @@
         min-width: 0;
         padding: 0;
         background: var(--ui-bg);
-        overflow: hidden;
+        overflow: visible;
       }
       .inventory-slot-head {
         grid-column: 2;
@@ -914,6 +987,9 @@
         align-content: start;
         justify-content: center;
         min-height: 0;
+        /* Hueco de una línea para el crecimiento exterior de los slots. */
+        padding: var(--ui-line);
+        margin: calc(var(--ui-line) * -1);
         overflow: hidden;
       }
       .inventory-column-right {
@@ -922,6 +998,9 @@
       .inventory-ground-scroll {
         flex: 1 1 auto;
         min-height: 0;
+        /* Hueco lateral para el bisel exterior de los slots. */
+        padding-inline: var(--ui-line);
+        margin-inline: calc(var(--ui-line) * -1);
         overflow-x: hidden;
         overflow-y: auto;
       }
@@ -934,6 +1013,9 @@
         gap: calc(var(--ui-unit) * 2);
         align-content: start;
         justify-content: start;
+        /* Hueco lateral para que el bisel exterior no lo recorte el scroll. */
+        padding: var(--ui-line);
+        margin: calc(var(--ui-line) * -1);
       }
       .inventory-cadavers {
         display: grid;
