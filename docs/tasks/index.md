@@ -101,7 +101,7 @@ Total: **110**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0107](TASK-0107-ui-panel-layout-preferido.md) | UI: panel con títulos y layout preferido | `done` | REQ-033 | TASK-0104, TASK-0106 | P1 |
 | [TASK-0108](TASK-0108-ui-cursor-superpuesto-cls.md) | UI: cursor superpuesto y anti-CLS | `done` | REQ-033 | TASK-0107 | P1 |
 | [TASK-0109](TASK-0109-qa-visual-revision-ui.md) | QA visual de la revisión de UI | `done` | REQ-033 | TASK-0105, TASK-0106, TASK-0107, TASK-0108 | P1 |
-| [TASK-0110](TASK-0110-docs-revision-ui-adr.md) | Docs: revisión visual, arquitectura y ADR | `backlog` | REQ-033 | TASK-0109 | P1 |
+| [TASK-0110](TASK-0110-docs-revision-ui-adr.md) | Docs: revisión visual, arquitectura y ADR | `ready` | REQ-033 | TASK-0109 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -115,14 +115,14 @@ Total: **110**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0096](TASK-0096-host-objetos-suelo-sprite-debug.md) | Host: objetos del suelo con sprite, efectos y debug | `done` | REQ-018 | TASK-0094, TASK-0095 | P2 |
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 
+# ready
+
+* [TASK-0110 — Docs: revisión visual, arquitectura y ADR](TASK-0110-docs-revision-ui-adr.md)
+
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
-
-# backlog
-
-* [TASK-0110 — Docs: revisión visual, arquitectura y ADR](TASK-0110-docs-revision-ui-adr.md)
 
 # done
 

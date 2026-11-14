@@ -4,7 +4,7 @@ id: TASK-0110
 title: "Docs: revisión visual, arquitectura y ADR"
 description: "Reflejar en arquitectura, glosario y ADR la escala continua, la paleta vintage, el lenguaje inset/outset y el cursor superpuesto, y corregir notas de vigencia."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: docs
 requirement: REQ-033
 requirement_ids: [T-009]
