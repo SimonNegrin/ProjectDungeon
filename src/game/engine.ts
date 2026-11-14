@@ -20,7 +20,19 @@ import { createRng } from './rng';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
 import { createMana } from './mana';
-import { DEFAULT_MAP_SEED, type GeneratedMap, type MapGenerator, type MapOptions } from './map';
+import {
+  DEFAULT_PLAYER_CONFIGS,
+  validateGameConfig,
+  type GameConfig,
+  type PlayerConfig,
+} from './config';
+import {
+  DEFAULT_MAP_SEED,
+  normalizeSeed,
+  type GeneratedMap,
+  type MapGenerator,
+  type MapOptions,
+} from './map';
 import { createPlayerFromArchetype } from './roster';
 import {
   MOVE_COST,
@@ -37,6 +49,8 @@ export interface CreateInitialStateConfig {
   readonly seed?: number;
   readonly options?: MapOptions;
   readonly generator?: MapGenerator;
+  /** Jugadores en orden de turno; sin lista, un Guerrero variante 1. */
+  readonly players?: readonly PlayerConfig[];
 }
 
 /** Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario. */
@@ -55,6 +69,7 @@ function createEnemy(
     faction: 'enemy',
     enemyType: type,
     archetypeId: null,
+    variant: null,
     x: position.x,
     y: position.y,
     hp: definition.maxHp,
@@ -87,16 +102,29 @@ function isMapGenerator(value: unknown): value is MapGenerator {
 
 function buildInitialState(
   generator: MapGenerator,
-  seed: number,
+  gameConfig: GameConfig,
   options: MapOptions | undefined,
 ): GameState {
+  // Validar antes de generar: una configuración inválida no crea mapa ni estado.
+  const config = validateGameConfig(gameConfig);
+  const seed = normalizeSeed(config.seed);
   const generated: GeneratedMap = generator.generate(seed, options);
   const mapEnemies = generated.enemies;
   // BSP no aporta `map.enemies`; su colocación histórica de 4 fichas sigue
   // viva como fallback. Un generador que sí los aporta (growth) los consume.
   const placement = mapEnemies === undefined ? placeMapEnemies(generated) : null;
 
-  const playerPosition = generated.spawns.party?.[0] ?? generated.spawns.player;
+  const party = generated.spawns.party;
+  const players = config.players.map((player, index) =>
+    createPlayerFromArchetype(player.archetypeId, {
+      id: `player-${index + 1}`,
+      // Con un generador sin seis huecos se usa el hueco 0 como respaldo
+      // documentado; nunca se inventan posiciones sobre muros.
+      position: party?.[index] ?? party?.[0] ?? generated.spawns.player,
+      ...(player.name === '' ? {} : { name: player.name }),
+      variant: player.variant,
+    }),
+  );
   // El mapa conserva las armas como dato de generación, pero el estado solo
   // expone la verdad nueva: instancias en el suelo.
   const { weapons: generatedWeapons = [], ...map } = generated;
@@ -111,12 +139,7 @@ function buildInitialState(
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
     groundItems,
-    players: [
-      createPlayerFromArchetype('warrior', {
-        id: 'player-1',
-        position: playerPosition,
-      }),
-    ],
+    players,
     enemies:
       mapEnemies !== undefined
         ? mapEnemies.map((enemy) =>
@@ -130,6 +153,10 @@ function buildInitialState(
         : placement
           ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type))
           : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
+    config: {
+      seed,
+      players: config.players.map((player) => ({ ...player })),
+    },
     phase: 'player',
     turn: 1,
     status: 'playing',
@@ -140,8 +167,9 @@ function buildInitialState(
 /**
  * Crea el estado inicial generando el mapa.
  *
- * Acepta la forma principal `createInitialState({ seed, options, generator })`
- * y, por compatibilidad con ADR-007, `createInitialState(generator, options)`.
+ * Acepta la forma principal `createInitialState({ seed, options, generator,
+ * players })` y, por compatibilidad con ADR-007, `createInitialState(generator,
+ * options)`. Es la única ruta de construcción del estado inicial.
  */
 export function createInitialState(config?: CreateInitialStateConfig): GameState;
 export function createInitialState(
@@ -155,7 +183,7 @@ export function createInitialState(
   if (isMapGenerator(configOrGenerator)) {
     return buildInitialState(
       configOrGenerator,
-      DEFAULT_MAP_SEED,
+      { seed: DEFAULT_MAP_SEED, players: DEFAULT_PLAYER_CONFIGS },
       maybeOptions,
     );
   }
@@ -163,7 +191,10 @@ export function createInitialState(
   const config = configOrGenerator;
   return buildInitialState(
     config.generator ?? new GrowthMapGenerator(),
-    config.seed ?? DEFAULT_MAP_SEED,
+    {
+      seed: config.seed ?? DEFAULT_MAP_SEED,
+      players: config.players ?? DEFAULT_PLAYER_CONFIGS,
+    },
     config.options,
   );
 }
@@ -549,7 +580,13 @@ function reduceSelectWeapon(
  */
 export function reduce(state: GameState, command: Command): ReduceResult {
   if (command.type === 'Restart') {
-    return { state: createInitialState(), events: [{ type: 'GameRestarted' }] };
+    const config = state.config;
+    return {
+      state: config
+        ? createInitialState({ seed: config.seed, players: config.players })
+        : createInitialState(),
+      events: [{ type: 'GameRestarted' }],
+    };
   }
 
   if (state.status !== 'playing') {

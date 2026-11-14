@@ -8,6 +8,7 @@
  */
 
 import { createActions } from './actions';
+import type { PlayerVariant } from './config';
 import { createInventory, equipmentFromLegacy } from './inventory';
 import { createMana } from './mana';
 import { aggregateEffectiveStats, equippedDefinitions } from './stats';
@@ -257,6 +258,8 @@ export interface CreatePlayerOptions {
   readonly position?: Position;
   /** Nombre de instancia; por defecto, el del arquetipo. */
   readonly name?: string;
+  /** Variante visual 1|2; por defecto 1. */
+  readonly variant?: PlayerVariant;
 }
 
 /** Crea una unidad jugadora con los valores del arquetipo y PV/MP completos. */
@@ -276,6 +279,7 @@ export function createPlayerFromArchetype(
     faction: 'player',
     enemyType: null,
     archetypeId: id,
+    variant: options.variant ?? 1,
     x: position.x,
     y: position.y,
     hp: entry.maxHp,

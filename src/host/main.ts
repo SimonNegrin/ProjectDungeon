@@ -1,4 +1,5 @@
 import type { Command, GameEvent, GameState, Position } from '../game/types';
+import { DEFAULT_PLAYER_CONFIGS } from '../game/config';
 import type { MapGenerator } from '../game/map';
 import { loadAssets } from './assets';
 import { cameraBounds, centerCameraOnTile } from './camera';
@@ -311,7 +312,10 @@ async function boot(): Promise<void> {
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const session = new GameSession({ seed: parsedSeed.seed });
+  const session = new GameSession({
+    seed: parsedSeed.seed,
+    players: DEFAULT_PLAYER_CONFIGS,
+  });
   let world = gridPixelSize(session.state.grid, TILE_SIZE);
   let bounds = cameraBounds(world, viewport);
   let camera = centerCameraOnTile(session.state.players[0], viewport, world, TILE_SIZE);

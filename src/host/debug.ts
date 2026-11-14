@@ -18,6 +18,7 @@ import type {
   UnitEquipment,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
+import type { GameConfig } from '../game/config';
 import type {
   Corridor,
   Door,
@@ -134,6 +135,8 @@ export interface GameSnapshot {
   readonly floorPalettes: readonly RoomPalette[];
   readonly players: readonly SnapshotUnit[];
   readonly enemies: readonly SnapshotUnit[];
+  /** Configuración serializable que originó la partida; `null` sin config. */
+  readonly config: GameConfig | null;
   readonly phase: Phase;
   readonly turn: number;
   readonly status: GameStatus;
@@ -288,6 +291,14 @@ function cloneSpawns(spawns: Spawns | undefined): Spawns | null {
   };
 }
 
+function cloneConfig(config: GameConfig | undefined): GameConfig | null {
+  if (!config) return null;
+  return {
+    seed: config.seed,
+    players: config.players.map((player) => ({ ...player })),
+  };
+}
+
 function cloneEntrance(entrance: Entrance | undefined): Entrance | null {
   if (!entrance) return null;
   return { roomId: entrance.roomId, position: { ...entrance.position } };
@@ -379,6 +390,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     floorPalettes: [...roomPalettesFor(map)],
     players: source.state.players.map(cloneUnit),
     enemies: source.state.enemies.map(cloneUnit),
+    config: cloneConfig(source.state.config),
     phase: source.state.phase,
     turn: source.state.turn,
     status: source.state.status,

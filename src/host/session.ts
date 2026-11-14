@@ -1,4 +1,5 @@
 import { createInitialState, reduce, type CreateInitialStateConfig } from '../game/engine';
+import type { PlayerConfig } from '../game/config';
 import {
   DEFAULT_MAP_SEED,
   normalizeSeed,
@@ -30,24 +31,29 @@ export class GameSession {
   private seedValue: number;
   private options: MapOptions | undefined;
   private generator: MapGenerator | undefined;
+  private playersValue: readonly PlayerConfig[] | undefined;
 
   constructor(initial: GameSessionInit = {}) {
     if (isGameState(initial)) {
       this.current = initial;
-      this.seedValue = initial.map?.seed ?? DEFAULT_MAP_SEED;
+      this.seedValue = initial.config?.seed ?? initial.map?.seed ?? DEFAULT_MAP_SEED;
       this.options = undefined;
       this.generator = undefined;
+      this.playersValue = initial.config?.players;
       return;
     }
 
     this.seedValue = initial.seed ?? DEFAULT_MAP_SEED;
     this.options = initial.options;
     this.generator = initial.generator;
+    this.playersValue = initial.players;
     this.current = createInitialState({
       seed: this.seedValue,
       options: this.options,
       generator: this.generator,
+      players: this.playersValue,
     });
+    this.seedValue = this.current.config?.seed ?? this.seedValue;
   }
 
   get state(): GameState {
@@ -78,9 +84,10 @@ export class GameSession {
    */
   load(state: GameState, generator?: MapGenerator): void {
     this.current = state;
-    this.seedValue = state.map?.seed ?? DEFAULT_MAP_SEED;
+    this.seedValue = state.config?.seed ?? state.map?.seed ?? DEFAULT_MAP_SEED;
     this.options = state.map?.options;
     this.generator = generator;
+    this.playersValue = state.config?.players;
   }
 
   /** Reconstruye la partida con una semilla nueva manteniendo opciones y generador. */
@@ -94,6 +101,7 @@ export class GameSession {
       seed,
       options: this.options,
       generator: this.generator,
+      players: this.playersValue,
     });
   }
 }

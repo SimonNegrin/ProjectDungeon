@@ -6,6 +6,7 @@ import type {
   GroundItem,
   Inventory,
 } from './inventory';
+import type { GameConfig, PlayerVariant } from './config';
 import type { GeneratedMap } from './map';
 import type { ArchetypeId } from './roster';
 import type { SpellId } from './spells';
@@ -139,6 +140,8 @@ export interface Unit {
   readonly enemyType: EnemyType | null;
   /** Arquetipo del roster; `null` en enemigos y unidades sintéticas. */
   readonly archetypeId: ArchetypeId | null;
+  /** Variante visual 1|2 de un jugador; `null` en enemigos y sintéticas. */
+  readonly variant: PlayerVariant | null;
   readonly x: number;
   readonly y: number;
   readonly hp: number;
@@ -182,6 +185,11 @@ export interface GameState {
   readonly containers?: readonly Container[];
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
+  /**
+   * Configuración serializable que originó el estado. Opcional para estados
+   * manuales y fixtures; el constructor único siempre la escribe.
+   */
+  readonly config?: GameConfig;
   readonly phase: Phase;
   readonly turn: number;
   readonly status: GameStatus;
