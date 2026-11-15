@@ -7,12 +7,14 @@ import {
   reduce,
 } from '../../../src/game/index';
 import { ITEMS, type ItemId } from '../../../src/game/equipment';
+import type { Container } from '../../../src/game/inventory';
 import type { ArchetypeId } from '../../../src/game/roster';
 import type { GameState } from '../../../src/game/types';
 import {
   ARCHETYPE_VARIANT_CELLS,
   variantCellFor,
 } from '../../../src/host/archetype-sheet';
+import { corpseRectFor } from '../../../src/host/assets';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { buildHudModel } from '../../../src/host/hud';
 import { GameSession } from '../../../src/host/session';
@@ -30,6 +32,7 @@ import {
   renderScene,
   ALARM_COLOR,
   DEFENSE_GESTURE_COLOR,
+  corpseMarks,
   type SceneAssets,
 } from '../../../src/host/renderer';
 import {
@@ -39,7 +42,7 @@ import {
   planDecoration,
   roomPalettesFor,
 } from '../../../src/host/floor';
-import { makeState } from '../game/helpers';
+import { makeState, makeUnit } from '../game/helpers';
 
 interface DrawCall {
   readonly image: unknown;
@@ -58,6 +61,13 @@ interface FillRect {
   readonly y: number;
   readonly width: number;
   readonly height: number;
+}
+
+interface TextCall {
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
+  readonly style: string;
 }
 
 type RenderOp =
@@ -84,6 +94,7 @@ interface FakeContext {
   readonly fillRects: FillRect[];
   readonly fillStyles: string[];
   readonly ops: RenderOp[];
+  readonly texts: TextCall[];
   readonly translates: Array<{ x: number; y: number }>;
   readonly scales: Array<{ x: number; y: number }>;
   readonly clips: FillRect[];
@@ -95,6 +106,7 @@ function createFakeContext(): FakeContext {
   const fillRects: FillRect[] = [];
   const fillStyles: string[] = [];
   const ops: RenderOp[] = [];
+  const texts: TextCall[] = [];
   const translates: Array<{ x: number; y: number }> = [];
   const scales: Array<{ x: number; y: number }> = [];
   const clips: FillRect[] = [];
@@ -103,6 +115,9 @@ function createFakeContext(): FakeContext {
   const fake = {
     imageSmoothingEnabled: true,
     fillStyle: '',
+    font: '',
+    textAlign: 'start',
+    textBaseline: 'alphabetic',
     save() {},
     restore() {},
     translate(x: number, y: number) {
@@ -124,6 +139,13 @@ function createFakeContext(): FakeContext {
       fillRects.push({ x, y, width, height });
       fillStyles.push(fake.fillStyle);
       ops.push({ kind: 'fill', x, y, width, height, style: fake.fillStyle });
+    },
+    measureText(text: string) {
+      // Suficiente para el contador de pila; el render real usa el canvas.
+      return { width: text.length * 8 };
+    },
+    fillText(text: string, x: number, y: number) {
+      texts.push({ text, x, y, style: fake.fillStyle });
     },
     drawImage(
       image: unknown,
@@ -147,6 +169,7 @@ function createFakeContext(): FakeContext {
     fillRects,
     fillStyles,
     ops,
+    texts,
     translates,
     scales,
     clips,
@@ -670,6 +693,17 @@ describe('render del mapa generado', () => {
       ...base,
       players: [player],
       enemies: [{ ...enemy, hp: 0 }],
+      containers: [
+        {
+          id: `corpse-${enemy.id}`,
+          x: enemy.x,
+          y: enemy.y,
+          capacity: 0,
+          items: [],
+          kind: 'corpse',
+          corpseOf: enemy.id,
+        },
+      ],
     };
     const gridBefore = [...state.grid.tiles];
     const camera = centerCameraOnTile(player, VIEWPORT, gridPixelSize(state.grid));
@@ -733,6 +767,258 @@ describe('render del mapa generado', () => {
     const before = JSON.stringify(state);
 
     expect(() => draw(state, { x: 0, y: 0 })).not.toThrow();
+    expect(JSON.stringify(state)).toBe(before);
+  });
+});
+
+describe('cadáveres desde contenedores', () => {
+  function corpseContainer(
+    id: string,
+    x: number,
+    y: number,
+    corpseOf?: string,
+  ): Container {
+    return {
+      id,
+      x,
+      y,
+      capacity: 0,
+      items: [],
+      kind: 'corpse',
+      ...(corpseOf !== undefined ? { corpseOf } : {}),
+    };
+  }
+
+  function stateWithCorpses(containers: readonly Container[]): GameState {
+    return makeState({
+      players: [
+        createPlayerFromArchetype('warrior', {
+          id: 'player-1',
+          position: { x: 4, y: 4 },
+          variant: 1,
+        }),
+      ],
+      enemies: [
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 4, hp: 0 }),
+      ],
+      containers,
+    });
+  }
+
+  function corpseDraws(fake: FakeContext): DrawCall[] {
+    return fake.draws.filter(
+      (call) => call.image === assets.tiles && call.sy === 672,
+    );
+  }
+
+  const deathEffect = {
+    dx: 0,
+    dy: 0,
+    alpha: 1,
+    visible: true,
+    flash: 0,
+    flashColor: '#ffffff',
+    defense: null,
+  };
+
+  it('mapea solo contenedores kind corpse y agrupa por casilla', () => {
+    const containers: Container[] = [
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+      { id: 'chest-1', x: 7, y: 4, capacity: 2, items: [], kind: 'chest' },
+      { id: 'fixture-1', x: 8, y: 4, capacity: 2, items: [] },
+      corpseContainer('corpse-enemy-2', 6, 4, 'enemy-2'),
+    ];
+    const before = JSON.stringify(containers);
+    const marks = corpseMarks(containers);
+
+    expect(marks).toHaveLength(1);
+    expect(marks[0]).toMatchObject({
+      x: 6,
+      y: 4,
+      count: 2,
+      containerIds: ['corpse-enemy-1', 'corpse-enemy-2'],
+      corpseOf: 'enemy-1',
+    });
+    expect(marks[0].rect).toEqual(corpseRectFor({ id: 'enemy-1', x: 6, y: 4 }));
+    expect(JSON.stringify(containers)).toBe(before);
+    expect(corpseMarks([])).toEqual([]);
+  });
+
+  it('un contenedor de cadáver dibuja el decal en su casilla', () => {
+    const state = stateWithCorpses([
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+    ]);
+    const fake = draw(state, { x: 0, y: 0 });
+    const corpses = corpseDraws(fake);
+
+    expect(corpses).toHaveLength(1);
+    expect(corpses[0]).toMatchObject({
+      dx: 6 * 32,
+      dy: 4 * 32,
+      sw: 32,
+      sh: 32,
+    });
+  });
+
+  it('una unidad muerta sin contenedor no produce decal', () => {
+    const state = makeState({
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 4, hp: 0 })],
+    });
+    const fake = draw(state, { x: 0, y: 0 });
+
+    expect(corpseDraws(fake)).toEqual([]);
+    expect(fake.texts).toEqual([]);
+  });
+
+  it('el cadáver de jugador vacío se dibuja y persiste', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 })],
+      containers: [
+        {
+          id: 'corpse-player-1',
+          x: 4,
+          y: 4,
+          capacity: 0,
+          items: [],
+          kind: 'corpse',
+          corpseOf: 'player-1',
+        },
+      ],
+    });
+    const fake = draw(state, { x: 0, y: 0 });
+
+    expect(corpseDraws(fake)).toHaveLength(1);
+    expect(corpseDraws(fake)[0]).toMatchObject({ dx: 4 * 32, dy: 4 * 32 });
+  });
+
+  it('dos contenedores en el mismo tile producen un decal y el contador de pila', () => {
+    const state = stateWithCorpses([
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+      corpseContainer('corpse-enemy-2', 6, 4, 'enemy-2'),
+    ]);
+    const fake = draw(state, { x: 0, y: 0 });
+
+    expect(corpseDraws(fake)).toHaveLength(1);
+    expect(fake.texts.map((call) => call.text)).toContain('×2');
+  });
+
+  it('un solo contenedor no pinta contador de pila', () => {
+    const state = stateWithCorpses([
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+    ]);
+    const fake = draw(state, { x: 0, y: 0 });
+
+    expect(corpseDraws(fake)).toHaveLength(1);
+    expect(fake.texts).toEqual([]);
+  });
+
+  it('un contenedor retirado del estado no deja marca', () => {
+    const withCorpse = stateWithCorpses([
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+    ]);
+    expect(corpseDraws(draw(withCorpse, { x: 0, y: 0 }))).toHaveLength(1);
+
+    const removed = stateWithCorpses([]);
+    expect(corpseDraws(draw(removed, { x: 0, y: 0 }))).toEqual([]);
+  });
+
+  it('dyingUnitIds y effects ocultan solo el contenedor afectado', () => {
+    const state = stateWithCorpses([
+      corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
+    ]);
+
+    const dying = createFakeContext();
+    renderScene(dying.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, {
+      dyingUnitIds: new Set(['enemy-1']),
+    });
+    expect(corpseDraws(dying)).toEqual([]);
+
+    const effect = createFakeContext();
+    renderScene(effect.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, {
+      effects: new Map([['enemy-1', deathEffect]]),
+    });
+    expect(corpseDraws(effect)).toEqual([]);
+
+    expect(
+      corpseMarks(state.containers ?? [], {
+        dyingUnitIds: new Set(['enemy-1']),
+      }),
+    ).toEqual([]);
+    expect(
+      corpseMarks(state.containers ?? [], {
+        effects: new Map([['enemy-1', deathEffect]]),
+      }),
+    ).toEqual([]);
+    expect(corpseMarks(state.containers ?? [])).toHaveLength(1);
+    expect(corpseDraws(draw(state, { x: 0, y: 0 }))).toHaveLength(1);
+  });
+
+  it('un cadáver visible no adelanta ni pierde el ×2 por otro que sigue en su beat', () => {
+    const containers = [
+      corpseContainer('corpse-player-1', 6, 4, 'player-1'),
+      corpseContainer('corpse-enemy-2', 6, 4, 'enemy-2'),
+    ];
+    const state = stateWithCorpses(containers);
+
+    for (const hide of [
+      { dyingUnitIds: new Set(['enemy-2']) },
+      { effects: new Map([['enemy-2', deathEffect]]) },
+    ]) {
+      const marks = corpseMarks(state.containers ?? [], hide);
+      expect(marks).toHaveLength(1);
+      expect(marks[0]).toMatchObject({
+        count: 1,
+        containerIds: ['corpse-player-1'],
+        corpseOf: 'player-1',
+      });
+      expect(marks[0].rect).toEqual(
+        corpseRectFor({ id: 'player-1', x: 6, y: 4 }),
+      );
+
+      const fake = createFakeContext();
+      renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, hide);
+      expect(corpseDraws(fake)).toHaveLength(1);
+      expect(fake.texts).toEqual([]);
+    }
+
+    const shown = corpseMarks(state.containers ?? []);
+    expect(shown).toHaveLength(1);
+    expect(shown[0]).toMatchObject({
+      count: 2,
+      containerIds: ['corpse-player-1', 'corpse-enemy-2'],
+      corpseOf: 'player-1',
+    });
+    const fake = draw(state, { x: 0, y: 0 });
+    expect(corpseDraws(fake)).toHaveLength(1);
+    expect(fake.texts.map((call) => call.text)).toContain('×2');
+  });
+
+  it('no muta el estado y conserva el orden suelo → cadáver → unidades', () => {
+    const state = deepFreeze(
+      stateWithCorpses([corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1')]),
+    );
+    const before = JSON.stringify(state);
+    const fake = draw(state, { x: 0, y: 0 });
+
+    const paletteStyles = new Set(
+      Object.values(FLOOR_PALETTES).flatMap((palette) => [
+        palette.base,
+        palette.second,
+      ]),
+    );
+    const floorIndex = fake.ops.findIndex(
+      (op) => op.kind === 'fill' && paletteStyles.has(op.style),
+    );
+    const corpseIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.tiles && op.sy === 672,
+    );
+    const knightIndex = fake.ops.findIndex(
+      (op) => op.kind === 'draw' && op.image === assets.rogues,
+    );
+
+    expect(floorIndex).toBeGreaterThanOrEqual(0);
+    expect(corpseIndex).toBeGreaterThan(floorIndex);
+    expect(knightIndex).toBeGreaterThan(corpseIndex);
     expect(JSON.stringify(state)).toBe(before);
   });
 });

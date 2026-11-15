@@ -1,4 +1,5 @@
 import { ITEMS } from '../game/equipment';
+import type { Container } from '../game/inventory';
 import type { GameState, Unit } from '../game/types';
 import type { Door, DoorStyle, Exit } from '../game/map';
 import {
@@ -210,21 +211,111 @@ function drawDefenseGesture(
 
 type UnitEffectDefense = NonNullable<UnitWorldEffect['defense']>;
 
-/** Cadáver de presentación: decal sobre el suelo, bajo las unidades. */
-function drawCorpse(
+/**
+ * Marca de render de un grupo de contenedores de cadáver visibles en la misma
+ * casilla. `containerIds` y `count` cuentan solo los contenedores visibles;
+ * `rect` es el decal reutilizado del primer contenedor visible del grupo.
+ */
+export interface CorpseMark {
+  readonly x: number;
+  readonly y: number;
+  readonly count: number;
+  readonly containerIds: readonly string[];
+  /** Unidad del primer contenedor visible del grupo; `null` si no lo declara. */
+  readonly corpseOf: string | null;
+  readonly rect: SpriteRect;
+}
+
+/**
+ * Decide si un contenedor se dibuja en el frame actual. Una muerte futura
+ * (`dyingUnitIds`) o un cue de muerte en curso (`effects`) ocultan su cadáver
+ * hasta acabar el beat; sin `corpseOf` no hay beat que esperar.
+ */
+export function corpseContainerVisible(
+  container: Container,
+  options: Pick<RenderOptions, 'dyingUnitIds' | 'effects'>,
+): boolean {
+  const corpseOf = container.corpseOf;
+  if (!corpseOf) return true;
+  return !(options.dyingUnitIds?.has(corpseOf) || options.effects?.has(corpseOf));
+}
+
+/**
+ * Agrupa por casilla los contenedores `kind: 'corpse'` visibles, conservando el
+ * orden de `state.containers`. La visibilidad se resuelve por contenedor antes
+ * de agrupar: un contenedor cuyo beat de muerte sigue en curso no cuenta ni
+ * cambia el decal de los ya visibles. Los cofres y fixtures sin `kind` no
+ * producen marca; una unidad muerta sin contenedor tampoco. Es pura: no muta el
+ * estado.
+ */
+export function corpseMarks(
+  containers: readonly Container[],
+  options: Pick<RenderOptions, 'dyingUnitIds' | 'effects'> = {},
+): readonly CorpseMark[] {
+  const groups = new Map<
+    string,
+    {
+      x: number;
+      y: number;
+      containerIds: string[];
+      corpseOf: string | null;
+      rect: SpriteRect;
+    }
+  >();
+
+  for (const container of containers) {
+    if (container.kind !== 'corpse') continue;
+    if (!corpseContainerVisible(container, options)) continue;
+    const key = `${container.x},${container.y}`;
+    const group = groups.get(key);
+    if (group) {
+      group.containerIds.push(container.id);
+      continue;
+    }
+    groups.set(key, {
+      x: container.x,
+      y: container.y,
+      containerIds: [container.id],
+      corpseOf: container.corpseOf ?? null,
+      rect: corpseRectFor({
+        id: container.corpseOf ?? container.id,
+        x: container.x,
+        y: container.y,
+      }),
+    });
+  }
+
+  return [...groups.values()].map((group) => ({
+    x: group.x,
+    y: group.y,
+    count: group.containerIds.length,
+    containerIds: [...group.containerIds],
+    corpseOf: group.corpseOf,
+    rect: group.rect,
+  }));
+}
+
+/** Marca de pila: `×N` sobre fondo oscuro en la esquina del tile. */
+function drawCorpseStack(
   ctx: CanvasRenderingContext2D,
-  assets: SceneAssets,
-  unit: Unit,
+  count: number,
+  x: number,
+  y: number,
   tileSize: number,
 ): void {
-  drawRect(
-    ctx,
-    assets.tiles,
-    corpseRectFor(unit),
-    unit.x * tileSize,
-    unit.y * tileSize,
-    tileSize,
-  );
+  const label = `×${count}`;
+  const fontSize = Math.max(6, Math.round(tileSize * 0.3));
+  ctx.font = `700 ${fontSize}px ui-monospace, monospace`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const width = Math.max(fontSize, Math.ceil(ctx.measureText(label).width)) + 4;
+  const height = fontSize + 4;
+  const left = x * tileSize + tileSize - width - 1;
+  const top = y * tileSize + 1;
+  ctx.fillStyle = 'rgba(8, 11, 16, 0.85)';
+  ctx.fillRect(left, top, width, height);
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(label, left + width / 2, top + height / 2);
 }
 
 function tileVisible(x: number, y: number, range: ReturnType<typeof visibleTileRange>): boolean {
@@ -753,14 +844,23 @@ export function renderScene(
   const effects = options.effects;
 
   // Cadáveres de presentación: sobre los decals y bajo muros/unidades. Se
-  // dibujan desde la unidad muerta que conserva el motor, sin escribir en la
-  // rejilla. Durante el cue de muerte aún no hay cadáver: manda el efecto.
-  for (const unit of [...state.enemies, ...state.players]) {
-    if (unit.hp > 0) continue;
-    if (dyingUnitIds?.has(unit.id)) continue;
-    if (effects?.has(unit.id)) continue;
-    if (!tileVisible(unit.x, unit.y, range)) continue;
-    drawCorpse(ctx, assets, unit, tileSize);
+  // dibujan desde los contenedores `kind: 'corpse'`, no desde unidades muertas:
+  // sin contenedor no hay rastro, y el decal reutiliza `corpse-22a/b`. La
+  // visibilidad se resuelve por contenedor antes de agrupar, así un beat de
+  // muerte en curso no adelanta ni hace desaparecer un cadáver ya visible.
+  for (const mark of corpseMarks(state.containers ?? [], options)) {
+    if (!tileVisible(mark.x, mark.y, range)) continue;
+    drawRect(
+      ctx,
+      assets.tiles,
+      mark.rect,
+      mark.x * tileSize,
+      mark.y * tileSize,
+      tileSize,
+    );
+    if (mark.count > 1) {
+      drawCorpseStack(ctx, mark.count, mark.x, mark.y, tileSize);
+    }
   }
 
   const debug = options.debug ?? false;
