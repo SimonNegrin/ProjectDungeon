@@ -4,14 +4,14 @@ id: TASK-0143
 title: "Docs: ADR-030 y glosario de botín"
 description: "Registrar ADR-030 del modelo de saqueabilidad y RNG derivado, y actualizar glosario y alcance con cadáver condicionado y saqueo sin coste."
 status: stable
-task_status: blocked
+task_status: done
 task_type: docs
 requirement: REQ-034
 requirement_ids: [T-012]
 depends_on: [TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T18:23:11Z
 assignee: task-lead
 attempts: 1
 artifacts: artifacts/TASK-0143/
@@ -20,6 +20,13 @@ risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T18:23:11Z
+    note: >-
+      Diff revisado contra REQ-034 v1 y el código: ADR-030, glosario, índice y
+      alcance (`95b4f23`) reflejan el botín implementado; sin cambios en
+      `docs/requirements/**`. `docs:check` 690 documentos/160 tareas y `verify`
+      107 archivos/1678 tests, tsc, build y bundle OK.
 ---
 
 # Objetivo
@@ -37,18 +44,18 @@ sale de TASK-0130 a TASK-0136 y del esquema de TASK-0138.
 
 # Criterios de aceptación
 
-- [ ] ADR-030 registra `lootable` por instancia, `lootPolicy`
+- [x] ADR-030 registra `lootable` por instancia, `lootPolicy`
       `common|progression`, la tirada 25 %/100 %, el RNG derivado, el cadáver
       como `Container` y la retirada al vaciarse.
-- [ ] ADR-030 deja claro que cargar no vuelve a tirar y que el RNG principal no
+- [x] ADR-030 deja claro que cargar no vuelve a tirar y que el RNG principal no
       se consume.
-- [ ] El glosario define «objeto saqueable» y actualiza «cadáver» y el coste de
+- [x] El glosario define «objeto saqueable» y actualiza «cadáver» y el coste de
       saqueo (mismo tile, 0 acción/MP; cofre 1 acción).
-- [ ] El alcance refleja el cadáver de enemigo condicionado al botín y reserva
+- [x] El alcance refleja el cadáver de enemigo condicionado al botín y reserva
       llaves y progresión para su hoja.
-- [ ] `docs/decisions/index.md` y `docs/log.md` recogen ADR-030 y el cierre.
-- [ ] No se editan hojas de `docs/requirements/**`; eso es TASK-0157.
-- [ ] `pnpm run docs:check` y `pnpm run verify` pasan.
+- [x] `docs/decisions/index.md` y `docs/log.md` recogen ADR-030 y el cierre.
+- [x] No se editan hojas de `docs/requirements/**`; eso es TASK-0157.
+- [x] `pnpm run docs:check` y `pnpm run verify` pasan.
 
 # Plan de test
 
@@ -58,9 +65,9 @@ sale de TASK-0130 a TASK-0136 y del esquema de TASK-0138.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0143/attempt-1/report.md`
-- [ ] Salida de `pnpm run docs:check` y `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0143/attempt-1/report.md`
+- [x] Salida de `pnpm run docs:check` y `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
