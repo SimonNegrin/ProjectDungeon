@@ -309,6 +309,8 @@ describe('combat', () => {
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
       rng: rngForDice(ENEMY_HIT),
+      // Cierra la ronda como último jugador para que el enemigo golpee.
+      activePlayerId: 'player-2',
     });
 
     const result = reduce(state, { type: 'EndTurn' });

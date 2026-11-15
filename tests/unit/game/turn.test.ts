@@ -3,6 +3,7 @@ import {
   BESTIARY,
   createRng,
   reduce,
+  type Command,
   type GameEvent,
   type Unit,
 } from '../../../src/game/index';
@@ -518,5 +519,291 @@ describe('cola de acciones enemiga', () => {
     } finally {
       random.mockRestore();
     }
+  });
+});
+
+describe('turno por jugador, validación del activo y fase enemiga (REQ-031 T-002/T-003/T-004)', () => {
+  function party(count: number, options: { readonly mp?: number; readonly actions?: number } = {}) {
+    return Array.from({ length: count }, (_, index) =>
+      makeUnit({
+        id: `player-${index + 1}`,
+        faction: 'player',
+        x: 5 + index,
+        y: 5,
+        ...(options.mp === undefined ? {} : { mp: options.mp }),
+        ...(options.actions === undefined ? {} : { actions: options.actions }),
+      }),
+    );
+  }
+
+  it('con dos jugadores alterna sin fase enemiga hasta cerrar la ronda', () => {
+    const state = makeState({
+      players: party(2, { mp: 0, actions: 0 }),
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+    });
+
+    const first = reduce(state, { type: 'EndTurn' });
+
+    expect(first.state.phase).toBe('player');
+    expect(first.state.round).toBe(1);
+    expect(first.state.activePlayerId).toBe('player-2');
+    expect(first.state.players[1]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+    expect(first.state.players[0]).toMatchObject({ mp: 0, actions: { remaining: 0 } });
+    expect(first.events).toEqual([
+      { type: 'TurnEnded', turn: 1 },
+      { type: 'PlayerTurnStarted', turn: 1 },
+    ]);
+    expect(first.enemyPhase).toBeUndefined();
+
+    const second = reduce(first.state, { type: 'EndTurn' });
+
+    expect(second.state.phase).toBe('player');
+    expect(second.state.round).toBe(2);
+    expect(second.state.activePlayerId).toBe('player-1');
+    expect(second.state.players[0]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+    expect(second.events.filter((event) => event.type === 'EnemyPhaseStarted')).toHaveLength(1);
+    expect(second.enemyPhase).toEqual([
+      { enemyId: 'enemy-1', targetId: null, action: 'wait' },
+    ]);
+  });
+
+  it('con seis jugadores hay una única fase enemiga por ronda y vuelve al primero', () => {
+    let state = makeState({
+      players: party(6, { mp: 0, actions: 0 }),
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+    });
+    let enemyPhases = 0;
+
+    for (let index = 1; index <= 6; index += 1) {
+      const result = reduce(state, { type: 'EndTurn' });
+      enemyPhases += result.events.filter((event) => event.type === 'EnemyPhaseStarted').length;
+      state = result.state;
+
+      if (index < 6) {
+        expect(result.state.round, `turno ${index}`).toBe(1);
+        expect(result.state.activePlayerId).toBe(`player-${index + 1}`);
+        expect(result.enemyPhase).toBeUndefined();
+      }
+    }
+
+    expect(enemyPhases).toBe(1);
+    expect(state.phase).toBe('player');
+    expect(state.round).toBe(2);
+    expect(state.activePlayerId).toBe('player-1');
+    expect(state.players[0]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+    expect(state.players[5]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+  });
+
+  it('restaura recursos solo al jugador que empieza su turno', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          mp: 0,
+          actions: 0,
+          magicLevel: 1,
+          mana: { current: 1, max: 4 },
+          spellsCast: 2,
+        }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 6,
+          y: 5,
+          mp: 1,
+          actions: 1,
+          magicLevel: 2,
+          mana: { current: 0, max: 8 },
+          spellsCast: 1,
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+    });
+
+    const first = reduce(state, { type: 'EndTurn' });
+
+    expect(first.state.players[1]).toMatchObject({
+      mp: 6,
+      actions: { remaining: 2 },
+      mana: { current: 8, max: 8 },
+      spellsCast: 0,
+    });
+    expect(first.state.players[0]).toMatchObject({
+      mp: 0,
+      actions: { remaining: 0 },
+      mana: { current: 1, max: 4 },
+      spellsCast: 2,
+    });
+
+    const second = reduce(first.state, { type: 'EndTurn' });
+
+    expect(second.state.players[0]).toMatchObject({
+      mp: 6,
+      actions: { remaining: 2 },
+      mana: { current: 4, max: 4 },
+      spellsCast: 0,
+    });
+    // El segundo conserva sus recursos hasta su próximo turno.
+    expect(second.state.players[1]).toMatchObject({
+      mp: 6,
+      actions: { remaining: 2 },
+      mana: { current: 8, max: 8 },
+      spellsCast: 0,
+    });
+  });
+
+  it('no cierra el turno al agotar recursos; solo lo hace EndTurn', () => {
+    const state = makeState({
+      players: party(2, { mp: 0, actions: 0 }),
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+    });
+
+    const spent = reduce(state, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
+
+    expect(spent.events).toEqual([
+      { type: 'CommandRejected', commandType: 'Move', reason: 'no-mp' },
+    ]);
+    expect(spent.state.activePlayerId).toBe('player-1');
+    expect(spent.state.round).toBe(1);
+
+    const ended = reduce(spent.state, { type: 'EndTurn', unitId: 'player-1' });
+
+    expect(ended.state.activePlayerId).toBe('player-2');
+    expect(ended.state.round).toBe(1);
+  });
+
+  it('rechaza EndTurn sin activo válido o con otro jugador sin cambiar el estado', () => {
+    const noActive = makeState({ players: party(2), activePlayerId: null });
+    const missing = makeState({ players: party(2), activePlayerId: 'player-9' });
+    const other = makeState({ players: party(2), activePlayerId: 'player-1' });
+    const dead = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 0 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 6, y: 5 }),
+      ],
+      activePlayerId: 'player-1',
+    });
+
+    for (const [state, command, reason] of [
+      [noActive, { type: 'EndTurn' }, 'invalid-active'],
+      [missing, { type: 'EndTurn' }, 'invalid-active'],
+      [other, { type: 'EndTurn', unitId: 'player-2' }, 'not-active'],
+      [dead, { type: 'EndTurn' }, 'dead-unit'],
+    ] as const) {
+      const result = reduce(state, command);
+      expect(result.state, reason).toBe(state);
+      expect(result.events).toEqual([
+        { type: 'CommandRejected', commandType: 'EndTurn', reason },
+      ]);
+    }
+
+    const matching = reduce(other, { type: 'EndTurn', unitId: 'player-1' });
+    expect(matching.state.activePlayerId).toBe('player-2');
+  });
+
+  it('rechaza los comandos de una unidad no activa sin cambios', () => {
+    const state = makeState({
+      players: party(2),
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 })],
+      activePlayerId: 'player-1',
+    });
+    const commands: readonly Command[] = [
+      { type: 'Move', unitId: 'player-2', dx: 1, dy: 0 },
+      { type: 'MoveTo', unitId: 'player-2', target: { x: 9, y: 5 } },
+      { type: 'Attack', unitId: 'player-2', targetId: 'enemy-1' },
+      { type: 'CastSpell', unitId: 'player-2', spellId: 'electric-1', target: { x: 9, y: 5 } },
+      { type: 'PickUp', unitId: 'player-2' },
+      { type: 'TakeItem', unitId: 'player-2', containerId: 'corpse-x', itemId: 'item-x' },
+      { type: 'TakeAll', unitId: 'player-2', containerId: 'corpse-x' },
+      { type: 'EquipItem', unitId: 'player-2', from: 'backpack', index: 0 },
+      { type: 'UnequipItem', unitId: 'player-2', slot: 'weapon' },
+      { type: 'DropItem', unitId: 'player-2', from: 'backpack', index: 0 },
+      { type: 'SelectWeapon', unitId: 'player-2', slot: 1 },
+      { type: 'InspectContainer', unitId: 'player-2', containerId: 'chest-x' },
+    ];
+
+    for (const command of commands) {
+      const result = reduce(state, command);
+      expect(result.state, command.type).toBe(state);
+      expect(result.events, command.type).toEqual([
+        {
+          type: 'CommandRejected',
+          commandType: command.type,
+          reason: 'not-active',
+        },
+      ]);
+    }
+  });
+
+  it('expone la fase enemiga en orden de índice con objetivo y espera', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 20 })],
+      enemies: [
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 15, awareness: 'dormant' }),
+        makeUnit({ id: 'enemy-2', faction: 'enemy', x: 6, y: 5 }),
+        makeUnit({ id: 'enemy-3', faction: 'enemy', x: 18, y: 18 }),
+      ],
+      rng: createRng(102),
+    });
+
+    const result = reduce(state, { type: 'EndTurn' });
+
+    expect(result.enemyPhase).toEqual([
+      { enemyId: 'enemy-1', targetId: null, action: 'wait' },
+      { enemyId: 'enemy-2', targetId: 'player-1', action: 'act' },
+      { enemyId: 'enemy-3', targetId: 'player-1', action: 'act' },
+    ]);
+    expect(result.events.filter((event) => event.type === 'EnemyWaited')).toEqual([
+      { type: 'EnemyWaited', unitId: 'enemy-1' },
+    ]);
+  });
+
+  it('el fantasma conserva su índice, recibe recursos y puede cerrar turno', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5, hp: 0 }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          hp: 0,
+          ghost: true,
+          mp: 0,
+          actions: 0,
+          actionsMax: 1,
+        }),
+        makeUnit({ id: 'player-3', faction: 'player', x: 6, y: 5 }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+      activePlayerId: 'player-3',
+    });
+
+    const phased = reduce(state, { type: 'EndTurn' });
+
+    expect(phased.state.round).toBe(2);
+    expect(phased.state.activePlayerId).toBe('player-2');
+    expect(phased.state.players.map((player) => player.id)).toEqual([
+      'player-1',
+      'player-2',
+      'player-3',
+    ]);
+    expect(phased.state.players[1]).toMatchObject({
+      mp: 6,
+      actions: { max: 1, remaining: 1 },
+    });
+
+    const passed = reduce(phased.state, { type: 'EndTurn' });
+
+    expect(passed.state.round).toBe(2);
+    expect(passed.state.activePlayerId).toBe('player-3');
+    expect(passed.state.players.map((player) => player.id)).toEqual([
+      'player-1',
+      'player-2',
+      'player-3',
+    ]);
   });
 });

@@ -1092,7 +1092,11 @@ describe('determinismo y cupo por turno', () => {
       spellsCast: 2,
     });
 
-    const afterTurn = reduce(second.state, { type: 'EndTurn' });
+    // La maga cede el turno al aliado: la recarga llega al empezar la ronda.
+    const afterTurn = reduce(
+      { ...second.state, activePlayerId: 'player-2' },
+      { type: 'EndTurn' },
+    );
     expect(afterTurn.state.players[0]).toMatchObject({
       mana: { current: manaMax, max: manaMax },
       actions: { remaining: 3 },

@@ -1,15 +1,23 @@
 import { hasAction, restoreActions } from './actions';
-import { planEnemyAction } from './ai';
+import { chooseNearestPlayer, planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
 import { isAlive, isGhost } from './grid';
 import { restoreMana } from './mana';
 import { commitMove, validateMove } from './movement';
 import { refreshEnemyAwareness } from './perception';
-import type { GameEvent, GameState, GameStatus, Unit } from './types';
+import type {
+  EnemyPhaseEntry,
+  GameEvent,
+  GameState,
+  GameStatus,
+  Unit,
+} from './types';
 
 export interface TurnResult {
   readonly state: GameState;
   readonly events: readonly GameEvent[];
+  /** Traza de la fase enemiga; ausente si no se ejecutó (REQ-031 T-004). */
+  readonly enemyPhase?: readonly EnemyPhaseEntry[];
 }
 
 export function evaluateStatus(state: GameState): GameStatus {
@@ -52,12 +60,22 @@ function restoreTurnResources(unit: Unit): Unit {
   };
 }
 
-export function restorePlayerTurn(state: GameState): GameState {
+/**
+ * Restaura únicamente al jugador activo (REQ-031 T-002). El parámetro
+ * opcional permite restaurar un id concreto sin cambiar la firma histórica;
+ * sin él se usa `activePlayerId`. Los muertos sin fantasma no se restauran.
+ */
+export function restorePlayerTurn(
+  state: GameState,
+  unitId: string | undefined = state.activePlayerId ?? undefined,
+): GameState {
   return {
     ...state,
     phase: 'player',
     players: state.players.map((unit) =>
-      isAlive(unit) || isGhost(unit) ? restoreTurnResources(unit) : unit,
+      unit.id === unitId && (isAlive(unit) || isGhost(unit))
+        ? restoreTurnResources(unit)
+        : unit,
     ),
   };
 }
@@ -147,15 +165,24 @@ function targetIsDown(state: GameState, targetId: string): boolean {
   return target === undefined || target.hp <= 0;
 }
 
+interface EnemyPlanResult extends TurnResult {
+  readonly targetId: string | null;
+  readonly acted: boolean;
+}
+
 /**
  * Ejecuta la cola de acciones de un enemigo con el contador de REQ-026:
  * replanifica mientras le queden acciones, gasta una por ataque y no ataca al
  * moverse si está huyendo. La cola termina al esperar, morir, quedarse sin
  * acciones, no avanzar o matar al objetivo atacado.
+ *
+ * Además devuelve el objetivo perseguido y si el enemigo actuó de verdad, para
+ * exponer la fase enemiga sin que el host lea estado interno (T-004).
  */
-function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
+function applyEnemyPlan(state: GameState, enemy: Unit): EnemyPlanResult {
   const events: GameEvent[] = [];
   let next = state;
+  let targetId: string | null = null;
 
   for (let planCount = 0; planCount < MAX_CHAINED_PLANS; planCount += 1) {
     const current = findEnemy(next, enemy.id);
@@ -165,12 +192,23 @@ function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
     if (plan.type === 'wait') break;
 
     if (plan.type === 'attack') {
+      targetId = plan.targetId;
       const result = chainAttack(next, current.id, plan.targetId);
       if (!result) break;
       next = result.state;
       events.push(...result.events);
       if (targetIsDown(next, plan.targetId)) break;
       continue;
+    }
+
+    // La persecución sin ataque adyacente informa del jugador más cercano.
+    if (plan.attackTargetId) {
+      targetId = plan.attackTargetId;
+    } else if (targetId === null && current.awareness === 'alert' && !current.fleeing) {
+      const alive = next.players.filter(isAlive);
+      if (alive.length > 0) {
+        targetId = chooseNearestPlayer(current, alive).id;
+      }
     }
 
     let moved = false;
@@ -203,22 +241,50 @@ function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
     events.push({ type: 'EnemyWaited', unitId: enemy.id });
   }
 
-  return { state: next, events };
+  const acted = events.some(
+    (event) =>
+      (event.type === 'UnitMoved' && event.unitId === enemy.id) ||
+      (event.type === 'AttackPerformed' && event.attackerId === enemy.id),
+  );
+
+  // Un `wait` no inventa objetivo aunque un plan bloqueado lo hubiera previsto.
+  return { state: next, events, targetId: acted ? targetId : null, acted };
 }
 
 /**
- * Cierra la fase del jugador, restaura y ejecuta la fase enemiga completa en
- * orden de índice, comprueba el final y, si la partida sigue, devuelve el
- * control al jugador restaurando MP y acción.
+ * Cierra el turno del activo. Si queda otro jugador jugable (vivo o fantasma)
+ * le pasa el control sin fase enemiga; si era el último, ejecuta una única fase
+ * enemiga por ronda y, si la partida sigue, vuelve al primer jugable.
  */
 export function resolveEndTurn(state: GameState): TurnResult {
   const events: GameEvent[] = [{ type: 'TurnEnded', turn: state.round }];
+  const activeIndex = state.players.findIndex(
+    (unit) => unit.id === state.activePlayerId,
+  );
+  const nextPlayer = state.players.find(
+    (unit, index) =>
+      index > activeIndex && (isAlive(unit) || isGhost(unit)),
+  );
+
+  if (nextPlayer) {
+    const next = restorePlayerTurn(
+      { ...state, activePlayerId: nextPlayer.id },
+      nextPlayer.id,
+    );
+    events.push({ type: 'PlayerTurnStarted', turn: state.round });
+    return { state: next, events };
+  }
+
   let next = restoreEnemyTurn(state);
   events.push({ type: 'EnemyPhaseStarted', turn: state.round });
+  const enemyPhase: EnemyPhaseEntry[] = [];
+  const livingAtStart = next.enemies.filter(isAlive);
 
-  for (const original of next.enemies) {
-    if (next.status !== 'playing') break;
-    if (!isAlive(original)) continue;
+  for (const original of livingAtStart) {
+    if (next.status !== 'playing') {
+      enemyPhase.push({ enemyId: original.id, targetId: null, action: 'wait' });
+      continue;
+    }
 
     const enemy = next.enemies.find((candidate) => candidate.id === original.id);
     if (!enemy || !isAlive(enemy)) continue;
@@ -236,6 +302,11 @@ export function resolveEndTurn(state: GameState): TurnResult {
     const result = applyEnemyPlan(next, active);
     next = result.state;
     events.push(...result.events);
+    enemyPhase.push({
+      enemyId: active.id,
+      targetId: result.targetId,
+      action: result.acted ? 'act' : 'wait',
+    });
 
     const settled = settleReturning(next, active.id);
     if (settled) {
@@ -247,9 +318,17 @@ export function resolveEndTurn(state: GameState): TurnResult {
   }
 
   if (next.status === 'playing') {
-    next = restorePlayerTurn({ ...next, round: next.round + 1 });
-    events.push({ type: 'PlayerTurnStarted', turn: next.round });
+    const first = next.players.find((unit) => isAlive(unit) || isGhost(unit));
+    next = {
+      ...next,
+      round: next.round + 1,
+      activePlayerId: first?.id ?? null,
+    };
+    if (first) {
+      next = restorePlayerTurn(next, first.id);
+      events.push({ type: 'PlayerTurnStarted', turn: next.round });
+    }
   }
 
-  return { state: next, events };
+  return { state: next, events, enemyPhase };
 }

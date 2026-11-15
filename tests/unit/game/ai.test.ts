@@ -28,6 +28,8 @@ describe('enemy AI', () => {
         makeUnit({ id: 'player-2', faction: 'player', x: 14, y: 10 }),
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 10, y: 10 })],
+      // El último jugador cierra la ronda para que el enemigo actúe.
+      activePlayerId: 'player-2',
     });
 
     const plan = planEnemyAction(state, state.enemies[0]);

@@ -286,6 +286,8 @@ describe('cadáver, casilla compartida y persistencia', () => {
         makeUnit({ id: 'player-3', faction: 'player', x: 4, y: 5 }),
       ],
       enemies: [],
+      // Los cadáveres no son jugables; el único vivo es el activo.
+      activePlayerId: 'player-3',
     });
     const withCorpses = settleUnitDeath(
       settleUnitDeath(base, 'player-1'),

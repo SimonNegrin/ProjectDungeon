@@ -266,6 +266,9 @@ function reduceMove(
   if (!unit) {
     return reject(state, command, 'unknown-unit');
   }
+  if (unit.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
   if (!isAlive(unit) && !isGhost(unit)) {
     return reject(state, command, 'dead-unit');
   }
@@ -373,6 +376,9 @@ function reduceMoveTo(
   if (!unit) {
     return reject(state, command, 'unknown-unit');
   }
+  if (unit.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
   if (!isAlive(unit) && !isGhost(unit)) {
     return reject(state, command, 'dead-unit');
   }
@@ -455,6 +461,9 @@ function reduceAttack(
   if (!attacker) {
     return reject(state, command, 'unknown-unit');
   }
+  if (attacker.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
   if (!isAlive(attacker)) {
     return reject(state, command, 'dead-unit');
   }
@@ -486,6 +495,9 @@ function reduceCastSpell(
   if (!caster) {
     return reject(state, command, 'unknown-unit');
   }
+  if (caster.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
 
   const result = castSpell(
     state,
@@ -515,6 +527,9 @@ function inventoryUnit(
   const unit = state.players.find((player) => player.id === unitId);
   if (!unit) {
     return { ok: false, result: reject(state, command, 'unknown-unit') };
+  }
+  if (unit.id !== state.activePlayerId) {
+    return { ok: false, result: reject(state, command, 'not-active') };
   }
   if (!isAlive(unit) && !(allowGhost && isGhost(unit))) {
     return { ok: false, result: reject(state, command, 'dead-unit') };
@@ -582,6 +597,9 @@ function reduceTakeAll(
   }
   const unit = state.players.find((player) => player.id === command.unitId);
   if (!unit) return reject(state, command, 'unknown-unit');
+  if (unit.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
   if (!isAlive(unit)) {
     return reject(state, command, isGhost(unit) ? 'invalid-target' : 'dead-unit');
   }
@@ -668,6 +686,9 @@ function reduceInspectContainer(
   if (!unit) {
     return reject(state, command, 'unknown-unit');
   }
+  if (unit.id !== state.activePlayerId) {
+    return reject(state, command, 'not-active');
+  }
   if (!isGhost(unit)) {
     return reject(state, command, 'not-ghost');
   }
@@ -688,6 +709,37 @@ function reduceInspectContainer(
       },
     ],
   };
+}
+
+/**
+ * `EndTurn` cierra el turno del activo (REQ-031 T-002/T-003). Un `unitId`
+ * explícito debe coincidir con `activePlayerId`; sin activo válido o con un
+ * muerto sin fantasma se rechaza sin cambios.
+ */
+function reduceEndTurn(
+  state: GameState,
+  command: Extract<Command, { type: 'EndTurn' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+
+  const activeId = state.activePlayerId;
+  if (activeId === null) {
+    return reject(state, command, 'invalid-active');
+  }
+  const active = state.players.find((unit) => unit.id === activeId);
+  if (!active) {
+    return reject(state, command, 'invalid-active');
+  }
+  if (command.unitId !== undefined && command.unitId !== activeId) {
+    return reject(state, command, 'not-active');
+  }
+  if (!isAlive(active) && !isGhost(active)) {
+    return reject(state, command, 'dead-unit');
+  }
+
+  return resolveEndTurn(state);
 }
 
 /**
@@ -735,9 +787,6 @@ export function reduce(state: GameState, command: Command): ReduceResult {
     case 'InspectContainer':
       return reduceInspectContainer(state, command);
     case 'EndTurn':
-      if (state.phase !== 'player') {
-        return reject(state, command, 'wrong-phase');
-      }
-      return resolveEndTurn(state);
+      return reduceEndTurn(state, command);
   }
 }

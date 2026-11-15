@@ -83,6 +83,8 @@ describe('muerte y representación del fantasma (REQ-021 R-001/R-002/T-001/T-002
       ],
       enemies: [enemyAt(6, 5)],
       rng: rngForDice(ENEMY_HIT),
+      // El último jugador cierra la ronda: el enemigo mata a player-1.
+      activePlayerId: 'player-2',
     });
     const before = state.players[0];
 
@@ -236,6 +238,7 @@ describe('casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-00
     const state = makeState({
       players: [ghostAt(5, 5), aliveAt('player-2', 4, 5)],
       enemies: [],
+      activePlayerId: 'player-2',
     });
 
     const result = reduce(state, {
@@ -365,6 +368,8 @@ describe('MP intrínseco y una acción por ronda (REQ-021 R-002/T-003, REQ-026)'
         aliveAt('player-2', 4, 5),
       ],
       enemies: [enemyAt(15, 15, { awareness: 'dormant' })],
+      // Cierra la ronda para que el fantasma empiece la siguiente.
+      activePlayerId: 'player-2',
     });
 
     const result = reduce(state, { type: 'EndTurn' });
@@ -522,6 +527,8 @@ describe('inspección de contenedores sin revelar trampa (REQ-021 R-006/T-005)',
     const base = makeState({
       players: [ghostAt(5, 5), aliveAt('player-2', 4, 5)],
       enemies: [],
+      // El vivo debe ser el activo para aislar el rechazo `not-ghost`.
+      activePlayerId: 'player-2',
       containers: [
         { id: 'chest-1', x: 5, y: 5, capacity: 0, items: [] },
       ],
@@ -553,12 +560,13 @@ describe('inspección de contenedores sin revelar trampa (REQ-021 R-006/T-005)',
       },
     ]);
 
-    const unknown = reduce(base, {
+    const ghostActive = { ...base, activePlayerId: 'player-1' };
+    const unknown = reduce(ghostActive, {
       type: 'InspectContainer',
       unitId: 'player-1',
       containerId: 'chest-9',
     });
-    expect(unknown.state).toBe(base);
+    expect(unknown.state).toBe(ghostActive);
     expect(unknown.events).toEqual([
       {
         type: 'CommandRejected',
@@ -617,26 +625,34 @@ describe('flujo integrado: muerte, fantasma, casilla compartida, inspección y r
       enemies: [enemyAt(6, 5)],
       groundItems: [{ id: 'item-ground', itemId: 'dagger', lootable: true, x: 5, y: 5 }],
       rng: rngForDice(ENEMY_HIT),
+      // El último jugador cierra la ronda y provoca la muerte de player-1.
+      activePlayerId: 'player-2',
     });
 
     const afterDeath = reduce(state, { type: 'EndTurn' }).state;
     expect(lifeState(afterDeath.players[0])).toBe('ghost');
 
-    const shared = reduce(afterDeath, {
-      type: 'Move',
-      unitId: 'player-2',
-      dx: 1,
-      dy: 0,
-    }).state;
+    const shared = reduce(
+      { ...afterDeath, activePlayerId: 'player-2' },
+      {
+        type: 'Move',
+        unitId: 'player-2',
+        dx: 1,
+        dy: 0,
+      },
+    ).state;
     expect(shared.players[0].x).toBe(5);
     expect(shared.players[1].x).toBe(5);
     expect(shared.players[1].y).toBe(5);
 
-    const inspected = reduce(shared, {
-      type: 'InspectContainer',
-      unitId: 'player-1',
-      containerId: corpseId('player-1'),
-    });
+    const inspected = reduce(
+      { ...shared, activePlayerId: 'player-1' },
+      {
+        type: 'InspectContainer',
+        unitId: 'player-1',
+        containerId: corpseId('player-1'),
+      },
+    );
     const event = inspected.events[0];
     expect(event.type).toBe('ContainerInspected');
     if (event.type === 'ContainerInspected') {
