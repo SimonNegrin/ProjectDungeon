@@ -1,0 +1,72 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ experiments/EXP-004-salas-irregulares/src/render.test.ts > puertas en la vista 13×13 > resta el origen del viewport y descarta las puertas fuera 2ms
+ ✓ experiments/EXP-004-salas-irregulares/src/render.test.ts > puertas en la vista 13×13 > la puerta del mapa completo usa el mismo origen 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/metrics.test.ts > métricas de la v2 > muestran puertas/bocas, acceso, N, P, términos, T y reparto 157ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > los mapas son conexos, sin diagonales sueltas y con el borde cerrado 447ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > el grafo y la distancia usan las conexiones reales, no las puertas decorativas 3ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > en un mapa de 3 salas en cadena elige la tercera para stairs-down 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > door cae en un muro del borde y no abre paso 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > si door no encuentra sala de borde, cae a stairs-down con aviso 2ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > random es estable con la misma semilla y cambia el tipo entre semillas 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > sin sala a distancia ≥2 usa la más lejana alcanzable con aviso 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > sin sala no-spawn alcanzable deja exit vacío con aviso 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > la salida reserva su tile y su acceso 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/exit.test.ts > salida de nivel de REQ-013 > A/B/C generan una salida alcanzable a distancia ≥2 y reservada en 12 semillas 543ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > hay al menos una sala no rectangular, muescas y una relación área/caja razonable 184ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > acepta una puerta directa con dos muros en la línea y suelo a ambos lados 4ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > rechaza una puerta sin dos muros en la línea (soporte) 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > rechaza una puerta sin suelo a ambos lados 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > rechaza una puerta que no conecta dos salas distintas 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > con dos puertas a Chebyshev <3 conserva una y marca la otra como boca 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > con dos extremos válidos en un pasillo solo deja una puerta 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > un pasillo ancho nunca lleva puerta y deja bocas con motivo 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > es determinista: misma entrada, mismas puertas y bocas 5ms
+ ✓ experiments/EXP-004-salas-irregulares/src/doors.test.ts > puertas validadas por geometría > todas las puertas de A/B/C son válidas, están separadas y no hay dos por pasillo 737ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > hay al menos una sala grande y una pequeña en mapas sin caverna 162ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > la sala de spawn es la más protegida; en empate evita la mayor si otra admite 6 793ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > hay una puerta directa entre salas vecinas y la distancia entre suelos es 2 135ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > party[0] es el acceso junto a la puerta más cercana al centro o, si no hay, junto a la boca 377ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > el grosor de muro 1 y 2 cambia el mapa y el 2 mantiene el contrato 33ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > el grosor 2 conserva conectividad, puertas directas y longitudes en varias semillas 222ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > la misma semilla y opciones producen mapas profundamente iguales 1271ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > los pasillos miden 0-3, los bucles 0-3 y los anchos cumplen 2 tiles y longitud ≥3 130ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > la huella y las métricas son estables 32ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > semillas distintas cambian la huella de cada variante 31ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > no usa Math.random dentro de la generación 24ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > el contrato mínimo es serializable y tiene las claves esperadas 28ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > los huecos son distintos, de suelo, dentro de la sala y fuera de puertas/enemigos/salida 369ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > cumple el recuento de salas: normales 4-6, caverna 3 y mínimo global 3 426ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > el estilo de puerta es estable por semilla y hay al menos dos estilos en el conjunto 37ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > la regla de muro por borde usa wallSide1 solo con suelo al sur 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > el pasillo ancho aparece en 30 semillas con una frecuencia de 1/3 aproximada 522ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > sin fallback el grupo queda a radio 2; en todos los casos la componente es ≤2 348ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > la semilla de referencia y 24 semillas validan el mapa sin incidencias 445ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el barrido A/B/C × 20 semillas mantiene acceso, componentes ≤2 y avisos de fallback 374ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > las opciones extremas se corrigen con warnings y no rompen el contrato 27ms
+ ✓ experiments/EXP-004-salas-irregulares/src/contract.test.ts > contrato y determinismo de A/B/C > roomAtCell devuelve la sala de una muesca y null para caja sin suelo 9ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > 6 huecos a radio 2 no usan fallback y admiten parejas 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > si radio 2 no llega a 6, amplía a radio 3 y avisa sin romper componentes 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > si no caben 6, devuelve los que caben con aviso y componentes ≤2 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el fallback de una sala pequeña avisa y nunca deja huecos repetidos o en muro 1ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > T sigue la fórmula, incluidos factores a 0 y cambios de P 381ms
+ ✓ experiments/EXP-004-salas-irregulares/src/shapes.test.ts > formas, muros y conexiones > la caverna aparece en 60 semillas con una frecuencia de 1/6 aproximada 989ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el reparto usa mayor resto, mínimo 1, spawn 0 y suma T 316ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > reparte 60/20/20 con redondeo y prioridades de cobarde/bruto 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > los enemigos caen en su sala, sin duplicados y con componentes ≤2 325ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > hotspotRolls cuenta todos los puntos calientes, no solo los elegibles 296ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > las semillas BSP 104 y 371 no cruzan componentes entre salas 17ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el barrido growth × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas 766ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el barrido bsp × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas 1466ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > el barrido templates × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas 889ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > los no emboscados prefieren interior cuando hay sitio compatible 298ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > hiddenEnemyChance 0/1 y 0,5 controla emboscadas sin cambiar T 321ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > una pareja se acepta, pero tres en línea o en triángulo se rechazan 0ms
+ ✓ experiments/EXP-004-salas-irregulares/src/spawn.test.ts > spawn alrededor del acceso y enemigos de la v3 > la línea de visión se bloquea con un muro y atraviesa una puerta abierta 0ms
+
+ Test Files  7 passed (7)
+      Tests  63 passed (63)
+   Start at  10:50:26
+   Duration  7.58s (tests 95%, import 2%, transform 2%)
+

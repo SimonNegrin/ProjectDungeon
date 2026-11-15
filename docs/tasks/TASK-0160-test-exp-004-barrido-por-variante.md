@@ -4,22 +4,32 @@ id: TASK-0160
 title: "Test: dividir el barrido de EXP-004 por variante"
 description: "Eliminar el timeout intermitente de EXP-004 partiendo el barrido A/B/C × 200 semillas en tres tests, uno por variante, con timeout local documentado y sin reducir la muestra ni las aserciones."
 status: stable
-task_status: ready
+task_status: done
 task_type: test
 requirement: REQ-011
 requirement_ids: [R-008, R-009]
 depends_on: []
 unlocks: []
 created_at: 2026-11-15T10:45:04Z
-completed_at:
+completed_at: 2026-11-15T10:51:38Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0160/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-15T10:45:04Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T10:51:38Z
+    note: >-
+      Intento 1 verificado (test d5555e0, evidencia fb5c3a7). Diff revisado:
+      solo `spawn.test.ts` y artefactos; sin cambios de configuración ni de
+      otros tests. El `it` de 600 mapas pasa a `growth`, `bsp` y `templates`,
+      con 200 semillas cada uno, `{ timeout: 15_000 }` y comentario; las cinco
+      comprobaciones y las etiquetas `${variant} · ${seed}` se conservan.
+      Reejecutado: aislado 63/63 con barridos de 766, 1466 y 889 ms (< 5 s);
+      `pnpm run test` dos veces 99/1473; `pnpm run verify` completo OK.
 ---
 
 # Objetivo

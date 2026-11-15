@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0160 — done: el barrido de 600 mapas de EXP-004 se parte en `growth`, `bsp` y `templates`, 200 semillas cada uno y `{ timeout: 15_000 }` local con comentario; mismas cinco aserciones, etiquetas y muestra; aislado 766/1466/889 ms, `pnpm run test` 99/1473 dos veces y verify OK; fusión `84fa956` — [informe](../artifacts/TASK-0160/attempt-1/report.md)
+
 * 2026-11-15 — Planning — TASK-0160 — ready: dividir el barrido A/B/C × 200 semillas de EXP-004 en tres tests por variante con timeout local de 15 s y comentario, sin cambiar muestra, aserciones ni configuración del arnés; causa: 3,1 s en aislado frente a 5 s por defecto con 86-92 workers — [TASK-0160](tasks/TASK-0160-test-exp-004-barrido-por-variante.md)
 
 * 2026-11-15 — Task — TASK-0129 — done: E2E nuevo del arranque de REQ-016 (menú, paso 1, 1/2/6 jugadores, semilla, nombre, variante, cancelación y partida) con capturas a 1280×720 y 900×700; verify 99/1471 y E2E 235/235; scroll interno a 900×700 documentado como observación; fusión `c016a5f` — [informe](../artifacts/TASK-0129/attempt-1/report.md)
