@@ -54,7 +54,7 @@ describe('instancias, localización y serialización (REQ-018 T-002/T-003)', () 
       x: 9,
       y: 9,
       capacity: 2,
-      items: [{ id: 'item-chest-sword', itemId: 'sword' }, null],
+      items: [{ id: 'item-chest-sword', itemId: 'sword', lootable: true }, null],
     };
     const state = makeState({
       players: [
@@ -67,7 +67,7 @@ describe('instancias, localización y serialización (REQ-018 T-002/T-003)', () 
           inventory: inventoryFromIds('player-1', ['axe', 'dagger']),
         }),
       ],
-      groundItems: [{ id: 'item-ground-knife', itemId: 'knife', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-knife', itemId: 'knife', lootable: true, x: 4, y: 4 }],
       containers: [container],
     });
 
@@ -110,14 +110,14 @@ describe('instancias, localización y serialización (REQ-018 T-002/T-003)', () 
           inventory: inventoryFromIds('player-1', ['sword', 'dagger'], 4),
         }),
       ],
-      groundItems: [{ id: 'item-ground-hammer', itemId: 'hammer', x: 6, y: 6 }],
+      groundItems: [{ id: 'item-ground-hammer', itemId: 'hammer', lootable: true, x: 6, y: 6 }],
       containers: [
         {
           id: 'chest-1',
           x: 8,
           y: 8,
           capacity: 2,
-          items: [{ id: 'item-chest-knife', itemId: 'knife' }, null],
+          items: [{ id: 'item-chest-knife', itemId: 'knife', lootable: true }, null],
         },
       ],
     });
@@ -129,8 +129,8 @@ describe('instancias, localización y serialización (REQ-018 T-002/T-003)', () 
     expect(roundTrip.players[0].inventory).toEqual({
       capacity: 4,
       items: [
-        { id: 'item-player-1-backpack-0', itemId: 'sword' },
-        { id: 'item-player-1-backpack-1', itemId: 'dagger' },
+        { id: 'item-player-1-backpack-0', itemId: 'sword', lootable: true },
+        { id: 'item-player-1-backpack-1', itemId: 'dagger', lootable: true },
         null,
         null,
       ],
@@ -227,7 +227,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           equipmentSlots: slots('player-1', null),
         }),
       ],
-      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 }],
     });
 
     const result = reduce(state, {
@@ -255,7 +255,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           inventory: inventoryFromIds('player-1', ['axe', 'knife'], 2),
         }),
       ],
-      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 }],
     });
 
     const result = reduce(state, {
@@ -285,8 +285,8 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
         }),
       ],
       groundItems: [
-        { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
-        { id: 'item-ground-axe', itemId: 'axe', x: 4, y: 4 },
+        { id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 },
+        { id: 'item-ground-axe', itemId: 'axe', lootable: true, x: 4, y: 4 },
       ],
     });
 
@@ -300,7 +300,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
     expect(result.events).toEqual([]);
     expect(result.state.players[0].equipment.weapon?.id).toBe('item-ground-axe');
     expect(result.state.groundItems).toEqual([
-      { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
+      { id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 },
     ]);
   });
 
@@ -316,8 +316,8 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
         }),
       ],
       groundItems: [
-        { id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 },
-        { id: 'item-ground-axe', itemId: 'axe', x: 5, y: 4 },
+        { id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 },
+        { id: 'item-ground-axe', itemId: 'axe', lootable: true, x: 5, y: 4 },
       ],
     });
 
@@ -347,7 +347,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           inventory: inventoryFromIds('player-1', ['axe'], 2),
         }),
       ],
-      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 }],
     });
 
     const result = reduce(state, {
@@ -381,7 +381,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           x: 5,
           y: 4,
           capacity: 1,
-          items: [{ id: 'item-chest-sword', itemId: 'sword' }],
+          items: [{ id: 'item-chest-sword', itemId: 'sword', lootable: true }],
         },
       ],
     });
@@ -419,7 +419,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           x: 5,
           y: 4,
           capacity: 2,
-          items: [{ id: 'item-chest-sword', itemId: 'sword' }, null],
+          items: [{ id: 'item-chest-sword', itemId: 'sword', lootable: true }, null],
         },
       ],
     });
@@ -453,7 +453,7 @@ describe('equipar y desequipar (REQ-018 T-005)', () => {
           x: 5,
           y: 4,
           capacity: 1,
-          items: [{ id: 'item-chest-sword', itemId: 'sword' }],
+          items: [{ id: 'item-chest-sword', itemId: 'sword', lootable: true }],
         },
       ],
     });
@@ -534,7 +534,7 @@ describe('recoger y soltar (REQ-018 R-013, REQ-026 R-010)', () => {
           inventory: inventoryFromIds('player-1', ['axe', 'dagger'], 2),
         }),
       ],
-      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-sword', itemId: 'sword', lootable: true, x: 4, y: 4 }],
     });
 
     const result = reduce(state, { type: 'PickUp', unitId: 'player-1' });
@@ -545,6 +545,51 @@ describe('recoger y soltar (REQ-018 R-013, REQ-026 R-010)', () => {
     ]);
     expect(result.state.groundItems).toHaveLength(1);
     expect(inventorySlots(result.state)).toEqual(['axe', 'dagger']);
+  });
+
+  it('un objeto no saqueable conserva la marca al recoger, equipar y soltar', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipmentSlots: slots('player-1', null),
+        }),
+      ],
+      groundItems: [
+        { id: 'item-ground-sword', itemId: 'sword', lootable: false, x: 4, y: 4 },
+      ],
+    });
+
+    const picked = reduce(state, { type: 'PickUp', unitId: 'player-1' });
+    expect(picked.events).toEqual([]);
+    expect(picked.state.players[0].inventory.items[0]?.lootable).toBe(false);
+
+    const equipped = reduce(picked.state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'backpack',
+      index: 0,
+    });
+    expect(equipped.events).toEqual([]);
+    expect(equipped.state.players[0].equipment.weapon?.lootable).toBe(false);
+
+    const dropped = reduce(equipped.state, {
+      type: 'DropItem',
+      unitId: 'player-1',
+      from: 'slot',
+      slot: 'weapon',
+    });
+    expect(dropped.events).toEqual([]);
+    expect(dropped.state.groundItems).toEqual([
+      { id: 'item-ground-sword', itemId: 'sword', lootable: false, x: 4, y: 4 },
+    ]);
+    expect(
+      allInstances(dropped.state).find((item) => item.id === 'item-ground-sword')
+        ?.lootable,
+    ).toBe(false);
   });
 
   it('soltar un equipado lo desequipa y lo deja en la casilla sin pasar por mochila', () => {
@@ -572,7 +617,7 @@ describe('recoger y soltar (REQ-018 R-013, REQ-026 R-010)', () => {
     expect(result.state.players[0].equipment.shield).toBeNull();
     expect(backpackIds(result.state)).toEqual(['axe']);
     expect(result.state.groundItems).toEqual([
-      { id: 'item-player-1-shield', itemId: 'shield', x: 4, y: 4 },
+      { id: 'item-player-1-shield', itemId: 'shield', lootable: true, x: 4, y: 4 },
     ]);
     expect(result.state.players[0].mp).toBe(5);
     expect(result.state.players[0].actions).toEqual({ max: 2, remaining: 2 });
@@ -601,7 +646,7 @@ describe('recoger y soltar (REQ-018 R-013, REQ-026 R-010)', () => {
     expect(result.events).toEqual([]);
     expect(inventorySlots(result.state).slice(0, 2)).toEqual([null, 'dagger']);
     expect(result.state.groundItems).toEqual([
-      { id: 'item-player-1-backpack-0', itemId: 'axe', x: 4, y: 4 },
+      { id: 'item-player-1-backpack-0', itemId: 'axe', lootable: true, x: 4, y: 4 },
     ]);
   });
 });
@@ -703,7 +748,7 @@ describe('costes, sin apilado y alarma', () => {
           actions: 2,
         }),
       ],
-      groundItems: [{ id: 'item-ground-dagger', itemId: 'dagger', x: 4, y: 4 }],
+      groundItems: [{ id: 'item-ground-dagger', itemId: 'dagger', lootable: true, x: 4, y: 4 }],
     });
 
     const commands = [

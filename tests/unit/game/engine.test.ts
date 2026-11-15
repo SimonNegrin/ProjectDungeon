@@ -190,6 +190,31 @@ describe('engine state', () => {
     expect(second).toEqual(first);
   });
 
+  it('aplica la tirada de botín al crear cada enemigo sin tocar el RNG principal', () => {
+    const seed = 279837264;
+    const marksOf = (state: GameState) =>
+      state.enemies.map((enemy) => ({
+        id: enemy.id,
+        equipment: Object.fromEntries(
+          Object.entries(enemy.equipment).map(([slot, item]) => [
+            slot,
+            item === null ? null : item.lootable,
+          ]),
+        ),
+      }));
+
+    const first = createInitialState({ seed });
+    const second = createInitialState({ seed });
+
+    expect(marksOf(second)).toEqual(marksOf(first));
+    expect(first.rng).toEqual(createRng(normalizeSeed(seed)));
+    for (const enemy of first.enemies) {
+      for (const item of Object.values(enemy.equipment)) {
+        if (item !== null) expect(typeof item.lootable, enemy.id).toBe('boolean');
+      }
+    }
+  });
+
   it('reduce es pura y no muta el estado de entrada', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
@@ -454,6 +479,7 @@ function stateWithWeapon(options: WeaponStateOptions = {}): GameState {
           {
             id: 'item-weapon-test',
             itemId: options.weapon,
+            lootable: true,
             x: playerPosition.x,
             y: playerPosition.y,
           },

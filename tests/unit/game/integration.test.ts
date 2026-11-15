@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
+  EQUIPMENT_SLOTS,
+  createInitialState,
   createRng,
   reduce,
+  rollDie,
   type Command,
   type GameEvent,
   type GameState,
@@ -372,5 +375,32 @@ describe('game loop integration', () => {
     expect(JSON.stringify(first.states)).toBe(JSON.stringify(second.states));
     expect(JSON.stringify(first.events)).toBe(JSON.stringify(second.events));
     expect(JSON.stringify(first.final)).toBe(JSON.stringify(second.final));
+  });
+
+  it('el mismo enemigo con la misma semilla repite sus marcas de botín', () => {
+    const seed = 279837264;
+    const lootMarks = (state: GameState) =>
+      state.enemies.map((enemy) => ({
+        id: enemy.id,
+        marks: EQUIPMENT_SLOTS.map((slot) => enemy.equipment[slot]?.lootable ?? null),
+        bag: enemy.inventory.items.map((item) => item?.lootable ?? null),
+      }));
+
+    const first = createInitialState({ seed });
+    const second = createInitialState({ seed });
+
+    expect(lootMarks(second)).toEqual(lootMarks(first));
+    expect(lootMarks(first).some((enemy) => enemy.marks.includes(true))).toBe(true);
+
+    // El RNG principal arranca intacto: mismas tiradas que `createRng(seed)`.
+    let expected = createRng(seed);
+    let actual = first.rng;
+    for (let roll = 0; roll < 3; roll += 1) {
+      const nextExpected = rollDie(expected);
+      const nextActual = rollDie(actual);
+      expect(nextActual.die).toBe(nextExpected.die);
+      expected = nextExpected.rng;
+      actual = nextActual.rng;
+    }
   });
 });

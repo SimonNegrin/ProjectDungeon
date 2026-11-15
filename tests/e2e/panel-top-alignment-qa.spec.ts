@@ -53,6 +53,7 @@ function warriorScenario(
     groundItems: FOUR_GROUND.map((itemId, index) => ({
       id: `item-test-ground-${index}`,
       itemId,
+      lootable: true,
       x: at.x,
       y: at.y,
     })),

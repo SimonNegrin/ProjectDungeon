@@ -422,7 +422,7 @@ test('describe aliado, objeto, puerta, terreno, entrada/salida y desconocido', a
 
   const itemState = roomState({
     players: [warrior],
-    groundItems: [{ id: 'item-1', itemId: 'axe', x: 6, y: 5 }],
+    groundItems: [{ id: 'item-1', itemId: 'axe', lootable: true, x: 6, y: 5 }],
   });
   await openState(page, itemState);
   await moveCursorTo(page, 6, 5);

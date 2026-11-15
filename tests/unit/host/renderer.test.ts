@@ -754,7 +754,7 @@ describe('render de objetos del suelo', () => {
     return {
       state: {
         ...base,
-        groundItems: [{ id: `item-${itemId}`, itemId, x, y }],
+        groundItems: [{ id: `item-${itemId}`, itemId, lootable: true, x, y }],
       },
       x,
       y,

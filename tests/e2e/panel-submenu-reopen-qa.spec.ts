@@ -35,7 +35,7 @@ function keyboardScenario(
       },
     ],
     groundItems: [
-      { id: 'item-test-ground-0', itemId: 'hammer', x: at.x, y: at.y },
+      { id: 'item-test-ground-0', itemId: 'hammer', lootable: true, x: at.x, y: at.y },
     ],
     enemies: [],
   };
