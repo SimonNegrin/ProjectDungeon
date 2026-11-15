@@ -2,7 +2,7 @@
 type: Task
 id: TASK-0135
 title: "Host/render: cadáveres desde contenedores"
-description: "Dibujar y listar cadáveres leyendo contenedores, no unidades muertas; el cadáver aparece al terminar el beat de muerte y el enemigo sin botín no se dibuja."
+description: "Dibujar cadáveres leyendo contenedores, no unidades muertas; el cadáver aparece al terminar el beat de muerte y el enemigo sin contenedor no deja rastro."
 status: stable
 task_status: done
 task_type: feature
