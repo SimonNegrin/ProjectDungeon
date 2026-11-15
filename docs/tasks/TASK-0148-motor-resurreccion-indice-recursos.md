@@ -4,7 +4,7 @@ id: TASK-0148
 title: "Motor: resurrección por índice y recursos"
 description: "Permitir resucitar al fantasma en la casilla del cadáver y devolver el turno en la misma ronda si su índice no ha pasado, con recursos restaurados."
 status: stable
-task_status: blocked
+task_status: backlog
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-014, T-003]
@@ -42,26 +42,29 @@ se resuelva según el índice de la ronda, sin dobles turnos ni recursos perdido
 REQ-031
 [R-014](../requirements/REQ-031-hotseat-local.md#requisitos-creativos-decididos)
 fija el índice de resurrección y TASK-003 los recursos por turno. La mecánica de
-resurrección —lanzador de nivel 4 y 8 de maná u objeto, adyacencia, casilla sin
-vivos y 60 % del PV máximo— está en
-[REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md#requisitos-creativos-decididos),
-R-008 a R-013. TASK-0131 crea el cadáver y TASK-0146 el turno.
+resurrección —lanzador de nivel 4 con 8 de maná como única fuente, adyacencia,
+casilla sin vivos y 60 % del PV máximo— está en
+[REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md#requisitos-creativos-decididos)
+v4, R-008 a R-013, con el objeto de resurrección diferido fuera de este corte.
+TASK-0131 crea el cadáver y TASK-0146 el turno.
 
 # Criterios de aceptación
 
-- [ ] El comando valida la fuente: lanzador vivo con nivel de magia 4 y 8 de
-      maná, u objeto de resurrección en inventario.
+- [ ] El comando apunta a un cadáver concreto y valida un lanzador vivo con nivel
+      de magia 4 y 8 de maná; no existe fuente por objeto.
 - [ ] Exige lanzador adyacente a la casilla del cadáver y ausencia de vivos en
       esa casilla; el fantasma no cuenta como ocupante.
-- [ ] Si es válido, consume maná u objeto y sitúa al resucitado en la casilla del
+- [ ] Si es válido, consume 8 de maná y sitúa al resucitado en la casilla del
       cadáver con el 60 % de su PV máximo, redondeado hacia arriba y mínimo 1.
+- [ ] Con varios cadáveres en la misma casilla, resucita el elegido y los demás
+      quedan intactos.
 - [ ] Si el índice del jugador aún no ha pasado en la ronda, actúa en la misma
       ronda; si ya pasó, en la siguiente; no hay doble turno.
 - [ ] Los recursos del resucitado se restauran al empezar su turno.
-- [ ] Un intento inválido no cambia el estado y no consume maná ni objeto.
+- [ ] Un intento inválido no cambia el estado y no consume maná.
 - [ ] Tests de antes/después del índice, casilla ocupada por aliado o enemigo,
-      fantasma sobre la casilla, nivel o maná insuficiente, objeto y PV de
-      retorno; `pnpm run verify` pasa.
+      fantasma sobre la casilla, varios cadáveres, nivel o maná insuficiente y PV
+      de retorno; `pnpm run verify` pasa.
 
 # Plan de test
 
@@ -86,6 +89,8 @@ R-008 a R-013. TASK-0131 crea el cadáver y TASK-0146 el turno.
 # Restricciones
 
 - No implementar el menú de hechizos ni la presentación.
+- No crear objetos ni huecos de equipamiento: el objeto de resurrección está
+  diferido (REQ-021, decisión de 2026-11-15).
 - No cambiar el coste, el nivel ni el PV de retorno de REQ-021.
 - No resucitar enemigos.
 - Handoff: brief 1,5 KB, informe 2 KB; tope duro 4 KB.
@@ -93,17 +98,17 @@ R-008 a R-013. TASK-0131 crea el cadáver y TASK-0146 el turno.
 # No objetivos
 
 - Objeto de resurrección nuevo o arte final.
-- Revivir al jugador sin lanzador u objeto.
+- Revivir al jugador sin lanzador.
 - Cambiar la derrota por wipe.
 - HUD del fantasma o del resucitado.
 
 # Notas de verificación
 
-- Bloqueada antes de `in_progress`: el criterio 1 y el test de objeto piden un
-  objeto de resurrección que el catálogo no admite sin cambiar REQ-018/REQ-019,
-  y «No objetivos» lo excluye. Ver
+- Bloqueada el 2026-11-15 antes de `in_progress` porque la ficha pedía un objeto
+  de resurrección que el catálogo no admite. Ver
   [bloqueo](../../artifacts/TASK-0148/lead-blocked/blocked.md).
-- El motor del hechizo, la limpieza de `ghost` y la restauración de
-  `actions.max` son ejecutables sin esa decisión; quedan pendientes de dividir.
-- REQ-020 ya decidió que la resurrección apunte a una unidad, no a una casilla;
-  la enmienda a REQ-021 sigue pendiente y afecta al comando.
+- Desbloqueada el 2026-11-15: REQ-021 v4 elimina el objeto como fuente y fija el
+  hechizo como única vía; la tarea se queda con el motor ejecutable (comando,
+  índice de ronda, recursos) sin crear contenido.
+- REQ-020 ya decidió que la resurrección apunte a una unidad, no a una casilla, y
+  la enmienda ya está aplicada en REQ-021 R-009; el comando elige cadáver.
