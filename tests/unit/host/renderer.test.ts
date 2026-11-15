@@ -1,9 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { BspMapGenerator, createInitialState } from '../../../src/game/index';
+import {
+  BspMapGenerator,
+  createInitialState,
+  createPlayerFromArchetype,
+  reduce,
+} from '../../../src/game/index';
 import { ITEMS, type ItemId } from '../../../src/game/equipment';
+import type { ArchetypeId } from '../../../src/game/roster';
 import type { GameState } from '../../../src/game/types';
 import { centerCameraOnTile } from '../../../src/host/camera';
+import { buildHudModel } from '../../../src/host/hud';
+import { GameSession } from '../../../src/host/session';
 import { gridPixelSize, visibleTileRange, type Viewport } from '../../../src/host/geometry';
 import {
   CANVAS_HEIGHT,
@@ -151,6 +159,23 @@ const assets: SceneAssets = {
 
 const VIEWPORT: Viewport = { width: 416, height: 416 };
 
+/** Estado mínimo con un jugador real del roster en (4,4). */
+function playerState(
+  archetypeId: ArchetypeId,
+  variant: 1 | 2,
+  position: { x: number; y: number } = { x: 4, y: 4 },
+): GameState {
+  return makeState({
+    players: [
+      createPlayerFromArchetype(archetypeId, {
+        id: 'player-1',
+        position,
+        variant,
+      }),
+    ],
+  });
+}
+
 function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
   const fake = createFakeContext();
   renderScene(fake.ctx, state, assets, camera, VIEWPORT);
@@ -159,7 +184,7 @@ function draw(state: GameState, camera: { x: number; y: number }): FakeContext {
 
 describe('render de la sala', () => {
   it('cubre exactamente 13x13 tiles con la cámara en el origen', () => {
-    const state = makeState();
+    const state = playerState('warrior', 1);
     const fake = draw(state, { x: 0, y: 0 });
 
     // El viewport 416x416 sobre una sala 20x20 cubre 13 columnas y 13 filas:
@@ -214,8 +239,8 @@ describe('render de la sala', () => {
     ]);
   });
 
-  it('dibuja al caballero con el recorte (0,32,32,32) centrado en su casilla', () => {
-    const state = makeState();
+  it('dibuja la celda de la variante 1 del guerrero, centrada en su casilla', () => {
+    const state = playerState('warrior', 1);
     const player = state.players[0];
     const fake = draw(state, { x: 0, y: 0 });
 
@@ -237,8 +262,71 @@ describe('render de la sala', () => {
     });
   });
 
+  it('dibuja la celda de la variante 2 del guerrero, no la de la variante 1', () => {
+    const state = playerState('warrior', 2);
+    const player = state.players[0];
+    const fake = draw(state, { x: 0, y: 0 });
+
+    expect(
+      fake.draws.some(
+        (call) =>
+          call.image === assets.rogues &&
+          call.sx === 64 &&
+          call.sy === 32 &&
+          call.dx === player.x * 32 &&
+          call.dy === player.y * 32,
+      ),
+    ).toBe(true);
+    expect(
+      fake.draws.some(
+        (call) => call.image === assets.rogues && call.sx === 0 && call.sy === 32,
+      ),
+    ).toBe(false);
+  });
+
+  it('dos jugadores distintos usan cada uno su celda de arquetipo y variante', () => {
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      variant: 1,
+    });
+    const mage = createPlayerFromArchetype('mage', {
+      id: 'player-2',
+      position: { x: 6, y: 4 },
+      variant: 2,
+    });
+    const state = makeState({ players: [warrior, mage] });
+    const fake = draw(state, { x: 0, y: 0 });
+
+    const spriteAt = (x: number) =>
+      fake.draws.find(
+        (call) =>
+          call.image === assets.rogues &&
+          call.dx === x * 32 &&
+          call.dy === 4 * 32,
+      );
+    expect(spriteAt(warrior.x)).toMatchObject({ sx: 0, sy: 32 });
+    expect(spriteAt(mage.x)).toMatchObject({ sx: 0, sy: 128 });
+  });
+
+  it('un jugador sin arquetipo no se pinta con un sprite fijo', () => {
+    const synthetic = makeState();
+    const fake = draw(synthetic, { x: 0, y: 0 });
+    expect(fake.draws.some((call) => call.image === assets.rogues)).toBe(false);
+
+    const unknown = {
+      ...createPlayerFromArchetype('warrior', {
+        id: 'player-1',
+        position: { x: 4, y: 4 },
+      }),
+      archetypeId: 'unknown' as ArchetypeId,
+    };
+    const fakeUnknown = draw(makeState({ players: [unknown] }), { x: 0, y: 0 });
+    expect(fakeUnknown.draws.some((call) => call.image === assets.rogues)).toBe(false);
+  });
+
   it('acepta un override entero de posición sin tocar el estado del motor', () => {
-    const state = makeState();
+    const state = playerState('warrior', 1);
     const player = state.players[0];
     const before = JSON.stringify(state);
     const fake = createFakeContext();
@@ -334,6 +422,19 @@ describe('render de la sala', () => {
     expect(source).not.toMatch(
       /from\s+'\.\.\/game\/(engine|movement|combat|ai|turn|grid)'/,
     );
+  });
+
+  it('no usa un sprite fijo de jugador ni duplica la tabla de variantes', () => {
+    const source = readFileSync(
+      new URL('../../../src/host/renderer.ts', import.meta.url),
+      'utf8',
+    );
+
+    expect(source).not.toMatch(/KNIGHT_RECT/);
+    expect(source).toMatch(
+      /variantCellFor\(player\.archetypeId, player\.variant\)/,
+    );
+    expect(source).not.toMatch(/ARCHETYPE_VARIANT_CELLS/);
   });
 });
 
@@ -766,7 +867,14 @@ describe('gesto de defensa', () => {
     return {
       ...base,
       players: [
-        { ...base.players[0], x: 5, y: 5, home: { x: 5, y: 5 } },
+        {
+          ...base.players[0],
+          archetypeId: 'warrior',
+          variant: 1,
+          x: 5,
+          y: 5,
+          home: { x: 5, y: 5 },
+        },
       ],
       enemies: [{ ...base.enemies[0], x: 6, y: 5, home: { x: 6, y: 5 } }],
     };
@@ -824,6 +932,104 @@ describe('gesto de defensa', () => {
       expect(fake.ops.indexOf(line)).toBeGreaterThan(attackerIndex);
     },
   );
+});
+
+describe('variante del jugador: mapa, HUD e integración', () => {
+  function initialState(variant: 1 | 2): GameState {
+    return createInitialState({
+      seed: 279837264,
+      generator: new BspMapGenerator(),
+      players: [{ archetypeId: 'warrior', variant, name: '' }],
+    });
+  }
+
+  function spriteOf(fake: FakeContext, x: number, y: number): DrawCall | undefined {
+    return fake.draws.find(
+      (call) =>
+        call.image === assets.rogues &&
+        call.dx === x * 32 &&
+        call.dy === y * 32,
+    );
+  }
+
+  it('createInitialState conserva la variante y mapa/HUD comparten su celda', () => {
+    const state = initialState(2);
+    const player = state.players[0];
+    expect(player.variant).toBe(2);
+
+    const camera = centerCameraOnTile(player, VIEWPORT, gridPixelSize(state.grid));
+    const fake = draw(state, camera);
+    const portrait = buildHudModel(state).portrait;
+
+    expect(portrait).toEqual({ sx: 64, sy: 32, sw: 32, sh: 32 });
+    expect(spriteOf(fake, player.x, player.y)).toMatchObject({
+      sx: portrait?.sx,
+      sy: portrait?.sy,
+      sw: 32,
+      sh: 32,
+    });
+  });
+
+  it('el HUD sigue al jugador activo y comparte su celda con el mapa', () => {
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      variant: 1,
+    });
+    const rogue = createPlayerFromArchetype('rogue', {
+      id: 'player-2',
+      position: { x: 6, y: 4 },
+      variant: 2,
+    });
+
+    const warriorFirst = makeState({ players: [warrior, rogue] });
+    const fake = draw(warriorFirst, { x: 0, y: 0 });
+    expect(buildHudModel(warriorFirst).portrait).toEqual({
+      sx: 0,
+      sy: 32,
+      sw: 32,
+      sh: 32,
+    });
+    expect(spriteOf(fake, warrior.x, warrior.y)).toMatchObject({ sx: 0, sy: 32 });
+    expect(spriteOf(fake, rogue.x, rogue.y)).toMatchObject({ sx: 128, sy: 0 });
+
+    const rogueFirst = makeState({ players: [rogue, warrior] });
+    const rogueFake = draw(rogueFirst, { x: 0, y: 0 });
+    expect(buildHudModel(rogueFirst).portrait).toEqual({
+      sx: 128,
+      sy: 0,
+      sw: 32,
+      sh: 32,
+    });
+    expect(spriteOf(rogueFake, rogue.x, rogue.y)).toMatchObject({ sx: 128, sy: 0 });
+  });
+
+  it('Restart conserva la variante elegida', () => {
+    const restarted = reduce(initialState(2), { type: 'Restart' }).state;
+    expect(restarted.players[0]).toMatchObject({
+      archetypeId: 'warrior',
+      variant: 2,
+    });
+
+    const player = restarted.players[0];
+    const camera = centerCameraOnTile(player, VIEWPORT, gridPixelSize(restarted.grid));
+    const fake = draw(restarted, camera);
+    expect(buildHudModel(restarted).portrait).toMatchObject({ sx: 64, sy: 32 });
+    expect(spriteOf(fake, player.x, player.y)).toMatchObject({ sx: 64, sy: 32 });
+  });
+
+  it('GameSession.load conserva la variante al reconstruir el estado', () => {
+    const source = initialState(2);
+    const session = new GameSession(source);
+    session.load(source);
+
+    const restarted = session.dispatch({ type: 'Restart' }).state;
+    expect(restarted.players[0]).toMatchObject({
+      archetypeId: 'warrior',
+      variant: 2,
+    });
+    expect(restarted.config?.players[0].variant).toBe(2);
+  });
 });
 
 function deepFreeze<T>(value: T): T {
