@@ -194,6 +194,17 @@ test('TASK-0139: en fase enemiga Guardar está desactivado con motivo', async ({
     'Solo se puede guardar en la fase de personajes.',
   );
   await screenshot(page, 'pause-save-disabled-enemy', testInfo);
+
+  // Al seleccionar Guardar el foco va al motivo; Enter no activa otra acción.
+  for (let step = 0; step < 3; step += 1) await page.keyboard.press('ArrowDown');
+  await expect(page.getByTestId('pause-save')).toHaveAttribute(
+    'data-selected',
+    'true',
+  );
+  await expect(page.getByTestId('pause-save-reason')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('pause-root')).toBeVisible();
+
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('pause-menu')).toBeHidden();
 });

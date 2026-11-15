@@ -160,10 +160,9 @@ export function createPauseMenuView(
       button.focus({ preventScroll: true });
       return;
     }
-    // Guardar desactivado no es enfocable; el estilo de selección sigue
-    // marcando la fila y el motivo visible explica por qué.
-    const fallback = actionButtons.find((entry) => !entry.element.disabled);
-    fallback?.element.focus({ preventScroll: true });
+    // Guardar desactivado no es enfocable: el foco va al motivo visible para
+    // que Enter/Espacio no activen la acción anterior por accidente.
+    saveReason.focus({ preventScroll: true });
   };
 
   const focusPrimary = (state: { screen: PauseScreen; index: number }): void => {

@@ -1812,6 +1812,10 @@
         font-size: var(--ui-help);
         line-height: 1.35;
       }
+      .pause-reason:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: calc(var(--ui-unit) * 2);
+      }
       .pause-controls {
         display: flex;
         flex-direction: column;
