@@ -603,6 +603,94 @@
                 </section>
               </div>
             </section>
+
+            <section
+              class="party-summary"
+              data-testid="party-summary"
+              aria-label="Resumen de la partida"
+              hidden
+            >
+              <div class="party-summary-panel ui-outset">
+                <header class="player-header">
+                  <h2 class="player-title">Resumen de la partida</h2>
+                  <p class="party-summary-seed" data-testid="summary-seed"></p>
+                </header>
+                <p
+                  class="player-status"
+                  data-testid="summary-status"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+                <ul class="summary-players" data-testid="summary-players"></ul>
+                <p
+                  class="player-status summary-error"
+                  data-testid="summary-error"
+                  role="alert"
+                  hidden
+                ></p>
+                <div class="player-actions">
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="summary-back"
+                  >
+                    Atrás
+                  </button>
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="summary-start"
+                  >
+                    Empezar
+                  </button>
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="summary-cancel"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="player-cancel-dialog"
+                data-testid="summary-cancel-dialog"
+                hidden
+              >
+                <section
+                  class="player-cancel-body ui-outset"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="summary-cancel-title"
+                  aria-describedby="summary-cancel-text"
+                >
+                  <h2 class="player-title" id="summary-cancel-title">
+                    ¿Cancelar la configuración?
+                  </h2>
+                  <p class="player-lead" id="summary-cancel-text">
+                    Se descartarán los jugadores configurados y la semilla. Volverás al
+                    menú principal.
+                  </p>
+                  <div class="player-actions">
+                    <button
+                      type="button"
+                      class="player-button ui-outset"
+                      data-testid="summary-cancel-confirm"
+                    >
+                      Sí, cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="player-button ui-outset"
+                      data-testid="summary-cancel-dismiss"
+                    >
+                      Seguir configurando
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
           </div>
         </div>
       </div>

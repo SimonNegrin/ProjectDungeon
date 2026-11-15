@@ -78,7 +78,10 @@ import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
+import type { PlayerPartyConfig } from './player-screen';
 import { createPlayerScreenView, type PlayerScreenView } from './player-screen-view';
+import { startParty } from './party-summary';
+import { createPartySummaryView, type PartySummaryView } from './party-summary-view';
 import type { StepOneConfig } from './start-screen';
 import { createStartScreenView, type StartScreenView } from './start-screen-view';
 import { trackSpottedUnits, reconcileSpottedUnits, untrackSpottedUnits } from './spot';
@@ -314,10 +317,12 @@ async function boot(): Promise<void> {
   /**
    * Primera pantalla en juego normal (REQ-016). Con `?test=1` no se monta y el
    * host arranca como antes. «Continuar» abre la configuración jugador a
-   * jugador; «Cargar» sigue siendo no-op hasta TASK-0141 y el resumen no
-   * arranca partida hasta TASK-0126.
+   * jugador; «Cargar» sigue siendo no-op hasta TASK-0141 y el último
+   * «Siguiente» abre el resumen (TASK-0126).
    */
   let playerScreenView: PlayerScreenView | null = null;
+  let partySummaryView: PartySummaryView | null = null;
+  let pendingParty: PlayerPartyConfig | null = null;
 
   function openPlayerScreen(config: StepOneConfig): void {
     startScreenView?.hide();
@@ -325,14 +330,36 @@ async function boot(): Promise<void> {
       playerCount: config.playerCount,
       seed: config.seed,
       onComplete: (party) => {
-        const noun = party.playerCount === 1 ? 'jugador' : 'jugadores';
-        playerScreenView?.announce(
-          `Party lista: ${party.playerCount} ${noun}, semilla ${party.seed}.`,
-        );
+        pendingParty = party;
+        // La pantalla de jugador se oculta sin destruirse: «Atrás» la devuelve
+        // al último jugador con el modelo intacto.
+        playerScreenView?.hide();
+        if (!partySummaryView) {
+          partySummaryView = createPartySummaryView(frame!, {
+            onStart: () =>
+              pendingParty !== null && startPartySession(pendingParty),
+            onBack: () => {
+              partySummaryView?.hide();
+              playerScreenView?.show();
+            },
+            onCancelConfirmed: () => {
+              partySummaryView?.destroy();
+              partySummaryView = null;
+              playerScreenView?.destroy();
+              playerScreenView = null;
+              pendingParty = null;
+              startScreenView?.showMenu();
+            },
+          });
+        }
+        partySummaryView.show(party);
       },
       onCancelConfirmed: () => {
+        partySummaryView?.destroy();
+        partySummaryView = null;
         playerScreenView?.destroy();
         playerScreenView = null;
+        pendingParty = null;
         startScreenView?.showMenu();
       },
     });
@@ -350,7 +377,7 @@ async function boot(): Promise<void> {
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const session = new GameSession({
+  let session = new GameSession({
     seed: parsedSeed.seed,
     players: DEFAULT_PLAYER_CONFIGS,
   });
@@ -944,6 +971,49 @@ async function boot(): Promise<void> {
     render();
   };
 
+  /**
+   * «Empezar»: arranca con el constructor único y, si rechaza la configuración,
+   * deja el resumen visible con el mensaje. Con éxito sustituye la sesión,
+   * destruye las pantallas de arranque y resetea la presentación como un
+   * reinicio, sin pasar por `session.load` (hook de test).
+   */
+  const startPartySession = (party: PlayerPartyConfig): boolean => {
+    const result = startParty(party);
+    if (!result.ok) {
+      partySummaryView?.showError(result.error);
+      return false;
+    }
+
+    session = result.session;
+    partySummaryView?.destroy();
+    partySummaryView = null;
+    playerScreenView?.destroy();
+    playerScreenView = null;
+    pendingParty = null;
+    startScreenView?.hide();
+
+    cancelAnimation();
+    clearTransientFeedback();
+    spellMenu = { ...INITIAL_SPELL_MENU };
+    panelOpen = false;
+    panelSelection = null;
+    panelMessage = null;
+    inventoryPanelView.close();
+    lastEvents = [];
+    noticeView.clear();
+    debugView.close();
+    spotView.clear();
+    frameEffectView.clear();
+    screenFadeView.clear();
+    spottedUnits = new Set<string>();
+    world = gridPixelSize(session.state.grid, TILE_SIZE);
+    bounds = cameraBounds(world, viewport);
+    resetCursorToPlayer();
+    cursorStatus = deriveCursorStatus(session.state, cursor);
+    render();
+    return true;
+  };
+
   /** Camino único para teclado, botón de reinicio y `window.__game.dispatch`. */
   const applyCommand = (command: Command, completeFirst = false): StepResult => {
     if (completeFirst) completeAnimation();
@@ -1110,9 +1180,15 @@ async function boot(): Promise<void> {
   }
 
   window.addEventListener('keydown', (event) => {
-    // La pantalla de inicio o la de jugadores consumen sus teclas; el mapa y F1
-    // no se interpretan mientras cualquiera de las dos esté visible.
-    if (startScreenView?.isActive() || playerScreenView?.isActive()) return;
+    // La pantalla de inicio, la de jugadores o el resumen consumen sus teclas;
+    // el mapa y F1 no se interpretan mientras alguna esté visible.
+    if (
+      startScreenView?.isActive() ||
+      playerScreenView?.isActive() ||
+      partySummaryView?.isActive()
+    ) {
+      return;
+    }
     if (isEditableTarget(event.target)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 
