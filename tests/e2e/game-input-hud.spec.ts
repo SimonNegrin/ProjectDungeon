@@ -368,14 +368,18 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(victory.enemies.every((enemy) => enemy.hp === 0)).toBe(true);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await expect(
-    page.getByTestId('overlay-victory').getByRole('button', { name: 'Reiniciar' }),
+    page.getByTestId('result-screen').getByRole('button', { name: 'Nueva partida' }),
   ).toBeVisible();
+  await expect(
+    page.getByTestId('result-screen').getByRole('button', { name: 'Cargar partida' }),
+  ).toBeVisible();
+  await expect(page.getByTestId('result-new')).toBeFocused();
   await screenshot(page, 'victory', testInfo);
 
-  // El reinicio por dispatch también limpia overlay y feedback desde la
-  // victoria; `R` ya no es un atajo de juego.
+  // El reinicio por dispatch también limpia el resultado y el feedback desde
+  // la victoria; `R` ya no es un atajo de juego.
   await restart(page);
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
@@ -391,7 +395,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     visible: true,
     state: 'player',
   });
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await expect(page.getByTestId('damage-feedback')).toHaveText('');
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: '2/2' });
 
@@ -487,15 +491,12 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(defeat.cursor.visible).toBe(false);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
-  await expect(page.getByTestId('overlay-defeat')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await expectHud(page, { playerHp: '0/20' });
   await screenshot(page, 'defeat', testInfo);
 
-  // El botón del overlay de derrota también reinicia.
-  await page
-    .getByTestId('overlay-defeat')
-    .getByRole('button', { name: 'Reiniciar' })
-    .click();
+  // El reinicio de test también cierra el resultado de derrota.
+  await restart(page);
   const afterDefeatRestart = await snapshot(page);
   expect(afterDefeatRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(afterDefeatRestart.players[0]).toMatchObject({
@@ -510,7 +511,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     visible: true,
     state: 'player',
   });
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await expectHud(page, { playerHp: '20/20', playerMp: '6/6', action: '2/2' });
 
   // F2 genera una semilla nueva y regenera el mapa sin cerrar el debug.

@@ -341,32 +341,53 @@
             </section>
 
             <section
-              class="overlay ui-outset"
-              data-testid="overlay-victory"
+              class="result-screen"
+              data-testid="result-screen"
               role="dialog"
               aria-modal="true"
-              aria-labelledby="victory-title"
+              aria-labelledby="result-title"
               hidden
             >
-              <div>
-                <h2 id="victory-title">¡Victoria!</h2>
-                <p>Has derrotado al goblin.</p>
-                <button type="button" class="ui-outset" data-action="restart">Reiniciar</button>
-              </div>
-            </section>
-
-            <section
-              class="overlay ui-outset"
-              data-testid="overlay-defeat"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="defeat-title"
-              hidden
-            >
-              <div>
-                <h2 id="defeat-title">Derrota</h2>
-                <p>El goblin ha acabado con el caballero.</p>
-                <button type="button" class="ui-outset" data-action="restart">Reiniciar</button>
+              <div class="result-panel ui-outset">
+                <h2 class="result-title" id="result-title" data-testid="result-title">
+                  Victoria
+                </h2>
+                <p class="result-round" data-testid="result-round">Ronda 1</p>
+                <ul
+                  class="result-players"
+                  data-testid="result-players"
+                  aria-label="Party"
+                ></ul>
+                <p class="result-seed" data-testid="result-seed">Semilla 0</p>
+                <div class="result-actions">
+                  <button
+                    type="button"
+                    class="result-button ui-outset"
+                    data-testid="result-new"
+                  >
+                    Nueva partida
+                  </button>
+                  <button
+                    type="button"
+                    class="result-button ui-outset"
+                    data-testid="result-load"
+                  >
+                    Cargar partida
+                  </button>
+                </div>
+                <p
+                  class="result-message"
+                  data-testid="result-load-message"
+                  role="alert"
+                  aria-live="assertive"
+                  hidden
+                ></p>
+                <p
+                  class="result-announcement"
+                  data-testid="result-announcement"
+                  role="status"
+                  aria-live="polite"
+                ></p>
               </div>
             </section>
 

@@ -221,17 +221,17 @@ test('TASK-0059: huida con marca, fase sin aviso y fin de partida sin overlay pr
     targetId: enemy.id,
   });
   await advanceToCue(page, 'game-ended');
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await expect(page.getByTestId('frame-effects')).toHaveAttribute(
     'data-effect',
     'game-ended',
   );
   await screenshot(page, 'fin-de-partida', testInfo);
   await page.evaluate(() => window.__game!.advance(100));
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
 
   await settle(page);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await screenshot(page, 'overlay', testInfo);
 });
 

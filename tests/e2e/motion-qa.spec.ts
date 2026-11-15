@@ -311,8 +311,7 @@ test('paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo', 
   await expect(page.getByTestId('cursor')).toBeVisible();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
   await expect(page.getByTestId('hud-player-mp')).toHaveText('4/6');
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await screenshot(page, 'arrival', testInfo);
 
   expect(consoleErrors).toEqual([]);
@@ -632,8 +631,7 @@ test('input de juego ignorado durante la animación; F1 responde y el reinicio p
     state: 'player',
   });
   await expect(page.getByTestId('hud-player-mp')).toHaveText('6/6');
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
 
   // Terminada la animación, el input vuelve a funcionar.
   const oneStep = reachableVisibleTiles(restarted, {
@@ -782,7 +780,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   // El golpe puede no rematar con las nuevas tiradas, pero quedan más enemigos:
   // la partida sigue en juego y el overlay de victoria no aparece todavía.
   expect(frozen.status).toBe('playing');
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   const targetEnemyAtCue = retreated.enemies[0];
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
@@ -800,7 +798,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   expect(await debugText(page)).toContain(
     `${targetEnemyAtCue.id} ${targetEnemyAtCue.hp}/${targetEnemyAtCue.maxHp}`,
   );
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'attack-approach', testInfo);
 
@@ -811,7 +809,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   expect(await debugText(page)).toContain(
     `${targetEnemyAtCue.id} ${targetEnemyAtCue.hp}/${targetEnemyAtCue.maxHp}`,
   );
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await expect(page.getByTestId('cursor')).toBeHidden();
 
   // El último tramo dispara embestida, destello y daño en el mismo cue. Se
@@ -865,7 +863,7 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   const sequenceEvents = [...frozen.lastEvents];
   const cleared = await defeatAllEnemies(page);
   sequenceEvents.push(...cleared.events);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await expect(page.getByTestId('hud-enemy-hp')).toHaveCount(0);
   await expect(page.getByTestId('hud-status')).toHaveCount(0);
   const victoryDebug = await debugText(page);
@@ -1038,8 +1036,7 @@ test('reduced motion: movimiento instantáneo con el mismo estado y eventos', as
   await expect(page.getByTestId('hud-player-mp')).toHaveText(animatedHud.mp ?? '');
   await expect(page.getByTestId('cursor')).toBeVisible();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
   await screenshot(page, 'reduced-motion', testInfo);
 
   expect(consoleErrors).toEqual([]);

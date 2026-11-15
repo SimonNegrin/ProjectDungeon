@@ -23,10 +23,10 @@ import {
  * cinco acciones, guardado restringido, ida y vuelta real de `.zip`/`.json` y
  * rechazos de límites con la partida intacta.
  *
- * El resultado (criterio 7) tiene un defecto conocido: los overlays siguen
- * ofreciendo «Reiniciar» y `Esc` abre la pausa. La prueba que lo confirma vive
- * en `artifacts/TASK-0144/attempt-1/probe/`, fuera de la suite, para no dejar un
- * test rojo mientras TASK-0153 es propietaria del arreglo.
+ * El resultado (criterio 7) ya no ofrece «Reiniciar» ni abre pausa: la pantalla
+ * final pertenece a TASK-0153 y su QA completa vive en `host-result-qa.spec.ts`.
+ * Aquí solo se conserva la comprobación de que la pausa no añade guardado al
+ * resultado ni `R` reinicia.
  */
 
 const GAME_VERSION = '0.1.0';
@@ -684,10 +684,9 @@ test('TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y ta
 /* ------------------------------- criterio 7 ------------------------------ */
 
 /**
- * Criterio 7 parcial: `R` no reinicia y el overlay no contiene guardado ni
- * pausa. El defecto abierto —los dos overlays ofrecen «Reiniciar» y `Esc` abre
- * la pausa— se mide en el probe de `TASK-0144` y pertenece a TASK-0153; no se
- * convierte en una aserción roja de la suite.
+ * Criterio 7 parcial: `R` no reinicia y el resultado no contiene guardado ni
+ * pausa. El detalle de las dos acciones y de la ausencia de pausa vive en la QA
+ * de TASK-0153 (`host-result-qa.spec.ts`), propietaria del resultado.
  */
 test('TASK-0144: el resultado no ofrece guardado y R no reinicia', async ({
   page,
@@ -695,7 +694,7 @@ test('TASK-0144: el resultado no ofrece guardado y R no reinicia', async ({
   await page.setViewportSize({ width: 1280, height: 720 });
   const victory = { ...createInitialState({ seed: SEED }), status: 'victory' as const };
   await openState(page, victory, SEED);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   const before = await snapshot(page);
   expect(before.status).toBe('victory');
 
@@ -707,7 +706,7 @@ test('TASK-0144: el resultado no ofrece guardado y R no reinicia', async ({
   expect(afterR.players).toEqual(before.players);
   expect(afterR.round).toBe(before.round);
 
-  const victoryOverlay = page.getByTestId('overlay-victory');
+  const victoryOverlay = page.getByTestId('result-screen');
   await expect(victoryOverlay.getByTestId('pause-save')).toHaveCount(0);
   await expect(victoryOverlay.getByTestId('pause-menu')).toHaveCount(0);
   await expect(victoryOverlay.getByRole('button', { name: /guardar/i })).toHaveCount(0);
@@ -715,8 +714,8 @@ test('TASK-0144: el resultado no ofrece guardado y R no reinicia', async ({
 
   const defeat = { ...createInitialState({ seed: SEED }), status: 'defeat' as const };
   await openState(page, defeat, SEED);
-  await expect(page.getByTestId('overlay-defeat')).toBeVisible();
-  const defeatOverlay = page.getByTestId('overlay-defeat');
+  await expect(page.getByTestId('result-screen')).toBeVisible();
+  const defeatOverlay = page.getByTestId('result-screen');
   await expect(defeatOverlay.getByTestId('pause-save')).toHaveCount(0);
   await expect(defeatOverlay.getByRole('button', { name: /guardar/i })).toHaveCount(0);
   await expect(page.getByTestId('hud-status')).toHaveCount(0);

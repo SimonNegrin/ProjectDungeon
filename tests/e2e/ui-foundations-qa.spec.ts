@@ -2,7 +2,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { artifactPath } from './artifacts';
-import { openBspState, settle } from './support';
+import { createInitialState } from '../../src/game/engine';
+import { openBspState, openState, settle } from './support';
 
 const ORIGIN = 'http://127.0.0.1:4173';
 const FONT_URL = '/fonts/pixelify-sans/PixelifySans-VariableFont_wght.ttf';
@@ -363,8 +364,8 @@ test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucid
     '.feedback-banner',
     '.damage-feedback',
     '.cursor',
-    '.overlay',
-    '.overlay button',
+    '.result-panel',
+    '.result-button',
   ];
   const entries = await auditStyles(page, selectors);
 
@@ -400,8 +401,8 @@ test('auditoría de estilos: sin radios, sombras, degradados, blur ni translucid
     '.inventory-submenu',
     '.spell-list',
     '.feedback-banner',
-    '.overlay',
-    '.overlay button',
+    '.result-panel',
+    '.result-button',
   ]) {
     const entry = entries.find((candidate) => candidate.selector === selector)!;
     const bevelTop =
@@ -447,21 +448,6 @@ test('capturas de HUD, panel, hechizos y overlays a 1280×720 y 900×700', async
     await screenshot(page, testInfo, `panel-${suffix}`);
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('inventory-panel')).toBeHidden();
-
-    await page.evaluate(() => {
-      const victory = document.querySelector<HTMLElement>(
-        '[data-testid="overlay-victory"]',
-      );
-      if (!victory) throw new Error('Falta el overlay de victoria');
-      victory.hidden = false;
-    });
-    await screenshot(page, testInfo, `overlay-victory-${suffix}`);
-    await page.evaluate(() => {
-      const victory = document.querySelector<HTMLElement>(
-        '[data-testid="overlay-victory"]',
-      );
-      if (victory) victory.hidden = true;
-    });
 
     await page.evaluate(() => {
       const banner = document.querySelector<HTMLElement>(
@@ -525,6 +511,17 @@ test('capturas de HUD, panel, hechizos y overlays a 1280×720 y 900×700', async
     await page.evaluate(() =>
       document.querySelector('[data-testid="ui-font-sample"]')?.remove(),
     );
+
+    // Pantalla de resultado (REQ-031): estado final real, no un nodo desoculto.
+    await openState(page, {
+      ...createInitialState({ seed: 279837264 }),
+      status: 'victory',
+    });
+    await expect(page.getByTestId('result-screen')).toBeVisible();
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+    });
+    await screenshot(page, testInfo, `resultado-victoria-${suffix}`);
 
     measurements.push({
       viewport: suffix,
