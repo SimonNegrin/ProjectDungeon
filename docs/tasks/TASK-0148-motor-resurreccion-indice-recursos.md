@@ -4,7 +4,7 @@ id: TASK-0148
 title: "Motor: resurrección por índice y recursos"
 description: "Permitir resucitar al fantasma en la casilla del cadáver y devolver el turno en la misma ronda si su índice no ha pasado, con recursos restaurados."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-014, T-003]
