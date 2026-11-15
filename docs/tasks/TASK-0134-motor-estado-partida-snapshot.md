@@ -4,7 +4,7 @@ id: TASK-0134
 title: "Motor: estado de partida (party, activo, ronda) y snapshot"
 description: "Extender el estado con fase, jugador activo, ronda y party ordenada, y exponerlos en el snapshot y en `F1` sin duplicar listas."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-001, R-003, T-001, T-005, T-011]
@@ -13,7 +13,7 @@ unlocks: [TASK-0135, TASK-0136, TASK-0138, TASK-0139, TASK-0140, TASK-0141, TASK
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0134/
 priority: P1
 risk: high
