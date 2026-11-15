@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Planning — TASK-0144 — blocked: añade TASK-0153 a `depends_on` (y TASK-0144 a sus `unlocks`) para reejecutar el QA del resultado cuando cierre; TASK-0153 sigue en `backlog` y depende de TASK-0146/0147 — [TASK-0144](tasks/TASK-0144-qa-e2e-pausa-guardado-carga.md)
+
 * 2026-11-15 — Scope — alcance — «trabajo inmediato» actualizado: inventario, HUD, muerte y guardado implementados; pendientes cofres, resurrección, traits y hotseat — [alcance](scope.md)
 
 * 2026-11-15 — Requirement — REQ-034/REQ-024 — correcciones factuales: fase `player` en el ejemplo, R-011/T-005/T-012 alineados con el cadáver sin coste, Q5 de REQ-020 resuelta, carga implementada en alcance y pausa de cinco acciones en visión; `docs:check` OK — [REQ-034](requirements/REQ-034-objetos-saqueables-botin-enemigos.md)

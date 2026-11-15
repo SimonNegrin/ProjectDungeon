@@ -8,7 +8,7 @@ task_status: blocked
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
-depends_on: [TASK-0139, TASK-0140, TASK-0141]
+depends_on: [TASK-0139, TASK-0140, TASK-0141, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
 completed_at:
@@ -31,10 +31,10 @@ verified:
       propietario TASK-0153. Sin cambios de producción ni tests debilitados.
 ---
 
-> **Bloqueada (2026-11-15).** El criterio 7 depende de TASK-0153, que sigue en
-> `backlog` y no figuraba en `depends_on`. Reejecutar TASK-0144 cuando TASK-0153
-> retire «Reiniciar» y la pausa del resultado; entonces el spec QA debe
-> endurecer su test de resultado.
+> **Bloqueada (2026-11-15).** El criterio 7 queda pendiente de TASK-0153, ahora
+> en `depends_on`. Al cerrar TASK-0153 se verificará el resultado y se endurecerá
+> el test de resultado del spec QA; allí deberá ajustarse
+> `tests/e2e/game-input-hud.spec.ts:373`, que pulsa «Reiniciar».
 
 # Objetivo
 

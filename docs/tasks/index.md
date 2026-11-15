@@ -130,7 +130,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0140](TASK-0140-host-guardar-zip.md) | Host: guardar .zip | `done` | REQ-024 | TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
 | [TASK-0141](TASK-0141-host-cargar-zip-json-menu-pausa.md) | Host: cargar .zip/.json desde menú y pausa | `done` | REQ-024 | TASK-0123, TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
 | [TASK-0142](TASK-0142-qa-e2e-botin.md) | QA/E2E de botín y cadáveres | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0141 | P1 |
-| [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `blocked` | REQ-024 | TASK-0139, TASK-0140, TASK-0141 | P1 |
+| [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `blocked` | REQ-024 | TASK-0139, TASK-0140, TASK-0141, TASK-0153 | P1 |
 | [TASK-0146](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md) | Motor: turno por jugador, EndTurn, fase enemiga y ronda | `backlog` | REQ-031 | TASK-0132, TASK-0134 | P1 |
 | [TASK-0147](TASK-0147-motor-muerte-turno-derrota-wipe.md) | Motor: muerte en turno y derrota por wipe | `backlog` | REQ-031 | TASK-0131, TASK-0146 | P1 |
 | [TASK-0148](TASK-0148-motor-resurreccion-indice-recursos.md) | Motor: resurrección por índice y recursos | `backlog` | REQ-031 | TASK-0131, TASK-0134, TASK-0146 | P1 |
