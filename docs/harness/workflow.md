@@ -173,7 +173,8 @@ esquema completo está en el anexo de la
 
 - `docs:check` falla si un brief o informe de `TASK-0021` en adelante supera
   4 KB y avisa al llegar al umbral de su tipo. Los topes son los mismos que en
-  [documentación](documentacion.md#topes).
+  [documentación](documentacion.md#topes). El aviso solo aparece mientras la
+  tarea no está `done`; un handoff cerrado es evidencia y no se recorta.
 - Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado. Nada se
   borra y el detalle no se lee por defecto.
 - No se copian criterios, requisitos ni la tarea: se enlazan con ancla.

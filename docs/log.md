@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Harness — validador — avisos de tope solo en tareas no cerradas; los topes duros se validan siempre y desaparecen los 129 avisos históricos; verify OK — [documentación](harness/documentacion.md#topes)
+
 * 2026-11-15 — Harness — tareas docs — DoR y prompts exigen un solo dueño de destino y dividen al crear; `artifacts/README` alinea capturas y topes; ADR-016 nota de vigencia por ADR-018; verify OK — [DoR](quality/definition-of-ready-done.md#tarea-lista-para-ejecutar)
 
 * 2026-11-15 — Harness — docs — handoff por tipo (brief 2,5 KB, informe 3 KB), capturas E2E en `<spec>/screenshots`, frontmatter de anexos, tipos de evidencia y tabla de ejecutores docs alineada; verify OK — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)

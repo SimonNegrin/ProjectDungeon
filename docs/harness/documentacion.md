@@ -74,7 +74,9 @@ Campos por tipo:
 
 Los topes existen para que el handoff sea legible, no para castigar. Se aplican a
 `TASK-0021` en adelante; las tareas y artefactos anteriores son históricos y no
-se reescriben.
+se reescriben. Los topes duros se validan siempre. El aviso de objetivo solo se
+muestra mientras la tarea no está `done`: un handoff cerrado es evidencia y no se
+recorta.
 
 | Documento | Objetivo | Aviso | Error |
 |---|---:|---:|---:|

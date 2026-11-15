@@ -80,6 +80,13 @@ function checkVerified(value, file) {
   }
 }
 
+const taskStatusById = new Map();
+for (const concept of concepts) {
+  if (concept.data.type === 'Task' && concept.data.id) {
+    taskStatusById.set(concept.data.id, concept.data.task_status);
+  }
+}
+
 for (const concept of concepts) {
   const { file, rel, data, body, hasFrontmatter } = concept;
   const type = data.type;
@@ -157,7 +164,7 @@ for (const concept of concepts) {
     const words = body.trim() ? body.trim().split(/\s+/).length : 0;
     if (words > TASK_WORDS_MAX) {
       error(`${rel}: tarea de ${words} palabras; el tope es ${TASK_WORDS_MAX}`);
-    } else if (words > TASK_WORDS_WARN) {
+    } else if (data.task_status !== 'done' && words > TASK_WORDS_WARN) {
       warn(`${rel}: tarea de ${words} palabras; objetivo ≤${TASK_WORDS_WARN}`);
     }
   }
@@ -169,9 +176,10 @@ for (const concept of concepts) {
   ) {
     const bytes = statSync(file).size;
     const warnBytes = HANDOFF_BYTES_WARN.get(type);
+    const status = taskStatusById.get(data.task);
     if (bytes > HANDOFF_BYTES_MAX) {
       error(`${rel}: handoff de ${bytes} B; el tope es ${HANDOFF_BYTES_MAX} B`);
-    } else if (warnBytes !== undefined && bytes > warnBytes) {
+    } else if (status !== 'done' && warnBytes !== undefined && bytes > warnBytes) {
       warn(`${rel}: handoff de ${bytes} B; aviso a partir de ${warnBytes} B`);
     }
   }
