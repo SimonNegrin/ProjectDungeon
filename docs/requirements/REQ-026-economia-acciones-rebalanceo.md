@@ -8,7 +8,7 @@ version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:05:00Z
-updated_at: 2026-11-13T16:37:46Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0076, TASK-0077, TASK-0078, TASK-0084]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:05:00Z }
 verified:
@@ -58,6 +58,9 @@ eje de poder.
   turno puede duplicar su duración.
 - [REQ-004](REQ-004-cursor-seleccion.md): "acercarse y atacar" debe respetar el
   número de acciones y el ataque repetible.
+- [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: saquear un cadáver
+  en el mismo tile no gasta acción ni MP; el cofre conserva 1 acción de apertura
+  y el fantasma paga una acción por objeto. Las transferencias siguen gratis.
 
 # Objetivos de experiencia
 

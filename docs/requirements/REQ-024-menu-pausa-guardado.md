@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:10:00Z
-updated_at: 2026-11-15T10:19:36Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0137, TASK-0138, TASK-0139, TASK-0140, TASK-0141, TASK-0144, TASK-0145, TASK-0158]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:10:00Z }
 verified:
@@ -57,6 +57,10 @@ arrancar y confirma la pérdida de progreso al elegir «Nueva» desde la pausa.
 - [REQ-020](REQ-020-cofres-saqueo.md) y
   [REQ-021](REQ-021-muerte-fantasma-resurreccion.md): el guardado incluye
   contenedores, cadáveres y fantasmas; el formato debe representarlos.
+- [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: el esquema v1
+  incluye `lootable` por instancia y los contenedores de cadáver; al cargar no se
+  repite la tirada. La v1 publicada en TASK-0138 ya nació con estos campos, así
+  que no hubo subida de `format_version`.
 - [REQ-022](REQ-022-hud-izquierdo-jugador.md) y
   [REQ-023](REQ-023-hud-derecho-detalle-cursor.md): al cargar, los HUD se
   reconstruyen desde el estado; no se guarda su contenido.

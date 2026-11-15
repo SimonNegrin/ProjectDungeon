@@ -8,7 +8,7 @@ version: 8
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-14T11:56:14Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0093, TASK-0094, TASK-0095, TASK-0096, TASK-0097, TASK-0098, TASK-0101, TASK-0102, TASK-0103]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T18:00:00Z }
 verified:
@@ -131,6 +131,9 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
   por `I` y se añade el coste de equipar.
 - [ADR-021](../decisions/ADR-021-inventario-equipo.md): se registra el modelo de
   inventario, huecos y panel único.
+- [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: saquear un cadáver
+  cuesta 0 acciones y 0 MP (el fantasma, una acción por objeto); abrir un cofre
+  sigue costando 1 acción. Las transferencias gratuitas del panel no cambian.
 
 # Notas de vigencia
 

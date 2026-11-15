@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T11:00:00Z
-updated_at: 2026-11-14T23:35:43Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T11:00:00Z }
 verified:
@@ -43,6 +43,10 @@ efecto de resurrección y el recurso de maná que lo paga.
   resurrección; el resto de hechizos seguirá en su propia hoja.
 - [Alcance vigente](../scope.md) y [visión](../vision.md) ya recogen la decisión
   el 2026-11-11; no requieren más cambios.
+- [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: su R-006 concreta
+  esta R-007 en mismo tile, con 0 acciones y 0 MP para el vivo y una acción por
+  objeto para el fantasma; su R-007 mantiene el cadáver de jugador tras vaciarse
+  y la resurrección sigue exigiendo adyacencia.
 
 Las enmiendas a `REQ-014`, `REQ-017` y `REQ-020` se aplican al aprobar esta hoja,
 antes de implementar.

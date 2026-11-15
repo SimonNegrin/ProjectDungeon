@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Requirement — TASK-0157 — enmiendas de REQ-034 anotadas en REQ-017, REQ-018, REQ-020, REQ-021, REQ-024 y REQ-026, sin cerrar REQ-020 ni cambiar reglas; `docs:check` OK — [TASK-0157](tasks/TASK-0157-requisitos-enmiendas-botin.md)
+
 * 2026-11-15 — Task — TASK-0145 — done: ADR-028 del formato v1 (`.zip` con manifiesto, esquema estricto, 5/20 MB y 4 entradas, sin presentación ni nueva tirada de botín), arquitectura y glosario; visión y alcance ya lo reflejaban, correcciones factuales a requirements-writer; verify 107/1678; fusión `2b3578e` — [informe](../artifacts/TASK-0145/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0144 — blocked: QA 1-6 y 8 verde con spec nuevo, ida y vuelta `.zip`/`.json` y siete rechazos de límites; criterio 7 falla porque el resultado aún ofrece «Reiniciar» y `Esc` abre la pausa (REQ-024 R-012), propietario TASK-0153; verify 107/1678 y E2E 258/258; commits `a94f406`/`5d6e330` — [informe](../artifacts/TASK-0144/attempt-1/report.md)

@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-13T19:34:25Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:00:00Z }
 verified:
@@ -40,8 +40,14 @@ para cerrarla.
 - [REQ-021](REQ-021-muerte-fantasma-resurreccion.md) define el cadáver de jugador,
   el fantasma y la resurrección. Esta hoja se limita a cofres y cadáveres de
   enemigos.
+- [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: su R-001 y R-004
+  limitan esta R-002 a cadáveres de enemigo con al menos un objeto saqueable, y
+  sus R-005 y R-006 concretan esta R-008: cofre adyacente con 1 acción y cadáver
+  en el mismo tile con 0 acciones y 0 MP (el fantasma paga una acción por
+  objeto).
 
-Ambas actualizaciones se harán al cerrar la hoja, no antes.
+El resto de esta hoja, incluidas sus preguntas abiertas, sigue vigente y no se
+cierra el borrador.
 
 # Objetivos de experiencia
 
