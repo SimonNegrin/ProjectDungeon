@@ -154,7 +154,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0097](TASK-0097-docs-inventario-equipo-controles.md) | Docs: inventario, equipo, controles y vigencia | `done` | REQ-018 | TASK-0095, TASK-0096, TASK-0098 | P2 |
 | [TASK-0111](TASK-0111-ui-retrato-hud-jugador-activo.md) | UI: retrato del HUD por jugador activo | `done` | REQ-022 | TASK-0105 | P2 |
 | [TASK-0121](TASK-0121-e2e-observer-cls-compartido.md) | E2E: observer de CLS compartido y alineado con P-006 | `done` | REQ-033 | — | P2 |
-| [TASK-0128](TASK-0128-docs-adr-006-glosario-alcance-arranque.md) | Docs: ADR-006, glosario y alcance del arranque | `backlog` | REQ-016 | TASK-0127 | P2 |
+| [TASK-0128](TASK-0128-docs-adr-006-glosario-alcance-arranque.md) | Docs: ADR-006, glosario y alcance del arranque | `done` | REQ-016 | TASK-0127 | P2 |
 | [TASK-0137](TASK-0137-host-contenedor-zip.md) | Host: contenedor .zip | `done` | REQ-024 | — | P2 |
 | [TASK-0143](TASK-0143-docs-adr-030-glosario-botin.md) | Docs: ADR-030 y glosario de botín | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0145](TASK-0145-docs-adr-028-documentacion-guardado.md) | Docs: ADR-028 y documentación de guardado | `backlog` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
@@ -194,7 +194,6 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0152 — Host: fase enemiga (El master mueve, actor/objetivo)](TASK-0152-host-fase-enemiga-master-mueve.md)
 * [TASK-0153 — Host: resultado Victoria/Derrota con Nueva y Cargar](TASK-0153-host-resultado-victoria-derrota.md)
 * [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
-* [TASK-0128 — Docs: ADR-006, glosario y alcance del arranque](TASK-0128-docs-adr-006-glosario-alcance-arranque.md)
 * [TASK-0143 — Docs: ADR-030 y glosario de botín](TASK-0143-docs-adr-030-glosario-botin.md)
 * [TASK-0145 — Docs: ADR-028 y documentación de guardado](TASK-0145-docs-adr-028-documentacion-guardado.md)
 * [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
@@ -330,5 +329,6 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0097 — Docs: inventario, equipo, controles y vigencia](TASK-0097-docs-inventario-equipo-controles.md)
 * [TASK-0111 — UI: retrato del HUD por jugador activo](TASK-0111-ui-retrato-hud-jugador-activo.md)
 * [TASK-0121 — E2E: observer de CLS compartido y alineado con P-006](TASK-0121-e2e-observer-cls-compartido.md)
+* [TASK-0128 — Docs: ADR-006, glosario y alcance del arranque](TASK-0128-docs-adr-006-glosario-alcance-arranque.md)
 * [TASK-0137 — Host: contenedor .zip](TASK-0137-host-contenedor-zip.md)
 

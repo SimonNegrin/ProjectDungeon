@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0128 — done: ADR-006 con tabla de 18 celdas y variante como estado; glosario con menú principal, paso 1, resumen y variante; alcance con arranque 1-6 y sin persistencia (requirements-writer); docs:check 635/159 y verify 99/1471; fusión `5239ce8` — [informe](../artifacts/TASK-0128/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0127 — done: mapa y miniatura del HUD usan la celda de la variante del jugador desde `ARCHETYPE_VARIANT_CELLS` con una resolución única; sin `KNIGHT_RECT` fijo ni `PORTRAIT_RECTS` de variante 1, variante conservada y 18 celdas cubiertas; verify 99 archivos/1471 tests y E2E 229/229; fusión `2cb4200` — [informe](../artifacts/TASK-0127/attempt-2/report.md)
 
 * 2026-11-15 — Task — TASK-0126 — done: resumen de party y semilla de solo lectura, «Atrás» al último jugador, cancelación confirmada al menú y «Empezar» por el constructor único (`new GameSession({seed, players})`); verify 99 archivos/1441 tests y E2E 228/228; fusión `e81af6d` — [informe](../artifacts/TASK-0126/attempt-1/report.md)
