@@ -4,7 +4,7 @@ id: TASK-0123
 title: "Host: menú principal y paso 1"
 description: "Añadir la primera pantalla con «Nueva» y «Cargar» y el paso 1 con 1-6 jugadores y semilla editable, incluyendo `?seed=`, validación y cancelación."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-001, R-002, R-003, R-004, R-012, T-004, T-005, T-007]
