@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T19:07:43Z
-updated_at: 2026-11-14T23:35:43Z
+updated_at: 2026-11-15T10:19:36Z
 related_tasks: [TASK-0134, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153, TASK-0154, TASK-0155, TASK-0159]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:07:43Z }
 verified:
@@ -159,7 +159,9 @@ semilla y lo sustituye por «Nueva partida» y «Cargar partida».
 
 - [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v3: define el menú
   principal, el paso 1, los jugadores y el resumen; esta hoja consume su estado y
-  retira el reinicio rápido.
+  retira el reinicio rápido. Anotado desde REQ-016 v3, T-010: «Nueva partida» de
+  la pausa y del resultado abre el paso 1, y no hay reinicio rápido ni con la
+  misma party y semilla.
 - [REQ-005](REQ-005-viewport-impar-13.md): la cámara sigue al activo con paneo y
   al enemigo que actúa en la fase enemiga.
 - [REQ-017](REQ-017-feedback-visual-eventos.md): se añaden los beats de relevo,

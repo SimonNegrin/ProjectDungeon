@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:10:00Z
-updated_at: 2026-11-14T23:35:43Z
+updated_at: 2026-11-15T10:19:36Z
 related_tasks: [TASK-0137, TASK-0138, TASK-0139, TASK-0140, TASK-0141, TASK-0144, TASK-0145, TASK-0158]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:10:00Z }
 verified:
@@ -50,6 +50,8 @@ arrancar y confirma la pérdida de progreso al elegir «Nueva» desde la pausa.
   como archivo local de partida; no hay guardado entre runs.
 - [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v3: el menú principal ofrece
   «Cargar» y «Nueva». La carga y la validación viven aquí; el botón, allí.
+  Anotado desde REQ-016 v3, T-010: la pausa conserva su propio «Cargar» y ambas
+  entradas usan el mismo cargador de esta hoja.
 - [REQ-017](REQ-017-feedback-visual-eventos.md): la pausa congela la timeline de
   presentación; el menú no genera eventos de juego.
 - [REQ-020](REQ-020-cofres-saqueo.md) y
