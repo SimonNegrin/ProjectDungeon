@@ -3,6 +3,10 @@
 Índice de una línea por evento. Las entradas anteriores al 2026-11-08, escritas
 con formato largo, están en [historial detallado](log-detalle.md).
 
+## 2026-11-15
+
+* 2026-11-15 — Task — TASK-0137 — done: contenedor `.zip` con `deflate-raw` y lector `store`/`deflate`; límites 5/20 MB, 4 entradas y 5 MB por archivo antes de descomprimir, errores tipados y 33 tests (incluye `unzip` y bomba deflate); verify 95 archivos/1377 tests (la pasada del runner falló solo por EXP-004); fusión `5364d44` — [informe](../artifacts/TASK-0137/attempt-1/report.md)
+
 ## 2026-11-14
 
 * 2026-11-14 — Task — TASK-0122 — done: `GameConfig` serializable y constructor único en `createInitialState`; 1-6 jugadores en orden con variante, validación tipada, snapshot y `Restart`; verify 94/94 archivos y 1344 tests (primer intento con el flake de EXP-004), build y bundle OK; fusión `a00eeec` — [informe](../artifacts/TASK-0122/attempt-1/report.md)
