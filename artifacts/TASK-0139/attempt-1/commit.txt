@@ -2,5 +2,6 @@ branch: task/TASK-0139
 code-1: 9a46ff3 feat(host): mapa unico de teclas y retirada del atajo R (TASK-0139)
 code-2: 1339056 feat(host): pausa global y menu de cinco acciones (TASK-0139)
 code-3: 3b2f12f fix(host): foco en el motivo cuando Guardar esta desactivado (TASK-0139)
+code-4: faa7dbb fix(host): devuelve el foco al marco al cerrar la pausa (TASK-0139)
 evidence-1: cf746c0 test(TASK-0139): evidencia, informe y capturas de pausa
 evidence-2: 21e81af test(TASK-0139): actualiza evidencia tras el ajuste de foco
