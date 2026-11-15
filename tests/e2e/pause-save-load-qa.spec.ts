@@ -1,6 +1,12 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
-import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import {
+  expect,
+  test,
+  type Download,
+  type Page,
+  type TestInfo,
+} from '@playwright/test';
 import { createInitialState } from '../../src/game/engine';
 import { buildSaveFiles, parseManifest, readSaveFiles } from '../../src/game/save';
 import type { GameState, Position, Unit } from '../../src/game/types';
@@ -15,6 +21,8 @@ import {
   openState,
   settle,
   snapshot,
+  winGame,
+  WIN_GAME_SEED,
 } from './support';
 
 /**
@@ -25,8 +33,9 @@ import {
  *
  * El resultado (criterio 7) ya no ofrece «Reiniciar» ni abre pausa: la pantalla
  * final pertenece a TASK-0153 y su QA completa vive en `host-result-qa.spec.ts`.
- * Aquí solo se conserva la comprobación de que la pausa no añade guardado al
- * resultado ni `R` reinicia.
+ * Aquí se comprueba el contrato de REQ-024 R-012/T-013: Victoria y Derrota sin
+ * pausa, sin guardado, sin «Reiniciar» ni reinicio rápido, y con `Esc`/`R`/`N`/`I`
+ * sin efecto sobre una partida terminada.
  */
 
 const GAME_VERSION = '0.1.0';
@@ -684,39 +693,78 @@ test('TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y ta
 /* ------------------------------- criterio 7 ------------------------------ */
 
 /**
- * Criterio 7 parcial: `R` no reinicia y el resultado no contiene guardado ni
- * pausa. El detalle de las dos acciones y de la ausencia de pausa vive en la QA
- * de TASK-0153 (`host-result-qa.spec.ts`), propietaria del resultado.
+ * Contrato del resultado (REQ-024 R-012/T-013 y REQ-031 R-020): ni pausa, ni
+ * guardado, ni «Reiniciar»/reinicio rápido, y las teclas de juego no tocan una
+ * partida terminada. La QA específica de la pantalla vive en
+ * `host-result-qa.spec.ts`; aquí se comprueba además el estado y la descarga.
  */
-test('TASK-0144: el resultado no ofrece guardado y R no reinicia', async ({
+async function expectFrozenResult(
+  page: Page,
+  status: 'victory' | 'defeat',
+): Promise<void> {
+  const result = page.getByTestId('result-screen');
+  await expect(result).toBeVisible();
+  await expect(page.getByTestId('pause-menu')).toBeHidden();
+  await expect(page.getByTestId('pause-save')).toBeHidden();
+  await expect(page.getByTestId('pause-load')).toBeHidden();
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
+
+  await expect(result.getByRole('button', { name: /guardar/i })).toHaveCount(0);
+  await expect(result.getByRole('button', { name: /reiniciar/i })).toHaveCount(0);
+  await expect(page.locator('[data-action="save"]')).toHaveCount(0);
+  await expect(page.locator('[data-action="restart"]')).toHaveCount(0);
+  await expect(page.locator('[data-testid="result-restart"]')).toHaveCount(0);
+
+  const before = await snapshot(page);
+  expect(before.status).toBe(status);
+
+  const downloads: string[] = [];
+  const onDownload = (download: Download): void => {
+    downloads.push(download.suggestedFilename());
+  };
+  page.on('download', onDownload);
+  try {
+    // `Esc` no abre pausa; `R`/`F2` no reinician; `N` no termina turno; `I` no
+    // abre el panel; `S` no guarda. La partida terminada debe quedar intacta.
+    for (const key of ['Escape', 'r', 'n', 'i', 'F2', 's']) {
+      await page.keyboard.press(key);
+    }
+    await page.waitForTimeout(300);
+  } finally {
+    page.off('download', onDownload);
+  }
+
+  const after = await snapshot(page);
+  expect(after.status).toBe(status);
+  expect(after.round).toBe(before.round);
+  expect(after.players).toEqual(before.players);
+  expect(after.rng).toEqual(before.rng);
+  expect(after.lastEvents).toEqual(before.lastEvents);
+  expect(after.lastEvents.some((event) => event.type === 'GameRestarted')).toBe(false);
+  expect(downloads).toEqual([]);
+
+  await expect(result).toBeVisible();
+  await expect(page.getByTestId('pause-menu')).toBeHidden();
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
+}
+
+test('TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan', async ({
   page,
 }, testInfo) => {
+  test.setTimeout(120_000);
   await page.setViewportSize({ width: 1280, height: 720 });
-  const victory = { ...createInitialState({ seed: SEED }), status: 'victory' as const };
-  await openState(page, victory, SEED);
-  await expect(page.getByTestId('result-screen')).toBeVisible();
-  const before = await snapshot(page);
-  expect(before.status).toBe('victory');
 
-  await page.keyboard.press('r');
-  const afterR = await snapshot(page);
-  expect(afterR.lastEvents.some((event) => event.type === 'GameRestarted')).toBe(
-    false,
-  );
-  expect(afterR.players).toEqual(before.players);
-  expect(afterR.round).toBe(before.round);
-
-  const victoryOverlay = page.getByTestId('result-screen');
-  await expect(victoryOverlay.getByTestId('pause-save')).toHaveCount(0);
-  await expect(victoryOverlay.getByTestId('pause-menu')).toHaveCount(0);
-  await expect(victoryOverlay.getByRole('button', { name: /guardar/i })).toHaveCount(0);
+  // Victoria por flujo normal: semilla 79 documentada y comandos reales.
+  const victory = await winGame(page);
+  expect(victory.status).toBe('victory');
+  expect(victory.rng.seed).toBe(WIN_GAME_SEED);
   await screenshot(page, 'resultado-victoria', testInfo);
+  await expectFrozenResult(page, 'victory');
 
+  // Derrota sin flujo normal documentado: se inyecta el estado final.
   const defeat = { ...createInitialState({ seed: SEED }), status: 'defeat' as const };
   await openState(page, defeat, SEED);
   await expect(page.getByTestId('result-screen')).toBeVisible();
-  const defeatOverlay = page.getByTestId('result-screen');
-  await expect(defeatOverlay.getByTestId('pause-save')).toHaveCount(0);
-  await expect(defeatOverlay.getByRole('button', { name: /guardar/i })).toHaveCount(0);
-  await expect(page.getByTestId('hud-status')).toHaveCount(0);
+  await screenshot(page, 'resultado-derrota', testInfo);
+  await expectFrozenResult(page, 'defeat');
 });

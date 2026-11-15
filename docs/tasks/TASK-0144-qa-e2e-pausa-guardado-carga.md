@@ -4,16 +4,16 @@ id: TASK-0144
 title: "QA/E2E de pausa, guardado y carga"
 description: "Cubrir la pausa global, el menú de cinco botones, el guardado restringido, la descarga `.zip`, la carga `.zip`/`.json`, los límites y el resultado sin guardado."
 status: stable
-task_status: blocked
+task_status: done
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
 depends_on: [TASK-0139, TASK-0140, TASK-0141, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T23:54:00Z
 assignee: task-runner
-attempts: 1
+attempts: 3
 artifacts: artifacts/TASK-0144/
 priority: P1
 risk: medium
@@ -29,12 +29,31 @@ verified:
       reproducido. Criterio 7 bloqueado por defecto real: Victoria y Derrota
       siguen ofreciendo «Reiniciar» y `Esc` abre la pausa (REQ-024 R-012/T-013);
       propietario TASK-0153. Sin cambios de producción ni tests debilitados.
+  - by: task-lead
+    at: 2026-11-15T23:40:00Z
+    note: >-
+      Intento 2 verificado (tests `88c9402`, evidencia `bfa0660`). Criterio 7
+      cumplido: Victoria en flujo normal con `winGame` y Derrota inyectada; sin
+      pausa, guardado, «Reiniciar» ni reinicio, y `Esc`/`R`/`N`/`I`/`S`/`F2` no
+      alteran el estado. `pnpm run verify` 109/1734 reejecutado. Criterio 8 no
+      cumplido: `test:e2e --workers=1` 271/273, con 2 fallos preexistentes en
+      `qa-visual-revision-ui.spec.ts:396` (aserción «Turno» que incluye la región
+      `aria-live` de TASK-0151); reproducido en `main` por el lead. Sin cambios
+      de producción; bloqueo externo, no del alcance de esta tarea.
+  - by: task-lead
+    at: 2026-11-15T23:54:00Z
+    note: >-
+      Intento 3 verificado (spec `d9e635e`, evidencia `15644f0`). Diff en
+      `qa-visual-revision-ui.spec.ts`: `hudText` excluye `hud-live` y se añade
+      `liveRegion` (existe, texto, caja, `clip-path`) sin tocar otras
+      aserciones. `pnpm run verify` 109/1734; spec 13/13; suite completa
+      `--workers=1` 273/273 en 3.9 min. Criterio 8 cerrado; sin cambios de
+      producción ni tests debilitados.
 ---
 
-> **Bloqueada (2026-11-15).** El criterio 7 queda pendiente de TASK-0153, ahora
-> en `depends_on`. Al cerrar TASK-0153 se verificará el resultado y se endurecerá
-> el test de resultado del spec QA; allí deberá ajustarse
-> `tests/e2e/game-input-hud.spec.ts:373`, que pulsa «Reiniciar».
+> **Cerrada (2026-11-15).** La corrección mínima autorizada dejó la suite en
+> verde: 273/273 en serie. `hud-live` queda excluida del texto visible y se
+> comprueba que sigue oculta; el resto de aserciones no cambia.
 
 # Objetivo
 
@@ -62,7 +81,7 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
       cámara y HUD sin aviso de ronda.
 - [x] Se rechazan archivos con rutas, entradas extra o tamaño por encima de los
       límites.
-- [ ] El resultado no ofrece pausa ni guardado; no existe reinicio rápido ni `R`.
+- [x] El resultado no ofrece pausa ni guardado; no existe reinicio rápido ni `R`.
 - [x] Capturas de pausa, menú, controles y error de carga; `pnpm run test:e2e` y
       `pnpm run verify` pasan.
 
@@ -79,13 +98,25 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
 - [x] Salida de `pnpm run test:e2e` y `pnpm run verify`
 - [x] Capturas de pausa, menú, controles y error
 - [x] Commit SHA `a94f406` (spec) y `5d6e330` (evidencia)
+- [x] Informe del intento 2 en `artifacts/TASK-0144/attempt-2/report.md`
+- [x] Capturas de resultado en `artifacts/TASK-0144/attempt-2/pause-save-load-qa/screenshots/`
+- [x] Commits `88c9402` (spec y helper) y `bfa0660` (evidencia)
+- [x] Verificación del lead en `artifacts/TASK-0144/lead-verify/verification-2.md`
+- [x] Informe del intento 3 en `artifacts/TASK-0144/attempt-3/report.md`
+- [x] Commits `d9e635e` (spec HUD) y `15644f0` (evidencia)
+- [x] Verificación del lead en `artifacts/TASK-0144/lead-verify/verification-3.md`
 
 # Comandos
 
 | Comando | Timeout |
 |---|---:|
-| `pnpm run test:e2e` | 240 s |
+| `pnpm run test:e2e --workers=1` | 900 s |
+| `pnpm run test:e2e <spec> --workers=1` | 300 s |
 | `pnpm run verify` | 240 s |
+
+La suite E2E completa supera los 180 s y el `webServer` usa el puerto fijo 4173:
+se ejecuta en serie, sin paralelismo, y se comprueba que el puerto queda libre
+al terminar.
 
 # Restricciones
 

@@ -1,0 +1,30 @@
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
+$ node scripts/validate-docs.mjs
+OK: 731 documentos, 160 tareas, 6 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 4 agentes, 3 skills.
+$ vitest run
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  109 passed (109)
+      Tests  1734 passed (1734)
+   Start at  23:24:10
+   Duration  14.53s (tests 85%, import 11%, transform 3%, worker 1%)
+
+    Isolate  109 workers spawned · ~138ms startup each (spawn + environment, per file)
+             at least ~2.01s faster with isolate: false — reuses workers across files instead of one per file
+
+$ tsc --noEmit && vite build
+vite v6.4.5 building for production...
+transforming...
+✓ 95 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                 34.77 kB │ gzip:  4.63 kB
+dist/assets/main-DuemR_5e.css   36.60 kB │ gzip:  5.93 kB
+dist/assets/main-BYEI6Nbu.js   284.84 kB │ gzip: 91.81 kB
+✓ built in 799ms
+$ node scripts/check-bundle.mjs
+check:bundle: OK — scanned 17 dist files and 92 production modules; no forbidden markers.
