@@ -1,0 +1,13 @@
+$ playwright test tests/e2e/pause-save-load-qa.spec.ts --workers=1
+
+Running 7 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:237:1 › TASK-0144: Esc abre y cierra la pausa en personajes, enemiga y animación; el panel se cierra primero (1.8s)
+  ✓  2 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:288:1 › TASK-0144: la pausa congela turnos, beats y animaciones; el input de juego se ignora y reanudar no salta (678ms)
+  ✓  3 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:341:1 › TASK-0144: el menú muestra las cinco acciones en orden, navega con teclado y Esc vuelve a jugar (391ms)
+  ✓  4 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:399:1 › TASK-0144: Guardar solo está activo en la fase de personajes sin animación; nombre y manifiesto correctos (843ms)
+  ✓  5 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:475:1 › TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desde la pausa (720ms)
+  ✓  6 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:596:1 › TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y tamaños sin tocar la partida (1.1s)
+  ✓  7 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan (1.8s)
+
+  7 passed (9.2s)
