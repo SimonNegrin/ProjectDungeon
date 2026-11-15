@@ -130,7 +130,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0140](TASK-0140-host-guardar-zip.md) | Host: guardar .zip | `done` | REQ-024 | TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
 | [TASK-0141](TASK-0141-host-cargar-zip-json-menu-pausa.md) | Host: cargar .zip/.json desde menú y pausa | `done` | REQ-024 | TASK-0123, TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
 | [TASK-0142](TASK-0142-qa-e2e-botin.md) | QA/E2E de botín y cadáveres | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0141 | P1 |
-| [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `blocked` | REQ-024 | TASK-0139, TASK-0140, TASK-0141, TASK-0153 | P1 |
+| [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `done` | REQ-024 | TASK-0139, TASK-0140, TASK-0141, TASK-0153 | P1 |
 | [TASK-0146](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md) | Motor: turno por jugador, EndTurn, fase enemiga y ronda | `done` | REQ-031 | TASK-0132, TASK-0134 | P1 |
 | [TASK-0147](TASK-0147-motor-muerte-turno-derrota-wipe.md) | Motor: muerte en turno y derrota por wipe | `done` | REQ-031 | TASK-0131, TASK-0146 | P1 |
 | [TASK-0148](TASK-0148-motor-resurreccion-indice-recursos.md) | Motor: resurrección por índice y recursos | `backlog` | REQ-031 | TASK-0131, TASK-0134, TASK-0146 | P1 |
@@ -168,7 +168,6 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
-* [TASK-0144 — QA/E2E de pausa, guardado y carga](TASK-0144-qa-e2e-pausa-guardado-carga.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
 
 # backlog
@@ -305,6 +304,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0140 — Host: guardar .zip](TASK-0140-host-guardar-zip.md)
 * [TASK-0141 — Host: cargar .zip/.json desde menú y pausa](TASK-0141-host-cargar-zip-json-menu-pausa.md)
 * [TASK-0142 — QA/E2E de botín y cadáveres](TASK-0142-qa-e2e-botin.md)
+* [TASK-0144 — QA/E2E de pausa, guardado y carga](TASK-0144-qa-e2e-pausa-guardado-carga.md)
 * [TASK-0146 — Motor: turno por jugador, EndTurn, fase enemiga y ronda](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md)
 * [TASK-0147 — Motor: muerte en turno y derrota por wipe](TASK-0147-motor-muerte-turno-derrota-wipe.md)
 * [TASK-0149 — Host: N, retirada de E/R, Esc pausa y bloqueo](TASK-0149-host-n-retirada-e-r-esc-pausa.md)

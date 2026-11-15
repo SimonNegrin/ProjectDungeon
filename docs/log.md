@@ -5,7 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
-* 2026-11-15 — Task — TASK-0144 — blocked: criterio 7 verificado (resultado sin pausa, guardado ni reinicio; `winGame`); criterio 8 pendiente: `test:e2e --workers=1` 271/273, 2 fallos preexistentes de `qa-visual-revision-ui.spec.ts:396` por la región `aria-live`; dueño TASK-0154/TASK-0151 — [verificación](../artifacts/TASK-0144/lead-verify/verification-2.md)
+* 2026-11-15 — Task — TASK-0144 — done: pausa global, menú de cinco acciones, guardado restringido, ida y vuelta `.zip`/`.json`, límites y resultado sin pausa, guardado ni reinicio; `winGame` y aserción del HUD con `aria-live`; verify 1734/1734 y E2E 273/273 en serie (3,9 min); fusión `35c7cf7` — [informe](../artifacts/TASK-0144/attempt-3/report.md)
 
 * 2026-11-15 — Task — TASK-0153 — done: pantalla final Victoria/Derrota con ronda, party y semilla, «Nueva partida» al paso 1 y «Cargar partida» por el cargador común sin confirmación; sin pausa, guardado, «Reiniciar» ni avance automático; verify 1734/1734 y E2E 53/53 en serie; fusión `f74205c` — [informe](../artifacts/TASK-0153/attempt-1/report.md)
 
