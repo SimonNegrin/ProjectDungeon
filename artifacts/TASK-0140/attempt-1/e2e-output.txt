@@ -1,0 +1,8 @@
+$ playwright test tests/e2e/save-game.spec.ts
+
+Running 2 tests using 2 workers
+
+  ✓  1 [chromium] › tests/e2e/save-game.spec.ts:96:1 › TASK-0140: un error de serialización se anuncia y no descarga nada (897ms)
+  ✓  2 [chromium] › tests/e2e/save-game.spec.ts:19:1 › TASK-0140: Guardar descarga un único .zip real con manifiesto y partida (979ms)
+
+  2 passed (2.5s)
