@@ -152,6 +152,7 @@ describe('API de debug window.__game', () => {
     expect(snapshot.viewport).toEqual({ width: 416, height: 416 });
     expect(snapshot.tileSize).toBe(32);
     expect(snapshot.assetsLoaded).toBe(true);
+    expect(snapshot.panning).toBe(false);
     expect(snapshot.lastEvents).toEqual([]);
     expect(snapshot.cursor).toEqual({
       x: 4,

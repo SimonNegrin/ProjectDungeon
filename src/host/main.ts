@@ -2,8 +2,14 @@ import packageJson from '../../package.json';
 import type { Command, GameEvent, GameState, Position } from '../game/types';
 import { DEFAULT_PLAYER_CONFIGS } from '../game/config';
 import type { MapGenerator } from '../game/map';
+import { activePlayer } from '../game/party';
 import { loadAssets } from './assets';
 import { cameraBounds, centerCameraOnTile } from './camera';
+import {
+  cameraPanAt,
+  planCameraTransition,
+  type CameraTransition,
+} from './camera-pan';
 import {
   clampCursorToViewport,
   cursorAtPlayer,
@@ -310,6 +316,12 @@ interface ActiveAnimation {
   elapsed: number;
 }
 
+/** Paneo de cámara en curso; su reloj es independiente del de animación. */
+interface ActivePan {
+  readonly transition: CameraTransition;
+  elapsed: number;
+}
+
 async function boot(): Promise<void> {
   const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas');
   const stage = document.querySelector<HTMLElement>('[data-testid="stage"]');
@@ -461,6 +473,10 @@ async function boot(): Promise<void> {
   let animation: ActiveAnimation | null = null;
   let frameHandle: number | undefined;
   let lastFrameTime: number | undefined;
+  /** Paneo de relevo; comparte el gate de input con las animaciones. */
+  let pan: ActivePan | null = null;
+  let panFrameHandle: number | undefined;
+  let panLastFrameTime: number | undefined;
   /** `advance()` de debug detiene el reloj automático para ser determinista. */
   let manualClock = false;
 
@@ -514,8 +530,7 @@ async function boot(): Promise<void> {
     phase: session.state.phase,
     status: session.state.status,
     animating: animation !== null,
-    // El paneo por jugador llega con TASK-0150; aquí no existe.
-    panning: false,
+    panning: pan !== null,
   });
 
   const pauseMenuView = createPauseMenuView(frame, {
@@ -606,7 +621,8 @@ async function boot(): Promise<void> {
   };
 
   const resetCursorToPlayer = (): void => {
-    cursor = cursorAtPlayer(session.state.players[0]);
+    const active = activePlayer(session.state) ?? session.state.players[0];
+    if (active) cursor = cursorAtPlayer(active);
   };
 
   const cancelFrame = (): void => {
@@ -615,6 +631,19 @@ async function boot(): Promise<void> {
       frameHandle = undefined;
     }
     lastFrameTime = undefined;
+  };
+
+  const cancelPanFrame = (): void => {
+    if (panFrameHandle !== undefined) {
+      window.cancelAnimationFrame(panFrameHandle);
+      panFrameHandle = undefined;
+    }
+    panLastFrameTime = undefined;
+  };
+
+  const cancelPan = (): void => {
+    pan = null;
+    cancelPanFrame();
   };
 
   const presentationCursor = (active: ActiveAnimation): CursorStatus => {
@@ -735,20 +764,35 @@ async function boot(): Promise<void> {
     // Sin animación la poda usa el estado final: el "!" ya no se adelanta a su
     // cue porque durante la animación solo se retira con sus eventos.
     spottedUnits = reconcileSpottedUnits(state, spottedUnits);
-    // La carga de una partida pide una única vez que la cámara muestre al
-    // activo; después el render normal conserva su comportamiento.
-    const focusPlayer =
-      (pendingCameraFocusPlayerId === null
-        ? undefined
-        : state.players.find((player) => player.id === pendingCameraFocusPlayerId)) ??
-      state.players[0];
-    pendingCameraFocusPlayerId = null;
-    camera = centerCameraOnTile(focusPlayer, viewport, world, TILE_SIZE);
+    if (pan) {
+      // Durante el paneo la cámara la gobierna su reloj: no se recentra en el
+      // activo ni se recoloca el cursor hasta que termine.
+      camera = cameraPanAt(pan.transition, pan.elapsed);
+    } else {
+      // La carga de una partida pide una única vez que la cámara muestre al
+      // activo; después el render normal sigue al jugador activo.
+      const focusPlayer =
+        (pendingCameraFocusPlayerId === null
+          ? undefined
+          : state.players.find(
+              (player) => player.id === pendingCameraFocusPlayerId,
+            )) ??
+        activePlayer(state) ??
+        state.players[0];
+      pendingCameraFocusPlayerId = null;
+      camera = centerCameraOnTile(focusPlayer, viewport, world, TILE_SIZE);
 
-    // El cursor nunca mueve la cámara; si la cámara se desplaza al mover al
-    // jugador, se recoloca al tile visible más cercano.
-    if (isCursorInteractive(state)) {
-      cursor = clampCursorToViewport(cursor, camera, viewport, state.grid, TILE_SIZE);
+      // El cursor nunca mueve la cámara; si la cámara se desplaza al mover al
+      // jugador, se recoloca al tile visible más cercano.
+      if (isCursorInteractive(state)) {
+        cursor = clampCursorToViewport(
+          cursor,
+          camera,
+          viewport,
+          state.grid,
+          TILE_SIZE,
+        );
+      }
     }
     cursorStatus = deriveCursorStatus(state, cursor);
 
@@ -775,6 +819,56 @@ async function boot(): Promise<void> {
     bannerView.update(banner);
     markView.update(unitMarks, state, camera, viewport);
     frameEffectView.update(EMPTY_FRAME_EFFECTS);
+  };
+
+  const finishPan = (): void => {
+    const active = pan;
+    if (!active) return;
+    pan = null;
+    cancelPanFrame();
+    camera = { ...active.transition.to };
+    render();
+    if (!manualClock) scheduleTextFrame();
+  };
+
+  const advancePan = (deltaMs: number): void => {
+    const active = pan;
+    if (!active) return;
+    active.elapsed = Math.min(
+      active.transition.durationMs,
+      active.elapsed + Math.max(0, deltaMs),
+    );
+    if (active.elapsed + EPSILON >= active.transition.durationMs) {
+      finishPan();
+      return;
+    }
+    render();
+  };
+
+  const panTick = (now: number): void => {
+    panFrameHandle = undefined;
+    if (pause.open || pan === null || manualClock) return;
+
+    const raw = panLastFrameTime === undefined ? 0 : now - panLastFrameTime;
+    panLastFrameTime = now;
+    advancePan(Math.min(MAX_FRAME_DELTA_MS, Math.max(0, raw)));
+
+    if (pan !== null && !manualClock) {
+      panFrameHandle = window.requestAnimationFrame(panTick);
+    }
+  };
+
+  /** Arranca el paneo desde la cámara actual y agenda su reloj. */
+  const startPan = (transition: CameraTransition, manual: boolean): void => {
+    cancelPanFrame();
+    pan = { transition, elapsed: 0 };
+    camera = { ...transition.from };
+    if (manual) manualClock = true;
+    render();
+    if (manual) return;
+    panLastFrameTime = undefined;
+    panFrameHandle = window.requestAnimationFrame(panTick);
+    scheduleTextFrame(true);
   };
 
   const cancelTextFrame = (): void => {
@@ -1012,17 +1106,41 @@ async function boot(): Promise<void> {
     const state = session.state;
     world = gridPixelSize(state.grid, TILE_SIZE);
     bounds = cameraBounds(world, viewport);
-    const finalCamera = centerCameraOnTile(state.players[0], viewport, world, TILE_SIZE);
+    const transition = planCameraTransition({
+      previous: {
+        activePlayerId: active.initialState.activePlayerId,
+        round: active.initialState.round,
+      },
+      finalState: state,
+      camera,
+      viewport,
+      world,
+      tileSize: TILE_SIZE,
+      reducedMotion: prefersReducedMotion,
+    });
 
     if (active.resetCursorAtEnd) {
       resetCursorToPlayer();
       // El cursor reaparece con un parpadeo al acabar el beat de su turno.
       cursorView.pulseAppear();
     } else if (isCursorInteractive(state)) {
-      cursor = clampCursorToViewport(cursor, finalCamera, viewport, state.grid, TILE_SIZE);
+      cursor = clampCursorToViewport(
+        cursor,
+        transition.to,
+        viewport,
+        state.grid,
+        TILE_SIZE,
+      );
     }
 
     cursorStatus = deriveCursorStatus(state, cursor);
+
+    if (transition.kind === 'pan') {
+      startPan(transition, wasManual);
+      return;
+    }
+
+    camera = transition.to;
     render();
     if (!wasManual) scheduleTextFrame(true);
   };
@@ -1064,6 +1182,7 @@ async function boot(): Promise<void> {
     cursorPosition: Position,
   ): void => {
     cancelFrame();
+    cancelPan();
     cancelTextFrame();
     manualClock = false;
     animation = {
@@ -1093,6 +1212,7 @@ async function boot(): Promise<void> {
     animation = null;
     manualClock = false;
     cancelFrame();
+    cancelPan();
   };
 
   const completeAnimation = (): void => {
@@ -1112,6 +1232,7 @@ async function boot(): Promise<void> {
     if (pause.open) return;
     pause = openPause(pause, pauseContext());
     cancelFrame();
+    cancelPanFrame();
     cancelTextFrame();
     pauseMenuView.show(pause, pauseContext());
   };
@@ -1123,6 +1244,13 @@ async function boot(): Promise<void> {
     if (manualClock) return;
     lastFrameTime = undefined;
     textLastFrameTime = undefined;
+    panLastFrameTime = undefined;
+    if (pan !== null) {
+      if (panFrameHandle === undefined) {
+        panFrameHandle = window.requestAnimationFrame(panTick);
+      }
+      return;
+    }
     if (animation !== null) {
       if (frameHandle === undefined) {
         frameHandle = window.requestAnimationFrame(tick);
@@ -1224,12 +1352,13 @@ async function boot(): Promise<void> {
   const advanceForTest = (ms: number): void => {
     // La pausa congela también el reloj manual: `advance` no consume tiempo.
     if (pause.open) return;
-    if (!animation) {
+    if (!animation && !pan) {
       // Sin animación, el reloj manual consume la persistencia ya creada
       // (textos, banners y marcas) sin esperas de reloj real. `advance(0)` no
       // consume: solo congela y repinta el estado intermedio.
       manualClock = true;
       cancelFrame();
+      cancelPanFrame();
       cancelTextFrame();
       advanceTransientFeedback(ms);
       render();
@@ -1237,7 +1366,22 @@ async function boot(): Promise<void> {
     }
     manualClock = true;
     cancelFrame();
-    advanceAnimation(ms);
+    cancelPanFrame();
+    cancelTextFrame();
+    if (animation) {
+      const from = animation.elapsed;
+      const to = advanceTimeline(
+        animation.timeline,
+        from,
+        Math.max(0, ms),
+      );
+      const consumed = to - from;
+      advanceAnimation(consumed);
+      // Tras acabar la animación, el resto del tiempo alimenta el paneo.
+      if (pan !== null && ms > consumed) advancePan(ms - consumed);
+      return;
+    }
+    advancePan(ms);
   };
 
   /**
@@ -1460,6 +1604,7 @@ async function boot(): Promise<void> {
       lastEvents,
       cursor: animation ? presentationCursor(animation) : cursorStatus,
       animation: animationSnapshot(),
+      panning: pan !== null,
     }),
     (command) => applyCommand(command, true),
     advanceForTest,
@@ -1519,8 +1664,7 @@ async function boot(): Promise<void> {
 
     const intent = translateKey(event, session.state, cursor, {
       animating: animation !== null,
-      // El paneo de cámara llega con TASK-0150; hasta entonces no existe.
-      panning: false,
+      panning: pan !== null,
       spellMenu,
     });
     if (intent.type === 'pause-toggle') {

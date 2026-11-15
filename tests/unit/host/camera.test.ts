@@ -1,12 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { cameraBounds, centerCameraOnTile, clampCamera } from '../../../src/host/camera';
 import {
+  CAMERA_PAN_MS,
+  cameraPanAt,
+  interpolateCamera,
+  planCameraTransition,
+  type CameraTurn,
+} from '../../../src/host/camera-pan';
+import {
   gridPixelSize,
   tileToPixel,
   visibleTileRange,
   type Viewport,
   type WorldSize,
 } from '../../../src/host/geometry';
+import { makeState, makeUnit } from '../game/helpers';
 
 const VIEWPORT: Viewport = { width: 416, height: 416 };
 const ROOM_WORLD: WorldSize = { width: 20 * 32, height: 20 * 32 };
@@ -187,5 +195,171 @@ describe('rango visible de tiles', () => {
       expect(range.maxX - range.minX + 1).toBe(13);
       expect(range.maxY - range.minY + 1).toBe(13);
     }
+  });
+});
+
+describe('paneo de cámara del relevo', () => {
+  function twoPlayers(activePlayerId = 'player-1', round = 1) {
+    return makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 2, y: 2 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 17, y: 17 }),
+      ],
+      activePlayerId,
+      round,
+    });
+  }
+
+  function plan(
+    previous: CameraTurn | null,
+    finalState: ReturnType<typeof twoPlayers>,
+    camera = { x: 0, y: 0 },
+    reducedMotion = false,
+  ) {
+    return planCameraTransition({
+      previous,
+      finalState,
+      camera,
+      viewport: VIEWPORT,
+      world: gridPixelSize(finalState.grid),
+      reducedMotion,
+    });
+  }
+
+  const P1_CAMERA = { x: 0, y: 0 };
+  const P2_CAMERA = { x: 224, y: 224 };
+
+  it('apunta al activo final y usa players[0] como respaldo', () => {
+    const finalState = twoPlayers('player-2');
+
+    expect(plan(null, finalState, P1_CAMERA)).toMatchObject({
+      playerId: 'player-2',
+      to: P2_CAMERA,
+    });
+
+    const fallback = plan(null, twoPlayers('no-existe'), P1_CAMERA);
+    expect(fallback.playerId).toBe('player-1');
+    expect(fallback.to).toEqual(P1_CAMERA);
+  });
+
+  it('en ronda 1 arranca directo y sin cambio de turno no hay transición', () => {
+    const state = twoPlayers();
+
+    expect(plan(null, state, P1_CAMERA)).toMatchObject({
+      kind: 'jump',
+      durationMs: 0,
+      from: P1_CAMERA,
+      to: P1_CAMERA,
+    });
+    expect(
+      plan({ activePlayerId: 'player-1', round: 1 }, state, P1_CAMERA),
+    ).toMatchObject({
+      kind: 'none',
+      durationMs: 0,
+    });
+  });
+
+  it('con dos jugadores el relevo hace un paneo de 300 ms hasta el siguiente', () => {
+    const transition = plan(
+      { activePlayerId: 'player-1', round: 1 },
+      twoPlayers('player-2'),
+      P1_CAMERA,
+    );
+
+    expect(transition).toMatchObject({
+      kind: 'pan',
+      durationMs: CAMERA_PAN_MS,
+      from: P1_CAMERA,
+      to: P2_CAMERA,
+      playerId: 'player-2',
+    });
+    expect(CAMERA_PAN_MS).toBe(300);
+  });
+
+  it('la vuelta tras la fase enemiga panea al primer jugador en ronda 2', () => {
+    const transition = plan(
+      { activePlayerId: 'player-2', round: 1 },
+      twoPlayers('player-1', 2),
+      P2_CAMERA,
+    );
+
+    expect(transition).toMatchObject({
+      kind: 'pan',
+      durationMs: CAMERA_PAN_MS,
+      from: P2_CAMERA,
+      to: P1_CAMERA,
+      playerId: 'player-1',
+    });
+  });
+
+  it('con un solo jugador no hay paneo de relevo y la cámara vuelve a él', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 2, y: 2 })],
+      activePlayerId: 'player-1',
+      round: 2,
+    });
+
+    expect(
+      plan({ activePlayerId: 'player-1', round: 1 }, state, P1_CAMERA),
+    ).toMatchObject({
+      kind: 'jump',
+      durationMs: 0,
+      to: P1_CAMERA,
+      playerId: 'player-1',
+    });
+  });
+
+  it('con movimiento reducido el cambio salta sin animación', () => {
+    expect(
+      plan(
+        { activePlayerId: 'player-1', round: 1 },
+        twoPlayers('player-2'),
+        P1_CAMERA,
+        true,
+      ),
+    ).toMatchObject({
+      kind: 'jump',
+      durationMs: 0,
+      to: P2_CAMERA,
+    });
+  });
+
+  it('si el destino ya es la cámara actual salta sin paneo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 2, y: 2 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 3, y: 2 }),
+      ],
+      activePlayerId: 'player-2',
+    });
+
+    expect(
+      plan({ activePlayerId: 'player-1', round: 1 }, state, { x: 0, y: 0 }),
+    ).toMatchObject({
+      kind: 'jump',
+      durationMs: 0,
+      to: { x: 0, y: 0 },
+    });
+  });
+
+  it('interpola en línea recta con redondeo a píxel entero', () => {
+    const transition = {
+      from: { x: 0, y: 0 },
+      to: { x: 320, y: 320 },
+      durationMs: CAMERA_PAN_MS,
+    };
+
+    expect(cameraPanAt(transition, -50)).toEqual({ x: 0, y: 0 });
+    expect(cameraPanAt(transition, 0)).toEqual({ x: 0, y: 0 });
+    expect(cameraPanAt(transition, 150)).toEqual({ x: 160, y: 160 });
+    expect(cameraPanAt(transition, 300)).toEqual({ x: 320, y: 320 });
+    expect(cameraPanAt(transition, 600)).toEqual({ x: 320, y: 320 });
+    expect(interpolateCamera({ x: 0, y: 0 }, { x: 100, y: 50 }, 1 / 3)).toEqual({
+      x: 33,
+      y: 17,
+    });
+    expect(
+      cameraPanAt({ from: { x: 0, y: 0 }, to: { x: 9, y: 9 }, durationMs: 0 }, 0),
+    ).toEqual({ x: 9, y: 9 });
   });
 });

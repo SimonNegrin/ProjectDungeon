@@ -37,6 +37,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **MP** | Puntos de movimiento disponibles en un turno. |
 | **Acción** | Intervención que consume una de las acciones del turno: atacar, interactuar o lanzar hechizos. Esperar y terminar el turno son libres y no consumen acción ([REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)). |
 | **Fantasma** | Estado jugable del jugador muerto (`Unit.ghost`, `hp === 0`): comparte casilla sin bloquear, se mueve con su MP intrínseco, tiene una acción por ronda y solo puede recoger/soltar un objeto por acción e inspeccionar contenedores sin abrirlos ni revelar trampas. No ataca, equipa, usa objetos ni abre cofres, y la IA no lo ve ([REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)). |
+| **Paneo de relevo** | Movimiento de cámara del host, de 300 ms, que lleva la vista del jugador anterior al siguiente al cerrar turno; bloquea el input hasta llegar, salta sin animación con `prefers-reduced-motion` y no existe con un solo jugador ([REQ-031](requirements/REQ-031-hotseat-local.md)). |
 | **Hotseat** | Varios jugadores comparten el mismo teclado y juegan por turnos. |
 | **Local-first** | Construir y validar el juego en local antes de añadir red. |
 | **Experimento** | Página interactiva que responde una pregunta de diseño o técnica y registra una decisión. |
