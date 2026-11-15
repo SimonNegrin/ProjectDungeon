@@ -12,6 +12,15 @@
       <div class="game-root" data-testid="game-root">
         <div class="stage" data-testid="stage">
           <div class="frame" data-testid="frame" tabindex="-1">
+            <!-- Selector único de carga (REQ-024 T-009): menú y pausa comparten
+                 este input; el host lo abre con un clic programático. -->
+            <input
+              id="load-file"
+              data-testid="load-file"
+              type="file"
+              accept=".zip,.json"
+              hidden
+            />
             <canvas
               id="game-canvas"
               width="2218"
@@ -412,6 +421,13 @@
                       aria-live="polite"
                       hidden
                     ></p>
+                    <p
+                      class="pause-reason"
+                      data-testid="pause-load-message"
+                      role="alert"
+                      aria-live="assertive"
+                      hidden
+                    ></p>
                     <button
                       type="button"
                       class="pause-button ui-outset"
@@ -493,6 +509,13 @@
                       Cargar
                     </button>
                   </div>
+                  <p
+                    class="start-error"
+                    data-testid="start-load-message"
+                    role="alert"
+                    aria-live="assertive"
+                    hidden
+                  ></p>
                 </section>
 
                 <section

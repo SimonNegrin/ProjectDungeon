@@ -784,6 +784,93 @@ describe('readSaveFiles (REQ-024 T-004/T-016)', () => {
   });
 });
 
+describe('stats inherentes (TASK-0141 R-008)', () => {
+  const ARCHETYPES = [
+    'warrior',
+    'barbarian',
+    'rogue',
+    'archer',
+    'mage',
+    'cleric',
+    'spellblade',
+    'cook',
+    'farmer',
+  ] as const satisfies readonly PlayerConfig['archetypeId'][];
+
+  it('hace ida y vuelta con los nueve arquetipos, incluidos stats negativos', () => {
+    for (const archetypeId of ARCHETYPES) {
+      const state = createInitialState({
+        seed: SEED,
+        players: [{ archetypeId, variant: 1, name: 'Prueba' }],
+      });
+      const loaded = requireValue(parseSave(buildFiles(state).save));
+
+      expect(loaded.players[0]?.stats, archetypeId).toEqual(
+        state.players[0]?.stats,
+      );
+      expect(loaded.config, archetypeId).toEqual(state.config);
+    }
+  });
+
+  it('conserva los negativos inherentes de mago y clérigo sin cambios', () => {
+    const state = createInitialState({
+      seed: SEED,
+      players: [
+        { archetypeId: 'mage', variant: 1, name: 'Bru' },
+        { archetypeId: 'cleric', variant: 2, name: 'Cle' },
+      ],
+    });
+    expect(state.players[0]?.stats.fuerza).toBe(-1);
+    expect(state.players[1]?.stats.fuerza).toBe(-1);
+
+    const loaded = requireValue(parseSave(buildFiles(state).save));
+
+    expect(loaded.players.map((player) => player.stats)).toEqual(
+      state.players.map((player) => player.stats),
+    );
+    expect(loaded.players.map((player) => player.id)).toEqual(
+      state.players.map((player) => player.id),
+    );
+  });
+
+  it('admite los extremos del rango acotado de los cuatro atributos', () => {
+    const state = createInitialState({
+      seed: SEED,
+      players: [{ archetypeId: 'mage', variant: 1, name: 'Bru' }],
+    });
+    const data = object(JSON.parse(buildFiles(state).save));
+    const stats = object(object(array(data.players)[0]).stats);
+    stats.habilidad = -9;
+    stats.fuerza = 9;
+    stats.defensa = -9;
+    stats.punteria = 9;
+
+    const loaded = requireValue(parseSave(JSON.stringify(data)));
+
+    expect(loaded.players[0]?.stats).toMatchObject({
+      habilidad: -9,
+      fuerza: 9,
+      defensa: -9,
+      punteria: 9,
+    });
+  });
+
+  it.each([
+    ['no entero', 1.5],
+    ['por encima del rango', 10],
+    ['por debajo del rango', -10],
+  ] as const)('rechaza un stat %s', (_label, value) => {
+    const state = createInitialState({
+      seed: SEED,
+      players: [{ archetypeId: 'mage', variant: 1, name: 'Bru' }],
+    });
+    const data = object(JSON.parse(buildFiles(state).save));
+    object(object(array(data.players)[0]).stats).fuerza = value;
+
+    expectSaveError(JSON.stringify(data), 'save-invalid');
+  });
+});
+
 describe('construcción del guardado', () => {
   it('exige fecha ISO UTC y versión de juego no vacía', () => {
     expect(() =>

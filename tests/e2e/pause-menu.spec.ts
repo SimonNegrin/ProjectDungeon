@@ -166,10 +166,20 @@ test('TASK-0139: Nueva y Cargar piden confirmación y Esc vuelve a la raíz', as
     'reemplazará',
   );
   await screenshot(page, 'pause-confirm-load', testInfo);
+  // Confirmar abre el selector único .zip/.json (TASK-0141); cancelarlo no
+  // reemplaza la partida y deja la pausa abierta en la raíz.
+  const chooserPromise = page.waitForEvent('filechooser');
   await page.getByTestId('pause-confirm').click();
+  const chooser = await chooserPromise;
+  await expect(page.getByTestId('load-file')).toHaveAttribute(
+    'accept',
+    '.zip,.json',
+  );
+  await expect(page.locator('input[type="file"]')).toHaveCount(1);
   await expect(page.getByTestId('pause-root')).toBeVisible();
   await expect(page.getByTestId('pause-load')).toBeFocused();
-  await expect(page.locator('input[type="file"]')).toHaveCount(0);
+  await chooser.setFiles([]);
+  await expect(page.getByTestId('pause-menu')).toBeVisible();
 
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('pause-menu')).toBeHidden();

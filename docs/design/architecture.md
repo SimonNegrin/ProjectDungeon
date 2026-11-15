@@ -394,8 +394,18 @@ lista de controles de la pausa. Guardar se desactiva fuera de la fase de
 personajes, con animación o con paneo; al activarse descarga un único `.zip`
 construido desde el estado del motor con el nombre
 `proyectdungeon-<semilla>-<AAAAMMDD-HHmmss>.zip`, y un error se anuncia sin
-descarga parcial. La lectura de archivos llega en tareas posteriores. «Nueva
-partida» confirma y abre el paso 1 del arranque.
+descarga parcial.
+
+Cargar vive en `src/host/load-game.ts`, con un único módulo y un único
+`input[type=file]` para menú principal y pausa. Acepta un `.zip` de guardado o un
+`.json` de partida: `readSaveZip` aplica los límites y el rechazo de rutas y
+entradas de T-006, el esquema v1 valida la partida y, en el `.zip`, el manifiesto
+se cruza con el estado (semilla, turno/ronda, fase y party). El menú principal
+carga directo; la pausa confirma antes de reemplazar. Al aplicar, se cierra la
+pausa, se sustituye la sesión, se limpian animación, feedback, avisos y modales,
+la cámara se centra una vez en el activo y los HUD se redibujan desde el estado;
+no se restaura presentación. Un archivo inválido muestra un mensaje y deja la
+partida en curso intacta. «Nueva partida» confirma y abre el paso 1 del arranque.
 
 # Suelo y decoración
 

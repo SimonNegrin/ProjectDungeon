@@ -253,6 +253,15 @@ const STATS_KEYS = [
   'magicLevel',
   'acciones',
 ] as const;
+/**
+ * Rango de los cuatro atributos inherentes (`habilidad`, `fuerza`, `defensa` y
+ * `punteria`). El roster usa valores entre -1 y 3; ±9 deja margen para contenido
+ * futuro sin admitir magnitudes que rompan la comparación de combate ni colar
+ * enteros arbitrarios en un archivo manipulado. `magicLevel` y `acciones`
+ * conservan sus límites propios.
+ */
+const STAT_MIN = -9;
+const STAT_MAX = 9;
 const MANA_KEYS = ['current', 'max'] as const;
 const ACTIONS_KEYS = ['max', 'remaining'] as const;
 const INVENTORY_KEYS = ['capacity', 'items'] as const;
@@ -936,11 +945,31 @@ function readResistance(raw: unknown, path: string): ResistanceProfile {
 function readStats(raw: unknown, path: string): UnitStats {
   const object = expectObject(raw, path);
   expectExactKeys(object, path, STATS_KEYS);
-  const habilidad = expectInteger(object.habilidad, `${path}.habilidad`);
-  const fuerza = expectInteger(object.fuerza, `${path}.fuerza`);
-  const defensa = expectInteger(object.defensa, `${path}.defensa`);
+  const habilidad = expectInteger(
+    object.habilidad,
+    `${path}.habilidad`,
+    STAT_MIN,
+    STAT_MAX,
+  );
+  const fuerza = expectInteger(
+    object.fuerza,
+    `${path}.fuerza`,
+    STAT_MIN,
+    STAT_MAX,
+  );
+  const defensa = expectInteger(
+    object.defensa,
+    `${path}.defensa`,
+    STAT_MIN,
+    STAT_MAX,
+  );
   const resistencia = readResistance(object.resistencia, `${path}.resistencia`);
-  const punteria = expectInteger(object.punteria, `${path}.punteria`);
+  const punteria = expectInteger(
+    object.punteria,
+    `${path}.punteria`,
+    STAT_MIN,
+    STAT_MAX,
+  );
   const magicLevel = expectInteger(object.magicLevel, `${path}.magicLevel`, 0, 4);
   const acciones = expectInteger(object.acciones, `${path}.acciones`, 0, 4);
   return reorder(object, {
