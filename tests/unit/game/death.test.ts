@@ -197,7 +197,7 @@ describe('muerte de jugador y cadáver contenedor (REQ-021 R-001/R-009/R-010/T-0
     ]);
   });
 
-  it('el daño mágico conserva intacto al enemigo muerto (sin cadáver en esta tarea)', () => {
+  it('el daño mágico que mata a un enemigo crea su cadáver en la casilla', () => {
     const fire = findSpell('fire-2')!;
     const state = makeState({
       players: [
@@ -216,7 +216,6 @@ describe('muerte de jugador y cadáver contenedor (REQ-021 R-001/R-009/R-010/T-0
       ],
       rng: rngForDice([6, 1, 3, 3]),
     });
-    const enemyBefore = state.enemies[0];
 
     const result = reduce(state, {
       type: 'CastSpell',
@@ -230,9 +229,21 @@ describe('muerte de jugador y cadáver contenedor (REQ-021 R-001/R-009/R-010/T-0
       'UnitDied',
       'GameEnded',
     ]);
+    // El enemigo permanece en `enemies` con 0 PV y sin objetos (REQ-034 T-004).
+    expect(result.state.enemies).toHaveLength(1);
     expect(result.state.enemies[0].hp).toBe(0);
-    expect(result.state.enemies[0].equipment).toEqual(enemyBefore.equipment);
-    expect(result.state.containers ?? []).toEqual([]);
+    expect(result.state.enemies[0].equipment).toEqual(emptyEquipment());
+    expect(result.state.enemies[0].inventory.items.every((item) => item === null)).toBe(
+      true,
+    );
+    const corpse = corpseOf(result.state, 'enemy-1');
+    expect(corpse).toMatchObject({
+      id: corpseId('enemy-1'),
+      kind: 'corpse',
+      x: 8,
+      y: 5,
+      capacity: 3,
+    });
   });
 
   it('es idempotente y no lee ni avanza el RNG', () => {
@@ -253,21 +264,16 @@ describe('muerte de jugador y cadáver contenedor (REQ-021 R-001/R-009/R-010/T-0
     expect(JSON.parse(JSON.stringify(state))).toEqual(before);
   });
 
-  it('un enemigo muerto o una unidad viva no generan cadáver', () => {
+  it('una unidad viva o desconocida no genera cadáver', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 0 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 })],
     });
-    const enemyBefore = state.enemies[0];
 
-    const stateAfterEnemy = settleUnitDeath(state, 'enemy-1');
-    const stateAfterAlive = settleUnitDeath(state, 'player-1');
-
-    expect(stateAfterEnemy).toBe(state);
-    expect(stateAfterEnemy.enemies[0]).toEqual(enemyBefore);
-    expect(stateAfterEnemy.containers).toEqual([]);
-    expect(stateAfterAlive).toBe(state);
+    expect(settleUnitDeath(state, 'player-1')).toBe(state);
+    expect(settleUnitDeath(state, 'enemy-1')).toBe(state);
     expect(settleUnitDeath(state, 'missing')).toBe(state);
+    expect(state.containers).toEqual([]);
   });
 });
 

@@ -2,22 +2,32 @@ import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
   BspMapGenerator,
+  allInstances,
+  corpseId,
   createInitialState,
+  createInventory,
   createRng,
   DEFAULT_MAP_OPTIONS,
   DEFAULT_MAP_SEED,
+  emptyEquipment,
   equipmentFromLegacy,
   GameConfigError,
   inventoryFromIds,
   isOccupied,
   isWallAt,
+  itemInstance,
+  locateInstance,
   normalizeSeed,
   PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   reduce,
+  resolveAttack,
+  settleUnitDeath,
   type ArchetypeId,
+  type EquipmentSlots,
   type GameState,
+  type Inventory,
   type MapGenerator,
   type PlayerConfig,
   type PlayerVariant,
@@ -422,6 +432,250 @@ describe('configuración de partida', () => {
       state.players.map(({ id, variant, nombre }) => ({ id, variant, nombre })),
     );
     expect(result.state).toEqual(state);
+  });
+});
+
+describe('muerte de enemigo y cadáver (REQ-034 R-001/R-004/R-007/T-004/T-007)', () => {
+  function fallenEnemy(options: {
+    readonly id?: string;
+    readonly x?: number;
+    readonly y?: number;
+    readonly equipment?: EquipmentSlots;
+    readonly inventory?: Inventory;
+  } = {}) {
+    return makeUnit({
+      id: options.id ?? 'enemy-1',
+      faction: 'enemy',
+      x: options.x ?? 6,
+      y: options.y ?? 5,
+      hp: 0,
+      equipmentSlots: options.equipment ?? emptyEquipment(),
+      inventory: options.inventory ?? createInventory(2),
+    });
+  }
+
+  function corpseOf(state: GameState, unitId: string) {
+    return state.containers?.find((container) => container.corpseOf === unitId);
+  }
+
+  it('transfiere solo los saqueables y descarta el resto con la unidad', () => {
+    const equipment: EquipmentSlots = {
+      ...emptyEquipment(),
+      weapon: itemInstance('item-enemy-1-weapon', 'sword', true),
+      armor: itemInstance('item-enemy-1-armor', 'armor', false),
+      shield: itemInstance('item-enemy-1-shield', 'shield', true),
+    };
+    const inventory: Inventory = {
+      capacity: 3,
+      items: [
+        itemInstance('item-enemy-1-backpack-0', 'dagger', true),
+        itemInstance('item-enemy-1-backpack-1', 'knife', false),
+        null,
+      ],
+    };
+    const state = makeState({
+      players: [],
+      enemies: [fallenEnemy({ equipment, inventory })],
+    });
+    const before = state.enemies[0];
+
+    const settled = settleUnitDeath(state, 'enemy-1');
+    const corpse = corpseOf(settled, 'enemy-1');
+
+    // Orden estable: huecos de EQUIPMENT_SLOTS y después la mochila.
+    expect(corpse?.items.map((item) => item?.id)).toEqual([
+      'item-enemy-1-weapon',
+      'item-enemy-1-shield',
+      'item-enemy-1-backpack-0',
+    ]);
+    expect(corpse?.capacity).toBe(3);
+    expect(corpse).toMatchObject({
+      id: corpseId('enemy-1'),
+      kind: 'corpse',
+      corpseOf: 'enemy-1',
+      x: 6,
+      y: 5,
+    });
+
+    // El enemigo permanece en `enemies` con 0 PV, identidad y stats.
+    expect(settled.enemies).toHaveLength(1);
+    const dead = settled.enemies[0];
+    expect(dead).toMatchObject({ id: 'enemy-1', hp: 0, x: 6, y: 5 });
+    expect(dead.nombre).toBe(before.nombre);
+    expect(dead.stats).toEqual(before.stats);
+    expect(dead.ghost).toBeUndefined();
+    expect(dead.equipment).toEqual(emptyEquipment());
+    expect(dead.inventory).toEqual({ capacity: 3, items: [null, null, null] });
+
+    // Los no saqueables no quedan en ninguna contención.
+    const ids = allInstances(settled).map((instance) => instance.id);
+    expect(ids).not.toContain('item-enemy-1-armor');
+    expect(ids).not.toContain('item-enemy-1-backpack-1');
+    expect(locateInstance(settled, 'item-enemy-1-weapon')).toEqual({
+      kind: 'container',
+      containerId: corpseId('enemy-1'),
+      index: 0,
+    });
+  });
+
+  it('sin ningún saqueable no crea contenedor y vacía la unidad', () => {
+    const state = makeState({
+      players: [],
+      enemies: [
+        fallenEnemy({
+          equipment: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-1-weapon', 'sword', false),
+          },
+          inventory: {
+            capacity: 2,
+            items: [itemInstance('item-enemy-1-backpack-0', 'dagger', false), null],
+          },
+        }),
+      ],
+    });
+
+    const settled = settleUnitDeath(state, 'enemy-1');
+
+    expect(settled.containers).toEqual([]);
+    expect(settled.enemies[0].equipment).toEqual(emptyEquipment());
+    expect(settled.enemies[0].inventory.items.every((item) => item === null)).toBe(true);
+    expect(allInstances(settled)).toEqual([]);
+    // Idempotente: repetir no crea nada ni cambia la referencia.
+    expect(settleUnitDeath(settled, 'enemy-1')).toBe(settled);
+  });
+
+  it('la muerte por ataque deja el cadáver en la casilla y la victoria no cambia', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          hp: 1,
+          equipmentSlots: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-1-weapon', 'sword', true),
+          },
+          inventory: createInventory(),
+        }),
+      ],
+      rng: rngForDice([6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.events).toContainEqual({ type: 'UnitDied', unitId: 'enemy-1' });
+    expect(result.state.enemies).toHaveLength(1);
+    expect(result.state.enemies[0].hp).toBe(0);
+    expect(corpseOf(result.state, 'enemy-1')).toMatchObject({
+      id: corpseId('enemy-1'),
+      kind: 'corpse',
+      x: 6,
+      y: 5,
+      capacity: 1,
+    });
+    expect(result.state.status).toBe('victory');
+  });
+
+  it('la réplica del jugador que mata al enemigo también crea su cadáver', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          hp: 1,
+          equipmentSlots: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-1-weapon', 'sword', true),
+          },
+          inventory: createInventory(),
+        }),
+      ],
+      rng: rngForDice([1, 6, 6, 1, 3, 3]),
+    });
+
+    const result = resolveAttack(state, 'enemy-1', 'player-1');
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.events.map((event) => event.type)).toEqual([
+      'AttackPerformed',
+      'ReplicaPerformed',
+      'UnitDied',
+    ]);
+    expect(result.state.players[0].hp).toBeGreaterThan(0);
+    expect(result.state.enemies[0].hp).toBe(0);
+    expect(corpseOf(result.state, 'enemy-1')?.capacity).toBe(1);
+  });
+
+  it('el cadáver no bloquea y varios comparten casilla con un vivo', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+      enemies: [
+        fallenEnemy({
+          id: 'enemy-1',
+          x: 5,
+          y: 5,
+          equipment: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-1-weapon', 'sword', true),
+          },
+        }),
+        fallenEnemy({
+          id: 'enemy-2',
+          x: 5,
+          y: 5,
+          equipment: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-2-weapon', 'axe', true),
+          },
+        }),
+      ],
+    });
+
+    const settled = settleUnitDeath(
+      settleUnitDeath(state, 'enemy-1'),
+      'enemy-2',
+    );
+    expect(settled.containers).toHaveLength(2);
+    expect(isOccupied(settled, 5, 5)).toBe(false);
+
+    const moved = reduce(settled, { type: 'Move', unitId: 'player-1', dx: 1, dy: 0 });
+    expect(moved.state.players[0].x).toBe(5);
+    expect(moved.state.players[0].y).toBe(5);
+    expect(moved.state.containers).toHaveLength(2);
+  });
+
+  it('es idempotente, serializable y no toca el RNG', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+      enemies: [
+        fallenEnemy({
+          equipment: {
+            ...emptyEquipment(),
+            weapon: itemInstance('item-enemy-1-weapon', 'sword', true),
+            armor: itemInstance('item-enemy-1-armor', 'armor', false),
+          },
+        }),
+      ],
+      rng: createRng(1017),
+    });
+
+    const settled = settleUnitDeath(state, 'enemy-1');
+
+    expect(settleUnitDeath(settled, 'enemy-1')).toBe(settled);
+    expect(settled.rng).toEqual(state.rng);
+    expect(JSON.parse(JSON.stringify(settled))).toEqual(settled);
   });
 });
 

@@ -8,6 +8,7 @@ import {
   inventoryFromIds,
   locateInstance,
   reduce,
+  settleUnitDeath,
   type Container,
   type EquipmentSlots,
   type GameState,
@@ -834,5 +835,107 @@ describe('costes, sin apilado y alarma', () => {
       unitId: 'player-1',
       index: 1,
     });
+  });
+});
+
+describe('retirada del cadáver al vaciarlo (REQ-034 T-007)', () => {
+  it('el cadáver de enemigo se elimina al coger su último objeto', () => {
+    const state = settleUnitDeath(
+      makeState({
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+        enemies: [
+          makeUnit({
+            id: 'enemy-1',
+            faction: 'enemy',
+            x: 5,
+            y: 5,
+            hp: 0,
+            equipmentSlots: slots('enemy-1', 'sword', null, null),
+            inventory: createInventory(),
+          }),
+        ],
+      }),
+      'enemy-1',
+    );
+    expect(state.containers).toHaveLength(1);
+
+    const taken = equipItem(state, 'player-1', {
+      kind: 'container',
+      containerId: 'corpse-enemy-1',
+      itemId: 'item-enemy-1-weapon',
+    });
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(taken.state.containers).toEqual([]);
+    expect(taken.state.players[0].equipment.weapon?.id).toBe('item-enemy-1-weapon');
+  });
+
+  it('el cadáver de enemigo con objetos restantes permanece', () => {
+    const state = settleUnitDeath(
+      makeState({
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+        enemies: [
+          makeUnit({
+            id: 'enemy-1',
+            faction: 'enemy',
+            x: 5,
+            y: 5,
+            hp: 0,
+            equipmentSlots: slots('enemy-1', 'sword', 'armor', null),
+            inventory: createInventory(),
+          }),
+        ],
+      }),
+      'enemy-1',
+    );
+
+    const taken = equipItem(state, 'player-1', {
+      kind: 'container',
+      containerId: 'corpse-enemy-1',
+      itemId: 'item-enemy-1-weapon',
+    });
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(taken.state.containers).toHaveLength(1);
+    expect(taken.state.containers?.[0].items).toEqual([
+      null,
+      expect.objectContaining({ id: 'item-enemy-1-armor' }),
+    ]);
+  });
+
+  it('el cadáver de jugador persiste vacío al coger su último objeto', () => {
+    const state = settleUnitDeath(
+      makeState({
+        players: [
+          makeUnit({
+            id: 'player-1',
+            faction: 'player',
+            x: 5,
+            y: 5,
+            hp: 0,
+            equipmentSlots: slots('player-1', 'sword', null, null),
+            inventory: createInventory(),
+          }),
+          makeUnit({ id: 'player-2', faction: 'player', x: 4, y: 5 }),
+        ],
+        enemies: [],
+      }),
+      'player-1',
+    );
+
+    const taken = equipItem(state, 'player-2', {
+      kind: 'container',
+      containerId: 'corpse-player-1',
+      itemId: 'item-player-1-weapon',
+    });
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    const corpse = taken.state.containers?.[0];
+    expect(taken.state.containers).toHaveLength(1);
+    expect(corpse?.id).toBe('corpse-player-1');
+    expect(corpse?.items).toEqual([null]);
+    expect(corpse?.corpseOf).toBe('player-1');
   });
 });

@@ -274,6 +274,25 @@ function containerById(state: GameState, id: string): Container | undefined {
   return (state.containers ?? []).find((container) => container.id === id);
 }
 
+/**
+ * Retira del estado el cadáver de enemigo que se ha quedado sin instancias
+ * (REQ-034 T-007). El cadáver de jugador se conserva con huecos `null` como
+ * objetivo de resurrección (REQ-021 R-007). Es la ruta única de retirada: los
+ * cofres y fixtures sin `corpseOf` de enemigo nunca se eliminan aquí.
+ */
+function withoutEmptyEnemyCorpse(state: GameState, container: Container): GameState {
+  if (container.kind !== 'corpse' || container.corpseOf === undefined) return state;
+  if (container.items.some((item) => item !== null)) return state;
+  const isEnemyCorpse = state.enemies.some((unit) => unit.id === container.corpseOf);
+  if (!isEnemyCorpse) return state;
+  return {
+    ...state,
+    containers: (state.containers ?? []).filter(
+      (candidate) => candidate.id !== container.id,
+    ),
+  };
+}
+
 function groundItemAt(state: GameState, x: number, y: number): GroundItem | undefined {
   return groundItems(state).find((item) => item.x === x && item.y === y);
 }
@@ -392,9 +411,10 @@ function locateSource(
   if (!instance) return { error: 'no-item' };
   const items = [...container.items];
   items[index] = null;
+  const updated: Container = { ...container, items };
   return {
     instance,
-    state: replaceContainer(state, { ...container, items }),
+    state: withoutEmptyEnemyCorpse(replaceContainer(state, updated), updated),
     unit,
   };
 }
