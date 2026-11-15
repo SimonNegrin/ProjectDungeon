@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0131 — done: cadáver de jugador como `Container` en su casilla con todo el equipo y la mochila sin tirada, unidad con `hp: 0` sin objetos e identidad estable, persistente al vaciarse; snapshot con `kind`/`corpseOf`; verify 101/1502; fusión `80229f3` — [informe](../artifacts/TASK-0131/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0130 — done: `lootable` por instancia con defecto saqueable, `lootPolicy` 25 %/100 % en datos y tirada por objeto con RNG derivado de semilla e id sin tocar el RNG principal; snapshot con `lootPolicy` derivada; verify 100/1491 y 3/3 de fixture E2E; fusión `19bb5b5` — [informe](../artifacts/TASK-0130/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0160 — done: el barrido de 600 mapas de EXP-004 se parte en `growth`, `bsp` y `templates`, 200 semillas cada uno y `{ timeout: 15_000 }` local con comentario; mismas cinco aserciones, etiquetas y muestra; aislado 766/1466/889 ms, `pnpm run test` 99/1473 dos veces y verify OK; fusión `84fa956` — [informe](../artifacts/TASK-0160/attempt-1/report.md)

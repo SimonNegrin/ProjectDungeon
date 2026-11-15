@@ -220,7 +220,11 @@ exactamente en un sitio.
   `GameState.containers`; `ItemLocation` y `locateInstance` no mantienen listas
   paralelas. `pickUpItem`, `equipItem`, `unequipItem` y `dropItem` son puros y
   atómicos: validan antes de mover, cuestan 1 MP y no gastan acción. `Container`
-  existe como tipo; los cofres jugables llegan con
+  es la representación única de cofres y cadáveres; desde TASK-0131 el cadáver
+  de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
+  todo su equipo y mochila sin tirada y persiste al vaciarse. La ampliación
+  (`kind`/`corpseOf` opcionales) es aditiva; REQ-020 puede revisar el modelo
+  antes de publicar la v1 de guardado. Los cofres jugables llegan con
   [REQ-020](../requirements/REQ-020-cofres-saqueo.md).
 - **Punto único de stats efectivos**: `src/game/stats.ts` agrega atributos
   inherentes, modificadores del equipo y traits con `aggregateEffectiveStats` y
