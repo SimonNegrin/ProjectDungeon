@@ -38,7 +38,7 @@ test('dos jugadores: roster, variante, nombre y aviso de party', async ({ page }
   await expect(page.getByTestId('player-position')).toHaveText('Jugador 1 de 2');
   await expect(page.getByTestId('player-status')).toContainText('Jugador 1 de 2');
   await expect(
-    page.getByTestId('player-archetypes').getByRole('button'),
+    page.getByTestId('player-archetype-options').getByRole('button'),
   ).toHaveCount(9);
   await expect(page.getByTestId('player-variant-1')).toBeVisible();
   await expect(page.getByTestId('player-variant-2')).toBeVisible();
@@ -120,6 +120,106 @@ test('dos jugadores: roster, variante, nombre y aviso de party', async ({ page }
   expect(errors).toEqual([]);
 });
 
+test('ficha del arquetipo: datos, miniaturas y teclado', async ({ page }, testInfo) => {
+  const errors: string[] = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await openTwoPlayers(page);
+
+  const sheet = page.getByTestId('player-sheet');
+  await expect(sheet).toBeVisible();
+  await expect(page.getByTestId('player-sheet-name')).toHaveText('Guerrero');
+  await expect(sheet.locator('[data-testid^="player-sheet-stat-"]')).toHaveCount(9);
+  await expect(page.getByTestId('player-sheet-stat-magia')).toContainText('0');
+  await expect(page.getByTestId('player-sheet-stat-pv')).toContainText('20');
+  await expect(page.getByTestId('player-sheet-stat-mp')).toContainText('6');
+  await expect(page.getByTestId('player-sheet-stat-acciones')).toContainText('2');
+  await expect(page.getByTestId('player-sheet-weapon')).toHaveText(
+    'Arma temática: Espada',
+  );
+
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-label',
+    'Guerrero, variante 1',
+  );
+  await expect(page.getByTestId('player-variant-2')).toHaveAttribute(
+    'aria-label',
+    'Guerrero, variante 2',
+  );
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-variant-selected-1')).toBeVisible();
+  await expect(page.getByTestId('player-variant-selected-1')).toHaveText(
+    'Seleccionada',
+  );
+  await expect(page.getByTestId('player-variant-selected-2')).toBeHidden();
+  await save(page, testInfo, 'ficha-guerrero-1280x720');
+
+  await page.getByTestId('player-archetype-mage').click();
+  await expect(page.getByTestId('player-sheet-name')).toHaveText('Mago');
+  await expect(page.getByTestId('player-sheet-weapon')).toHaveText(
+    'Arma temática: bastón (futura)',
+  );
+  await expect(page.getByTestId('player-sheet-stat-magia')).toContainText('4');
+  await expect(page.getByTestId('player-sheet-stat-pv')).toContainText('12');
+  await expect(page.getByTestId('player-sheet-stat-mp')).toContainText('5');
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-label',
+    'Mago, variante 1',
+  );
+  await expect(page.getByTestId('player-variant-2')).toHaveAttribute(
+    'aria-label',
+    'Mago, variante 2',
+  );
+  // Cambiar de arquetipo devuelve la variante a 1.
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-variant-selected-1')).toBeVisible();
+  await expect(page.getByTestId('player-variant-selected-2')).toBeHidden();
+
+  await page.getByTestId('player-variant-2').click();
+  await expect(page.getByTestId('player-variant-2')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  await expect(page.getByTestId('player-variant-selected-2')).toBeVisible();
+  await expect(page.getByTestId('player-variant-selected-2')).toHaveText(
+    'Seleccionada',
+  );
+  await expect(page.getByTestId('player-variant-selected-1')).toBeHidden();
+  await save(page, testInfo, 'ficha-mago-1280x720');
+
+  // Teclado: desde Guerrero, Tab al siguiente arquetipo y Enter actualiza ficha.
+  await page.getByTestId('player-archetype-warrior').click();
+  await expect(page.getByTestId('player-archetype-warrior')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByTestId('player-archetype-barbarian')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('player-sheet-name')).toHaveText('Bárbaro');
+  await expect(page.getByTestId('player-sheet-weapon')).toHaveText(
+    'Arma temática: Hacha',
+  );
+
+  // Siete arquetipos restantes + variante 1 llevan el foco a la variante 2.
+  for (let step = 0; step < 9; step += 1) await page.keyboard.press('Tab');
+  await expect(page.getByTestId('player-variant-2')).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('player-variant-2')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-variant-selected-2')).toBeVisible();
+
+  expect(errors).toEqual([]);
+});
+
 test('reentrada tras cancelar no duplica los arquetipos', async ({ page }) => {
   await openTwoPlayers(page);
 
@@ -132,12 +232,19 @@ test('reentrada tras cancelar no duplica los arquetipos', async ({ page }) => {
   await page.getByTestId('step1-continue').click();
   await expect(page.getByTestId('player-screen')).toBeVisible();
 
-  const buttons = page.getByTestId('player-archetypes').getByRole('button');
+  const buttons = page.getByTestId('player-archetype-options').getByRole('button');
   await expect(buttons).toHaveCount(9);
-  const ids = await buttons.evaluateAll((elements) =>
-    elements.map((element) => element.getAttribute('data-testid') ?? ''),
-  );
-  expect(new Set(ids).size).toBe(9);
+  await expect(page.getByTestId('player-sheet')).toHaveCount(1);
+  await expect(page.getByTestId('player-variants')).toHaveCount(1);
+  await expect(page.getByTestId('player-variant-1')).toHaveCount(1);
+  await expect(page.getByTestId('player-variant-2')).toHaveCount(1);
+  const ids = await page
+    .getByTestId('player-archetypes')
+    .locator('[data-testid]')
+    .evaluateAll((elements) =>
+      elements.map((element) => element.getAttribute('data-testid') ?? ''),
+    );
+  expect(new Set(ids).size).toBe(ids.length);
 
   // El botón del nuevo montaje responde al modelo activo, no a uno destruido.
   await page.getByTestId('player-archetype-mage').click();
