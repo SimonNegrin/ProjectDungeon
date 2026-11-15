@@ -391,9 +391,11 @@ tocar la sesión y vuelve a engancharlos al reanudar.
 hechizos están abiertos, el primer `Esc` los cierra. `src/host/keymap.ts` es la
 fuente única de teclas: de él salen el traductor de input, la ayuda del HUD y la
 lista de controles de la pausa. Guardar se desactiva fuera de la fase de
-personajes, con animación o con paneo; la descarga y la lectura de archivos se
-conectan en tareas posteriores. «Nueva partida» confirma y abre el paso 1 del
-arranque.
+personajes, con animación o con paneo; al activarse descarga un único `.zip`
+construido desde el estado del motor con el nombre
+`proyectdungeon-<semilla>-<AAAAMMDD-HHmmss>.zip`, y un error se anuncia sin
+descarga parcial. La lectura de archivos llega en tareas posteriores. «Nueva
+partida» confirma y abre el paso 1 del arranque.
 
 # Suelo y decoración
 
