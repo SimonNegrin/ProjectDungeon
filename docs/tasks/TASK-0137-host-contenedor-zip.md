@@ -4,22 +4,32 @@ id: TASK-0137
 title: "Host: contenedor .zip"
 description: "Implementar lectura y escritura de un `.zip` propio con `deflate`/`store`, sin dependencias ni red, con límites de entradas y tamaño."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-004, T-003, T-006]
 depends_on: []
 unlocks: [TASK-0140, TASK-0141]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T00:12:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0137/
 priority: P2
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T00:12:00Z
+    note: >-
+      Intento 1 verificado (código `501e623`, tests `5ceeddd`, artefactos
+      `e674b8e`). Diff revisado: solo `src/host/save-zip.ts`, el test nuevo y
+      artefactos; sin tests debilitados ni cambios de dependencias. `pnpm run
+      verify` reejecutado: 95 archivos/1377 tests, tsc, build y bundle OK; la
+      pasada del runner falló solo por el flake de EXP-004, aislado 20/20.
+      33/33 tests del zip, `unzip -t`/`-p` y límites antes de descomprimir.
+      Evidencia en `attempt-1/lead-verify/`. TASK-0145 cubre la documentación.
 ---
 
 # Objetivo
@@ -40,17 +50,17 @@ Esta tarea es infraestructura de archivo: no define el esquema de la partida
 
 # Criterios de aceptación
 
-- [ ] El escritor produce un `.zip` válido, legible por un lector estándar, con
+- [x] El escritor produce un `.zip` válido, legible por un lector estándar, con
       `manifiesto.json` y `partida.json` en la raíz.
-- [ ] El lector acepta entradas `store` y `deflate`; rechaza carpetas, rutas,
+- [x] El lector acepta entradas `store` y `deflate`; rechaza carpetas, rutas,
       entradas extra y nombres fuera de los dos permitidos.
-- [ ] Se aplican los límites: 5 MB comprimido, 20 MB descomprimido, 4 entradas y
+- [x] Se aplican los límites: 5 MB comprimido, 20 MB descomprimido, 4 entradas y
       5 MB por archivo; el rechazo ocurre antes de descomprimir cuando aplica.
-- [ ] Los errores son tipados y no dejan estado parcial ni consumen memoria
+- [x] Los errores son tipados y no dejan estado parcial ni consumen memoria
       desmedida.
-- [ ] No se usan dependencias nuevas, red ni `eval`; `package.json` y
+- [x] No se usan dependencias nuevas, red ni `eval`; `package.json` y
       `pnpm-lock.yaml` no cambian.
-- [ ] Tests con zip válido, corrupto, entradas extra, rutas, exceso de tamaño y
+- [x] Tests con zip válido, corrupto, entradas extra, rutas, exceso de tamaño y
       round-trip; `pnpm run verify` pasa.
 
 # Plan de test
@@ -63,9 +73,9 @@ Esta tarea es infraestructura de archivo: no define el esquema de la partida
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0137/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0137/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
