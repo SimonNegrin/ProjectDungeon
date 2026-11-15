@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0125 — done: ficha del arquetipo con nueve atributos, arma y magia desde el roster, las 18 celdas de sprites de REQ-016 y dos miniaturas con variante seleccionada, texto y reset a 1; verify 98 archivos/1434 tests y E2E 224/224; fusión `9bcb9ce` — [informe](../artifacts/TASK-0125/attempt-1/report.md)
+
 * 2026-11-15 — Harness — permisos — `requirements-writer` bloqueado horas por un `ask` que mezclaba `lsof`, `echo "---"` y `git log`: literal del echo entrecomillado, separar redirecciones y multilínea, un `ask` no caduca y `lsof`/`ps` fuera de rol — [config](../opencode.jsonc), [workflow](harness/workflow.md#shell-y-autorización), [agente](../.opencode/agents/requirements-writer.md)
 
 * 2026-11-15 — Task — TASK-0124 — done: configuración jugador a jugador con los 9 arquetipos, variantes 1/2 y nombre NFC de 12 code points; avance/retroceso conserva valores, el último «Siguiente» emite la party, cancelación confirmada al menú y reentrada sin duplicar controles; verify 97 archivos/1426 tests y E2E 223/223; fusión `db1e478` — [informe](../artifacts/TASK-0124/attempt-1/report.md)

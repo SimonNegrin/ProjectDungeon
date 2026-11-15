@@ -114,7 +114,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0122](TASK-0122-motor-configuracion-partida-constructor-unico.md) | Motor: configuración de partida y constructor único | `done` | REQ-016 | — | P1 |
 | [TASK-0123](TASK-0123-host-menu-principal-paso-1.md) | Host: menú principal y paso 1 | `done` | REQ-016 | TASK-0122 | P1 |
 | [TASK-0124](TASK-0124-host-pantalla-jugador-roster-nombre.md) | Host: pantalla de jugador (roster, nombre, navegación) | `done` | REQ-016 | TASK-0122, TASK-0123 | P1 |
-| [TASK-0125](TASK-0125-host-ficha-arquetipo-miniaturas.md) | Host: ficha de arquetipo y miniaturas | `backlog` | REQ-016 | TASK-0122, TASK-0123, TASK-0124 | P1 |
+| [TASK-0125](TASK-0125-host-ficha-arquetipo-miniaturas.md) | Host: ficha de arquetipo y miniaturas | `done` | REQ-016 | TASK-0122, TASK-0123, TASK-0124 | P1 |
 | [TASK-0126](TASK-0126-host-resumen-empezar-estado-inicial.md) | Host: resumen, Empezar y estado inicial | `backlog` | REQ-016 | TASK-0124, TASK-0125 | P1 |
 | [TASK-0127](TASK-0127-render-variante-mapa-miniatura-hud.md) | Render: variante en mapa y miniatura HUD | `backlog` | REQ-016 | TASK-0122, TASK-0124, TASK-0125 | P1 |
 | [TASK-0129](TASK-0129-qa-e2e-pantalla-inicio.md) | QA/E2E de la pantalla de inicio | `backlog` | REQ-016 | TASK-0123, TASK-0124, TASK-0125, TASK-0126, TASK-0127 | P1 |
@@ -171,7 +171,6 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0125 — Host: ficha de arquetipo y miniaturas](TASK-0125-host-ficha-arquetipo-miniaturas.md)
 * [TASK-0126 — Host: resumen, Empezar y estado inicial](TASK-0126-host-resumen-empezar-estado-inicial.md)
 * [TASK-0127 — Render: variante en mapa y miniatura HUD](TASK-0127-render-variante-mapa-miniatura-hud.md)
 * [TASK-0129 — QA/E2E de la pantalla de inicio](TASK-0129-qa-e2e-pantalla-inicio.md)
@@ -317,6 +316,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0122 — Motor: configuración de partida y constructor único](TASK-0122-motor-configuracion-partida-constructor-unico.md)
 * [TASK-0123 — Host: menú principal y paso 1](TASK-0123-host-menu-principal-paso-1.md)
 * [TASK-0124 — Host: pantalla de jugador (roster, nombre, navegación)](TASK-0124-host-pantalla-jugador-roster-nombre.md)
+* [TASK-0125 — Host: ficha de arquetipo y miniaturas](TASK-0125-host-ficha-arquetipo-miniaturas.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
