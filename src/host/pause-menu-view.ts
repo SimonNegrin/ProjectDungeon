@@ -317,7 +317,12 @@ export function createPauseMenuView(
       section.hidden = true;
       const target = previousFocus;
       previousFocus = null;
-      if (target && target.isConnected && !isEditable(target)) {
+      if (
+        target &&
+        target !== document.body &&
+        target.isConnected &&
+        !isEditable(target)
+      ) {
         target.focus({ preventScroll: true });
         return;
       }

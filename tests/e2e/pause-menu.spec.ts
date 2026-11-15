@@ -112,6 +112,7 @@ test('TASK-0139: Esc abre la pausa con cinco acciones en orden, foco y ayuda der
   // Esc en la raíz reanuda sin tocar la partida.
   await page.keyboard.press('Escape');
   await expect(page.getByTestId('pause-menu')).toBeHidden();
+  await expect(page.getByTestId('frame')).toBeFocused();
   const resumed = await snapshot(page);
   expect(resumed.phase).toBe(before.phase);
   expect(resumed.turn).toBe(before.turn);
