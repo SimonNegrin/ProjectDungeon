@@ -201,7 +201,8 @@ function bandScenario(): GameState {
     players: [player],
     enemies: [visible, hidden],
     phase: 'player',
-    turn: 1,
+    activePlayerId: player.id,
+    round: 1,
     status: 'playing',
     rng: { seed: SEED, state: 1 },
   };
@@ -286,7 +287,8 @@ function mageScenario(options: MageOptions = {}): GameState {
     players: options.withCorpse ? [mageUnit, allyUnit, corpseUnit] : [mageUnit, allyUnit],
     enemies: [enemy],
     phase: 'player',
-    turn: 1,
+    activePlayerId: mageUnit.id,
+    round: 1,
     status: 'playing',
     rng: { seed: SEED, state: options.rngState ?? 0 },
   };

@@ -109,7 +109,8 @@ function roomState(players: readonly Unit[]): GameState {
     groundItems: [],
     containers: [],
     phase: 'player',
-    turn: 1,
+    activePlayerId: players[0]?.id ?? null,
+    round: 1,
     status: 'playing',
     rng: createRng(SEED),
   };
@@ -972,7 +973,7 @@ for (const viewport of VIEWPORTS) {
       expect(area.stats.top).toBeGreaterThanOrEqual(area.weapon.bottom - 1);
       expect(area.character.right).toBeLessThanOrEqual(area.left.right + 1);
       await expectDebug(page, [
-        'Fase: Jugador · Turno 1',
+        'Fase: Jugador · Ronda 1',
         'Estado: En juego',
         'Enemigo:',
       ]);

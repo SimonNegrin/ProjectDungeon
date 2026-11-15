@@ -212,9 +212,9 @@ function applyEnemyPlan(state: GameState, enemy: Unit): TurnResult {
  * control al jugador restaurando MP y acción.
  */
 export function resolveEndTurn(state: GameState): TurnResult {
-  const events: GameEvent[] = [{ type: 'TurnEnded', turn: state.turn }];
+  const events: GameEvent[] = [{ type: 'TurnEnded', turn: state.round }];
   let next = restoreEnemyTurn(state);
-  events.push({ type: 'EnemyPhaseStarted', turn: state.turn });
+  events.push({ type: 'EnemyPhaseStarted', turn: state.round });
 
   for (const original of next.enemies) {
     if (next.status !== 'playing') break;
@@ -247,8 +247,8 @@ export function resolveEndTurn(state: GameState): TurnResult {
   }
 
   if (next.status === 'playing') {
-    next = restorePlayerTurn({ ...next, turn: next.turn + 1 });
-    events.push({ type: 'PlayerTurnStarted', turn: next.turn });
+    next = restorePlayerTurn({ ...next, round: next.round + 1 });
+    events.push({ type: 'PlayerTurnStarted', turn: next.round });
   }
 
   return { state: next, events };

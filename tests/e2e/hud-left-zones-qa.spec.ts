@@ -32,7 +32,8 @@ function roomState(players: readonly Unit[]): GameState {
     groundItems: [],
     containers: [],
     phase: 'player',
-    turn: 1,
+    activePlayerId: players[0]?.id ?? null,
+    round: 1,
     status: 'playing',
     rng: createRng(SEED),
   };
@@ -268,7 +269,7 @@ for (const viewport of VIEWPORTS) {
 
       // F1 conserva lo que el HUD retiró.
       await expectDebug(page, [
-        'Fase: Jugador · Turno 1',
+        'Fase: Jugador · Ronda 1',
         'Estado: En juego',
         'Enemigo:',
       ]);

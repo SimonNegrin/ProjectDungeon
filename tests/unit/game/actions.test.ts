@@ -88,12 +88,12 @@ describe('contador de acciones', () => {
 
     expect(attacked.state.players[0].actions.remaining).toBe(0);
     expect(attacked.state.phase).toBe('player');
-    expect(attacked.state.turn).toBe(1);
+    expect(attacked.state.round).toBe(1);
     expect(attacked.state.status).toBe('playing');
 
     const ended = reduce(attacked.state, { type: 'EndTurn' });
 
-    expect(ended.state.turn).toBe(2);
+    expect(ended.state.round).toBe(2);
     expect(ended.state.players[0].actions.remaining).toBe(2);
   });
 

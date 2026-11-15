@@ -344,7 +344,7 @@ describe('estado visible retrasado hasta su cue', () => {
   });
 
   it('fase enemiga, fin de partida y alarma usan el atMs secuenciado', () => {
-    const restored = makeState({ turn: 2, status: 'victory' });
+    const restored = makeState({ round: 2, status: 'victory' });
     const events: GameEvent[] = [
       moved('player-1', { x: 2, y: 2 }, { x: 3, y: 2 }, 5),
       { type: 'TurnEnded', turn: 1 },
@@ -366,11 +366,11 @@ describe('estado visible retrasado hasta su cue', () => {
 
     const beforePhase = presentationState(restored, timeline, enemyPhase.atMs - 1);
     expect(beforePhase.phase).toBe('player');
-    expect(beforePhase.turn).toBe(2);
+    expect(beforePhase.round).toBe(2);
 
     const afterPhase = presentationState(restored, timeline, enemyPhase.atMs);
     expect(afterPhase.phase).toBe('enemy');
-    expect(afterPhase.turn).toBe(1);
+    expect(afterPhase.round).toBe(1);
 
     const beforeEnd = presentationState(restored, timeline, ended.atMs - 1);
     expect(beforeEnd.status).toBe('playing');

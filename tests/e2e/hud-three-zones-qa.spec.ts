@@ -58,7 +58,8 @@ function roomState(options: {
     groundItems: options.groundItems ?? [],
     containers: [],
     phase: 'player',
-    turn: 1,
+    activePlayerId: options.players[0]?.id ?? null,
+    round: 1,
     status: 'playing',
     rng: createRng(279837264),
   };

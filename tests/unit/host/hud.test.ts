@@ -556,7 +556,7 @@ describe('modelo del HUD', () => {
     const next = endTurn(state);
     const model = buildHudModel(next);
 
-    expect(next.turn).toBe(2);
+    expect(next.round).toBe(2);
     expect(next.phase).toBe('player');
     expect(model.playerHp).toBe(`${next.players[0].hp}/${next.players[0].maxHp}`);
     expect(model.playerMp).toBe(`${next.players[0].mp}/${next.players[0].maxMp}`);
@@ -647,7 +647,10 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('MP 6/6');
     expect(text).toContain('Acciones 2/2');
     expect(text).toContain('Enemigo: (15, 15)');
-    expect(text).toContain('Fase: Jugador · Turno 1');
+    expect(text).toContain(
+      'Fase: Jugador · Ronda 1 · Activo player-1 (1/1) · Estado: En juego',
+    );
+    expect(text).toContain('Orden de party: player-1');
     expect(text).toContain('Cursor: (4, 4) jugador · camino 0');
     expect(text).toContain('Cámara: (0, 0) · Límites (224, 224) · Viewport 416×416');
     expect(text).toContain('Semilla: n/a (determinista)');

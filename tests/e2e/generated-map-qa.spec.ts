@@ -838,7 +838,7 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   await page.keyboard.press('F1');
   await expect(overlay).toBeVisible();
   const debugText = (await page.getByTestId('debug-content').textContent()) ?? '';
-  expect(debugText).toContain('Fase: Jugador · Turno 1');
+  expect(debugText).toContain('Fase: Jugador · Ronda 1');
   expect(debugText).toContain(
     `Enemigo: (${initial.enemies[0].x}, ${initial.enemies[0].y}) · HP ${initial.enemies[0].hp}/${initial.enemies[0].maxHp}`,
   );

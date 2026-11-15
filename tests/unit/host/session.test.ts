@@ -79,7 +79,7 @@ describe('sesión de juego', () => {
     expect(types).toContain('EnemyPhaseStarted');
     expect(types).toContain('PlayerTurnStarted');
     expect(session.state.phase).toBe('player');
-    expect(session.state.turn).toBe(2);
+    expect(session.state.round).toBe(2);
     expect(session.state.players[0]).toMatchObject({
       hp: initial.players[0].hp - damage,
       mp: initial.players[0].maxMp,
@@ -229,7 +229,7 @@ describe('sesión de juego', () => {
     expect(session.seed).toBe(123456789);
     expect(session.state.map?.seed).toBe(123456789);
     expect(JSON.parse(JSON.stringify(session.state.map))).not.toEqual(before);
-    expect(session.state.turn).toBe(1);
+    expect(session.state.round).toBe(1);
     expect(session.state.status).toBe('playing');
   });
 

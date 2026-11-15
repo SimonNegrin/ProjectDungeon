@@ -171,20 +171,29 @@ export interface StateOptions {
   readonly groundItems?: readonly GroundItem[];
   readonly containers?: readonly Container[];
   readonly phase?: Phase;
-  readonly turn?: number;
+  /** Ronda 1-based; por defecto 1. */
+  readonly round?: number;
+  /** Id del activo; por defecto, el primer jugador (o `null` sin jugadores). */
+  readonly activePlayerId?: string | null;
   readonly status?: GameState['status'];
   readonly rng?: RngState;
 }
 
 export function makeState(options: StateOptions = {}): GameState {
+  const players =
+    options.players ?? [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })];
   return {
     grid: options.grid ?? createRoomGrid(20, 20),
-    players: options.players ?? [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+    players,
     enemies: options.enemies ?? [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 15 })],
     groundItems: options.groundItems ?? [],
     containers: options.containers ?? [],
     phase: options.phase ?? 'player',
-    turn: options.turn ?? 1,
+    activePlayerId:
+      options.activePlayerId !== undefined
+        ? options.activePlayerId
+        : players[0]?.id ?? null,
+    round: options.round ?? 1,
     status: options.status ?? 'playing',
     rng: options.rng ?? createRng(1017),
   };

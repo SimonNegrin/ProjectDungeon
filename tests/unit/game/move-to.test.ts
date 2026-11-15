@@ -53,7 +53,7 @@ describe('MoveTo', () => {
       actions: { remaining: 2 },
     });
     expect(result.state.phase).toBe('player');
-    expect(result.state.turn).toBe(1);
+    expect(result.state.round).toBe(1);
     expect(result.events.map((event) => event.type)).toEqual([
       'UnitMoved',
       'UnitMoved',
@@ -89,7 +89,7 @@ describe('MoveTo', () => {
       actions: { remaining: 2 },
     });
     expect(result.state.players[0]).not.toMatchObject({ x: 6, y: 5 });
-    expect(result.state.turn).toBe(1);
+    expect(result.state.round).toBe(1);
     expect(result.events).toHaveLength(2);
     expect(result.events.every((event) => event.type === 'UnitMoved')).toBe(true);
     expect(result.events.some((event) => event.type === 'AttackPerformed')).toBe(false);

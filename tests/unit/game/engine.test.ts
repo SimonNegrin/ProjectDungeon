@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  activePlayer,
+  activePlayerIndex,
   BESTIARY,
   BspMapGenerator,
   allInstances,
@@ -18,6 +20,7 @@ import {
   itemInstance,
   locateInstance,
   normalizeSeed,
+  partyOrder,
   PICKUP_COST,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
@@ -98,7 +101,7 @@ describe('engine state', () => {
     });
     expect(PLAYER_MAX_MP).toBe(6);
     expect(state.phase).toBe('player');
-    expect(state.turn).toBe(1);
+    expect(state.round).toBe(1);
     expect(state.status).toBe('playing');
   });
 
@@ -243,7 +246,7 @@ describe('engine state', () => {
     const dirty = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 9, y: 9, hp: 4, mp: 0 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 10, y: 9, hp: 2 })],
-      turn: 7,
+      round: 7,
       status: 'victory',
     });
 
@@ -263,6 +266,96 @@ describe('engine state', () => {
         { type: 'CommandRejected', commandType: 'Move', reason: 'game-over' },
       ]);
     }
+  });
+});
+
+describe('estado de partida: party, activo y ronda (REQ-031 T-001)', () => {
+  const ARCHETYPES = [
+    'warrior',
+    'rogue',
+    'mage',
+    'cleric',
+    'archer',
+    'barbarian',
+  ] as const;
+
+  function partyConfig(count: number): readonly PlayerConfig[] {
+    return ARCHETYPES.slice(0, count).map((archetypeId, index) => ({
+      archetypeId,
+      variant: (index % 2 === 0 ? 1 : 2) as PlayerVariant,
+      name: '',
+    }));
+  }
+
+  it('escribe activo, ronda y orden de party con 1, 2 y 6 jugadores', () => {
+    for (const count of [1, 2, 6]) {
+      const configs = partyConfig(count);
+      const state = createInitialState({
+        generator: new BspMapGenerator(),
+        players: configs,
+      });
+      const ids = configs.map((_, index) => `player-${index + 1}`);
+
+      expect(state.activePlayerId).toBe('player-1');
+      expect(state.round).toBe(1);
+      expect(state.phase).toBe('player');
+      expect(state.players.map((player) => player.id)).toEqual(ids);
+      expect(partyOrder(state)).toEqual(ids);
+      expect(activePlayer(state)?.id).toBe('player-1');
+      expect(activePlayerIndex(state)).toBe(0);
+    }
+  });
+
+  it('el round-trip JSON conserva activo, ronda y orden', () => {
+    const state = createInitialState({
+      generator: new BspMapGenerator(),
+      players: partyConfig(6),
+    });
+    const restored = JSON.parse(JSON.stringify(state)) as GameState;
+
+    expect(restored).toEqual(state);
+    expect(restored.activePlayerId).toBe('player-1');
+    expect(restored.round).toBe(1);
+    expect(partyOrder(restored)).toEqual(partyOrder(state));
+    expect(activePlayer(restored)?.id).toBe('player-1');
+  });
+
+  it('los helpers leen el activo por id y no mutan el estado', () => {
+    const players = [
+      makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
+      makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 4 }),
+    ];
+    const state = makeState({ players, activePlayerId: 'player-2' });
+    const before = JSON.stringify(state);
+
+    expect(partyOrder(state)).toEqual(['player-1', 'player-2']);
+    expect(activePlayer(state)?.id).toBe('player-2');
+    expect(activePlayerIndex(state)).toBe(1);
+    expect(JSON.stringify(state)).toBe(before);
+
+    const inactive = makeState({ players, activePlayerId: null });
+    expect(activePlayer(inactive)).toBeUndefined();
+    expect(activePlayerIndex(inactive)).toBe(-1);
+
+    const empty = makeState({ players: [] });
+    expect(empty.activePlayerId).toBeNull();
+    expect(partyOrder(empty)).toEqual([]);
+    expect(activePlayer(empty)).toBeUndefined();
+    expect(activePlayerIndex(empty)).toBe(-1);
+  });
+
+  it('Restart vuelve al primer jugador y a la ronda 1', () => {
+    const state = createInitialState({
+      generator: new BspMapGenerator(),
+      players: partyConfig(2),
+    });
+    const dirty: GameState = { ...state, activePlayerId: 'player-2', round: 5 };
+
+    const result = reduce(dirty, { type: 'Restart' });
+
+    expect(result.state.activePlayerId).toBe('player-1');
+    expect(result.state.round).toBe(1);
+    expect(partyOrder(result.state)).toEqual(['player-1', 'player-2']);
   });
 });
 

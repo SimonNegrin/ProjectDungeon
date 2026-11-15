@@ -1264,14 +1264,14 @@ export function presentationState(
   const enemyPhase = lastEventOfType(timeline, 'EnemyPhaseStarted', elapsed);
   const playerTurn = lastEventOfType(timeline, 'PlayerTurnStarted', elapsed);
   let phase = state.phase;
-  let turn = state.turn;
+  let round = state.round;
   if (enemyPhase) {
     phase = 'enemy';
-    turn = enemyPhase.turn;
+    round = enemyPhase.turn;
   }
   if (playerTurn) {
     phase = 'player';
-    turn = playerTurn.turn;
+    round = playerTurn.turn;
   }
 
   // El fin de partida se aplica al acabar su beat: el overlay espera 800 ms
@@ -1283,5 +1283,5 @@ export function presentationState(
   );
   const status = gameEnded?.data.status ?? 'playing';
 
-  return { ...state, map, groundItems, players, enemies, phase, turn, status };
+  return { ...state, map, groundItems, players, enemies, phase, round, status };
 }

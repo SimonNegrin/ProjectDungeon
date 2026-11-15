@@ -237,7 +237,8 @@ export function corralledState(): GameState {
       },
     ],
     phase: 'player',
-    turn: 1,
+    activePlayerId: player.id,
+    round: 1,
     status: 'playing',
     rng: { seed: 1, state: 0 },
   };

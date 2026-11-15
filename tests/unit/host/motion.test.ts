@@ -439,16 +439,16 @@ describe('estado derivado para HUD y render', () => {
     const restored = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 2 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 2 })],
-      turn: 2,
+      round: 2,
     });
 
     const atStart = presentationState(restored, timeline, 0);
     expect(atStart.phase).toBe('enemy');
-    expect(atStart.turn).toBe(1);
+    expect(atStart.round).toBe(1);
 
     const atEnd = presentationState(restored, timeline, timeline.totalMs);
     expect(atEnd.phase).toBe('player');
-    expect(atEnd.turn).toBe(2);
+    expect(atEnd.round).toBe(2);
     expect(atEnd.players[0].actions.remaining).toBe(2);
   });
 
@@ -481,12 +481,12 @@ describe('estado derivado para HUD y render', () => {
         }),
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 7, y: 2 })],
-      turn: 1,
+      round: 1,
     });
     const restored = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 2 })],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 2 })],
-      turn: 2,
+      round: 2,
     });
 
     const atStart = presentationState(restored, timeline, 0, initialState);

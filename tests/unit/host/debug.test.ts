@@ -14,6 +14,7 @@ import type {
 } from '../../../src/game/types';
 import type { PlayerConfig } from '../../../src/game/config';
 import { createDebugApi } from '../../../src/host/debug';
+import { buildDebugModel } from '../../../src/host/hud';
 import {
   planDecoration,
   roomPalettesFor,
@@ -1067,5 +1068,118 @@ describe('snapshot profundo y RNG de combate', () => {
         'slash',
       ]);
     }
+  });
+});
+
+describe('snapshot de party, activo y ronda (REQ-031 T-001)', () => {
+  const ARCHETYPES = [
+    'warrior',
+    'rogue',
+    'mage',
+    'cleric',
+    'archer',
+    'barbarian',
+  ] as const;
+
+  function party(count: number) {
+    return ARCHETYPES.slice(0, count).map((archetypeId, index) =>
+      makeUnit({
+        id: `player-${index + 1}`,
+        faction: 'player',
+        x: 2 + index,
+        y: 4,
+        archetypeId,
+      }),
+    );
+  }
+
+  it('con 2 y 6 jugadores expone activo, ronda, orden y fase', () => {
+    for (const count of [2, 6]) {
+      const players = party(count);
+      const ids = players.map((unit) => unit.id);
+      const api = setup(
+        makeState({ players, activePlayerId: players[0].id, round: 3 }),
+      );
+
+      const snapshot = api.snapshot();
+
+      expect(snapshot.activePlayerId).toBe('player-1');
+      expect(snapshot.round).toBe(3);
+      expect(snapshot.turn).toBe(snapshot.round);
+      expect(snapshot.partyOrder).toEqual(ids);
+      expect(snapshot.partyOrder).toEqual(snapshot.players.map((unit) => unit.id));
+      expect(snapshot.phase).toBe('player');
+
+      // El JSON conserva los campos y no arrastra funciones ni referencias.
+      const parsed = JSON.parse(JSON.stringify(snapshot)) as typeof snapshot;
+      expect(parsed).toMatchObject({
+        activePlayerId: 'player-1',
+        round: 3,
+        partyOrder: ids,
+        phase: 'player',
+      });
+
+      // `partyOrder` es una copia: mutarla no toca el estado ni el snapshot nuevo.
+      (snapshot.partyOrder as string[]).push('player-x');
+      expect(api.snapshot().partyOrder).toEqual(ids);
+    }
+  });
+
+  it('F1 muestra activo, ronda, orden y fase desde el mismo estado', () => {
+    const players = party(6);
+    const state = makeState({ players, activePlayerId: players[0].id });
+    const cursor = deriveCursorStatus(state, {
+      x: players[0].x,
+      y: players[0].y,
+    });
+
+    const model = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      cursor,
+    );
+
+    expect(model.lines).toContain(
+      'Fase: Jugador · Ronda 1 · Activo player-1 (1/6) · Estado: En juego',
+    );
+    expect(model.lines).toContain(
+      'Orden de party: player-1, player-2, player-3, player-4, player-5, player-6',
+    );
+  });
+
+  it('F1 refleja un activo distinto y el estado sin jugadores', () => {
+    const players = party(2);
+    const state = makeState({ players, activePlayerId: 'player-2' });
+    const cursor = deriveCursorStatus(state, { x: players[1].x, y: players[1].y });
+    const model = buildDebugModel(
+      state,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      cursor,
+    );
+
+    expect(model.lines).toContain(
+      'Fase: Jugador · Ronda 1 · Activo player-2 (2/2) · Estado: En juego',
+    );
+
+    const empty = makeState({ players: [] });
+    const emptyModel = buildDebugModel(
+      empty,
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      deriveCursorStatus(empty, { x: 4, y: 4 }),
+    );
+
+    expect(emptyModel.lines).toContain(
+      'Fase: Jugador · Ronda 1 · Activo — (0/0) · Estado: En juego',
+    );
+    expect(emptyModel.lines).toContain('Orden de party: —');
   });
 });
