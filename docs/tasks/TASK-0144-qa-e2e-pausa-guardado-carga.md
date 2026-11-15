@@ -4,7 +4,7 @@ id: TASK-0144
 title: "QA/E2E de pausa, guardado y carga"
 description: "Cubrir la pausa global, el menú de cinco botones, el guardado restringido, la descarga `.zip`, la carga `.zip`/`.json`, los límites y el resultado sin guardado."
 status: stable
-task_status: blocked
+task_status: in_progress
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
@@ -31,10 +31,13 @@ verified:
       propietario TASK-0153. Sin cambios de producción ni tests debilitados.
 ---
 
-> **Bloqueada (2026-11-15).** El criterio 7 queda pendiente de TASK-0153, ahora
-> en `depends_on`. Al cerrar TASK-0153 se verificará el resultado y se endurecerá
-> el test de resultado del spec QA; allí deberá ajustarse
-> `tests/e2e/game-input-hud.spec.ts:373`, que pulsa «Reiniciar».
+> **Reanudada (2026-11-16).** El bloqueo por TASK-0153 ha desaparecido: las
+> cuatro dependencias (`TASK-0139`, `TASK-0140`, `TASK-0141`, `TASK-0153`) están
+> `done` en `main`. El intento 2 endurece el test del criterio 7 con el resultado
+> nuevo (`Esc`/`N`/`I` sin efecto, sin pausa, sin guardado y sin «Reiniciar») y,
+> si encaja, añade el helper de victoria que faltaba para llegar al resultado en
+> flujo normal. `tests/e2e/game-input-hud.spec.ts` ya no pulsa «Reiniciar»:
+> TASK-0153 lo actualizó.
 
 # Objetivo
 
@@ -84,8 +87,13 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
 
 | Comando | Timeout |
 |---|---:|
-| `pnpm run test:e2e` | 240 s |
+| `pnpm run test:e2e --workers=1` | 900 s |
+| `pnpm run test:e2e <spec> --workers=1` | 300 s |
 | `pnpm run verify` | 240 s |
+
+La suite E2E completa supera los 180 s y el `webServer` usa el puerto fijo 4173:
+se ejecuta en serie, sin paralelismo, y se comprueba que el puerto queda libre
+al terminar.
 
 # Restricciones
 
