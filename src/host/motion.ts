@@ -1,6 +1,7 @@
 import type {
   AttackRolls,
   CommandType,
+  EnemyPhaseEntry,
   GameEndStatus,
   GameEvent,
   GameState,
@@ -13,7 +14,10 @@ import { findSpell } from '../game/spells';
 import { clampCamera, type Camera } from './camera';
 import { FEEDBACK_CONFIG } from './feedback-config';
 import { TILE_SIZE, type Viewport, type WorldSize } from './geometry';
-import type { PresentationEvent } from './presentation';
+import {
+  enemyPhaseHasActions,
+  type PresentationEvent,
+} from './presentation';
 
 /**
  * Configuración única de la presentación del movimiento. Los valores vienen de
@@ -170,6 +174,18 @@ export interface BuildTimelineOptions {
   readonly visibility?: MotionVisibilityPolicy;
   /** Colapsa beats, pasos y pausas a 0 sin reordenar eventos ni cues. */
   readonly reducedMotion?: boolean;
+  /**
+   * Traza de la fase enemiga (REQ-031 T-004). Decide si el aviso de fase existe,
+   * cuánto dura el pre-beat y qué actores sin movimiento reciben cámara.
+   */
+  readonly enemyPhase?: readonly EnemyPhaseEntry[];
+}
+
+/** Foco de cámara de un enemigo que ataca sin moverse (REQ-031 R-008). */
+export interface MotionFocusAnchor {
+  readonly unitId: string;
+  readonly atMs: number;
+  readonly tile: Position;
 }
 
 export interface MotionTimeline {
@@ -188,6 +204,11 @@ export interface MotionTimeline {
   readonly focusUnitIds: readonly string[];
   /** Unidades con pasos visuales, aunque no reciban foco de cámara. */
   readonly animatedUnitIds: readonly string[];
+  /**
+   * Actores que atacan sin pasos visibles: la cámara los enfoca en su ataque
+   * sin inventar un recorrido ni añadir pasos a la animación.
+   */
+  readonly focusAnchors: readonly MotionFocusAnchor[];
   readonly stepCount: number;
 }
 
@@ -616,6 +637,8 @@ export function buildMotionTimeline(
   const animatedUnitIds: string[] = [];
   const reducedMotion = options.reducedMotion === true;
   const pauseMs = pauseDurationMs(reducedMotion);
+  const hasEnemyActions =
+    options.enemyPhase === undefined || enemyPhaseHasActions(options.enemyPhase);
   let clock = 0;
 
   for (let index = 0; index < events.length; index += 1) {
@@ -624,10 +647,23 @@ export function buildMotionTimeline(
     if (event.type !== 'UnitMoved') {
       const atMs = clock;
       const next = events[index + 1];
-      const beatMs = beatForEvent(event, next, reducedMotion);
+      let beatMs = beatForEvent(event, next, reducedMotion);
+      let cueEnabled = hasCue(event, next);
+
+      // REQ-031 R-007: sin enemigos que muevan o ataquen no hay aviso ni cue de
+      // fase; las marcas de espera de REQ-017 se conservan. Con acciones, el
+      // pre-beat dura lo mismo que el aviso para que desaparezca antes de actuar.
+      if (event.type === 'EnemyPhaseStarted' && options.enemyPhase !== undefined) {
+        if (!hasEnemyActions) {
+          beatMs = 0;
+          cueEnabled = false;
+        } else if (!reducedMotion) {
+          beatMs = FEEDBACK_CONFIG.texts.enemyPhaseBannerMs;
+        }
+      }
 
       timedEvents.push({ atMs, event });
-      if (hasCue(event, next)) {
+      if (cueEnabled) {
         const cue = cueForEvent(event, atMs, beatMs, options);
         if (cue) cues.push(cue);
       }
@@ -786,6 +822,36 @@ export function buildMotionTimeline(
     }
   }
 
+  // Un enemigo que ataca sin moverse no tiene pasos: se le da un ancla de foco
+  // en su ataque. Los que esperan o se mueven fuera de pantalla no la reciben.
+  const focusAnchors: MotionFocusAnchor[] = [];
+  if (options.enemyPhase !== undefined && hasEnemyActions) {
+    for (const entry of options.enemyPhase) {
+      if (entry.action !== 'act') continue;
+      if (
+        focusUnitIds.includes(entry.enemyId) ||
+        animatedUnitIds.includes(entry.enemyId)
+      ) {
+        continue;
+      }
+      const attack = timedEvents.find(
+        (candidate) =>
+          candidate.event.type === 'AttackPerformed' &&
+          candidate.event.attackerId === entry.enemyId,
+      );
+      const enemy = (options.finalState ?? options.initialState)?.enemies.find(
+        (candidate) => candidate.id === entry.enemyId,
+      );
+      if (!attack || !enemy) continue;
+      focusAnchors.push({
+        unitId: entry.enemyId,
+        atMs: attack.atMs,
+        tile: { x: enemy.x, y: enemy.y },
+      });
+    }
+    focusAnchors.sort((a, b) => a.atMs - b.atMs);
+  }
+
   return {
     steps,
     phases,
@@ -796,6 +862,7 @@ export function buildMotionTimeline(
     blockingUntilMs: clock,
     focusUnitIds,
     animatedUnitIds,
+    focusAnchors,
     stepCount: steps.length,
   };
 }
@@ -820,41 +887,61 @@ export function currentStep(
   return null;
 }
 
+interface StartedFocus {
+  readonly unitId: string | null;
+  readonly started: boolean;
+  readonly atMs: number;
+  readonly tile: Position | null;
+}
+
 /**
- * Última unidad que ya ha empezado a presentarse a `elapsed`. Antes del primer
- * paso no hay ninguna: la cámara debe conservarse hasta que el grupo arranque.
+ * Última unidad que ya ha empezado a presentarse a `elapsed`, sea por un paso o
+ * por un ancla de ataque. Antes de la primera fase no hay ninguna: la cámara
+ * debe conservarse hasta que el actor arranque.
  */
-function startedFocusUnitId(
-  timeline: MotionTimeline,
-  elapsed: number,
-): { readonly unitId: string | null; readonly started: boolean } {
+function startedFocus(timeline: MotionTimeline, elapsed: number): StartedFocus {
   let unitId: string | null = null;
   let started = false;
+  let atMs = -1;
+  let tile: Position | null = null;
+
   for (const phase of timeline.phases) {
     if (elapsed + EPSILON < phase.startMs) break;
     // Los pasos de un cruce enemigo se animan, pero no mueven la cámara.
     if (!timeline.focusUnitIds.includes(phase.unitId)) continue;
     unitId = phase.unitId;
     started = true;
+    atMs = phase.startMs;
+    tile = phase.kind === 'pause' ? phase.tile : phase.to;
   }
-  return { unitId, started };
+
+  for (const anchor of timeline.focusAnchors) {
+    if (elapsed + EPSILON < anchor.atMs) break;
+    if (anchor.atMs < atMs) continue;
+    unitId = anchor.unitId;
+    started = true;
+    atMs = anchor.atMs;
+    tile = anchor.tile;
+  }
+
+  return { unitId, started, atMs, tile };
 }
 
 /**
  * Unidad enfocada por la cámara: la del grupo activo o la última que ya empezó.
- * Antes del primer paso devuelve la primera unidad que se moverá, pero
- * `cameraAt` conserva la cámara actual hasta que esa fase arranca.
+ * Antes del primer paso devuelve la primera unidad que se moverá o atacará,
+ * pero `cameraAt` conserva la cámara actual hasta que esa fase arranca.
  */
 export function focusUnitId(
   timeline: MotionTimeline,
   elapsed: number,
 ): string | null {
-  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
-  if (started) return unitId;
+  const focus = startedFocus(timeline, elapsed);
+  if (focus.started) return focus.unitId;
   const first = timeline.steps.find((step) =>
     timeline.focusUnitIds.includes(step.unitId),
   );
-  return first?.unitId ?? null;
+  return first?.unitId ?? timeline.focusAnchors[0]?.unitId ?? null;
 }
 
 /**
@@ -918,9 +1005,14 @@ export function cameraAt(
   viewport: Viewport,
   current?: Camera,
 ): Camera {
-  const { unitId, started } = startedFocusUnitId(timeline, elapsed);
-  const position =
-    started && unitId ? visualPosition(timeline, elapsed, unitId) : null;
+  const focus = startedFocus(timeline, elapsed);
+  const movingPosition =
+    focus.started && focus.unitId
+      ? visualPosition(timeline, elapsed, focus.unitId)
+      : null;
+  const center = focus.started && focus.tile ? tileCenter(focus.tile) : null;
+  const anchorPosition = center ? toVisualPosition(center.x, center.y) : null;
+  const position = movingPosition ?? anchorPosition;
   if (!position) {
     if (current) return clampCamera(current, world, viewport);
     return clampCamera(

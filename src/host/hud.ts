@@ -21,6 +21,7 @@ import {
   armorLabel,
   buildCursorDetail,
   conditionLabel,
+  enemyDetail,
   formatActions,
   formatHp,
   formatMagic,
@@ -42,6 +43,7 @@ import type { Viewport } from './geometry';
 import { formatKeyHelp } from './keymap';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
+import type { EnemyActorContext } from './presentation';
 
 /** Ayuda del HUD generada desde el mapa único de teclas (REQ-024 T-014). */
 export const KEYS_HELP = formatKeyHelp();
@@ -228,8 +230,31 @@ function turnAnnouncementLabel(
   return `Turno de ${player.nombre}. ${position}. Ronda ${state.round}.`;
 }
 
-/** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
-export function buildHudModel(state: GameState, cursor?: Position): HudModel {
+/**
+ * Anuncio accesible de la fase enemiga: el actor y, si persigue a alguien, el
+ * objetivo (REQ-031 T-008). No sustituye al banner ni depende del color.
+ */
+function enemyTurnAnnouncement(
+  actor: Unit,
+  target: Unit | undefined,
+  round: number,
+): string {
+  const action = target
+    ? `${actor.nombre} ataca a ${target.nombre}`
+    : `${actor.nombre} no persigue a nadie`;
+  return `Fase enemiga. ${action}. Ronda ${round}.`;
+}
+
+/**
+ * Modelo del HUD derivado solo del estado del motor y la posición del cursor.
+ * En la fase enemiga, `enemyContext` sustituye la ficha del activo por la del
+ * objetivo y el detalle del cursor por el del enemigo que actúa (R-009).
+ */
+export function buildHudModel(
+  state: GameState,
+  cursor?: Position,
+  enemyContext?: EnemyActorContext | null,
+): HudModel {
   const player = activePlayer(state);
   const groundItem = itemAtPlayer(state, player);
   const cursorDetail = buildCursorDetail(state, cursor);
@@ -242,7 +267,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     (cursorEnemy.stats.magicLevel > 0 || cursorEnemy.mana.max > 0);
   const playerPosition = playerPositionLabel(state);
 
-  return {
+  const base: HudModel = {
     playerName: player?.nombre ?? '—',
     archetype: archetypeLabel(player),
     portrait: portraitRect(player),
@@ -276,6 +301,58 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
       victory: state.status === 'victory',
       defeat: state.status === 'defeat',
     },
+  };
+
+  if (
+    state.phase !== 'enemy' ||
+    enemyContext === undefined ||
+    enemyContext === null
+  ) {
+    return base;
+  }
+
+  const actor = state.enemies.find(
+    (candidate) => candidate.id === enemyContext.actorId,
+  );
+  if (!actor) return base;
+  const target =
+    enemyContext.targetId === null
+      ? undefined
+      : state.players.find((candidate) => candidate.id === enemyContext.targetId);
+  const actorDetail = enemyDetail(actor);
+
+  return {
+    ...base,
+    // Ficha compacta del objetivo: miniatura, nombre, PV y stats. El arma, los
+    // traits y el inventario no se publican en la fase enemiga.
+    playerName: target?.nombre ?? 'Sin objetivo',
+    archetype: target ? archetypeLabel(target) : '',
+    portrait: portraitRect(target),
+    playerHp: formatHp(target),
+    playerMp: formatMp(target),
+    playerMagic: formatMagic(target),
+    playerMagicVisible: false,
+    playerMana: formatMana(target),
+    playerManaVisible: false,
+    action: formatActions(target),
+    traits: [],
+    condition: conditionLabel(target),
+    actionSuggestion: null,
+    weapon: null,
+    shield: '—',
+    armor: '—',
+    stats: target ? statLines(target) : [],
+    // Columna derecha: el enemigo que actúa, sin depender del cursor.
+    cursorEnemyHp: formatHp(actor),
+    cursorEnemyMagic: formatMagic(actor),
+    cursorEnemyMana: formatMana(actor),
+    cursorEnemyMagicVisible:
+      actor.stats.magicLevel > 0 || actor.mana.max > 0,
+    cursorEnemyBands: actorDetail.bands,
+    cursorDetail: actorDetail,
+    weaponHint: null,
+    playerPosition: '—',
+    turnAnnouncement: enemyTurnAnnouncement(actor, target, state.round),
   };
 }
 
@@ -631,6 +708,7 @@ export interface HudView {
     cursor?: Position,
     feedback?: HudFeedback,
     panelDetail?: PanelDetail | null,
+    enemyContext?: EnemyActorContext | null,
   ): void;
 }
 
@@ -869,8 +947,9 @@ export function createHudView(root: ParentNode): HudView {
       cursor?: Position,
       feedback?: HudFeedback,
       panelDetail?: PanelDetail | null,
+      enemyContext?: EnemyActorContext | null,
     ): void {
-      const model = buildHudModel(state, cursor);
+      const model = buildHudModel(state, cursor, enemyContext);
       playerName.textContent = model.playerName;
       playerPosition.textContent = model.playerPosition;
       // La región viva se reescribe solo cuando cambia su contenido (activo,

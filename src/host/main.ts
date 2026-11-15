@@ -1,5 +1,11 @@
 import packageJson from '../../package.json';
-import type { Command, GameEvent, GameState, Position } from '../game/types';
+import type {
+  Command,
+  EnemyPhaseEntry,
+  GameEvent,
+  GameState,
+  Position,
+} from '../game/types';
 import { DEFAULT_PLAYER_CONFIGS } from '../game/config';
 import type { MapGenerator } from '../game/map';
 import { activePlayer } from '../game/party';
@@ -100,7 +106,10 @@ import {
 } from './motion';
 import { noticeForRejection } from './notices';
 import { createPerceptionOverlayView } from './perception-overlay';
-import { buildPresentationEvents } from './presentation';
+import {
+  buildPresentationEvents,
+  enemyActorContextAt,
+} from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { saveGame } from './save-game';
@@ -314,6 +323,8 @@ interface ActiveAnimation {
   readonly cursorPosition: Position;
   readonly firedCues: Set<number>;
   readonly resetCursorAtEnd: boolean;
+  /** Traza de la fase enemiga, si el comando la ejecutó (REQ-031 T-004). */
+  readonly enemyPhase?: readonly EnemyPhaseEntry[];
   elapsed: number;
 }
 
@@ -748,6 +759,12 @@ async function boot(): Promise<void> {
       }
       const displayCursor = presentationCursor(animation);
       const slotPulse = weaponSlotPulseAt(animation.timeline, elapsed);
+      // Solo durante la fase enemiga: actor y objetivo salen de la traza del
+      // motor; al volver el turno del jugador el HUD recupera su ficha normal.
+      const enemyContext =
+        display.phase === 'enemy'
+          ? enemyActorContextAt(animation.enemyPhase, animation.timeline, elapsed)
+          : null;
       hudView.update(
         display,
         displayCursor,
@@ -755,6 +772,7 @@ async function boot(): Promise<void> {
         panelOpen && panelSelection !== null
           ? buildPanelDetail(display, panelSelection)
           : null,
+        enemyContext,
       );
       spellMenuView.update(display, spellMenu);
       // El panel lee el estado de presentación: no adelanta el objeto de un cue.
@@ -1200,6 +1218,7 @@ async function boot(): Promise<void> {
     resetCursorAtEnd: boolean,
     cursorBefore: CursorStatus,
     cursorPosition: Position,
+    enemyPhase?: readonly EnemyPhaseEntry[],
   ): void => {
     cancelFrame();
     cancelPan();
@@ -1212,6 +1231,7 @@ async function boot(): Promise<void> {
       cursorPosition,
       firedCues: new Set<number>(),
       resetCursorAtEnd,
+      ...(enemyPhase === undefined ? {} : { enemyPhase }),
       elapsed: 0,
     };
 
@@ -1547,9 +1567,17 @@ async function boot(): Promise<void> {
       finalState: session.state,
       visibility,
       reducedMotion: prefersReducedMotion,
+      ...(result.enemyPhase === undefined ? {} : { enemyPhase: result.enemyPhase }),
     });
 
-    startAnimation(timeline, initialState, resetCursorAtEnd, cursorBefore, cursorPosition);
+    startAnimation(
+      timeline,
+      initialState,
+      resetCursorAtEnd,
+      cursorBefore,
+      cursorPosition,
+      result.enemyPhase,
+    );
     return result;
   };
 

@@ -54,7 +54,7 @@ export function bannerForCue(cue: FeedbackCue): BannerFeedback | null {
     }
     case 'enemy-phase':
       return {
-        text: 'FASE ENEMIGA',
+        text: 'El master mueve',
         kind: 'phase',
         durationMs: FEEDBACK_CONFIG.texts.enemyPhaseBannerMs,
       };
