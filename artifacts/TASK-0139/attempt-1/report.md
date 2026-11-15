@@ -22,7 +22,7 @@ cargar siguen como no-op documentados.
   `index.html` y `ui.css`: pausa modal, cinco acciones, controles y foco.
 - Tests unitarios nuevos y E2E `pause-menu.spec.ts`; `R` sustituida por
   `restart(page)` en nueve specs.
-- Commits: `9a46ff3` (teclas y retirada de `R`) y `1339056` (pausa y menú).
+- Commits: `9a46ff3` (teclas), `1339056` (pausa) y `3b2f12f` (foco).
 
 # Tests
 
@@ -64,6 +64,6 @@ cargar siguen como no-op documentados.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2621 |
-| `report_bytes` | 2545 |
+| `report_bytes` | 2537 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

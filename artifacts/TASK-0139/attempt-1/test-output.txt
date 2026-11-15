@@ -4,6 +4,6 @@
 
  Test Files  4 passed (4)
       Tests  68 passed (68)
-   Start at  17:10:45
-   Duration  401ms (tests 42%, transform 28%, import 28%, worker 2%)
+   Start at  17:13:06
+   Duration  375ms (tests 46%, import 28%, transform 24%, worker 2%)
 
