@@ -38,10 +38,9 @@ verified:
 | `pnpm exec vitest run tests/unit/game/death.test.ts tests/unit/game/ghost.test.ts tests/unit/host/debug.test.ts` | 60/60 | comprobación adicional |
 | `pnpm run verify` | OK: 1530/1530, build y bundle | `verify-output.txt` |
 
-Cubre: enemigo con y sin saqueables, solo saqueables en el cadáver, descarte,
-permanencia en `enemies` con 0 PV, muerte por ataque, réplica y hechizo, casilla
-compartida sin bloqueo, retirada del contenedor enemigo al vaciarlo,
-persistencia del cadáver de jugador, idempotencia, serialización y RNG intacto.
+Cubre filtrado, descarte, sin botín, muerte por ataque/réplica/hechizo,
+permanencia con 0 PV, casilla compartida, retirada al vaciar, persistencia del
+cadáver de jugador, idempotencia y RNG intacto.
 
 # Evidencia visual
 
@@ -67,6 +66,6 @@ persistencia del cadáver de jugador, idempotencia, serialización y RNG intacto
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2152 |
-| `report_bytes` | 2659 |
+| `report_bytes` | 2549 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
