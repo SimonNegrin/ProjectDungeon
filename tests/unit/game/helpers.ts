@@ -74,6 +74,8 @@ export interface UnitOptions {
   readonly y: number;
   readonly hp?: number;
   readonly maxHp?: number;
+  /** Marca de fantasma controlable; ausente por defecto (REQ-021 T-002). */
+  readonly ghost?: boolean;
   readonly mp?: number;
   readonly maxMp?: number;
   /** Nivel de magia explícito; por defecto, el de los stats base. */
@@ -144,6 +146,7 @@ export function makeUnit(options: UnitOptions): Unit {
     y: options.y,
     hp: options.hp ?? maxHp,
     maxHp,
+    ...(options.ghost === undefined ? {} : { ghost: options.ghost }),
     mp: options.mp ?? maxMp,
     maxMp,
     mana: options.mana ?? createMana(stats.magicLevel),
