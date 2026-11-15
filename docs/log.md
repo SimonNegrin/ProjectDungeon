@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0130 — done: `lootable` por instancia con defecto saqueable, `lootPolicy` 25 %/100 % en datos y tirada por objeto con RNG derivado de semilla e id sin tocar el RNG principal; snapshot con `lootPolicy` derivada; verify 100/1491 y 3/3 de fixture E2E; fusión `19bb5b5` — [informe](../artifacts/TASK-0130/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0160 — done: el barrido de 600 mapas de EXP-004 se parte en `growth`, `bsp` y `templates`, 200 semillas cada uno y `{ timeout: 15_000 }` local con comentario; mismas cinco aserciones, etiquetas y muestra; aislado 766/1466/889 ms, `pnpm run test` 99/1473 dos veces y verify OK; fusión `84fa956` — [informe](../artifacts/TASK-0160/attempt-1/report.md)
 
 * 2026-11-15 — Planning — TASK-0160 — ready: dividir el barrido A/B/C × 200 semillas de EXP-004 en tres tests por variante con timeout local de 15 s y comentario, sin cambiar muestra, aserciones ni configuración del arnés; causa: 3,1 s en aislado frente a 5 s por defecto con 86-92 workers — [TASK-0160](tasks/TASK-0160-test-exp-004-barrido-por-variante.md)

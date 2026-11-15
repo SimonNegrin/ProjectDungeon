@@ -118,7 +118,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0126](TASK-0126-host-resumen-empezar-estado-inicial.md) | Host: resumen, Empezar y estado inicial | `done` | REQ-016 | TASK-0124, TASK-0125 | P1 |
 | [TASK-0127](TASK-0127-render-variante-mapa-miniatura-hud.md) | Render: variante en mapa y miniatura HUD | `done` | REQ-016 | TASK-0122, TASK-0124, TASK-0125 | P1 |
 | [TASK-0129](TASK-0129-qa-e2e-pantalla-inicio.md) | QA/E2E de la pantalla de inicio | `done` | REQ-016 | TASK-0123, TASK-0124, TASK-0125, TASK-0126, TASK-0127 | P1 |
-| [TASK-0130](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md) | Motor: saqueabilidad, lootPolicy y RNG de botín | `backlog` | REQ-034 | TASK-0122 | P1 |
+| [TASK-0130](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md) | Motor: saqueabilidad, lootPolicy y RNG de botín | `done` | REQ-034 | TASK-0122 | P1 |
 | [TASK-0131](TASK-0131-motor-muerte-jugador-cadaver-contenedor.md) | Motor: muerte de jugador y cadáver contenedor | `backlog` | REQ-021 | TASK-0122 | P1 |
 | [TASK-0132](TASK-0132-motor-fantasma-turno-mp-accion.md) | Motor: fantasma con turno, MP y una acción | `backlog` | REQ-021 | TASK-0131 | P1 |
 | [TASK-0133](TASK-0133-motor-cadaver-enemigo-descarte.md) | Motor: cadáver de enemigo y descarte | `backlog` | REQ-034 | TASK-0130, TASK-0131 | P1 |
@@ -172,7 +172,6 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0130 — Motor: saqueabilidad, lootPolicy y RNG de botín](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md)
 * [TASK-0131 — Motor: muerte de jugador y cadáver contenedor](TASK-0131-motor-muerte-jugador-cadaver-contenedor.md)
 * [TASK-0132 — Motor: fantasma con turno, MP y una acción](TASK-0132-motor-fantasma-turno-mp-accion.md)
 * [TASK-0133 — Motor: cadáver de enemigo y descarte](TASK-0133-motor-cadaver-enemigo-descarte.md)
@@ -316,6 +315,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0126 — Host: resumen, Empezar y estado inicial](TASK-0126-host-resumen-empezar-estado-inicial.md)
 * [TASK-0127 — Render: variante en mapa y miniatura HUD](TASK-0127-render-variante-mapa-miniatura-hud.md)
 * [TASK-0129 — QA/E2E de la pantalla de inicio](TASK-0129-qa-e2e-pantalla-inicio.md)
+* [TASK-0130 — Motor: saqueabilidad, lootPolicy y RNG de botín](TASK-0130-motor-saqueabilidad-lootpolicy-rng-botin.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
