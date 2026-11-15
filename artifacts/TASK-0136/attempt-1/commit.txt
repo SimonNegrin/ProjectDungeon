@@ -1,0 +1,1 @@
+0214731 feat(TASK-0136): saquea cadáveres del mismo tile sin coste

@@ -1,0 +1,86 @@
+[
+  {
+    "phase": "pickup-1",
+    "shifts": [
+      {
+        "value": 0.0006391176780064901,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-1].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-2].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-3].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup-2",
+    "shifts": [
+      {
+        "value": 0.00046950999895731607,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-2].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-3].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "unknown",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup-3",
+    "shifts": [
+      {
+        "value": 0.0003110857804616292,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-3].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup-4",
+    "shifts": []
+  }
+]

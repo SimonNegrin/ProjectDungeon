@@ -1,0 +1,29 @@
+{
+  "viewport": "900x700",
+  "samples": {
+    "warrior": {
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundPosition": "0px -75.1154px",
+      "backgroundSize": "525.808px 525.808px",
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "mage": {
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundPosition": "-75.1154px -300.462px",
+      "backgroundSize": "525.808px 525.808px",
+      "width": 75.109375,
+      "height": 75.109375
+    },
+    "rogue": {
+      "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/rogues.png\")",
+      "backgroundPosition": "-225.346px 0px",
+      "backgroundSize": "525.808px 525.808px",
+      "width": 75.109375,
+      "height": 75.109375
+    }
+  },
+  "identical": false,
+  "blocking": false,
+  "note": "El retrato varía entre arquetipos."
+}
