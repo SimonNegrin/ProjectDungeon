@@ -410,10 +410,12 @@ Pixelify Sans local y tokens `--ui-*`.
   turno, PV del enemigo y estado salen del HUD y quedan solo en `F1`; las teclas
   y la sugerencia se mantienen como texto plano al pie. El HUD vive dentro del
   marco; no queda ninguna barra superior fuera de él. La miniatura de Personaje
-  pinta el recorte 32×32 de `rogues.png` que `PORTRAIT_RECTS` asigna al
-  `archetypeId` del jugador activo; cambia en el mismo render que el nombre y el
-  arquetipo sin alterar su caja. El render del mapa sigue usando el recorte del
-  caballero para todos los jugadores y queda fuera de esta corrección. Stats y
+  y el sprite del jugador en el mapa usan la misma celda 32×32 de `rogues.png`:
+  `variantCellFor(archetypeId, variant)` resuelve la tabla de 18 celdas de
+  REQ-016 y ambos consumidores la comparten. La miniatura cambia en el mismo
+  render que el nombre y el arquetipo sin alterar su caja. Una variante ausente
+  o inválida cae en la 1 del mismo arquetipo; un `archetypeId` nulo o
+  desconocido no pinta sprite. Stats y
   traits se pintan como listas verticales (`ul`/`li`), una entrada por línea y
   sin separador `·`, con la misma estructura en el HUD izquierdo y en la ficha
   derecha; PV, MP y acciones conservan su formato.

@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0127 — done: mapa y miniatura del HUD usan la celda de la variante del jugador desde `ARCHETYPE_VARIANT_CELLS` con una resolución única; sin `KNIGHT_RECT` fijo ni `PORTRAIT_RECTS` de variante 1, variante conservada y 18 celdas cubiertas; verify 99 archivos/1471 tests y E2E 229/229; fusión `2cb4200` — [informe](../artifacts/TASK-0127/attempt-2/report.md)
+
 * 2026-11-15 — Task — TASK-0126 — done: resumen de party y semilla de solo lectura, «Atrás» al último jugador, cancelación confirmada al menú y «Empezar» por el constructor único (`new GameSession({seed, players})`); verify 99 archivos/1441 tests y E2E 228/228; fusión `e81af6d` — [informe](../artifacts/TASK-0126/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0125 — done: ficha del arquetipo con nueve atributos, arma y magia desde el roster, las 18 celdas de sprites de REQ-016 y dos miniaturas con variante seleccionada, texto y reset a 1; verify 98 archivos/1434 tests y E2E 224/224; fusión `9bcb9ce` — [informe](../artifacts/TASK-0125/attempt-1/report.md)
