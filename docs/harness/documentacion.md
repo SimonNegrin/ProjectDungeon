@@ -32,13 +32,23 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 revisión humana. `stale_after` y `sources` son opcionales. El estado operativo de
 una tarea va en `task_status`, no en `status`.
 
+Los anexos (`brief-detalle.md`, `report-detalle.md`) y las propuestas de alcance
+(`scope-proposal.md`) son documentos OKF: llevan `type`, `title`, `description`,
+`generated` y, si pertenecen a un intento, `task` y `attempt`. `docs:check` los
+valida como cualquier otro `.md` y no los mide por tamaño.
+
 # Tipos y campos
 
-Tipos: `Vision`, `Scope`, `Glossary`, `Design`, `Architecture`, `ADR`,
-`Requirement Sheet`, `Task`, `Task Brief`, `Task Report`, `Experiment`,
-`Test Strategy`, `Quality Gate`, `Workflow`, `Harness`, `Template`,
-`Artifact Guide`, `README` y `Agent Instructions`. La lista canónica vive en el
-validador.
+Tipos de `docs/` y `experiments/`: `Vision`, `Scope`, `Glossary`, `Design`,
+`Architecture`, `ADR`, `Requirement Sheet`, `Task`, `Task Brief`, `Task Report`,
+`Experiment`, `Test Strategy`, `Quality Gate`, `Workflow`, `Harness`, `Template`,
+`Artifact Guide`, `README` y `Agent Instructions`.
+
+En `artifacts/` los anexos y evidencias añaden `Task Brief Detail`,
+`Task Report Detail`, `Docs Proposal` y `Task Verification`. El validador exige
+`type` no vacío, pero no impone una lista cerrada: la evidencia histórica no se
+reescribe y una lista cerrada la invalidaría. Si aparece un tipo nuevo
+reutilizable, se documenta aquí.
 
 Campos por tipo:
 

@@ -112,14 +112,16 @@ Una pregunta por experimento, shell compartido y decisión registrada. Ver
 ## Quién ejecuta una tarea `docs`
 
 `task-runner` no edita `docs/`, así que una tarea `docs` no pasa por él. El
-ejecutor sale del destino de la edición, y una tarea `docs` toca un solo
-dominio: si mezcla varios, se divide al crearla.
+ejecutor sale del destino de la edición y el `assignee` de la ficha es ese
+dueño; una tarea `docs` toca un solo dominio. Si un requisito pide ADR o
+glosario y además alcance, visión o requisitos, se crean dos fichas al
+planificar: una para `task-lead` y otra para `requirements-writer`.
 
 | Destino | Ejecutor |
 |---|---|
-| `docs/design/**`, `docs/glossary.md`, `docs/decisions/**`, `docs/log.md` | `task-lead` ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md)) |
-| `docs/requirements/**` | `requirements-writer` |
-| `docs/harness/**`, `docs/templates/**`, `AGENTS.md` | `harness-keeper`, fuera del flujo de tareas |
+| `docs/design/**`, `docs/glossary.md`, `docs/decisions/**`, `docs/log.md`, `docs/tasks/**` | `task-lead` ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md)) |
+| `docs/scope.md`, `docs/vision.md`, `docs/requirements/**` | `requirements-writer` |
+| `docs/harness/**`, `docs/templates/**`, `AGENTS.md` | `harness-keeper`, fuera del flujo de tareas: el arnés se pide directamente, no se crea una ficha `docs` |
 
 `task-runner` sigue en código, tests, experimentos y artefactos. Escribir un
 documento desde el shell no es una excepción: si el destino no está en su
@@ -164,13 +166,14 @@ El brief y el informe son **deltas del intento**, no copias de la tarea. El
 esquema completo está en el anexo de la
 [plantilla de tarea](../templates/task.md).
 
-| Handoff | Objetivo | Tope duro |
-|---|---:|---:|
-| `brief.md` | 1,5 KB | 4 KB |
-| `report.md` | 2 KB | 4 KB |
+| Handoff | Objetivo | Aviso | Tope duro |
+|---|---:|---:|---:|
+| `brief.md` | 1,5 KB | 2,5 KB | 4 KB |
+| `report.md` | 2 KB | 3 KB | 4 KB |
 
 - `docs:check` falla si un brief o informe de `TASK-0021` en adelante supera
-  4 KB. Avisa a partir de 2,5 KB.
+  4 KB y avisa al llegar al umbral de su tipo. Los topes son los mismos que en
+  [documentación](documentacion.md#topes).
 - Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado. Nada se
   borra y el detalle no se lee por defecto.
 - No se copian criterios, requisitos ni la tarea: se enlazan con ancla.

@@ -72,9 +72,10 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 
 - [ ] Informe en `artifacts/TASK-0001/attempt-1/report.md`
 - [ ] Salida de tests
-- [ ] Capturas si hay UI (con `E2E_ARTIFACTS_DIR`, en `<spec>/screenshots/`; no
-      `attempt-N/screenshots/` a secas: el helper siempre añade el segmento del
-      spec)
+- [ ] Capturas si hay UI: con `E2E_ARTIFACTS_DIR`, en `<spec>/screenshots/`;
+      una captura manual va a `screenshots/` y el informe registra la ruta y el
+      motivo. No `attempt-N/screenshots/` para E2E: el helper ya añade el
+      segmento del spec.
 - [ ] Commit SHA
 
 # Restricciones
@@ -96,8 +97,11 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 - Solo se planifica el milestone actual; las tareas caducan si cambia el
   requisito.
 - `docs` no se asigna a `task-runner`: `assignee` es el dueño del destino
-  (`task-lead` para diseño, glosario, decisiones y log; `requirements-writer`
-  para requisitos; `harness-keeper` para arnés y plantillas).
+  (`task-lead` para diseño, glosario, decisiones, log y fichas;
+  `requirements-writer` para alcance, visión y requisitos). El arnés se pide a
+  `harness-keeper` fuera del flujo de tareas, sin ficha `docs`.
+- Una ficha `docs` no mezcla destinos. Si el requisito pide ADR o glosario y
+  además alcance, se crean dos fichas: una por dueño.
 
 # Atomicidad
 
@@ -117,8 +121,12 @@ rendimiento”.
 `task-lead` escribe `artifacts/TASK-NNNN/attempt-N/brief.md`. Es el contrato del
 intento: si falta un campo obligatorio, el runner devuelve `blocked`.
 
-Objetivo 1,5 KB; tope duro 4 KB. No se trunca: el desbordamiento va a
-`brief-detalle.md` y se enlaza.
+Objetivo 1,5 KB; aviso 2,5 KB; tope duro 4 KB. No se trunca: el desbordamiento
+va a `brief-detalle.md` y se enlaza.
+
+`brief-detalle.md` es un documento OKF como el brief: lleva frontmatter con
+`type: Task Brief Detail`, `title`, `description`, `task`, `attempt`, `status` y
+`generated`; `docs:check` lo valida y no lo mide.
 
 ```markdown
 ---
@@ -157,7 +165,9 @@ Enlazar con ancla; no copiar.
 
 # Artefactos
 
-- `report.md`, `test-output.txt`, `verify-output.txt`, `screenshots/`, `logs/`.
+- `report.md`, `test-output.txt`, `verify-output.txt`, `logs/`.
+- `<spec>/screenshots/` para E2E; `screenshots/` solo para capturas manuales,
+  con el motivo en el informe.
 
 # Riesgos y decisiones abiertas
 
@@ -169,8 +179,11 @@ Enlazar con ancla; no copiar.
 # Anexo B: informe del intento
 
 `task-runner` escribe `artifacts/TASK-NNNN/attempt-N/report.md`. Debe ser honesto:
-incluye fallos, desviaciones y preguntas. Objetivo 2 KB; tope duro 4 KB. Las
-salidas completas van a archivos aparte, no se pegan.
+incluye fallos, desviaciones y preguntas. Objetivo 2 KB; aviso 3 KB; tope duro
+4 KB. Las salidas completas van a archivos aparte, no se pegan.
+
+`report-detalle.md` lleva el mismo frontmatter mínimo que el informe, con
+`type: Task Report Detail` y `task`/`attempt`.
 
 ```markdown
 ---
@@ -239,3 +252,15 @@ tests. El detalle va a `report-detalle.md`.
 
 Las métricas existen para vigilar el tope, no para lucir. Si el handoff se acerca
 a 4 KB, la causa suele ser duplicar la tarea: enlaza y recorta.
+
+# Cómo recortar
+
+- No copies criterios, requisitos, tablas de timeouts ni el brief: enlaza con
+  ancla.
+- El mapeo criterio → test va en la verificación del lead. Si el informe lo
+  incluye, una línea por criterio; el detalle, en `report-detalle.md`.
+- Cita la evidencia una vez: nombre de archivo y qué mirar, no la salida.
+- Las preguntas abiertas y la fricción van en su tabla; no las repitas en
+  «Desviaciones».
+- Si dos secciones crecen a la vez, mueve el contexto estable al detalle y deja
+  en el handoff solo el delta del intento.

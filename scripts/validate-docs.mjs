@@ -34,7 +34,11 @@ const EXPERIMENT_STATUS = new Set(['proposed', 'building', 'ready', 'decided', '
 const CAPS_FROM_TASK = 21;
 const TASK_WORDS_WARN = 600;
 const TASK_WORDS_MAX = 800;
-const HANDOFF_BYTES_WARN = 2560;
+// El aviso es por tipo: brief 2,5 KB e informe 3 KB (ADR-009 y documentación).
+const HANDOFF_BYTES_WARN = new Map([
+  ['Task Brief', 2560],
+  ['Task Report', 3072],
+]);
 const HANDOFF_BYTES_MAX = 4096;
 const LOG_LINE_MAX = 400;
 
@@ -164,10 +168,11 @@ for (const concept of concepts) {
     !basename(file).includes('detalle')
   ) {
     const bytes = statSync(file).size;
+    const warnBytes = HANDOFF_BYTES_WARN.get(type);
     if (bytes > HANDOFF_BYTES_MAX) {
       error(`${rel}: handoff de ${bytes} B; el tope es ${HANDOFF_BYTES_MAX} B`);
-    } else if (bytes > HANDOFF_BYTES_WARN) {
-      warn(`${rel}: handoff de ${bytes} B; objetivo ≤${HANDOFF_BYTES_WARN} B`);
+    } else if (warnBytes !== undefined && bytes > warnBytes) {
+      warn(`${rel}: handoff de ${bytes} B; aviso a partir de ${warnBytes} B`);
     }
   }
 

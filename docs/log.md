@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Harness — docs — handoff por tipo (brief 2,5 KB, informe 3 KB), capturas E2E en `<spec>/screenshots`, frontmatter de anexos, tipos de evidencia y tabla de ejecutores docs alineada; verify OK — [workflow](harness/workflow.md#quién-ejecuta-una-tarea-docs)
+
 * 2026-11-15 — Planning — TASK-0144 — blocked: añade TASK-0153 a `depends_on` (y TASK-0144 a sus `unlocks`) para reejecutar el QA del resultado cuando cierre; TASK-0153 sigue en `backlog` y depende de TASK-0146/0147 — [TASK-0144](tasks/TASK-0144-qa-e2e-pausa-guardado-carga.md)
 
 * 2026-11-15 — Scope — alcance — «trabajo inmediato» actualizado: inventario, HUD, muerte y guardado implementados; pendientes cofres, resurrección, traits y hotseat — [alcance](scope.md)

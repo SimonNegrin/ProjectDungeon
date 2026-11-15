@@ -68,10 +68,11 @@ audio, tono y si el experimento resuelve la duda.
   ```
 
   La suite escribe solo en esa carpeta, con subdirectorio por spec:
-  `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`. Briefs e informes deben
-  citar esa ruta real; si una captura se copia a la raíz del intento, se
-  registra la ruta final y el motivo. Con `--repeat-each=N`, la pasada 0
-  conserva esa ruta y las pasadas 1..N-1 añaden `repeat-<índice>`:
+  `$E2E_ARTIFACTS_DIR/<spec>/screenshots/<nombre>.png`. Esa es la ruta canónica
+  de E2E; no se duplica la misma captura en `attempt-N/screenshots/`. Briefs e
+  informes citan la ruta real. Una captura manual sí puede ir a la raíz del
+  intento, pero se registra la ruta final y el motivo. Con `--repeat-each=N`,
+  la pasada 0 conserva esa ruta y las pasadas 1..N-1 añaden `repeat-<índice>`:
   `$E2E_ARTIFACTS_DIR/<spec>/repeat-1/screenshots/<nombre>.png`. El sufijo usa
   `testInfo.repeatEachIndex`, no `testInfo.project.repeatEach`, que no refleja
   el flag de CLI. No mezclar en la misma carpeta una corrida única y una
