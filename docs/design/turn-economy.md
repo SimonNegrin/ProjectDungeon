@@ -44,17 +44,19 @@ playtests.
 - Cada unidad tiene **2 acciones por turno** por defecto; el Pícaro empieza con
   **3** y los enemigos tienen 2/1/2 (Centinela/Bruto/Cobarde). Los objetos pueden
   sumar +1 hasta un **tope de 4**, provisional.
-- Atacar, interactuar (puertas, cofres, cadáveres) y lanzar hechizos consumen
-  **1 acción**; atacar se puede repetir. Moverse, recoger o soltar del suelo,
-  equipar o desequipar, esperar y terminar el turno **no** consumen acción.
+- Atacar, abrir o registrar un cofre e interactuar con puertas y lanzar hechizos
+  consumen **1 acción**; atacar se puede repetir. Saquear un cadáver desde su
+  mismo tile, moverse, recoger o soltar del suelo, equipar o desequipar, esperar
+  y terminar el turno **no** consumen acción.
 - Recoger o soltar del suelo, y equipar o desequipar, cuestan **1 MP**. Abrir o
-  registrar un contenedor cuesta **1 acción** y requiere adyacencia; transferir es
-  gratis. Equipar desde un contenedor cuesta igualmente 1 MP.
+  registrar un cofre cuesta **1 acción** y requiere adyacencia; un cadáver se
+  registra en su mismo tile **sin coste**. Transferir es gratis, también «coger
+  todo» de un cadáver; equipar desde un contenedor cuesta igualmente 1 MP.
 - El **fantasma** es la excepción de REQ-021: tiene **una acción por ronda**, se
   mueve con su MP intrínseco sin bonus de equipo y solo puede mover un objeto
-  por acción (recoger/soltar cuesta 1 acción y 0 MP) e inspeccionar contenedores
-  sin abrirlos ni revelar trampa. No ataca, no equipa, no usa objetos y no abre
-  cofres; no es objetivo ni obstáculo para la IA.
+  por acción (recoger/soltar o saquear un cadáver cuesta 1 acción y 0 MP) e
+  inspeccionar contenedores sin abrirlos ni revelar trampa. No ataca, no equipa,
+  no usa objetos y no abre cofres; no es objetivo ni obstáculo para la IA.
 - Equipo, mochila y objetos del suelo se gestionan en un único panel modal abierto
   con `I`; ver [REQ-018](../requirements/REQ-018-inventario-equipo.md).
 - `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por
@@ -153,8 +155,9 @@ motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado
 | Movimiento | 125/70 sin cambios. |
 
 - El input se bloquea y se descarta durante el beat; `F1` y `R` siguen activos.
-- El cadáver es solo presentación: no bloquea, no se interactúa y no añade
-  reglas; el saqueo tendrá su propia hoja.
+- El cadáver-contenedor no bloquea y se saquea desde su mismo tile sin coste;
+  el de enemigo desaparece al vaciarse y el de jugador persiste para resucitar
+  ([REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)).
 - `prefers-reduced-motion` aplica el estado final y conserva texto, banner y
   marca estática.
 

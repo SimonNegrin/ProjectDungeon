@@ -4,22 +4,38 @@ id: TASK-0136
 title: "Host/panel: saqueo en el mismo tile y coste 0"
 description: "Permitir abrir y transferir desde un cadáver en el mismo tile sin acción ni MP, con «coger todo», y mantener los cofres adyacentes con 1 acción."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-034
 requirement_ids: [R-005, R-006, R-007, T-006]
 depends_on: [TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135]
 unlocks: [TASK-0142, TASK-0143, TASK-0157]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T12:52:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0136/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T12:52:00Z
+    note: >-
+      Intento 1 verificado (código `0214731`, evidencia `5d33651`/`a3b838b`,
+      verificación `182d69c`). Diff limitado a `src/game/{inventory,engine,types}.ts`,
+      `src/host/{inventory-panel,inventory-panel-view,input}.ts`, `index.html`,
+      `ui.css`, tests, la ficha y artefactos; sin tocar requisitos, arnés,
+      dependencias, botín, RNG, muerte, render ni cofres. `pnpm run verify`
+      reejecutado: 102 archivos/1568 tests, docs:check, config:check, tsc, build
+      y bundle OK; E2E acotado 11/11 y visuales 25/25. Criterios 1-8 cumplidos:
+      cadáveres desde `state.containers` del tile, transferencia única vía
+      `locateSource`, coste 0 del vivo y una acción por objeto del fantasma,
+      «coger todo» atómico, retirada del cadáver de enemigo y persistencia del de
+      jugador. El coste de cofre (1 acción) queda como regla pura probada
+      (`containerOpenCost`); no hay UI de cofre porque no hay cofres jugables en
+      este corte. Evidencia en `attempt-1/lead-verify/`.
 ---
 
 # Objetivo
@@ -38,19 +54,19 @@ transferencia existente de `src/game/inventory.ts` y el panel de
 
 # Criterios de aceptación
 
-- [ ] El panel lista los cadáveres de la casilla actual y no los de casillas
+- [x] El panel lista los cadáveres de la casilla actual y no los de casillas
       adyacentes.
-- [ ] Abrir/registrar un cadáver y transferir objetos reutiliza la transferencia
+- [x] Abrir/registrar un cadáver y transferir objetos reutiliza la transferencia
       de contenedores existente; no hay una segunda ruta de saqueo.
-- [ ] Un vivo saquea con 0 acciones y 0 MP y dispone de «coger todo».
-- [ ] El fantasma mueve un objeto por acción; no puede usar ni equipar lo que
+- [x] Un vivo saquea con 0 acciones y 0 MP y dispone de «coger todo».
+- [x] El fantasma mueve un objeto por acción; no puede usar ni equipar lo que
       coge.
-- [ ] Los cofres conservan adyacencia y 1 acción de apertura; la UI anuncia
+- [x] Los cofres conservan adyacencia y 1 acción de apertura; la UI anuncia
       «sin coste» para cadáver y «1 acción» para cofre.
-- [ ] Al coger el último objeto de un cadáver de enemigo, el contenedor
+- [x] Al coger el último objeto de un cadáver de enemigo, el contenedor
       desaparece; el cadáver de jugador permanece.
-- [ ] El panel solo se abre en el turno del activo y es público.
-- [ ] Tests de mismo tile frente a adyacente, coste 0, «coger todo», fantasma,
+- [x] El panel solo se abre en el turno del activo y es público.
+- [x] Tests de mismo tile frente a adyacente, coste 0, «coger todo», fantasma,
       retirada al vaciar y cofre sin cambios; `pnpm run verify` pasa.
 
 # Plan de test
@@ -63,9 +79,9 @@ transferencia existente de `src/game/inventory.ts` y el panel de
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0136/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0136/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

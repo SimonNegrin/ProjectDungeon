@@ -124,7 +124,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0133](TASK-0133-motor-cadaver-enemigo-descarte.md) | Motor: cadáver de enemigo y descarte | `done` | REQ-034 | TASK-0130, TASK-0131 | P1 |
 | [TASK-0134](TASK-0134-motor-estado-partida-snapshot.md) | Motor: estado de partida (party, activo, ronda) y snapshot | `done` | REQ-031 | TASK-0122, TASK-0130, TASK-0131, TASK-0132, TASK-0133 | P1 |
 | [TASK-0135](TASK-0135-host-render-cadaveres-contenedores.md) | Host/render: cadáveres desde contenedores | `done` | REQ-034 | TASK-0127, TASK-0133, TASK-0134 | P1 |
-| [TASK-0136](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md) | Host/panel: saqueo en el mismo tile y coste 0 | `backlog` | REQ-034 | TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135 | P1 |
+| [TASK-0136](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md) | Host/panel: saqueo en el mismo tile y coste 0 | `done` | REQ-034 | TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135 | P1 |
 | [TASK-0138](TASK-0138-motor-esquema-v1-manifiesto-round-trip.md) | Motor: esquema v1, manifiesto y round-trip | `backlog` | REQ-024 | TASK-0133, TASK-0134 | P1 |
 | [TASK-0139](TASK-0139-host-pausa-global-menu-cinco-botones.md) | Host: pausa global y menú de cinco botones | `backlog` | REQ-024 | TASK-0123, TASK-0126, TASK-0134 | P1 |
 | [TASK-0140](TASK-0140-host-guardar-zip.md) | Host: guardar .zip | `backlog` | REQ-024 | TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
@@ -172,7 +172,6 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0136 — Host/panel: saqueo en el mismo tile y coste 0](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md)
 * [TASK-0138 — Motor: esquema v1, manifiesto y round-trip](TASK-0138-motor-esquema-v1-manifiesto-round-trip.md)
 * [TASK-0139 — Host: pausa global y menú de cinco botones](TASK-0139-host-pausa-global-menu-cinco-botones.md)
 * [TASK-0140 — Host: guardar .zip](TASK-0140-host-guardar-zip.md)
@@ -316,6 +315,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0133 — Motor: cadáver de enemigo y descarte](TASK-0133-motor-cadaver-enemigo-descarte.md)
 * [TASK-0134 — Motor: estado de partida (party, activo, ronda) y snapshot](TASK-0134-motor-estado-partida-snapshot.md)
 * [TASK-0135 — Host/render: cadáveres desde contenedores](TASK-0135-host-render-cadaveres-contenedores.md)
+* [TASK-0136 — Host/panel: saqueo en el mismo tile y coste 0](TASK-0136-host-panel-saqueo-mismo-tile-coste-cero.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)

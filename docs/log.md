@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0136 — done: panel de cadáveres desde contenedores del tile con `TakeItem`/`TakeAll` sobre `locateSource`, coste 0 del vivo, una acción por objeto del fantasma, «coger todo» atómico y retirada del enemigo vaciado; cofres intactos; verify 102/1568, E2E 11/11 y visuales 25/25; fusión `756e92a` — [informe](../artifacts/TASK-0136/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0135 — done: render de cadáveres desde contenedores `kind: 'corpse'` con beat de muerte, jugador persistente vacío, enemigo retirado con su contenedor y pila `×N` por contenedor visible; verify 102/1548 y E2E 1/1; fusión `8d3576d` — [informe](../artifacts/TASK-0135/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0134 — done: `GameState` con `players` como única party ordenada, `activePlayerId`, `round` y `phase`; helpers `partyOrder`/`activePlayer`/`activePlayerIndex`; snapshot y `F1` con activo, ronda, orden y fase; sin transiciones; verify 102/1537; fusión `16dc9be` — [informe](../artifacts/TASK-0134/attempt-1/report.md)

@@ -238,9 +238,13 @@ exactamente en un sitio.
   `Unit.inventory.items`, `Unit.equipment`, `GameState.groundItems` o
   `GameState.containers`; `ItemLocation` y `locateInstance` no mantienen listas
   paralelas. `pickUpItem`, `equipItem`, `unequipItem` y `dropItem` son puros y
-  atómicos: validan antes de mover, cuestan 1 MP y no gastan acción. `Container`
-  es la representación única de cofres y cadáveres; desde TASK-0131 el cadáver
-  de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
+  atómicos: validan antes de mover, cuestan 1 MP y no gastan acción.
+  `takeContainerItem` y `takeAllContainerItems` reutilizan la misma localización
+  y la misma retirada de contenedor: solo aceptan `kind: 'corpse'`, exigen el
+  mismo tile, no cobran al vivo y el fantasma paga una acción por objeto;
+  «coger todo» es atómico y no toca cofres. No hay una segunda ruta de saqueo.
+  `Container` es la representación única de cofres y cadáveres; desde TASK-0131
+  el cadáver de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
   todo su equipo y mochila sin tirada y persiste al vaciarse. Desde TASK-0133 el
   cadáver de enemigo contiene solo instancias `lootable`, descarta el resto y se
   elimina al retirar su último objeto; el de jugador no se elimina. La ampliación
@@ -260,21 +264,26 @@ exactamente en un sitio.
   y `corpses`, y la vista pinta tres columnas tituladas Equipo, Bolsa y Suelo,
   con marco outset y slots cuadrados inset de un único tamaño. Equipo conserva
   la figura humana de ocho huecos (`inventory-figure`), Bolsa es una rejilla 2×4
-  con contador, y Suelo pone los cadáveres del tile en rejilla al inicio (solo si
-  existen) y debajo los objetos en dos columnas. Sin cabecera ni ayuda, solo un
-  título accesible y «Cerrar». La columna derecha tiene scroll propio; a 1280×720
-  el panel completo con mochila llena y cuatro objetos no hace scroll.
-  `src/host/inventory-navigation.ts` resuelve la navegación por proximidad
-  (`findNeighbor`, `nearestTo` y `cycleZone`).
+  con contador, y Suelo pone los cadáveres-contenedor del tile en rejilla al
+  inicio (solo si existen) y debajo los objetos en dos columnas. Los cadáveres
+  se leen de `state.containers` (`kind: 'corpse'`), no de unidades muertas; la
+  tarjeta muestra nombre, sprite y «sin coste», y sus objetos son filas
+  navegables en `inventory-corpse-items`, con scroll dentro de la columna
+  derecha. Sin cabecera ni ayuda, solo un título accesible y «Cerrar». La columna
+  derecha tiene scroll propio; a 1280×720 el panel completo con mochila llena y
+  cuatro objetos no hace scroll. `src/host/inventory-navigation.ts` resuelve la
+  navegación por proximidad (`findNeighbor`, `nearestTo` y `cycleZone`).
 - **Ficha y submenú**: con el panel abierto, `src/host/hud-detail.ts` compone
   `buildPanelDetail` en dos bloques independientes —el objeto seleccionado y el
   equipado en ese hueco, con sprite, stats verticales y traits solo si existen,
   o «Vacío»—, sin descripciones ni delta numérico. `buildPanelMenu` publica las
-  opciones del submenú
-  (`PanelMenuOption`) por contexto, con el coste de 1 MP anunciado, la opción
-  deshabilitada con su motivo si falta MP y sin «recoger» con la mochila llena;
-  `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este es el único
-  camino de acción.
+  opciones del submenú (`PanelMenuOption`) por contexto, con el coste anunciado
+  por acción: «sin coste» para coger o «coger todo» de un cadáver, «1 MP» para
+  equipar y el coste histórico de las operaciones de inventario; la opción queda
+  deshabilitada con su motivo si falta el recurso y no se ofrece «recoger» con la
+  mochila llena. `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este
+  es el único camino de acción. El panel solo se abre para el jugador activo vivo
+  y es público para la mesa.
 
 Ver [ADR-021](../decisions/ADR-021-inventario-equipo.md).
 
