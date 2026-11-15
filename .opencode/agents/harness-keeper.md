@@ -10,6 +10,9 @@ permissions:
     resource: "docs/**"
     effect: allow
   - action: edit
+    resource: "artifacts/README.md"
+    effect: allow
+  - action: edit
     resource: "AGENTS.md"
     effect: allow
   - action: edit

@@ -90,6 +90,9 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
 - Deben indicar requisito, dependencias y tareas que desbloquean.
 - Al crear tareas, los criterios viven en la tarea; no los dupliques en el brief.
 - Si una tarea no cumple Definition of Ready, no se crea o se divide.
+- Una tarea `docs` se crea por destino: ADR, glosario, decisiones, log y fichas
+  para `task-lead`; alcance, visión y requisitos para ti. Si el requisito pide
+  ambos, crea dos fichas.
 - No generes todas las tareas del juego: solo el milestone actual.
 
 # Sesión y handoff

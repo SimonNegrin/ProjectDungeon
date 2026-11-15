@@ -62,12 +62,14 @@ dependencias.
 4. Crea la rama `task/TASK-NNNN` si no existe.
 5. Prepara el brief con el anexo A de
    [docs/templates/task.md](../../docs/templates/task.md); no copies la tarea,
-   los criterios ni el requisito: enlaza. Objetivo 1,5 KB; tope duro 4 KB;
-   desbordamiento en `brief-detalle.md`.
+   los criterios ni el requisito: enlaza. Objetivo 1,5 KB; aviso 2,5 KB; tope
+   duro 4 KB; desbordamiento en `brief-detalle.md`.
 6. Marca en el brief si el runner debe leer el anexo (`brief-detalle.md`).
-7. Si la tarea es `docs`, no lances `task-runner`: haz tú la parte de
-   `docs/design/**`, glosario, decisiones y log, o devuelve `blocked` con el
-   dueño cuando el destino sea `docs/requirements/**` o `docs/harness/**`.
+7. Si la tarea es `docs`, comprueba el destino. Si mezcla dueños (por ejemplo
+   ADR/glosario y alcance), devuélvela `blocked` para dividirla al planificar;
+   no ejecutes una parte. Con un solo destino, haz tú `docs/design/**`,
+   glosario, decisiones, log y fichas, o devuelve `blocked` con el dueño cuando
+   sea `docs/scope.md`, `docs/vision.md`, `docs/requirements/**` o el arnés.
 
 Carga las skills `task-verification` y `visual-qa` cuando las necesites.
 

@@ -31,6 +31,9 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 - No mezcla dos dominios de cambio (estructura y estilos, navegación y entrada,
   render y canvas, datos y motor): si los mezcla, se parte por resultado
   esperado, no por capas.
+- Una tarea `docs` declara un solo dueño de destino: si pide ADR o glosario y
+  además alcance, visión o requisitos, se divide al crearla
+  ([workflow](../harness/workflow.md#quién-ejecuta-una-tarea-docs)).
 - Una tarea UI no incluye su QA visual entre sus criterios: va en una tarea
   `qa` posterior.
 

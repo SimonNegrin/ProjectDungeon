@@ -73,8 +73,8 @@ artefactos.
 5. Ejecuta `pnpm run verify` y, si aplica, `pnpm run test:e2e`.
 6. Captura salida, capturas y logs en la ruta de artefactos.
 7. Escribe `report.md` con el anexo B de
-   [docs/templates/task.md](../../docs/templates/task.md), objetivo 2 KB y tope
-   4 KB; salidas completas en archivos aparte.
+   [docs/templates/task.md](../../docs/templates/task.md), objetivo 2 KB, aviso
+   3 KB y tope 4 KB; salidas completas en archivos aparte.
 
 No pegues salidas de tests ni diffs completos en el informe.
 

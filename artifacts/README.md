@@ -18,11 +18,17 @@ artifacts/
       report-detalle.md
       test-output.txt
       verify-output.txt
+      <spec>/screenshots/
       screenshots/
       logs/
     attempt-2/
       ...
 ```
+
+`<spec>/screenshots/` es la ruta de E2E con `E2E_ARTIFACTS_DIR`; el helper
+`artifactPath` añade el nombre del spec y no se duplica la captura en la raíz.
+`screenshots/` en la raíz del intento solo se usa para capturas manuales, con la
+ruta y el motivo en el informe.
 
 # Contenido mínimo
 
@@ -34,17 +40,27 @@ artifacts/
   el informe y no se lee por defecto.
 - `test-output.txt`: salida de los comandos ejecutados.
 - `verify-output.txt`: salida de `pnpm run verify`.
-- `screenshots/`: capturas de estados clave si hay UI o Canvas.
+- `screenshots/`: capturas manuales de estados clave si hay UI o Canvas. Las de
+  E2E van en `<spec>/screenshots/`.
 - `logs/`: logs relevantes, sin secretos.
+
+# Frontmatter
+
+Los informes, anexos y propuestas son documentos OKF. El mínimo recomendado es
+`type`, `title`, `description`, `status` y `generated`; si pertenecen a un
+intento, añaden `task` y `attempt`. Tipos de anexo: `Task Brief Detail`,
+`Task Report Detail` y `Docs Proposal`. `docs:check` los valida como cualquier
+otro `.md` y no los mide por tamaño.
 
 # Presupuesto de los handoffs
 
-- `brief.md` ~2 KB (3–4 KB en tareas grandes) y `report.md` ~2 KB.
-- Límite blando: no se trunca. Al 100 % se avisa; al 150 % se justifica.
-- Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado; nada se
-  borra.
-- El informe incluye el bloque de métricas `brief_bytes`, `report_bytes`,
-  `overflow`, `criteria_failed` y `cause`.
+Los objetivos, avisos y el tope duro por tipo están en
+[documentación](../docs/harness/documentacion.md#topes): brief 1,5 KB / 2,5 KB /
+4 KB e informe 2 KB / 3 KB / 4 KB. No se trunca: lo que no cabe va a
+`brief-detalle.md` o `report-detalle.md`, enlazado; nada se borra.
+
+El informe incluye el bloque de métricas `brief_bytes`, `report_bytes`,
+`overflow`, `criteria_failed` y `cause`.
 
 # Reglas
 

@@ -46,3 +46,10 @@ runner, añadiendo una vuelta por tarea.
 
 Ver [workflow](../harness/workflow.md#fricción-y-propuestas) y
 [ADR-009](ADR-009-recorte-arnes.md).
+
+# Nota de vigencia
+
+[ADR-018](ADR-018-harness-keeper.md) traslada `docs/harness/**`,
+`docs/templates/**` y `AGENTS.md` a `harness-keeper`. La decisión de esta ADR se
+mantiene para diseño, glosario, decisiones y log; su frase original sobre arnés
+y plantillas queda superada.
