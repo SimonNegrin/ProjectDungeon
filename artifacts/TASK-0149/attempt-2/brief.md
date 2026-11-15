@@ -5,7 +5,7 @@ description: Cerrar huecos de aviso no bloqueante, integración a dos jugadores 
 task: TASK-0149
 attempt: 2
 status: stable
-brief_bytes: 2494
+brief_bytes: 2497
 read_detail: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-15T20:45:00Z }
 ---
