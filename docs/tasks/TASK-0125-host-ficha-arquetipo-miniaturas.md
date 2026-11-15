@@ -4,7 +4,7 @@ id: TASK-0125
 title: "Host: ficha de arquetipo y miniaturas"
 description: "Mostrar la ficha completa del arquetipo elegido —nueve atributos, arma temática, nivel de magia y las dos miniaturas de variante— y actualizarla al cambiar de arquetipo."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-005, R-006, T-003]
