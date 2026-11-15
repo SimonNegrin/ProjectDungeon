@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T00:45:43Z
-updated_at: 2026-11-15T18:48:15Z
+updated_at: 2026-11-15T18:53:35Z
 related_tasks: [TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061]
 amends: [REQ-006, REQ-008]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:45:43Z }
@@ -27,7 +27,7 @@ verified:
       la muerte y los cambios de estado, y la jugabilidad se siente mejor.
 ---
 
-> **Nota de vigencia (2026-11-15).** `REQ-034` enmienda el cadáver de enemigo:
+> **Nota de vigencia (2026-11-15).** `REQ-034` v1 enmienda el cadáver de enemigo:
 > solo existe si al menos uno de sus objetos es saqueable, contiene únicamente
 > esos objetos y se retira al vaciarse. R-008, R-009 y R-010 se leen con esa
 > excepción; la presentación de muerte (900 ms) y el cadáver persistente de

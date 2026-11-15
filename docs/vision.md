@@ -106,9 +106,10 @@ La muerte es un estado jugable, no una salida de la mesa.
 - El detalle del cursor muestra stats exactas solo si algún jugador vivo tiene
   línea de visión a esa casilla; sin visión, la información es desconocida. Un
   cofre cerrado no revela contenido ni trampa.
-- Un menú de pausa detiene la partida y ofrece reanudar, guardar, cargar y
-  controles. Guardar produce un archivo `.zip` local con la partida y un
-  manifiesto; cargar acepta ese `.zip` o un `.json` y pide confirmación antes de
+- Un menú de pausa detiene la partida y ofrece reanudar, nueva partida, cargar
+  partida, guardar partida y controles. Guardar produce un archivo `.zip` local
+  con la partida y un manifiesto; cargar acepta ese `.zip` o un `.json` y pide
+  confirmación antes de
   reemplazar la partida en curso. Los controles se explican con texto.
 - La persistencia es local por archivo: sin cuentas, sin servidor y sin guardado
   automático. No implica progresión entre runs.

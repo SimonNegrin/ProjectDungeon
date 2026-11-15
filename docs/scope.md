@@ -11,7 +11,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-11T10:05:00Z }
 El prototipo actual arranca con menú principal, paso 1 de 1-6 jugadores y
 semilla, configuración jugador a jugador y resumen; la partida jugable sigue
 siendo de un jugador hasta el hotseat de la fase 2. El menú principal ofrece
-«Nueva» y «Cargar», y la carga efectiva de `REQ-024` sigue pendiente. La
+«Nueva» y «Cargar», y la pausa, el guardado y la carga de `REQ-024` están
+implementados (QA pendiente en TASK-0144). La
 configuración no se guarda entre sesiones: cada entrada parte de cero y genera una
 semilla. El dungeon crawler con teclado mantiene mazmorra generada, turnos,
 combate con equipo, percepción y feedback visual. La base está

@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-15T18:48:15Z
+updated_at: 2026-11-15T18:53:35Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:00:00Z }
 verified:
@@ -92,7 +92,7 @@ como preguntas para la sesión de cierre.
 | T-002 | El cadáver es una entidad del mundo, no solo presentación: se crea al morir un enemigo, persiste y guarda su botín. La presentación sigue siendo responsabilidad del host. | El motor conoce el cadáver y su contenido; el host lo dibuja sin decidir el botín. |
 | T-003 | Las transferencias son atómicas: coger, depositar, intercambiar y coger todo validan capacidad y localización antes de mover; si fallan, no dejan cambios parciales. | Tests de invariantes: no se duplica, no se pierde y no se supera la capacidad. |
 | T-004 | El botín se genera de forma determinista desde la semilla y tablas de datos; no se usa `Math.random`. | Misma semilla y mismas acciones dan el mismo contenido; las tablas son la única fuente. |
-| T-005 | La interacción con el contenedor se integra en el turno: abrir/registrar cuesta 1 acción y exige adyacencia; transferir es gratis y atómico; la IA enemiga no saquea en este corte. | Abrir y transferir respetan la economía de turno; los enemigos no alteran contenedores. |
+| T-005 | La interacción con el contenedor se integra en el turno: abrir/registrar un cofre cuesta 1 acción y exige adyacencia; el cadáver sigue REQ-034 v1 (mismo tile, 0 acciones y 0 MP); transferir es gratis y atómico; la IA enemiga no saquea en este corte. | Abrir y transferir respetan la economía de turno; los enemigos no alteran contenedores. |
 | T-006 | El host presenta el contenedor junto al inventario, con iconos, cantidades, origen/destino y feedback; el input permite transferir solo con teclado. | La UI coincide con el estado; el jugador entiende qué se mueve y a dónde. |
 | T-007 | El estado de contenedores y cadáveres sobrevive dentro de la partida y se expone en el snapshot de debug. | Reiniciar la partida reconstruye el estado; el snapshot permite inspeccionar el contenido. |
 | T-008 | Tests nuevos: apertura con acción, transferencia gratuita, coger todo, capacidad, intercambio, cadáver al morir, persistencia, determinismo del botín, contenedor vacío y E2E de la UI. | `pnpm run verify` pasa; los tests de `REQ-010` y `REQ-017` conservan su intención. |
@@ -157,7 +157,9 @@ como preguntas para la sesión de cierre.
 5. **Ciclo de vida del cadáver.** ¿Persiste hasta el final del nivel, desaparece
    al vaciarlo o se queda como decoración? **Decidido el 2026-11-13: varios
    cadáveres pueden compartir casilla, no bloquean el paso y la interacción elige
-   uno explícitamente.** Sigue abierto cuánto persiste y si se queda vacío.
+   uno explícitamente.** Para el cadáver de enemigo queda resuelto por REQ-034
+   v1: solo existe con botín y se retira al vaciarse; el de jugador persiste como
+   objetivo de resurrección (REQ-021).
 6. **Apilado y selección.** Varios cadáveres en la misma casilla: cómo se ordena
    la lista (propuesta: orden de muerte), qué se ve en el mapa con dos o más y si
    saquear abre el cadáver elegido o una lista. La resurrección de `REQ-021` debe

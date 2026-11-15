@@ -8,7 +8,7 @@ version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:05:00Z
-updated_at: 2026-11-15T18:48:15Z
+updated_at: 2026-11-15T18:53:35Z
 related_tasks: [TASK-0076, TASK-0077, TASK-0078, TASK-0084]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:05:00Z }
 verified:
@@ -24,9 +24,10 @@ verified:
 > comando, ataque repetible, fin de turno manual, IA encadenada y HUD
 > implementados en TASK-0076 a TASK-0078. **Soltar objetos (R-010) queda
 > implementado en TASK-0094** dentro del modelo de inventario de
-> [REQ-018](REQ-018-inventario-equipo.md): cuesta 1 MP y no gasta acción. Queda
-> pendiente **R-011 (contenedores)**, que depende de
-> [REQ-020](REQ-020-cofres-saqueo.md), y el **rebalanceo** de TASK-0084,
+> [REQ-018](REQ-018-inventario-equipo.md): cuesta 1 MP y no gasta acción. **R-011
+> (contenedores)** está implementado para cadáveres en TASK-0136; la parte de
+> cofres sigue pendiente de [REQ-020](REQ-020-cofres-saqueo.md). Queda el
+> **rebalanceo** de TASK-0084,
 > aplazado hasta roster y bestiario completos por
 > [REQ-029](REQ-029-tipos-dano-resistencias.md). El inventario de tres armas, la
 > recogida con `G` y las ranuras `1`-`3` de
@@ -84,7 +85,7 @@ eje de poder.
 | R-008 | El turno **no termina automáticamente** al agotar las acciones: el jugador lo cierra con `E`. El HUD sugiere terminar cuando no quedan acciones y tampoco MP útil. | Gastar la última acción no cambia de turno; el jugador puede seguir moviéndose con MP y cerrar con `E`; no hay auto-terminación. |
 | R-009 | El rebalanceo es parte de esta hoja: se rehacen roster y bestiario con el método de win % incluyendo acciones, magia y réplica (`REQ-027`). | Los duelos de 1.000 simulaciones con tolerancia ±2 % se recalculan; el Pícaro 3 y la tabla enemiga 2/1/2 son valores iniciales, no definitivos. |
 | R-010 | **Soltar un objeto al suelo** cuesta **1 MP y no gasta acción**; el objeto queda en la casilla del personaje. Si estaba equipado, se desequipa en la misma operación. El fantasma mantiene su excepción de `REQ-021`: un objeto por acción. | Soltar con MP deja el objeto en el suelo y no cambia el contador de acciones; sin MP se rechaza. Recogerlo después cuesta 1 MP. |
-| R-011 | Abrir o registrar un **cofre o cadáver** cuesta **1 acción** y requiere **adyacencia**; con el contenedor abierto, transferir objetos es **gratis** (sin acción ni MP), limitado por capacidad, y se permite «coger todo». El fantasma no abre cofres y mueve un objeto por acción (`REQ-021`). | Abrir y coger todo consume 1 acción; las transferencias no consumen más; el fantasma inspecciona sin abrir. |
+| R-011 | Abrir o registrar un **cofre** cuesta **1 acción** y requiere **adyacencia**; el **cadáver** se registra en el **mismo tile** sin coste (0 acciones y 0 MP, REQ-034 v1); con el contenedor abierto, transferir objetos es **gratis** (sin acción ni MP), limitado por capacidad, y se permite «coger todo». El fantasma no abre cofres y mueve un objeto por acción (`REQ-021`). | Abrir un cofre y coger todo consume 1 acción; saquear un cadáver no consume; las transferencias no consumen más; el fantasma inspecciona sin abrir. |
 | R-012 | Huir y perseguir usan **MP, no acciones**. El cobarde no ataca mientras huye; acorralado, ataca con las acciones que le queden. | Perseguir o huir no reduce el contador de acciones; el cobarde acorralado puede atacar. |
 | R-013 | **`Moverse` sobre un enemigo ejecuta un ataque por pulsación**: se acerca con MP y ataca una vez con 1 acción; si quedan acciones, repetir la pulsación ataca de nuevo. No encadena todos los ataques. `F` sigue siendo ataque directo. | Pícaro con 3 acciones ataca una vez por pulsación; el movimiento no gasta acción; sin acción solo se mueve. |
 
@@ -103,7 +104,7 @@ eje de poder.
 | T-009 | Se actualizan economía de turno, arquitectura y glosario; se registra un ADR de economía de acciones. | `docs:check` pasa; no queda "una acción por turno" como regla vigente. |
 | T-010 | Sin dependencias nuevas, sin red y sin arte final. | `package.json` y `pnpm-lock.yaml` no cambian. |
 | T-011 | El comando de soltar valida MP y localización, desequipa si hace falta y crea una instancia de suelo en la casilla; snapshot y guardado exponen los objetos del suelo y el host permite elegir cuál recoger si hay varios. | Tests de soltar equipo y objeto de inventario, sin MP, tile con varios objetos, persistencia y selección en la UI; el estado y el RNG no cambian. |
-| T-012 | Abrir/registrar un contenedor valida adyacencia y acción; una vez abierto, las transferencias y «coger todo» son gratuitas y atómicas, limitadas por capacidad; el fantasma no abre cofres. | Tests de apertura, transferencia gratuita, coger todo, capacidad, fantasma y contenedor vacío; solo la apertura consume acción. |
+| T-012 | Abrir/registrar un cofre valida adyacencia y acción; el cadáver exige mismo tile y 0 acciones/0 MP (REQ-034 v1); una vez abierto, las transferencias y «coger todo» son gratuitas y atómicas, limitadas por capacidad; el fantasma no abre cofres. | Tests de apertura, transferencia gratuita, coger todo, capacidad, fantasma y contenedor vacío; solo la apertura de cofre consume acción. |
 | T-013 | El comando Moverse sobre un enemigo se resuelve como movimiento (MP) + un ataque (1 acción); no encadena ataques. Si ya es adyacente, solo ataca. | Tests: Pícaro 3 acciones ataca una vez por comando; el movimiento no consume acción; sin acción solo se mueve. |
 
 # Requisitos no funcionales

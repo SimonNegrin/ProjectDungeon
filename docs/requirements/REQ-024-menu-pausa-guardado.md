@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:10:00Z
-updated_at: 2026-11-15T18:48:15Z
+updated_at: 2026-11-15T18:53:35Z
 related_tasks: [TASK-0137, TASK-0138, TASK-0139, TASK-0140, TASK-0141, TASK-0144, TASK-0145, TASK-0158]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:10:00Z }
 verified:
@@ -146,7 +146,7 @@ proyectdungeon-<semilla>-<AAAAMMDD-HHmmss>.zip
     ],
     "turn": 12,
     "round": 3,
-    "phase": "players"
+    "phase": "player"
   }
 }
 ```
