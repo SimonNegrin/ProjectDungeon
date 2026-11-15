@@ -107,15 +107,14 @@ test('dos jugadores: roster, variante, nombre y aviso de party', async ({ page }
 
   await page.getByTestId('player-next').click();
   await page.getByTestId('player-next').click();
-  await expect(page.getByTestId('player-status')).toContainText(
-    'Party lista: 2 jugadores, semilla 4242.',
-  );
-  // El último «Siguiente» solo anuncia: no hay resumen, sesión ni mapa.
-  await expect(page.getByTestId('player-screen')).toBeVisible();
+  // El último «Siguiente» abre el resumen; ya no anuncia «Party lista».
+  await expect(page.getByTestId('party-summary')).toBeVisible();
+  await expect(page.getByTestId('summary-seed')).toContainText('4242');
+  await expect(page.getByTestId('player-screen')).toBeHidden();
   await expect(page.getByTestId('player-position')).toHaveText('Jugador 2 de 2');
   await expect(page.getByTestId('start-screen')).toBeHidden();
   await expect(page.getByTestId('player-cancel-dialog')).toBeHidden();
-  await save(page, testInfo, 'party-lista-1280x720');
+  await save(page, testInfo, 'resumen-party-1280x720');
 
   expect(errors).toEqual([]);
 });
