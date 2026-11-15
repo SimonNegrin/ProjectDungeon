@@ -9,6 +9,7 @@ import {
   findVisibleTile,
   moveCursorTo,
   openBspState,
+  restart,
   settle,
 } from './support';
 import { artifactPath } from './artifacts';
@@ -147,8 +148,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   ).toHaveLength(2);
   await expectHud(page, { playerMp: '4/6', action: '2/2' });
 
-  // R reinicia al estado inicial y recoloca el cursor sobre el jugador.
-  await page.keyboard.press('r');
+  // El reinicio por dispatch vuelve al estado inicial y recoloca el cursor
+  // sobre el jugador; el atajo `R` ya no existe.
+  await restart(page);
   const afterRestart = await snapshot(page);
   expect(afterRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(afterRestart.players[0]).toMatchObject({
@@ -203,7 +205,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   await expect(page.getByTestId('hud-message')).toHaveText('Destino no válido');
   await expect(page.getByTestId('hud-message')).toBeVisible();
   await expectHud(page, { playerMp: '3/6' });
-  await page.keyboard.press('r');
+  await restart(page);
 
   // F sin enemigo bajo el cursor avisa y no rompe el estado ni el HUD.
   const beforeMiss = await snapshot(page);
@@ -372,8 +374,9 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   ).toBeVisible();
   await screenshot(page, 'victory', testInfo);
 
-  // R también reinicia desde la victoria y limpia overlay y feedback.
-  await page.keyboard.press('r');
+  // El reinicio por dispatch también limpia overlay y feedback desde la
+  // victoria; `R` ya no es un atajo de juego.
+  await restart(page);
   const afterVictoryRestart = await snapshot(page);
   expect(afterVictoryRestart).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(afterVictoryRestart.players[0]).toMatchObject({

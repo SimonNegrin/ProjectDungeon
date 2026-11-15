@@ -39,11 +39,12 @@ import {
   type PanelDetailBlock,
 } from './hud-detail';
 import type { Viewport } from './geometry';
+import { formatKeyHelp } from './keymap';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
 
-export const KEYS_HELP =
-  'Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · Q hechizos · X lanzar · E terminar turno · R reiniciar · F1 debug';
+/** Ayuda del HUD generada desde el mapa único de teclas (REQ-024 T-014). */
+export const KEYS_HELP = formatKeyHelp();
 
 export interface HudWeapon {
   /** Nombre del arma equipada. */

@@ -11,6 +11,7 @@ import {
   moveCursorTo,
   openBspState,
   reachableVisibleTiles,
+  restart,
   settle,
   snapshot,
   visibleRange,
@@ -534,7 +535,7 @@ test('la cámara sigue al personaje y no se mueve con el cursor', async ({
   expect(consoleErrors).toEqual([]);
 });
 
-test('input de juego ignorado durante la animación; F1 y R responden; R cancela', async ({
+test('input de juego ignorado durante la animación; F1 responde y el reinicio por dispatch cancela', async ({
   page,
 }) => {
   const consoleErrors = trackConsoleErrors(page);
@@ -613,8 +614,9 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
-  // R responde y cancela la animación en curso.
-  await page.keyboard.press('r');
+  // El reinicio por dispatch sigue disponible para debug/tests y cancela la
+  // animación en curso; el atajo `R` ya no existe (REQ-024 T-013).
+  await restart(page);
   const restarted = await snapshot(page);
   expect(restarted.animation.animating).toBe(false);
   expect(restarted.players[0]).toMatchObject({

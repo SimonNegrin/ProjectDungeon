@@ -1,6 +1,7 @@
 import { activePlayer } from '../game/party';
 import type { SpellId } from '../game/spells';
 import type { Command, GameState, Position, Unit } from '../game/types';
+import { KEY_BINDINGS, MANAGED_KEY_CODES } from './keymap';
 import type { NoticeCode } from './notices';
 import { SPELL_ORDER, type SpellMenuSelection } from './spell-menu';
 
@@ -26,7 +27,7 @@ export type InputIgnoreReason =
   | 'panel-open';
 
 export interface TranslateKeyOptions {
-  /** Con una animación activa solo responden `F1` y `R`; el resto se descarta. */
+  /** Con una animación activa solo responden `F1` y `Esc`; el resto se descarta. */
   readonly animating?: boolean;
   /** Estado de la lista de hechizos; sin él se comporta como cerrada y vacía. */
   readonly spellMenu?: SpellMenuSelection;
@@ -50,46 +51,29 @@ export type InputIntent =
   | { readonly type: 'spell-menu-move'; readonly delta: number }
   | { readonly type: 'spell-menu-select'; readonly spellId: SpellId }
   | { readonly type: 'spell-cast'; readonly spellId: SpellId; readonly unitId: string; readonly target: Position }
-  | { readonly type: 'spell-deselect' }
+  | { readonly type: 'pause-toggle' }
   | { readonly type: 'panel-open' }
   | { readonly type: 'panel-close' }
   | { readonly type: 'ignored'; readonly reason: InputIgnoreReason };
 
-const MOVES: Readonly<Record<string, { readonly dx: number; readonly dy: number }>> = {
-  w: { dx: 0, dy: -1 },
-  arrowup: { dx: 0, dy: -1 },
-  s: { dx: 0, dy: 1 },
-  arrowdown: { dx: 0, dy: 1 },
-  a: { dx: -1, dy: 0 },
-  arrowleft: { dx: -1, dy: 0 },
-  d: { dx: 1, dy: 0 },
-  arrowright: { dx: 1, dy: 0 },
-};
-
-const MANAGED_KEYS = new Set([
-  'w',
-  'a',
-  's',
-  'd',
-  'f',
-  'arrowup',
-  'arrowdown',
-  'arrowleft',
-  'arrowright',
-  'i',
-  'escape',
-  'e',
-  'r',
-  'enter',
-  ' ',
-  'spacebar',
-  'f1',
-  'f2',
-]);
+/**
+ * Tabla de movimiento derivada del mapa único: cada código con `cursor` aporta
+ * su delta. No hay una segunda lista literal de WASD o flechas.
+ */
+const MOVES: Readonly<Map<string, { readonly dx: number; readonly dy: number }>> =
+  new Map(
+    KEY_BINDINGS.flatMap((binding) => {
+      const step = binding.cursor;
+      if (step === undefined) return [];
+      return binding.codes.map(
+        (code) => [code, { dx: step.dx, dy: step.dy }] as const,
+      );
+    }),
+  );
 
 /** Teclas cuyo comportamiento del navegador conviene bloquear. */
 export function isManagedKey(key: string): boolean {
-  return MANAGED_KEYS.has(key.toLowerCase());
+  return MANAGED_KEY_CODES.has(key.toLowerCase());
 }
 
 function command(value: Command): InputIntent {
@@ -134,17 +118,19 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * Reglas:
  * - `repeat` y modificadores (ctrl/meta/alt) se ignoran.
  * - Con el panel abierto solo `Escape` e `I` cierran; el resto se bloquea.
- * - Con una animación activa solo responden `F1` y `R`; el resto se descarta.
+ * - Con una animación activa responden `F1` y `Esc`; el resto se descarta.
  * - `I` abre el panel en fase de jugador con un jugador vivo, sin coste.
  * - `F1` y `F2` son acciones del host; `F2` también funciona con la partida
  *   terminada.
- * - Con la partida terminada solo `R`, `F1` y `F2` reaccionan.
+ * - Con la partida terminada solo `F1` y `F2` reaccionan.
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
  * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
  * - `Q` abre/cierra la lista de hechizos; con la lista abierta `↑/↓` o `W/S`
  *   navegan, `1`-`6` eligen, `Enter` lanza contra el cursor y `Esc` cierra.
- * - Cerrada, `X` lanza el hechizo seleccionado y `Esc` lo deselecciona.
+ * - Cerrada, `X` lanza el hechizo seleccionado.
+ * - `Esc` abre la pausa salvo que el panel o la lista de hechizos estén
+ *   abiertos, en cuyo caso los cierra (REQ-024 R-001/R-002).
  * - Movimiento, acciones y fin de turno exigen fase de jugador.
  * - `G` y `1`-`3` ya no gestionan equipo: recoger, equipar y cambiar de arma
  *   viven en el panel.
@@ -161,14 +147,20 @@ export function translateKey(
   const key = input.key.toLowerCase();
 
   // El panel es modal: mientras está abierto ningún comando del mapa, ni
-  // siquiera reiniciar o el debug, llega al motor.
+  // siquiera el debug, llega al motor.
   if (options.panelOpen) {
     if (key === 'escape' || key === 'i') return { type: 'panel-close' };
     return ignored('panel-open');
   }
 
   if (key === 'f1') return { type: 'toggle-debug' };
-  if (key === 'r') return command({ type: 'Restart' });
+  // `Esc` es global: abre la pausa aunque haya una animación en curso. Con la
+  // lista de hechizos abierta, primero la cierra.
+  if (key === 'escape') {
+    return options.spellMenu?.open === true
+      ? { type: 'spell-menu-close' }
+      : { type: 'pause-toggle' };
+  }
   if (options.animating) return ignored('animating');
 
   if (key === 'f2') return { type: 'new-seed' };
@@ -192,7 +184,6 @@ export function translateKey(
   }
 
   if (menu?.open) {
-    if (key === 'escape') return { type: 'spell-menu-close' };
     if (key === 'arrowup' || key === 'w') {
       return { type: 'spell-menu-move', delta: -1 };
     }
@@ -224,10 +215,6 @@ export function translateKey(
     return ignored('spell-menu-open');
   }
 
-  if (key === 'escape') {
-    return menu?.selectedId ? { type: 'spell-deselect' } : ignored('unmapped');
-  }
-
   if (key === 'x') {
     if (state.phase !== 'player') return ignored('wrong-phase');
     const player = findActivePlayer(state);
@@ -243,7 +230,7 @@ export function translateKey(
     };
   }
 
-  const cursorMove = MOVES[key];
+  const cursorMove = MOVES.get(key);
   if (cursorMove) {
     if (state.phase !== 'player') return ignored('wrong-phase');
     if (!findActivePlayer(state)) return ignored('no-active-player');

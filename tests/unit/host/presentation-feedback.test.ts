@@ -475,9 +475,13 @@ describe('beat e input durante una acción sin movimiento', () => {
     expect(translateKey({ key: 'F1' }, state, { x: 6, y: 5 }, { animating: true })).toEqual({
       type: 'toggle-debug',
     });
+    // `Esc` abre la pausa también durante el beat; `R` ya no es un atajo.
+    expect(translateKey({ key: 'Escape' }, state, { x: 6, y: 5 }, { animating: true })).toEqual({
+      type: 'pause-toggle',
+    });
     expect(translateKey({ key: 'R' }, state, { x: 6, y: 5 }, { animating: true })).toEqual({
-      type: 'command',
-      command: { type: 'Restart' },
+      type: 'ignored',
+      reason: 'animating',
     });
   });
 });

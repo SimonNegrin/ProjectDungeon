@@ -25,6 +25,7 @@ import {
   openBspState,
   panelActionTestId,
   pressPanelAction,
+  restart,
   settle,
   snapshot,
   walkTo,
@@ -1022,7 +1023,7 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
-  await page.keyboard.press('r');
+  await restart(page);
   const restarted = await snapshot(page);
   expect(restarted).toMatchObject({ status: 'playing', phase: 'player', turn: 1 });
   expect(restarted.players[0]).toMatchObject({
