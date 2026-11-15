@@ -1,0 +1,9 @@
+$ playwright test tests/e2e/player-screen.spec.ts
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/player-screen.spec.ts:174:1 › ?test=1 no monta las pantallas de inicio (479ms)
+  ✓  3 [chromium] › tests/e2e/player-screen.spec.ts:123:1 › recorrido solo con teclado y cancelación confirmada (747ms)
+  ✓  2 [chromium] › tests/e2e/player-screen.spec.ts:33:1 › dos jugadores: roster, variante, nombre y aviso de party (991ms)
+
+  3 passed (2.0s)
