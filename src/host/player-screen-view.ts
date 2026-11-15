@@ -87,6 +87,9 @@ export function createPlayerScreenView(
   );
 
   const archetypeButtons = new Map<ArchetypeId, HTMLButtonElement>();
+  // Cada montaje parte de un contenedor vacío: destroy() no se lleva el DOM y
+  // reutilizarlo acumularía botones con testids duplicados y listeners muertos.
+  archetypes.replaceChildren();
   for (const id of Object.keys(ROSTER) as ArchetypeId[]) {
     const button = document.createElement('button');
     button.type = 'button';

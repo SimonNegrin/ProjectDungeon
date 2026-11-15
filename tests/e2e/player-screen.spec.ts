@@ -120,6 +120,38 @@ test('dos jugadores: roster, variante, nombre y aviso de party', async ({ page }
   expect(errors).toEqual([]);
 });
 
+test('reentrada tras cancelar no duplica los arquetipos', async ({ page }) => {
+  await openTwoPlayers(page);
+
+  await page.getByTestId('player-cancel').click();
+  await page.getByTestId('player-cancel-confirm').click();
+  await expect(page.getByTestId('start-menu')).toBeVisible();
+
+  await page.getByTestId('start-new').click();
+  await page.getByTestId('step1-players').selectOption('2');
+  await page.getByTestId('step1-continue').click();
+  await expect(page.getByTestId('player-screen')).toBeVisible();
+
+  const buttons = page.getByTestId('player-archetypes').getByRole('button');
+  await expect(buttons).toHaveCount(9);
+  const ids = await buttons.evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute('data-testid') ?? ''),
+  );
+  expect(new Set(ids).size).toBe(9);
+
+  // El botón del nuevo montaje responde al modelo activo, no a uno destruido.
+  await page.getByTestId('player-archetype-mage').click();
+  await expect(page.getByTestId('player-archetype-mage')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-archetype-warrior')).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  await expect(page.getByTestId('player-position')).toHaveText('Jugador 1 de 2');
+});
+
 test('recorrido solo con teclado y cancelación confirmada', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 900, height: 700 });
   await openStart(page);
