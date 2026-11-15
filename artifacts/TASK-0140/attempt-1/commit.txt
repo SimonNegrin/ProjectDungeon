@@ -1,0 +1,5 @@
+branch: task/TASK-0140
+code-1: 21bd30a feat(TASK-0140): descarga el zip de guardado desde la pausa
+code-2: ed20160 test(TASK-0140): cubre manifiesto, nombre UTC y descarga real
+sample-sha256: 3ada74370c35434d05e02b0e316fe43efb5ffbf2a235f0410d923181fcffe93d
+sample-file: artifacts/TASK-0140/attempt-1/save-sample.zip
