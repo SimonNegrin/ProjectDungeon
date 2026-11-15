@@ -1148,3 +1148,253 @@ function findOpenDirection(
   }
   throw new Error('El jugador no tiene ninguna casilla libre adyacente.');
 }
+
+describe('comandos de saqueo de cadáver (REQ-034 R-006/T-006)', () => {
+  function lootState(
+    options: {
+      readonly playerX?: number;
+      readonly ghost?: boolean;
+      readonly actions?: number;
+      readonly items?: readonly string[];
+      readonly corpseOf?: string;
+    } = {},
+  ): GameState {
+    return makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: options.playerX ?? 5,
+          y: 5,
+          ...(options.ghost ? { hp: 0, ghost: true } : {}),
+          ...(options.actions === undefined ? {} : { actions: options.actions }),
+        }),
+      ],
+      enemies: [
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 5, y: 5, hp: 0 }),
+      ],
+      containers: [
+        {
+          id: 'corpse-enemy-1',
+          x: 5,
+          y: 5,
+          capacity: (options.items ?? ['loot-1', 'loot-2']).length,
+          items: (options.items ?? ['loot-1', 'loot-2']).map((id) =>
+            itemInstance(id, 'dagger'),
+          ),
+          kind: 'corpse',
+          corpseOf: options.corpseOf ?? 'enemy-1',
+        },
+      ],
+    });
+  }
+
+  it('TakeItem desde el mismo tile no gasta acción ni MP', () => {
+    const state = lootState();
+    const before = state.players[0];
+
+    const result = reduce(state, {
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-1',
+    });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.players[0].mp).toBe(before.mp);
+    expect(result.state.players[0].actions).toEqual(before.actions);
+    expect(result.state.players[0].inventory.items[0]?.id).toBe('loot-1');
+  });
+
+  it('TakeItem desde un tile adyacente se rechaza y no cambia nada', () => {
+    const state = lootState({ playerX: 4 });
+
+    const result = reduce(state, {
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-1',
+    });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      {
+        type: 'CommandRejected',
+        commandType: 'TakeItem',
+        reason: 'not-same-tile',
+      },
+    ]);
+  });
+
+  it('el fantasma mueve un objeto por acción y no puede «coger todo»', () => {
+    const state = lootState({ ghost: true, actions: 1 });
+
+    const first = reduce(state, {
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-1',
+    });
+    expect(first.events).toEqual([]);
+    expect(first.state.players[0].actions.remaining).toBe(0);
+    expect(first.state.players[0].mp).toBe(state.players[0].mp);
+
+    const second = reduce(first.state, {
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-2',
+    });
+    expect(second.state).toBe(first.state);
+    expect(second.events).toEqual([
+      {
+        type: 'CommandRejected',
+        commandType: 'TakeItem',
+        reason: 'no-action',
+      },
+    ]);
+
+    const takeAll = reduce(first.state, {
+      type: 'TakeAll',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+    });
+    expect(takeAll.state).toBe(first.state);
+    expect(takeAll.events).toEqual([
+      {
+        type: 'CommandRejected',
+        commandType: 'TakeAll',
+        reason: 'invalid-target',
+      },
+    ]);
+  });
+
+  it('el fantasma no puede equipar desde el cadáver', () => {
+    const state = lootState({ ghost: true });
+
+    const result = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'container',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-1',
+    });
+
+    expect(result.state).toBe(state);
+    expect(result.events).toEqual([
+      {
+        type: 'CommandRejected',
+        commandType: 'EquipItem',
+        reason: 'dead-unit',
+      },
+    ]);
+    expect(result.state.containers?.[0].items).toHaveLength(2);
+  });
+
+  it('TakeAll es atómico, gratis y retira el cadáver de enemigo vaciado', () => {
+    const state = lootState();
+    const before = state.players[0];
+
+    const result = reduce(state, {
+      type: 'TakeAll',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+    });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.containers).toEqual([]);
+    expect(result.state.players[0].mp).toBe(before.mp);
+    expect(result.state.players[0].actions).toEqual(before.actions);
+    expect(
+      result.state.players[0].inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item?.id),
+    ).toEqual(['loot-1', 'loot-2']);
+
+    const full = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          inventory: inventoryFromIds('player-1', [
+            'axe',
+            'dagger',
+            'knife',
+            'hammer',
+            'electric-sword',
+            'arcane-dagger',
+            'plate',
+            'shield',
+          ]),
+        }),
+      ],
+      enemies: [
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 5, y: 5, hp: 0 }),
+      ],
+      containers: [
+        {
+          id: 'corpse-enemy-1',
+          x: 5,
+          y: 5,
+          capacity: 1,
+          items: [itemInstance('loot-1', 'dagger')],
+          kind: 'corpse',
+          corpseOf: 'enemy-1',
+        },
+      ],
+    });
+    const rejected = reduce(full, {
+      type: 'TakeAll',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+    });
+    expect(rejected.state).toBe(full);
+    expect(rejected.events).toEqual([
+      {
+        type: 'CommandRejected',
+        commandType: 'TakeAll',
+        reason: 'inventory-full',
+      },
+    ]);
+  });
+
+  it('el cadáver de jugador vaciado permanece como contenedor', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          hp: 0,
+        }),
+      ],
+      enemies: [],
+      containers: [
+        {
+          id: 'corpse-player-2',
+          x: 5,
+          y: 5,
+          capacity: 1,
+          items: [itemInstance('loot-1', 'dagger')],
+          kind: 'corpse',
+          corpseOf: 'player-2',
+        },
+      ],
+    });
+
+    const result = reduce(state, {
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-player-2',
+      itemId: 'loot-1',
+    });
+
+    expect(result.events).toEqual([]);
+    expect(result.state.containers).toHaveLength(1);
+    expect(result.state.containers?.[0].items).toEqual([null]);
+  });
+});

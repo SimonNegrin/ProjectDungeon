@@ -8,6 +8,8 @@ import {
   inspectContainer,
   itemInstance,
   pickUpItem,
+  takeAllContainerItems,
+  takeContainerItem,
   unequipItem,
   type InventoryCost,
   type InventorySource,
@@ -546,6 +548,48 @@ function reducePickUp(
   );
 }
 
+/**
+ * `TakeItem` (REQ-034 R-006/T-006): saqueo de un cadáver del mismo tile. Un
+ * vivo no paga acción ni MP; el fantasma paga una acción por objeto.
+ */
+function reduceTakeItem(
+  state: GameState,
+  command: Extract<Command, { type: 'TakeItem' }>,
+): ReduceResult {
+  const checked = inventoryUnit(state, command, command.unitId, true);
+  if (!checked.ok) return checked.result;
+  return reduceInventory(state, command, () =>
+    takeContainerItem(
+      state,
+      checked.unit.id,
+      command.containerId,
+      command.itemId,
+      isGhost(checked.unit) ? 'action' : 'none',
+    ),
+  );
+}
+
+/**
+ * `TakeAll` (REQ-034 R-006): solo un vivo. El fantasma mueve un objeto por
+ * acción y no dispone de «coger todo»; se rechaza sin cambios.
+ */
+function reduceTakeAll(
+  state: GameState,
+  command: Extract<Command, { type: 'TakeAll' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+  const unit = state.players.find((player) => player.id === command.unitId);
+  if (!unit) return reject(state, command, 'unknown-unit');
+  if (!isAlive(unit)) {
+    return reject(state, command, isGhost(unit) ? 'invalid-target' : 'dead-unit');
+  }
+  return reduceInventory(state, command, () =>
+    takeAllContainerItems(state, unit.id, command.containerId),
+  );
+}
+
 function reduceEquipItem(
   state: GameState,
   command: Extract<Command, { type: 'EquipItem' }>,
@@ -674,6 +718,10 @@ export function reduce(state: GameState, command: Command): ReduceResult {
       return reduceAttack(state, command);
     case 'PickUp':
       return reducePickUp(state, command);
+    case 'TakeItem':
+      return reduceTakeItem(state, command);
+    case 'TakeAll':
+      return reduceTakeAll(state, command);
     case 'EquipItem':
       return reduceEquipItem(state, command);
     case 'UnequipItem':

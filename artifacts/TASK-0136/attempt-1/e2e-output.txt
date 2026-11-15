@@ -1,0 +1,17 @@
+$ playwright test tests/e2e/corpse-loot-panel-qa.spec.ts tests/e2e/panel-three-columns-qa.spec.ts tests/e2e/panel-cursor-cls-qa.spec.ts
+
+Running 11 tests using 4 workers
+
+  ✓   4 [chromium] › tests/e2e/panel-cursor-cls-qa.spec.ts:632:1 › cursor: capa por encima del panel y por debajo del submenú (1.3s)
+  ✓   3 [chromium] › tests/e2e/corpse-loot-panel-qa.spec.ts:148:1 › cadáver del mismo tile: sin coste, coger todo y retirada del enemigo (1.5s)
+  ✓   6 [chromium] › tests/e2e/panel-cursor-cls-qa.spec.ts:928:1 › CLS: recoger los cuatro objetos del Suelo no desplaza el panel (1.2s)
+  ✓   2 [chromium] › tests/e2e/panel-cursor-cls-qa.spec.ts:515:1 › cursor superpuesto: marco, transición y foco real en el slot (3.1s)
+  ✓   8 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:490:1 › cadáveres del tile: rejilla al inicio de Suelo, sin acciones ni paradas (795ms)
+  ✓   1 [chromium] › tests/e2e/panel-cursor-cls-qa.spec.ts:677:1 › cursor: scroll instantáneo, pulsaciones rápidas y movimiento reducido (4.1s)
+  ✓   5 [chromium] › tests/e2e/panel-cursor-cls-qa.spec.ts:794:1 › CLS: marco, panel, columnas, títulos y slots estables (2.9s)
+  ✓   7 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:388:1 › tres columnas, ocho huecos y ocho casillas; los huecos vacíos no son paradas (1.9s)
+  ✓  11 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:712:1 › scroll: a 1280×720 solo el suelo puede desplazarse; a 900×700 también (1.1s)
+  ✓   9 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:558:1 › flechas y WASD recorren el plano, sin rebote y con empate determinista (1.6s)
+  ✓  10 [chromium] › tests/e2e/panel-three-columns-qa.spec.ts:604:1 › Tab recorre zonas, conserva el foco al reabrir y lo reubica tras operar (1.4s)
+
+  11 passed (7.4s)

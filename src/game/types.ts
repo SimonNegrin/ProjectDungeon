@@ -218,6 +218,8 @@ export type CommandType =
   | 'MoveTo'
   | 'Attack'
   | 'PickUp'
+  | 'TakeItem'
+  | 'TakeAll'
   | 'EquipItem'
   | 'UnequipItem'
   | 'DropItem'
@@ -245,6 +247,18 @@ export type Command =
   | { readonly type: 'Attack'; readonly unitId: string; readonly targetId: string }
   /** Recoge a la mochila el objeto del tile (1 MP, sin gastar acción). */
   | { readonly type: 'PickUp'; readonly unitId: string }
+  /**
+   * Saca un objeto de un cadáver del mismo tile a la mochila (REQ-034 T-006):
+   * gratis para el vivo; el fantasma paga una acción.
+   */
+  | {
+      readonly type: 'TakeItem';
+      readonly unitId: string;
+      readonly containerId: string;
+      readonly itemId: string;
+    }
+  /** «Coger todo» de un cadáver del mismo tile: solo vivo, gratis y atómico. */
+  | { readonly type: 'TakeAll'; readonly unitId: string; readonly containerId: string }
   /** Equipa desde la mochila, el suelo del tile o un contenedor abierto. */
   | {
       readonly type: 'EquipItem';
@@ -338,8 +352,10 @@ export type RejectionReason =
   | 'wrong-slot'
   /** `EquipItem`: un escudo no cabe mientras hay un arma a dos manos. */
   | 'two-handed'
-  /** `EquipItem`: contenedor inexistente. */
+  /** `EquipItem`/`TakeItem`/`TakeAll`: contenedor inexistente. */
   | 'unknown-container'
+  /** Saquear un cadáver exige estar en su mismo tile (REQ-034 R-006). */
+  | 'not-same-tile'
   /** `Attack`: la unidad no tiene arma equipada. */
   | 'unarmed'
   /** `CastSpell`: el id no existe en el catálogo. */

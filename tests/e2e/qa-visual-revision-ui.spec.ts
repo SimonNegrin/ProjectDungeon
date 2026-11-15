@@ -4,7 +4,11 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import { BspMapGenerator } from '../../src/game/bsp';
 import { createInitialState } from '../../src/game/engine';
 import { ITEMS, type ItemId } from '../../src/game/equipment';
-import { equipmentFromLegacy, inventoryFromIds } from '../../src/game/inventory';
+import {
+  equipmentFromLegacy,
+  inventoryFromIds,
+  type Container,
+} from '../../src/game/inventory';
 import {
   createPlayerFromArchetype,
   createRoomGrid,
@@ -196,6 +200,18 @@ function panelState(options: PanelOptions = {}): GameState {
       inventory: inventoryFromIds('player-corpse', []),
     });
   }
+  const containers: Container[] = [];
+  if (options.deadPlayer) {
+    containers.push({
+      id: 'corpse-player-corpse',
+      x: at.x,
+      y: at.y,
+      capacity: 0,
+      items: [],
+      kind: 'corpse',
+      corpseOf: 'player-corpse',
+    });
+  }
   const enemyTemplate = base.enemies[0];
   const enemies = options.deadEnemies
     ? options.deadEnemies.map((enemyType, index) => ({
@@ -208,10 +224,22 @@ function panelState(options: PanelOptions = {}): GameState {
         y: at.y,
       }))
     : base.enemies;
+  options.deadEnemies?.forEach((_enemyType, index) => {
+    containers.push({
+      id: `corpse-enemy-corpse-${index}`,
+      x: at.x,
+      y: at.y,
+      capacity: 0,
+      items: [],
+      kind: 'corpse',
+      corpseOf: `enemy-corpse-${index}`,
+    });
+  });
   return {
     ...base,
     players,
     enemies,
+    containers,
     groundItems: (options.ground ?? []).map((itemId, index) => ({
       id: `item-test-ground-${index}`,
       itemId,

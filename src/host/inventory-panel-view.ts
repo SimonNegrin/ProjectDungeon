@@ -130,6 +130,7 @@ function rowTestId(key: string): string {
 function stateLabel(key: string): string {
   if (key.startsWith('slot:')) return 'Equipado';
   if (key.startsWith('backpack:')) return 'En mochila';
+  if (key.startsWith('corpse:')) return 'En el cadáver';
   return 'En el suelo';
 }
 
@@ -262,7 +263,13 @@ function createCorpse(corpse: PanelCorpse): CorpseView {
   name.className = 'inventory-corpse-name';
   name.textContent = corpse.name;
 
-  root.append(sprite, name);
+  const cost = document.createElement('span');
+  cost.className = 'inventory-corpse-cost';
+  cost.dataset.testid = `inventory-corpse-cost-${rowTestId(corpse.key)}`;
+  cost.textContent = corpse.costLabel;
+
+  root.dataset.cost = corpse.costLabel;
+  root.append(sprite, name, cost);
   return { root, sprite, name };
 }
 
@@ -277,6 +284,7 @@ export function createInventoryPanelView(
   const groundList = requireElement(root, 'inventory-ground');
   const groundScroll = requireElement(root, 'inventory-ground-scroll');
   const cadaversList = requireElement(root, 'inventory-cadavers');
+  const corpseItemsList = requireElement(root, 'inventory-corpse-items');
   const message = requireElement(root, 'inventory-message');
   const submenu = requireElement(root, 'inventory-submenu');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
@@ -297,6 +305,7 @@ export function createInventoryPanelView(
 
   const backpackCells = new Map<number, CellView>();
   const groundCells = new Map<string, CellView>();
+  const corpseCells = new Map<string, CellView>();
   const zoneLastKey = new Map<string, string>();
   let currentCells: readonly NavigationCell[] = [];
   let model: InventoryPanelModel | null = null;
@@ -320,7 +329,7 @@ export function createInventoryPanelView(
     for (const view of backpackCells.values()) {
       if (view.key === key) return view;
     }
-    return groundCells.get(key) ?? null;
+    return groundCells.get(key) ?? corpseCells.get(key) ?? null;
   };
 
   const centerOf = (key: string): NavigationPoint | null => {
@@ -342,6 +351,7 @@ export function createInventoryPanelView(
       ...equipmentCells.values(),
       ...backpackCells.values(),
       ...groundCells.values(),
+      ...corpseCells.values(),
     ]) {
       if (!view.root.isConnected || view.root.dataset.empty === 'true') continue;
       const center = centerOf(view.key);
@@ -356,6 +366,9 @@ export function createInventoryPanelView(
       model.equipment.find((item) => item.key === key) ??
       model.backpack.find((item) => item.key === key) ??
       model.ground.find((item) => item.key === key) ??
+      model.corpses
+        .flatMap((corpse) => corpse.items)
+        .find((item) => item.key === key) ??
       null
     );
   };
@@ -480,7 +493,12 @@ export function createInventoryPanelView(
   };
 
   const revealRow = (view: CellView): boolean => {
-    if (view.zone !== 'right' || !groundList.contains(view.root)) return false;
+    if (
+      view.zone !== 'right' ||
+      (!groundList.contains(view.root) && !corpseItemsList.contains(view.root))
+    ) {
+      return false;
+    }
     const before = groundScroll.scrollTop;
     const rowRect = view.root.getBoundingClientRect();
     const scrollRect = groundScroll.getBoundingClientRect();
@@ -638,6 +656,7 @@ export function createInventoryPanelView(
       ...equipmentCells.values(),
       ...backpackCells.values(),
       ...groundCells.values(),
+      ...corpseCells.values(),
     ]) {
       const occupied = view.root.dataset.empty === 'false';
       const selected = occupied && view.key === selectedKey;
@@ -785,6 +804,31 @@ export function createInventoryPanelView(
     cadaversList.replaceChildren(...next.corpses.map((corpse) => createCorpse(corpse).root));
     cadaversList.hidden = next.corpses.length === 0;
 
+    const corpseItems = next.corpses.flatMap((corpse) => corpse.items);
+    const corpseItemKeys = new Set(corpseItems.map((item) => item.key));
+    for (const item of corpseItems) {
+      let view = corpseCells.get(item.key);
+      if (!view) {
+        view = createCell(
+          corpseItemsList,
+          item.key,
+          'right',
+          'inventory-corpse-item-row',
+        );
+        corpseCells.set(item.key, view);
+      }
+      updateCell(view, item);
+    }
+    for (const [key, view] of corpseCells) {
+      if (corpseItemKeys.has(key)) continue;
+      view.root.remove();
+      corpseCells.delete(key);
+    }
+    corpseItemsList.append(
+      ...corpseItems.map((item) => corpseCells.get(item.key)!.root),
+    );
+    corpseItemsList.hidden = corpseItems.length === 0;
+
     currentCells = readCells();
 
     if (mode === 'open') {
@@ -795,9 +839,12 @@ export function createInventoryPanelView(
     } else if (previousInstanceId !== null) {
       // N-008 por identidad: equipar, desequipar, recoger y soltar pueden mover
       // la instancia a otra zona; el foco la sigue a su nueva clave.
-      const moved = [...next.equipment, ...next.backpack, ...next.ground].find(
-        (item) => item.instanceId === previousInstanceId,
-      );
+      const moved = [
+        ...next.equipment,
+        ...next.backpack,
+        ...next.ground,
+        ...next.corpses.flatMap((corpse) => corpse.items),
+      ].find((item) => item.instanceId === previousInstanceId);
       if (moved && currentCells.some((cell) => cell.key === moved.key)) {
         selectedKey = moved.key;
       } else if (previousCenter !== null) {

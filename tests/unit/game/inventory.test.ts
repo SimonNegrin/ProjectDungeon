@@ -6,9 +6,12 @@ import {
   equipItem,
   allInstances,
   inventoryFromIds,
+  itemInstance,
   locateInstance,
   reduce,
   settleUnitDeath,
+  takeAllContainerItems,
+  takeContainerItem,
   type Container,
   type EquipmentSlots,
   type GameState,
@@ -842,7 +845,7 @@ describe('retirada del cadáver al vaciarlo (REQ-034 T-007)', () => {
   it('el cadáver de enemigo se elimina al coger su último objeto', () => {
     const state = settleUnitDeath(
       makeState({
-        players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
         enemies: [
           makeUnit({
             id: 'enemy-1',
@@ -874,7 +877,7 @@ describe('retirada del cadáver al vaciarlo (REQ-034 T-007)', () => {
   it('el cadáver de enemigo con objetos restantes permanece', () => {
     const state = settleUnitDeath(
       makeState({
-        players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 5 })],
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
         enemies: [
           makeUnit({
             id: 'enemy-1',
@@ -917,7 +920,7 @@ describe('retirada del cadáver al vaciarlo (REQ-034 T-007)', () => {
             equipmentSlots: slots('player-1', 'sword', null, null),
             inventory: createInventory(),
           }),
-          makeUnit({ id: 'player-2', faction: 'player', x: 4, y: 5 }),
+          makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 5 }),
         ],
         enemies: [],
       }),
@@ -937,5 +940,259 @@ describe('retirada del cadáver al vaciarlo (REQ-034 T-007)', () => {
     expect(corpse?.id).toBe('corpse-player-1');
     expect(corpse?.items).toEqual([null]);
     expect(corpse?.corpseOf).toBe('player-1');
+  });
+});
+
+describe('saqueo de cadáver: mismo tile y coste (REQ-034 R-006/T-006)', () => {
+  function corpseState(
+    options: {
+      readonly player?: Partial<Parameters<typeof makeUnit>[0]>;
+      readonly players?: ReturnType<typeof makeUnit>[];
+      readonly container?: Partial<Container>;
+      readonly enemies?: ReturnType<typeof makeUnit>[];
+    } = {},
+  ): GameState {
+    return makeState({
+      players: options.players ?? [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          ...options.player,
+        }),
+      ],
+      enemies:
+        options.enemies ??
+        [
+          makeUnit({
+            id: 'enemy-1',
+            faction: 'enemy',
+            x: 5,
+            y: 5,
+            hp: 0,
+          }),
+        ],
+      containers: [
+        {
+          id: 'corpse-enemy-1',
+          x: 5,
+          y: 5,
+          capacity: 2,
+          items: [
+            itemInstance('loot-1', 'sword'),
+            itemInstance('loot-2', 'axe'),
+          ],
+          kind: 'corpse',
+          corpseOf: 'enemy-1',
+          ...options.container,
+        },
+      ],
+    });
+  }
+
+  it('un vivo coge del mismo tile sin gastar acción ni MP', () => {
+    const state = corpseState();
+    const before = state.players[0];
+
+    const taken = takeContainerItem(
+      state,
+      'player-1',
+      'corpse-enemy-1',
+      'loot-1',
+      'none',
+    );
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(taken.state.players[0].inventory.items[0]?.id).toBe('loot-1');
+    expect(taken.state.players[0].mp).toBe(before.mp);
+    expect(taken.state.players[0].actions).toEqual(before.actions);
+    expect(taken.state.containers?.[0].items).toEqual([
+      null,
+      expect.objectContaining({ id: 'loot-2' }),
+    ]);
+    const ids = allInstances(taken.state).map((instance) => instance.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    expect(JSON.parse(JSON.stringify(taken.state))).toEqual(taken.state);
+  });
+
+  it('rechaza saquear desde un tile adyacente sin cambios', () => {
+    const state = corpseState({ player: { x: 4, y: 5 } });
+    const before = JSON.stringify(state);
+
+    expect(
+      takeContainerItem(state, 'player-1', 'corpse-enemy-1', 'loot-1', 'none'),
+    ).toEqual({ ok: false, reason: 'not-same-tile' });
+    expect(JSON.stringify(state)).toBe(before);
+
+    // La misma regla protege la equipación desde un cadáver a distancia.
+    expect(
+      equipItem(state, 'player-1', {
+        kind: 'container',
+        containerId: 'corpse-enemy-1',
+        itemId: 'loot-1',
+      }),
+    ).toEqual({ ok: false, reason: 'not-same-tile' });
+  });
+
+  it('no saquea cofres con la operación de cadáver', () => {
+    const state = corpseState({ container: { kind: 'chest' } });
+    const before = JSON.stringify(state);
+
+    expect(
+      takeContainerItem(state, 'player-1', 'corpse-enemy-1', 'loot-1', 'none'),
+    ).toEqual({ ok: false, reason: 'unknown-container' });
+    expect(
+      takeAllContainerItems(state, 'player-1', 'corpse-enemy-1'),
+    ).toEqual({ ok: false, reason: 'unknown-container' });
+    expect(JSON.stringify(state)).toBe(before);
+  });
+
+  it('con la mochila llena, coger uno y coger todo no mueven nada', () => {
+    const full = [
+      'axe',
+      'dagger',
+      'knife',
+      'hammer',
+      'electric-sword',
+      'arcane-dagger',
+      'plate',
+      'shield',
+    ] as const;
+    const state = corpseState({
+      player: { inventory: inventoryFromIds('player-1', full) },
+    });
+    const before = JSON.stringify(state);
+
+    expect(
+      takeContainerItem(state, 'player-1', 'corpse-enemy-1', 'loot-1', 'none'),
+    ).toEqual({ ok: false, reason: 'inventory-full' });
+    expect(
+      takeAllContainerItems(state, 'player-1', 'corpse-enemy-1'),
+    ).toEqual({ ok: false, reason: 'inventory-full' });
+    expect(JSON.stringify(state)).toBe(before);
+    expect(state.containers?.[0].items).toHaveLength(2);
+  });
+
+  it('al coger el último objeto, el cadáver de enemigo desaparece', () => {
+    const state = corpseState({
+      container: { capacity: 1, items: [itemInstance('loot-1', 'sword')] },
+    });
+
+    const taken = takeContainerItem(
+      state,
+      'player-1',
+      'corpse-enemy-1',
+      'loot-1',
+      'none',
+    );
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(taken.state.containers).toEqual([]);
+    expect(taken.state.players[0].inventory.items[0]?.id).toBe('loot-1');
+  });
+
+  it('el cadáver de jugador permanece vacío al coger su último objeto', () => {
+    const state = corpseState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+        makeUnit({
+          id: 'player-corpse',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          hp: 0,
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 15, y: 15 })],
+      container: {
+        id: 'corpse-player-corpse',
+        capacity: 1,
+        items: [itemInstance('loot-1', 'sword')],
+        corpseOf: 'player-corpse',
+      },
+    });
+
+    const taken = takeContainerItem(
+      state,
+      'player-1',
+      'corpse-player-corpse',
+      'loot-1',
+      'none',
+    );
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(taken.state.containers).toHaveLength(1);
+    expect(taken.state.containers?.[0].id).toBe('corpse-player-corpse');
+    expect(taken.state.containers?.[0].items).toEqual([null]);
+  });
+
+  it('«coger todo» mueve todo en orden, vacía el cadáver de enemigo y no cuesta recursos', () => {
+    const state = corpseState();
+    const before = state.players[0];
+
+    const taken = takeAllContainerItems(state, 'player-1', 'corpse-enemy-1');
+
+    expect(taken.ok).toBe(true);
+    if (!taken.ok) return;
+    expect(
+      taken.state.players[0].inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item?.id),
+    ).toEqual(['loot-1', 'loot-2']);
+    expect(taken.state.players[0].mp).toBe(before.mp);
+    expect(taken.state.players[0].actions).toEqual(before.actions);
+    expect(taken.state.containers).toEqual([]);
+    const ids = allInstances(taken.state).map((instance) => instance.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('«coger todo» es atómico si no cabe entero', () => {
+    const state = corpseState({
+      player: { inventory: inventoryFromIds('player-1', ['axe', 'dagger'], 3) },
+    });
+    const before = JSON.stringify(state);
+
+    expect(
+      takeAllContainerItems(state, 'player-1', 'corpse-enemy-1'),
+    ).toEqual({ ok: false, reason: 'inventory-full' });
+    expect(JSON.stringify(state)).toBe(before);
+  });
+
+  it('el fantasma paga una acción por objeto y sin acción no mueve nada', () => {
+    const state = corpseState({
+      player: { hp: 0, ghost: true, actions: 1 },
+    });
+    const before = state.players[0];
+
+    const first = takeContainerItem(
+      state,
+      'player-1',
+      'corpse-enemy-1',
+      'loot-1',
+      'action',
+    );
+    expect(first.ok).toBe(true);
+    if (!first.ok) return;
+    expect(first.state.players[0].actions.remaining).toBe(0);
+    expect(first.state.players[0].mp).toBe(before.mp);
+
+    const secondState = first.state;
+    const second = takeContainerItem(
+      secondState,
+      'player-1',
+      'corpse-enemy-1',
+      'loot-2',
+      'action',
+    );
+    expect(second).toEqual({ ok: false, reason: 'no-action' });
+    expect(secondState.players[0].inventory.items[0]?.id).toBe('loot-1');
+    expect(secondState.containers?.[0].items).toEqual([
+      null,
+      expect.objectContaining({ id: 'loot-2' }),
+    ]);
   });
 });

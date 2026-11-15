@@ -1,0 +1,11 @@
+{
+  "keys": [
+    "corpse:corpse-enemy-tile:item-corpse-enemy-tile-dagger",
+    "corpse:corpse-enemy-tile:item-corpse-enemy-tile-axe"
+  ],
+  "costs": [
+    "sin coste",
+    "sin coste",
+    "1 MP"
+  ]
+}

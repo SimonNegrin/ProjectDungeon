@@ -333,7 +333,7 @@ describe('cadáver, casilla compartida y persistencia', () => {
             }),
             inventory: createInventory(),
           }),
-          makeUnit({ id: 'player-2', faction: 'player', x: 4, y: 4 }),
+          makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 5 }),
         ],
       }),
       'player-1',

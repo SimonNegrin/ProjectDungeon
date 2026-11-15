@@ -1,0 +1,82 @@
+{
+  "layers": {
+    "cursor": {
+      "selector": "[data-testid=\"inventory-cursor\"]",
+      "position": "absolute",
+      "zIndex": 10
+    },
+    "submenu": {
+      "selector": "[data-testid=\"inventory-submenu\"]",
+      "position": "absolute",
+      "zIndex": 30
+    },
+    "content": [
+      {
+        "selector": ".inventory-column-equipment",
+        "position": "relative",
+        "zIndex": null
+      },
+      {
+        "selector": ".inventory-column-backpack",
+        "position": "relative",
+        "zIndex": null
+      },
+      {
+        "selector": ".inventory-column-right",
+        "position": "relative",
+        "zIndex": null
+      },
+      {
+        "selector": ".inventory-section-title",
+        "position": "static",
+        "zIndex": null
+      },
+      {
+        "selector": ".inventory-slot",
+        "position": "relative",
+        "zIndex": null
+      },
+      {
+        "selector": ".inventory-figure",
+        "position": "absolute",
+        "zIndex": null
+      }
+    ]
+  },
+  "cursor": {
+    "selectedKey": "backpack:0",
+    "activeKey": "backpack:0",
+    "line": 1.1736778846153846,
+    "bevel": 2,
+    "cursor": {
+      "left": 404.0955505371094,
+      "top": 141.23617553710938,
+      "right": 453.6268005371094,
+      "bottom": 190.76742553710938,
+      "width": 49.53125,
+      "height": 49.53125
+    },
+    "slot": {
+      "left": 408.921875,
+      "top": 146.0625,
+      "right": 448.8125,
+      "bottom": 185.953125,
+      "width": 39.890625,
+      "height": 39.890625
+    },
+    "cursorHidden": false,
+    "ariaHidden": "true",
+    "cursorTabIndex": null,
+    "pointerEvents": "none",
+    "background": "rgba(0, 0, 0, 0)",
+    "backgroundImage": "none",
+    "borderTopWidth": 4,
+    "borderTopColor": "rgb(252, 255, 192)",
+    "transitionProperty": "transform",
+    "transitionDuration": "0.15s",
+    "transform": "matrix(1, 0, 0, 1, 198.221, 46.3612)",
+    "slotAriaCurrent": "true",
+    "slotTabIndex": "0",
+    "rowAtCenter": "backpack:0"
+  }
+}

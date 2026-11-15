@@ -1,3 +1,4 @@
+import { activePlayer } from '../game/party';
 import type { SpellId } from '../game/spells';
 import type { Command, GameState, Position, Unit } from '../game/types';
 import type { NoticeCode } from './notices';
@@ -104,14 +105,19 @@ function findActivePlayer(state: GameState): Unit | undefined {
 }
 
 /**
- * Condición de apertura del panel de personaje (REQ-018 T-009): partida en
- * curso, fase de jugador y al menos un jugador vivo. Cuando `REQ-021` añada el
- * fantasma, este es el único punto que debe excluirlo.
+ * El panel pertenece al jugador activo y solo si está vivo (REQ-018 T-009,
+ * REQ-034 T-006). Un fantasma activo no lo abre aunque otro jugador siga vivo.
  */
+function activePlayerCanOpenPanel(state: GameState): Unit | undefined {
+  const active = activePlayer(state);
+  return active !== undefined && active.hp > 0 ? active : undefined;
+}
+
+/** Condición de apertura del panel: partida en curso, fase de jugador y activo vivo. */
 export function canOpenCharacterPanel(state: GameState): boolean {
   if (state.status !== 'playing') return false;
   if (state.phase !== 'player') return false;
-  return findActivePlayer(state) !== undefined;
+  return activePlayerCanOpenPanel(state) !== undefined;
 }
 
 /** Enemigo vivo exactamente en el tile bajo el cursor. */
@@ -170,7 +176,7 @@ export function translateKey(
   if (key === 'i') {
     if (state.status !== 'playing') return ignored('game-over');
     if (state.phase !== 'player') return ignored('wrong-phase');
-    if (!findActivePlayer(state)) return ignored('no-active-player');
+    if (!activePlayerCanOpenPanel(state)) return ignored('no-active-player');
     if (options.spellMenu?.open) return ignored('spell-menu-open');
     return { type: 'panel-open' };
   }

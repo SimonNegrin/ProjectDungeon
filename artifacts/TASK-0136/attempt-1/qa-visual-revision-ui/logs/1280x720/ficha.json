@@ -1,0 +1,62 @@
+[
+  {
+    "scene": "sin-traits",
+    "viewport": "1280x720",
+    "stats": [
+      {
+        "text": "+2 Acierto",
+        "top": 123.765625,
+        "bottom": 144.765625
+      },
+      {
+        "text": "+5 Daño",
+        "top": 146.359375,
+        "bottom": 167.359375
+      }
+    ],
+    "ficha": {
+      "selectedSprite": {
+        "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "backgroundPosition": "-51.2308px -153.692px",
+        "imageRendering": "pixelated",
+        "width": 51.21875,
+        "height": 51.21875
+      },
+      "equippedSprite": {
+        "backgroundImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "backgroundPosition": "-153.692px 0px",
+        "imageRendering": "pixelated",
+        "width": 51.21875,
+        "height": 51.21875
+      },
+      "selectedBlock": {
+        "backgroundColor": "rgb(119, 68, 72)",
+        "borderTopStyle": "solid",
+        "borderTopWidth": "1px",
+        "borderTopColor": "rgb(110, 184, 168)",
+        "borderBottomColor": "rgb(47, 20, 47)",
+        "left": 990,
+        "right": 1215
+      },
+      "equippedBlock": {
+        "backgroundColor": "rgb(119, 68, 72)",
+        "borderTopStyle": "solid",
+        "borderTopWidth": "1px",
+        "borderTopColor": "rgb(110, 184, 168)",
+        "borderBottomColor": "rgb(47, 20, 47)",
+        "left": 990,
+        "right": 1215
+      },
+      "right": {
+        "backgroundColor": "rgb(42, 88, 79)",
+        "left": 973,
+        "right": 1232
+      }
+    }
+  },
+  {
+    "scene": "con-traits",
+    "viewport": "1280x720",
+    "trait": "filoso: Corta más"
+  }
+]

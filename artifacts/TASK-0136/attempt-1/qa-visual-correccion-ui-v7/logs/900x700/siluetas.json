@@ -1,0 +1,1281 @@
+{
+  "viewport": "900x700",
+  "empty": [
+    {
+      "key": "slot:weapon",
+      "empty": true,
+      "rect": {
+        "left": 325.734375,
+        "top": 272.765625,
+        "right": 365.625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 273.765625,
+        "right": 364.625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -96) calc(var(--ui-unit) * 0)",
+        "rect": {
+          "left": 326.734375,
+          "top": 273.765625,
+          "right": 364.625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:shield",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 272.765625,
+        "right": 281.15625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 273.765625,
+        "right": 280.15625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * 0) calc(var(--ui-unit) * -352)",
+        "rect": {
+          "left": 242.265625,
+          "top": 273.765625,
+          "right": 280.15625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:armor",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 230.53125,
+        "right": 323.390625,
+        "bottom": 270.421875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 231.53125,
+        "right": 322.390625,
+        "bottom": 269.421875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -384)",
+        "rect": {
+          "left": 284.5,
+          "top": 231.53125,
+          "right": 322.390625,
+          "bottom": 269.421875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:head",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 146.0625,
+        "right": 323.390625,
+        "bottom": 185.953125,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 147.0625,
+        "right": 322.390625,
+        "bottom": 184.953125,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -480)",
+        "rect": {
+          "left": 284.5,
+          "top": 147.0625,
+          "right": 322.390625,
+          "bottom": 184.953125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:feet",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 315,
+        "right": 323.390625,
+        "bottom": 354.890625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 316,
+        "right": 322.390625,
+        "bottom": 353.890625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -448)",
+        "rect": {
+          "left": 284.5,
+          "top": 316,
+          "right": 322.390625,
+          "bottom": 353.890625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:hands",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 272.765625,
+        "right": 323.390625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 273.765625,
+        "right": 322.390625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -416)",
+        "rect": {
+          "left": 284.5,
+          "top": 273.765625,
+          "right": 322.390625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:neck",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 188.296875,
+        "right": 281.15625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 189.296875,
+        "right": 280.15625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -512)",
+        "rect": {
+          "left": 242.265625,
+          "top": 189.296875,
+          "right": 280.15625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:ring",
+      "empty": true,
+      "rect": {
+        "left": 325.734375,
+        "top": 188.296875,
+        "right": 365.625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 189.296875,
+        "right": 364.625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -544)",
+        "rect": {
+          "left": 326.734375,
+          "top": 189.296875,
+          "right": 364.625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    }
+  ],
+  "filled": [
+    {
+      "key": "slot:weapon",
+      "empty": false,
+      "rect": {
+        "left": 325.734375,
+        "top": 272.765625,
+        "right": 365.625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 273.765625,
+        "right": 364.625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": true,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -96) calc(var(--ui-unit) * 0)",
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      },
+      "icon": {
+        "hidden": false,
+        "rect": {
+          "left": 326.734375,
+          "top": 273.765625,
+          "right": 364.625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      }
+    },
+    {
+      "key": "slot:shield",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 272.765625,
+        "right": 281.15625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 273.765625,
+        "right": 280.15625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * 0) calc(var(--ui-unit) * -352)",
+        "rect": {
+          "left": 242.265625,
+          "top": 273.765625,
+          "right": 280.15625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:armor",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 230.53125,
+        "right": 323.390625,
+        "bottom": 270.421875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 231.53125,
+        "right": 322.390625,
+        "bottom": 269.421875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -384)",
+        "rect": {
+          "left": 284.5,
+          "top": 231.53125,
+          "right": 322.390625,
+          "bottom": 269.421875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:head",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 146.0625,
+        "right": 323.390625,
+        "bottom": 185.953125,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 147.0625,
+        "right": 322.390625,
+        "bottom": 184.953125,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -480)",
+        "rect": {
+          "left": 284.5,
+          "top": 147.0625,
+          "right": 322.390625,
+          "bottom": 184.953125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:feet",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 315,
+        "right": 323.390625,
+        "bottom": 354.890625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 316,
+        "right": 322.390625,
+        "bottom": 353.890625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -448)",
+        "rect": {
+          "left": 284.5,
+          "top": 316,
+          "right": 322.390625,
+          "bottom": 353.890625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:hands",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 272.765625,
+        "right": 323.390625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 273.765625,
+        "right": 322.390625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -416)",
+        "rect": {
+          "left": 284.5,
+          "top": 273.765625,
+          "right": 322.390625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:neck",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 188.296875,
+        "right": 281.15625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 189.296875,
+        "right": 280.15625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -512)",
+        "rect": {
+          "left": 242.265625,
+          "top": 189.296875,
+          "right": 280.15625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:ring",
+      "empty": true,
+      "rect": {
+        "left": 325.734375,
+        "top": 188.296875,
+        "right": 365.625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 189.296875,
+        "right": 364.625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -544)",
+        "rect": {
+          "left": 326.734375,
+          "top": 189.296875,
+          "right": 364.625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    }
+  ],
+  "unequipped": [
+    {
+      "key": "slot:weapon",
+      "empty": true,
+      "rect": {
+        "left": 325.734375,
+        "top": 272.765625,
+        "right": 365.625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 273.765625,
+        "right": 364.625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -96) calc(var(--ui-unit) * 0)",
+        "rect": {
+          "left": 326.734375,
+          "top": 273.765625,
+          "right": 364.625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:shield",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 272.765625,
+        "right": 281.15625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 273.765625,
+        "right": 280.15625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * 0) calc(var(--ui-unit) * -352)",
+        "rect": {
+          "left": 242.265625,
+          "top": 273.765625,
+          "right": 280.15625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:armor",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 230.53125,
+        "right": 323.390625,
+        "bottom": 270.421875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 231.53125,
+        "right": 322.390625,
+        "bottom": 269.421875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -384)",
+        "rect": {
+          "left": 284.5,
+          "top": 231.53125,
+          "right": 322.390625,
+          "bottom": 269.421875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:head",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 146.0625,
+        "right": 323.390625,
+        "bottom": 185.953125,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 147.0625,
+        "right": 322.390625,
+        "bottom": 184.953125,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -128) calc(var(--ui-unit) * -480)",
+        "rect": {
+          "left": 284.5,
+          "top": 147.0625,
+          "right": 322.390625,
+          "bottom": 184.953125,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:feet",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 315,
+        "right": 323.390625,
+        "bottom": 354.890625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 316,
+        "right": 322.390625,
+        "bottom": 353.890625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -448)",
+        "rect": {
+          "left": 284.5,
+          "top": 316,
+          "right": 322.390625,
+          "bottom": 353.890625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:hands",
+      "empty": true,
+      "rect": {
+        "left": 283.5,
+        "top": 272.765625,
+        "right": 323.390625,
+        "bottom": 312.65625,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 284.5,
+        "top": 273.765625,
+        "right": 322.390625,
+        "bottom": 311.65625,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -416)",
+        "rect": {
+          "left": 284.5,
+          "top": 273.765625,
+          "right": 322.390625,
+          "bottom": 311.65625,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:neck",
+      "empty": true,
+      "rect": {
+        "left": 241.265625,
+        "top": 188.296875,
+        "right": 281.15625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 242.265625,
+        "top": 189.296875,
+        "right": 280.15625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -512)",
+        "rect": {
+          "left": 242.265625,
+          "top": 189.296875,
+          "right": 280.15625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    },
+    {
+      "key": "slot:ring",
+      "empty": true,
+      "rect": {
+        "left": 325.734375,
+        "top": 188.296875,
+        "right": 365.625,
+        "bottom": 228.1875,
+        "width": 39.890625,
+        "height": 39.890625
+      },
+      "inner": {
+        "left": 326.734375,
+        "top": 189.296875,
+        "right": 364.625,
+        "bottom": 227.1875,
+        "width": 37.890625,
+        "height": 37.890625
+      },
+      "border": {
+        "top": 1,
+        "right": 1,
+        "bottom": 1,
+        "left": 1
+      },
+      "silhouette": {
+        "hidden": false,
+        "ariaHidden": "true",
+        "pointerEvents": "none",
+        "backgroundColor": "rgb(110, 184, 168)",
+        "maskImage": "url(\"http://127.0.0.1:4173/assets/32rogues/items.png\")",
+        "maskPosition": "calc(var(--ui-unit) * -32) calc(var(--ui-unit) * -544)",
+        "rect": {
+          "left": 326.734375,
+          "top": 189.296875,
+          "right": 364.625,
+          "bottom": 227.1875,
+          "width": 37.890625,
+          "height": 37.890625
+        }
+      },
+      "icon": {
+        "hidden": true,
+        "rect": {
+          "left": 0,
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "width": 0,
+          "height": 0
+        }
+      }
+    }
+  ]
+}

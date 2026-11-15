@@ -90,6 +90,12 @@ export const INVENTORY_OPERATION_COST = 1;
  */
 export type InventoryCost = 'mp' | 'action';
 
+/**
+ * Coste de saquear un cadáver (REQ-034 R-006): gratis para el vivo y una acción
+ * por objeto para el fantasma. Nunca gasta MP.
+ */
+export type ContainerTakeCost = 'none' | 'action';
+
 export type InventorySource =
   | { readonly kind: 'backpack'; readonly index: number }
   | { readonly kind: 'ground'; readonly itemId: string }
@@ -406,6 +412,14 @@ function locateSource(
 
   const container = containerById(state, source.containerId);
   if (!container) return { error: 'unknown-container' };
+  // Saquear un cadáver exige estar en su mismo tile (REQ-034 R-006); un cofre
+  // conserva su propia regla de apertura y no pasa por aquí.
+  if (
+    container.kind === 'corpse' &&
+    (container.x !== unit.x || container.y !== unit.y)
+  ) {
+    return { error: 'not-same-tile' };
+  }
   const index = container.items.findIndex((item) => item?.id === source.itemId);
   const instance = index < 0 ? null : container.items[index];
   if (!instance) return { error: 'no-item' };
@@ -417,6 +431,93 @@ function locateSource(
     state: withoutEmptyEnemyCorpse(replaceContainer(state, updated), updated),
     unit,
   };
+}
+
+function payTakeCost(
+  unit: Unit,
+  cost: ContainerTakeCost,
+): { readonly unit: Unit } | { readonly reason: RejectionReason } {
+  if (cost === 'none') return { unit };
+  return payInventoryCost(unit, 'action');
+}
+
+/**
+ * Saca un objeto de un cadáver-contenedor a la mochila (REQ-034 R-006/T-006).
+ *
+ * Reutiliza `locateSource`/`withBackpackItem`, la misma maquinaria que equipar:
+ * no hay una segunda ruta de saqueo. El contenedor debe ser `kind: 'corpse'` y
+ * estar en el tile de la unidad. Un vivo no paga; el fantasma paga una acción.
+ * La retirada de la instancia ya aplica `withoutEmptyEnemyCorpse`.
+ */
+export function takeContainerItem(
+  state: GameState,
+  unitId: string,
+  containerId: string,
+  itemId: string,
+  cost: ContainerTakeCost = 'none',
+): InventoryResult {
+  const unit = state.players.find((candidate) => candidate.id === unitId);
+  if (!unit) return fail('unknown-unit');
+
+  const container = containerById(state, containerId);
+  if (!container || container.kind !== 'corpse') return fail('unknown-container');
+  if (container.x !== unit.x || container.y !== unit.y) return fail('not-same-tile');
+
+  const located = locateSource(state, unit, {
+    kind: 'container',
+    containerId,
+    itemId,
+  });
+  if ('error' in located) return fail(located.error);
+
+  const paid = payTakeCost(located.unit, cost);
+  if ('reason' in paid) return fail(paid.reason);
+
+  const inventory = withBackpackItem(paid.unit.inventory, located.instance);
+  if (!inventory) return fail('inventory-full');
+
+  return {
+    ok: true,
+    state: replaceUnit(located.state, { ...paid.unit, inventory }),
+  };
+}
+
+/**
+ * «Coger todo» de un cadáver (REQ-034 R-006, REQ-020 T-003): solo para un vivo,
+ * gratis y atómico. Si el contenido no cabe entero en la mochila se rechaza sin
+ * mover nada; si cabe, vacía el contenedor y aplica la retirada de cadáver.
+ */
+export function takeAllContainerItems(
+  state: GameState,
+  unitId: string,
+  containerId: string,
+): InventoryResult {
+  const unit = state.players.find((candidate) => candidate.id === unitId);
+  if (!unit) return fail('unknown-unit');
+
+  const container = containerById(state, containerId);
+  if (!container || container.kind !== 'corpse') return fail('unknown-container');
+  if (container.x !== unit.x || container.y !== unit.y) return fail('not-same-tile');
+
+  const instances = container.items.filter(
+    (item): item is ItemInstance => item !== null,
+  );
+  const free = unit.inventory.capacity - backpackCount(unit.inventory);
+  if (instances.length > free) return fail('inventory-full');
+
+  let inventory = unit.inventory;
+  for (const instance of instances) {
+    const next = withBackpackItem(inventory, instance);
+    if (!next) return fail('inventory-full');
+    inventory = next;
+  }
+
+  const emptied: Container = { ...container, items: container.items.map(() => null) };
+  const nextState = withoutEmptyEnemyCorpse(
+    replaceContainer(state, emptied),
+    emptied,
+  );
+  return { ok: true, state: replaceUnit(nextState, { ...unit, inventory }) };
 }
 
 /**

@@ -1078,6 +1078,26 @@
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+      .inventory-corpse-cost {
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+        line-height: 1.1;
+        white-space: nowrap;
+      }
+      /* Objetos del cadáver: celdas normales en su propia lista con scroll. */
+      .inventory-corpse-items {
+        display: grid;
+        grid-template-columns: repeat(2, var(--ui-slot));
+        gap: calc(var(--ui-unit) * 2);
+        align-content: start;
+        justify-content: start;
+        padding: var(--ui-line);
+        margin: calc(var(--ui-line) * -1);
+        margin-bottom: calc(var(--ui-unit) * 3);
+      }
+      .inventory-corpse-items[hidden] {
+        display: none;
+      }
       /* Icono de objeto: mismo recorte de items.png que el mundo, en DOM. */
       .inventory-slot-icon {
         position: absolute;
