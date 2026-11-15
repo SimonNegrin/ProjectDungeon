@@ -5,7 +5,7 @@ description: Configuración jugador a jugador con roster, variante, nombre y nav
 task: TASK-0124
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:47:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:49:00Z }
 artifacts: artifacts/TASK-0124/attempt-1/
 verified:
 ---
@@ -14,21 +14,23 @@ verified:
 
 `success`. «Continuar» abre la configuración jugador a jugador; el último
 «Siguiente» anuncia la party y deja la pantalla como está. Sin resumen, sesión
-ni partida.
+ni partida. Corregida la reentrada: cada montaje regenera los nueve arquetipos.
 
 # Cambios
 
 - `src/host/player-screen.ts`: modelo puro con N borradores, defaults
   Guerrero/variante 1/nombre vacío, normalización NFC y truncado por code points.
 - `src/host/player-screen-view.ts`: DOM, foco, aviso de cancelación y teclado.
+  `archetypes.replaceChildren()` antes del bucle evita botones y listeners
+  acumulados al volver a montar.
 - `src/host/start-screen.ts` y `-view.ts`: `returnToMenu`, `hide` y `showMenu`;
   las teclas solo se atienden con la pantalla visible.
 - `src/host/main.ts`: conecta `onContinue`; `onComplete` anuncia en
   `player-status` y el mapa/F1 quedan bloqueados con cualquiera de las pantallas.
 - `index.html`, `src/host/ui.css`: sección opaca hermana de `start-screen`.
-- Tests: `tests/unit/host/player-screen.test.ts`,
-  `tests/e2e/player-screen.spec.ts` y caso de `returnToMenu`.
-- Commits: `15251eb` y `8849d47` (`commit.txt`).
+- Tests: `tests/unit/host/player-screen.test.ts`, caso de `returnToMenu` y
+  regresión E2E de reentrada (9 botones y selección de Mago).
+- Commits: `15251eb`, `8849d47` y `b999d61` (`commit.txt`).
 
 # Tests
 
@@ -36,8 +38,8 @@ ni partida.
 |---|---|---|
 | `pnpm exec vitest run tests/unit/host/player-screen.test.ts tests/unit/host/start-screen.test.ts` | 49/49 OK | `test-output.txt` |
 | `pnpm run verify` | 1426/1426, tsc, build y bundle OK | `verify-output.txt` |
-| `E2E_ARTIFACTS_DIR=artifacts/TASK-0124/attempt-1 pnpm run test:e2e tests/e2e/player-screen.spec.ts` | 3/3 OK | `e2e-output.txt` |
-| `pnpm run test:e2e tests/e2e/start-screen.spec.ts` | 4/4 OK | adaptación descrita abajo |
+| `E2E_ARTIFACTS_DIR=artifacts/TASK-0124/attempt-1 pnpm run test:e2e tests/e2e/player-screen.spec.ts tests/e2e/start-screen.spec.ts` | 8/8 OK (4+4) | `e2e-output.txt` |
+| Reentrada del lead antes del fix | 18 botones y testids duplicados | `lead-verify/reentry-check.txt` |
 
 # Evidencia visual
 
@@ -49,11 +51,13 @@ ni partida.
 
 # Desviaciones
 
-- `tests/e2e/start-screen.spec.ts`: tras el primer «Continuar» ahora se cancela
-  la pantalla de jugador y se vuelve a entrar por «Nueva» para seguir probando
-  el paso 1. Las aserciones existentes no cambian.
-- `hide()` conserva el anuncio del paso 1 en el `start-status` oculto para no
-  romper esa aserción; no tiene efecto visual.
+- Corrección tras verificación del lead: `destroy()` no vaciaba el contenedor;
+  cada reentrada añadía nueve botones con testids duplicados. Ahora se regenera
+  el contenedor y una regresión E2E lo cubre.
+- `tests/e2e/start-screen.spec.ts`: tras el primer «Continuar» se cancela el
+  jugador y se vuelve por «Nueva»; las aserciones no cambian.
+- `hide()` conserva el anuncio del paso 1 en el `start-status` oculto; sin
+  efecto visual.
 - La selección usa `outline` interior, no `box-shadow`, porque
   `ui-foundations.test.ts` prohíbe sombras.
 
@@ -74,6 +78,6 @@ contradicción de arnés que merezca una propuesta.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2557 |
-| `report_bytes` | 3244 |
+| `report_bytes` | 3612 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |

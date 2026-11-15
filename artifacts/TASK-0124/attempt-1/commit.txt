@@ -1,3 +1,4 @@
 Código:
 15251eb320e273a4233f6acc1519885c047089ad feat(TASK-0124): configura jugadores con roster, variante y nombre
 8849d4799cc656c33cff564254068ca686b77e3b test(TASK-0124): cubre el flujo de dos jugadores y adapta el paso 1
+b999d618651790636010d424de560eeb11a5515b fix(TASK-0124): evita duplicar los arquetipos al reentrar

@@ -1,9 +1,14 @@
-$ playwright test tests/e2e/player-screen.spec.ts
+$ playwright test tests/e2e/player-screen.spec.ts tests/e2e/start-screen.spec.ts
 
-Running 3 tests using 3 workers
+Running 8 tests using 4 workers
 
-  ✓  1 [chromium] › tests/e2e/player-screen.spec.ts:174:1 › ?test=1 no monta las pantallas de inicio (479ms)
-  ✓  3 [chromium] › tests/e2e/player-screen.spec.ts:123:1 › recorrido solo con teclado y cancelación confirmada (747ms)
-  ✓  2 [chromium] › tests/e2e/player-screen.spec.ts:33:1 › dos jugadores: roster, variante, nombre y aviso de party (991ms)
+  ✓  3 [chromium] › tests/e2e/player-screen.spec.ts:206:1 › ?test=1 no monta las pantallas de inicio (898ms)
+  ✓  2 [chromium] › tests/e2e/player-screen.spec.ts:123:1 › reentrada tras cancelar no duplica los arquetipos (1.3s)
+  ✓  1 [chromium] › tests/e2e/player-screen.spec.ts:155:1 › recorrido solo con teclado y cancelación confirmada (1.3s)
+  ✓  4 [chromium] › tests/e2e/player-screen.spec.ts:33:1 › dos jugadores: roster, variante, nombre y aviso de party (1.7s)
+  ✓  5 [chromium] › tests/e2e/start-screen.spec.ts:21:1 › el menú es la primera pantalla y «Nueva» abre el paso 1 (809ms)
+  ✓  6 [chromium] › tests/e2e/start-screen.spec.ts:66:1 › ?seed=42 precarga una vez y el campo sigue siendo editable (632ms)
+  ✓  8 [chromium] › tests/e2e/start-screen.spec.ts:131:1 › recorrido solo con teclado: foco, aviso y vuelta al menú (336ms)
+  ✓  7 [chromium] › tests/e2e/start-screen.spec.ts:92:1 › semilla inválida bloquea; vacía genera otra y N=6 avanza (753ms)
 
-  3 passed (2.0s)
+  8 passed (3.0s)

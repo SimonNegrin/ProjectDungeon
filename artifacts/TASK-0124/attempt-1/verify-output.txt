@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (140):
+Avisos (141):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - docs/tasks/TASK-0070-exp-003-tres-tablas-ui.md: tarea de 663 palabras; objetivo ≤600
@@ -141,7 +141,8 @@ Avisos (140):
 - artifacts/TASK-0120/attempt-1/report.md: handoff de 3341 B; objetivo ≤2560 B
 - artifacts/TASK-0122/attempt-1/report.md: handoff de 3356 B; objetivo ≤2560 B
 - artifacts/TASK-0123/attempt-1/report.md: handoff de 3279 B; objetivo ≤2560 B
-OK: 619 documentos, 159 tareas, 6 experimentos.
+- artifacts/TASK-0124/attempt-1/report.md: handoff de 3244 B; objetivo ≤2560 B
+OK: 620 documentos, 159 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -151,11 +152,11 @@ $ vitest run
 
  Test Files  97 passed (97)
       Tests  1426 passed (1426)
-   Start at  00:45:45
-   Duration  11.63s (tests 89%, import 8%, transform 2%, worker 1%)
+   Start at  00:48:45
+   Duration  11.82s (tests 90%, import 8%, transform 2%, worker 1%)
 
     Isolate  97 workers spawned · ~116ms startup each (spawn + environment, per file)
-             at least ~1.50s faster with isolate: false — reuses workers across files instead of one per file
+             at least ~1.49s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -165,7 +166,7 @@ rendering chunks...
 computing gzip size...
 dist/index.html                 26.52 kB │ gzip:  3.86 kB
 dist/assets/main-FDzVLn8B.css   29.08 kB │ gzip:  5.20 kB
-dist/assets/main-C4MhSnbW.js   207.96 kB │ gzip: 68.58 kB
-✓ built in 467ms
+dist/assets/main-Copkvnhm.js   207.98 kB │ gzip: 68.59 kB
+✓ built in 492ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 16 dist files and 75 production modules; no forbidden markers.

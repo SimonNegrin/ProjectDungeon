@@ -1,0 +1,27 @@
+
+Running 1 test using 1 worker
+
+archetype buttons after reentry: 18
+testids: player-archetype-warrior,player-archetype-barbarian,player-archetype-rogue,player-archetype-archer,player-archetype-mage,player-archetype-cleric,player-archetype-spellblade,player-archetype-cook,player-archetype-farmer,player-archetype-warrior,player-archetype-barbarian,player-archetype-rogue,player-archetype-archer,player-archetype-mage,player-archetype-cleric,player-archetype-spellblade,player-archetype-cook,player-archetype-farmer
+  ✘  1 [chromium] › artifacts/TASK-0124/attempt-1/lead-verify/reentry-check.spec.ts:3:1 › reentrada en la pantalla de jugador no duplica el roster (920ms)
+
+
+  1) [chromium] › artifacts/TASK-0124/attempt-1/lead-verify/reentry-check.spec.ts:3:1 › reentrada en la pantalla de jugador no duplica el roster 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 9
+    Received: 18
+
+      28 |     );
+      29 |   console.log(`testids: ${ids.join(',')}`);
+    > 30 |   expect(count).toBe(9);
+         |                 ^
+      31 | });
+      32 |
+        at /Users/simon/proyectdungeon/artifacts/TASK-0124/attempt-1/lead-verify/reentry-check.spec.ts:30:17
+
+    Error Context: test-results/reentry-check-reentrada-en-8397d-ugador-no-duplica-el-roster-chromium/error-context.md
+
+  1 failed
+    [chromium] › artifacts/TASK-0124/attempt-1/lead-verify/reentry-check.spec.ts:3:1 › reentrada en la pantalla de jugador no duplica el roster 
