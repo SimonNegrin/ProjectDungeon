@@ -4,7 +4,7 @@ id: TASK-0129
 title: "QA/E2E de la pantalla de inicio"
 description: "Cubrir en navegador el menú principal, la configuración de 1, 2 y 6 jugadores, la semilla, el nombre, la variante, la cancelación y el arranque de partida, con capturas."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-016
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-003, T-004, T-005, T-006, T-007, T-008]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0129/
 priority: P1
 risk: medium
