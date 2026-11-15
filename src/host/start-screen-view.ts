@@ -27,6 +27,11 @@ export interface StartScreenView {
   hide(): void;
   /** Vuelve al menú principal con N=1 y semilla vacía, sin recargar. */
   showMenu(): void;
+  /**
+   * Muestra la pantalla y abre el paso 1 con el modelo existente. Lo usa
+   * «Nueva partida» de la pausa (REQ-024 R-013) sin reiniciar la sesión.
+   */
+  showStepOne(): void;
 }
 
 function requireElement<T extends Element>(root: ParentNode, selector: string): T {
@@ -219,6 +224,13 @@ export function createStartScreenView(
       announcement = '';
       model.returnToMenu();
       visible = true;
+      renderedStep = null;
+      render();
+    },
+    showStepOne(): void {
+      announcement = '';
+      visible = true;
+      model.openStepOne();
       renderedStep = null;
       render();
     },
