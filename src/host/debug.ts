@@ -79,6 +79,10 @@ export interface AnimationSnapshot {
     readonly x: number;
     readonly y: number;
   };
+  /** Actor enemigo presentado en este instante; `null` fuera de fase enemiga. */
+  readonly enemyActorId?: string | null;
+  /** Objetivo actual del actor enemigo; `null` si no persigue a nadie. */
+  readonly enemyTargetId?: string | null;
   /** Cues activos del reloj de presentación; vacío sin animación. */
   readonly cues: readonly ActiveCueSnapshot[];
 }
@@ -178,6 +182,10 @@ export interface GameSnapshot {
    * @deprecated Usar `round`.
    */
   readonly turn: number;
+  /** Actor enemigo presentado; `null` fuera de la fase enemiga (REQ-031 T-005). */
+  readonly enemyActorId: string | null;
+  /** Objetivo actual del actor enemigo; `null` si no persigue a nadie. */
+  readonly enemyTargetId: string | null;
   readonly status: GameStatus;
   readonly camera: {
     readonly x: number;
@@ -423,6 +431,8 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     unitId: null,
     position: null,
     camera: { x: source.camera.x, y: source.camera.y },
+    enemyActorId: null,
+    enemyTargetId: null,
     cues: [],
   };
 
@@ -458,6 +468,8 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     partyOrder: [...partyOrder(source.state)],
     // Alias obsoleto: se rellena desde `round`, jamás desde otra fuente.
     turn: source.state.round,
+    enemyActorId: animation.enemyActorId ?? null,
+    enemyTargetId: animation.enemyTargetId ?? null,
     status: source.state.status,
     camera: {
       x: source.camera.x,

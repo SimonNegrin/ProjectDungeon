@@ -868,7 +868,22 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Cursor: (4, 4) jugador · camino 0');
     expect(text).toContain('Cámara: (0, 0) · Límites (224, 224) · Viewport 416×416');
     expect(text).toContain('Semilla: n/a (determinista)');
+    expect(text).toContain('Fase enemiga: actor — · objetivo —');
     expect(text).toContain('Últimos eventos: ninguno');
+  });
+
+  it('F1 expone el actor enemigo y su objetivo actual', () => {
+    const text = buildDebugModel(
+      makeState(),
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+      { actorId: 'enemy-1', targetId: 'player-1' },
+    ).lines.join('\n');
+
+    expect(text).toContain('Fase enemiga: actor enemy-1 · objetivo player-1');
   });
 
   it('muestra mochila, capacidad, equipo por hueco y suelo del mismo estado que el panel', () => {

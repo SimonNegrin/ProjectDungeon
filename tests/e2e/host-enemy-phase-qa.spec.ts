@@ -13,6 +13,7 @@ import {
   dispatchFrozen,
   openState,
   settle,
+  snapshot,
 } from './support';
 
 test.use({ viewport: { width: 1280, height: 720 } });
@@ -116,6 +117,9 @@ test('TASK-0152: «El master mueve» solo con acciones y HUD de actor/objetivo',
   // Primer ataque: el aviso ya se apagó y el HUD cambia a actor/objetivo.
   await advanceToCue(page, 'attack');
   await expect(banner).toBeHidden();
+  const atAttack = await snapshot(page);
+  expect(atAttack.enemyActorId).toBe(actor.id);
+  expect(atAttack.enemyTargetId).toBe(target.id);
   await expect(page.getByTestId('hud-cursor-detail')).toHaveAttribute(
     'data-kind',
     'enemy',

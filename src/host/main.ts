@@ -687,6 +687,8 @@ async function boot(): Promise<void> {
         unitId: null,
         position: null,
         camera: { x: camera.x, y: camera.y },
+        enemyActorId: null,
+        enemyTargetId: null,
         cues: [],
       };
     }
@@ -713,6 +715,20 @@ async function boot(): Promise<void> {
         ? { hit: cue.data.hit === true }
         : {}),
     }));
+    const display = presentationState(
+      session.state,
+      animation.timeline,
+      animation.elapsed,
+      animation.initialState,
+    );
+    const enemyContext =
+      display.phase === 'enemy'
+        ? enemyActorContextAt(
+            animation.enemyPhase,
+            animation.timeline,
+            animation.elapsed,
+          )
+        : null;
     return {
       animating: true,
       step: completedSteps(animation.timeline, animation.elapsed),
@@ -720,6 +736,8 @@ async function boot(): Promise<void> {
       unitId,
       position: position ? { ...position } : null,
       camera: { x: displayCamera.x, y: displayCamera.y },
+      enemyActorId: enemyContext?.actorId ?? null,
+      enemyTargetId: enemyContext?.targetId ?? null,
       cues,
     };
   };
@@ -778,7 +796,15 @@ async function boot(): Promise<void> {
       // El panel lee el estado de presentación: no adelanta el objeto de un cue.
       inventoryPanelView.update(display);
       cursorView.update(displayCursor, camera);
-      debugView.update(display, camera, bounds, viewport, lastEvents, displayCursor);
+      debugView.update(
+        display,
+        camera,
+        bounds,
+        viewport,
+        lastEvents,
+        displayCursor,
+        enemyContext,
+      );
       spotView.update(state, camera, viewport, spottedUnits);
       perceptionView.update(state, camera, viewport, debugView.isOpen());
       feedbackView.update(damageTexts, camera, display.grid);
@@ -839,7 +865,15 @@ async function boot(): Promise<void> {
     spellMenuView.update(state, spellMenu);
     inventoryPanelView.update(state);
     cursorView.update(cursorStatus, camera);
-    debugView.update(state, camera, bounds, viewport, lastEvents, cursorStatus);
+    debugView.update(
+      state,
+      camera,
+      bounds,
+      viewport,
+      lastEvents,
+      cursorStatus,
+      null,
+    );
     spotView.update(state, camera, viewport, spottedUnits);
     perceptionView.update(state, camera, viewport, debugView.isOpen());
     feedbackView.update(damageTexts, camera, state.grid);

@@ -659,6 +659,7 @@ export function buildDebugModel(
   viewport: Viewport,
   lastEvents: readonly GameEvent[],
   cursor: CursorStatus,
+  enemyContext?: EnemyActorContext | null,
 ): DebugModel {
   const player = state.players[0];
   const enemy = state.enemies[0];
@@ -677,6 +678,7 @@ export function buildDebugModel(
       vitalityLine(state),
       partyStateLine(state),
       partyOrderLine(state),
+      `Fase enemiga: actor ${enemyContext?.actorId ?? '—'} · objetivo ${enemyContext?.targetId ?? '—'}`,
       cursorLabel(cursor),
       cursorEnemyDebugLine(state, cursor),
       lastAttackLine(lastEvents),
@@ -1039,6 +1041,7 @@ export interface DebugView {
     viewport: Viewport,
     lastEvents: readonly GameEvent[],
     cursor: CursorStatus,
+    enemyContext?: EnemyActorContext | null,
   ): void;
   isOpen(): boolean;
   toggle(): void;
@@ -1051,7 +1054,7 @@ export function createDebugView(root: ParentNode): DebugView {
   const content = requireElement(root, 'debug-content');
 
   return {
-    update(state, camera, bounds, viewport, lastEvents, cursor): void {
+    update(state, camera, bounds, viewport, lastEvents, cursor, enemyContext): void {
       content.textContent = buildDebugModel(
         state,
         camera,
@@ -1059,6 +1062,7 @@ export function createDebugView(root: ParentNode): DebugView {
         viewport,
         lastEvents,
         cursor,
+        enemyContext,
       ).lines.join('\n');
     },
     isOpen(): boolean {
