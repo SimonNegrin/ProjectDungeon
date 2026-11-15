@@ -1,0 +1,54 @@
+{
+  "viewport": "1280x720",
+  "seed": 4242,
+  "expected": {
+    "1": {
+      "sx": 0,
+      "sy": 32
+    },
+    "2": {
+      "sx": 64,
+      "sy": 32
+    }
+  },
+  "first": {
+    "variant": 1,
+    "archetypeId": "warrior",
+    "tile": {
+      "x": 3,
+      "y": 10
+    },
+    "camera": {
+      "x": 0,
+      "y": 128,
+      "maxX": 288,
+      "maxY": 160
+    },
+    "canvasHash": "d479dd0e",
+    "distinctColors": 11,
+    "hudPosition": {
+      "x": 0,
+      "y": -64.00028828828829
+    }
+  },
+  "second": {
+    "variant": 2,
+    "archetypeId": "warrior",
+    "tile": {
+      "x": 3,
+      "y": 10
+    },
+    "camera": {
+      "x": 0,
+      "y": 128,
+      "maxX": 288,
+      "maxY": 160
+    },
+    "canvasHash": "b4b71bf8",
+    "distinctColors": 9,
+    "hudPosition": {
+      "x": -127.99995195195194,
+      "y": -64.00028828828829
+    }
+  }
+}
