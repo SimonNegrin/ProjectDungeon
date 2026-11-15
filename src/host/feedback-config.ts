@@ -90,6 +90,8 @@ export const FEEDBACK_CONFIG = {
     enemyPhaseBannerMs: 800,
     /** Banner `TU TURNO`; persiste después de su beat de 350 ms (R-016). */
     playerTurnBannerMs: 700,
+    /** Aviso `Ronda N` al abrir ronda; no bloquea y persiste tras su beat (R-006). */
+    roundBannerMs: 2000,
   },
   /**
    * Medidas de los efectos de mundo de combate y muerte. Se expresan en píxeles

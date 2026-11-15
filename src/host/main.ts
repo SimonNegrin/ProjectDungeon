@@ -28,6 +28,7 @@ import {
   EMPTY_FRAME_EFFECTS,
   bannerForCue,
   frameEffectsAt,
+  roundBanner,
   unitMarkForEvent,
   weaponSlotPulseAt,
   type BannerFeedback,
@@ -484,6 +485,12 @@ async function boot(): Promise<void> {
   let damageTexts: DamageTextInstance[] = [];
   /** Banner y marcas efímeras; viven en el reloj de presentación. */
   let banner: TimedBanner | null = null;
+  /**
+   * Ronda cuyo aviso `Ronda N` ya se mostró. La primera fase de personajes de
+   * una ronda ya anunciada cae en `TU TURNO`; solo el salto de ronda repite el
+   * aviso. Cargar o montar un escenario fija la ronda actual sin banner.
+   */
+  let lastRoundNotice = session.state.round;
   let unitMarks: TimedUnitMark[] = [];
   let textFrameHandle: number | undefined;
   let textLastFrameTime: number | undefined;
@@ -567,6 +574,8 @@ async function boot(): Promise<void> {
     panelMessage = null;
     inventoryPanelView.close();
     session.load(state);
+    // Cargar no anuncia ronda: la región viva la lee del estado y no queda beat.
+    lastRoundNotice = state.round;
     lastEvents = [];
     noticeView.clear();
     debugView.close();
@@ -1065,7 +1074,6 @@ async function boot(): Promise<void> {
         case 'DropItem':
         case 'UnequipItem':
         case 'EnemyPhaseStarted':
-        case 'PlayerTurnStarted':
         case 'TurnEnded': {
           const kind =
             entry.event.type === 'PickUp'
@@ -1076,11 +1084,23 @@ async function boot(): Promise<void> {
                 ? 'select-weapon'
                 : entry.event.type === 'EnemyPhaseStarted'
                   ? 'enemy-phase'
-                  : entry.event.type === 'PlayerTurnStarted'
-                    ? 'player-turn'
-                    : 'turn-ended';
+                  : 'turn-ended';
           const cue = cueFor(active, kind, entry.atMs);
           if (!cue) break;
+          const feedback = bannerForCue(cue);
+          if (feedback) showBanner(feedback);
+          break;
+        }
+        case 'PlayerTurnStarted': {
+          const cue = cueFor(active, 'player-turn', entry.atMs);
+          if (!cue) break;
+          // La ronda ya anunciada conserva `TU TURNO`; el salto de ronda (o la
+          // vuelta de la fase enemiga) muestra solo `Ronda N` (R-010).
+          if (entry.event.turn !== lastRoundNotice) {
+            lastRoundNotice = entry.event.turn;
+            showBanner(roundBanner(entry.event.turn));
+            break;
+          }
           const feedback = bannerForCue(cue);
           if (feedback) showBanner(feedback);
           break;
@@ -1400,6 +1420,8 @@ async function boot(): Promise<void> {
     panelMessage = null;
     inventoryPanelView.close();
     session.load(state, generator);
+    // El hook de test monta un escenario, no una ronda nueva: sin banner.
+    lastRoundNotice = state.round;
     lastEvents = [];
     noticeView.clear();
     debugView.close();
@@ -1455,7 +1477,12 @@ async function boot(): Promise<void> {
     bounds = cameraBounds(world, viewport);
     resetCursorToPlayer();
     cursorStatus = deriveCursorStatus(session.state, cursor);
+    // Empezar una partida abre la ronda 1: el aviso es solo presentación y su
+    // reloj lo apaga; no crea beat ni cue en la timeline.
+    lastRoundNotice = session.state.round;
+    showBanner(roundBanner(session.state.round));
     render();
+    scheduleTextFrame(true);
     return true;
   };
 
@@ -1484,6 +1511,8 @@ async function boot(): Promise<void> {
       frameEffectView.clear();
       spottedUnits = new Set<string>();
       resetCursorToPlayer();
+      // El reinicio legacy no muestra banner; la ronda se lee en la región viva.
+      lastRoundNotice = session.state.round;
       screenFadeView.play();
       render();
       return result;
@@ -1582,6 +1611,8 @@ async function boot(): Promise<void> {
     spottedUnits = new Set<string>();
     resetCursorToPlayer();
     cursorStatus = deriveCursorStatus(session.state, cursor);
+    // F2 no anuncia ronda: el nuevo tablero ya está en la suya.
+    lastRoundNotice = session.state.round;
     render();
   };
 
