@@ -1,0 +1,70 @@
+{
+  "containers": [
+    {
+      "id": "corpse-player-2",
+      "corpseOf": "player-2",
+      "items": [
+        {
+          "itemId": "sword",
+          "lootable": true
+        },
+        {
+          "itemId": "armor",
+          "lootable": true
+        }
+      ]
+    },
+    {
+      "id": "corpse-enemy-1",
+      "corpseOf": "enemy-1",
+      "items": [
+        {
+          "itemId": "sword",
+          "lootable": true
+        },
+        {
+          "itemId": "dagger",
+          "lootable": false
+        }
+      ]
+    }
+  ],
+  "rng": {
+    "before": {
+      "seed": 279837264,
+      "state": 0
+    },
+    "after": {
+      "seed": 279837264,
+      "state": 0
+    }
+  },
+  "lootMarks": [
+    {
+      "id": "enemy-1",
+      "equipment": {
+        "weapon": null,
+        "shield": null,
+        "armor": null,
+        "head": null,
+        "feet": null,
+        "hands": null,
+        "neck": null,
+        "ring": null
+      }
+    },
+    {
+      "id": "enemy-2",
+      "equipment": {
+        "weapon": false,
+        "shield": false,
+        "armor": null,
+        "head": null,
+        "feet": null,
+        "hands": null,
+        "neck": null,
+        "ring": null
+      }
+    }
+  ]
+}

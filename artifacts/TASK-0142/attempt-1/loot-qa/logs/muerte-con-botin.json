@@ -1,0 +1,30 @@
+{
+  "target": "enemy-4",
+  "lootableBefore": {
+    "weapon": false,
+    "shield": true
+  },
+  "corpseItems": [
+    {
+      "itemId": "shield",
+      "lootable": true
+    }
+  ],
+  "beatMatchesNoLootTwin": true,
+  "settledDiffersFromNoLootTwin": true,
+  "mp": {
+    "before": 5,
+    "after": 5
+  },
+  "actions": {
+    "before": {
+      "max": 2,
+      "remaining": 1
+    },
+    "after": {
+      "max": 2,
+      "remaining": 1
+    }
+  },
+  "containersAfter": []
+}
