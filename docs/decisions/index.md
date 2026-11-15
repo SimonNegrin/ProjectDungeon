@@ -5,7 +5,7 @@
 * [ADR-003: servidor autoritativo](ADR-003-authoritative-server-later.md) - Cómo será la fase remota cuando llegue.
 * [ADR-004: pnpm](ADR-004-pnpm.md) - pnpm 12.18.0 y un único lockfile.
 * [ADR-005: timeouts](ADR-005-command-timeouts.md) - Timeouts explícitos y control de procesos en background.
-* [ADR-006: arte placeholder](ADR-006-arte-placeholder-32rogues.md) - Uso del pack 32rogues, su licencia y su crédito.
+* [ADR-006: arte placeholder](ADR-006-arte-placeholder-32rogues.md) - Uso del pack 32rogues, su licencia y su crédito, y tabla de 18 celdas para las dos variantes de cada arquetipo.
 * [ADR-007: interfaz MapGenerator](ADR-007-map-generator.md) - Generación encapsulada y reemplazable; su parte de BSP por defecto queda sustituida por ADR-013.
 * [ADR-008: presentación animada](ADR-008-presentacion-animada.md) - El motor atómico sigue siendo la verdad; la animación vive en el host.
 * [ADR-009: recorte del arnés](ADR-009-recorte-arnes.md) - Menos documentos, tres skills, handoffs como deltas y topes validados.
