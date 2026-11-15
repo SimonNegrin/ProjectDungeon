@@ -24,15 +24,16 @@ verified:
 - `hud.ts`/`hud-detail.ts`/`main.ts`: HUD derecho con el actor y ficha compacta
   del objetivo en el izquierdo (miniatura, nombre, PV, MP/acciones y stats; sin
   arma, traits ni inventario). Sin objetivo muestra «Sin objetivo».
+- `debug.ts`/`hud.ts`: F1 y el snapshot exponen actor enemigo y objetivo actual.
 - `feedback-events.ts`: «El master mueve» sustituye `FASE ENEMIGA`.
-- Commits: `0c4a321` (implementación), `75a5061` (tests y capturas).
+- Commits: `0c4a321`, `75a5061`, `19d0382`.
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run verify` | OK: 108 archivos/1727 tests, build y bundle | `verify-output.txt` |
-| Vitest HUD + presentación | 54 tests OK | `test-output.txt` |
+| `pnpm run verify` | OK: 108 archivos/1728 tests, build y bundle | `verify-output.txt` |
+| Vitest HUD + presentación | 55 tests OK | `test-output.txt` |
 | E2E nueva `host-enemy-phase-qa` | 1 test OK | `logs/e2e-host-enemy-phase.txt` |
 | E2E sensibles (offscreen, feedback, motion, marks, hotseat, relevo) | 3+6+8+4+5+4 OK | `logs/e2e-*.txt` |
 
@@ -69,6 +70,6 @@ Ninguna entrada; los fallos eran de la propia tarea.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2555 |
-| `report_bytes` | 2678 |
+| `report_bytes` | 2733 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
