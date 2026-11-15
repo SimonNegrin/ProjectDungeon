@@ -31,7 +31,7 @@ playtests.
 | Coste de movimiento | 1 MP por casilla, también en diagonal. |
 | MP de jugador | 6. |
 | MP de enemigo | Por tipo: Centinela 5, Bruto 4, Cobarde 6 (provisional). |
-| Ocupación | Jugadores y enemigos bloquean la casilla. |
+| Ocupación | Jugadores y enemigos vivos bloquean la casilla. El fantasma no bloquea y comparte casilla con cualquier unidad; los muertos sin fantasma tampoco bloquean. |
 | Corte de esquina | No permitido: para moverse en diagonal, las dos casillas ortogonales adyacentes deben estar libres. |
 | Cámara | Viewport de 13×13 tiles; sigue al jugador activo y se limita a los bordes del mapa. |
 | Cursor | Cuadrado de un tile; flechas/`WASD` en 4 direcciones; no gasta MP, no consume acción y no mueve la cámara. |
@@ -50,6 +50,11 @@ playtests.
 - Recoger o soltar del suelo, y equipar o desequipar, cuestan **1 MP**. Abrir o
   registrar un contenedor cuesta **1 acción** y requiere adyacencia; transferir es
   gratis. Equipar desde un contenedor cuesta igualmente 1 MP.
+- El **fantasma** es la excepción de REQ-021: tiene **una acción por ronda**, se
+  mueve con su MP intrínseco sin bonus de equipo y solo puede mover un objeto
+  por acción (recoger/soltar cuesta 1 acción y 0 MP) e inspeccionar contenedores
+  sin abrirlos ni revelar trampa. No ataca, no equipa, no usa objetos y no abre
+  cofres; no es objetivo ni obstáculo para la IA.
 - Equipo, mochila y objetos del suelo se gestionan en un único panel modal abierto
   con `I`; ver [REQ-018](../requirements/REQ-018-inventario-equipo.md).
 - `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por

@@ -1,0 +1,7 @@
+# Commits de TASK-0132 (intento 1)
+
+- e493ab7 feat(TASK-0132): añade fantasma controlable con casilla compartida y una acción
+- 30dbb91 test(TASK-0132): cubre fantasma, casilla compartida, inspección y costes
+
+Rama: task/TASK-0132
+Los artefactos de `artifacts/TASK-0132/attempt-1/` quedan sin commitear (propiedad de task-lead).

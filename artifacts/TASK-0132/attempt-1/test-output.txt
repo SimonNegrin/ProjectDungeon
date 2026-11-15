@@ -1,0 +1,108 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ✓ tests/unit/game/ghost.test.ts > muerte y representación del fantasma (REQ-021 R-001/R-002/T-001/T-002) > al morir con otro vivo el jugador pasa a fantasma con identidad y una acción 10ms
+ ✓ tests/unit/game/ghost.test.ts > muerte y representación del fantasma (REQ-021 R-001/R-002/T-001/T-002) > un muerto sin fantasma sigue siendo dead y no se restaura al empezar el turno 0ms
+ ✓ tests/unit/game/ghost.test.ts > muerte y representación del fantasma (REQ-021 R-001/R-002/T-001/T-002) > la marca de fantasma no regala MP y conserva el remanente de acciones 1ms
+ ✓ tests/unit/game/ghost.test.ts > muerte y representación del fantasma (REQ-021 R-001/R-002/T-001/T-002) > el MP y las acciones no dependen del equipo que llevara el cadáver 0ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > el fantasma no ocupa ni bloquea la casilla 0ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > un vivo se mueve sobre la casilla del fantasma 1ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > el fantasma se mueve sobre un aliado y sobre un enemigo sin atacar 0ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > el fantasma sigue bloqueado por muros y no corta esquinas 0ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > MoveTo del fantasma trata la unidad como suelo y nunca devuelve plan enemy 1ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > el camino del fantasma ignora unidades y el del vivo no 0ms
+ ✓ tests/unit/game/ghost.test.ts > casilla compartida, movimiento y pathfinding (REQ-021 R-003/T-002/T-009) > IA y percepción ignoran al fantasma y atacarlo da target-dead 0ms
+ ✓ tests/unit/game/ghost.test.ts > MP intrínseco y una acción por ronda (REQ-021 R-002/T-003, REQ-026) > restaurar el turno devuelve al fantasma su MP intrínseco y una acción 0ms
+ ✓ tests/unit/game/ghost.test.ts > MP intrínseco y una acción por ronda (REQ-021 R-002/T-003, REQ-026) > recoger gasta la única acción y no MP; sin acción se rechaza 0ms
+ ✓ tests/unit/game/ghost.test.ts > MP intrínseco y una acción por ronda (REQ-021 R-002/T-003, REQ-026) > soltar gasta la acción, no MP y deja el objeto en el suelo 0ms
+ ✓ tests/unit/game/ghost.test.ts > MP intrínseco y una acción por ronda (REQ-021 R-002/T-003, REQ-026) > atacar, lanzar, equipar, desequipar y seleccionar arma se rechazan sin cambios 0ms
+ ✓ tests/unit/game/ghost.test.ts > inspección de contenedores sin revelar trampa (REQ-021 R-006/T-005) > devuelve solo identidad, catálogo y saqueabilidad sin mutar ni gastar 0ms
+ ✓ tests/unit/game/ghost.test.ts > inspección de contenedores sin revelar trampa (REQ-021 R-006/T-005) > solo lo permite a fantasmas en fase de jugador y rechaza contenedores desconocidos 0ms
+ ✓ tests/unit/game/ghost.test.ts > inspección de contenedores sin revelar trampa (REQ-021 R-006/T-005) > el helper puro filtra huecos vacíos sin exponer campos del contenedor 0ms
+ ✓ tests/unit/game/ghost.test.ts > flujo integrado: muerte, fantasma, casilla compartida, inspección y recogida > recorre el caso completo sin romper la identidad ni el cadáver 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > clasifica el tile del propio jugador como player sin camino ni coste 2ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > planifica un paso diagonal a suelo libre 1ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > devuelve el camino completo y withinMp false cuando el coste supera el MP 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea un muro con motivo wall y camino vacío 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea fuera del mapa con motivo out-of-bounds 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea el tile de un aliado con motivo occupied 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea un objeto con el hook opcional y motivo blocked-object 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > rodea un objeto bloqueante en lugar de atravesarlo 1ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > no corta esquina entre dos muros y alarga el camino 1ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea un destino sin camino con motivo no-path 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > devuelve enemy con ataque directo si el enemigo ya es adyacente 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > planifica el camino hasta el tile de ataque de un enemigo alcanzable 3ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > mantiene el camino completo y withinMp false si el enemigo queda lejos 1ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > bloquea un enemigo sin ningún tile de ataque libre 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > desempata los tiles de ataque con el orden de DIRECTIONS 0ms
+ ✓ tests/unit/game/path.test.ts > planCursorTarget > es determinista con el mismo estado y no muta la entrada 1ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > traza la línea inclusiva esperada 1ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > los muros intermedios bloquean y las unidades no 1ms
+ ✓ tests/unit/game/perception.test.ts > línea de visión de Bresenham > un muro en diagonal también bloquea 0ms
+ ✓ tests/unit/game/perception.test.ts > radios de visión del bestiario > cada tipo usa el radio de su entrada y no ve un tile más allá 1ms
+ ✓ tests/unit/game/perception.test.ts > radios de visión del bestiario > los jugadores y las unidades sin tipo no tienen radio 0ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > Move que cruza la vista emite la detección y no consume acción 1ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > MoveTo de 3 pasos emite la detección en el paso correcto 1ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > un MoveTo que acaba tras un muro deja al enemigo alertado 4ms
+ ✓ tests/unit/game/perception.test.ts > detección tras cada paso > una nueva visión reinicia la memoria y el contador 1ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > todos los tipos del bestiario comparten el radio de alarma del catálogo 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > alerta al borde del radio aunque haya un muro y no un tile más allá 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > no se propaga en cadena: un receptor no alerta a otro 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > un receptor ya alertado comparte lastKnown y no repite la onda 0ms
+ ✓ tests/unit/game/perception.test.ts > onda de alarma > con dos emisores emite todos los EnemySpotted y luego las ondas por índice 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > un enemigo dormido despierta en alerta y guarda la posición del atacante 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > reinicia la memoria de un enemigo alertado sin repetir la alarma 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > devuelve a alerta a un enemigo en regreso como episodio nuevo 0ms
+ ✓ tests/unit/game/perception.test.ts > daño como despertador > no cambia nada si el enemigo está muerto o no existe 0ms
+ ✓ tests/unit/game/perception.test.ts > dormido, investigación y regreso > un enemigo dormido no se mueve ni ataca y conserva el estado 1ms
+ ✓ tests/unit/game/perception.test.ts > dormido, investigación y regreso > investiga 2 fases, vuelve en la tercera y se duerme al llegar 13ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > la percepción y la memoria sobreviven a un round-trip JSON 1ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > dos ejecuciones idénticas producen los mismos eventos y posiciones 3ms
+ ✓ tests/unit/game/perception.test.ts > serialización y determinismo > detectar no muta el estado de entrada 0ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > usa 2 acciones por defecto y 3 en el Pícaro 2ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > declara las acciones enemigas 2/1/2 por tipo 0ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > suma el bonus del equipo y recorta al tope de 4 0ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > serializa actions.max y actions.remaining en el estado 1ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > restaura remaining al máximo al empezar el turno 3ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > gastar la última acción no termina el turno y E lo cierra manualmente 9ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > rechaza atacar sin acciones sin RNG, eventos ni cambios de estado 0ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > moverse y recoger no gastan acción aunque no queden acciones 29ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > atacar y después interactuar con el suelo es posible con acciones restantes 10ms
+ ✓ tests/unit/game/actions.test.ts > contador de acciones > MoveTo sobre un enemigo ataca una vez por pulsación con las 3 acciones del Pícaro 1ms
+ ✓ tests/unit/game/engine.test.ts > engine state > crea un mapa generado de 32x32 con muros en el borde y suelo transitable 52ms
+ ✓ tests/unit/game/engine.test.ts > engine state > coloca al jugador y al enemigo en los spawns del mapa con vida, MP y acción iniciales 23ms
+ ✓ tests/unit/game/engine.test.ts > engine state > no coloca entidades sobre muros ni casillas ocupadas 18ms
+ ✓ tests/unit/game/engine.test.ts > engine state > es serializable y puede reducirse tras un round-trip JSON 9ms
+ ✓ tests/unit/game/engine.test.ts > engine state > deriva el RNG de la semilla de la partida y lo serializa 5ms
+ ✓ tests/unit/game/engine.test.ts > engine state > el jugador y el enemigo actual empiezan con el equipo y los modificadores acordados 9ms
+ ✓ tests/unit/game/engine.test.ts > engine state > es determinista: dos estados iniciales son profundamente iguales 10ms
+ ✓ tests/unit/game/engine.test.ts > engine state > aplica la tirada de botín al crear cada enemigo sin tocar el RNG principal 7ms
+ ✓ tests/unit/game/engine.test.ts > engine state > reduce es pura y no muta el estado de entrada 1ms
+ ✓ tests/unit/game/engine.test.ts > engine state > Restart vuelve siempre al estado inicial 9ms
+ ✓ tests/unit/game/engine.test.ts > engine state > rechaza comandos de juego cuando la partida ha terminado 0ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > crea un jugador con arquetipo, variante y nombre de la configuración 11ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > con seis jugadores conserva el orden de turno y ocupa seis huecos 7ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > un nombre vacío toma el del arquetipo y el resto se guarda tal cual 6ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > serializa la configuración y normaliza la semilla en el estado 10ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > rechaza N fuera de 1..6 con error tipado 0ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > rechaza arquetipos y variantes que no existen con error tipado 0ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > rechaza semillas no finitas o no enteras sin generar el mapa 0ms
+ ✓ tests/unit/game/engine.test.ts > configuración de partida > Restart reconstruye desde state.config conservando la party y la semilla 7ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > G recoge a la mochila, gasta 1 MP, conserva la acción y no auto-equipa 8ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > recoge el martillo a la mochila sin cambiar el arma equipada 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > equipa desde la mochila por hueco con 1 MP y sin gastar acción 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > con 0 MP rechaza la recogida sin tocar el suelo ni la mochila 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > sin objeto en el tile del jugador rechaza no-item 12ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > recoger dos veces no duplica la instancia 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > no admite una novena instancia con la mochila llena 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > 1-3 equipan los tres primeros huecos de mochila con 1 MP y sin acción 7ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > rechaza huecos vacíos o fuera de rango 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > el enemigo no recoge objetos ni equipa desde mochila 6ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > ataca con el arma recién equipada y aplica su daño 8ms
+ ✓ tests/unit/game/engine.test.ts > recogida, equipo y operaciones de inventario > dos ejecuciones con la misma semilla y comandos dan el mismo estado 14ms
+
+ Test Files  5 passed (5)
+      Tests  99 passed (99)
+   Start at  11:55:40
+   Duration  565ms (transform 46%, tests 32%, import 20%, worker 1%)
+

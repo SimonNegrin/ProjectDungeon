@@ -182,6 +182,20 @@ vive en `src/game/` y es determinista:
 
 Ver [ADR-020](../decisions/ADR-020-economia-acciones.md).
 
+## Muerte y fantasma
+
+`hp === 0` sigue siendo la única señal de muerte. `death.ts`
+(`settleUnitDeath`) crea el cadáver contenedor del jugador, vacía equipo y
+mochila y marca `Unit.ghost`; `grid.ts` deriva `isGhost`/`lifeState` sin guardar
+un estado paralelo. El fantasma no bloquea (`isOccupied` solo cuenta vivos),
+planifica con `BlockingOptions.ignoreUnits` —muros y esquinas siguen
+bloqueando—, tiene `GHOST_ACTIONS = 1`, usa su `maxMp` intrínseco y solo acepta
+mover, recoger, soltar, inspeccionar contenedores
+(`InspectContainer`/`ContainerInspected`) y cerrar el turno. Los vivos pagan
+recoger/soltar con 1 MP; el fantasma, con su única acción. La IA, la percepción y
+el ataque filtran por `isAlive`, así que el fantasma no es objetivo ni obstáculo.
+La resurrección y el turno por jugador quedan en TASK-0148/TASK-0146.
+
 ## Réplica
 
 La réplica de [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)

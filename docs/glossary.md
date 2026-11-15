@@ -31,6 +31,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Fase enemiga** | Periodo posterior en el que actúan todos los enemigos. |
 | **MP** | Puntos de movimiento disponibles en un turno. |
 | **Acción** | Intervención que consume una de las acciones del turno: atacar, interactuar o lanzar hechizos. Esperar y terminar el turno son libres y no consumen acción ([REQ-026](requirements/REQ-026-economia-acciones-rebalanceo.md)). |
+| **Fantasma** | Estado jugable del jugador muerto (`Unit.ghost`, `hp === 0`): comparte casilla sin bloquear, se mueve con su MP intrínseco, tiene una acción por ronda y solo puede recoger/soltar un objeto por acción e inspeccionar contenedores sin abrirlos ni revelar trampas. No ataca, equipa, usa objetos ni abre cofres, y la IA no lo ve ([REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)). |
 | **Hotseat** | Varios jugadores comparten el mismo teclado y juegan por turnos. |
 | **Local-first** | Construir y validar el juego en local antes de añadir red. |
 | **Experimento** | Página interactiva que responde una pregunta de diseño o técnica y registra una decisión. |
@@ -61,8 +62,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 | **Localización de objeto** | Sitio único de una instancia: hueco de mochila, hueco de equipo, suelo o contenedor. `ItemLocation` y `locateInstance` la derivan de la contención; no hay listas paralelas. |
 | **Equipar** | Mover una instancia a su hueco de equipo con `equipItem`; cuesta 1 MP y no gasta acción. Valida categoría, manos y capacidad, y un rechazo no deja cambios parciales. |
 | **Desequipar** | Devolver una instancia equipada a la mochila con `unequipItem`; cuesta 1 MP y no gasta acción. Si no cabe, se rechaza entero. |
-| **Recoger** | Pasar una instancia del suelo del tile a la mochila con `pickUpItem`; cuesta 1 MP, no gasta acción y no auto-equipa. |
-| **Soltar** | Dejar una instancia en el suelo del tile con `dropItem`; cuesta 1 MP y no gasta acción. Si estaba equipada, se desequipa en la misma operación. |
+| **Recoger** | Pasar una instancia del suelo del tile a la mochila con `pickUpItem`; cuesta 1 MP, no gasta acción y no auto-equipa. El fantasma paga 1 acción y 0 MP. |
+| **Soltar** | Dejar una instancia en el suelo del tile con `dropItem`; cuesta 1 MP y no gasta acción. Si estaba equipada, se desequipa en la misma operación. El fantasma paga 1 acción y 0 MP. |
 | **Contenedor** | Cofre o cadáver con inventario propio (`Container` en `src/game/inventory.ts`); abrir o registrar cuesta 1 acción y exige adyacencia; transferir es gratis y se permite «coger todo» ([REQ-020](requirements/REQ-020-cofres-saqueo.md)). Sin cofres jugables en este corte. |
 | **Hechizo** | Efecto mágico con nivel mínimo, coste de maná, alcance, acierto, objetivo y efecto; los de daño declaran un paquete mágico o eléctrico y usan el resolvedor común. Consume una acción y se limita a dos por turno en el primer corte (provisional) ([REQ-025](requirements/REQ-025-magia-hechizos-mana.md), [REQ-029](requirements/REQ-029-tipos-dano-resistencias.md)). |
 | **Réplica** | Contraataque gratuito e inmediato del defensor cuando un ataque cuerpo a cuerpo falla. Solo replica quien está vivo, adyacente y con arma equipada, y está alerta, regresando o huyendo acorralado; un dormido nunca replica. Es una tirada nueva con la misma fórmula y RNG, puede fallar o matar, no gasta acción, maná ni MP y no se encadena. Solo existe en melé: ni a distancia ni mágica. |
