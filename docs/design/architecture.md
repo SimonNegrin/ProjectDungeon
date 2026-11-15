@@ -351,8 +351,14 @@ eventos de ataque, turno y fin de partida).
   existe. `window.__game.dispatch` completa la presentación pendiente antes de
   aplicar un comando de test.
 - **Debug**: `window.__game` expone `animation` (activa, paso, posición visual,
-  cámara) y `advance(ms)` para avanzar el reloj de presentación de forma
-  determinista, sin mutadores del estado vivo.
+  cámara), `panning` y `advance(ms)` para avanzar el reloj de presentación de
+  forma determinista, sin mutadores del estado vivo.
+- **Relevo hotseat**: al cerrar turno, `src/host/camera-pan.ts` decide el destino
+  (jugador activo final) y, si cambia el turno o la ronda y hay más de un
+  jugador, programa un paneo lineal de 300 ms con reloj propio; el input usa
+  `panning` y se libera al llegar. Ronda 1 y `prefers-reduced-motion` saltan sin
+  animación; con un jugador no hay paneo de relevo
+  ([REQ-031](../requirements/REQ-031-hotseat-local.md)).
 
 Ver [ADR-008](../decisions/ADR-008-presentacion-animada.md) y
 [REQ-006](../requirements/REQ-006-movimiento-animado.md).
