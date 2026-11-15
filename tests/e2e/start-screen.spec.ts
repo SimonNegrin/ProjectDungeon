@@ -55,11 +55,16 @@ test('el menú es la primera pantalla y «Nueva» abre el paso 1', async ({
   await expect(page.getByTestId('start-menu')).toBeVisible();
   await expect(page.getByTestId('start-new')).toBeFocused();
 
-  // «Cargar» queda en el punto de extensión: no abre selector ni sale del menú.
+  // «Cargar» abre el selector único `.zip`/`.json` (TASK-0141); cancelarlo deja
+  // el menú intacto, sin salir al paso 1 ni arrancar partida.
+  const chooserPromise = page.waitForEvent('filechooser');
   await page.getByTestId('start-load').click();
+  const chooser = await chooserPromise;
   await expect(page.getByTestId('start-menu')).toBeVisible();
   await expect(page.getByTestId('start-step1')).toBeHidden();
-  expect(await page.locator('input[type="file"]').count()).toBe(0);
+  expect(await page.locator('input[type="file"]').count()).toBe(1);
+  await chooser.setFiles([]);
+  await expect(page.getByTestId('start-menu')).toBeVisible();
   expect(errors).toEqual([]);
 });
 
