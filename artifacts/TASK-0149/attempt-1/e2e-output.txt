@@ -1,0 +1,95 @@
+
+Running 4 tests using 4 workers
+
+[1/4] [chromium] › tests/e2e/pause-menu.spec.ts:223:1 › TASK-0139: la pausa congela animación y feedback e ignora el input de juego
+[2/4] [chromium] › tests/e2e/pause-menu.spec.ts:188:1 › TASK-0139: en fase enemiga Guardar está desactivado con motivo
+[3/4] [chromium] › tests/e2e/pause-menu.spec.ts:124:1 › TASK-0139: Nueva y Cargar piden confirmación y Esc vuelve a la raíz
+[4/4] [chromium] › tests/e2e/pause-menu.spec.ts:33:1 › TASK-0139: Esc abre la pausa con cinco acciones en orden, foco y ayuda derivada
+  4 passed (5.0s)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › tests/e2e/game-input-hud.spec.ts:57:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio
+  1 passed (5.2s)
+
+Running 1 test using 1 worker
+
+[1/1] [chromium] › tests/e2e/action-counter-turn-qa.spec.ts:82:1 › dos ataques, cierre manual con N, sugerencia y movimiento sin acciones
+  1 passed (3.1s)
+
+Running 10 tests using 4 workers
+
+[1/10] [chromium] › tests/e2e/cursor-qa.spec.ts:352:1 › Moverse en ámbar avanza hasta agotar MP y en rojo no altera el estado
+[2/10] [chromium] › tests/e2e/cursor-qa.spec.ts:100:1 › cursor inicial, teclado en cuatro direcciones y borde del viewport
+[3/10] [chromium] › tests/e2e/cursor-qa.spec.ts:293:1 › Moverse en verde: llega al cursor y gasta el coste exacto sin consumir acción
+[4/10] [chromium] › tests/e2e/cursor-qa.spec.ts:190:1 › estados, patrones de borde y caminos verde y ámbar en dos tonos
+[5/10] [chromium] › tests/e2e/cursor-qa.spec.ts:423:1 › enemigo adyacente: marca, ataque directo con F, fin de turno y victoria
+[6/10] [chromium] › tests/e2e/cursor-qa.spec.ts:553:1 › enemigo no adyacente: camino al tile de ataque, F rechazado y Moverse ataca
+[7/10] [chromium] › tests/e2e/cursor-qa.spec.ts:632:1 › enemigo alcanzable sin acción: Espacio se acerca al tile de ataque sin dañar
+[8/10] [chromium] › tests/e2e/cursor-qa.spec.ts:683:1 › enemigo adyacente sin acción: Espacio no mueve, no ataca y avisa
+[9/10] [chromium] › tests/e2e/cursor-qa.spec.ts:720:1 › enemigo demasiado lejano: avance parcial hasta agotar MP sin atacar
+[10/10] [chromium] › tests/e2e/cursor-qa.spec.ts:779:1 › ciclo de vida, snapshot, debug y HUD sin botones nuevos
+  10 passed (12.4s)
+
+Running 8 tests using 4 workers
+
+[1/8] [chromium] › tests/e2e/motion-qa.spec.ts:538:1 › input de juego ignorado durante la animación; F1 responde y el reinicio por dispatch cancela
+[2/8] [chromium] › tests/e2e/motion-qa.spec.ts:321:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada
+[3/8] [chromium] › tests/e2e/motion-qa.spec.ts:204:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo
+[4/8] [chromium] › tests/e2e/motion-qa.spec.ts:425:1 › la cámara sigue al personaje y no se mueve con el cursor
+[5/8] [chromium] › tests/e2e/motion-qa.spec.ts:698:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar
+[6/8] [chromium] › tests/e2e/motion-qa.spec.ts:884:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador
+[7/8] [chromium] › tests/e2e/motion-qa.spec.ts:988:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos
+[8/8] [chromium] › tests/e2e/motion-qa.spec.ts:1045:1 › dos ejecuciones producen el mismo resultado con reloj determinista
+  8 passed (12.2s)
+
+Running 3 tests using 3 workers
+
+[1/3] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:89:1 › TASK-0039: el valiente no huye y otro golpe fuerte renueva la huida
+[2/3] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:130:1 › TASK-0039: el cobarde acorralado ataca en vez de esperar
+[3/3] [chromium] › tests/e2e/flee-behavior-qa.spec.ts:38:1 › TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se aleja
+  3 passed (4.4s)
+
+Running 3 tests using 3 workers
+
+[1/3] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:344:1 › TASK-0039: semilla de referencia, R-010 y determinismo
+[2/3] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:45:1 › TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento
+[3/3] [chromium] › tests/e2e/perception-alarm-qa.spec.ts:266:1 › TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena
+  3 passed (7.2s)
+
+Running 7 tests using 4 workers
+
+[1/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:279:1 › TASK-0144: la pausa congela turnos, beats y animaciones; el input de juego se ignora y reanudar no salta
+[2/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:390:1 › TASK-0144: Guardar solo está activo en la fase de personajes sin animación; nombre y manifiesto correctos
+[3/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:228:1 › TASK-0144: Esc abre y cierra la pausa en personajes, enemiga y animación; el panel se cierra primero
+[4/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:332:1 › TASK-0144: el menú muestra las cinco acciones en orden, navega con teclado y Esc vuelve a jugar
+[5/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:466:1 › TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desde la pausa
+[6/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:577:1 › TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y tamaños sin tocar la partida
+[7/7] [chromium] › tests/e2e/pause-save-load-qa.spec.ts:682:1 › TASK-0144: el resultado no ofrece guardado y R no reinicia
+  7 passed (6.7s)
+
+Running 10 tests using 4 workers
+
+[1/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:199:5 › HUD izquierdo a 900x700 › personaje en dos columnas, arma con sprite y stats
+[2/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:298:5 › HUD izquierdo a 900x700 › sin arma y con magia muestra solo las filas que existen
+[3/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:318:5 › HUD izquierdo a 900x700 › el fantasma sigue al jugador activo sin inventar datos
+[4/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:280:5 › HUD izquierdo a 900x700 › sin arma se oculta la zona entera
+[5/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:344:5 › HUD izquierdo a 900x700 › la sugerencia de fin de turno queda al pie
+[6/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:199:5 › HUD izquierdo a 1280x720 › personaje en dos columnas, arma con sprite y stats
+[7/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:280:5 › HUD izquierdo a 1280x720 › sin arma se oculta la zona entera
+[8/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:298:5 › HUD izquierdo a 1280x720 › sin arma y con magia muestra solo las filas que existen
+[9/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:318:5 › HUD izquierdo a 1280x720 › el fantasma sigue al jugador activo sin inventar datos
+[10/10] [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:344:5 › HUD izquierdo a 1280x720 › la sugerencia de fin de turno queda al pie
+  10 passed (4.6s)
+
+Running 8 tests using 4 workers
+
+[1/8] [chromium] › tests/e2e/motion-qa.spec.ts:538:1 › input de juego ignorado durante la animación; F1 responde y el reinicio por dispatch cancela
+[2/8] [chromium] › tests/e2e/motion-qa.spec.ts:425:1 › la cámara sigue al personaje y no se mueve con el cursor
+[3/8] [chromium] › tests/e2e/motion-qa.spec.ts:204:1 › paso intermedio, avance, cámara, cursor oculto, puntos y MP progresivo
+[4/8] [chromium] › tests/e2e/motion-qa.spec.ts:321:1 › camino largo: recorre todos los tiles, MP progresivo y cámara limitada
+[5/8] [chromium] › tests/e2e/motion-qa.spec.ts:698:1 › moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar
+[6/8] [chromium] › tests/e2e/motion-qa.spec.ts:884:1 › fase enemiga: cada enemigo anima y después vuelve el turno del jugador
+[7/8] [chromium] › tests/e2e/motion-qa.spec.ts:988:1 › reduced motion: movimiento instantáneo con el mismo estado y eventos
+[8/8] [chromium] › tests/e2e/motion-qa.spec.ts:1045:1 › dos ejecuciones producen el mismo resultado con reloj determinista
+  8 passed (8.4s)
