@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0135 — done: render de cadáveres desde contenedores `kind: 'corpse'` con beat de muerte, jugador persistente vacío, enemigo retirado con su contenedor y pila `×N` por contenedor visible; verify 102/1548 y E2E 1/1; fusión `8d3576d` — [informe](../artifacts/TASK-0135/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0134 — done: `GameState` con `players` como única party ordenada, `activePlayerId`, `round` y `phase`; helpers `partyOrder`/`activePlayer`/`activePlayerIndex`; snapshot y `F1` con activo, ronda, orden y fase; sin transiciones; verify 102/1537; fusión `16dc9be` — [informe](../artifacts/TASK-0134/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0133 — done: cadáver de enemigo solo con instancias `lootable`, descarte del resto, sin contenedor sin botín, enemigo con 0 PV en `enemies`, casilla compartida y retirada al vaciar solo para cadáveres de enemigo; verify 102/1530; fusión `864ea7a` — [informe](../artifacts/TASK-0133/attempt-1/report.md)
