@@ -173,7 +173,7 @@ test('TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue
   await screenshot(page, 'alarma', testInfo);
 });
 
-test('TASK-0059: huida con marca, banner de fase y fin de partida sin overlay prematuro', async ({
+test('TASK-0059: huida con marca, fase sin aviso y fin de partida sin overlay prematuro', async ({
   page,
 }, testInfo) => {
   await openGame(page, TEST_SEED_URL);
@@ -190,19 +190,19 @@ test('TASK-0059: huida con marca, banner de fase y fin de partida sin overlay pr
   await expect(mark).toHaveText(/^!![↑↓←→]$/);
   await screenshot(page, 'huida', testInfo);
 
-  // Fase enemiga: banner y tinte de borde; TurnEnded no añade otro banner.
+  // Fase enemiga sin enemigos que muevan o ataquen (REQ-031 R-007): no hay
+  // aviso de fase; TurnEnded sigue sin añadir otro banner.
   await openBspState(page, SEED);
   await dispatchFrozen(page, { type: 'EndTurn' });
-  const phase = await advanceToCue(page, 'enemy-phase');
+  const phase = await snapshot(page);
+  expect(phase.animation.cues.some((cue) => cue.kind === 'enemy-phase')).toBe(
+    false,
+  );
   expect(phase.animation.cues.some((cue) => cue.kind === 'turn-ended')).toBe(
     false,
   );
-  await expect(page.getByTestId('feedback-banner')).toHaveText('FASE ENEMIGA');
-  await expect(page.getByTestId('feedback-banner')).toHaveAttribute(
-    'data-banner-kind',
-    'phase',
-  );
-  await screenshot(page, 'fase-enemiga', testInfo);
+  await expect(page.getByTestId('feedback-banner')).toBeHidden();
+  await screenshot(page, 'fase-sin-acciones', testInfo);
   await settle(page);
 
   // Victoria: el overlay espera los 800 ms del cue de fin de partida.

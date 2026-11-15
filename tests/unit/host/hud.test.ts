@@ -747,6 +747,103 @@ describe('modelo del HUD', () => {
   });
 });
 
+describe('HUD de la fase enemiga', () => {
+  function enemyPhaseState(): GameState {
+    const target = createPlayerFromArchetype('rogue', {
+      id: 'player-1',
+      position: { x: 5, y: 5 },
+      name: 'Ada',
+      variant: 2,
+    });
+    const actor = makeUnit({
+      id: 'enemy-1',
+      nombre: 'Goblin',
+      faction: 'enemy',
+      x: 6,
+      y: 5,
+      stats: { resistencia: { slash: 'vulnerable' } },
+    });
+    return makeState({
+      players: [target],
+      enemies: [actor],
+      phase: 'enemy',
+    });
+  }
+
+  it('muestra la ficha compacta del objetivo y el detalle del actor', () => {
+    const state = enemyPhaseState();
+    const target = state.players[0];
+    const actor = state.enemies[0];
+    const model = buildHudModel(state, undefined, {
+      actorId: actor.id,
+      targetId: target.id,
+    });
+    const compactStats = buildHudModel(state).stats;
+
+    expect(model.playerName).toBe('Ada');
+    expect(model.archetype).toBe(ROSTER.rogue.name);
+    expect(model.portrait).toEqual({ sx: 128, sy: 0, sw: 32, sh: 32 });
+    expect(model.playerHp).toBe(`${target.hp}/${target.maxHp}`);
+    expect(model.stats).toEqual(compactStats);
+    expect(model.stats).toHaveLength(3);
+    expect(model.weapon).toBeNull();
+    expect(model.traits).toEqual([]);
+    expect(model.playerPosition).toBe('—');
+    expect(model.cursorDetail.kind).toBe('enemy');
+    expect(model.cursorDetail.title).toBe('Goblin');
+    expect(model.cursorEnemyHp).toBe(`${actor.hp}/${actor.maxHp}`);
+    expect(model.cursorEnemyBands).toHaveLength(5);
+    expect(model.turnAnnouncement).toBe(
+      'Fase enemiga. Goblin ataca a Ada. Ronda 1.',
+    );
+    expect(JSON.stringify(model)).not.toContain('Mochila');
+  });
+
+  it('sin objetivo muestra «Sin objetivo» y no inventa un personaje', () => {
+    const state = enemyPhaseState();
+    const model = buildHudModel(state, undefined, {
+      actorId: 'enemy-1',
+      targetId: null,
+    });
+
+    expect(model.playerName).toBe('Sin objetivo');
+    expect(model.portrait).toBeNull();
+    expect(model.playerHp).toBe('—/—');
+    expect(model.stats).toEqual([]);
+    expect(model.cursorDetail.title).toBe('Goblin');
+    expect(model.turnAnnouncement).toBe(
+      'Fase enemiga. Goblin no persigue a nadie. Ronda 1.',
+    );
+    expect(JSON.stringify(model)).not.toContain('Ada');
+  });
+
+  it('en fase de personajes el contexto enemigo no altera la ficha del activo', () => {
+    const state = makeState({
+      players: [
+        createPlayerFromArchetype('warrior', {
+          id: 'player-1',
+          position: { x: 5, y: 5 },
+          name: 'Ada',
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+    });
+
+    expect(
+      buildHudModel(state, undefined, {
+        actorId: 'enemy-1',
+        targetId: 'player-1',
+      }).playerName,
+    ).toBe('Ada');
+    expect(
+      buildHudModel(state, undefined, {
+        actorId: 'enemy-1',
+        targetId: 'player-1',
+      }).cursorDetail.kind,
+    ).not.toBe('enemy');
+  });
+});
+
 describe('modelo del overlay de debug', () => {
   it('incluye posiciones, MP, fase, cámara y semilla determinista', () => {
     const model = buildDebugModel(

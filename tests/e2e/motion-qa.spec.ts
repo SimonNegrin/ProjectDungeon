@@ -934,8 +934,11 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
 
-  const mid = await advance(page, FEEDBACK_CONFIG.beats.enemyPhase + PAUSE + HALF_STEP);
-  // El grupo empieza tras el pre-beat de fase; el sprite ya está en tránsito.
+  const mid = await advance(
+    page,
+    FEEDBACK_CONFIG.texts.enemyPhaseBannerMs + PAUSE + HALF_STEP,
+  );
+  // El grupo empieza tras «El master mueve»; el sprite ya está en tránsito.
   const originCenter = tileCenter(moves[0].from, mid.tileSize);
   expect(positionOf(mid)).not.toEqual(originCenter);
   expectBetween(
