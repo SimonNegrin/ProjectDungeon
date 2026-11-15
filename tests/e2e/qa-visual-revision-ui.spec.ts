@@ -335,6 +335,11 @@ async function hudGeometry(page: Page) {
     const magic = element('hud-magic-row');
     const mana = element('hud-mana-row');
     const traits = element('hud-traits');
+    const left = element('hud-left');
+    const live = left.querySelector<HTMLElement>('[data-testid="hud-live"]');
+    // Texto visible: la región aria-live se anuncia pero no se muestra.
+    const visible = left.cloneNode(true) as HTMLElement;
+    visible.querySelector('[data-testid="hud-live"]')?.remove();
     return {
       left: box('hud-left'),
       character: box('hud-zone-character'),
@@ -367,10 +372,17 @@ async function hudGeometry(page: Page) {
       footerOutsideZones: !keys.closest('.hud-zone'),
       suggestionOutsideZones: !suggestion.closest('.hud-zone'),
       overflow: {
-        scrollHeight: element('hud-left').scrollHeight,
-        clientHeight: element('hud-left').clientHeight,
+        scrollHeight: left.scrollHeight,
+        clientHeight: left.clientHeight,
       },
-      hudText: (element('hud-left').textContent ?? '').replace(/\s+/g, ' '),
+      hudText: (visible.textContent ?? '').replace(/\s+/g, ' '),
+      liveRegion: {
+        present: live !== null,
+        text: (live?.textContent ?? '').replace(/\s+/g, ' ').trim(),
+        width: live?.getBoundingClientRect().width ?? 0,
+        height: live?.getBoundingClientRect().height ?? 0,
+        clipPath: live ? getComputedStyle(live).clipPath : '',
+      },
     };
   });
 }
@@ -396,6 +408,12 @@ function expectHudBase(area: Awaited<ReturnType<typeof hudGeometry>>): void {
   expect(area.hudText).not.toContain('Turno');
   expect(area.hudText).not.toContain('En juego');
   expect(area.hudText).not.toContain('PV enemigo');
+  expect(area.liveRegion.present, 'hud-live existe').toBe(true);
+  expect(area.liveRegion.text.length, 'hud-live con texto').toBeGreaterThan(0);
+  const hiddenByBox =
+    area.liveRegion.width <= 2 && area.liveRegion.height <= 2;
+  const hiddenByClip = area.liveRegion.clipPath.includes('inset(50%)');
+  expect(hiddenByBox || hiddenByClip, 'hud-live oculto').toBe(true);
   expect(area.footerOutsideZones).toBe(true);
   expect(area.suggestionOutsideZones).toBe(true);
   expect(area.keysStyle.background).toBe('rgba(0, 0, 0, 0)');
