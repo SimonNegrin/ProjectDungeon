@@ -4,7 +4,7 @@ id: TASK-0128
 title: "Docs: ADR-006, glosario y alcance del arranque"
 description: "Añadir la tabla de 18 sprites a ADR-006 y reflejar en glosario y alcance el menú principal, el paso 1, el resumen y la variante elegida."
 status: stable
-task_status: in_progress
+task_status: blocked
 task_type: docs
 requirement: REQ-016
 requirement_ids: [T-010]
