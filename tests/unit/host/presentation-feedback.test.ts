@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GameEvent, GameState } from '../../../src/game/types';
-import { BspMapGenerator, reduce } from '../../../src/game/index';
+import { BspMapGenerator, reduce, settleUnitDeath } from '../../../src/game/index';
 import {
   ATTACK_FLASH_MS,
   DAMAGE_FEEDBACK_MS,
@@ -17,6 +17,7 @@ import {
   presentationState,
 } from '../../../src/host/motion';
 import { buildPresentationEvents } from '../../../src/host/presentation';
+import { corpseMarkVisible, corpseMarks } from '../../../src/host/renderer';
 import { GameSession } from '../../../src/host/session';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
@@ -385,6 +386,76 @@ describe('estado visible retrasado hasta su cue', () => {
 
     expect(alarmCue?.atMs).toBe(timeline.steps[0].pauseEndMs);
     expect(alarmCue?.atMs).toBeGreaterThan(0);
+  });
+});
+
+describe('cadáver contenedor y beat de muerte', () => {
+  const deathEffect = {
+    dx: 0,
+    dy: 0,
+    alpha: 1,
+    visible: true,
+    flash: 0,
+    flashColor: '#ffffff',
+    defense: null,
+  };
+
+  it('presentationState conserva el contenedor y el render lo oculta hasta el beat', () => {
+    const initial = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          x: 6,
+          y: 5,
+          maxHp: 10,
+          hp: 1,
+        }),
+      ],
+    });
+    const finalState = settleUnitDeath(
+      { ...initial, enemies: [{ ...initial.enemies[0], hp: 0 }] },
+      'enemy-1',
+    );
+    expect(finalState.containers).toHaveLength(1);
+
+    const timeline = buildMotionTimeline(
+      [hitAttack(1, 0), { type: 'UnitDied', unitId: 'enemy-1' }],
+      { initialState: initial, finalState },
+    );
+    const death = timeline.cues.find((cue) => cue.kind === 'death');
+    if (!death) throw new Error('La muerte debe producir un cue');
+
+    // Antes del cue la muerte es futura: el contenedor ya existe en el estado
+    // final, pero `dyingUnitIds` mantiene la marca oculta.
+    const before = presentationState(finalState, timeline, death.atMs - 1, initial);
+    expect(before.containers).toHaveLength(1);
+    const mark = corpseMarks(before.containers ?? [])[0];
+    expect(mark).toBeDefined();
+    expect(
+      corpseMarkVisible(mark, {
+        dyingUnitIds: dyingUnitIds(timeline, death.atMs - 1),
+      }),
+    ).toBe(false);
+
+    // Durante el cue manda `effects`: el cadáver tampoco se adelanta.
+    const during = presentationState(finalState, timeline, death.atMs, initial);
+    expect(during.containers).toHaveLength(1);
+    expect(
+      corpseMarkVisible(mark, { effects: new Map([['enemy-1', deathEffect]]) }),
+    ).toBe(false);
+
+    // Al acabar el beat el contenedor se dibuja y no hay retirada inventada.
+    const after = presentationState(
+      finalState,
+      timeline,
+      death.atMs + death.durationMs,
+      initial,
+    );
+    expect(after.containers).toHaveLength(1);
+    const afterMark = corpseMarks(after.containers ?? [])[0];
+    expect(corpseMarkVisible(afterMark, {})).toBe(true);
   });
 });
 
