@@ -1,1 +1,2 @@
 0214731 feat(TASK-0136): saquea cadáveres del mismo tile sin coste
+5d33651 docs(TASK-0136): adjunta informe, salidas y capturas del intento 1
