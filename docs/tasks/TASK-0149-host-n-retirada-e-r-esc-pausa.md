@@ -4,7 +4,7 @@ id: TASK-0149
 title: "Host: N, retirada de E/R, Esc pausa y bloqueo"
 description: "Mapear `N` a fin de turno, retirar `E` y `R`, abrir la pausa con `Esc` y bloquear comandos solo durante paneos y animaciones."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-005, R-012, R-023, T-007]
