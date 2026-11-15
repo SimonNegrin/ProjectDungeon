@@ -319,7 +319,8 @@ export type Command =
       readonly unitId: string;
       readonly containerId: string;
     }
-  | { readonly type: 'EndTurn' }
+  /** Cierra el turno del activo. `unitId` opcional debe coincidir con él. */
+  | { readonly type: 'EndTurn'; readonly unitId?: string }
   | { readonly type: 'Restart' };
 
 export type RejectionReason =
@@ -371,7 +372,11 @@ export type RejectionReason =
   /** `CastSpell`: ya se lanzaron dos hechizos en este turno. */
   | 'spell-limit'
   /** `InspectContainer`: la unidad no es un fantasma (REQ-021 T-005). */
-  | 'not-ghost';
+  | 'not-ghost'
+  /** El comando lo emite una unidad distinta de `activePlayerId` (REQ-031 T-003). */
+  | 'not-active'
+  /** `EndTurn` sin activo válido en `players` (REQ-031 T-003). */
+  | 'invalid-active';
 
 /** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
 export interface AttackRolls {
@@ -502,6 +507,18 @@ export type GameEvent =
 export interface ReduceResult {
   readonly state: GameState;
   readonly events: readonly GameEvent[];
+  /**
+   * Traza determinista de la fase enemiga (REQ-031 T-004), solo cuando esa
+   * fase se ha ejecutado. No forma parte del estado persistido.
+   */
+  readonly enemyPhase?: readonly EnemyPhaseEntry[];
+}
+
+/** Una entrada por enemigo vivo, en el orden de `state.enemies` (índice). */
+export interface EnemyPhaseEntry {
+  readonly enemyId: string;
+  readonly targetId: string | null;
+  readonly action: 'wait' | 'act';
 }
 
 export const ROOM_WIDTH = 20;

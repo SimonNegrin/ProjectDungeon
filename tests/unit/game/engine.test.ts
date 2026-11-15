@@ -362,6 +362,77 @@ describe('estado de partida: party, activo y ronda (REQ-031 T-001)', () => {
   });
 });
 
+describe('turno por jugador desde el estado inicial (REQ-031 T-002/T-003)', () => {
+  const twoPlayers: readonly PlayerConfig[] = [
+    { archetypeId: 'warrior', variant: 1, name: 'Ada' },
+    { archetypeId: 'rogue', variant: 2, name: 'Boric' },
+  ];
+
+  function initialState(): GameState {
+    return createInitialState({
+      generator: new BspMapGenerator(),
+      players: twoPlayers,
+    });
+  }
+
+  it('con dos jugadores alterna y ejecuta una sola fase enemiga al cerrar la ronda', () => {
+    const initial = initialState();
+
+    const first = reduce(initial, { type: 'EndTurn' });
+
+    expect(first.state.phase).toBe('player');
+    expect(first.state.round).toBe(1);
+    expect(first.state.activePlayerId).toBe('player-2');
+    expect(first.events).toEqual([
+      { type: 'TurnEnded', turn: 1 },
+      { type: 'PlayerTurnStarted', turn: 1 },
+    ]);
+    expect(first.enemyPhase).toBeUndefined();
+
+    const second = reduce(first.state, { type: 'EndTurn' });
+
+    expect(second.state.phase).toBe('player');
+    expect(second.state.round).toBe(2);
+    expect(second.state.activePlayerId).toBe('player-1');
+    expect(second.events.filter((event) => event.type === 'EnemyPhaseStarted')).toHaveLength(1);
+    expect(second.enemyPhase?.map((entry) => entry.enemyId)).toEqual(
+      initial.enemies.map((enemy) => enemy.id),
+    );
+  });
+
+  it('EndTurn valida el activo y los comandos de otro jugador se rechazan', () => {
+    const initial = initialState();
+
+    const wrongActor = reduce(initial, { type: 'EndTurn', unitId: 'player-2' });
+    expect(wrongActor.state).toBe(initial);
+    expect(wrongActor.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EndTurn', reason: 'not-active' },
+    ]);
+
+    const invalidActive = reduce(
+      { ...initial, activePlayerId: 'player-9' },
+      { type: 'EndTurn' },
+    );
+    expect(invalidActive.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EndTurn', reason: 'invalid-active' },
+    ]);
+
+    const inactiveMove = reduce(initial, {
+      type: 'Move',
+      unitId: 'player-2',
+      dx: 1,
+      dy: 0,
+    });
+    expect(inactiveMove.state).toBe(initial);
+    expect(inactiveMove.events).toEqual([
+      { type: 'CommandRejected', commandType: 'Move', reason: 'not-active' },
+    ]);
+
+    const matching = reduce(initial, { type: 'EndTurn', unitId: 'player-1' });
+    expect(matching.state.activePlayerId).toBe('player-2');
+  });
+});
+
 describe('configuración de partida', () => {
   const sixPlayers: readonly PlayerConfig[] = [
     { archetypeId: 'warrior', variant: 1, name: 'Ada' },

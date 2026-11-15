@@ -29,7 +29,11 @@ export function chebyshevDistance(a: Pick<Unit, 'x' | 'y'>, b: Pick<Unit, 'x' | 
   return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
-function chooseNearestPlayer(enemy: Unit, players: readonly Unit[]): Unit {
+/**
+ * Jugador vivo más cercano en distancia Chebyshev. En empate conserva el orden
+ * de `players`; comparte la elección con el plan de alerta.
+ */
+export function chooseNearestPlayer(enemy: Unit, players: readonly Unit[]): Unit {
   let nearest = players[0];
   let nearestDistance = chebyshevDistance(enemy, nearest);
 
