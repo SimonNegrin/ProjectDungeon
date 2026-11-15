@@ -1,0 +1,2 @@
+e42346d feat(TASK-0135): dibuja cadáveres desde contenedores con pila
+b4f09f7 docs(TASK-0135): adjunta informe, salidas y capturas del intento 1
