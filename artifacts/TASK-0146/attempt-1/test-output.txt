@@ -1,0 +1,9 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  2 passed (2)
+      Tests  71 passed (71)
+   Start at  19:59:08
+   Duration  516ms (tests 70%, transform 15%, import 15%, worker 1%)
+
