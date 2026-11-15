@@ -129,7 +129,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0139](TASK-0139-host-pausa-global-menu-cinco-botones.md) | Host: pausa global y menú de cinco botones | `done` | REQ-024 | TASK-0123, TASK-0126, TASK-0134 | P1 |
 | [TASK-0140](TASK-0140-host-guardar-zip.md) | Host: guardar .zip | `done` | REQ-024 | TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
 | [TASK-0141](TASK-0141-host-cargar-zip-json-menu-pausa.md) | Host: cargar .zip/.json desde menú y pausa | `done` | REQ-024 | TASK-0123, TASK-0134, TASK-0137, TASK-0138, TASK-0139 | P1 |
-| [TASK-0142](TASK-0142-qa-e2e-botin.md) | QA/E2E de botín y cadáveres | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0141 | P1 |
+| [TASK-0142](TASK-0142-qa-e2e-botin.md) | QA/E2E de botín y cadáveres | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0141 | P1 |
 | [TASK-0144](TASK-0144-qa-e2e-pausa-guardado-carga.md) | QA/E2E de pausa, guardado y carga | `backlog` | REQ-024 | TASK-0139, TASK-0140, TASK-0141 | P1 |
 | [TASK-0146](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md) | Motor: turno por jugador, EndTurn, fase enemiga y ronda | `backlog` | REQ-031 | TASK-0132, TASK-0134 | P1 |
 | [TASK-0147](TASK-0147-motor-muerte-turno-derrota-wipe.md) | Motor: muerte en turno y derrota por wipe | `backlog` | REQ-031 | TASK-0131, TASK-0146 | P1 |
@@ -172,7 +172,6 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0142 — QA/E2E de botín y cadáveres](TASK-0142-qa-e2e-botin.md)
 * [TASK-0144 — QA/E2E de pausa, guardado y carga](TASK-0144-qa-e2e-pausa-guardado-carga.md)
 * [TASK-0146 — Motor: turno por jugador, EndTurn, fase enemiga y ronda](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md)
 * [TASK-0147 — Motor: muerte en turno y derrota por wipe](TASK-0147-motor-muerte-turno-derrota-wipe.md)
@@ -316,6 +315,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0139 — Host: pausa global y menú de cinco botones](TASK-0139-host-pausa-global-menu-cinco-botones.md)
 * [TASK-0140 — Host: guardar .zip](TASK-0140-host-guardar-zip.md)
 * [TASK-0141 — Host: cargar .zip/.json desde menú y pausa](TASK-0141-host-cargar-zip-json-menu-pausa.md)
+* [TASK-0142 — QA/E2E de botín y cadáveres](TASK-0142-qa-e2e-botin.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
