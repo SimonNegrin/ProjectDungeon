@@ -1,0 +1,2 @@
+053a920 feat(TASK-0130): añade lootable, lootPolicy y tirada de botín derivada
+7848198 test(TASK-0130): cubre determinismo, porcentajes y propagación de lootable
