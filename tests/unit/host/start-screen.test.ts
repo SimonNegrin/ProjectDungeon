@@ -86,8 +86,14 @@ describe('pantalla de inicio: ?seed', () => {
 
     expect(state.notice).toContain('inválida');
     expect(state.notice).toContain('abc');
+    // T-004: el parámetro se ignora y se genera una semilla nueva; el aviso no
+    // puede afirmar que se usa la semilla por defecto.
+    expect(state.notice).toContain('se ignora');
+    expect(state.notice).toContain('genera una nueva');
+    expect(state.notice).not.toContain('por defecto');
     screen.openStepOne();
     expect(screen.state().seedText).toBe('2147483648');
+    expect(screen.state().seedText).not.toBe(String(DEFAULT_MAP_SEED));
   });
 
   it('sin ?seed no recupera la semilla por defecto ni la configuración previa', () => {

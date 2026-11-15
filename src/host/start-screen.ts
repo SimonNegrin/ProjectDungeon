@@ -8,7 +8,7 @@
  */
 
 import { MAX_PLAYERS, MIN_PLAYERS } from '../game/config';
-import { hasSeedParam, nextSeed, parseSeedParam, parseSeedText } from './seed';
+import { nextSeed, parseSeedParam, parseSeedText, readSeedParam } from './seed';
 
 export type StartScreenStep = 'menu' | 'step1' | 'confirm-cancel';
 
@@ -86,10 +86,13 @@ export function createStartScreen(options: StartScreenOptions = {}): StartScreen
     random === undefined ? nextSeed(previous) : nextSeed(previous, random);
 
   const parsedParam = parseSeedParam(search);
-  const seedInUrl = hasSeedParam(search);
+  const rawSeedParam = readSeedParam(search);
   const pendingSeed: number | null =
-    seedInUrl && parsedParam.warning === undefined ? parsedParam.seed : null;
-  const notice = seedInUrl && parsedParam.warning !== undefined ? parsedParam.warning : null;
+    rawSeedParam !== null && parsedParam.warning === undefined ? parsedParam.seed : null;
+  const notice =
+    rawSeedParam !== null && parsedParam.warning !== undefined
+      ? `Semilla inválida "${rawSeedParam}" en el enlace; se ignora y se genera una nueva.`
+      : null;
   let lastSeed = pendingSeed ?? generate(parsedParam.seed);
 
   let step: StartScreenStep = 'menu';

@@ -44,11 +44,13 @@ function readSeedQuery(search: string): SeedQuery {
 }
 
 /**
- * Indica si la URL trae el parámetro `seed`, aunque su valor sea vacío. Lo usa
- * la pantalla de inicio para distinguir «sin `?seed`» de «`?seed=` inválido».
+ * Devuelve el valor crudo de `?seed` o `null` si el parámetro no está. Frente a
+ * un booleano de presencia, permite construir un aviso que nombre el valor
+ * ignorado sin reutilizar el texto del parser.
  */
-export function hasSeedParam(search: string): boolean {
-  return readSeedQuery(search).present;
+export function readSeedParam(search: string): string | null {
+  const query = readSeedQuery(search);
+  return query.present ? query.value : null;
 }
 
 /**
