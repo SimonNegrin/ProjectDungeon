@@ -30,14 +30,14 @@ van como propuesta a `requirements-writer`.
 - `docs/glossary.md`: «Guardado de partida» y «Manifiesto».
 - `docs/decisions/index.md`: entrada de ADR-028.
 - Sin cambios en `docs/requirements/**` ni en código.
-- Commit: `e251fc4`.
+- Commits de la rama: `e251fc4`, `5a41c17`, `f825635`.
 - Sin brief: tarea `docs` ejecutada por el lead, sin `task-runner`.
 
 # Tests
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run docs:check` | OK; 695 documentos, 160 tareas | `docs-check-output.txt` |
+| `pnpm run docs:check` | OK; 697 documentos, 160 tareas | `docs-check-output.txt` |
 | `pnpm run verify` | 107 archivos/1678 tests, tsc, build y bundle OK | `verify-output.txt` |
 
 # Criterios
@@ -74,6 +74,6 @@ van como propuesta a `requirements-writer`.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 0 (sin runner) |
-| `report_bytes` | 2340 |
+| `report_bytes` | 3213 |
 | `overflow` | `scope-proposal` |
 | `criteria_failed` | 0 |
