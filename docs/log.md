@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0143 — done: ADR-030 del modelo de saqueabilidad y RNG derivado, glosario con «objeto saqueable» y «saqueo de cadáver», y alcance con cadáver condicionado por botín y llaves reservadas (`95b4f23`); docs:check 691/160 y verify 107/1678; fusión `89a703c` — [informe](../artifacts/TASK-0143/attempt-1/report.md)
+
 * 2026-11-15 — Scope — TASK-0143 — alcance actualizado con REQ-034 (fase 1.16, estado de requisitos, decisión confirmada y fuera de alcance) y estado real de pausa y guardado; `docs:check` y `verify` verdes; queda el cierre de TASK-0143 por task-lead — [alcance](scope.md)
 
 * 2026-11-15 — Task — TASK-0142 — done: QA de botín y cadáveres con E2E de muerte real, cadáver oculto en el beat, saqueo solo en el mismo tile a coste 0, retirada al vaciar y round-trip que conserva `lootable` y contenedores sin repetir la tirada; verify 107/1678, E2E 251/251; fusión `a8d5ad7` — [informe](../artifacts/TASK-0142/attempt-1/report.md)
