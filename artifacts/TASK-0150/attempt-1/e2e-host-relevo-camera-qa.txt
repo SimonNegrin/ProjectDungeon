@@ -1,0 +1,9 @@
+
+Running 4 tests using 4 workers
+
+  ✓  1 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:194:1 › TASK-0150: con prefers-reduced-motion la cámara salta sin paneo (1.3s)
+  ✓  3 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:179:1 › TASK-0150: con un solo jugador no hay paneo de relevo (1.4s)
+  ✓  4 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:89:1 › TASK-0150: el relevo con dos jugadores panea, bloquea y libera al llegar (1.5s)
+  ✓  2 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:148:1 › TASK-0150: la vuelta de la fase enemiga hace paneo al primer jugador (1.5s)
+
+  4 passed (4.3s)
