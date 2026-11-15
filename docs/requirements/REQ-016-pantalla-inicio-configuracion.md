@@ -8,7 +8,7 @@ version: 3
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T15:00:00Z
-updated_at: 2026-11-14T23:35:43Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0122, TASK-0123, TASK-0124, TASK-0125, TASK-0126, TASK-0127, TASK-0128, TASK-0129, TASK-0156]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T15:00:00Z }
 verified:
@@ -149,7 +149,9 @@ fila es `sy`. La UI no muestra nombres de género: las variantes son 1 y 2.
 - [REQ-022](REQ-022-hud-izquierdo-jugador.md): la miniatura del HUD usa la
   variante elegida, no el retrato fijo del arquetipo.
 - [REQ-024](REQ-024-menu-pausa-guardado.md): «Cargar» aparece también en el menú
-  principal; el menú de pausa conserva el suyo.
+  principal; el menú de pausa conserva el suyo. Anotado desde REQ-024 v3, T-011:
+  ambas entradas usan el mismo cargador y validador, y «Nueva» desde la pausa
+  descarta la partida tras confirmar.
 - [REQ-031](REQ-031-hotseat-local.md): «Nueva partida» del resultado lleva al
   paso 1; no hay reinicio rápido ni con la misma party y semilla.
 - [Alcance](../scope.md) y [glosario](../glossary.md): menú principal, paso 1 y

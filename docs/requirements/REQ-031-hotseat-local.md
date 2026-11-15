@@ -8,7 +8,7 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T19:07:43Z
-updated_at: 2026-11-15T10:19:36Z
+updated_at: 2026-11-15T18:48:15Z
 related_tasks: [TASK-0134, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153, TASK-0154, TASK-0155, TASK-0159]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-13T19:07:43Z }
 verified:
@@ -174,8 +174,11 @@ semilla y lo sustituye por «Nueva partida» y «Cargar partida».
   «Jugador N de M», y ficha compacta del objetivo en fase enemiga.
 - [REQ-023](REQ-023-hud-derecho-detalle-cursor.md): en fase enemiga la columna
   derecha muestra al enemigo que actúa.
-- [REQ-024](REQ-024-menu-pausa-guardado.md): pausa global, menú de cinco botones,
-  guardado solo en fase de personajes y carga en el turno activo; sin reinicio.
+- [REQ-024](REQ-024-menu-pausa-guardado.md): esta pausa es la de REQ-024 v3
+  (global, menú de cinco botones, guardado solo en fase de personajes y sin
+  animación, carga en el turno activo y sin reinicio rápido). R-019, R-020 y
+  T-010 quedan alineados con ella; las decisiones de «Reiniciar» del 2026-11-13
+  constan como sustituidas. Anotado desde REQ-024 v3, T-011.
 - [REQ-026](REQ-026-economia-acciones-rebalanceo.md): `N` sustituye a `E`, el
   turno es por jugador y la ronda cierra con una fase enemiga.
 - [Economía de turno](../design/turn-economy.md): tabla de controles, orden de

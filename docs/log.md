@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Requirement — TASK-0158 — notas de REQ-024 v3 en REQ-016 y REQ-031: cargador único, guardado restringido, carga en el activo y sin reinicio rápido; `docs:check` OK — [TASK-0158](tasks/TASK-0158-requisitos-notas-guardado.md)
+
 * 2026-11-15 — Requirement — TASK-0157 — enmiendas de REQ-034 anotadas en REQ-017, REQ-018, REQ-020, REQ-021, REQ-024 y REQ-026, sin cerrar REQ-020 ni cambiar reglas; `docs:check` OK — [TASK-0157](tasks/TASK-0157-requisitos-enmiendas-botin.md)
 
 * 2026-11-15 — Task — TASK-0145 — done: ADR-028 del formato v1 (`.zip` con manifiesto, esquema estricto, 5/20 MB y 4 entradas, sin presentación ni nueva tirada de botín), arquitectura y glosario; visión y alcance ya lo reflejaban, correcciones factuales a requirements-writer; verify 107/1678; fusión `2b3578e` — [informe](../artifacts/TASK-0145/attempt-1/report.md)
