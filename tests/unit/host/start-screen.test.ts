@@ -298,4 +298,20 @@ describe('pantalla de inicio: cancelación', () => {
     screen.confirmCancel();
     expect(screen.state().step).toBe('menu');
   });
+
+  it('volver al menú tras cancelar jugadores deja N=1 y semilla vacía', () => {
+    const screen = openWith('?seed=42');
+    screen.openStepOne();
+    screen.setPlayerCount(5);
+    screen.setSeedText('99');
+
+    screen.returnToMenu();
+
+    expect(screen.state()).toMatchObject({
+      step: 'menu',
+      playerCount: 1,
+      seedText: '',
+      error: null,
+    });
+  });
 });

@@ -1399,3 +1399,157 @@
         background: var(--ui-panel);
         color: var(--ui-muted);
       }
+      /* Configuración jugador a jugador (REQ-016). Es hermana de la pantalla de
+         inicio y opaca: tapa HUD y canvas mientras está activa. */
+      .player-screen {
+        position: absolute;
+        inset: 0;
+        z-index: 31;
+        display: grid;
+        place-items: center;
+        padding: calc(var(--ui-unit) * 12);
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font-size: var(--ui-body);
+        overflow: auto;
+      }
+      .player-screen[hidden],
+      .player-screen [hidden] {
+        display: none;
+      }
+      .player-screen-panel {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 620);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 9);
+        padding: calc(var(--ui-unit) * 16) calc(var(--ui-unit) * 18);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }
+      .player-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: calc(var(--ui-unit) * 4);
+      }
+      .player-title {
+        margin: 0;
+        color: var(--ui-accent);
+        font-size: var(--ui-title);
+      }
+      .player-position,
+      .player-lead,
+      .player-help,
+      .player-status {
+        margin: 0;
+        font-size: var(--ui-body);
+      }
+      .player-position {
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+      }
+      .player-help {
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+      }
+      .player-status {
+        min-height: var(--ui-body);
+        color: var(--ui-accent);
+      }
+      .player-field {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 3);
+      }
+      .player-label {
+        margin: 0;
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+      }
+      .player-archetypes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: calc(var(--ui-unit) * 3);
+      }
+      .player-variants {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--ui-unit) * 3);
+      }
+      .player-choice {
+        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 6);
+        background: var(--ui-raised);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+        cursor: pointer;
+      }
+      .player-choice:hover,
+      .player-choice:focus-visible {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .player-choice[aria-pressed="true"] {
+        /* Selección perceptible sin color: contorno interior de texto claro. */
+        outline: calc(var(--ui-line) * 2) solid var(--ui-text);
+        outline-offset: calc(var(--ui-line) * -2);
+        font-weight: 700;
+      }
+      .player-control {
+        width: 100%;
+        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 7);
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+      }
+      .player-choice:focus-visible,
+      .player-control:focus-visible,
+      .player-button:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: 0;
+      }
+      .player-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--ui-unit) * 6);
+      }
+      .player-button {
+        padding: calc(var(--ui-unit) * 6) calc(var(--ui-unit) * 14);
+        background: var(--ui-raised);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .player-button:hover,
+      .player-button:focus-visible {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .player-button:disabled {
+        color: var(--ui-muted);
+        background: var(--ui-bg);
+        cursor: not-allowed;
+      }
+      .player-cancel-dialog {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: calc(var(--ui-unit) * 16);
+        background: var(--ui-bg);
+      }
+      .player-cancel-body {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 380);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 9);
+        padding: calc(var(--ui-unit) * 16) calc(var(--ui-unit) * 18);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }

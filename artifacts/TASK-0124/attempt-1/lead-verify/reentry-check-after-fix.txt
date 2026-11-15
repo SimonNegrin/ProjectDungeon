@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+archetype buttons after reentry: 9
+testids: player-archetype-warrior,player-archetype-barbarian,player-archetype-rogue,player-archetype-archer,player-archetype-mage,player-archetype-cleric,player-archetype-spellblade,player-archetype-cook,player-archetype-farmer
+  ✓  1 [chromium] › artifacts/TASK-0124/attempt-1/lead-verify/reentry-check.spec.ts:3:1 › reentrada en la pantalla de jugador no duplica el roster (414ms)
+
+  1 passed (875ms)

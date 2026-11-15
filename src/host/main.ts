@@ -78,6 +78,8 @@ import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
+import { createPlayerScreenView, type PlayerScreenView } from './player-screen-view';
+import type { StepOneConfig } from './start-screen';
 import { createStartScreenView, type StartScreenView } from './start-screen-view';
 import { trackSpottedUnits, reconcileSpottedUnits, untrackSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
@@ -311,14 +313,36 @@ async function boot(): Promise<void> {
 
   /**
    * Primera pantalla en juego normal (REQ-016). Con `?test=1` no se monta y el
-   * host arranca como antes. Los puntos de extensión quedan no-op: la partida
-   * no empieza y «Cargar» no abre selector en esta tarea.
+   * host arranca como antes. «Continuar» abre la configuración jugador a
+   * jugador; «Cargar» sigue siendo no-op hasta TASK-0141 y el resumen no
+   * arranca partida hasta TASK-0126.
    */
+  let playerScreenView: PlayerScreenView | null = null;
+
+  function openPlayerScreen(config: StepOneConfig): void {
+    startScreenView?.hide();
+    playerScreenView = createPlayerScreenView(frame!, {
+      playerCount: config.playerCount,
+      seed: config.seed,
+      onComplete: (party) => {
+        const noun = party.playerCount === 1 ? 'jugador' : 'jugadores';
+        playerScreenView?.announce(
+          `Party lista: ${party.playerCount} ${noun}, semilla ${party.seed}.`,
+        );
+      },
+      onCancelConfirmed: () => {
+        playerScreenView?.destroy();
+        playerScreenView = null;
+        startScreenView?.showMenu();
+      },
+    });
+  }
+
   const startScreenView: StartScreenView | null = testSetupEnabled
     ? null
     : createStartScreenView(frame, {
         search: window.location.search,
-        onContinue: () => {},
+        onContinue: openPlayerScreen,
         onLoadRequested: () => {},
       });
 
@@ -1086,8 +1110,9 @@ async function boot(): Promise<void> {
   }
 
   window.addEventListener('keydown', (event) => {
-    // La pantalla de inicio consume sus teclas; el mapa y F1 no se interpretan.
-    if (startScreenView?.isActive()) return;
+    // La pantalla de inicio o la de jugadores consumen sus teclas; el mapa y F1
+    // no se interpretan mientras cualquiera de las dos esté visible.
+    if (startScreenView?.isActive() || playerScreenView?.isActive()) return;
     if (isEditableTarget(event.target)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 

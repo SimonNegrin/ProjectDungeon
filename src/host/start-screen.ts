@@ -59,6 +59,8 @@ export interface StartScreen {
   requestCancel(): void;
   /** Descarta la configuración y vuelve al menú con N=1. */
   confirmCancel(): void;
+  /** Vuelve al menú con N=1 y semilla vacía sin recargar la página. */
+  returnToMenu(): void;
   /** Cierra el aviso y vuelve al paso 1 sin tocar nada. */
   dismissCancel(): void;
   /** `Esc`: nada en el menú, cancelar en el paso 1 y cerrar el aviso. */
@@ -153,12 +155,16 @@ export function createStartScreen(options: StartScreenOptions = {}): StartScreen
     step = 'confirm-cancel';
   };
 
-  const confirmCancel = (): void => {
-    if (step !== 'confirm-cancel') return;
+  const returnToMenu = (): void => {
     step = 'menu';
     playerCount = MIN_PLAYERS;
     seedText = '';
     clearError();
+  };
+
+  const confirmCancel = (): void => {
+    if (step !== 'confirm-cancel') return;
+    returnToMenu();
   };
 
   const dismissCancel = (): void => {
@@ -186,6 +192,7 @@ export function createStartScreen(options: StartScreenOptions = {}): StartScreen
     continueStepOne,
     requestCancel,
     confirmCancel,
+    returnToMenu,
     dismissCancel,
     escape(): void {
       if (step === 'step1') {
