@@ -1,7 +1,7 @@
 ---
 type: Task Report
 title: "TASK-0138: informe de ejecución"
-description: Esquema v1, manifiesto y round-trip determinista del estado.
+description: Esquema v1, manifiesto y round-trip.
 task: TASK-0138
 attempt: 1
 report_status: success
@@ -57,7 +57,7 @@ No aplica: sin UI, zip ni descarga.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| REQ-024 ejemplifica `"phase": "players"`; el brief y `Phase` usan `player \| enemy`. | `REQ-024#formato-de-guardado-v1` vs `types.ts`. | Se implementa `player \| enemy`. | Un lector del requisito puede implementar el valor equivocado. | Corregir el ejemplo a `"player"` (owner de docs). | Bajo: texto. | `pending` |
+| REQ-024 ejemplifica `"phase": "players"`; el brief y `Phase` usan `player \| enemy`. | `REQ-024#formato-de-guardado-v1` vs `types.ts`. | Se implementa `player \| enemy`. | Un lector del requisito puede implementar el valor equivocado. | Corregir el ejemplo a `"player"` (owner de docs). | Bajo: texto. | `deferred` — `requirements-writer` |
 
 # Métricas de handoff
 
