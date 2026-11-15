@@ -1,0 +1,8 @@
+
+Running 3 tests using 3 workers
+
+  ✓  3 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:136:1 › TASK-0060: cruzar el borde anima el recorrido sin mover la cámara (1.6s)
+  ✓  1 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:95:1 › TASK-0060: enemigo fuera de pantalla usa un beat sin tween ni cámara (1.6s)
+  ✓  2 [chromium] › tests/e2e/enemy-phase-offscreen-qa.spec.ts:168:1 › TASK-0060: el input se bloquea en normal y no en reducido; F1 sigue activo y el reinicio por dispatch cancela (2.0s)
+
+  3 passed (3.5s)
