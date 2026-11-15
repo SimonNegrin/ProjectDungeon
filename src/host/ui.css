@@ -1732,3 +1732,130 @@
       .summary-error {
         color: var(--ui-danger);
       }
+      /* Pausa global (REQ-024): hermana opaca de las pantallas de arranque.
+         Tapa HUD y canvas; el canvas puede quedar congelado detrás. */
+      .pause-menu {
+        position: absolute;
+        inset: 0;
+        z-index: 33;
+        display: grid;
+        place-items: center;
+        padding: calc(var(--ui-unit) * 12);
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font-size: var(--ui-body);
+        overflow: auto;
+      }
+      .pause-menu[hidden],
+      .pause-menu [hidden] {
+        display: none;
+      }
+      .pause-panel {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 520);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 8);
+        padding: calc(var(--ui-unit) * 14) calc(var(--ui-unit) * 18);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }
+      .pause-screen,
+      .pause-dialog {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 8);
+      }
+      .pause-title {
+        margin: 0;
+        color: var(--ui-accent);
+        font-size: var(--ui-title);
+      }
+      .pause-lead {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: var(--ui-body);
+      }
+      .pause-actions {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 5);
+      }
+      .pause-button {
+        padding: calc(var(--ui-unit) * 6) calc(var(--ui-unit) * 12);
+        background: var(--ui-raised);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+        font-weight: 700;
+        text-align: left;
+        cursor: pointer;
+      }
+      .pause-button:hover,
+      .pause-button:focus-visible,
+      .pause-button[data-selected="true"] {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .pause-button:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: 0;
+      }
+      .pause-button:disabled {
+        color: var(--ui-muted);
+        background: var(--ui-bg);
+        cursor: not-allowed;
+      }
+      .pause-reason {
+        margin: 0;
+        color: var(--ui-danger);
+        font-size: var(--ui-help);
+        line-height: 1.35;
+      }
+      .pause-reason:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: calc(var(--ui-unit) * 2);
+      }
+      .pause-controls {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 4);
+        max-height: calc(var(--ui-unit) * 320);
+        overflow: auto;
+      }
+      .pause-controls-group {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 2);
+      }
+      .pause-controls-heading {
+        margin: 0;
+        color: var(--ui-accent);
+        font-size: var(--ui-data);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .pause-controls-rows {
+        display: flex;
+        flex-direction: column;
+        gap: var(--ui-unit);
+        margin: 0;
+        padding: 0;
+      }
+      .pause-control-row {
+        display: grid;
+        grid-template-columns: minmax(0, calc(var(--ui-unit) * 120)) minmax(0, 1fr);
+        gap: calc(var(--ui-unit) * 8);
+        padding: calc(var(--ui-unit) * 2) calc(var(--ui-unit) * 6);
+        background: var(--ui-bg);
+        font-size: var(--ui-body);
+        line-height: 1.25;
+      }
+      .pause-control-keys {
+        color: var(--ui-text);
+        font-weight: 700;
+      }
+      .pause-control-label {
+        margin: 0;
+        color: var(--ui-muted);
+      }

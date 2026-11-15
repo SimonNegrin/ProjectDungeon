@@ -5,7 +5,7 @@ import type { Corridor, Door, Room } from '../../src/game/map';
 import type { Position, Tile } from '../../src/game/types';
 import type { GameSnapshot } from '../../src/host/debug';
 import { wallTileFor } from '../../src/host/wall';
-import { openBspState, settle } from './support';
+import { openBspState, restart, settle } from './support';
 import { artifactPath } from './artifacts';
 
 const REFERENCE_SEED = 279837264;
@@ -856,8 +856,9 @@ test('F1, R, F2, HUD y encuadre 16:9', async ({ page }, testInfo) => {
   await expect(overlay).toBeHidden();
   expect(await snapshot(page)).toEqual(initial);
 
-  // R conserva semilla, mapa y spawns, y reinicia el estado de turno.
-  await page.keyboard.press('r');
+  // El reinicio por dispatch conserva semilla, mapa y spawns, y reinicia el
+  // estado de turno. Ya no existe el atajo `R`.
+  await restart(page);
   const afterRestart = await snapshot(page);
   expect(afterRestart.seed).toBe(initial.seed);
   expect(afterRestart.grid.tiles).toEqual(initial.grid.tiles);

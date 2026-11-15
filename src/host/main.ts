@@ -38,6 +38,18 @@ import { createDebugView, createHudView, createNoticeView } from './hud';
 import { buildPanelDetail } from './hud-detail';
 import { canOpenCharacterPanel, isManagedKey, translateKey } from './input';
 import {
+  activatePauseAction,
+  closePause,
+  createPauseState,
+  escapePause,
+  movePauseSelection,
+  openPause,
+  type PauseContext,
+  type PauseState,
+  type PauseTransition,
+} from './pause-menu';
+import { createPauseMenuView } from './pause-menu-view';
+import {
   rejectionMessage,
   type PanelSelection,
 } from './inventory-panel';
@@ -398,6 +410,8 @@ async function boot(): Promise<void> {
   let panelMessage: string | null = null;
   /** Detectores que iniciaron un episodio con `EnemySpotted`. */
   let spottedUnits: ReadonlySet<string> = new Set<string>();
+  /** Pausa global (REQ-024). El motor y la sesión no la conocen. */
+  let pause: PauseState = createPauseState();
 
   let animation: ActiveAnimation | null = null;
   let frameHandle: number | undefined;
@@ -448,6 +462,32 @@ async function boot(): Promise<void> {
   const frameEffectView = createFrameEffectView(frame);
   const screenFadeView = createScreenFadeView(frame, {
     reducedMotion: prefersReducedMotion,
+  });
+
+  /** Contexto de pausa derivado del estado y del reloj; no toca la sesión. */
+  const pauseContext = (): PauseContext => ({
+    phase: session.state.phase,
+    status: session.state.status,
+    animating: animation !== null,
+    // El paneo por jugador llega con TASK-0150; aquí no existe.
+    panning: false,
+  });
+
+  const pauseMenuView = createPauseMenuView(frame, {
+    onAction: (action) => handlePauseTransition(activatePauseAction(pause, action)),
+    onMoveSelection: (delta) => {
+      const next = movePauseSelection(pause, delta);
+      if (next === pause) return;
+      pause = next;
+      pauseMenuView.update(pause, pauseContext());
+    },
+    onActivateSelection: () => {
+      handlePauseTransition(activatePauseAction(pause));
+    },
+    onConfirm: () => {
+      handlePauseTransition(activatePauseAction(pause));
+    },
+    onCancel: () => handlePauseEscape(),
   });
 
   const resetCursorToPlayer = (): void => {
@@ -521,6 +561,12 @@ async function boot(): Promise<void> {
   };
 
   const render = (): void => {
+    // Con la pausa abierta el canvas y los HUD quedan congelados: solo se
+    // repinta la propia vista modal.
+    if (pause.open) {
+      pauseMenuView.update(pause, pauseContext());
+      return;
+    }
     const state = session.state;
     // El mapa puede cambiar de tamaño o de semilla: se recalcula siempre para
     // que cámara y límites nunca queden obsoletos.
@@ -637,6 +683,7 @@ async function boot(): Promise<void> {
 
   const scheduleTextFrame = (resetClock = false): void => {
     if (
+      pause.open ||
       !hasTransientFeedback() ||
       animation !== null ||
       manualClock ||
@@ -653,7 +700,14 @@ async function boot(): Promise<void> {
 
   const textTick = (now: number): void => {
     textFrameHandle = undefined;
-    if (animation !== null || manualClock || !hasTransientFeedback()) return;
+    if (
+      pause.open ||
+      animation !== null ||
+      manualClock ||
+      !hasTransientFeedback()
+    ) {
+      return;
+    }
     const raw = textLastFrameTime === undefined ? 0 : now - textLastFrameTime;
     textLastFrameTime = now;
     advanceTransientFeedback(Math.min(MAX_FRAME_DELTA_MS, Math.max(0, raw)));
@@ -868,7 +922,7 @@ async function boot(): Promise<void> {
 
   const tick = (now: number): void => {
     frameHandle = undefined;
-    if (!animation || manualClock) return;
+    if (pause.open || !animation || manualClock) return;
 
     const raw = lastFrameTime === undefined ? 0 : now - lastFrameTime;
     lastFrameTime = now;
@@ -926,7 +980,100 @@ async function boot(): Promise<void> {
     finishAnimation();
   };
 
+  /**
+   * Abre la pausa sin tocar la sesión. Cancela los rAF conservando `elapsed`,
+   * `damageTexts`, `banner` y `unitMarks`; al reanudar el reloj sigue desde el
+   * mismo punto (REQ-024 T-007).
+   */
+  const openPauseMenu = (): void => {
+    if (pause.open) return;
+    pause = openPause(pause, pauseContext());
+    cancelFrame();
+    cancelTextFrame();
+    pauseMenuView.show(pause, pauseContext());
+  };
+
+  /** Cierra la pausa y reengancha solo los relojes que tenían trabajo. */
+  const resumeFromPause = (): void => {
+    pause = closePause(pause);
+    pauseMenuView.hide();
+    if (manualClock) return;
+    lastFrameTime = undefined;
+    textLastFrameTime = undefined;
+    if (animation !== null) {
+      if (frameHandle === undefined) {
+        frameHandle = window.requestAnimationFrame(tick);
+      }
+      return;
+    }
+    if (hasTransientFeedback()) scheduleTextFrame(true);
+  };
+
+  const syncPauseMenu = (): void => {
+    if (pause.open) pauseMenuView.update(pause, pauseContext());
+    else pauseMenuView.hide();
+  };
+
+  /** Confirmar «Cargar» cierra el aviso: TASK-0141 añade la lectura real. */
+  const confirmLoadGame = (): void => {
+    syncPauseMenu();
+  };
+
+  /**
+   * Confirmar «Nueva partida» descarta animación y feedback, limpia los modales
+   * de juego y abre el paso 1 del arranque. Con `?test=1` no hay pantalla de
+   * inicio: solo se cierra la pausa.
+   */
+  const confirmNewGame = (): void => {
+    pause = closePause(pause);
+    pauseMenuView.hide();
+    cancelAnimation();
+    clearTransientFeedback();
+    spellMenu = { ...INITIAL_SPELL_MENU };
+    panelOpen = false;
+    panelSelection = null;
+    panelMessage = null;
+    inventoryPanelView.close();
+    noticeView.clear();
+    spotView.clear();
+    frameEffectView.clear();
+    screenFadeView.clear();
+    spottedUnits = new Set<string>();
+    if (startScreenView !== null) startScreenView.showStepOne();
+    render();
+  };
+
+  const handlePauseTransition = (transition: PauseTransition): void => {
+    pause = transition.state;
+    switch (transition.effect) {
+      case 'close':
+        resumeFromPause();
+        return;
+      case 'save':
+        // Guardar es no-op en este intento; la descarga llega en TASK-0140.
+        syncPauseMenu();
+        return;
+      case 'confirm-new':
+        confirmNewGame();
+        return;
+      case 'confirm-load':
+        confirmLoadGame();
+        return;
+      default:
+        syncPauseMenu();
+    }
+  };
+
+  const handlePauseEscape = (): void => {
+    const wasOpen = pause.open;
+    pause = escapePause(pause);
+    if (wasOpen && !pause.open) resumeFromPause();
+    else syncPauseMenu();
+  };
+
   const advanceForTest = (ms: number): void => {
+    // La pausa congela también el reloj manual: `advance` no consume tiempo.
+    if (pause.open) return;
     if (!animation) {
       // Sin animación, el reloj manual consume la persistencia ya creada
       // (textos, banners y marcas) sin esperas de reloj real. `advance(0)` no
@@ -949,6 +1096,8 @@ async function boot(): Promise<void> {
    * estado vivo; el test lo usa una vez al montar un escenario.
    */
   const setupState = (state: GameState, generator?: MapGenerator): void => {
+    pause = createPauseState();
+    pauseMenuView.hide();
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
@@ -992,6 +1141,8 @@ async function boot(): Promise<void> {
     pendingParty = null;
     startScreenView?.hide();
 
+    pause = createPauseState();
+    pauseMenuView.hide();
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
@@ -1192,6 +1343,13 @@ async function boot(): Promise<void> {
     if (isEditableTarget(event.target)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 
+    // La pausa consume sus teclas en la vista; el host solo bloquea las
+    // gestionadas para que el navegador no haga nada con ellas.
+    if (pause.open) {
+      if (isManagedKey(event.key)) event.preventDefault();
+      return;
+    }
+
     // Panel modal: solo se interpreta el cierre. No se hace `preventDefault`
     // del resto para no romper `Enter`/`Espacio` de los botones nativos ni `Tab`.
     if (panelOpen) {
@@ -1213,6 +1371,10 @@ async function boot(): Promise<void> {
       animating: animation !== null,
       spellMenu,
     });
+    if (intent.type === 'pause-toggle') {
+      openPauseMenu();
+      return;
+    }
     if (intent.type === 'cursor') {
       cursor = moveCursor(
         cursor,
@@ -1270,11 +1432,6 @@ async function boot(): Promise<void> {
         index: Math.max(0, spellIndex(intent.spellId)),
         selectedId: intent.spellId,
       };
-      render();
-      return;
-    }
-    if (intent.type === 'spell-deselect') {
-      spellMenu = { ...INITIAL_SPELL_MENU };
       render();
       return;
     }

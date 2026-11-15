@@ -76,12 +76,13 @@ describe('modelo del HUD', () => {
     expect(model.keys).toContain('Espacio/Enter moverse');
     expect(model.keys).toContain('F atacar');
     expect(model.keys).toContain('I panel');
-    expect(model.keys).toContain('Escape cerrar');
+    expect(model.keys).toContain('Esc cerrar / pausa');
     expect(model.keys).not.toContain('G ');
     expect(model.keys).not.toContain('1-3');
     expect(model.keys).not.toContain('1–3');
     expect(model.keys).toContain('E terminar turno');
-    expect(model.keys).toContain('R reiniciar');
+    expect(model.keys).not.toContain('R ');
+    expect(model.keys).not.toContain('reiniciar');
     expect(model.keys).toContain('F1');
     expect(model.overlays).toEqual({ victory: false, defeat: false });
     expect(model.weapon).toMatchObject({
@@ -337,7 +338,8 @@ describe('modelo del HUD', () => {
     const help = html.match(/data-testid="hud-keys"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
 
     expect(help).toContain('I panel');
-    expect(help).toContain('Escape cerrar');
+    expect(help).toContain('Esc cerrar / pausa');
+    expect(help).not.toContain('R reiniciar');
     expect(help).not.toMatch(/\bG\b/);
     expect(help).not.toMatch(/\b1-3\b|\b1–3\b/);
   });

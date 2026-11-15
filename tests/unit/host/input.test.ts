@@ -106,13 +106,30 @@ describe('mapeo de teclado a intenciones del host', () => {
     });
   });
 
-  it('E, R, F1 y F2 producen fin de turno, reinicio, debug y semilla nueva', () => {
+  it('E, F1 y F2 producen fin de turno, debug y semilla nueva', () => {
     const state = makeState();
 
     expectCommand(translate('e', state), { type: 'EndTurn' });
-    expectCommand(translate('R', state), { type: 'Restart' });
     expect(translate('F1', state)).toEqual({ type: 'toggle-debug' });
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
+  });
+
+  it('Esc sin panel ni lista abre la pausa; R queda ignorada', () => {
+    const state = makeState();
+
+    expect(translate('Escape', state)).toEqual({ type: 'pause-toggle' });
+    expect(translate('r', state)).toEqual({
+      type: 'ignored',
+      reason: 'unmapped',
+    });
+  });
+
+  it('Esc con la lista de hechizos abierta la cierra', () => {
+    expect(
+      translateKey({ key: 'Escape' }, makeState(), PLAYER_TILE, {
+        spellMenu: { open: true, index: 0, selectedId: null },
+      }),
+    ).toEqual({ type: 'spell-menu-close' });
   });
 
   it('I abre el panel en el turno del jugador sin coste', () => {
@@ -238,7 +255,7 @@ describe('mapeo de teclado a intenciones del host', () => {
     }
   });
 
-  it('con la partida terminada solo reaccionan R, F1 y F2', () => {
+  it('con la partida terminada reaccionan Esc, F1 y F2', () => {
     const state = makeState({ status: 'victory' });
 
     for (const key of ['w', ' ', 'Enter', 'f', 'e']) {
@@ -247,7 +264,7 @@ describe('mapeo de teclado a intenciones del host', () => {
         reason: 'game-over',
       });
     }
-    expectCommand(translate('r', state), { type: 'Restart' });
+    expect(translate('Escape', state)).toEqual({ type: 'pause-toggle' });
     expect(translate('F1', state)).toEqual({ type: 'toggle-debug' });
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
   });
@@ -296,8 +313,10 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(isManagedKey('1')).toBe(false);
     expect(isManagedKey('2')).toBe(false);
     expect(isManagedKey('3')).toBe(false);
-    expect(isManagedKey('q')).toBe(false);
+    expect(isManagedKey('q')).toBe(true);
     expect(isManagedKey('4')).toBe(false);
+    expect(isManagedKey('r')).toBe(false);
+    expect(isManagedKey('R')).toBe(false);
   });
 });
 
@@ -360,7 +379,7 @@ describe('selección de hechizos con teclado', () => {
     });
   });
 
-  it('cerrada, X lanza el seleccionado y Esc lo deselecciona', () => {
+  it('cerrada, X lanza el seleccionado y Esc abre la pausa', () => {
     const selected = { spellMenu: menu(false, 0, 'electric-1') };
 
     expect(translateKey({ key: 'x' }, state, cursor, selected)).toEqual({
@@ -370,7 +389,7 @@ describe('selección de hechizos con teclado', () => {
       target: { x: 6, y: 6 },
     });
     expect(translateKey({ key: 'Escape' }, state, cursor, selected)).toEqual({
-      type: 'spell-deselect',
+      type: 'pause-toggle',
     });
     expect(translateKey({ key: 'x' }, state, cursor)).toEqual({
       type: 'notice',
@@ -392,12 +411,16 @@ describe('gate de input durante la animación', () => {
     }
   });
 
-  it('mantiene activos F1 y R durante la animación', () => {
+  it('mantiene activos F1 y Esc durante la animación', () => {
     expect(translateKey({ key: 'F1' }, state, PLAYER_TILE, options)).toEqual({
       type: 'toggle-debug',
     });
-    expectCommand(translateKey({ key: 'R' }, state, PLAYER_TILE, options), {
-      type: 'Restart',
+    expect(translateKey({ key: 'Escape' }, state, PLAYER_TILE, options)).toEqual({
+      type: 'pause-toggle',
+    });
+    expect(translateKey({ key: 'R' }, state, PLAYER_TILE, options)).toEqual({
+      type: 'ignored',
+      reason: 'animating',
     });
   });
 

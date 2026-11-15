@@ -110,7 +110,7 @@ test('humo del cursor: jugador, camino verde/ámbar, bloqueo y aviso HUD', async
   await screenshot(page, 'cursor-path-amber', testInfo);
 
   // Rojo: el cursor cruza el muro, pero no hay camino ni puntos.
-  await page.keyboard.press('r');
+  await restart(page);
   const afterRestart = await snapshot(page);
   expect(afterRestart.cursor).toMatchObject({ state: 'player', visible: true });
   const wall = findVisibleTile(afterRestart, 'wall');

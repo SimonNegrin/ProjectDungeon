@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { GameSnapshot } from '../../src/host/debug';
-import { openBspState, settle, walkTo } from './support';
+import { openBspState, restart, settle, walkTo } from './support';
 import { artifactPath } from './artifacts';
 
 const TILE_SIZE = 32;
@@ -159,8 +159,9 @@ test('mapa generado por semilla: snapshot, cámara, debug, R y F2', async ({ pag
   expect(afterDebug).toEqual(beforeDebug);
   await saveScreenshot(page, 'debug-off', testInfo);
 
-  // R conserva la semilla y los spawns.
-  await page.keyboard.press('r');
+  // El reinicio por dispatch conserva la semilla y los spawns; `R` ya no es
+  // un atajo de juego.
+  await restart(page);
   const afterRestart = await snapshot(page);
   expect(afterRestart.seed).toBe(initial.seed);
   expect(afterRestart.spawns).toEqual(initial.spawns);

@@ -1,0 +1,3 @@
+branch: task/TASK-0139
+attempt-2-code: f0dbe24 fix(host): consume la pausa en origen y restaura el input tras cerrar el panel (TASK-0139)
+previous-attempt: 264a658 test(TASK-0139): evidencia final del intento

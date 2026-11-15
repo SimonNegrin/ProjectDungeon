@@ -820,9 +820,10 @@ test('ciclo de vida, snapshot, debug y HUD sin botones nuevos', async ({
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
   expect((await snapshot(page)).players).toEqual(start.players);
 
-  // R reinicia y recoloca el cursor sobre el jugador.
+  // El reinicio por dispatch recoloca el cursor sobre el jugador; `R` ya no
+  // es un atajo de juego.
   await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('r');
+  await restart(page);
   const afterRestart = await snapshot(page);
   expect(afterRestart).toMatchObject({ status: 'playing', turn: 1, phase: 'player' });
   expect(afterRestart.cursor).toMatchObject({

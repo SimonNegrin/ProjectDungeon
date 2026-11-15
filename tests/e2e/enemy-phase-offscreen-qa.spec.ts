@@ -10,7 +10,7 @@ import {
   loadState,
   watchConsole,
 } from './perception-fixtures';
-import { dispatchFrozen, settle, snapshot } from './support';
+import { dispatchFrozen, restart, settle, snapshot } from './support';
 
 const SEED = 279837264;
 
@@ -161,11 +161,12 @@ test('TASK-0060: cruzar el borde anima el recorrido sin mover la cámara', async
   expect(consoleErrors).toEqual([]);
 });
 
-test('TASK-0060: el input se bloquea en normal y no en reducido; F1 y R siguen activos', async ({
+test('TASK-0060: el input se bloquea en normal y no en reducido; F1 sigue activo y el reinicio por dispatch cancela', async ({
   page,
 }) => {
   // Normal: con la presentación congelada, el cursor y los comandos se
-  // descartan, pero F1 abre el debug y R reinicia y cancela la animación.
+  // descartan, pero F1 abre el debug y el reinicio por dispatch cancela la
+  // animación. `R` ya no es un atajo de juego.
   await openTestGame(page);
   await loadState(page, enemyAtColumn(18));
   await dispatchFrozen(page, { type: 'EndTurn' });
@@ -175,14 +176,14 @@ test('TASK-0060: el input se bloquea en normal y no en reducido; F1 y R siguen a
 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
-  await page.keyboard.press('R');
+  await restart(page);
   const restarted = await snapshot(page);
   expect(restarted.lastEvents.some((event) => event.type === 'GameRestarted')).toBe(true);
   expect(restarted.animation.animating).toBe(false);
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
 
   // Reducido: el estado final se aplica en el evento y el cursor responde de
-  // inmediato. F1 y R también siguen activos y el reinicio no funde.
+  // inmediato. F1 sigue activo y el reinicio por dispatch no funde.
   await openTestGame(page, true);
   await loadState(page, enemyAtColumn(18));
   await dispatchFrozen(page, { type: 'EndTurn' });
@@ -195,7 +196,7 @@ test('TASK-0060: el input se bloquea en normal y no en reducido; F1 y R siguen a
 
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
-  await page.keyboard.press('R');
+  await restart(page);
   await expect(page.getByTestId('debug-overlay')).toBeHidden();
   await expect(page.getByTestId('screen-fade')).toBeHidden();
 });

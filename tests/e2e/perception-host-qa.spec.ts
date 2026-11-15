@@ -5,6 +5,7 @@ import { BESTIARY } from '../../src/game/bestiary';
 import { artifactPath } from './artifacts';
 import {
   advanceToCue,
+  restart,
   settle,
   snapshot as readSnapshot,
 } from './support';
@@ -166,8 +167,9 @@ test('TASK-0038: "!", aviso de alarma, radios F1 y snapshot de percepción', asy
   expect(readonly.afterHome).toEqual(readonly.home);
   expect(readonly.afterLastKnown).toEqual(readonly.lastKnown);
 
-  // Reiniciar y cambiar semilla ocultan el "!" y vacían la memoria del host.
-  await page.keyboard.press('r');
+  // Reiniciar (por dispatch) y cambiar semilla ocultan el "!" y vacían la
+  // memoria del host. El atajo `R` ya no existe.
+  await restart(page);
   await settle(page);
   expect(await page.locator('[data-testid="spot-marker"]').count()).toBe(0);
   const afterRestart = await readSnapshot(page);

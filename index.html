@@ -11,7 +11,7 @@
     <main>
       <div class="game-root" data-testid="game-root">
         <div class="stage" data-testid="stage">
-          <div class="frame" data-testid="frame">
+          <div class="frame" data-testid="frame" tabindex="-1">
             <canvas
               id="game-canvas"
               width="2218"
@@ -78,7 +78,7 @@
                 <p class="hud-hint" data-testid="weapon-hint" hidden></p>
                 <div class="hud-footer">
                   <p class="hud-keys" data-testid="hud-keys">
-                    Flechas/WASD cursor · Espacio/Enter moverse · F atacar · I panel · Escape cerrar · E terminar turno · R reiniciar · F1 debug
+                    W/↑/A/←/S/↓/D/→ Mover cursor · Espacio/Enter moverse · F atacar · I panel · Q hechizos · X lanzar · E terminar turno · Esc cerrar / pausa · F1 debug · F2 nueva semilla
                   </p>
                   <p class="hud-suggestion" data-testid="hud-suggestion" hidden></p>
                 </div>
@@ -358,6 +358,103 @@
               <h2>Debug · F1</h2>
               <pre data-testid="debug-content"></pre>
             </aside>
+
+            <section
+              class="pause-menu"
+              data-testid="pause-menu"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="pause-title"
+              hidden
+            >
+              <div class="pause-panel ui-outset">
+                <section
+                  class="pause-screen"
+                  data-testid="pause-root"
+                  aria-labelledby="pause-title"
+                >
+                  <h2 class="pause-title" id="pause-title" data-testid="pause-title">
+                    Pausa
+                  </h2>
+                  <p class="pause-lead" data-testid="pause-lead">
+                    La partida está detenida.
+                  </p>
+                  <div class="pause-actions" role="group" aria-label="Acciones de pausa">
+                    <button
+                      type="button"
+                      class="pause-button ui-outset"
+                      data-testid="pause-resume"
+                      data-selected="true"
+                    >
+                      Reanudar
+                    </button>
+                    <button type="button" class="pause-button ui-outset" data-testid="pause-new">
+                      Nueva partida
+                    </button>
+                    <button type="button" class="pause-button ui-outset" data-testid="pause-load">
+                      Cargar partida
+                    </button>
+                    <button type="button" class="pause-button ui-outset" data-testid="pause-save">
+                      Guardar partida
+                    </button>
+                    <p
+                      class="pause-reason"
+                      data-testid="pause-save-reason"
+                      role="status"
+                      aria-live="polite"
+                      tabindex="-1"
+                      hidden
+                    ></p>
+                    <button
+                      type="button"
+                      class="pause-button ui-outset"
+                      data-testid="pause-controls"
+                    >
+                      Controles
+                    </button>
+                  </div>
+                </section>
+
+                <section
+                  class="pause-screen"
+                  data-testid="pause-controls-screen"
+                  aria-label="Controles"
+                  hidden
+                >
+                  <h2 class="pause-title">Controles</h2>
+                  <div class="pause-controls" data-testid="pause-controls-list"></div>
+                  <div class="pause-actions">
+                    <button
+                      type="button"
+                      class="pause-button ui-outset"
+                      data-testid="pause-controls-back"
+                    >
+                      Volver
+                    </button>
+                  </div>
+                </section>
+
+                <section class="pause-dialog" data-testid="pause-confirm-block" hidden>
+                  <p class="pause-lead" data-testid="pause-confirm-text"></p>
+                  <div class="pause-actions">
+                    <button
+                      type="button"
+                      class="pause-button ui-outset"
+                      data-testid="pause-confirm"
+                    >
+                      Confirmar
+                    </button>
+                    <button
+                      type="button"
+                      class="pause-button ui-outset"
+                      data-testid="pause-cancel"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
 
             <section
               class="start-screen"
