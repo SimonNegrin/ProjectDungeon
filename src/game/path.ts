@@ -1,5 +1,5 @@
 import { findUnit, isAdjacent } from './combat';
-import { isAlive } from './grid';
+import { isAlive, isGhost } from './grid';
 import {
   cellBlockReason,
   DIRECTIONS,
@@ -170,6 +170,10 @@ function planEnemy(
  * - `enemy`: enemigo vivo; el camino termina en `attackTile`, nunca en su tile.
  * - `blocked`: muro, aliado, objeto bloqueante, fuera del mapa o sin camino.
  *
+ * Un fantasma (REQ-021) planifica como si no hubiera unidades: comparte casilla
+ * con vivos y enemigos, así que su plan nunca es `enemy`; los muros y las
+ * esquinas siguen bloqueando.
+ *
  * `withinMp` indica si el coste completo cabe en el MP actual; el camino se
  * devuelve completo aunque no quepa para que el host pueda dibujarlo atenuado.
  */
@@ -181,21 +185,27 @@ export function planCursorTarget(
 ): CursorTargetPlan {
   const mover = findUnit(state, unitId);
   if (!mover) return blocked('unknown-unit');
-  if (!isAlive(mover)) return blocked('dead-unit');
+  // Un fantasma está muerto pero se planifica: comparte casilla y nunca ataca.
+  if (!isAlive(mover) && !isGhost(mover)) return blocked('dead-unit');
+
+  const ghost = isGhost(mover);
+  const planOptions: BlockingOptions | undefined = ghost
+    ? { ...options, ignoreUnits: true }
+    : options;
 
   if (target.x === mover.x && target.y === mover.y) {
     return { kind: 'player', path: [], cost: 0, withinMp: true };
   }
 
-  const blockage = cellBlockReason(state, target.x, target.y, options);
+  const blockage = cellBlockReason(state, target.x, target.y, planOptions);
   if (blockage === 'occupied') {
     const enemy = livingEnemyAt(state, target.x, target.y);
-    if (enemy) return planEnemy(state, mover, enemy, options);
+    if (enemy) return planEnemy(state, mover, enemy, planOptions);
     return blocked('occupied');
   }
   if (blockage) return blocked(blockage);
 
-  const reachable = findPath(state, mover, target, options);
+  const reachable = findPath(state, mover, target, planOptions);
   if (!reachable) return blocked('no-path');
 
   return {

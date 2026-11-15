@@ -9,6 +9,12 @@ export const DEFAULT_ACTIONS = 2;
  */
 export const MAX_ACTIONS = 4;
 
+/**
+ * Acciones por ronda del fantasma (REQ-021 R-002): una, como excepción a
+ * REQ-026. No se recalcula desde el equipo: la marca de fantasma fija el tope.
+ */
+export const GHOST_ACTIONS = 1;
+
 /** `max` = atributo inherente + bonus del equipo, recortado al tope. */
 export function actionsMax(stats: UnitStats, actionsBonus = 0): number {
   return Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + actionsBonus));

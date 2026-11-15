@@ -313,6 +313,9 @@ function beatForEvent(
       return FEEDBACK_CONFIG.beats.selectWeapon;
     case 'UnitMoved':
       return MOTION_CONFIG.stepMs + MOTION_CONFIG.pauseMs;
+    case 'ContainerInspected':
+      // Sin cue en este corte: la inspección es presentación de TASK-0135+.
+      return 0;
   }
 }
 
@@ -563,6 +566,9 @@ function cueForEvent(
         anchor: anchorFor(event.unitId, finalState, event.to),
         data: { unitId: event.unitId, mpAfter: event.mpLeft, from: event.from, to: event.to },
       };
+    case 'ContainerInspected':
+      // Sin presentación en este corte: el evento existe en el motor, no en la UI.
+      return null;
   }
 }
 

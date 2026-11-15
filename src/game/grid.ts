@@ -48,6 +48,27 @@ export function isAlive(unit: Unit): boolean {
   return unit.hp > 0;
 }
 
+/**
+ * Fantasma controlable (REQ-021 T-002): muerto con la marca aditiva `ghost`.
+ * La marca sola no basta: sin `hp === 0` la unidad sigue siendo un vivo.
+ */
+export function isGhost(unit: Pick<Unit, 'hp' | 'ghost'>): boolean {
+  return unit.hp === 0 && unit.ghost === true;
+}
+
+/** Estado derivado de una unidad; nunca se guarda por separado. */
+export type LifeState = 'alive' | 'dead' | 'ghost';
+
+/**
+ * Vivo, muerto o fantasma, derivado de `hp` y `ghost` (REQ-021 T-001/T-002).
+ * Un muerto sin fantasma y un fantasma son estados distintos, pero `hp === 0`
+ * sigue siendo la señal única de muerte.
+ */
+export function lifeState(unit: Pick<Unit, 'hp' | 'ghost'>): LifeState {
+  if (unit.hp > 0) return 'alive';
+  return isGhost(unit) ? 'ghost' : 'dead';
+}
+
 export function livingUnitAt(units: readonly Unit[], x: number, y: number): Unit | undefined {
   return units.find((unit) => isAlive(unit) && unit.x === x && unit.y === y);
 }

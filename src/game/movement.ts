@@ -45,11 +45,18 @@ export interface BlockingOptions {
    * `validateMove` comparten el mismo predicado.
    */
   readonly isBlockingObject?: (state: GameState, x: number, y: number) => boolean;
+  /**
+   * El movimiento no considera a las unidades vivas como bloqueo: lo usa el
+   * fantasma, que comparte casilla (REQ-021 R-003). Muros, bordes, esquinas y
+   * objetos siguen igual.
+   */
+  readonly ignoreUnits?: boolean;
 }
 
 /**
  * Predicado único de bloqueo compartido por `validateMove` y la planificación
- * de camino. No muta el estado.
+ * de camino. No muta el estado. Con `ignoreUnits` (fantasma) las unidades vivas
+ * no bloquean; los muros y las esquinas sí.
  */
 export function cellBlockReason(
   state: GameState,
@@ -59,7 +66,7 @@ export function cellBlockReason(
 ): CellBlockReason | undefined {
   if (!isInside(state.grid, x, y)) return 'out-of-bounds';
   if (!isFloorAt(state.grid, x, y)) return 'wall';
-  if (isOccupied(state, x, y)) return 'occupied';
+  if (options?.ignoreUnits !== true && isOccupied(state, x, y)) return 'occupied';
   if (options?.isBlockingObject?.(state, x, y)) return 'blocked-object';
   return undefined;
 }

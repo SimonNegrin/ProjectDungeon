@@ -4,6 +4,7 @@ import type {
   Container,
   EquipmentSlots,
   GroundItem,
+  InspectedItem,
   Inventory,
 } from './inventory';
 import type { GameConfig, PlayerVariant } from './config';
@@ -146,6 +147,12 @@ export interface Unit {
   readonly y: number;
   readonly hp: number;
   readonly maxHp: number;
+  /**
+   * Marca aditiva de fantasma controlable (REQ-021 T-002). Solo tiene efecto
+   * con `hp === 0`: el estado se deriva con `isGhost`/`lifeState`, nunca se
+   * guarda una copia que pueda desincronizarse de los PV.
+   */
+  readonly ghost?: boolean;
   readonly mp: number;
   readonly maxMp: number;
   /** Maná de hechizos, independiente del MP (REQ-025). */
@@ -207,6 +214,8 @@ export type CommandType =
   /** Alias legacy de `EquipItem` desde los tres primeros huecos de mochila. */
   | 'SelectWeapon'
   | 'CastSpell'
+  /** Inspecciona un contenedor sin abrirlo; solo fantasmas (REQ-021 T-005). */
+  | 'InspectContainer'
   | 'EndTurn'
   | 'Restart';
 
@@ -277,6 +286,15 @@ export type Command =
       readonly spellId: SpellId;
       readonly target: Position;
     }
+  /**
+   * Inspecciona el contenido de un contenedor sin abrirlo (REQ-021 R-006).
+   * Solo lo admite el motor para fantasmas en fase de jugador.
+   */
+  | {
+      readonly type: 'InspectContainer';
+      readonly unitId: string;
+      readonly containerId: string;
+    }
   | { readonly type: 'EndTurn' }
   | { readonly type: 'Restart' };
 
@@ -325,7 +343,9 @@ export type RejectionReason =
   /** `CastSpell`: un muro intermedio bloquea la línea de visión. */
   | 'no-line-of-sight'
   /** `CastSpell`: ya se lanzaron dos hechizos en este turno. */
-  | 'spell-limit';
+  | 'spell-limit'
+  /** `InspectContainer`: la unidad no es un fantasma (REQ-021 T-005). */
+  | 'not-ghost';
 
 /** Tiradas de un ataque; daño y armadura solo se tiran si hay impacto. */
 export interface AttackRolls {
@@ -435,6 +455,17 @@ export type GameEvent =
       readonly unitId: string;
       /** Posición del emisor de la onda. */
       readonly position: Position;
+    }
+  /**
+   * Contenido de un contenedor inspeccionado por un fantasma (REQ-021 T-005).
+   * Solo viaja la identidad de cada instancia y su saqueabilidad: ni trampa,
+   * ni apertura, ni capacidad ni posición.
+   */
+  | {
+      readonly type: 'ContainerInspected';
+      readonly unitId: string;
+      readonly containerId: string;
+      readonly items: readonly InspectedItem[];
     }
   | {
       readonly type: 'CommandRejected';
