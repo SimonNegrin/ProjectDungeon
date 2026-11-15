@@ -17,7 +17,7 @@ import {
   presentationState,
 } from '../../../src/host/motion';
 import { buildPresentationEvents } from '../../../src/host/presentation';
-import { corpseMarkVisible, corpseMarks } from '../../../src/host/renderer';
+import { corpseMarks } from '../../../src/host/renderer';
 import { GameSession } from '../../../src/host/session';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
 
@@ -428,23 +428,23 @@ describe('cadáver contenedor y beat de muerte', () => {
     if (!death) throw new Error('La muerte debe producir un cue');
 
     // Antes del cue la muerte es futura: el contenedor ya existe en el estado
-    // final, pero `dyingUnitIds` mantiene la marca oculta.
+    // final, pero `dyingUnitIds` lo filtra antes de agrupar y no hay marca.
     const before = presentationState(finalState, timeline, death.atMs - 1, initial);
     expect(before.containers).toHaveLength(1);
-    const mark = corpseMarks(before.containers ?? [])[0];
-    expect(mark).toBeDefined();
     expect(
-      corpseMarkVisible(mark, {
+      corpseMarks(before.containers ?? [], {
         dyingUnitIds: dyingUnitIds(timeline, death.atMs - 1),
       }),
-    ).toBe(false);
+    ).toEqual([]);
 
     // Durante el cue manda `effects`: el cadáver tampoco se adelanta.
     const during = presentationState(finalState, timeline, death.atMs, initial);
     expect(during.containers).toHaveLength(1);
     expect(
-      corpseMarkVisible(mark, { effects: new Map([['enemy-1', deathEffect]]) }),
-    ).toBe(false);
+      corpseMarks(during.containers ?? [], {
+        effects: new Map([['enemy-1', deathEffect]]),
+      }),
+    ).toEqual([]);
 
     // Al acabar el beat el contenedor se dibuja y no hay retirada inventada.
     const after = presentationState(
@@ -454,8 +454,9 @@ describe('cadáver contenedor y beat de muerte', () => {
       initial,
     );
     expect(after.containers).toHaveLength(1);
-    const afterMark = corpseMarks(after.containers ?? [])[0];
-    expect(corpseMarkVisible(afterMark, {})).toBe(true);
+    const afterMarks = corpseMarks(after.containers ?? []);
+    expect(afterMarks).toHaveLength(1);
+    expect(afterMarks[0]).toMatchObject({ count: 1, corpseOf: 'enemy-1' });
   });
 });
 

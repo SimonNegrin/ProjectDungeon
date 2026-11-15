@@ -212,27 +212,45 @@ function drawDefenseGesture(
 type UnitEffectDefense = NonNullable<UnitWorldEffect['defense']>;
 
 /**
- * Marca de render de un grupo de contenedores de cadáver en la misma casilla.
- * `containerIds` y `count` conservan la información de cuántos hay; `rect` es
- * el decal reutilizado del primer contenedor del grupo.
+ * Marca de render de un grupo de contenedores de cadáver visibles en la misma
+ * casilla. `containerIds` y `count` cuentan solo los contenedores visibles;
+ * `rect` es el decal reutilizado del primer contenedor visible del grupo.
  */
 export interface CorpseMark {
   readonly x: number;
   readonly y: number;
   readonly count: number;
   readonly containerIds: readonly string[];
-  /** Unidad del primer contenedor del grupo; `null` si no lo declara. */
+  /** Unidad del primer contenedor visible del grupo; `null` si no lo declara. */
   readonly corpseOf: string | null;
   readonly rect: SpriteRect;
 }
 
 /**
- * Agrupa por casilla los contenedores `kind: 'corpse'` conservando el orden de
- * `state.containers`. Los cofres y fixtures sin `kind` no producen marca; una
- * unidad muerta sin contenedor tampoco. Es pura: no muta el estado.
+ * Decide si un contenedor se dibuja en el frame actual. Una muerte futura
+ * (`dyingUnitIds`) o un cue de muerte en curso (`effects`) ocultan su cadáver
+ * hasta acabar el beat; sin `corpseOf` no hay beat que esperar.
+ */
+export function corpseContainerVisible(
+  container: Container,
+  options: Pick<RenderOptions, 'dyingUnitIds' | 'effects'>,
+): boolean {
+  const corpseOf = container.corpseOf;
+  if (!corpseOf) return true;
+  return !(options.dyingUnitIds?.has(corpseOf) || options.effects?.has(corpseOf));
+}
+
+/**
+ * Agrupa por casilla los contenedores `kind: 'corpse'` visibles, conservando el
+ * orden de `state.containers`. La visibilidad se resuelve por contenedor antes
+ * de agrupar: un contenedor cuyo beat de muerte sigue en curso no cuenta ni
+ * cambia el decal de los ya visibles. Los cofres y fixtures sin `kind` no
+ * producen marca; una unidad muerta sin contenedor tampoco. Es pura: no muta el
+ * estado.
  */
 export function corpseMarks(
   containers: readonly Container[],
+  options: Pick<RenderOptions, 'dyingUnitIds' | 'effects'> = {},
 ): readonly CorpseMark[] {
   const groups = new Map<
     string,
@@ -247,6 +265,7 @@ export function corpseMarks(
 
   for (const container of containers) {
     if (container.kind !== 'corpse') continue;
+    if (!corpseContainerVisible(container, options)) continue;
     const key = `${container.x},${container.y}`;
     const group = groups.get(key);
     if (group) {
@@ -274,20 +293,6 @@ export function corpseMarks(
     corpseOf: group.corpseOf,
     rect: group.rect,
   }));
-}
-
-/**
- * Decide si una marca se dibuja en el frame actual. Una muerte futura
- * (`dyingUnitIds`) o un cue de muerte en curso (`effects`) ocultan el cadáver
- * hasta acabar el beat; sin `corpseOf` no hay beat que esperar.
- */
-export function corpseMarkVisible(
-  mark: CorpseMark,
-  options: Pick<RenderOptions, 'dyingUnitIds' | 'effects'>,
-): boolean {
-  const corpseOf = mark.corpseOf;
-  if (!corpseOf) return true;
-  return !(options.dyingUnitIds?.has(corpseOf) || options.effects?.has(corpseOf));
 }
 
 /** Marca de pila: `×N` sobre fondo oscuro en la esquina del tile. */
@@ -840,10 +845,10 @@ export function renderScene(
 
   // Cadáveres de presentación: sobre los decals y bajo muros/unidades. Se
   // dibujan desde los contenedores `kind: 'corpse'`, no desde unidades muertas:
-  // sin contenedor no hay rastro, y el decal reutiliza `corpse-22a/b`. Una
-  // muerte futura o su cue de muerte ocultan la marca hasta acabar el beat.
-  for (const mark of corpseMarks(state.containers ?? [])) {
-    if (!corpseMarkVisible(mark, options)) continue;
+  // sin contenedor no hay rastro, y el decal reutiliza `corpse-22a/b`. La
+  // visibilidad se resuelve por contenedor antes de agrupar, así un beat de
+  // muerte en curso no adelanta ni hace desaparecer un cadáver ya visible.
+  for (const mark of corpseMarks(state.containers ?? [], options)) {
     if (!tileVisible(mark.x, mark.y, range)) continue;
     drawRect(
       ctx,

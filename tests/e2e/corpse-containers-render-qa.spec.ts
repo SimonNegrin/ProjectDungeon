@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import type { ItemId } from '../../src/game/equipment';
 import { BspMapGenerator, createInitialState } from '../../src/game/index';
 import type { Container } from '../../src/game/inventory';
 import type { GameState } from '../../src/game/types';
@@ -45,8 +46,17 @@ function corpse(
   x: number,
   y: number,
   corpseOf: string,
+  itemId: ItemId,
 ): Container {
-  return { id, x, y, capacity: 1, items: [], kind: 'corpse', corpseOf };
+  return {
+    id,
+    x,
+    y,
+    capacity: 1,
+    items: [{ id: `item-${id}`, itemId, lootable: true }],
+    kind: 'corpse',
+    corpseOf,
+  };
 }
 
 /**
@@ -63,11 +73,17 @@ function scenario(): {
     generator: new BspMapGenerator(),
   });
   const player = base.players[0];
-  const corpseTile = floorNeighbor(base, player);
+  // Evita el tile del jugador y los objetos del suelo: la captura debe mostrar
+  // el decal y el contador sin que un objeto tape la casilla.
+  const occupied = new Set<string>([`${player.x},${player.y}`]);
+  for (const item of base.groundItems ?? []) {
+    occupied.add(`${item.x},${item.y}`);
+  }
+  const corpseTile = floorNeighbor(base, player, occupied);
   const orphanTile = floorNeighbor(
     base,
     player,
-    new Set([`${corpseTile.x},${corpseTile.y}`]),
+    new Set([...occupied, `${corpseTile.x},${corpseTile.y}`]),
   );
   const orphan = base.enemies[0];
   if (!orphan) throw new Error('El BSP de referencia debe tener un enemigo');
@@ -75,8 +91,8 @@ function scenario(): {
   const state: GameState = {
     ...base,
     containers: [
-      corpse('corpse-enemy-a', corpseTile.x, corpseTile.y, 'enemy-a'),
-      corpse('corpse-enemy-b', corpseTile.x, corpseTile.y, 'enemy-b'),
+      corpse('corpse-enemy-a', corpseTile.x, corpseTile.y, 'enemy-a', 'dagger'),
+      corpse('corpse-enemy-b', corpseTile.x, corpseTile.y, 'enemy-b', 'axe'),
     ],
     enemies: [
       {
@@ -124,10 +140,24 @@ test('mapa con dos cadáveres-contenedor y una unidad muerta sin contenedor', as
   page,
 }, testInfo) => {
   const { state, corpseTile, orphanTile } = scenario();
+  expect(
+    (state.groundItems ?? []).some(
+      (item) => item.x === corpseTile.x && item.y === corpseTile.y,
+    ),
+  ).toBe(false);
+  expect(state.grid.tiles[corpseTile.y * state.grid.width + corpseTile.x]).toBe(
+    'floor',
+  );
   const snapshot = await openState(page, state, SEED);
 
   // Los contenedores llegan al host y la unidad muerta no tiene cadáver.
   expect(snapshot.containers).toHaveLength(2);
+  expect(
+    snapshot.containers.every(
+      (container) =>
+        container.items.length === 1 && container.items[0]?.lootable === true,
+    ),
+  ).toBe(true);
   expect(snapshot.containers).toEqual(
     expect.arrayContaining([
       expect.objectContaining({

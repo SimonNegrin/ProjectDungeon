@@ -32,7 +32,6 @@ import {
   renderScene,
   ALARM_COLOR,
   DEFENSE_GESTURE_COLOR,
-  corpseMarkVisible,
   corpseMarks,
   type SceneAssets,
 } from '../../../src/host/renderer';
@@ -923,7 +922,7 @@ describe('cadáveres desde contenedores', () => {
     expect(corpseDraws(draw(removed, { x: 0, y: 0 }))).toEqual([]);
   });
 
-  it('dyingUnitIds y effects ocultan la marca hasta acabar el beat de muerte', () => {
+  it('dyingUnitIds y effects ocultan solo el contenedor afectado', () => {
     const state = stateWithCorpses([
       corpseContainer('corpse-enemy-1', 6, 4, 'enemy-1'),
     ]);
@@ -940,16 +939,58 @@ describe('cadáveres desde contenedores', () => {
     });
     expect(corpseDraws(effect)).toEqual([]);
 
-    const mark = corpseMarks(state.containers ?? [])[0];
-    expect(corpseMarkVisible(mark, {})).toBe(true);
     expect(
-      corpseMarkVisible(mark, { dyingUnitIds: new Set(['enemy-1']) }),
-    ).toBe(false);
+      corpseMarks(state.containers ?? [], {
+        dyingUnitIds: new Set(['enemy-1']),
+      }),
+    ).toEqual([]);
     expect(
-      corpseMarkVisible(mark, { effects: new Map([['enemy-1', deathEffect]]) }),
-    ).toBe(false);
-
+      corpseMarks(state.containers ?? [], {
+        effects: new Map([['enemy-1', deathEffect]]),
+      }),
+    ).toEqual([]);
+    expect(corpseMarks(state.containers ?? [])).toHaveLength(1);
     expect(corpseDraws(draw(state, { x: 0, y: 0 }))).toHaveLength(1);
+  });
+
+  it('un cadáver visible no adelanta ni pierde el ×2 por otro que sigue en su beat', () => {
+    const containers = [
+      corpseContainer('corpse-player-1', 6, 4, 'player-1'),
+      corpseContainer('corpse-enemy-2', 6, 4, 'enemy-2'),
+    ];
+    const state = stateWithCorpses(containers);
+
+    for (const hide of [
+      { dyingUnitIds: new Set(['enemy-2']) },
+      { effects: new Map([['enemy-2', deathEffect]]) },
+    ]) {
+      const marks = corpseMarks(state.containers ?? [], hide);
+      expect(marks).toHaveLength(1);
+      expect(marks[0]).toMatchObject({
+        count: 1,
+        containerIds: ['corpse-player-1'],
+        corpseOf: 'player-1',
+      });
+      expect(marks[0].rect).toEqual(
+        corpseRectFor({ id: 'player-1', x: 6, y: 4 }),
+      );
+
+      const fake = createFakeContext();
+      renderScene(fake.ctx, state, assets, { x: 0, y: 0 }, VIEWPORT, 32, hide);
+      expect(corpseDraws(fake)).toHaveLength(1);
+      expect(fake.texts).toEqual([]);
+    }
+
+    const shown = corpseMarks(state.containers ?? []);
+    expect(shown).toHaveLength(1);
+    expect(shown[0]).toMatchObject({
+      count: 2,
+      containerIds: ['corpse-player-1', 'corpse-enemy-2'],
+      corpseOf: 'player-1',
+    });
+    const fake = draw(state, { x: 0, y: 0 });
+    expect(corpseDraws(fake)).toHaveLength(1);
+    expect(fake.texts.map((call) => call.text)).toContain('×2');
   });
 
   it('no muta el estado y conserva el orden suelo → cadáver → unidades', () => {
