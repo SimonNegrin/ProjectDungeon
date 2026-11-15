@@ -33,6 +33,11 @@ export interface PauseMenuViewOptions {
 export interface PauseMenuView {
   show(state: PauseState, context: PauseContext): void;
   update(state: PauseState, context: PauseContext): void;
+  /**
+   * Mensaje de resultado del guardado en la región viva. No mueve el foco: el
+   * error se anuncia sin sacar la selección de las cinco acciones.
+   */
+  setSaveMessage(message: string | null): void;
   hide(): void;
   isOpen(): boolean;
 }
@@ -94,6 +99,7 @@ export function createPauseMenuView(
   const cancelButton = requireElement<HTMLButtonElement>(root, 'pause-cancel');
   const controlsBack = requireElement<HTMLButtonElement>(root, 'pause-controls-back');
   const saveReason = requireElement<HTMLElement>(root, 'pause-save-reason');
+  const saveMessage = requireElement<HTMLElement>(root, 'pause-save-message');
 
   const actionButtons = PAUSE_ACTIONS.map((action) => ({
     action,
@@ -305,6 +311,11 @@ export function createPauseMenuView(
     focusPrimary({ screen: renderedScreen ?? 'root', index: renderedIndex });
   });
 
+  const setSaveMessage = (message: string | null): void => {
+    saveMessage.textContent = message ?? '';
+    saveMessage.hidden = message === null || message === '';
+  };
+
   return {
     show(state: PauseState, _context: PauseContext): void {
       previousFocus =
@@ -315,16 +326,19 @@ export function createPauseMenuView(
       section.hidden = false;
       renderedScreen = null;
       renderedIndex = -1;
+      setSaveMessage(null);
       render(state);
     },
     update(state: PauseState, _context: PauseContext): void {
       if (!visible) return;
       render(state);
     },
+    setSaveMessage,
     hide(): void {
       if (!visible) return;
       visible = false;
       section.hidden = true;
+      setSaveMessage(null);
       const target = previousFocus;
       previousFocus = null;
       if (

@@ -1,3 +1,4 @@
+import packageJson from '../../package.json';
 import type { Command, GameEvent, GameState, Position } from '../game/types';
 import { DEFAULT_PLAYER_CONFIGS } from '../game/config';
 import type { MapGenerator } from '../game/map';
@@ -89,6 +90,7 @@ import { createPerceptionOverlayView } from './perception-overlay';
 import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
+import { saveGame } from './save-game';
 import { GameSession, type StepResult } from './session';
 import type { PlayerPartyConfig } from './player-screen';
 import { createPlayerScreenView, type PlayerScreenView } from './player-screen-view';
@@ -108,6 +110,25 @@ import {
 /** Delta máximo por frame: una pestaña en segundo plano no adelanta pasos. */
 const MAX_FRAME_DELTA_MS = 50;
 const EPSILON = 1e-9;
+/** Versión informativa del manifiesto; única fuente, `package.json`. */
+const GAME_VERSION = packageJson.version;
+
+/** Descarga local del `.zip` ya construido; no crea archivos parciales. */
+function downloadSaveFile(filename: string, bytes: Uint8Array): void {
+  const blob = new Blob([bytes as unknown as BlobPart], {
+    type: 'application/zip',
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  // Liberar el objeto tras dejar que el navegador inicie la descarga.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
 
 function showError(message: string): void {
   const element = document.querySelector<HTMLElement>('#game-error');
@@ -1020,6 +1041,27 @@ async function boot(): Promise<void> {
   };
 
   /**
+   * Guardar desde la pausa: serializa con `buildSaveFiles`, comprime con
+   * `writeSaveZip` y solo entonces descarga. El error se anuncia en el menú sin
+   * mover el foco; un segundo clic durante la operación se ignora.
+   */
+  let saving = false;
+  const saveGameFromPause = async (): Promise<void> => {
+    if (saving) return;
+    saving = true;
+    pauseMenuView.setSaveMessage(null);
+    const result = await saveGame(session.state, {
+      gameVersion: GAME_VERSION,
+      now: () => new Date(),
+      download: downloadSaveFile,
+    });
+    saving = false;
+    if (!pause.open || result.ok) return;
+    console.error(result.message);
+    pauseMenuView.setSaveMessage(result.message);
+  };
+
+  /**
    * Confirmar «Nueva partida» descarta animación y feedback, limpia los modales
    * de juego y abre el paso 1 del arranque. Con `?test=1` no hay pantalla de
    * inicio: solo se cierra la pausa.
@@ -1050,8 +1092,9 @@ async function boot(): Promise<void> {
         resumeFromPause();
         return;
       case 'save':
-        // Guardar es no-op en este intento; la descarga llega en TASK-0140.
-        syncPauseMenu();
+        // El menú sigue abierto y con el foco donde estaba; el resultado del
+        // guardado solo escribe en la región viva.
+        void saveGameFromPause();
         return;
       case 'confirm-new':
         confirmNewGame();
