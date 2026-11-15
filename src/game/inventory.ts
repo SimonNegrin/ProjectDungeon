@@ -57,13 +57,24 @@ export interface GroundItem extends ItemInstance {
   readonly y: number;
 }
 
-/** Contenedor con capacidad e instancias; sin cofres jugables en este corte. */
+/**
+ * Contenedor con capacidad e instancias. Los cofres y fixtures sin `kind`
+ * siguen siendo válidos: la ampliación de REQ-021/REQ-034 es aditiva.
+ *
+ * Riesgo asumido: REQ-020 puede revisar el modelo de contenedores antes de
+ * publicar la v1 de guardado; `kind` y `corpseOf` son opcionales para no atar
+ * ese diseño. No hay una segunda estructura de contenedores.
+ */
 export interface Container {
   readonly id: string;
   readonly x: number;
   readonly y: number;
   readonly capacity: number;
   readonly items: readonly (ItemInstance | null)[];
+  /** Tipo de contenedor; ausente en cofres y fixtures anteriores. */
+  readonly kind?: 'chest' | 'corpse';
+  /** ID de la unidad cuyo cadáver es este contenedor (REQ-021 T-001). */
+  readonly corpseOf?: string;
 }
 
 /** Capacidad de mochila por defecto (REQ-018 R-010). */

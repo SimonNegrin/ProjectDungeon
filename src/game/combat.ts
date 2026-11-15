@@ -1,6 +1,7 @@
 import { hasAction, spendAction } from './actions';
 import { BESTIARY } from './bestiary';
 import { resolvePackets } from './damage';
+import { settleUnitDeath } from './death';
 import { isAlive, isInside, isOccupied, isWallAt } from './grid';
 import { noteDamage, raiseAlarm } from './perception';
 import { rollDie } from './rng';
@@ -307,6 +308,7 @@ export function resolveAttack(
 
   if (strike.targetHp === 0) {
     events.push({ type: 'UnitDied', unitId: targetId });
+    nextState = settleUnitDeath(nextState, targetId);
   } else {
     nextState = applyEnemyHitReaction(
       nextState,
@@ -340,6 +342,7 @@ export function resolveAttack(
 
       if (replica.targetHp === 0) {
         events.push({ type: 'UnitDied', unitId: aggressor.id });
+        nextState = settleUnitDeath(nextState, aggressor.id);
       } else {
         nextState = applyEnemyHitReaction(
           nextState,
