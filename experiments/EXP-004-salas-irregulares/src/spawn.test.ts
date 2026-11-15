@@ -605,40 +605,61 @@ describe('spawn alrededor del acceso y enemigos de la v3', () => {
     }
   });
 
-  it('el barrido A/B/C × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas', () => {
-    const sweepSeeds = Array.from({ length: 200 }, (_, index) => index + 1);
+  const SWEEP_SEEDS = Array.from({ length: 200 }, (_, index) => index + 1);
+
+  function sweepVariant(variant: VariantId): void {
     // 104 y 371 están incluidos aquí y tienen regresión explícita arriba.
-    for (const variant of VARIANTS) {
-      for (const seed of sweepSeeds) {
-        const map = generateMap(variant, seed);
-        const label = `${variant} · ${seed}`;
-        expect(validateMap(map), label).toEqual([]);
+    for (const seed of SWEEP_SEEDS) {
+      const map = generateMap(variant, seed);
+      const label = `${variant} · ${seed}`;
+      expect(validateMap(map), label).toEqual([]);
+      expect(
+        maxComponentSize(map.enemies),
+        `${label} · componente global`,
+      ).toBeLessThanOrEqual(ENEMY_MAX_COMPONENT);
+      expect(
+        map.enemies.length,
+        `${label} · presupuesto máximo`,
+      ).toBeLessThanOrEqual(map.stats.enemy.total);
+      expect(
+        map.stats.hotspotRolls,
+        `${label} · hotspotRolls`,
+      ).toBe(map.stats.hotspotsTotal);
+      expect(
+        map.stats.enemy.hotspotRolls,
+        `${label} · enemy.hotspotRolls`,
+      ).toBe(map.stats.hotspotsTotal);
+      for (const room of map.rooms) {
+        if (room.id === map.spawns.roomId) continue;
         expect(
-          maxComponentSize(map.enemies),
-          `${label} · componente global`,
-        ).toBeLessThanOrEqual(ENEMY_MAX_COMPONENT);
-        expect(
-          map.enemies.length,
-          `${label} · presupuesto máximo`,
-        ).toBeLessThanOrEqual(map.stats.enemy.total);
-        expect(
-          map.stats.hotspotRolls,
-          `${label} · hotspotRolls`,
-        ).toBe(map.stats.hotspotsTotal);
-        expect(
-          map.stats.enemy.hotspotRolls,
-          `${label} · enemy.hotspotRolls`,
-        ).toBe(map.stats.hotspotsTotal);
-        for (const room of map.rooms) {
-          if (room.id === map.spawns.roomId) continue;
-          expect(
-            map.enemies.filter((enemy) => enemy.roomId === room.id).length,
-            `${label} · sala ${room.id} sin enemigos`,
-          ).toBeGreaterThanOrEqual(1);
-        }
+          map.enemies.filter((enemy) => enemy.roomId === room.id).length,
+          `${label} · sala ${room.id} sin enemigos`,
+        ).toBeGreaterThanOrEqual(1);
       }
     }
-  });
+  }
+
+  // Los 600 mapas del barrido A/B/C tardaban ~3,1 s en un solo `it` y, con los
+  // 86-92 workers de `pnpm run test` compitiendo por CPU, cruzaban el timeout
+  // global de 5 s. Cada variante genera 200 mapas (~1 s en aislado) y sus 15 s
+  // locales absorben esa contención, sin reducir la muestra ni las aserciones.
+  it(
+    'el barrido growth × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas',
+    { timeout: 15_000 },
+    () => sweepVariant('growth'),
+  );
+
+  it(
+    'el barrido bsp × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas',
+    { timeout: 15_000 },
+    () => sweepVariant('bsp'),
+  );
+
+  it(
+    'el barrido templates × 200 semillas mantiene componente global ≤2, mínimo 1 y métricas',
+    { timeout: 15_000 },
+    () => sweepVariant('templates'),
+  );
 
   it('los no emboscados prefieren interior cuando hay sitio compatible', () => {
     for (const variant of VARIANTS) {
