@@ -1,7 +1,7 @@
 ---
 type: Task Report
 title: "TASK-0149: informe del intento 2"
-description: Cierra los huecos del intento 1: aviso no bloqueante, N a dos jugadores y Q del fantasma.
+description: "Cierra los huecos del intento 1: aviso no bloqueante, N a dos jugadores y Q del fantasma."
 task: TASK-0149
 attempt: 2
 report_status: success
@@ -66,6 +66,6 @@ Ninguna.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2494 |
-| `report_bytes` | 2647 |
+| `report_bytes` | 2649 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
