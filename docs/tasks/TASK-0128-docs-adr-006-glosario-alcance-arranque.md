@@ -4,14 +4,14 @@ id: TASK-0128
 title: "Docs: ADR-006, glosario y alcance del arranque"
 description: "Añadir la tabla de 18 sprites a ADR-006 y reflejar en glosario y alcance el menú principal, el paso 1, el resumen y la variante elegida."
 status: stable
-task_status: blocked
+task_status: done
 task_type: docs
 requirement: REQ-016
 requirement_ids: [T-010]
 depends_on: [TASK-0127]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T10:18:00Z
 assignee: task-lead
 attempts: 1
 artifacts: artifacts/TASK-0128/
@@ -20,6 +20,14 @@ risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T10:18:00Z
+    note: >-
+      Diff revisado contra REQ-016 v3: ADR-006 con las 18 celdas, glosario sin
+      etiquetas de género y alcance sin prometer carga funcional (sigue no-op
+      hasta TASK-0141). El alcance lo aplicó requirements-writer en `4a8f68a`.
+      `docs:check` 635 documentos/159 tareas y `verify` 99 archivos/1471 tests,
+      tsc, build y bundle OK. Sin cambios en `docs/requirements/**`.
 ---
 
 # Objetivo
