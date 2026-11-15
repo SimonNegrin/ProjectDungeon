@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0151 — done: HUD «Jugador N de M» junto al activo, región `aria-live` de activo y ronda y aviso «Ronda N» de 2 s no bloqueante; carga sin aviso ni beat; verify 1718/1718 y E2E 60/60 por specs; fusión `7898bdc` — [informe](../artifacts/TASK-0151/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0150 — done: relevo por cámara con paneo de 300 ms, bloqueo de input, ronda 1 directa y vuelta al primer jugador; verify 1712/1712 y E2E 36/36 por specs; arquitectura y glosario actualizados; fusión `2e8ad0d` — [informe](../artifacts/TASK-0150/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0149 — done: `N` cierra turno, `E`/`R` retiradas, `Esc` pausa, comandos del activo y gate solo por paneo/animación; verify 1704/1704 y E2E 61/61 por specs; fusión `63093a6` — [informe](../artifacts/TASK-0149/attempt-2/report.md)
