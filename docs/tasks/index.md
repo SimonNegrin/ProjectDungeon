@@ -159,7 +159,7 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0143](TASK-0143-docs-adr-030-glosario-botin.md) | Docs: ADR-030 y glosario de botín | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0145](TASK-0145-docs-adr-028-documentacion-guardado.md) | Docs: ADR-028 y documentación de guardado | `backlog` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0155](TASK-0155-docs-adr-029-documentacion-hotseat.md) | Docs: ADR-029 y documentación de hotseat | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
-| [TASK-0156](TASK-0156-requisitos-enmiendas-arranque.md) | Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031 | `backlog` | REQ-016 | TASK-0127 | P2 |
+| [TASK-0156](TASK-0156-requisitos-enmiendas-arranque.md) | Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031 | `done` | REQ-016 | TASK-0127 | P2 |
 | [TASK-0157](TASK-0157-requisitos-enmiendas-botin.md) | Requisitos: enmiendas de botín | `backlog` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `backlog` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
@@ -197,7 +197,6 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0143 — Docs: ADR-030 y glosario de botín](TASK-0143-docs-adr-030-glosario-botin.md)
 * [TASK-0145 — Docs: ADR-028 y documentación de guardado](TASK-0145-docs-adr-028-documentacion-guardado.md)
 * [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
-* [TASK-0156 — Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031](TASK-0156-requisitos-enmiendas-arranque.md)
 * [TASK-0157 — Requisitos: enmiendas de botín](TASK-0157-requisitos-enmiendas-botin.md)
 * [TASK-0158 — Requisitos: notas de guardado en REQ-016 y REQ-031](TASK-0158-requisitos-notas-guardado.md)
 * [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
@@ -331,4 +330,5 @@ Total: **159**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0121 — E2E: observer de CLS compartido y alineado con P-006](TASK-0121-e2e-observer-cls-compartido.md)
 * [TASK-0128 — Docs: ADR-006, glosario y alcance del arranque](TASK-0128-docs-adr-006-glosario-alcance-arranque.md)
 * [TASK-0137 — Host: contenedor .zip](TASK-0137-host-contenedor-zip.md)
+* [TASK-0156 — Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031](TASK-0156-requisitos-enmiendas-arranque.md)
 
