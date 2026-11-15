@@ -21,8 +21,12 @@ export interface StartScreenViewOptions extends StartScreenHandlers {
 }
 
 export interface StartScreenView {
-  /** Hay una pantalla de inicio montada: el host no interpreta teclas de juego. */
+  /** La pantalla de inicio sigue visible: el host no interpreta teclas de juego. */
   isActive(): boolean;
+  /** Oculta la pantalla sin tocar el modelo al pasar a configurar jugadores. */
+  hide(): void;
+  /** Vuelve al menú principal con N=1 y semilla vacía, sin recargar. */
+  showMenu(): void;
 }
 
 function requireElement<T extends Element>(root: ParentNode, selector: string): T {
@@ -77,6 +81,7 @@ export function createStartScreenView(
   );
 
   let announcement = '';
+  let visible = true;
   let renderedStep: StartScreenStep | null = null;
   let cancelOrigin: HTMLElement | null = null;
 
@@ -90,7 +95,7 @@ export function createStartScreenView(
 
   const render = (): void => {
     const state = model.state();
-    section.hidden = false;
+    section.hidden = !visible;
     menu.hidden = state.step !== 'menu';
     stepOne.hidden = state.step !== 'step1';
     dialog.hidden = state.step !== 'confirm-cancel';
@@ -181,6 +186,7 @@ export function createStartScreenView(
   };
 
   window.addEventListener('keydown', (event) => {
+    if (!visible) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
     const step = model.state().step;
 
@@ -203,7 +209,18 @@ export function createStartScreenView(
 
   return {
     isActive(): boolean {
-      return true;
+      return visible;
+    },
+    hide(): void {
+      visible = false;
+      section.hidden = true;
+    },
+    showMenu(): void {
+      announcement = '';
+      model.returnToMenu();
+      visible = true;
+      renderedStep = null;
+      render();
     },
   };
 }

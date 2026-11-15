@@ -494,6 +494,144 @@
                 </section>
               </div>
             </section>
+
+            <section
+              class="player-screen"
+              data-testid="player-screen"
+              aria-label="Configuración de jugadores"
+              hidden
+            >
+              <div class="player-screen-panel ui-outset">
+                <header class="player-header">
+                  <h2 class="player-title">Configuración de jugadores</h2>
+                  <p class="player-position" data-testid="player-position">
+                    Jugador 1 de 1
+                  </p>
+                </header>
+                <p
+                  class="player-status"
+                  data-testid="player-status"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+
+                <section class="player-field" aria-labelledby="player-archetype-label">
+                  <h3 class="player-label" id="player-archetype-label">Arquetipo</h3>
+                  <div
+                    class="player-archetypes"
+                    data-testid="player-archetypes"
+                    role="group"
+                    aria-labelledby="player-archetype-label"
+                  ></div>
+                </section>
+
+                <section class="player-field" aria-labelledby="player-variant-label">
+                  <h3 class="player-label" id="player-variant-label">Variante</h3>
+                  <div
+                    class="player-variants"
+                    data-testid="player-variants"
+                    role="group"
+                    aria-labelledby="player-variant-label"
+                  >
+                    <button
+                      type="button"
+                      class="player-choice ui-outset"
+                      data-testid="player-variant-1"
+                      aria-pressed="true"
+                    >
+                      Variante 1
+                    </button>
+                    <button
+                      type="button"
+                      class="player-choice ui-outset"
+                      data-testid="player-variant-2"
+                      aria-pressed="false"
+                    >
+                      Variante 2
+                    </button>
+                  </div>
+                </section>
+
+                <div class="player-field">
+                  <label class="player-label" for="player-name">Nombre</label>
+                  <input
+                    id="player-name"
+                    class="player-control ui-inset"
+                    data-testid="player-name"
+                    type="text"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-describedby="player-name-help"
+                  />
+                  <p class="player-help" id="player-name-help">
+                    Máximo 12 caracteres; solo letras, dígitos y espacio. Si se deja
+                    vacío, se usará el nombre del arquetipo.
+                  </p>
+                </div>
+
+                <div class="player-actions">
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="player-back"
+                  >
+                    Atrás
+                  </button>
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="player-next"
+                  >
+                    Siguiente
+                  </button>
+                  <button
+                    type="button"
+                    class="player-button ui-outset"
+                    data-testid="player-cancel"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="player-cancel-dialog"
+                data-testid="player-cancel-dialog"
+                hidden
+              >
+                <section
+                  class="player-cancel-body ui-outset"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="player-cancel-title"
+                  aria-describedby="player-cancel-text"
+                >
+                  <h2 class="player-title" id="player-cancel-title">
+                    ¿Cancelar la configuración?
+                  </h2>
+                  <p class="player-lead" id="player-cancel-text">
+                    Se descartarán los jugadores configurados. Volverás al menú
+                    principal.
+                  </p>
+                  <div class="player-actions">
+                    <button
+                      type="button"
+                      class="player-button ui-outset"
+                      data-testid="player-cancel-confirm"
+                    >
+                      Sí, cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="player-button ui-outset"
+                      data-testid="player-cancel-dismiss"
+                    >
+                      Seguir configurando
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
           </div>
         </div>
       </div>
