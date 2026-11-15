@@ -4,7 +4,7 @@ id: TASK-0141
 title: "Host: cargar .zip/.json desde menú y pausa"
 description: "Implementar un único cargador y validador para `.zip` y `.json` usado por el menú principal y la pausa, con confirmación en pausa y reconstrucción del estado."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-005, R-006, R-008, R-009, T-005, T-006, T-015, T-016]
@@ -13,7 +13,7 @@ unlocks: [TASK-0142, TASK-0144, TASK-0145, TASK-0153, TASK-0154, TASK-0158]
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0141/
 priority: P1
 risk: high
