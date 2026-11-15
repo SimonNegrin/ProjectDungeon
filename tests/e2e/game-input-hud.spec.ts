@@ -305,11 +305,11 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
   expect(afterAttack.enemies[0].hp).toBe(playerAttack!.targetHp);
   await screenshot(page, 'attack', testInfo);
 
-  // E termina el turno, ejecuta la fase enemiga y devuelve el control.
-  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  // N termina el turno, ejecuta la fase enemiga y devuelve el control.
+  // El beat del ataque descarta la intención siguiente: se completa antes de N.
   await settle(page);
   const beforeEndTurn = await snapshot(page);
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const afterEndTurn = await snapshot(page);
   const eventTypes = afterEndTurn.lastEvents.map((event) => event.type);

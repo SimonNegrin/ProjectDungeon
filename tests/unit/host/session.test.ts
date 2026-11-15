@@ -73,7 +73,7 @@ describe('sesión de juego', () => {
     const session = new GameSession(initial);
     const damage = expectedDamage(initial.enemies[0], initial.players[0], 3, 3);
 
-    const result = session.dispatch(commandFromKey('e', session, { x: 5, y: 5 }));
+    const result = session.dispatch(commandFromKey('n', session, { x: 5, y: 5 }));
     const types = result.events.map((event) => event.type);
 
     expect(types).toContain('EnemyPhaseStarted');

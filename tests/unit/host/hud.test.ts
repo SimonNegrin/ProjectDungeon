@@ -80,7 +80,7 @@ describe('modelo del HUD', () => {
     expect(model.keys).not.toContain('G ');
     expect(model.keys).not.toContain('1-3');
     expect(model.keys).not.toContain('1–3');
-    expect(model.keys).toContain('E terminar turno');
+    expect(model.keys).toContain('N terminar turno');
     expect(model.keys).not.toContain('R ');
     expect(model.keys).not.toContain('reiniciar');
     expect(model.keys).toContain('F1');
@@ -583,7 +583,7 @@ describe('modelo del HUD', () => {
     });
 
     expect(buildHudModel(exhausted).actionSuggestion).toBe(
-      'Sin acciones ni MP: pulsa E para terminar el turno',
+      'Sin acciones ni MP: pulsa N para terminar el turno',
     );
 
     const withMp = {

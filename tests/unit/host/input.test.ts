@@ -106,22 +106,30 @@ describe('mapeo de teclado a intenciones del host', () => {
     });
   });
 
-  it('E, F1 y F2 producen fin de turno, debug y semilla nueva', () => {
+  it('N, F1 y F2 producen fin de turno, debug y semilla nueva', () => {
     const state = makeState();
 
-    expectCommand(translate('e', state), { type: 'EndTurn' });
+    expectCommand(translate('n', state), { type: 'EndTurn' });
+    expectCommand(translate('N', state), { type: 'EndTurn' });
     expect(translate('F1', state)).toEqual({ type: 'toggle-debug' });
     expect(translate('F2', state)).toEqual({ type: 'new-seed' });
   });
 
-  it('Esc sin panel ni lista abre la pausa; R queda ignorada', () => {
+  it('E y R quedan sin mapear', () => {
+    const state = makeState();
+
+    for (const key of ['e', 'E', 'r', 'R']) {
+      expect(translate(key, state)).toEqual({
+        type: 'ignored',
+        reason: 'unmapped',
+      });
+    }
+  });
+
+  it('Esc sin panel ni lista abre la pausa', () => {
     const state = makeState();
 
     expect(translate('Escape', state)).toEqual({ type: 'pause-toggle' });
-    expect(translate('r', state)).toEqual({
-      type: 'ignored',
-      reason: 'unmapped',
-    });
   });
 
   it('Esc con la lista de hechizos abierta la cierra', () => {
@@ -258,7 +266,7 @@ describe('mapeo de teclado a intenciones del host', () => {
   it('con la partida terminada reaccionan Esc, F1 y F2', () => {
     const state = makeState({ status: 'victory' });
 
-    for (const key of ['w', ' ', 'Enter', 'f', 'e']) {
+    for (const key of ['w', ' ', 'Enter', 'f', 'n']) {
       expect(translate(key, state)).toEqual({
         type: 'ignored',
         reason: 'game-over',
@@ -273,7 +281,7 @@ describe('mapeo de teclado a intenciones del host', () => {
     const state = adjacentState();
     const enemyPhase = { ...state, phase: 'enemy' as const };
 
-    for (const key of ['d', ' ', 'f', 'e']) {
+    for (const key of ['d', ' ', 'f', 'n']) {
       expect(translate(key, enemyPhase, { x: 6, y: 6 })).toEqual({
         type: 'ignored',
         reason: 'wrong-phase',
@@ -314,6 +322,10 @@ describe('mapeo de teclado a intenciones del host', () => {
     expect(isManagedKey('2')).toBe(false);
     expect(isManagedKey('3')).toBe(false);
     expect(isManagedKey('q')).toBe(true);
+    expect(isManagedKey('n')).toBe(true);
+    expect(isManagedKey('N')).toBe(true);
+    expect(isManagedKey('e')).toBe(false);
+    expect(isManagedKey('E')).toBe(false);
     expect(isManagedKey('4')).toBe(false);
     expect(isManagedKey('r')).toBe(false);
     expect(isManagedKey('R')).toBe(false);
@@ -337,12 +349,28 @@ describe('selección de hechizos con teclado', () => {
       reason: 'wrong-phase',
     });
     expect(
-      translateKey(
-        { key: 'q' },
-        { ...state, players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 })] },
-        cursor,
-      ),
+      translateKey({ key: 'q' }, { ...state, activePlayerId: null }, cursor),
     ).toEqual({ type: 'ignored', reason: 'no-active-player' });
+  });
+
+  it('el fantasma activo puede abrir la lista de hechizos', () => {
+    const ghostActive = {
+      ...state,
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          hp: 0,
+          ghost: true,
+        }),
+      ],
+    };
+
+    expect(translateKey({ key: 'q' }, ghostActive, cursor)).toEqual({
+      type: 'spell-menu-toggle',
+    });
   });
 
   it('con la lista abierta navega, elige con 1-6 y lanza con Enter', () => {
@@ -429,6 +457,101 @@ describe('gate de input durante la animación', () => {
       type: 'cursor',
       dx: 1,
       dy: 0,
+    });
+  });
+});
+
+describe('gate de input durante el paneo', () => {
+  const state = adjacentState();
+  const options = { panning: true };
+
+  it('descarta flechas/WASD, Espacio/Enter, F, I, Q, X, N y F2', () => {
+    for (const key of ['ArrowRight', 'd', ' ', 'Enter', 'f', 'i', 'q', 'x', 'n', 'F2']) {
+      expect(translateKey({ key }, state, { x: 6, y: 6 }, options)).toEqual({
+        type: 'ignored',
+        reason: 'panning',
+      });
+    }
+  });
+
+  it('mantiene activos F1 y Esc durante el paneo', () => {
+    expect(translateKey({ key: 'F1' }, state, PLAYER_TILE, options)).toEqual({
+      type: 'toggle-debug',
+    });
+    expect(translateKey({ key: 'Escape' }, state, PLAYER_TILE, options)).toEqual({
+      type: 'pause-toggle',
+    });
+    expect(
+      translateKey({ key: 'Escape' }, state, PLAYER_TILE, {
+        ...options,
+        spellMenu: { open: true, index: 0, selectedId: null },
+      }),
+    ).toEqual({ type: 'spell-menu-close' });
+  });
+
+  it('al terminar el paneo se liberan comandos, cursor y fin de turno', () => {
+    for (const key of ['d', 'n']) {
+      expect(translateKey({ key }, state, PLAYER_TILE, { panning: false })).not.toEqual({
+        type: 'ignored',
+        reason: 'panning',
+      });
+    }
+    expect(translateKey({ key: 'd' }, state, PLAYER_TILE, { panning: false })).toEqual({
+      type: 'cursor',
+      dx: 1,
+      dy: 0,
+    });
+    expectCommand(translateKey({ key: 'n' }, state, PLAYER_TILE, { panning: false }), {
+      type: 'EndTurn',
+    });
+  });
+});
+
+describe('comandos del jugador activo', () => {
+  it('con dos jugadores, movimiento, ataque y fin de turno usan al activo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 7, y: 7 }),
+      ],
+      activePlayerId: 'player-2',
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 8, y: 7 })],
+    });
+
+    expectCommand(translate(' ', state, { x: 8, y: 7 }), {
+      type: 'MoveTo',
+      unitId: 'player-2',
+      target: { x: 8, y: 7 },
+    });
+    expectCommand(translate('f', state, { x: 8, y: 7 }), {
+      type: 'Attack',
+      unitId: 'player-2',
+      targetId: 'enemy-1',
+    });
+    expectCommand(translate('n', state, { x: 8, y: 7 }), { type: 'EndTurn' });
+  });
+
+  it('el fantasma activo mueve y cierra turno, pero no abre el panel', () => {
+    const ghostActive = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          hp: 0,
+          ghost: true,
+        }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 4 }),
+      ],
+      activePlayerId: 'player-1',
+    });
+
+    expect(translate('d', ghostActive)).toEqual({ type: 'cursor', dx: 1, dy: 0 });
+    expectCommand(translate('n', ghostActive), { type: 'EndTurn' });
+    expect(translate('i', ghostActive)).toEqual({
+      type: 'ignored',
+      reason: 'no-active-player',
     });
   });
 });

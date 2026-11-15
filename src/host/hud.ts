@@ -117,7 +117,7 @@ export interface DebugModel {
 }
 
 /**
- * El turno solo se cierra con `E`; esta pista no bloquea ni envía ningún
+ * El turno solo se cierra con `N`; esta pista no bloquea ni envía ningún
  * comando. Aparece únicamente cuando el jugador ya no puede actuar ni moverse.
  */
 function actionSuggestion(state: GameState): string | null {
@@ -125,7 +125,7 @@ function actionSuggestion(state: GameState): string | null {
   if (!player) return null;
   if (state.phase !== 'player' || state.status !== 'playing') return null;
   if (player.actions.remaining > 0 || player.mp > 0) return null;
-  return 'Sin acciones ni MP: pulsa E para terminar el turno';
+  return 'Sin acciones ni MP: pulsa N para terminar el turno';
 }
 
 function phaseLabel(state: GameState): string {

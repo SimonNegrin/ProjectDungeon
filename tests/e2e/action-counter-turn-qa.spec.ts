@@ -79,7 +79,7 @@ async function nextFrame(page: Page): Promise<void> {
   );
 }
 
-test('dos ataques, cierre manual con E, sugerencia y movimiento sin acciones', async ({
+test('dos ataques, cierre manual con N, sugerencia y movimiento sin acciones', async ({
   page,
 }, testInfo) => {
   const consoleErrors = trackConsoleErrors(page);
@@ -154,7 +154,7 @@ test('dos ataques, cierre manual con E, sugerencia y movimiento sin acciones', a
   const suggestion = page.getByTestId('hud-suggestion');
   await expect(suggestion).toBeVisible();
   await expect(suggestion).toHaveText(
-    'Sin acciones ni MP: pulsa E para terminar el turno',
+    'Sin acciones ni MP: pulsa N para terminar el turno',
   );
   // El pie no es una zona: teclas y sugerencia viven fuera de los marcos.
   const footerPlacement = await page.evaluate(() => {
@@ -196,9 +196,9 @@ test('dos ataques, cierre manual con E, sugerencia y movimiento sin acciones', a
   await expect(suggestion).toBeVisible();
   await screenshot(page, 'acciones-sin-mp-900x700', testInfo);
 
-  // Solo E cierra el turno: restaura acciones y oculta la sugerencia.
+  // Solo N cierra el turno: restaura acciones y oculta la sugerencia.
   const beforeEndTurn = await snapshot(page);
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   const afterEndTurn = await settle(page);
   expect(afterEndTurn.turn).toBe(beforeEndTurn.turn + 1);
   expect(afterEndTurn.phase).toBe('player');

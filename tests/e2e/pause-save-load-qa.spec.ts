@@ -286,7 +286,7 @@ test('TASK-0144: la pausa congela turnos, beats y animaciones; el input de juego
   await openPause(page);
   // `Enter` no entra en la lista: en la raíz activa la acción enfocada. El
   // input de juego (fin de turno, movimiento, ataque y `R`) sí debe ignorarse.
-  for (const key of ['e', 'd', 'f', 'r']) await page.keyboard.press(key);
+  for (const key of ['n', 'd', 'f', 'r']) await page.keyboard.press(key);
   const paused = await snapshot(page);
   expect(paused.phase).toBe(before.phase);
   expect(paused.round).toBe(before.round);

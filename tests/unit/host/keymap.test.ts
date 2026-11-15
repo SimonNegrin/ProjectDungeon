@@ -55,13 +55,15 @@ describe('mapa único de teclas', () => {
       expect(KEYS_HELP).toContain(binding.label);
     }
     expect(KEYS_HELP).toContain('Espacio/Enter');
+    expect(KEYS_HELP).toContain('N terminar turno');
     expect(KEYS_HELP).toContain('F1');
     expect(KEYS_HELP).toContain('F2');
+    expect(KEYS_HELP).not.toContain('E ');
     expect(KEYS_HELP).not.toContain('reiniciar');
     expect(KEYS_HELP).not.toContain('R ');
   });
 
-  it('bloquea el navegador con las teclas gestionadas y deja R fuera', () => {
+  it('bloquea el navegador con las teclas gestionadas y deja R y E fuera', () => {
     for (const binding of KEY_BINDINGS) {
       for (const code of binding.codes) {
         expect(isManagedKey(code)).toBe(true);
@@ -69,22 +71,27 @@ describe('mapa único de teclas', () => {
     }
     expect(isManagedKey('r')).toBe(false);
     expect(isManagedKey('R')).toBe(false);
+    expect(isManagedKey('e')).toBe(false);
+    expect(isManagedKey('E')).toBe(false);
     expect(KEY_BINDINGS.flatMap((binding) => binding.codes)).not.toContain('r');
+    expect(KEY_BINDINGS.flatMap((binding) => binding.codes)).not.toContain('e');
   });
 
-  it('Esc abre la pausa y R ya no reinicia', () => {
+  it('Esc abre la pausa, N cierra el turno y E/R no reinician ni terminan', () => {
     const state = makeState();
     expect(translateKey({ key: 'Escape' }, state, { x: 4, y: 4 })).toEqual({
       type: 'pause-toggle',
     });
-    expect(translateKey({ key: 'r' }, state, { x: 4, y: 4 })).toEqual({
-      type: 'ignored',
-      reason: 'unmapped',
+    expect(translateKey({ key: 'n' }, state, { x: 4, y: 4 })).toEqual({
+      type: 'command',
+      command: { type: 'EndTurn' },
     });
-    expect(translateKey({ key: 'R' }, state, { x: 4, y: 4 })).toEqual({
-      type: 'ignored',
-      reason: 'unmapped',
-    });
+    for (const key of ['e', 'r', 'R']) {
+      expect(translateKey({ key }, state, { x: 4, y: 4 })).toEqual({
+        type: 'ignored',
+        reason: 'unmapped',
+      });
+    }
     expect(
       translateKey({ key: 'Escape' }, state, { x: 4, y: 4 }, { animating: true }),
     ).toEqual({ type: 'pause-toggle' });

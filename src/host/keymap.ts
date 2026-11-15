@@ -7,7 +7,8 @@
  * a minúscula; las etiquetas visibles se generan aquí y nunca se escriben a
  * mano en los tres consumidores.
  *
- * `R` no existe: el reinicio rápido se retiró de toda la interfaz.
+ * `E` de fin de turno y `R` de reinicio ya no existen: el turno se cierra con
+ * `N` y la pausa se abre con `Esc`.
  */
 
 export type KeyBindingGroup = 'movimiento' | 'acciones' | 'interfaz';
@@ -126,7 +127,7 @@ export const KEY_BINDINGS: readonly KeyBinding[] = [
   },
   {
     id: 'end-turn',
-    codes: ['e'],
+    codes: ['n'],
     label: 'terminar turno',
     group: 'acciones',
   },
