@@ -1,0 +1,19 @@
+$ playwright test tests/e2e/qa-visual-revision-ui.spec.ts --workers=1
+
+Running 13 tests using 1 worker
+
+  ✓   1 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:988:5 › REQ-033 QA visual a 900x700 › HUD: tres zonas, variantes condicionales y pie (1.7s)
+  ✓   2 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1097:5 › REQ-033 QA visual a 900x700 › ficha: sprite, stats verticales y dos secciones sin rótulos (556ms)
+  ✓   3 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1257:5 › REQ-033 QA visual a 900x700 › panel: mochila llena, cadáveres, suelo y encaje de tres columnas (1.8s)
+  ✓   4 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1391:5 › REQ-033 QA visual a 900x700 › cursor superpuesto: transición, salto y movimiento reducido (2.3s)
+  ✓   5 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1498:5 › REQ-033 QA visual a 900x700 › CLS: marco, panel, columnas, títulos y slots sin desplazamiento (1.7s)
+  ✓   6 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1655:5 › REQ-033 QA visual a 900x700 › paleta y relieve: ocho colores, outset/inset y sin adornos modernos (382ms)
+  ✓   7 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:988:5 › REQ-033 QA visual a 1280x720 › HUD: tres zonas, variantes condicionales y pie (686ms)
+  ✓   8 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1097:5 › REQ-033 QA visual a 1280x720 › ficha: sprite, stats verticales y dos secciones sin rótulos (539ms)
+  ✓   9 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1257:5 › REQ-033 QA visual a 1280x720 › panel: mochila llena, cadáveres, suelo y encaje de tres columnas (1.7s)
+  ✓  10 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1391:5 › REQ-033 QA visual a 1280x720 › cursor superpuesto: transición, salto y movimiento reducido (2.3s)
+  ✓  11 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1498:5 › REQ-033 QA visual a 1280x720 › CLS: marco, panel, columnas, títulos y slots sin desplazamiento (2.2s)
+  ✓  12 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1655:5 › REQ-033 QA visual a 1280x720 › paleta y relieve: ocho colores, outset/inset y sin adornos modernos (455ms)
+  ✓  13 [chromium] › tests/e2e/qa-visual-revision-ui.spec.ts:1809:3 › REQ-033 escala continua › --ui-scale y --ui-line se derivan del marco sin saltos (945ms)
+
+  13 passed (20.8s)
