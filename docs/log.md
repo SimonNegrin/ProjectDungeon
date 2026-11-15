@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0144 — blocked: criterio 7 verificado (resultado sin pausa, guardado ni reinicio; `winGame`); criterio 8 pendiente: `test:e2e --workers=1` 271/273, 2 fallos preexistentes de `qa-visual-revision-ui.spec.ts:396` por la región `aria-live`; dueño TASK-0154/TASK-0151 — [verificación](../artifacts/TASK-0144/lead-verify/verification-2.md)
+
 * 2026-11-15 — Task — TASK-0153 — done: pantalla final Victoria/Derrota con ronda, party y semilla, «Nueva partida» al paso 1 y «Cargar partida» por el cargador común sin confirmación; sin pausa, guardado, «Reiniciar» ni avance automático; verify 1734/1734 y E2E 53/53 en serie; fusión `f74205c` — [informe](../artifacts/TASK-0153/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0152 — done: fase enemiga con «El master mueve» solo si algún enemigo actúa, cámara y HUD del actor, ficha compacta del objetivo o «Sin objetivo», `enemyPhase` propagada y vuelta a «Ronda N»; verify 1728/1728 y E2E 31/31 por specs; fusión `e4aa787` — [informe](../artifacts/TASK-0152/attempt-1/report.md)

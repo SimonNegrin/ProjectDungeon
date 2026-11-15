@@ -4,7 +4,7 @@ id: TASK-0144
 title: "QA/E2E de pausa, guardado y carga"
 description: "Cubrir la pausa global, el menú de cinco botones, el guardado restringido, la descarga `.zip`, la carga `.zip`/`.json`, los límites y el resultado sin guardado."
 status: stable
-task_status: in_progress
+task_status: blocked
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
@@ -13,7 +13,7 @@ unlocks: []
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 1
+attempts: 2
 artifacts: artifacts/TASK-0144/
 priority: P1
 risk: medium
@@ -29,15 +29,25 @@ verified:
       reproducido. Criterio 7 bloqueado por defecto real: Victoria y Derrota
       siguen ofreciendo «Reiniciar» y `Esc` abre la pausa (REQ-024 R-012/T-013);
       propietario TASK-0153. Sin cambios de producción ni tests debilitados.
+  - by: task-lead
+    at: 2026-11-15T23:40:00Z
+    note: >-
+      Intento 2 verificado (tests `88c9402`, evidencia `bfa0660`). Criterio 7
+      cumplido: Victoria en flujo normal con `winGame` y Derrota inyectada; sin
+      pausa, guardado, «Reiniciar» ni reinicio, y `Esc`/`R`/`N`/`I`/`S`/`F2` no
+      alteran el estado. `pnpm run verify` 109/1734 reejecutado. Criterio 8 no
+      cumplido: `test:e2e --workers=1` 271/273, con 2 fallos preexistentes en
+      `qa-visual-revision-ui.spec.ts:396` (aserción «Turno» que incluye la región
+      `aria-live` de TASK-0151); reproducido en `main` por el lead. Sin cambios
+      de producción; bloqueo externo, no del alcance de esta tarea.
 ---
 
-> **Reanudada (2026-11-16).** El bloqueo por TASK-0153 ha desaparecido: las
-> cuatro dependencias (`TASK-0139`, `TASK-0140`, `TASK-0141`, `TASK-0153`) están
-> `done` en `main`. El intento 2 endurece el test del criterio 7 con el resultado
-> nuevo (`Esc`/`N`/`I` sin efecto, sin pausa, sin guardado y sin «Reiniciar») y,
-> si encaja, añade el helper de victoria que faltaba para llegar al resultado en
-> flujo normal. `tests/e2e/game-input-hud.spec.ts` ya no pulsa «Reiniciar»:
-> TASK-0153 lo actualizó.
+> **Bloqueada de nuevo (2026-11-15).** Las dependencias están `done` y el intento
+> 2 cerró el criterio 7. Queda el criterio 8: `main` está rojo por una aserción
+> obsoleta de REQ-033 (`qa-visual-revision-ui.spec.ts:396`) que cuenta la región
+> `aria-live` de TASK-0151 como texto visible. Propuesta: que TASK-0154 o una
+> ficha de corrección de TASK-0151 excluya la región viva del HUD visible;
+> después, TASK-0144 se reejecuta.
 
 # Objetivo
 
@@ -65,9 +75,10 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
       cámara y HUD sin aviso de ronda.
 - [x] Se rechazan archivos con rutas, entradas extra o tamaño por encima de los
       límites.
-- [ ] El resultado no ofrece pausa ni guardado; no existe reinicio rápido ni `R`.
-- [x] Capturas de pausa, menú, controles y error de carga; `pnpm run test:e2e` y
-      `pnpm run verify` pasan.
+- [x] El resultado no ofrece pausa ni guardado; no existe reinicio rápido ni `R`.
+- [ ] Capturas de pausa, menú, controles y error de carga; `pnpm run test:e2e` y
+      `pnpm run verify` pasan. Capturas y `verify` OK; `test:e2e` sigue rojo por
+      los 2 fallos preexistentes de `qa-visual-revision-ui` (ver nota superior).
 
 # Plan de test
 
@@ -82,6 +93,10 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
 - [x] Salida de `pnpm run test:e2e` y `pnpm run verify`
 - [x] Capturas de pausa, menú, controles y error
 - [x] Commit SHA `a94f406` (spec) y `5d6e330` (evidencia)
+- [x] Informe del intento 2 en `artifacts/TASK-0144/attempt-2/report.md`
+- [x] Capturas de resultado en `artifacts/TASK-0144/attempt-2/pause-save-load-qa/screenshots/`
+- [x] Commits `88c9402` (spec y helper) y `bfa0660` (evidencia)
+- [x] Verificación del lead en `artifacts/TASK-0144/lead-verify/verification-2.md`
 
 # Comandos
 
