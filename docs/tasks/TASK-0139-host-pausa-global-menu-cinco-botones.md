@@ -4,7 +4,7 @@ id: TASK-0139
 title: "Host: pausa global y menú de cinco botones"
 description: "Añadir la pausa global con `Esc`, el menú Reanudar/Nueva partida/Cargar/Guardar/Controles y el bloqueo de la timeline y del input."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-007, R-011, R-013, R-014, T-007, T-008, T-014]
