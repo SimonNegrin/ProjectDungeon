@@ -1290,6 +1290,39 @@ export async function defeatAllEnemies(
   return { snapshot: await snapshot(page), events: result.events };
 }
 
+/** Semilla documentada del flujo normal: el Guerrero gana la mazmorra. */
+export const WIN_GAME_SEED = 79;
+
+/**
+ * Arranca una partida normal de un jugador desde el menú de inicio (REQ-016),
+ * con la semilla documentada, y la juega con comandos reales hasta derrotar a
+ * todos los enemigos. Devuelve el snapshot del resultado (Victoria).
+ *
+ * No inyecta estado ni teletransporta: es la única ruta estable a la pantalla
+ * final sin `?test=1` que cubre REQ-024 R-012 en flujo normal.
+ */
+export async function winGame(
+  page: Page,
+  seed: number = WIN_GAME_SEED,
+): Promise<GameSnapshot> {
+  await page.goto('/');
+  await page.getByTestId('start-new').click();
+  await page.getByTestId('step1-players').selectOption('1');
+  await page.getByTestId('step1-seed').fill(String(seed));
+  await page.getByTestId('step1-continue').click();
+  await expect(page.getByTestId('player-screen')).toBeVisible();
+  await page.getByTestId('player-next').click();
+  await page.getByTestId('summary-start').click();
+  await expect(page.getByTestId('start-screen')).toBeHidden();
+
+  const { snapshot: ended } = await defeatAllEnemies(page);
+  await expect(page.getByTestId('result-screen')).toBeVisible();
+  if (ended.status !== 'victory') {
+    throw new Error(`winGame acabó en ${ended.status} con la semilla ${seed}`);
+  }
+  return ended;
+}
+
 /** Rango de tiles visibles para la cámara actual, calculado por el host. */
 export function visibleRange(snap: GameSnapshot): TileRange {
   return visibleTileRange(snap.camera, snap.viewport, snap.grid, snap.tileSize);
