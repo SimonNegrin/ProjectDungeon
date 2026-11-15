@@ -1,0 +1,4 @@
+branch: task/TASK-0139
+code-1: 9a46ff3 feat(host): mapa unico de teclas y retirada del atajo R (TASK-0139)
+code-2: 1339056 feat(host): pausa global y menu de cinco acciones (TASK-0139)
+artifacts: commit de evidencia de este mismo intento (posterior a code-2)

@@ -1,0 +1,10 @@
+$ playwright test tests/e2e/pause-menu.spec.ts
+
+Running 4 tests using 4 workers
+
+  ✓  1 [chromium] › tests/e2e/pause-menu.spec.ts:177:1 › TASK-0139: en fase enemiga Guardar está desactivado con motivo (1.2s)
+  ✓  3 [chromium] › tests/e2e/pause-menu.spec.ts:201:1 › TASK-0139: la pausa congela animación y feedback e ignora el input de juego (1.4s)
+  ✓  2 [chromium] › tests/e2e/pause-menu.spec.ts:33:1 › TASK-0139: Esc abre la pausa con cinco acciones en orden, foco y ayuda derivada (1.4s)
+  ✓  4 [chromium] › tests/e2e/pause-menu.spec.ts:123:1 › TASK-0139: Nueva y Cargar piden confirmación y Esc vuelve a la raíz (1.5s)
+
+  4 passed (3.1s)

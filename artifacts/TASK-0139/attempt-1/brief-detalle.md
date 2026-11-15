@@ -1,3 +1,11 @@
+---
+type: Task Brief Detail
+title: "TASK-0139: contrato técnico del intento 1"
+description: Modelo de pausa, mapa único de teclas, vista, integración y tests.
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T17:10:00Z }
+---
+
 # Contrato técnico del intento 1
 
 ## 1. Modelo puro `src/host/pause-menu.ts`
