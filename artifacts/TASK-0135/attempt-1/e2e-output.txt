@@ -1,0 +1,7 @@
+$ playwright test tests/e2e/corpse-containers-render-qa.spec.ts
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/corpse-containers-render-qa.spec.ts:123:1 › mapa con dos cadáveres-contenedor y una unidad muerta sin contenedor (1.3s)
+
+  1 passed (3.1s)
