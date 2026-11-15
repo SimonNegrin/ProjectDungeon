@@ -134,7 +134,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0146](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md) | Motor: turno por jugador, EndTurn, fase enemiga y ronda | `done` | REQ-031 | TASK-0132, TASK-0134 | P1 |
 | [TASK-0147](TASK-0147-motor-muerte-turno-derrota-wipe.md) | Motor: muerte en turno y derrota por wipe | `done` | REQ-031 | TASK-0131, TASK-0146 | P1 |
 | [TASK-0148](TASK-0148-motor-resurreccion-indice-recursos.md) | Motor: resurrección por índice y recursos | `blocked` | REQ-031 | TASK-0131, TASK-0134, TASK-0146 | P1 |
-| [TASK-0149](TASK-0149-host-n-retirada-e-r-esc-pausa.md) | Host: N, retirada de E/R, Esc pausa y bloqueo | `backlog` | REQ-031 | TASK-0139, TASK-0146 | P1 |
+| [TASK-0149](TASK-0149-host-n-retirada-e-r-esc-pausa.md) | Host: N, retirada de E/R, Esc pausa y bloqueo | `done` | REQ-031 | TASK-0139, TASK-0146 | P1 |
 | [TASK-0150](TASK-0150-host-relevo-camara-paneo.md) | Host: relevo por cámara y paneo | `backlog` | REQ-031 | TASK-0127, TASK-0146, TASK-0149 | P1 |
 | [TASK-0151](TASK-0151-host-hud-jugador-n-de-m-ronda.md) | Host/HUD: Jugador N de M, ficha activo y Ronda N | `backlog` | REQ-031 | TASK-0146, TASK-0150 | P1 |
 | [TASK-0152](TASK-0152-host-fase-enemiga-master-mueve.md) | Host: fase enemiga (El master mueve, actor/objetivo) | `backlog` | REQ-031 | TASK-0146, TASK-0150, TASK-0151 | P1 |
@@ -174,7 +174,6 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0149 — Host: N, retirada de E/R, Esc pausa y bloqueo](TASK-0149-host-n-retirada-e-r-esc-pausa.md)
 * [TASK-0150 — Host: relevo por cámara y paneo](TASK-0150-host-relevo-camara-paneo.md)
 * [TASK-0151 — Host/HUD: Jugador N de M, ficha activo y Ronda N](TASK-0151-host-hud-jugador-n-de-m-ronda.md)
 * [TASK-0152 — Host: fase enemiga (El master mueve, actor/objetivo)](TASK-0152-host-fase-enemiga-master-mueve.md)
@@ -312,6 +311,7 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0142 — QA/E2E de botín y cadáveres](TASK-0142-qa-e2e-botin.md)
 * [TASK-0146 — Motor: turno por jugador, EndTurn, fase enemiga y ronda](TASK-0146-motor-turno-jugador-endturn-fase-enemiga.md)
 * [TASK-0147 — Motor: muerte en turno y derrota por wipe](TASK-0147-motor-muerte-turno-derrota-wipe.md)
+* [TASK-0149 — Host: N, retirada de E/R, Esc pausa y bloqueo](TASK-0149-host-n-retirada-e-r-esc-pausa.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)

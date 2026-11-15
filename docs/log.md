@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0149 — done: `N` cierra turno, `E`/`R` retiradas, `Esc` pausa, comandos del activo y gate solo por paneo/animación; verify 1704/1704 y E2E 61/61 por specs; fusión `63093a6` — [informe](../artifacts/TASK-0149/attempt-2/report.md)
+
 * 2026-11-15 — Task — TASK-0148 — blocked: el criterio y test de objeto de resurrección chocan con REQ-018 R-005/REQ-019 y con «No objetivos»; requiere decisión de requirements-writer sobre objeto y objetivo unidad/casilla — [bloqueo](../artifacts/TASK-0148/lead-blocked/blocked.md)
 
 * 2026-11-15 — Task — TASK-0147 — done: muerte del activo en su turno resuelta antes de cerrar, sin turno muerto, derrota por wipe con fantasmas y resultado expuesto en `status`/`round`; verify 107/1695 y E2E sensible 38/38; fusión `e390ff5` — [informe](../artifacts/TASK-0147/attempt-1/report.md)
