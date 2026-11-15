@@ -24,4 +24,5 @@ export * from './death';
 export * from './perception';
 export * from './ai';
 export * from './turn';
+export * from './save';
 export * from './engine';

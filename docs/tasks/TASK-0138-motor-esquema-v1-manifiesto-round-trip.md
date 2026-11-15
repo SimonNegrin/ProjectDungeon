@@ -4,7 +4,7 @@ id: TASK-0138
 title: "Motor: esquema v1, manifiesto y round-trip"
 description: "Definir el estado serializable v1, el manifiesto y la validación estricta, con ida y vuelta determinista que incluya RNG, party, activo, ronda, fantasmas, cadáveres y `lootable`."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-008, R-009, T-001, T-002, T-004, T-005]
