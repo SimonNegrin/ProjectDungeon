@@ -115,6 +115,13 @@ test('semilla inválida bloquea; vacía genera otra y N=6 avanza', async ({
   await expect(page.getByTestId('start-status')).toContainText('Configuración lista');
   expect(await seed.inputValue()).not.toBe(blocked);
 
+  // TASK-0124: «Continuar» abre la configuración jugador a jugador; para seguir
+  // probando el paso 1 se descarta y se vuelve al menú principal.
+  await page.getByTestId('player-cancel').click();
+  await page.getByTestId('player-cancel-confirm').click();
+  await expect(page.getByTestId('start-menu')).toBeVisible();
+  await page.getByTestId('start-new').click();
+
   await page.getByTestId('step1-players').selectOption('6');
   await page.getByTestId('step1-continue').click();
   await expect(page.getByTestId('start-status')).toContainText('6 jugadores');
