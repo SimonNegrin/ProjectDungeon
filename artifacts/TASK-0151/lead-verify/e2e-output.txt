@@ -1,0 +1,120 @@
+
+Running 5 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:199:1 › TASK-0151: un jugador comparte la ruta y lee «Jugador 1 de 1» y «Ronda 2» (1.6s)
+  ✓  4 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:232:1 › TASK-0151: cargar un .zip real no muestra aviso y lee la ronda del estado (1.6s)
+  ✓  1 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:94:1 › TASK-0151: al empezar la ronda 1 se anuncia y el aviso no bloquea (1.8s)
+  ✓  3 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:129:1 › TASK-0151: el relevo dentro de la ronda sigue siendo `TU TURNO` y la ronda 2 anuncia `Ronda 2` (1.8s)
+  ✓  5 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:286:1 › TASK-0151: el escenario de test tampoco anuncia ronda al montarse (955ms)
+
+  5 passed (5.2s)
+
+Running 4 tests using 4 workers
+
+  ✓  4 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:101:1 › TASK-0061: la espera muestra `...` sobre un enemigo visible (2.2s)
+  ✓  3 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:203:1 › TASK-0061: advance(ms) consume la marca de huida ya creada (2.3s)
+  ✓  2 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:62:1 › TASK-0061: el regreso muestra `zzz` durante su cue (2.4s)
+  ✓  1 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:127:1 › TASK-0061: `Ronda 2` con cursor oculto en el cue y visible al final (2.5s)
+
+  4 passed (5.5s)
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/feedback-reduced-motion-qa.spec.ts:196:1 › TASK-0061: reducido no sacude al rechazar ni funde al reiniciar (1.6s)
+  ✓  2 [chromium] › tests/e2e/feedback-reduced-motion-qa.spec.ts:241:1 › TASK-0061: reducido aplica el impacto sin tween y conserva `-N` (1.9s)
+  ✓  3 [chromium] › tests/e2e/feedback-reduced-motion-qa.spec.ts:117:1 › TASK-0061: reducido conserva texto, banner y marca sin tween y con el mismo orden (1.9s)
+
+  3 passed (3.9s)
+
+Running 10 tests using 4 workers
+
+  ✓   3 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:305:5 › HUD izquierdo a 900x700 › sin arma y con magia muestra solo las filas que existen (1.2s)
+  ✓   4 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:287:5 › HUD izquierdo a 900x700 › sin arma se oculta la zona entera (1.3s)
+  ✓   2 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:325:5 › HUD izquierdo a 900x700 › el fantasma sigue al jugador activo sin inventar datos (1.3s)
+  ✓   1 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:199:5 › HUD izquierdo a 900x700 › personaje en dos columnas, arma con sprite y stats (1.5s)
+  ✓   7 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:287:5 › HUD izquierdo a 1280x720 › sin arma se oculta la zona entera (740ms)
+  ✓   5 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:355:5 › HUD izquierdo a 900x700 › la sugerencia de fin de turno queda al pie (791ms)
+  ✓   8 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:305:5 › HUD izquierdo a 1280x720 › sin arma y con magia muestra solo las filas que existen (644ms)
+  ✓   6 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:199:5 › HUD izquierdo a 1280x720 › personaje en dos columnas, arma con sprite y stats (895ms)
+  ✓  10 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:355:5 › HUD izquierdo a 1280x720 › la sugerencia de fin de turno queda al pie (437ms)
+  ✓   9 [chromium] › tests/e2e/hud-left-zones-qa.spec.ts:325:5 › HUD izquierdo a 1280x720 › el fantasma sigue al jugador activo sin inventar datos (474ms)
+
+  10 passed (4.7s)
+
+Running 7 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:148:5 › pantalla en tres zonas › ficha, mapa y detalle caben sin recorte a 900×700 (1.5s)
+  ✓  2 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:148:5 › pantalla en tres zonas › ficha, mapa y detalle caben sin recorte a 1280×720 (1.6s)
+  ✓  4 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:209:5 › panel de inventario sobre el mapa › cubre solo el mapa y deja ambos HUD visibles a 900×700 (2.0s)
+  ✓  1 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:209:5 › panel de inventario sobre el mapa › cubre solo el mapa y deja ambos HUD visibles a 1280×720 (2.1s)
+  ✓  5 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:359:1 › el detalle cambia por tile sin tocar el estado del motor (910ms)
+  ✓  7 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:533:1 › la ficha muestra al fantasma y sigue al jugador activo en hotseat (688ms)
+  ✓  6 [chromium] › tests/e2e/hud-three-zones-qa.spec.ts:394:1 › describe aliado, objeto, puerta, terreno, entrada/salida y desconocido (2.8s)
+
+  7 passed (6.0s)
+
+Running 5 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/load-game.spec.ts:168:1 › TASK-0141: el menú principal carga un .json suelto real (1.8s)
+  ✓  2 [chromium] › tests/e2e/load-game.spec.ts:202:1 › TASK-0141: una party con mago y clérigo se guarda y se carga sin cambios (1.8s)
+  ✓  4 [chromium] › tests/e2e/load-game.spec.ts:118:1 › TASK-0141: el menú principal carga un .zip real sin confirmación (1.9s)
+  ✓  1 [chromium] › tests/e2e/load-game.spec.ts:273:1 › TASK-0141: la pausa confirma, carga el .zip y deja cámara y HUD en el activo (2.1s)
+  ✓  5 [chromium] › tests/e2e/load-game.spec.ts:324:1 › TASK-0141: cancelar el selector y un archivo inválido no tocan la partida (687ms)
+
+  5 passed (4.1s)
+
+Running 7 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:332:1 › TASK-0144: el menú muestra las cinco acciones en orden, navega con teclado y Esc vuelve a jugar (1.3s)
+  ✓  4 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:279:1 › TASK-0144: la pausa congela turnos, beats y animaciones; el input de juego se ignora y reanudar no salta (1.9s)
+  ✓  1 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:390:1 › TASK-0144: Guardar solo está activo en la fase de personajes sin animación; nombre y manifiesto correctos (2.3s)
+  ✓  3 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:228:1 › TASK-0144: Esc abre y cierra la pausa en personajes, enemiga y animación; el panel se cierra primero (3.2s)
+  ✓  5 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:466:1 › TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desde la pausa (2.0s)
+  ✓  7 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:692:1 › TASK-0144: el resultado no ofrece guardado y R no reinicia (1.3s)
+  ✓  6 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:587:1 › TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y tamaños sin tocar la partida (2.3s)
+
+  7 passed (5.5s)
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/game-input-hud.spec.ts:57:1 › loop completo: teclado, HUD, overlays, feedback, debug y reinicio (3.6s)
+
+  1 passed (4.6s)
+
+Running 4 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:194:1 › TASK-0150: con prefers-reduced-motion la cámara salta sin paneo (1.2s)
+  ✓  3 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:179:1 › TASK-0150: con un solo jugador no hay paneo de relevo (1.2s)
+  ✓  4 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:148:1 › TASK-0150: la vuelta de la fase enemiga hace paneo al primer jugador (1.4s)
+  ✓  1 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:89:1 › TASK-0150: el relevo con dos jugadores panea, bloquea y libera al llegar (1.4s)
+
+  4 passed (2.8s)
+
+Running 5 tests using 4 workers
+
+  ✓  3 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:188:1 › sirve Pixelify Sans y la aplica a cuerpo, HUD y panel sin peticiones externas (1.9s)
+  ✓  4 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:247:3 › línea y escala continuas derivadas del marco › --ui-line es frame.height / 416 y no se cuantiza al redimensionar (2.0s)
+  ✓  2 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:347:1 › auditoría de estilos: sin radios, sombras, degradados, blur ni translucidez (2.0s)
+  ✓  1 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:300:3 › línea y escala continuas derivadas del marco › el cuerpo sigue la altura del marco: ≈12,8 px a 900×700 y ≈18,8 px a 1280×720 (2.3s)
+  ✓  5 [chromium] › tests/e2e/ui-foundations-qa.spec.ts:428:1 › capturas de HUD, panel, hechizos y overlays a 1280×720 y 900×700 (1.2s)
+
+  5 passed (5.1s)
+
+Running 3 tests using 3 workers
+
+  ✓  1 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:136:1 › TASK-0120: el banner de recogida caduca en tiempo real y el render se detiene (3.6s)
+  ✓  2 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de fallo caduca sin reiniciar su animación (4.2s)
+  ✓  3 [chromium] › tests/e2e/feedback-clock-loop-qa.spec.ts:182:3 › TASK-0120: el texto de impacto caduca sin reiniciar su animación (4.7s)
+
+  3 passed (5.9s)
+
+Running 6 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/startup-flow-qa.spec.ts:334:1 › un jugador: resumen y partida con la semilla mostrada (2.0s)
+  ✓  3 [chromium] › tests/e2e/startup-flow-qa.spec.ts:444:1 › semilla: ?seed=, inválida bloquea y vacía genera otra (2.1s)
+  ✓  1 [chromium] › tests/e2e/startup-flow-qa.spec.ts:371:1 › seis jugadores a 900x700: party, semilla de solo lectura y scroll interno (2.8s)
+  ✓  4 [chromium] › tests/e2e/startup-flow-qa.spec.ts:186:1 › dos jugadores solo con teclado: variante en mapa y miniatura del HUD (3.2s)
+  ✓  5 [chromium] › tests/e2e/startup-flow-qa.spec.ts:490:1 › nombre: acentos, truncado a 12, vacío y duplicados (1.3s)
+  ✓  6 [chromium] › tests/e2e/startup-flow-qa.spec.ts:537:1 › cancelar o Esc en paso 1, jugador y resumen confirman la vuelta al menú (1.4s)
+
+  6 passed (5.1s)
