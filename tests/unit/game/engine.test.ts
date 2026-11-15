@@ -1469,3 +1469,28 @@ describe('comandos de saqueo de cadáver (REQ-034 R-006/T-006)', () => {
     expect(result.state.containers?.[0].items).toEqual([null]);
   });
 });
+
+describe('resultado del motor tras el wipe (REQ-031 R-015)', () => {
+  it('expone derrota y la ronda alcanzada aunque queden fantasmas', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 8, y: 5, hp: 0, ghost: true }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      round: 4,
+      rng: rngForDice([1, 6, 6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.state.status).toBe('defeat');
+    expect(result.state.round).toBe(4);
+    expect(result.events.at(-1)).toEqual({ type: 'GameEnded', status: 'defeat' });
+    expect(result.events.map((event) => event.type)).not.toContain('TurnEnded');
+  });
+});

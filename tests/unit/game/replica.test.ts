@@ -197,6 +197,50 @@ describe('réplica tras fallo cuerpo a cuerpo', () => {
     ]);
   });
 
+  it('la réplica mortal cierra el turno cuando queda otro jugador', () => {
+    const state = makeState({
+      players: [
+        armedPlayer(5, 5, { hp: 1 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 8, y: 5, mp: 0, actions: 0 }),
+      ],
+      enemies: [armedEnemy(6, 5)],
+      rng: rngForDice([1, 6, ...PLAYER_HIT]),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    // La acción se resuelve completa antes de cerrar el turno (REQ-031 R-015).
+    expect(types(result.events)).toEqual([
+      'AttackPerformed',
+      'ReplicaPerformed',
+      'UnitDied',
+      'TurnEnded',
+      'PlayerTurnStarted',
+    ]);
+    expect(result.state.status).toBe('playing');
+    expect(result.state.round).toBe(1);
+    expect(result.state.activePlayerId).toBe('player-2');
+    expect(result.state.players[0]).toMatchObject({ hp: 0, ghost: true });
+    expect(result.state.containers?.some((container) => container.corpseOf === 'player-1')).toBe(
+      true,
+    );
+
+    // No queda un turno muerto: el fallecido ya no es el activo.
+    const fromDead = reduce(result.state, {
+      type: 'Move',
+      unitId: 'player-1',
+      dx: 1,
+      dy: 0,
+    });
+    expect(fromDead.events).toEqual([
+      { type: 'CommandRejected', commandType: 'Move', reason: 'not-active' },
+    ]);
+  });
+
   it('el enemigo que muere por la réplica no ejecuta su acción siguiente', () => {
     const state = makeState({
       players: [armedPlayer(5, 5)],
