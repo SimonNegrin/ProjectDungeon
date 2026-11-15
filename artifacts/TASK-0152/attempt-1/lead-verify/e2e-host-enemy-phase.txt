@@ -1,0 +1,7 @@
+$ playwright test tests/e2e/host-enemy-phase-qa.spec.ts
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/host-enemy-phase-qa.spec.ts:95:1 › TASK-0152: «El master mueve» solo con acciones y HUD de actor/objetivo (1.1s)
+
+  1 passed (4.0s)

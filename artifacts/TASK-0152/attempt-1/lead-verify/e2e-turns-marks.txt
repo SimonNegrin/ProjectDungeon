@@ -1,0 +1,10 @@
+$ playwright test tests/e2e/feedback-turns-marks-qa.spec.ts
+
+Running 4 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:101:1 › TASK-0061: la espera muestra `...` sobre un enemigo visible (3.7s)
+  ✓  1 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:203:1 › TASK-0061: advance(ms) consume la marca de huida ya creada (3.9s)
+  ✓  4 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:62:1 › TASK-0061: el regreso muestra `zzz` durante su cue (4.0s)
+  ✓  3 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:127:1 › TASK-0061: `Ronda 2` con cursor oculto en el cue y visible al final (4.2s)
+
+  4 passed (7.1s)

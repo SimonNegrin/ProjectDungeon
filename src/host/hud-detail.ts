@@ -306,7 +306,8 @@ function allyAt(state: GameState, position: Position): Unit | undefined {
   );
 }
 
-function enemyDetail(enemy: Unit): CursorDetail {
+/** Detalle del enemigo que actúa en la fase enemiga (REQ-031 R-009). */
+export function enemyDetail(enemy: Unit): CursorDetail {
   const vitals: CursorDetailRow[] = [row('pv', 'PV', formatHp(enemy))];
   if (enemy.stats.magicLevel > 0 || enemy.mana.max > 0) {
     vitals.push(row('magia', 'Magia', formatMagic(enemy)));

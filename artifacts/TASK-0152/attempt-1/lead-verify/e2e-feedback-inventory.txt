@@ -1,0 +1,12 @@
+$ playwright test tests/e2e/feedback-inventory-perception-qa.spec.ts
+
+Running 6 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:95:1 › TASK-0059: el cambio de arma pulsa el slot y aplica el arma al final (3.6s)
+  ✓  4 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:132:1 › TASK-0059: avistamiento estable y alarma con onda, borde y aviso en su cue (4.5s)
+  ✓  1 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:53:1 › TASK-0059: la recogida mantiene el arma, anuncia el objeto y lo guarda en la mochila (5.2s)
+  ✓  5 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:238:1 › TASK-0059: el reinicio funde 250 ms sin crear un beat bloqueante (2.5s)
+  ✓  6 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:264:1 › TASK-0059: el rechazo no crea beat y muestra aviso con sacudida (1.7s)
+  ✓  3 [chromium] › tests/e2e/feedback-inventory-perception-qa.spec.ts:176:1 › TASK-0059: huida con marca, fase sin aviso y fin de partida sin overlay prematuro (6.4s)
+
+  6 passed (10.7s)

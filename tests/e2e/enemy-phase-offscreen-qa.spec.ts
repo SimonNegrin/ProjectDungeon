@@ -4,6 +4,7 @@ import { dirname } from 'node:path';
 import { BspMapGenerator } from '../../src/game/bsp';
 import { createInitialState } from '../../src/game/engine';
 import type { GameState, Tile } from '../../src/game/types';
+import { FEEDBACK_CONFIG } from '../../src/host/feedback-config';
 import { artifactPath } from './artifacts';
 import {
   TEST_SEED_URL,
@@ -106,8 +107,11 @@ test('TASK-0060: enemigo fuera de pantalla usa un beat sin tween ni cámara', as
   expect(moves).toHaveLength(4);
   expect(moves.every((event) => event.unitId === 'enemy-1')).toBe(true);
 
-  // 400 ms del banner de fase enemiga: empieza el beat colapsado del recorrido.
-  await page.evaluate(() => window.__game!.advance(400));
+  // El pre-beat de «El master mueve»: empieza el beat colapsado del recorrido.
+  await page.evaluate(
+    (ms) => window.__game!.advance(ms),
+    FEEDBACK_CONFIG.texts.enemyPhaseBannerMs,
+  );
   const atBeat = await snapshot(page);
   expect(atBeat.animation).toMatchObject({
     animating: true,

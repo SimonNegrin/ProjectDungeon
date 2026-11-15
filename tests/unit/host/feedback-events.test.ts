@@ -115,7 +115,7 @@ describe('banners de inventario, fase y turno', () => {
     ]);
 
     expect(bannerForCue(phase.cues[0])).toEqual({
-      text: 'FASE ENEMIGA',
+      text: 'El master mueve',
       kind: 'phase',
       durationMs: FEEDBACK_CONFIG.texts.enemyPhaseBannerMs,
     });

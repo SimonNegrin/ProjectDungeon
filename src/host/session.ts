@@ -6,11 +6,21 @@ import {
   type MapGenerator,
   type MapOptions,
 } from '../game/map';
-import type { Command, GameEvent, GameState } from '../game/types';
+import type {
+  Command,
+  EnemyPhaseEntry,
+  GameEvent,
+  GameState,
+} from '../game/types';
 
 export interface StepResult {
   readonly state: GameState;
   readonly events: readonly GameEvent[];
+  /**
+   * Traza de la fase enemiga (REQ-031 T-004), solo si el comando la ejecutó.
+   * El host la usa para decidir aviso, cámara y HUD; no forma parte del estado.
+   */
+  readonly enemyPhase?: readonly EnemyPhaseEntry[];
 }
 
 export type GameSessionInit = GameState | CreateInitialStateConfig;
@@ -73,7 +83,13 @@ export class GameSession {
 
     const result = reduce(this.current, command);
     this.current = result.state;
-    return { state: result.state, events: result.events };
+    return {
+      state: result.state,
+      events: result.events,
+      ...(result.enemyPhase === undefined
+        ? {}
+        : { enemyPhase: result.enemyPhase }),
+    };
   }
 
   /**

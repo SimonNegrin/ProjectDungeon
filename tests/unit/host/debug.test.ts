@@ -226,6 +226,8 @@ describe('API de debug window.__game', () => {
       unitId: 'player-1',
       position: { x: 80, y: 96, tileX: 2, tileY: 3 },
       camera: { x: 16, y: 32 },
+      enemyActorId: 'enemy-1',
+      enemyTargetId: 'player-1',
       cues: [
         {
           kind: 'move',
@@ -254,6 +256,8 @@ describe('API de debug window.__game', () => {
     );
 
     expect(api.snapshot().animation).toEqual(animation);
+    expect(api.snapshot().enemyActorId).toBe('enemy-1');
+    expect(api.snapshot().enemyTargetId).toBe('player-1');
 
     const after = api.advance(250);
     expect(advanced).toBe(250);
@@ -271,8 +275,12 @@ describe('API de debug window.__game', () => {
       unitId: null,
       position: null,
       camera: { x: 0, y: 0 },
+      enemyActorId: null,
+      enemyTargetId: null,
       cues: [],
     });
+    expect(snapshot.enemyActorId).toBeNull();
+    expect(snapshot.enemyTargetId).toBeNull();
   });
 
   it('dispatch aplica el comando y devuelve snapshot y eventos serializables', () => {
