@@ -4,16 +4,16 @@ id: TASK-0144
 title: "QA/E2E de pausa, guardado y carga"
 description: "Cubrir la pausa global, el menú de cinco botones, el guardado restringido, la descarga `.zip`, la carga `.zip`/`.json`, los límites y el resultado sin guardado."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
 depends_on: [TASK-0139, TASK-0140, TASK-0141, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T23:54:00Z
 assignee: task-runner
-attempts: 2
+attempts: 3
 artifacts: artifacts/TASK-0144/
 priority: P1
 risk: medium
@@ -40,13 +40,20 @@ verified:
       `qa-visual-revision-ui.spec.ts:396` (aserción «Turno» que incluye la región
       `aria-live` de TASK-0151); reproducido en `main` por el lead. Sin cambios
       de producción; bloqueo externo, no del alcance de esta tarea.
+  - by: task-lead
+    at: 2026-11-15T23:54:00Z
+    note: >-
+      Intento 3 verificado (spec `d9e635e`, evidencia `15644f0`). Diff en
+      `qa-visual-revision-ui.spec.ts`: `hudText` excluye `hud-live` y se añade
+      `liveRegion` (existe, texto, caja, `clip-path`) sin tocar otras
+      aserciones. `pnpm run verify` 109/1734; spec 13/13; suite completa
+      `--workers=1` 273/273 en 3.9 min. Criterio 8 cerrado; sin cambios de
+      producción ni tests debilitados.
 ---
 
-> **Intento 3 autorizado (2026-11-15).** El usuario autoriza una corrección
-> mínima en `qa-visual-revision-ui.spec.ts`: excluir `hud-live` del texto visible
-> de `expectHudBase` y comprobar que sigue visualmente oculta. Nada más: sin HUD,
-> sin `src/host/hud.ts`, sin otras aserciones. La suite completa en serie debe
-> quedar verde; si vuelve a fallar, la tarea para en `blocked`.
+> **Cerrada (2026-11-15).** La corrección mínima autorizada dejó la suite en
+> verde: 273/273 en serie. `hud-live` queda excluida del texto visible y se
+> comprueba que sigue oculta; el resto de aserciones no cambia.
 
 # Objetivo
 
@@ -75,9 +82,8 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
 - [x] Se rechazan archivos con rutas, entradas extra o tamaño por encima de los
       límites.
 - [x] El resultado no ofrece pausa ni guardado; no existe reinicio rápido ni `R`.
-- [ ] Capturas de pausa, menú, controles y error de carga; `pnpm run test:e2e` y
-      `pnpm run verify` pasan. Capturas y `verify` OK; `test:e2e` sigue rojo por
-      los 2 fallos preexistentes de `qa-visual-revision-ui` (ver nota superior).
+- [x] Capturas de pausa, menú, controles y error de carga; `pnpm run test:e2e` y
+      `pnpm run verify` pasan.
 
 # Plan de test
 
@@ -96,6 +102,9 @@ y cadáveres es TASK-0142; aquí se comprueba que el guardado los conserva.
 - [x] Capturas de resultado en `artifacts/TASK-0144/attempt-2/pause-save-load-qa/screenshots/`
 - [x] Commits `88c9402` (spec y helper) y `bfa0660` (evidencia)
 - [x] Verificación del lead en `artifacts/TASK-0144/lead-verify/verification-2.md`
+- [x] Informe del intento 3 en `artifacts/TASK-0144/attempt-3/report.md`
+- [x] Commits `d9e635e` (spec HUD) y `15644f0` (evidencia)
+- [x] Verificación del lead en `artifacts/TASK-0144/lead-verify/verification-3.md`
 
 # Comandos
 
