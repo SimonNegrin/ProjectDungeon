@@ -1,0 +1,10 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/host-result-qa.spec.ts:74:1 › victoria: ronda, party, semilla y solo Nueva/Cargar (1.1s)
+  ✓  2 [chromium] › tests/e2e/host-result-qa.spec.ts:116:1 › derrota: foco atrapado, anuncio y sin avance automático (953ms)
+  ✓  3 [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar (1.0s)
+  ✓  4 [chromium] › tests/e2e/host-result-qa.spec.ts:174:1 › seis jugadores: la party y la semilla se leen sin scroll (423ms)
+  ✓  5 [chromium] › tests/e2e/host-result-qa.spec.ts:202:1 › Cargar partida reutiliza el cargador sin confirmación (603ms)
+
+  5 passed (6.2s)

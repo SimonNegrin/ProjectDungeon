@@ -112,10 +112,6 @@ export interface HudModel {
   /** Anuncio accesible de activo y ronda; solo texto, no sustituye al banner. */
   readonly turnAnnouncement: string;
   readonly keys: string;
-  readonly overlays: {
-    readonly victory: boolean;
-    readonly defeat: boolean;
-  };
 }
 
 export interface DebugModel {
@@ -297,10 +293,6 @@ export function buildHudModel(
     playerPosition,
     turnAnnouncement: turnAnnouncementLabel(state, player, playerPosition),
     keys: KEYS_HELP,
-    overlays: {
-      victory: state.status === 'victory',
-      defeat: state.status === 'defeat',
-    },
   };
 
   if (
@@ -819,7 +811,7 @@ function renderPortrait(
   element.style.backgroundPosition = `calc(var(--ui-scale) * ${-x}px) calc(var(--ui-scale) * ${-y}px)`;
 }
 
-/** Vista DOM del HUD y de los overlays de resultado. */
+/** Vista DOM del HUD. */
 export function createHudView(root: ParentNode): HudView {
   const playerName = requireElement(root, 'hud-player-name');
   const playerPosition = requireElement(root, 'hud-player-position');
@@ -843,8 +835,6 @@ export function createHudView(root: ParentNode): HudView {
   const actionSuggestion = requireElement(root, 'hud-suggestion');
   const keys = requireElement(root, 'hud-keys');
   const weaponHint = requireElement(root, 'weapon-hint');
-  const victory = requireElement(root, 'overlay-victory');
-  const defeat = requireElement(root, 'overlay-defeat');
 
   const detail = requireElement(root, 'hud-cursor-detail');
   const detailKind = requireElement(root, 'hud-cursor-kind');
@@ -1014,8 +1004,6 @@ export function createHudView(root: ParentNode): HudView {
       if (panelOpen) renderPanelDetail(panelDetail);
       weaponHint.textContent = model.weaponHint ?? '';
       weaponHint.hidden = model.weaponHint === null;
-      victory.hidden = !model.overlays.victory;
-      defeat.hidden = !model.overlays.defeat;
 
       // El pulso se dispara al empezar el cue; reutiliza el nodo y no reinicia
       // la animación en cada frame mientras el cue siga activo.

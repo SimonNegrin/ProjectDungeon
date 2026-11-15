@@ -277,7 +277,7 @@ describe('tokens y escalas de la UI', () => {
 });
 
 describe('relieve y elementos de la UI de juego', () => {
-  it('aplica outset a HUD, ficha, panel, hechizos, submenú, banner y overlay', () => {
+  it('aplica outset a HUD, ficha, panel, hechizos, submenú, banner y resultado', () => {
     for (const fragment of [
       'class="hud-left ui-outset"',
       'class="hud-right ui-outset"',
@@ -289,7 +289,7 @@ describe('relieve y elementos de la UI de juego', () => {
       'class="inventory-column inventory-column-backpack ui-outset"',
       'class="inventory-column inventory-column-right ui-outset"',
       'class="inventory-submenu ui-outset"',
-      'class="overlay ui-outset"',
+      'class="result-panel ui-outset"',
     ]) {
       expect(html, `Falta ${fragment}`).toContain(fragment);
     }

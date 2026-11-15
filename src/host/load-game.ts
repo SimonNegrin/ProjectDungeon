@@ -9,7 +9,8 @@
  *
  * El módulo no conoce el menú, el DOM del juego ni la presentación: recibe un
  * archivo, devuelve el estado validado y, en `requestGameLoad`, aplica o avisa a
- * través de callbacks. Menú principal y pausa comparten exactamente esta ruta.
+ * través de callbacks. Menú principal, pausa y resultado comparten exactamente
+ * esta ruta; solo cambia el origen y si hay partida en curso que confirmar.
  *
  * En `.zip` se cruza el manifiesto con el estado: semilla, turno/ronda, fase y
  * party (nombre y arquetipo) deben coincidir. Un desajuste rechaza la carga
@@ -30,7 +31,7 @@ export const MAX_SAVE_JSON_BYTES = 5 * 1024 * 1024;
 export type SaveFileKind = 'zip' | 'json';
 
 /** Origen de la carga; solo decide si hay partida en curso que confirmar. */
-export type LoadGameOrigin = 'menu' | 'pause';
+export type LoadGameOrigin = 'menu' | 'pause' | 'result';
 
 /** Archivo mínimo que el cargador necesita; `File` lo cumple tal cual. */
 export interface GameFileHandle {

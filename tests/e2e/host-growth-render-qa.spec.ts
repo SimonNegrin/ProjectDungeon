@@ -317,8 +317,7 @@ test('playtest 2738263054: estructura, determinismo, render y salida sin transic
     x: exit.access.x,
     y: exit.access.y,
   });
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
 
   // Un turno completo tampoco dispara la transición.
   await endTurn(page);
@@ -326,6 +325,5 @@ test('playtest 2738263054: estructura, determinismo, render y salida sin transic
   expect(afterTurn.status).toBe('playing');
   expect(afterTurn.seed).toBe(PLAYTEST_SEED);
   expect(afterTurn.exit).toEqual(first.exit);
-  await expect(page.getByTestId('overlay-victory')).toBeHidden();
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
 });

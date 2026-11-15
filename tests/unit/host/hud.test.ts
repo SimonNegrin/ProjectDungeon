@@ -84,7 +84,6 @@ describe('modelo del HUD', () => {
     expect(model.keys).not.toContain('R ');
     expect(model.keys).not.toContain('reiniciar');
     expect(model.keys).toContain('F1');
-    expect(model.overlays).toEqual({ victory: false, defeat: false });
     expect(model.weapon).toMatchObject({
       name: WEAPONS.sword.name,
       accuracy: WEAPONS.sword.accuracy,
@@ -715,35 +714,6 @@ describe('modelo del HUD', () => {
 
     expect(buildHudModel({ ...exhausted, phase: 'enemy' }).actionSuggestion).toBeNull();
     expect(buildHudModel({ ...exhausted, status: 'victory' }).actionSuggestion).toBeNull();
-  });
-
-  it('muestra el overlay de victoria cuando el enemigo muere', () => {
-    const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 1 })],
-      rng: rngForDice([6, 1, 2, 1]),
-    });
-
-    const afterFirst = attack(state);
-    const next = attack(afterFirst);
-    const model = buildHudModel(next);
-
-    expect(next.enemies[0].hp).toBe(0);
-    expect(model.overlays).toEqual({ victory: true, defeat: false });
-  });
-
-  it('muestra el overlay de derrota cuando el jugador muere', () => {
-    const state = makeState({
-      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 })],
-      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      rng: rngForDice([6, 1, 3, 3]),
-    });
-
-    const next = endTurn(state);
-    const model = buildHudModel(next);
-
-    expect(model.playerHp).toBe(`0/${next.players[0].maxHp}`);
-    expect(model.overlays).toEqual({ victory: false, defeat: true });
   });
 });
 

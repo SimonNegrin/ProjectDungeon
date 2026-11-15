@@ -658,7 +658,7 @@ test('impacto, vida bajo cursor, F1, economía de turno y victoria', async ({
     ),
   ).toBe(true);
   expect(victoryEvents.some((event) => event.type === 'UnitDied')).toBe(true);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.getByTestId('hud-status')).toHaveCount(0);
   await screenshot(page, 'victory', testInfo);
@@ -1011,7 +1011,7 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
   const defeat = await snapshot(page);
   expect(defeat.status).toBe('defeat');
   expect(defeat.players[0].hp).toBe(0);
-  await expect(page.getByTestId('overlay-defeat')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.getByTestId('hud-status')).toHaveCount(0);
   await screenshot(page, 'defeat', testInfo);
@@ -1031,7 +1031,7 @@ test('derrota determinista sin cambiar la economía de turno', async ({ page }, 
     mp: 6,
     actions: { remaining: 2 },
   });
-  await expect(page.getByTestId('overlay-defeat')).toBeHidden();
+  await expect(page.getByTestId('result-screen')).toBeHidden();
 
   expect(consoleErrors).toEqual([]);
 });

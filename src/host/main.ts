@@ -69,6 +69,7 @@ import {
   type PauseTransition,
 } from './pause-menu';
 import { createPauseMenuView } from './pause-menu-view';
+import { createResultView } from './result-view';
 import {
   rejectionMessage,
   type PanelSelection,
@@ -569,6 +570,19 @@ async function boot(): Promise<void> {
   });
 
   /**
+   * Resultado final (REQ-031 R-020). Se monta siempre, también con `?test=1`:
+   * lee el estado que el host ya presentó y solo muestra los datos finales.
+   * «Nueva» comparte el camino de la pausa; «Cargar» usa el cargador común sin
+   * confirmación porque no hay partida en curso.
+   */
+  const resultView = createResultView(frame, {
+    onNewGame: () => confirmNewGame(),
+    onLoad: () => {
+      void loadGameFrom('result');
+    },
+  });
+
+  /**
    * Sustituye la partida por el estado validado y reconstruye solo lo derivable
    * (cámara y HUD). No restaura presentación: cancela animación, feedback,
    * avisos y modales, y deja la cámara en el activo una vez.
@@ -576,6 +590,7 @@ async function boot(): Promise<void> {
   const applyLoadedState = (state: GameState): void => {
     pause = createPauseState();
     pauseMenuView.hide();
+    resultView.hide();
     startScreenView?.hide();
     cancelAnimation();
     clearTransientFeedback();
@@ -614,16 +629,20 @@ async function boot(): Promise<void> {
    */
   let loading = false;
   const loadGameFrom = async (origin: LoadGameOrigin): Promise<void> => {
+    /** Mensaje de rechazo en la región viva del origen que abrió el selector. */
+    const setLoadMessage = (message: string | null): void => {
+      if (origin === 'menu') startScreenView?.setLoadMessage(message);
+      else if (origin === 'pause') pauseMenuView.setLoadMessage(message);
+      else resultView.setLoadMessage(message);
+    };
+
     if (loading) return;
     if (loadFilePicker === null) {
-      const message = 'No se pudo abrir el selector de archivos.';
-      if (origin === 'menu') startScreenView?.setLoadMessage(message);
-      else pauseMenuView.setLoadMessage(message);
+      setLoadMessage('No se pudo abrir el selector de archivos.');
       return;
     }
     loading = true;
-    if (origin === 'menu') startScreenView?.setLoadMessage(null);
-    else pauseMenuView.setLoadMessage(null);
+    setLoadMessage(null);
     try {
       await requestGameLoad({
         origin,
@@ -631,8 +650,7 @@ async function boot(): Promise<void> {
         apply: applyLoadedState,
         notify: (message) => {
           console.error(message);
-          if (origin === 'menu') startScreenView?.setLoadMessage(message);
-          else pauseMenuView.setLoadMessage(message);
+          setLoadMessage(message);
         },
       });
     } finally {
@@ -742,6 +760,16 @@ async function boot(): Promise<void> {
     };
   };
 
+  /**
+   * El resultado solo se pinta cuando ninguna pantalla de arranque lo tapa:
+   * «Nueva partida» abre el paso 1 y la partida anterior deja de mostrarse
+   * aunque su estado final siga cargado hasta que arranque la siguiente.
+   */
+  const resultBlocked = (): boolean =>
+    startScreenView?.isActive() === true ||
+    playerScreenView?.isActive() === true ||
+    partySummaryView?.isActive() === true;
+
   const render = (): void => {
     // Con la pausa abierta el canvas y los HUD quedan congelados: solo se
     // repinta la propia vista modal.
@@ -811,6 +839,10 @@ async function boot(): Promise<void> {
       bannerView.update(banner);
       markView.update(unitMarks, state, camera, viewport);
       frameEffectView.update(frameEffectsAt(animation.timeline, elapsed));
+      // Solo tras el cue de `GameEnded`: el estado de presentación mantiene
+      // `playing` hasta que el beat termina, así que aquí no hay temporizador.
+      if (resultBlocked()) resultView.hide();
+      else resultView.update(display);
       return;
     }
 
@@ -880,6 +912,8 @@ async function boot(): Promise<void> {
     bannerView.update(banner);
     markView.update(unitMarks, state, camera, viewport);
     frameEffectView.update(EMPTY_FRAME_EFFECTS);
+    if (resultBlocked()) resultView.hide();
+    else resultView.update(state);
   };
 
   const finishPan = (): void => {
@@ -1303,7 +1337,9 @@ async function boot(): Promise<void> {
    * mismo punto (REQ-024 T-007).
    */
   const openPauseMenu = (): void => {
-    if (pause.open) return;
+    // Con la partida terminada no hay pausa: el resultado solo ofrece sus dos
+    // acciones explícitas (REQ-031 R-020).
+    if (pause.open || resultView.isActive()) return;
     pause = openPause(pause, pauseContext());
     cancelFrame();
     cancelPanFrame();
@@ -1378,6 +1414,7 @@ async function boot(): Promise<void> {
   const confirmNewGame = (): void => {
     pause = closePause(pause);
     pauseMenuView.hide();
+    resultView.hide();
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
@@ -1466,6 +1503,7 @@ async function boot(): Promise<void> {
   const setupState = (state: GameState, generator?: MapGenerator): void => {
     pause = createPauseState();
     pauseMenuView.hide();
+    resultView.hide();
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
@@ -1513,6 +1551,7 @@ async function boot(): Promise<void> {
 
     pause = createPauseState();
     pauseMenuView.hide();
+    resultView.hide();
     cancelAnimation();
     clearTransientFeedback();
     spellMenu = { ...INITIAL_SPELL_MENU };
@@ -1552,6 +1591,7 @@ async function boot(): Promise<void> {
 
     if (command.type === 'Restart' || result.events.some((event) => event.type === 'GameRestarted')) {
       cancelAnimation();
+      resultView.hide();
       // El reinicio limpia cualquier cue pendiente y funde 250 ms (R-018).
       clearTransientFeedback();
       spellMenu = { ...INITIAL_SPELL_MENU };
@@ -1660,6 +1700,7 @@ async function boot(): Promise<void> {
   const regenerate = (): void => {
     cancelAnimation();
     clearTransientFeedback();
+    resultView.hide();
     spellMenu = { ...INITIAL_SPELL_MENU };
     panelOpen = false;
     panelSelection = null;
@@ -1712,20 +1753,25 @@ async function boot(): Promise<void> {
 
   window.__game = debugApi;
 
-  for (const button of gameRoot.querySelectorAll<HTMLButtonElement>('[data-action="restart"]')) {
-    button.addEventListener('click', () => {
-      applyCommand({ type: 'Restart' });
-    });
-  }
-
   window.addEventListener('keydown', (event) => {
-    // La pantalla de inicio, la de jugadores o el resumen consumen sus teclas;
-    // el mapa y F1 no se interpretan mientras alguna esté visible.
+    // La pantalla de inicio, la de jugadores, el resumen o el resultado
+    // consumen sus teclas; el mapa y F1 no se interpretan mientras alguna esté
+    // visible. El resultado consume además `Esc`: no hay pausa al terminar.
     if (
       startScreenView?.isActive() ||
       playerScreenView?.isActive() ||
       partySummaryView?.isActive()
     ) {
+      return;
+    }
+    if (resultView.isActive()) {
+      // Sin comandos ni pausa con la partida terminada. `F1` sigue abriendo el
+      // overlay de debug: es diagnóstico, no una acción de juego.
+      if (isManagedKey(event.key)) event.preventDefault();
+      if (event.key.toLowerCase() === 'f1') {
+        debugView.toggle();
+        render();
+      }
       return;
     }
     if (isEditableTarget(event.target)) return;

@@ -545,7 +545,7 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
   expect(victory.enemies.every((enemy) => enemy.hp === 0)).toBe(true);
   await expect(page.getByTestId('cursor')).toBeHidden();
   await expect(page.locator('[data-testid="cursor-path-point"]')).toHaveCount(0);
-  await expect(page.getByTestId('overlay-victory')).toBeVisible();
+  await expect(page.getByTestId('result-screen')).toBeVisible();
 
   expect(consoleErrors).toEqual([]);
 });

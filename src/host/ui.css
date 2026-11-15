@@ -1231,39 +1231,113 @@
         font-size: var(--ui-body);
         font-weight: 700;
       }
-      .overlay {
+      /* Resultado (REQ-031 R-020): pantalla final opaca, hermana de la pausa.
+         No ofrece pausa, guardado ni reinicio: solo Nueva y Cargar partida. */
+      .result-screen {
         position: absolute;
         inset: 0;
-        z-index: 10;
+        z-index: 34;
         display: grid;
         place-items: center;
-        padding: calc(var(--ui-unit) * 24);
-        text-align: center;
+        padding: calc(var(--ui-unit) * 16);
         background: var(--ui-bg);
+        color: var(--ui-text);
+        font-size: var(--ui-body);
+        overflow: auto;
       }
-      .overlay h2 {
-        margin: 0 0 calc(var(--ui-unit) * 8);
-        font-size: calc(var(--ui-unit) * 24);
+      .result-screen[hidden],
+      .result-screen [hidden] {
+        display: none;
+      }
+      .result-panel {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 560);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 6);
+        padding: calc(var(--ui-unit) * 14) calc(var(--ui-unit) * 18);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }
+      .result-title {
+        margin: 0;
         color: var(--ui-accent);
+        font-size: var(--ui-title);
       }
-      .overlay p {
-        margin: 0 0 calc(var(--ui-unit) * 16);
+      .result-title[data-status="defeat"] {
+        color: var(--ui-danger);
+      }
+      .result-round,
+      .result-seed {
+        margin: 0;
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+        font-variant-numeric: tabular-nums;
+      }
+      .result-players {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 3);
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .result-player {
+        display: grid;
+        grid-template-columns: calc(var(--ui-unit) * 18) minmax(0, 1fr)
+          minmax(0, 1fr);
+        align-items: baseline;
+        gap: calc(var(--ui-unit) * 6);
+        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 8);
+        background: var(--ui-bg);
         color: var(--ui-text);
         font-size: var(--ui-body);
       }
-      .overlay button {
-        padding: calc(var(--ui-unit) * 10) calc(var(--ui-unit) * 20);
-        color: var(--ui-bg);
-        background: var(--ui-accent);
+      .result-player-number {
+        color: var(--ui-accent);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .result-player-name {
+        font-weight: 700;
+      }
+      .result-player-archetype {
+        color: var(--ui-muted);
+      }
+      .result-actions {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 5);
+      }
+      .result-button {
+        padding: calc(var(--ui-unit) * 6) calc(var(--ui-unit) * 12);
+        background: var(--ui-raised);
+        color: var(--ui-text);
         font: inherit;
         font-size: var(--ui-body);
         font-weight: 700;
+        text-align: left;
         cursor: pointer;
       }
-      .overlay button:hover,
-      .overlay button:focus-visible {
-        color: var(--ui-text);
-        background: var(--ui-raised);
+      .result-button:hover,
+      .result-button:focus-visible {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .result-button:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: 0;
+      }
+      .result-message {
+        margin: 0;
+        color: var(--ui-danger);
+        font-size: var(--ui-help);
+        line-height: 1.35;
+      }
+      .result-announcement {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
       }
       /* F1 queda fuera de la UI de juego: conserva su escala fija. */
       .debug-overlay {
