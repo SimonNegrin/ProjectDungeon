@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0129 — done: E2E nuevo del arranque de REQ-016 (menú, paso 1, 1/2/6 jugadores, semilla, nombre, variante, cancelación y partida) con capturas a 1280×720 y 900×700; verify 99/1471 y E2E 235/235; scroll interno a 900×700 documentado como observación; fusión `c016a5f` — [informe](../artifacts/TASK-0129/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0156 — done: REQ-022, REQ-024 y REQ-031 anotan las enmiendas de REQ-016 v3 (miniatura por variante, «Cargar» compartido y «Nueva partida» al paso 1) sin cambiar reglas ni versiones, texto de requirements-writer; docs:check 635/159 y verify 99/1471; fusión `b3d7ad4` — [informe](../artifacts/TASK-0156/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0128 — done: ADR-006 con tabla de 18 celdas y variante como estado; glosario con menú principal, paso 1, resumen y variante; alcance con arranque 1-6 y sin persistencia (requirements-writer); docs:check 635/159 y verify 99/1471; fusión `5239ce8` — [informe](../artifacts/TASK-0128/attempt-1/report.md)
