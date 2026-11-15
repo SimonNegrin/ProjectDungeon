@@ -1,4 +1,4 @@
-import { ITEMS, type WeaponId } from '../game/equipment';
+import { ITEMS, type EquipmentSlot, type LootPolicy, type WeaponId } from '../game/equipment';
 import type {
   Command,
   Container,
@@ -83,11 +83,39 @@ export interface AnimationSnapshot {
 }
 
 /**
+ * Instancia del snapshot: la del motor más la política derivada del catálogo.
+ * La contención sigue siendo la única fuente de verdad; no hay listas paralelas.
+ */
+export type SnapshotItemInstance = ItemInstance & {
+  readonly lootPolicy: LootPolicy;
+};
+
+export type SnapshotEquipmentSlots = {
+  readonly [Slot in EquipmentSlot]: SnapshotItemInstance | null;
+};
+
+export interface SnapshotInventory {
+  readonly capacity: number;
+  readonly items: readonly (SnapshotItemInstance | null)[];
+}
+
+export type SnapshotGroundItem = SnapshotItemInstance & {
+  readonly x: number;
+  readonly y: number;
+};
+
+export type SnapshotContainer = Omit<Container, 'items'> & {
+  readonly items: readonly (SnapshotItemInstance | null)[];
+};
+
+/**
  * Vista de unidad en el snapshot. `slots` e `inventory` son la verdad nueva;
  * `equipment` y `weapons` son derivados de compatibilidad para que los E2E
  * históricos sigan compilando hasta TASK-0098. Nunca se leen como fuente.
  */
-export type SnapshotUnit = Unit & {
+export type SnapshotUnit = Omit<Unit, 'equipment' | 'inventory'> & {
+  readonly equipment: SnapshotEquipmentSlots;
+  readonly inventory: SnapshotInventory;
   /** Vista legacy del equipo; deriva de `equipment` y no es verdad. */
   readonly legacyEquipment: UnitEquipment;
   /** Vista legacy del inventario de tres armas; solo para E2E previos. */
@@ -126,9 +154,9 @@ export interface GameSnapshot {
    */
   readonly weapons: readonly MapWeapon[];
   /** Instancias en el suelo; verdad nueva y serializable. */
-  readonly groundItems: readonly GroundItem[];
+  readonly groundItems: readonly SnapshotGroundItem[];
   /** Contenedores sintéticos con sus instancias. */
-  readonly containers: readonly Container[];
+  readonly containers: readonly SnapshotContainer[];
   /** Resumen de solo lectura de la decoración plana; coincide con el render. */
   readonly decoration: readonly DecorationSummary[];
   /** Paleta y ambiente deterministas de cada sala; el render usa los mismos. */
@@ -190,11 +218,20 @@ export interface DebugSnapshotSource {
   readonly animation?: AnimationSnapshot;
 }
 
-function cloneInstance(instance: ItemInstance | null): ItemInstance | null {
-  return instance ? { id: instance.id, itemId: instance.itemId } : null;
+function cloneInstance(
+  instance: ItemInstance | null,
+): SnapshotItemInstance | null {
+  return instance
+    ? {
+        id: instance.id,
+        itemId: instance.itemId,
+        lootable: instance.lootable,
+        lootPolicy: ITEMS[instance.itemId].lootPolicy,
+      }
+    : null;
 }
 
-function cloneSlots(slots: EquipmentSlots): EquipmentSlots {
+function cloneSlots(slots: EquipmentSlots): SnapshotEquipmentSlots {
   return {
     weapon: cloneInstance(slots.weapon),
     shield: cloneInstance(slots.shield),
@@ -207,7 +244,7 @@ function cloneSlots(slots: EquipmentSlots): EquipmentSlots {
   };
 }
 
-function cloneInventory(inventory: Inventory): Inventory {
+function cloneInventory(inventory: Inventory): SnapshotInventory {
   return {
     capacity: inventory.capacity,
     items: inventory.items.map(cloneInstance),
@@ -318,11 +355,18 @@ function cloneMapEnemy(enemy: MapEnemy): MapEnemy {
   return { ...enemy, home: { ...enemy.home } };
 }
 
-function cloneGroundItem(item: GroundItem): GroundItem {
-  return { id: item.id, itemId: item.itemId, x: item.x, y: item.y };
+function cloneGroundItem(item: GroundItem): SnapshotGroundItem {
+  return {
+    id: item.id,
+    itemId: item.itemId,
+    lootable: item.lootable,
+    lootPolicy: ITEMS[item.itemId].lootPolicy,
+    x: item.x,
+    y: item.y,
+  };
 }
 
-function cloneContainer(container: Container): Container {
+function cloneContainer(container: Container): SnapshotContainer {
   return {
     id: container.id,
     x: container.x,

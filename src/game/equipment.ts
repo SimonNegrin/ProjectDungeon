@@ -23,6 +23,18 @@ export type ItemId = WeaponId | ArmorId | ShieldId;
 /** Categorías con contenido en este corte (REQ-018 R-004). */
 export type ItemCategory = 'weapon' | 'shield' | 'armor';
 
+/**
+ * Política de botín de un objeto (REQ-034 R-002/T-001). `common` se tira al
+ * crear al enemigo; `progression` nace siempre saqueable (REQ-034 R-008/T-008).
+ */
+export type LootPolicy = 'common' | 'progression';
+
+/** Porcentaje de saqueabilidad por política, en datos (REQ-034 R-002/R-008). */
+export const LOOT_CHANCES: Readonly<Record<LootPolicy, number>> = {
+  common: 25,
+  progression: 100,
+};
+
 /** Los ocho huecos de REQ-018 R-002; los cinco secundarios siguen sin objetos. */
 export type EquipmentSlot = ItemCategory | 'head' | 'feet' | 'hands' | 'neck' | 'ring';
 
@@ -86,6 +98,8 @@ export interface ItemDefinition {
   readonly name: string;
   readonly category: ItemCategory;
   readonly slot: EquipmentSlot;
+  /** Política de botín; obligatoria y en datos (REQ-034 T-001). */
+  readonly lootPolicy: LootPolicy;
   /** Solo armas: una o dos manos (REQ-018 R-003). */
   readonly hands?: 1 | 2;
   /** Acierto que suma al ataque; solo armas. */
@@ -123,6 +137,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Espada',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 3,
     modifiers: {},
@@ -136,6 +151,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Hacha',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 2,
     modifiers: {},
@@ -149,6 +165,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Daga',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 4,
     modifiers: {},
@@ -162,6 +179,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Cuchillo',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 4,
     modifiers: {},
@@ -177,6 +195,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Martillo',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 2,
     modifiers: {},
@@ -191,6 +210,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Espada electrizada',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 3,
     modifiers: {},
@@ -208,6 +228,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Daga arcana',
     category: 'weapon',
     slot: 'weapon',
+    lootPolicy: 'common',
     hands: 1,
     accuracy: 4,
     modifiers: {},
@@ -225,6 +246,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Armadura',
     category: 'armor',
     slot: 'armor',
+    lootPolicy: 'common',
     absorption: 1,
     modifiers: {},
     damagePackets: [],
@@ -237,6 +259,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Coraza',
     category: 'armor',
     slot: 'armor',
+    lootPolicy: 'common',
     absorption: 2,
     modifiers: {},
     damagePackets: [],
@@ -249,6 +272,7 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     name: 'Escudo',
     category: 'shield',
     slot: 'shield',
+    lootPolicy: 'common',
     evasion: 1,
     modifiers: {},
     damagePackets: [],
@@ -281,7 +305,8 @@ export type ItemCatalogRule =
   | 'damage-packets'
   | 'traits'
   | 'modifiers'
-  | 'sprite';
+  | 'sprite'
+  | 'loot-policy';
 
 export interface ItemCatalogIssue {
   readonly itemId: string;
@@ -355,7 +380,8 @@ export const EQUIPMENT_SILHOUETTES: Readonly<
 /**
  * Valida un catálogo de objetos: IDs únicos, categoría y hueco coherentes,
  * manos 1|2, paquetes de daño de REQ-029, traits vacíos, modificadores
- * numéricos y sprite dentro de la hoja y coherente con `items.txt`.
+ * numéricos, política de botín conocida y sprite dentro de la hoja y coherente
+ * con `items.txt`.
  */
 export function validateItemCatalog(
   items: readonly ItemDefinition[],
@@ -416,6 +442,10 @@ export function validateItemCatalog(
     }
 
     if (item.traits.length > 0) report('traits', 'Los traits deben estar vacíos en este corte');
+
+    if (typeof LOOT_CHANCES[item.lootPolicy] !== 'number') {
+      report('loot-policy', `Política de botín desconocida: ${String(item.lootPolicy)}`);
+    }
 
     for (const [attribute, value] of Object.entries(item.modifiers)) {
       if (!isFiniteNumber(value)) report('modifiers', `Modificador no numérico: ${attribute}`);

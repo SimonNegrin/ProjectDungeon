@@ -24,6 +24,20 @@ import type { GameState, RejectionReason, Unit } from './types';
 export interface ItemInstance {
   readonly id: string;
   readonly itemId: ItemId;
+  /**
+   * Saqueable al morir su portador (REQ-034 R-002); se fija al crear la
+   * instancia y se conserva al moverse. Jugador, suelo y cofres nacen con `true`.
+   */
+  readonly lootable: boolean;
+}
+
+/** Crea una instancia con su marca de saqueabilidad; por defecto, saqueable. */
+export function itemInstance(
+  id: string,
+  itemId: ItemId,
+  lootable = true,
+): ItemInstance {
+  return { id, itemId, lootable };
 }
 
 /** Mochila personal de capacidad paramétrica; el equipo puesto no cuenta. */
@@ -192,15 +206,15 @@ export function equipmentFromLegacy(
     weapon:
       legacy.weaponId === null
         ? null
-        : { id: instanceId(owner, 'weapon'), itemId: legacy.weaponId },
+        : itemInstance(instanceId(owner, 'weapon'), legacy.weaponId),
     armor:
       legacy.armorId === null
         ? null
-        : { id: instanceId(owner, 'armor'), itemId: legacy.armorId },
+        : itemInstance(instanceId(owner, 'armor'), legacy.armorId),
     shield:
       legacy.shieldId === null
         ? null
-        : { id: instanceId(owner, 'shield'), itemId: legacy.shieldId },
+        : itemInstance(instanceId(owner, 'shield'), legacy.shieldId),
   };
 }
 
@@ -213,7 +227,7 @@ export function inventoryFromIds(
   const inventory = createInventory(Math.max(capacity, itemIds.length));
   const items = [...inventory.items];
   itemIds.forEach((itemId, index) => {
-    items[index] = { id: instanceId(owner, `backpack-${index}`), itemId };
+    items[index] = itemInstance(instanceId(owner, `backpack-${index}`), itemId);
   });
   return { capacity: inventory.capacity, items };
 }
@@ -269,10 +283,10 @@ export function pickUpItem(state: GameState, unitId: string): InventoryResult {
   const nextUnit = spendMp(unit);
   if (!nextUnit) return fail('no-mp');
 
-  const inventory = withBackpackItem(nextUnit.inventory, {
-    id: ground.id,
-    itemId: ground.itemId,
-  });
+  const inventory = withBackpackItem(
+    nextUnit.inventory,
+    itemInstance(ground.id, ground.itemId, ground.lootable),
+  );
   if (!inventory) return fail('inventory-full');
 
   return {
@@ -325,7 +339,7 @@ function locateSource(
     );
     if (!ground) return { error: 'no-item' };
     return {
-      instance: { id: ground.id, itemId: ground.itemId },
+      instance: itemInstance(ground.id, ground.itemId, ground.lootable),
       state: { ...state, groundItems: groundWithout(state, ground.id) },
       unit,
     };
@@ -480,7 +494,11 @@ export function dropItem(
         ...state,
         groundItems: [
           ...groundItems(state),
-          { id: instance.id, itemId: instance.itemId, x: unit.x, y: unit.y },
+          {
+            ...itemInstance(instance.id, instance.itemId, instance.lootable),
+            x: unit.x,
+            y: unit.y,
+          },
         ],
       },
       { ...nextUnit, inventory, equipment },
@@ -522,7 +540,7 @@ export function allInstances(state: GameState): readonly ItemInstance[] {
     for (const item of equippedItems(unit.equipment)) result.push(item);
   }
   for (const item of state.groundItems ?? []) {
-    result.push({ id: item.id, itemId: item.itemId });
+    result.push(itemInstance(item.id, item.itemId, item.lootable));
   }
   for (const container of state.containers ?? []) {
     for (const item of container.items) if (item) result.push(item);

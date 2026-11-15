@@ -5,6 +5,7 @@ import {
   dropItem,
   equipItem,
   equipmentFromLegacy,
+  itemInstance,
   pickUpItem,
   unequipItem,
   type InventorySource,
@@ -17,6 +18,7 @@ import { planCursorTarget, type CursorBlockedReason } from './path';
 import { detectEnemiesAfterStep } from './perception';
 import { GrowthMapGenerator } from './chambers/variants/growth';
 import { createRng } from './rng';
+import { rollEnemyLoot } from './loot';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
 import { createMana } from './mana';
@@ -53,15 +55,25 @@ export interface CreateInitialStateConfig {
   readonly players?: readonly PlayerConfig[];
 }
 
-/** Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario. */
+/**
+ * Crea un enemigo con las estadísticas y el equipo de la tabla del bestiario.
+ * La saqueabilidad se tira al crear la instancia con un RNG derivado de la
+ * semilla y del ID del enemigo (REQ-034 T-002/T-003).
+ */
 function createEnemy(
   id: string,
   position: Position,
   type: EnemyType,
+  seed: number,
   home: Position = position,
 ): Unit {
   const definition = BESTIARY[type];
-  const equipment = equipmentFromLegacy(id, definition.equipment);
+  const loot = rollEnemyLoot(
+    seed,
+    id,
+    equipmentFromLegacy(id, definition.equipment),
+    createInventory(),
+  );
 
   return {
     id,
@@ -80,8 +92,8 @@ function createEnemy(
     actions: createActions(definition.stats),
     spellsCast: 0,
     stats: definition.stats,
-    equipment,
-    inventory: createInventory(),
+    equipment: loot.equipment,
+    inventory: loot.inventory,
     awareness: 'dormant',
     fleeing: false,
     home: { x: home.x, y: home.y },
@@ -129,8 +141,7 @@ function buildInitialState(
   // expone la verdad nueva: instancias en el suelo.
   const { weapons: generatedWeapons = [], ...map } = generated;
   const groundItems = generatedWeapons.map((weapon) => ({
-    id: `item-${weapon.id}`,
-    itemId: weapon.weaponId,
+    ...itemInstance(`item-${weapon.id}`, weapon.weaponId),
     x: weapon.x,
     y: weapon.y,
   }));
@@ -147,12 +158,13 @@ function buildInitialState(
               enemy.id,
               { x: enemy.x, y: enemy.y },
               enemy.type,
+              seed,
               enemy.home,
             ),
           )
         : placement
-          ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type))
-          : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel')],
+          ? placement.map((enemy) => createEnemy(enemy.id, enemy, enemy.type, seed))
+          : [createEnemy('enemy-1', map.spawns.enemy, 'sentinel', seed)],
     config: {
       seed,
       players: config.players.map((player) => ({ ...player })),
