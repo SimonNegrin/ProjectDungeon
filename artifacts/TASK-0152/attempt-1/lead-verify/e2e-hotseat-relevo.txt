@@ -1,0 +1,15 @@
+$ playwright test tests/e2e/host-hud-hotseat-qa.spec.ts tests/e2e/host-relevo-camera-qa.spec.ts
+
+Running 9 tests using 4 workers
+
+  ✓  4 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:199:1 › TASK-0151: un jugador comparte la ruta y lee «Jugador 1 de 1» y «Ronda 2» (1.6s)
+  ✓  2 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:232:1 › TASK-0151: cargar un .zip real no muestra aviso y lee la ronda del estado (1.7s)
+  ✓  1 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:129:1 › TASK-0151: el relevo dentro de la ronda sigue siendo `TU TURNO` y la ronda 2 anuncia `Ronda 2` (1.9s)
+  ✓  3 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:94:1 › TASK-0151: al empezar la ronda 1 se anuncia y el aviso no bloquea (1.9s)
+  ✓  5 [chromium] › tests/e2e/host-hud-hotseat-qa.spec.ts:286:1 › TASK-0151: el escenario de test tampoco anuncia ronda al montarse (1.2s)
+  ✓  6 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:89:1 › TASK-0150: el relevo con dos jugadores panea, bloquea y libera al llegar (1.3s)
+  ✓  8 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:179:1 › TASK-0150: con un solo jugador no hay paneo de relevo (1.2s)
+  ✓  7 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:148:1 › TASK-0150: la vuelta de la fase enemiga hace paneo al primer jugador (1.5s)
+  ✓  9 [chromium] › tests/e2e/host-relevo-camera-qa.spec.ts:194:1 › TASK-0150: con prefers-reduced-motion la cámara salta sin paneo (617ms)
+
+  9 passed (5.0s)
