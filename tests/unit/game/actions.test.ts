@@ -143,7 +143,7 @@ describe('contador de acciones', () => {
       ],
       enemies: [],
       groundItems: [
-        { id: 'item-test-axe', itemId: 'axe', x: player.x, y: player.y },
+        { id: 'item-test-axe', itemId: 'axe', lootable: true, x: player.x, y: player.y },
       ],
     };
 
@@ -155,7 +155,7 @@ describe('contador de acciones', () => {
     });
     expect(
       picked.state.players[0].inventory.items.filter((item) => item !== null),
-    ).toEqual([{ id: 'item-test-axe', itemId: 'axe' }]);
+    ).toEqual([{ id: 'item-test-axe', itemId: 'axe', lootable: true }]);
   });
 
   it('atacar y después interactuar con el suelo es posible con acciones restantes', () => {
@@ -172,7 +172,7 @@ describe('contador de acciones', () => {
         },
       ],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
-      groundItems: [{ id: 'item-test-axe', itemId: 'axe', x: 5, y: 5 }],
+      groundItems: [{ id: 'item-test-axe', itemId: 'axe', lootable: true, x: 5, y: 5 }],
       rng: rngForDice(PLAYER_HIT),
     };
 

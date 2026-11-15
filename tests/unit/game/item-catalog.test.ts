@@ -6,6 +6,7 @@ import {
   EQUIPMENT_SLOTS,
   ITEMS,
   ITEM_SHEET,
+  LOOT_CHANCES,
   SHIELDS,
   WEAPONS,
   armorValue,
@@ -90,12 +91,20 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
       expect(item.description.length, key).toBeGreaterThan(0);
       expect(item.traits, key).toEqual([]);
       expect(item.modifiers, key).toEqual({});
+      expect(item.lootPolicy, key).toBe('common');
       expect(ITEM_SHEET.id, key).toBe(item.sprite.sheet);
     }
   });
 
   it('valida el catálogo completo sin incidencias', () => {
     expect(validateItemCatalog(Object.values(ITEMS))).toEqual([]);
+  });
+
+  it('guarda los porcentajes de botín en datos, no en el host', () => {
+    expect(LOOT_CHANCES).toEqual({ common: 25, progression: 100 });
+    for (const item of Object.values(ITEMS)) {
+      expect(Object.keys(LOOT_CHANCES)).toContain(item.lootPolicy);
+    }
   });
 
   it('rechaza IDs repetidos', () => {

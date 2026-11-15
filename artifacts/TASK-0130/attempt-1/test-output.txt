@@ -1,0 +1,20 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  3 passed (3)
+      Tests  66 passed (66)
+   Start at  11:34:23
+   Duration  741ms (tests 70%, transform 16%, import 13%, worker 1%)
+
+
+=== tests/unit/game/loot.test.ts, integration.test.ts, tests/unit/host/debug.test.ts ===
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  3 passed (3)
+      Tests  50 passed (50)
+   Start at  11:34:26
+   Duration  439ms (tests 62%, import 19%, transform 17%, worker 1%)
+

@@ -17,7 +17,13 @@ import { buildMotionTimeline, presentationState } from '../../../src/host/motion
 import { buildPresentationEvents } from '../../../src/host/presentation';
 import { makeState, makeUnit } from '../game/helpers';
 
-const GROUND_ITEM = { id: 'item-player-1-weapon', itemId: 'axe' as const, x: 4, y: 4 };
+const GROUND_ITEM = {
+  id: 'item-player-1-weapon',
+  itemId: 'axe' as const,
+  lootable: true,
+  x: 4,
+  y: 4,
+};
 
 function backpackNames(state: GameState): readonly string[] {
   return state.players[0].inventory.items
@@ -65,8 +71,8 @@ describe('modelo del panel de personaje', () => {
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
       groundItems: [
         GROUND_ITEM,
-        { id: 'item-player-1-backpack-1', itemId: 'hammer', x: 4, y: 4 },
-        { id: 'item-player-1-backpack-2', itemId: 'dagger', x: 9, y: 9 },
+        { id: 'item-player-1-backpack-1', itemId: 'hammer', lootable: true, x: 4, y: 4 },
+        { id: 'item-player-1-backpack-2', itemId: 'dagger', lootable: true, x: 9, y: 9 },
       ],
     });
     const model = buildInventoryPanelModel(state);
@@ -290,7 +296,7 @@ describe('submenú contextual del panel', () => {
           equipment: { weaponId: 'sword', armorId: null, shieldId: null },
         }),
       ],
-      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', lootable: true, x: 4, y: 4 }],
     });
   }
 
@@ -377,7 +383,7 @@ describe('submenú contextual del panel', () => {
           weapons: full,
         }),
       ],
-      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', lootable: true, x: 4, y: 4 }],
     });
 
     const options = buildPanelMenu(state, 'ground:ground-axe');
@@ -433,7 +439,7 @@ describe('submenú contextual del panel', () => {
           weapons: full,
         }),
       ],
-      groundItems: [{ id: 'ground-axe', itemId: 'axe', x: 4, y: 4 }],
+      groundItems: [{ id: 'ground-axe', itemId: 'axe', lootable: true, x: 4, y: 4 }],
     });
     const roomy = buildPanelMenu(menuState(), 'ground:ground-axe');
     const crowded = buildPanelMenu(fullState, 'ground:ground-axe');
@@ -572,7 +578,7 @@ describe('integración del panel con el motor y los cues', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-axe', itemId: 'axe' },
+              { id: 'item-player-1-axe', itemId: 'axe', lootable: true },
               null,
               null,
               null,
@@ -627,7 +633,7 @@ describe('integración del panel con el motor y los cues', () => {
     );
     expect(afterCue.players[0].inventory.items[0]).toBeNull();
     expect(afterCue.groundItems).toEqual([
-      { id: 'item-player-1-axe', itemId: 'axe', x: 4, y: 4 },
+      { id: 'item-player-1-axe', itemId: 'axe', lootable: true, x: 4, y: 4 },
     ]);
     expectUniqueInstances(afterCue);
   });
@@ -697,7 +703,7 @@ describe('integración del panel con el motor y los cues', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-axe', itemId: 'axe' },
+              { id: 'item-player-1-axe', itemId: 'axe', lootable: true },
               null,
               null,
               null,

@@ -4,22 +4,34 @@ id: TASK-0130
 title: "Motor: saqueabilidad, lootPolicy y RNG de botín"
 description: "Añadir `lootable` por instancia, `lootPolicy` en el catálogo y una tirada determinista derivada de la semilla que no consuma el RNG principal."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-034
 requirement_ids: [R-002, R-003, R-008, R-012, T-001, T-002, T-003, T-008]
 depends_on: [TASK-0122]
 unlocks: [TASK-0133, TASK-0134, TASK-0142, TASK-0143, TASK-0157]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T11:46:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0130/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T11:46:00Z
+    note: >-
+      Intento 1 verificado (motor `053a920`, tests `7848198`). Diff de 28
+      archivos limitado a `src/game`, snapshot de debug, tests y fixtures E2E;
+      sin cambios de requisitos, alcance, fórmulas, IA, mapa, combate ni
+      dependencias. `pnpm run verify` reejecutado: 100 archivos/1491 tests,
+      docs:check y config:check con avisos previos, tsc, build y bundle OK;
+      116/116 en los seis archivos de la tarea y 3/3 en el E2E de fixture.
+      Criterios 1-7 cumplidos; `progression` sin tirada y `lootable` propagado;
+      snapshot con `lootPolicy` derivada y sin listas paralelas. Evidencia en
+      `attempt-1/lead-verify/`.
 ---
 
 # Objetivo
@@ -40,19 +52,19 @@ cadáveres ni toca el render.
 
 # Criterios de aceptación
 
-- [ ] `ItemInstance` gana `lootable: boolean`, fijado al crear la instancia; por
+- [x] `ItemInstance` gana `lootable: boolean`, fijado al crear la instancia; por
       defecto es `true` para jugador, suelo y cofres.
-- [ ] `ItemDefinition` declara `lootPolicy: 'common' | 'progression'`; los
+- [x] `ItemDefinition` declara `lootPolicy: 'common' | 'progression'`; los
       porcentajes 25 % y 100 % viven en datos, no en el host.
-- [ ] Al crear un enemigo se tira por cada instancia de su equipo y mochila; dos
+- [x] Al crear un enemigo se tira por cada instancia de su equipo y mochila; dos
       objetos del mismo enemigo pueden tener resultados distintos.
-- [ ] La tirada usa un RNG de botín derivado de la semilla y de una identidad
+- [x] La tirada usa un RNG de botín derivado de la semilla y de una identidad
       estable del enemigo; no consume el RNG principal y no usa `Math.random`.
-- [ ] Un objeto de política `progression` nace siempre saqueable; un objeto
+- [x] Un objeto de política `progression` nace siempre saqueable; un objeto
       adquirido después conserva la marca que traía.
-- [ ] El snapshot de debug expone `lootable`, la política y el resultado de la
+- [x] El snapshot de debug expone `lootable`, la política y el resultado de la
       tirada sin duplicar el inventario.
-- [ ] Tests de determinismo, 25 %/100 %, independencia por objeto, objetos
+- [x] Tests de determinismo, 25 %/100 %, independencia por objeto, objetos
       adquiridos y no perturbación del RNG principal; `pnpm run verify` pasa.
 
 # Plan de test
@@ -65,9 +77,9 @@ cadáveres ni toca el render.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0130/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0130/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

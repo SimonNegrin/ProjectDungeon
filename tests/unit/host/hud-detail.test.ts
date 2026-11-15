@@ -155,7 +155,7 @@ describe('detalle bajo el cursor por tipo', () => {
   it('describe un objeto del suelo con sprite y stats verticales, sin descripción', () => {
     const state = makeState({
       players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
-      groundItems: [{ id: 'item-1', itemId: 'axe', x: 6, y: 5 }],
+      groundItems: [{ id: 'item-1', itemId: 'axe', lootable: true, x: 6, y: 5 }],
     });
 
     const detail = buildCursorDetail(state, { x: 6, y: 5 });
@@ -276,7 +276,7 @@ describe('detalle bajo el cursor por tipo', () => {
           x: 6,
           y: 5,
           capacity: 4,
-          items: [{ id: 'item-1', itemId: 'axe' }],
+          items: [{ id: 'item-1', itemId: 'axe', lootable: true }],
         },
       ],
     });
@@ -400,7 +400,7 @@ describe('ficha de dos bloques con el panel abierto', () => {
           equipment: { weaponId: 'sword', armorId: null, shieldId: null },
         }),
       ],
-      groundItems: [{ id: 'ground-plate', itemId: 'plate', x: 4, y: 4 }],
+      groundItems: [{ id: 'ground-plate', itemId: 'plate', lootable: true, x: 4, y: 4 }],
     });
   }
 

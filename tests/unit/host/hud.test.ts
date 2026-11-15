@@ -665,8 +665,8 @@ describe('modelo del overlay de debug', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-axe', itemId: 'axe' },
-              { id: 'item-player-1-plate', itemId: 'plate' },
+              { id: 'item-player-1-axe', itemId: 'axe', lootable: true },
+              { id: 'item-player-1-plate', itemId: 'plate', lootable: true },
               null,
               null,
               null,
@@ -679,7 +679,7 @@ describe('modelo del overlay de debug', () => {
         }),
       ],
       groundItems: [
-        { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+        { id: 'item-ground-hammer', itemId: 'hammer', lootable: true, x: 7, y: 9 },
       ],
     });
     const text = buildDebugModel(

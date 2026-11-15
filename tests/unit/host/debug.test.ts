@@ -4,8 +4,14 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { BspMapGenerator, BESTIARY, ROSTER, createInitialState, reduce } from '../../../src/game/index';
-import type { GameState, RngState } from '../../../src/game/types';
+import { BspMapGenerator, BESTIARY, ITEMS, ROSTER, createInitialState, reduce } from '../../../src/game/index';
+import type {
+  EquipmentSlots,
+  GameState,
+  Inventory,
+  ItemInstance,
+  RngState,
+} from '../../../src/game/types';
 import type { PlayerConfig } from '../../../src/game/config';
 import { createDebugApi } from '../../../src/host/debug';
 import {
@@ -15,6 +21,27 @@ import {
 } from '../../../src/host/floor';
 import { GameSession } from '../../../src/host/session';
 import { makeState, makeUnit, rngForDice } from '../game/helpers';
+
+/** Instancia del motor con la política que el snapshot deriva del catálogo. */
+function snapshotItem(instance: ItemInstance) {
+  return { ...instance, lootPolicy: ITEMS[instance.itemId].lootPolicy };
+}
+
+function snapshotEquipment(slots: EquipmentSlots) {
+  return Object.fromEntries(
+    Object.entries(slots).map(([slot, instance]) => [
+      slot,
+      instance === null ? null : snapshotItem(instance),
+    ]),
+  );
+}
+
+function snapshotInventory(inventory: Inventory) {
+  return {
+    capacity: inventory.capacity,
+    items: inventory.items.map((item) => (item === null ? null : snapshotItem(item))),
+  };
+}
 
 function setup(initial: GameState = makeState()) {
   const session = new GameSession(initial);
@@ -572,8 +599,8 @@ describe('snapshot del mapa generado', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-axe', itemId: 'axe' },
-              { id: 'item-player-1-plate', itemId: 'plate' },
+              { id: 'item-player-1-axe', itemId: 'axe', lootable: true },
+              { id: 'item-player-1-plate', itemId: 'plate', lootable: true },
               null,
               null,
               null,
@@ -586,15 +613,15 @@ describe('snapshot del mapa generado', () => {
         }),
       ],
       groundItems: [
-        { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+        { id: 'item-ground-hammer', itemId: 'hammer', lootable: true, x: 7, y: 9 },
       ],
     });
     const snapshot = setup(state).snapshot();
 
     expect(snapshot.players[0].inventory.capacity).toBe(8);
     expect(snapshot.players[0].inventory.items).toEqual([
-      { id: 'item-player-1-axe', itemId: 'axe' },
-      { id: 'item-player-1-plate', itemId: 'plate' },
+      { id: 'item-player-1-axe', itemId: 'axe', lootable: true, lootPolicy: 'common' },
+      { id: 'item-player-1-plate', itemId: 'plate', lootable: true, lootPolicy: 'common' },
       null,
       null,
       null,
@@ -613,7 +640,7 @@ describe('snapshot del mapa generado', () => {
       ring: null,
     });
     expect(snapshot.groundItems).toEqual([
-      { id: 'item-ground-hammer', itemId: 'hammer', x: 7, y: 9 },
+      { id: 'item-ground-hammer', itemId: 'hammer', lootable: true, lootPolicy: 'common', x: 7, y: 9 },
     ]);
   });
 
@@ -734,6 +761,60 @@ describe('snapshot del mapa generado', () => {
     expect(Object.keys(api).sort()).toEqual(['advance', 'dispatch', 'snapshot']);
   });
 
+  it('expone lootable y lootPolicy en equipo, mochila, suelo y cofres', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+      groundItems: [
+        { id: 'ground-sword', itemId: 'sword', lootable: false, x: 4, y: 4 },
+      ],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 2,
+          items: [{ id: 'chest-axe', itemId: 'axe', lootable: false }, null],
+        },
+      ],
+    });
+    const snapshot = setup(state).snapshot();
+
+    expect(snapshot.players[0].equipment.weapon).toMatchObject({
+      itemId: 'sword',
+      lootable: true,
+      lootPolicy: 'common',
+    });
+    expect(snapshot.groundItems[0]).toEqual({
+      id: 'ground-sword',
+      itemId: 'sword',
+      lootable: false,
+      lootPolicy: 'common',
+      x: 4,
+      y: 4,
+    });
+    expect(snapshot.containers[0].items[0]).toEqual({
+      id: 'chest-axe',
+      itemId: 'axe',
+      lootable: false,
+      lootPolicy: 'common',
+    });
+    expect(Object.keys(snapshot).filter((key) => /loot/i.test(key))).toEqual([]);
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+  });
+
+  it('los enemigos generados exponen marcas booleanas y su política', () => {
+    const { api } = combatSetup();
+    const snapshot = api.snapshot();
+
+    for (const enemy of snapshot.enemies) {
+      for (const item of Object.values(enemy.equipment)) {
+        if (item === null) continue;
+        expect(typeof item.lootable, enemy.id).toBe('boolean');
+        expect(['common', 'progression'], enemy.id).toContain(item.lootPolicy);
+      }
+    }
+  });
+
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {
     const api = generatedSetup();
     const before = api.snapshot();
@@ -817,9 +898,9 @@ describe('snapshot profundo y RNG de combate', () => {
       expect(units[0].stats).not.toBe(liveUnits[0].stats);
       expect(units[0].mana).toEqual(liveUnits[0].mana);
       expect(units[0].mana).not.toBe(liveUnits[0].mana);
-      expect(units[0].equipment).toEqual(liveUnits[0].equipment);
+      expect(units[0].equipment).toEqual(snapshotEquipment(liveUnits[0].equipment));
       expect(units[0].equipment).not.toBe(liveUnits[0].equipment);
-      expect(units[0].inventory).toEqual(liveUnits[0].inventory);
+      expect(units[0].inventory).toEqual(snapshotInventory(liveUnits[0].inventory));
       expect(units[0].inventory).not.toBe(liveUnits[0].inventory);
       expect(units[0].actions).toEqual(liveUnits[0].actions);
       expect(units[0].actions).not.toBe(liveUnits[0].actions);
@@ -861,8 +942,8 @@ describe('snapshot profundo y RNG de combate', () => {
     expect(fresh.rng).toEqual(liveRng);
     expect(fresh.players[0].stats).toEqual(liveStats);
     expect(fresh.players[0].mana).toEqual(liveMana);
-    expect(fresh.players[0].equipment).toEqual(liveEquipment);
-    expect(fresh.players[0].inventory).toEqual(liveInventory);
+    expect(fresh.players[0].equipment).toEqual(snapshotEquipment(liveEquipment));
+    expect(fresh.players[0].inventory).toEqual(snapshotInventory(liveInventory));
     expect(fresh.players[0].actions).toEqual(liveActions);
   });
 

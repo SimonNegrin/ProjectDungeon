@@ -170,6 +170,7 @@ function panelState(options: PanelScenarioOptions = {}): GameState {
     groundItems: (options.ground ?? []).map((itemId, index) => ({
       id: `item-test-ground-${index}`,
       itemId,
+      lootable: true,
       x: at.x,
       y: at.y,
     })),

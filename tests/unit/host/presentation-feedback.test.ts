@@ -295,8 +295,8 @@ describe('estado visible retrasado hasta su cue', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
-              { id: 'item-player-1-backpack-axe', itemId: 'axe' },
+              { id: 'item-player-1-backpack-sword', itemId: 'sword', lootable: true },
+              { id: 'item-player-1-backpack-axe', itemId: 'axe', lootable: true },
               null,
               null,
               null,
@@ -480,8 +480,8 @@ describe('eventos de presentación del host', () => {
           inventory: {
             capacity: 8,
             items: [
-              { id: 'item-player-1-backpack-sword', itemId: 'sword' },
-              { id: 'item-player-1-backpack-axe', itemId: 'axe' },
+              { id: 'item-player-1-backpack-sword', itemId: 'sword', lootable: true },
+              { id: 'item-player-1-backpack-axe', itemId: 'axe', lootable: true },
               null,
               null,
               null,
