@@ -1,13 +1,15 @@
 import { createActions, hasAction } from './actions';
-import { isAlive } from './grid';
+import { isAlive, isGhost } from './grid';
 import {
   createInventory,
   dropItem,
   equipItem,
   equipmentFromLegacy,
+  inspectContainer,
   itemInstance,
   pickUpItem,
   unequipItem,
+  type InventoryCost,
   type InventorySource,
 } from './inventory';
 import { commitMove, validateMove } from './movement';
@@ -241,6 +243,14 @@ function commitPlayerStep(
   };
 }
 
+/**
+ * Opciones de movimiento de una unidad: el fantasma comparte casilla con los
+ * vivos y no los trata como bloqueo (REQ-021 R-003).
+ */
+function moveOptions(unit: Unit): { readonly ignoreUnits: true } | undefined {
+  return isGhost(unit) ? { ignoreUnits: true } : undefined;
+}
+
 function reduceMove(
   state: GameState,
   command: Extract<Command, { type: 'Move' }>,
@@ -253,14 +263,14 @@ function reduceMove(
   if (!unit) {
     return reject(state, command, 'unknown-unit');
   }
-  if (!isAlive(unit)) {
+  if (!isAlive(unit) && !isGhost(unit)) {
     return reject(state, command, 'dead-unit');
   }
   if (unit.mp < MOVE_COST) {
     return reject(state, command, 'no-mp');
   }
 
-  const validation = validateMove(state, unit, command.dx, command.dy);
+  const validation = validateMove(state, unit, command.dx, command.dy, moveOptions(unit));
   if (!validation.ok) {
     return reject(state, command, validation.reason);
   }
@@ -310,11 +320,11 @@ function executePathSteps(
   for (const step of steps) {
     const unit = current.players.find((candidate) => candidate.id === unitId);
     if (!unit) return { ok: false, reason: 'unknown-unit' };
-    if (!isAlive(unit)) return { ok: false, reason: 'dead-unit' };
+    if (!isAlive(unit) && !isGhost(unit)) return { ok: false, reason: 'dead-unit' };
 
     const dx = step.x - unit.x;
     const dy = step.y - unit.y;
-    const validation = validateMove(current, unit, dx, dy);
+    const validation = validateMove(current, unit, dx, dy, moveOptions(unit));
     if (!validation.ok) return { ok: false, reason: validation.reason };
 
     const result = commitPlayerStep(current, unit, dx, dy);
@@ -360,7 +370,7 @@ function reduceMoveTo(
   if (!unit) {
     return reject(state, command, 'unknown-unit');
   }
-  if (!isAlive(unit)) {
+  if (!isAlive(unit) && !isGhost(unit)) {
     return reject(state, command, 'dead-unit');
   }
 
@@ -489,11 +499,12 @@ function reduceCastSpell(
   return { state: next, events };
 }
 
-/** Valida fase y unidad viva; las operaciones de inventario cobran el MP. */
+/** Valida fase y unidad operativa; el fantasma solo entra donde se permite. */
 function inventoryUnit(
   state: GameState,
   command: Command,
   unitId: string,
+  allowGhost = false,
 ): { readonly ok: true; readonly unit: Unit } | { readonly ok: false; readonly result: ReduceResult } {
   if (state.phase !== 'player') {
     return { ok: false, result: reject(state, command, 'wrong-phase') };
@@ -502,7 +513,7 @@ function inventoryUnit(
   if (!unit) {
     return { ok: false, result: reject(state, command, 'unknown-unit') };
   }
-  if (!isAlive(unit)) {
+  if (!isAlive(unit) && !(allowGhost && isGhost(unit))) {
     return { ok: false, result: reject(state, command, 'dead-unit') };
   }
   return { ok: true, unit };
@@ -518,13 +529,20 @@ function reduceInventory(
   return { state: result.state, events: [] };
 }
 
+/** Los vivos pagan 1 MP; el fantasma paga su única acción (REQ-021/REQ-026). */
+function inventoryCostFor(unit: Unit): InventoryCost {
+  return isGhost(unit) ? 'action' : 'mp';
+}
+
 function reducePickUp(
   state: GameState,
   command: Extract<Command, { type: 'PickUp' }>,
 ): ReduceResult {
-  const checked = inventoryUnit(state, command, command.unitId);
+  const checked = inventoryUnit(state, command, command.unitId, true);
   if (!checked.ok) return checked.result;
-  return reduceInventory(state, command, () => pickUpItem(state, checked.unit.id));
+  return reduceInventory(state, command, () =>
+    pickUpItem(state, checked.unit.id, inventoryCostFor(checked.unit)),
+  );
 }
 
 function reduceEquipItem(
@@ -562,13 +580,15 @@ function reduceDropItem(
   state: GameState,
   command: Extract<Command, { type: 'DropItem' }>,
 ): ReduceResult {
-  const checked = inventoryUnit(state, command, command.unitId);
+  const checked = inventoryUnit(state, command, command.unitId, true);
   if (!checked.ok) return checked.result;
   const source =
     command.from === 'backpack'
       ? { kind: 'backpack' as const, index: command.index }
       : { kind: 'slot' as const, slot: command.slot };
-  return reduceInventory(state, command, () => dropItem(state, checked.unit.id, source));
+  return reduceInventory(state, command, () =>
+    dropItem(state, checked.unit.id, source, inventoryCostFor(checked.unit)),
+  );
 }
 
 /** Puente hasta TASK-0095: `1`-`3` equipan los tres primeros huecos. */
@@ -584,6 +604,45 @@ function reduceSelectWeapon(
   return reduceInventory(state, command, () =>
     equipItem(state, checked.unit.id, { kind: 'backpack', index: command.slot - 1 }),
   );
+}
+
+/**
+ * `InspectContainer` (REQ-021 R-006/T-005): solo fantasmas en fase de jugador.
+ * Devuelve el contenido seguro sin abrir, sin mutar el estado, sin gastar
+ * acción ni MP y sin revelar trampa.
+ */
+function reduceInspectContainer(
+  state: GameState,
+  command: Extract<Command, { type: 'InspectContainer' }>,
+): ReduceResult {
+  if (state.phase !== 'player') {
+    return reject(state, command, 'wrong-phase');
+  }
+
+  const unit = state.players.find((player) => player.id === command.unitId);
+  if (!unit) {
+    return reject(state, command, 'unknown-unit');
+  }
+  if (!isGhost(unit)) {
+    return reject(state, command, 'not-ghost');
+  }
+
+  const inspection = inspectContainer(state, command.containerId);
+  if (!inspection) {
+    return reject(state, command, 'unknown-container');
+  }
+
+  return {
+    state,
+    events: [
+      {
+        type: 'ContainerInspected',
+        unitId: unit.id,
+        containerId: inspection.containerId,
+        items: inspection.items,
+      },
+    ],
+  };
 }
 
 /**
@@ -624,6 +683,8 @@ export function reduce(state: GameState, command: Command): ReduceResult {
       return reduceSelectWeapon(state, command);
     case 'CastSpell':
       return reduceCastSpell(state, command);
+    case 'InspectContainer':
+      return reduceInspectContainer(state, command);
     case 'EndTurn':
       if (state.phase !== 'player') {
         return reject(state, command, 'wrong-phase');

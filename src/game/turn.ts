@@ -1,7 +1,7 @@
 import { hasAction, restoreActions } from './actions';
 import { planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
-import { isAlive } from './grid';
+import { isAlive, isGhost } from './grid';
 import { restoreMana } from './mana';
 import { commitMove, validateMove } from './movement';
 import { refreshEnemyAwareness } from './perception';
@@ -40,7 +40,11 @@ export function applyTerminal(state: GameState, events: GameEvent[]): GameState 
   return { ...state, status };
 }
 
-/** Restaura MP, maná, acciones y cupo de hechizos al empezar el turno. */
+/**
+ * Restaura MP, maná, acciones y cupo de hechizos al empezar el turno. El
+ * fantasma también recibe sus recursos (REQ-021 R-002): su `maxMp` es el
+ * intrínseco y su `actions.max` ya vale una.
+ */
 function restoreTurnResources(unit: Unit): Unit {
   return {
     ...restoreActions(restoreMana({ ...unit, mp: unit.maxMp })),
@@ -53,7 +57,7 @@ export function restorePlayerTurn(state: GameState): GameState {
     ...state,
     phase: 'player',
     players: state.players.map((unit) =>
-      isAlive(unit) ? restoreTurnResources(unit) : unit,
+      isAlive(unit) || isGhost(unit) ? restoreTurnResources(unit) : unit,
     ),
   };
 }

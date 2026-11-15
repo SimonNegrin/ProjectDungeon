@@ -278,6 +278,9 @@ function eventLabel(event: GameEvent): string {
       return `${event.unitId} huye`;
     case 'EnemyReturned':
       return `${event.unitId} vuelve a su puesto`;
+    case 'ContainerInspected':
+      // Overlay de debug: el contenido seguro, nunca trampa ni apertura.
+      return `${event.unitId} inspecciona ${event.containerId} (${event.items.length} objetos)`;
     case 'CommandRejected':
       return `${event.commandType} rechazado: ${event.reason}`;
   }

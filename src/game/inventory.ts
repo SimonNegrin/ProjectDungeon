@@ -18,6 +18,7 @@ import {
   type ItemDefinition,
   type ItemId,
 } from './equipment';
+import { hasAction, spendAction } from './actions';
 import type { GameState, RejectionReason, Unit } from './types';
 
 /** Instancia de un objeto del catálogo con ID estable y único. */
@@ -82,6 +83,12 @@ export const DEFAULT_BACKPACK_CAPACITY = 8;
 
 /** Coste en MP de recoger, equipar, desequipar o soltar (REQ-018 R-012/R-013). */
 export const INVENTORY_OPERATION_COST = 1;
+
+/**
+ * Recurso que paga una operación de inventario. Los vivos pagan 1 MP; el
+ * fantasma paga una acción y 0 MP (REQ-021 R-002/R-005, REQ-026 R-010).
+ */
+export type InventoryCost = 'mp' | 'action';
 
 export type InventorySource =
   | { readonly kind: 'backpack'; readonly index: number }
@@ -276,23 +283,45 @@ function spendMp(unit: Unit): Unit | null {
   return { ...unit, mp: unit.mp - INVENTORY_OPERATION_COST };
 }
 
+/**
+ * Paga el coste explícito de una operación. `mp` es el modo de los vivos y
+ * `action` el del fantasma: ni gasta MP ni puede operar sin su única acción.
+ */
+function payInventoryCost(
+  unit: Unit,
+  cost: InventoryCost,
+): { readonly unit: Unit } | { readonly reason: RejectionReason } {
+  if (cost === 'action') {
+    if (!hasAction(unit)) return { reason: 'no-action' };
+    return { unit: spendAction(unit) };
+  }
+  const paid = spendMp(unit);
+  return paid ? { unit: paid } : { reason: 'no-mp' };
+}
+
 function groundWithout(state: GameState, instance: string): readonly GroundItem[] {
   return groundItems(state).filter((item) => item.id !== instance);
 }
 
 /**
  * Recoger (suelo → mochila). Sin auto-equipar. Con la mochila llena se rechaza
- * sin tocar suelo ni mochila (REQ-026 R-010, REQ-018 R-013).
+ * sin tocar suelo ni mochila (REQ-026 R-010, REQ-018 R-013). El modo de coste
+ * es explícito: `mp` para vivos y `action` para el fantasma.
  */
-export function pickUpItem(state: GameState, unitId: string): InventoryResult {
+export function pickUpItem(
+  state: GameState,
+  unitId: string,
+  cost: InventoryCost = 'mp',
+): InventoryResult {
   const unit = state.players.find((candidate) => candidate.id === unitId);
   if (!unit) return fail('unknown-unit');
 
   const ground = groundItemAt(state, unit.x, unit.y);
   if (!ground) return fail('no-item');
 
-  const nextUnit = spendMp(unit);
-  if (!nextUnit) return fail('no-mp');
+  const charged = payInventoryCost(unit, cost);
+  if ('reason' in charged) return fail(charged.reason);
+  const nextUnit = charged.unit;
 
   const inventory = withBackpackItem(
     nextUnit.inventory,
@@ -469,6 +498,7 @@ export function dropItem(
   state: GameState,
   unitId: string,
   source: DropSource,
+  cost: InventoryCost = 'mp',
 ): InventoryResult {
   const unit = state.players.find((candidate) => candidate.id === unitId);
   if (!unit) return fail('unknown-unit');
@@ -495,8 +525,8 @@ export function dropItem(
     equipment = { ...unit.equipment, [source.slot]: null };
   }
 
-  const nextUnit = spendMp(unit);
-  if (!nextUnit) return fail('no-mp');
+  const nextUnit = payInventoryCost(unit, cost);
+  if ('reason' in nextUnit) return fail(nextUnit.reason);
 
   return {
     ok: true,
@@ -512,8 +542,41 @@ export function dropItem(
           },
         ],
       },
-      { ...nextUnit, inventory, equipment },
+      { ...nextUnit.unit, inventory, equipment },
     ),
+  };
+}
+
+/** Contenido seguro de una inspección: identidad, catálogo y saqueabilidad. */
+export interface InspectedItem {
+  readonly id: string;
+  readonly itemId: ItemId;
+  readonly lootable: boolean;
+}
+
+/** Resultado puro de inspeccionar un contenedor sin abrirlo. */
+export interface ContainerInspection {
+  readonly containerId: string;
+  readonly items: readonly InspectedItem[];
+}
+
+/**
+ * Contenido visible de un contenedor (REQ-021 R-006/T-005). Devuelve solo
+ * identidad, catálogo y saqueabilidad de cada instancia: nunca `kind`,
+ * `capacity`, `corpseOf`, posición, trampa ni apertura. No muta el estado.
+ */
+export function inspectContainer(
+  state: GameState,
+  containerId: string,
+): ContainerInspection | null {
+  const container = containerById(state, containerId);
+  if (!container) return null;
+
+  return {
+    containerId: container.id,
+    items: container.items
+      .filter((item): item is ItemInstance => item !== null)
+      .map(({ id, itemId, lootable }) => ({ id, itemId, lootable })),
   };
 }
 

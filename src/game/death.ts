@@ -4,14 +4,16 @@
  * `hp === 0` sigue siendo la única señal de unidad muerta: no se añade un
  * estado paralelo ni se crea una lista de unidades muertas. Al morir un jugador,
  * su equipo y su mochila pasan sin tirada ni filtro a un `Container` de cadáver
- * en su casilla; la unidad permanece en `players` con su identidad y sin
- * objetos, lista para la resurrección (TASK-0148).
+ * en su casilla; la unidad permanece en `players` con su identidad, sin
+ * objetos y marcada como fantasma controlable, lista para moverse y para la
+ * resurrección (TASK-0148).
  *
  * Es puro: no conoce DOM, host, red ni relojes, y no lee ni avanza `state.rng`.
  * Los enemigos no generan cadáver en este corte (TASK-0133).
  */
 
 import { EQUIPMENT_SLOTS } from './equipment';
+import { GHOST_ACTIONS } from './actions';
 import { isAlive } from './grid';
 import {
   createInventory,
@@ -45,18 +47,20 @@ function transferableItems(unit: Unit): readonly ItemInstance[] {
 
 /**
  * Asienta la muerte de un jugador: crea su cadáver, vacía equipo y mochila y
- * conserva identidad, posición y stats. Idempotente: si ya existe un contenedor
- * con `corpseOf === unitId` no cambia nada. Un enemigo, una unidad viva o un id
- * desconocido devuelven el estado tal cual.
+ * conserva identidad, posición y stats. El muerto pasa a fantasma controlable
+ * (REQ-021 T-002): `ghost: true`, una acción y su MP sin regalar. Idempotente:
+ * repetir sobre el mismo fantasma devuelve el estado tal cual. Un enemigo, una
+ * unidad viva o un id desconocido devuelven el estado tal cual.
  */
 export function settleUnitDeath(state: GameState, unitId: string): GameState {
   const unit = state.players.find((candidate) => candidate.id === unitId);
   if (!unit || isAlive(unit)) return state;
 
   const containers = state.containers ?? [];
-  if (containers.some((container) => container.corpseOf === unitId)) return state;
+  const hasCorpse = containers.some((container) => container.corpseOf === unitId);
+  if (hasCorpse && unit.ghost === true) return state;
 
-  const items = transferableItems(unit);
+  const items = hasCorpse ? [] : transferableItems(unit);
   const corpse: Container = {
     id: corpseId(unit.id),
     x: unit.x,
@@ -67,9 +71,14 @@ export function settleUnitDeath(state: GameState, unitId: string): GameState {
     corpseOf: unit.id,
   };
 
-  const emptied: Unit = {
+  const ghost: Unit = {
     ...unit,
     hp: 0,
+    ghost: true,
+    actions: {
+      max: GHOST_ACTIONS,
+      remaining: Math.min(unit.actions.remaining, GHOST_ACTIONS),
+    },
     equipment: emptyEquipment(),
     inventory: createInventory(unit.inventory.capacity),
   };
@@ -77,8 +86,8 @@ export function settleUnitDeath(state: GameState, unitId: string): GameState {
   return {
     ...state,
     players: state.players.map((candidate) =>
-      candidate.id === unit.id ? emptied : candidate,
+      candidate.id === unit.id ? ghost : candidate,
     ),
-    containers: [...containers, corpse],
+    containers: hasCorpse ? containers : [...containers, corpse],
   };
 }
