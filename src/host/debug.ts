@@ -191,6 +191,8 @@ export interface GameSnapshot {
   readonly lastEvents: readonly GameEvent[];
   readonly cursor: CursorSnapshot;
   readonly animation: AnimationSnapshot;
+  /** Paneo de cámara activo; `false` sin paneo o si la fuente no lo informa. */
+  readonly panning: boolean;
 }
 
 export interface DispatchResult {
@@ -227,6 +229,8 @@ export interface DebugSnapshotSource {
   readonly lastEvents: readonly GameEvent[];
   readonly cursor: CursorStatus;
   readonly animation?: AnimationSnapshot;
+  /** Paneo de cámara activo; opcional para fuentes históricas (falso). */
+  readonly panning?: boolean;
 }
 
 function cloneInstance(
@@ -472,6 +476,7 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
       camera: { ...animation.camera },
       cues: animation.cues.map((cue) => ({ ...cue })),
     },
+    panning: source.panning === true,
   };
 }
 
