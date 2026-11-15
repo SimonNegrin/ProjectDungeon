@@ -78,6 +78,7 @@ import { buildPresentationEvents } from './presentation';
 import { renderScene, type SceneAssets } from './renderer';
 import { parseSeedParam, nextSeed } from './seed';
 import { GameSession, type StepResult } from './session';
+import { createStartScreenView, type StartScreenView } from './start-screen-view';
 import { trackSpottedUnits, reconcileSpottedUnits, untrackSpottedUnits } from './spot';
 import { createSpotMarkerView } from './spot-view';
 import { createViewportVisibility } from './visibility';
@@ -307,6 +308,19 @@ async function boot(): Promise<void> {
   /** El hook de setup solo se publica en la URL de test; juego normal no cambia. */
   const testSetupEnabled =
     new URLSearchParams(window.location.search).get('test') === '1';
+
+  /**
+   * Primera pantalla en juego normal (REQ-016). Con `?test=1` no se monta y el
+   * host arranca como antes. Los puntos de extensión quedan no-op: la partida
+   * no empieza y «Cargar» no abre selector en esta tarea.
+   */
+  const startScreenView: StartScreenView | null = testSetupEnabled
+    ? null
+    : createStartScreenView(frame, {
+        search: window.location.search,
+        onContinue: () => {},
+        onLoadRequested: () => {},
+      });
 
   const prefersReducedMotion =
     typeof window.matchMedia === 'function' &&
@@ -1072,6 +1086,8 @@ async function boot(): Promise<void> {
   }
 
   window.addEventListener('keydown', (event) => {
+    // La pantalla de inicio consume sus teclas; el mapa y F1 no se interpretan.
+    if (startScreenView?.isActive()) return;
     if (isEditableTarget(event.target)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
 

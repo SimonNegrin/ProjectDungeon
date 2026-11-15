@@ -1285,3 +1285,117 @@
       }
       footer a:hover,
       footer a:focus-visible { color: var(--ui-accent); }
+      /* Pantalla de inicio (REQ-016): menú principal y paso 1. Es opaca para
+         tapar el HUD y el canvas mientras está activa. */
+      .start-screen {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        display: grid;
+        place-items: center;
+        padding: calc(var(--ui-unit) * 16);
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font-size: var(--ui-body);
+      }
+      .start-screen[hidden],
+      .start-screen [hidden] {
+        display: none;
+      }
+      .start-screen-panel {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 440);
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 12);
+        padding: calc(var(--ui-unit) * 18) calc(var(--ui-unit) * 20);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }
+      .start-menu,
+      .start-step,
+      .start-cancel-body {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 10);
+      }
+      .start-title {
+        margin: 0;
+        color: var(--ui-accent);
+        font-size: var(--ui-title);
+      }
+      .start-lead,
+      .start-help,
+      .start-status {
+        margin: 0;
+        font-size: var(--ui-body);
+      }
+      .start-help {
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+      }
+      .start-status {
+        min-height: var(--ui-body);
+        color: var(--ui-accent);
+      }
+      .start-field {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 4);
+      }
+      .start-label {
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+      }
+      .start-control {
+        width: 100%;
+        padding: calc(var(--ui-unit) * 6) calc(var(--ui-unit) * 8);
+        background: var(--ui-bg);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+      }
+      .start-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--ui-unit) * 8);
+      }
+      .start-button {
+        padding: calc(var(--ui-unit) * 8) calc(var(--ui-unit) * 16);
+        background: var(--ui-raised);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .start-button:hover,
+      .start-button:focus-visible {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .start-button:focus-visible,
+      .start-control:focus-visible {
+        outline: var(--ui-line) solid var(--ui-focus);
+        outline-offset: 0;
+      }
+      .start-error {
+        margin: 0;
+        color: var(--ui-danger);
+        font-size: var(--ui-body);
+      }
+      .start-cancel-dialog {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: calc(var(--ui-unit) * 16);
+        background: var(--ui-bg);
+      }
+      .start-cancel-body {
+        width: 100%;
+        max-width: calc(var(--ui-unit) * 360);
+        padding: calc(var(--ui-unit) * 18) calc(var(--ui-unit) * 20);
+        background: var(--ui-panel);
+        color: var(--ui-muted);
+      }

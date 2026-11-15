@@ -352,6 +352,148 @@
               <h2>Debug · F1</h2>
               <pre data-testid="debug-content"></pre>
             </aside>
+
+            <section
+              class="start-screen"
+              data-testid="start-screen"
+              aria-label="Pantalla de inicio"
+              hidden
+            >
+              <div class="start-screen-panel ui-outset">
+                <section
+                  class="start-menu"
+                  data-testid="start-menu"
+                  aria-labelledby="start-title"
+                >
+                  <h1 class="start-title" id="start-title">ProyectDungeon</h1>
+                  <p class="start-lead">Elige cómo empezar la partida.</p>
+                  <div class="start-actions">
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="start-new"
+                    >
+                      Nueva
+                    </button>
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="start-load"
+                    >
+                      Cargar
+                    </button>
+                  </div>
+                </section>
+
+                <section
+                  class="start-step"
+                  data-testid="start-step1"
+                  aria-labelledby="start-step1-title"
+                  hidden
+                >
+                  <h2 class="start-title" id="start-step1-title">Nueva partida</h2>
+                  <div class="start-field">
+                    <label class="start-label" for="start-players">Jugadores</label>
+                    <select
+                      id="start-players"
+                      class="start-control ui-inset"
+                      data-testid="step1-players"
+                    >
+                      <option value="1" selected>1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                      <option value="5">5</option>
+                      <option value="6">6</option>
+                    </select>
+                  </div>
+                  <div class="start-field">
+                    <label class="start-label" for="start-seed">Semilla</label>
+                    <input
+                      id="start-seed"
+                      class="start-control ui-inset"
+                      data-testid="step1-seed"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="off"
+                      spellcheck="false"
+                      aria-describedby="start-seed-help step1-error"
+                    />
+                    <p class="start-help" id="start-seed-help">
+                      Entero decimal de 32 bits; vacío genera una nueva.
+                    </p>
+                  </div>
+                  <p
+                    class="start-error"
+                    data-testid="step1-error"
+                    id="step1-error"
+                    role="alert"
+                    hidden
+                  ></p>
+                  <div class="start-actions">
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="step1-continue"
+                    >
+                      Continuar
+                    </button>
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="step1-cancel"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </section>
+
+                <p
+                  class="start-status"
+                  data-testid="start-status"
+                  role="status"
+                  aria-live="polite"
+                ></p>
+              </div>
+
+              <div
+                class="start-cancel-dialog"
+                data-testid="start-cancel-dialog"
+                hidden
+              >
+                <section
+                  class="start-cancel-body ui-outset"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="start-cancel-title"
+                  aria-describedby="start-cancel-text"
+                >
+                  <h2 class="start-title" id="start-cancel-title">
+                    ¿Cancelar la configuración?
+                  </h2>
+                  <p class="start-lead" id="start-cancel-text">
+                    Se descartarán el número de jugadores y la semilla. Volverás al menú
+                    principal.
+                  </p>
+                  <div class="start-actions">
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="start-cancel-confirm"
+                    >
+                      Sí, cancelar
+                    </button>
+                    <button
+                      type="button"
+                      class="start-button ui-outset"
+                      data-testid="start-cancel-dismiss"
+                    >
+                      Seguir configurando
+                    </button>
+                  </div>
+                </section>
+              </div>
+            </section>
           </div>
         </div>
       </div>

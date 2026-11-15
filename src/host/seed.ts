@@ -5,6 +5,15 @@ export interface ParsedSeed {
   readonly warning?: string;
 }
 
+/**
+ * Resultado de parsear un texto de semilla escrito por el usuario. El caso
+ * inválido conserva el aviso para que el host lo muestre; el válido solo
+ * expone la semilla normalizada.
+ */
+export type ParsedSeedText =
+  | { readonly valid: true; readonly seed: number }
+  | { readonly valid: false; readonly seed: number; readonly warning: string };
+
 const SEED_PATTERN = /^[+-]?\d+$/;
 const UINT32_RANGE = 0x1_0000_0000;
 
@@ -35,6 +44,42 @@ function readSeedQuery(search: string): SeedQuery {
 }
 
 /**
+ * Devuelve el valor crudo de `?seed` o `null` si el parámetro no está. Frente a
+ * un booleano de presencia, permite construir un aviso que nombre el valor
+ * ignorado sin reutilizar el texto del parser.
+ */
+export function readSeedParam(search: string): string | null {
+  const query = readSeedQuery(search);
+  return query.present ? query.value : null;
+}
+
+/**
+ * Parsea un texto de semilla con el criterio del host: entero decimal con signo
+ * opcional, finito y normalizado a 32 bits sin signo. Es la pieza compartida
+ * entre `?seed=` y el campo editable del paso 1.
+ */
+export function parseSeedText(raw: string): ParsedSeedText {
+  if (!SEED_PATTERN.test(raw)) {
+    return {
+      valid: false,
+      seed: DEFAULT_MAP_SEED,
+      warning: `Semilla inválida "${raw}"; se usa la semilla por defecto ${DEFAULT_MAP_SEED}.`,
+    };
+  }
+
+  const value = Number(raw);
+  if (!Number.isFinite(value)) {
+    return {
+      valid: false,
+      seed: DEFAULT_MAP_SEED,
+      warning: `Semilla fuera de rango "${raw}"; se usa la semilla por defecto ${DEFAULT_MAP_SEED}.`,
+    };
+  }
+
+  return { valid: true, seed: normalizeSeed(value) };
+}
+
+/**
  * Semilla de la partida a partir de `window.location.search`.
  *
  * - Sin `?seed` usa la semilla por defecto documentada.
@@ -46,23 +91,10 @@ export function parseSeedParam(search: string): ParsedSeed {
   const query = readSeedQuery(search);
   if (!query.present) return { seed: DEFAULT_MAP_SEED };
 
-  const raw = query.value;
-  if (!SEED_PATTERN.test(raw)) {
-    return {
-      seed: DEFAULT_MAP_SEED,
-      warning: `Semilla inválida "${raw}"; se usa la semilla por defecto ${DEFAULT_MAP_SEED}.`,
-    };
-  }
-
-  const value = Number(raw);
-  if (!Number.isFinite(value)) {
-    return {
-      seed: DEFAULT_MAP_SEED,
-      warning: `Semilla fuera de rango "${raw}"; se usa la semilla por defecto ${DEFAULT_MAP_SEED}.`,
-    };
-  }
-
-  return { seed: normalizeSeed(value) };
+  const parsed = parseSeedText(query.value);
+  return parsed.valid
+    ? { seed: parsed.seed }
+    : { seed: parsed.seed, warning: parsed.warning };
 }
 
 function defaultRandom(): number {

@@ -17,7 +17,11 @@ const PLAYTEST_SEED = 2738263054;
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
-async function open(page: Page, seed: number, testMode = false): Promise<GameSnapshot> {
+/**
+ * Los E2E de render abren el host con `?test=1`: la pantalla de inicio de
+ * REQ-016 se monta solo en juego normal y estas pruebas necesitan el mapa y F1.
+ */
+async function open(page: Page, seed: number, testMode = true): Promise<GameSnapshot> {
   await page.goto(`/?seed=${seed}${testMode ? '&test=1' : ''}`);
   await page.waitForFunction(
     () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,

@@ -1,0 +1,4 @@
+5043e51 feat(TASK-0123): añade el modelo del menú principal y del paso 1
+2fe3f67 feat(TASK-0123): monta el menú y el paso 1 en el host
+fd51b00 test(TASK-0123): cubre menú, semilla, N y cancelación
+b2212c1 fix(TASK-0123): corrige el aviso visible de ?seed inválido
