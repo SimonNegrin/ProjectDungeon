@@ -1,6 +1,5 @@
 import { EQUIPMENT_SLOTS, ITEMS, type ItemSpriteRect } from '../game/equipment';
 import { backpackCount, type ItemInstance } from '../game/inventory';
-import type { ArchetypeId } from '../game/roster';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { alarmRadius, visionRadius } from '../game/perception';
 import { effectiveStats } from '../game/stats';
@@ -11,6 +10,7 @@ import {
   type Door,
   type Room,
 } from '../game/map';
+import { variantCellFor } from './archetype-sheet';
 import type { Camera, CameraBounds } from './camera';
 import type { SpriteRect } from './assets';
 import type { CursorState, CursorStatus } from './cursor';
@@ -54,24 +54,6 @@ export interface HudWeapon {
   /** Recorte de `items.png`, el mismo que usa el panel de inventario. */
   readonly sprite: ItemSpriteRect;
 }
-
-/**
- * Recorte de `rogues.png` de la miniatura del HUD: celda de 32×32 sobre la
- * rejilla de 7×7. La hoja se pinta a 448 px lógicos (2× el arte), así que la
- * vista duplica la posición del recorte. Solo lectura: el catálogo del roster
- * decide el arquetipo y el host su sprite.
- */
-export const PORTRAIT_RECTS: Readonly<Record<ArchetypeId, SpriteRect>> = {
-  warrior: { sx: 0, sy: 32, sw: 32, sh: 32 },
-  barbarian: { sx: 0, sy: 96, sw: 32, sh: 32 },
-  rogue: { sx: 96, sy: 0, sw: 32, sh: 32 },
-  archer: { sx: 64, sy: 0, sw: 32, sh: 32 },
-  mage: { sx: 32, sy: 128, sw: 32, sh: 32 },
-  cleric: { sx: 96, sy: 64, sw: 32, sh: 32 },
-  spellblade: { sx: 96, sy: 96, sw: 32, sh: 32 },
-  cook: { sx: 96, sy: 160, sw: 32, sh: 32 },
-  farmer: { sx: 0, sy: 160, sw: 32, sh: 32 },
-};
 
 export interface HudModel {
   /** Nombre de instancia del jugador. */
@@ -192,11 +174,13 @@ function hudWeapon(unit: Unit | undefined): HudWeapon | null {
   };
 }
 
-/** Recorte de la miniatura derivado del arquetipo; `null` sin jugador o sin mapa. */
+/**
+ * Recorte de la miniatura: la misma celda que usa el mapa para el jugador
+ * activo. `null` sin jugador, sin arquetipo o con uno desconocido.
+ */
 function portraitRect(player: Unit | undefined): SpriteRect | null {
-  const id = player?.archetypeId;
-  if (!id) return null;
-  return PORTRAIT_RECTS[id] ?? null;
+  if (!player) return null;
+  return variantCellFor(player.archetypeId, player.variant);
 }
 
 /** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
