@@ -175,7 +175,21 @@ test('TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final', asy
   // El banner de 700 ms sigue visible tras el beat de 350 ms.
   expect(finished.bannerVisible).toBe(true);
   expect(finished.bannerText).toBe('TU TURNO');
-  expect((await snapshot(page)).turn).toBe(2);
+  const beforeKey = await snapshot(page);
+  expect(beforeKey.turn).toBe(2);
+
+  // El aviso de ronda es presentación: con el banner aún visible y la
+  // animación terminada, el input no está bloqueado. Sin esperas de reloj real.
+  await page.keyboard.press('ArrowRight');
+  const afterKey = await snapshot(page);
+  expect(afterKey.cursor).toMatchObject({
+    x: beforeKey.cursor.x + 1,
+    y: beforeKey.cursor.y,
+  });
+  await expect(page.getByTestId('feedback-banner')).toBeVisible();
+  await expect(page.getByTestId('feedback-banner')).toHaveText('TU TURNO');
+  expect((await snapshot(page)).animation.animating).toBe(false);
+  await screenshot(page, 'turno-jugador-aviso-no-bloquea', testInfo);
 });
 
 test('TASK-0061: advance(ms) consume la marca de huida ya creada', async ({

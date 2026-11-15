@@ -340,7 +340,7 @@ describe('selección de hechizos con teclado', () => {
     return { open, index, selectedId };
   }
 
-  it('Q abre y cierra la lista; exige fase de jugador y jugador activo', () => {
+  it('Q abre y cierra la lista; exige fase de jugador y jugador activo vivo', () => {
     expect(translateKey({ key: 'q' }, state, cursor)).toEqual({
       type: 'spell-menu-toggle',
     });
@@ -351,9 +351,22 @@ describe('selección de hechizos con teclado', () => {
     expect(
       translateKey({ key: 'q' }, { ...state, activePlayerId: null }, cursor),
     ).toEqual({ type: 'ignored', reason: 'no-active-player' });
+    // El cadáver del activo tampoco abre la lista: el motor rechaza su tirada.
+    expect(
+      translateKey(
+        { key: 'q' },
+        {
+          ...state,
+          players: [
+            makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 }),
+          ],
+        },
+        cursor,
+      ),
+    ).toEqual({ type: 'ignored', reason: 'no-active-player' });
   });
 
-  it('el fantasma activo puede abrir la lista de hechizos', () => {
+  it('el fantasma activo no abre la lista de hechizos, igual que el panel', () => {
     const ghostActive = {
       ...state,
       players: [
@@ -369,7 +382,8 @@ describe('selección de hechizos con teclado', () => {
     };
 
     expect(translateKey({ key: 'q' }, ghostActive, cursor)).toEqual({
-      type: 'spell-menu-toggle',
+      type: 'ignored',
+      reason: 'no-active-player',
     });
   });
 
@@ -550,6 +564,10 @@ describe('comandos del jugador activo', () => {
     expect(translate('d', ghostActive)).toEqual({ type: 'cursor', dx: 1, dy: 0 });
     expectCommand(translate('n', ghostActive), { type: 'EndTurn' });
     expect(translate('i', ghostActive)).toEqual({
+      type: 'ignored',
+      reason: 'no-active-player',
+    });
+    expect(translate('q', ghostActive)).toEqual({
       type: 'ignored',
       reason: 'no-active-player',
     });

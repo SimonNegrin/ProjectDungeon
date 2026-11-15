@@ -87,6 +87,58 @@ describe('sesión de juego', () => {
     });
   });
 
+  it('N con dos jugadores releva al segundo sin fase enemiga y solo el segundo cierra la ronda', () => {
+    const initial = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 7, y: 4 }),
+      ],
+      enemies: [],
+      activePlayerId: 'player-1',
+    });
+    const session = new GameSession(initial);
+
+    const first = session.dispatch(commandFromKey('n', session, { x: 4, y: 4 }));
+    const firstTypes = first.events.map((event) => event.type);
+
+    expect(firstTypes).toEqual(['TurnEnded', 'PlayerTurnStarted']);
+    expect(firstTypes).not.toContain('EnemyPhaseStarted');
+    expect(session.state.activePlayerId).toBe('player-2');
+    expect(session.state.round).toBe(1);
+    expect(session.state.phase).toBe('player');
+
+    const second = session.dispatch(commandFromKey('n', session, { x: 7, y: 4 }));
+    const secondTypes = second.events.map((event) => event.type);
+
+    expect(secondTypes).toContain('EnemyPhaseStarted');
+    expect(second.events.at(-1)).toEqual({ type: 'PlayerTurnStarted', turn: 2 });
+    expect(session.state.activePlayerId).toBe('player-1');
+    expect(session.state.round).toBe(2);
+    expect(session.state.phase).toBe('player');
+  });
+
+  it('EndTurn de un jugador no activo se rechaza sin mutar el estado', () => {
+    const session = new GameSession(
+      makeState({
+        players: [
+          makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
+          makeUnit({ id: 'player-2', faction: 'player', x: 7, y: 4 }),
+        ],
+        activePlayerId: 'player-1',
+      }),
+    );
+    const before = session.state;
+
+    const result = session.dispatch({ type: 'EndTurn', unitId: 'player-2' });
+
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EndTurn', reason: 'not-active' },
+    ]);
+    expect(result.state).toBe(before);
+    expect(session.state).toBe(before);
+    expect(session.state.activePlayerId).toBe('player-1');
+  });
+
   it('un ataque con F actualiza la vida y emite AttackPerformed', () => {
     const initial = adjacentState(rngForDice([6, 1, 2, 1]));
     const session = new GameSession(initial);

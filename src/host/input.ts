@@ -126,8 +126,9 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
  * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
- * - `Q` abre/cierra la lista de hechizos; con la lista abierta `↑/↓` o `W/S`
- *   navegan, `1`-`6` eligen, `Enter` lanza contra el cursor y `Esc` cierra.
+ * - `Q` abre/cierra la lista de hechizos con el activo vivo; con la lista
+ *   abierta `↑/↓` o `W/S` navegan, `1`-`6` eligen, `Enter` lanza contra el
+ *   cursor y `Esc` cierra.
  * - Cerrada, `X` lanza el hechizo seleccionado.
  * - `Esc` abre la pausa salvo que el panel o la lista de hechizos estén
  *   abiertos, en cuyo caso los cierra (REQ-024 R-001/R-002).
@@ -181,7 +182,9 @@ export function translateKey(
 
   if (key === 'q') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    if (!activePlayer(state)) return ignored('no-active-player');
+    // El motor rechaza lanzar con un muerto: abrir la lista al fantasma sería
+    // una lista inútil. Igual que el panel, exige activo vivo.
+    if (!activePlayerCanOpenPanel(state)) return ignored('no-active-player');
     return { type: 'spell-menu-toggle' };
   }
 
