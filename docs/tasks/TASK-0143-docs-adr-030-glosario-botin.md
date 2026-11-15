@@ -4,7 +4,7 @@ id: TASK-0143
 title: "Docs: ADR-030 y glosario de botín"
 description: "Registrar ADR-030 del modelo de saqueabilidad y RNG derivado, y actualizar glosario y alcance con cadáver condicionado y saqueo sin coste."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-034
 requirement_ids: [T-012]
