@@ -1,2 +1,5 @@
+0ea6c4d fix(TASK-0135): resuelve la visibilidad del cadáver por contenedor
+d049316 docs(TASK-0135): actualiza informe, salidas y capturas del intento 1
 e42346d feat(TASK-0135): dibuja cadáveres desde contenedores con pila
 b4f09f7 docs(TASK-0135): adjunta informe, salidas y capturas del intento 1
+0a123ac docs(TASK-0135): registra los SHA del intento 1
