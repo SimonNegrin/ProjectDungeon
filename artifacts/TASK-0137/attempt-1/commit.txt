@@ -1,0 +1,2 @@
+501e623 feat(TASK-0137): añade contenedor zip de guardado
+5ceeddd test(TASK-0137): cubre zip determinista, límites y corrupción

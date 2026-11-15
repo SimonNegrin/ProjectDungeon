@@ -1,0 +1,45 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+stdout | tests/unit/host/save-zip.test.ts > writeSaveZip > genera un zip legible por unzip del sistema
+muestra.zip sha256=9cb03d36f8bc63af044d038265872edb9ae610bae21ba785313287a9c79e199e bytes=362
+
+ ✓ tests/unit/host/save-zip.test.ts > writeSaveZip > hace round-trip con acentos y saltos de línea 10ms
+ ✓ tests/unit/host/save-zip.test.ts > writeSaveZip > produce los mismos bytes para el mismo contenido 2ms
+ ✓ tests/unit/host/save-zip.test.ts > writeSaveZip > genera un zip legible por unzip del sistema 19ms
+ ✓ tests/unit/host/save-zip.test.ts > writeSaveZip > rechaza un archivo que supera 5 MB sin comprimir 2ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip > lee un zip store construido a mano 1ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip > lee un zip deflate construido fuera del escritor 1ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip > acepta bit 3 usando los tamaños del directorio central 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza un zip truncado 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza una firma local mala 1ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza una firma del directorio central mala 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza un directorio central fuera de rango 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza un CRC-32 erróneo 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza contenido que no es UTF-8 válido 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza un nombre local que no coincide con el central 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: corrupción > rechaza bytes extra después del EOCD 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza más de 4 entradas 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza una entrada extra 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza un nombre desconocido 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "carpeta/" como directory-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "a/b.json" como path-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "../x.json" como path-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "C:x.json" como path-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "a\\b.json" como path-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza el nombre "a\u0000b.json" como path-entry 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza una entrada duplicada 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza un zip al que le falta una entrada 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza un zip cifrado 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza un método de compresión no soportado 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: estructura > rechaza un zip con marca ZIP64 en el EOCD 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: límites > rechaza un archivo comprimido de más de 5 MB antes de parsear 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: límites > rechaza un archivo que declara más de 5 MB sin comprimir 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: límites > rechaza una suma declarada de más de 20 MB sin comprimir 0ms
+ ✓ tests/unit/host/save-zip.test.ts > readSaveZip: límites > aborta una bomba deflate que expande por encima de 5 MB 27ms
+
+ Test Files  1 passed (1)
+      Tests  33 passed (33)
+   Start at  00:04:03
+   Duration  225ms (tests 47%, transform 42%, import 9%, worker 2%)
+
