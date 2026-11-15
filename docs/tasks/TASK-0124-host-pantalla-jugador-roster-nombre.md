@@ -4,7 +4,7 @@ id: TASK-0124
 title: "Host: pantalla de jugador (roster, nombre, navegación)"
 description: "Implementar la configuración jugador a jugador con el roster de nueve arquetipos, dos variantes, nombre de 12 caracteres y navegación «Atrás»/«Siguiente» que conserva valores."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-005, R-007, R-008, R-011, T-005, T-006, T-007]
