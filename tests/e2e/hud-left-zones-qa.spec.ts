@@ -213,6 +213,13 @@ for (const viewport of VIEWPORTS) {
 
       // Personaje: sprite a la izquierda y datos alineados arriba.
       await expect(page.getByTestId('hud-player-name')).toHaveText('Ada');
+      // TASK-0151: N/M junto al nombre y anuncio accesible de activo y ronda.
+      await expect(page.getByTestId('hud-player-position')).toHaveText(
+        'Jugador 1 de 1',
+      );
+      await expect(page.getByTestId('hud-live')).toHaveText(
+        'Turno de Ada. Jugador 1 de 1. Ronda 1.',
+      );
       await expect(page.getByTestId('hud-archetype')).toHaveText('Guerrero');
       await expect(page.getByTestId('hud-condition')).toBeHidden();
 
@@ -328,6 +335,10 @@ for (const viewport of VIEWPORTS) {
       await openState(page, roomState([ghost, observer]));
 
       await expect(page.getByTestId('hud-player-name')).toHaveText('Eco');
+      // El fantasma conserva la numeración del orden de la party (TASK-0151).
+      await expect(page.getByTestId('hud-player-position')).toHaveText(
+        'Jugador 1 de 2',
+      );
       await expect(page.getByTestId('hud-condition')).toBeVisible();
       await expect(page.getByTestId('hud-condition')).toHaveText('Fantasma');
       await expect(page.getByTestId('hud-player-hp')).toHaveText(

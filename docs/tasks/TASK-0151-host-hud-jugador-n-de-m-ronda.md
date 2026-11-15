@@ -4,22 +4,31 @@ id: TASK-0151
 title: "Host/HUD: Jugador N de M, ficha activo y Ronda N"
 description: "Mostrar «Jugador N de M» junto al activo, su ficha completa en fase de personajes y el aviso transitorio «Ronda N» no bloqueante."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-006, R-025, T-008]
 depends_on: [TASK-0146, TASK-0150]
 unlocks: [TASK-0152, TASK-0154, TASK-0155, TASK-0159]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T22:40:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0151/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T22:40:00Z
+    note: >-
+      Intento 1 verificado (código `d526125`, tests `b43edcd`, evidencia
+      `aa2431a`). Diff limitado a host, HTML/CSS, tests y artefactos; sin motor,
+      requisitos, arnés, dependencias ni docs de diseño. `pnpm run verify`
+      reejecutado: docs 723, 107 archivos/1718 tests, config, tsc, build y bundle
+      OK. E2E por specs separadas: 60/60 en 12 specs. Criterios 1-7 cumplidos.
+      Evidencia en `attempt-1/report.md` y `lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -39,18 +48,18 @@ TASK-0152.
 
 # Criterios de aceptación
 
-- [ ] El HUD izquierdo muestra la ficha completa del activo en fase de
+- [x] El HUD izquierdo muestra la ficha completa del activo en fase de
       personajes, con «Jugador N de M» junto al nombre.
-- [ ] N es la posición en el orden y M el total; con un jugador se lee «Jugador
+- [x] N es la posición en el orden y M el total; con un jugador se lee «Jugador
       1 de 1».
-- [ ] Al empezar cada ronda de personajes aparece «Ronda N» en la parte superior
+- [x] Al empezar cada ronda de personajes aparece «Ronda N» en la parte superior
       durante 2 s por defecto, configurable.
-- [ ] El aviso no bloquea: se puede mover el cursor, actuar o abrir el panel
+- [x] El aviso no bloquea: se puede mover el cursor, actuar o abrir el panel
       mientras se desvanece.
-- [ ] El aviso no aparece al cargar una partida; la ronda se lee sin beat
+- [x] El aviso no aparece al cargar una partida; la ronda se lee sin beat
       pendiente.
-- [ ] `aria-live` anuncia activo y ronda sin depender solo del color.
-- [ ] Tests de N/M, cambio de activo, aviso no bloqueante, duración y ausencia al
+- [x] `aria-live` anuncia activo y ronda sin depender solo del color.
+- [x] Tests de N/M, cambio de activo, aviso no bloqueante, duración y ausencia al
       cargar; `pnpm run verify` pasa.
 
 # Plan de test
@@ -62,9 +71,9 @@ TASK-0152.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0151/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0151/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

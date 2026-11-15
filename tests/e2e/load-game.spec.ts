@@ -156,6 +156,9 @@ test('TASK-0141: el menú principal carga un .zip real sin confirmación', async
 
   // HUD reconstruido desde el estado y sin presentación pendiente.
   await expect(page.getByTestId('hud-player-name')).toHaveText('Ana');
+  await expect(page.getByTestId('hud-player-position')).toHaveText(
+    'Jugador 1 de 2',
+  );
   await expect(page.getByTestId('feedback-banner')).toBeHidden();
   await expect(page.getByTestId('hud-message')).toBeHidden();
   await screenshot(page, 'menu-zip-cargado', testInfo);
@@ -306,6 +309,13 @@ test('TASK-0141: la pausa confirma, carga el .zip y deja cámara y HUD en el act
 
   await expect(page.getByTestId('hud-player-name')).toHaveText('Bru');
   await expect(page.getByTestId('hud-player-hp')).toBeVisible();
+  // TASK-0151: la ronda se lee del estado, sin aviso ni beat pendiente.
+  await expect(page.getByTestId('hud-player-position')).toHaveText(
+    'Jugador 2 de 2',
+  );
+  await expect(page.getByTestId('hud-live')).toHaveText(
+    'Turno de Bru. Jugador 2 de 2. Ronda 2.',
+  );
   await expect(page.getByTestId('feedback-banner')).toBeHidden();
   await expect(page.getByTestId('hud-message')).toBeHidden();
   await screenshot(page, 'pausa-zip-cargado', testInfo);

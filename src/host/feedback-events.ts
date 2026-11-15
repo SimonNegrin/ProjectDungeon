@@ -6,8 +6,27 @@ import { activeCues, type FeedbackCue, type MotionTimeline } from './motion';
 /** Banner textual de un cue; vive en DOM y puede persistir más allá del beat. */
 export interface BannerFeedback {
   readonly text: string;
-  readonly kind: 'pickup' | 'select-weapon' | 'phase' | 'turn' | 'separator';
+  readonly kind:
+    | 'pickup'
+    | 'select-weapon'
+    | 'phase'
+    | 'turn'
+    | 'round'
+    | 'separator';
   readonly durationMs: number;
+}
+
+/**
+ * Aviso `Ronda N` al abrir una ronda de personajes (REQ-031 R-006). Es solo
+ * presentación: el host lo escribe en el banner y su persistencia va por el
+ * reloj de feedback, nunca por la timeline ni por el gate de input.
+ */
+export function roundBanner(round: number): BannerFeedback {
+  return {
+    text: `Ronda ${round}`,
+    kind: 'round',
+    durationMs: FEEDBACK_CONFIG.texts.roundBannerMs,
+  };
 }
 
 /**

@@ -231,6 +231,25 @@
         font-weight: 700;
         line-height: 1.2;
       }
+      .hud-player-position {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+        line-height: 1.35;
+      }
+      /* Región viva: anuncia activo y ronda sin ocupar espacio en la zona. */
+      .hud-live {
+        position: absolute;
+        width: var(--ui-line);
+        height: var(--ui-line);
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        clip-path: inset(50%);
+        color: var(--ui-text);
+        font-size: var(--ui-title);
+        white-space: nowrap;
+      }
       .hud-archetype,
       .hud-traits,
       .hud-hint {

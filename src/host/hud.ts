@@ -105,6 +105,10 @@ export interface HudModel {
   readonly cursorDetail: CursorDetail;
   /** Pista de recogida cuando el jugador ocupa un arma del mapa. */
   readonly weaponHint: string | null;
+  /** Posición 1-based del activo en la party, p. ej. `Jugador 2 de 3`; `—` sin activo. */
+  readonly playerPosition: string;
+  /** Anuncio accesible de activo y ronda; solo texto, no sustituye al banner. */
+  readonly turnAnnouncement: string;
   readonly keys: string;
   readonly overlays: {
     readonly victory: boolean;
@@ -200,6 +204,30 @@ function portraitRect(player: Unit | undefined): SpriteRect | null {
   return variantCellFor(player.archetypeId, player.variant);
 }
 
+/**
+ * Posición del activo en el orden de la party (REQ-031 R-025). Cuenta a todos
+ * los jugadores, incluidos muertos y fantasmas; sin activo válido no se inventa
+ * un número.
+ */
+function playerPositionLabel(state: GameState): string {
+  const index = activePlayerIndex(state);
+  if (index < 0) return '—';
+  return `Jugador ${index + 1} de ${state.players.length}`;
+}
+
+/**
+ * Texto de la región viva: activo y ronda en palabras, sin depender del color ni
+ * de la animación del banner (REQ-031 R-024 / T-008).
+ */
+function turnAnnouncementLabel(
+  state: GameState,
+  player: Unit | undefined,
+  position: string,
+): string {
+  if (!player) return `Sin jugador activo. Ronda ${state.round}.`;
+  return `Turno de ${player.nombre}. ${position}. Ronda ${state.round}.`;
+}
+
 /** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
 export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const player = activePlayer(state);
@@ -212,6 +240,7 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
   const cursorEnemyMagicVisible =
     cursorEnemy !== undefined &&
     (cursorEnemy.stats.magicLevel > 0 || cursorEnemy.mana.max > 0);
+  const playerPosition = playerPositionLabel(state);
 
   return {
     playerName: player?.nombre ?? '—',
@@ -240,6 +269,8 @@ export function buildHudModel(state: GameState, cursor?: Position): HudModel {
     weaponHint: groundItem
       ? `I panel · ${ITEMS[groundItem.itemId].name} en el suelo`
       : null,
+    playerPosition,
+    turnAnnouncement: turnAnnouncementLabel(state, player, playerPosition),
     keys: KEYS_HELP,
     overlays: {
       victory: state.status === 'victory',
@@ -711,6 +742,8 @@ function renderPortrait(
 /** Vista DOM del HUD y de los overlays de resultado. */
 export function createHudView(root: ParentNode): HudView {
   const playerName = requireElement(root, 'hud-player-name');
+  const playerPosition = requireElement(root, 'hud-player-position');
+  const liveRegion = requireElement(root, 'hud-live');
   const archetype = requireElement(root, 'hud-archetype');
   const portrait = requireElement(root, 'hud-portrait');
   const playerHp = requireElement(root, 'hud-player-hp');
@@ -760,6 +793,7 @@ export function createHudView(root: ParentNode): HudView {
 
   let lastDetailKey: string | null = null;
   let lastPanelKey: string | null = null;
+  let lastAnnouncement: string | null = null;
 
   const renderDetail = (value: CursorDetail): void => {
     const key = JSON.stringify(value);
@@ -838,6 +872,15 @@ export function createHudView(root: ParentNode): HudView {
     ): void {
       const model = buildHudModel(state, cursor);
       playerName.textContent = model.playerName;
+      playerPosition.textContent = model.playerPosition;
+      // La región viva se reescribe solo cuando cambia su contenido (activo,
+      // nombre, N/M o ronda): reanunciar el mismo texto en cada frame satura a
+      // los lectores de pantalla y, al cargar, dejaría datos de la partida
+      // anterior si se comparase solo el id.
+      if (model.turnAnnouncement !== lastAnnouncement) {
+        lastAnnouncement = model.turnAnnouncement;
+        liveRegion.textContent = model.turnAnnouncement;
+      }
       archetype.textContent = model.archetype;
       renderPortrait(portrait, model.portrait);
       playerHp.textContent = model.playerHp;

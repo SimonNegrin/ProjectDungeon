@@ -187,6 +187,14 @@ test.describe('pantalla en tres zonas', () => {
 
       await expect(page.getByTestId('hud-left')).toBeVisible();
       await expect(page.getByTestId('hud-right')).toBeVisible();
+      // TASK-0151: el HUD izquierdo numera al activo y la región viva lo anuncia.
+      await expect(page.getByTestId('hud-player-position')).toHaveText(
+        'Jugador 1 de 1',
+      );
+      await expect(page.getByTestId('hud-live')).toContainText(
+        'Jugador 1 de 1',
+      );
+      await expect(page.getByTestId('hud-live')).toContainText('Ronda 1');
       await screenshot(
         page,
         `tres-zonas-${viewport.width}x${viewport.height}`,
