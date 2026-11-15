@@ -16,7 +16,7 @@ import {
   reduce,
   type GameEvent,
 } from '../../../src/game/index';
-import type { GameState } from '../../../src/game/types';
+import type { GameState, Unit } from '../../../src/game/types';
 import type { ArchetypeId } from '../../../src/game/roster';
 import { buildDebugModel, buildHudModel, KEYS_HELP } from '../../../src/host/hud';
 import { buildInventoryPanelModel } from '../../../src/host/inventory-panel';
@@ -275,6 +275,61 @@ describe('modelo del HUD', () => {
     expect(
       buildHudModel(makeState({ players: [unknown] })).portrait,
     ).toBeNull();
+  });
+
+  it('usa la celda de la variante del jugador activo, no siempre la 1', () => {
+    const cases: ReadonlyArray<readonly [ArchetypeId, 1 | 2, number, number]> = [
+      ['warrior', 1, 0, 32],
+      ['warrior', 2, 64, 32],
+      ['rogue', 1, 96, 0],
+      ['rogue', 2, 128, 0],
+      ['mage', 1, 32, 128],
+      ['mage', 2, 0, 128],
+      ['farmer', 1, 0, 160],
+      ['farmer', 2, 0, 192],
+    ];
+
+    for (const [id, variant, sx, sy] of cases) {
+      const player = createPlayerFromArchetype(id, {
+        id: 'player-1',
+        position: { x: 4, y: 4 },
+        variant,
+      });
+      expect(
+        buildHudModel(makeState({ players: [player] })).portrait,
+        `${id} variante ${variant}`,
+      ).toEqual({ sx, sy, sw: 32, sh: 32 });
+    }
+  });
+
+  it('una variante ausente o inválida cae en la variante 1 del mismo arquetipo', () => {
+    const rogue = createPlayerFromArchetype('rogue', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+
+    const missing: Unit = { ...rogue, variant: null };
+    expect(
+      buildHudModel(makeState({ players: [missing] })).portrait,
+    ).toEqual({ sx: 96, sy: 0, sw: 32, sh: 32 });
+
+    const invalid: Unit = { ...rogue, variant: 3 as unknown as Unit['variant'] };
+    expect(
+      buildHudModel(makeState({ players: [invalid] })).portrait,
+    ).toEqual({ sx: 96, sy: 0, sw: 32, sh: 32 });
+  });
+
+  it('lee la celda de la tabla compartida y no mantiene una tabla propia', () => {
+    const source = readFileSync(
+      new URL('../../../src/host/hud.ts', import.meta.url),
+      'utf8',
+    );
+
+    expect(source).not.toMatch(/PORTRAIT_RECTS/);
+    expect(source).toMatch(
+      /variantCellFor\(player\.archetypeId, player\.variant\)/,
+    );
+    expect(source).not.toMatch(/ARCHETYPE_VARIANT_CELLS/);
   });
 
   it('la ayuda estática de index.html coincide con las teclas nuevas', () => {

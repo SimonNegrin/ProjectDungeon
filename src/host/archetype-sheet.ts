@@ -47,8 +47,7 @@ export interface ArchetypeSheet {
 
 /**
  * Tabla de las 18 celdas de 32×32 de `rogues.png` (REQ-016, ADR-006). Es la
- * fuente de la ficha; `PORTRAIT_RECTS` del HUD sigue en variante 1 hasta
- * TASK-0127.
+ * fuente única de la ficha, del sprite del mapa y de la miniatura del HUD.
  */
 export const ARCHETYPE_VARIANT_CELLS: Readonly<
   Record<ArchetypeId, readonly [SpriteRect, SpriteRect]>
@@ -90,6 +89,21 @@ export const ARCHETYPE_VARIANT_CELLS: Readonly<
     { sx: 0, sy: 192, sw: 32, sh: 32 },
   ],
 };
+
+/**
+ * Celda 32×32 de `rogues.png` que comparten mapa y miniatura del HUD. Una
+ * variante ausente o desconocida cae en la variante 1 del **mismo** arquetipo,
+ * nunca en otro; sin arquetipo (o con uno desconocido) no hay sprite.
+ */
+export function variantCellFor(
+  archetypeId: ArchetypeId | null | undefined,
+  variant: number | null | undefined,
+): SpriteRect | null {
+  if (!archetypeId) return null;
+  const cells = ARCHETYPE_VARIANT_CELLS[archetypeId];
+  if (!cells) return null;
+  return cells[variant === 2 ? 1 : 0];
+}
 
 /** Orden estable de las nueve filas de la ficha. */
 export const SHEET_STAT_IDS: readonly SheetStatId[] = [

@@ -4,7 +4,7 @@ id: TASK-0127
 title: "Render: variante en mapa y miniatura HUD"
 description: "Dibujar al jugador con la celda de la variante elegida en el mapa y usar la misma celda en la miniatura del HUD, sin sprites fijos por arquetipo."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-005, T-003]
@@ -13,7 +13,7 @@ unlocks: [TASK-0128, TASK-0129, TASK-0135, TASK-0150, TASK-0156]
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0127/
 priority: P1
 risk: low

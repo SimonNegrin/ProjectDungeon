@@ -3,11 +3,11 @@ import type { GameState, Unit } from '../game/types';
 import type { Door, DoorStyle, Exit } from '../game/map';
 import {
   GOBLIN_RECT,
-  KNIGHT_RECT,
   TILE_RECTS,
   corpseRectFor,
   type SpriteRect,
 } from './assets';
+import { variantCellFor } from './archetype-sheet';
 import {
   TILE_SIZE,
   visibleTileRange,
@@ -827,9 +827,12 @@ export function renderScene(
   for (const player of state.players) {
     const effect = effects?.get(player.id);
     if (player.hp <= 0 && !dyingUnitIds?.has(player.id) && !effect) continue;
+    // Celda compartida con la miniatura del HUD; sin arquetipo no hay sprite.
+    const rect = variantCellFor(player.archetypeId, player.variant);
+    if (!rect) continue;
     const center = unitCenter(player, tileSize, positions);
     if (!isUnitVisible(center, camera, viewport, tileSize)) continue;
-    drawUnitWithEffect(ctx, assets.rogues, KNIGHT_RECT, center, effect);
+    drawUnitWithEffect(ctx, assets.rogues, rect, center, effect);
   }
 
   // Gesto de defensa en una pasada posterior a todas las unidades: el atacante

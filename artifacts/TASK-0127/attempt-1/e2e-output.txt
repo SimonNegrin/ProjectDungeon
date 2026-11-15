@@ -1,0 +1,6 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/variant-map-hud-qa.spec.ts:187:1 › el mapa y la miniatura cambian con la variante del mismo arquetipo (1.5s)
+
+  1 passed (2.6s)
