@@ -20,7 +20,8 @@ verified:
   `new GameSession`).
 - `src/host/party-summary-view.ts`: sección accesible, foco, `Esc`/`Tab` y error.
 - `src/host/main.ts`: resumen tras «Siguiente», «Atrás», arranque que sustituye
-  la sesión y resetea la presentación, guardas de teclado.- `src/host/player-screen-view.ts`: `hide()`/`show()` sin tocar el modelo.
+  la sesión y resetea la presentación, guardas de teclado.
+- `src/host/player-screen-view.ts`: `hide()`/`show()` sin tocar el modelo.
 - `index.html`, `src/host/ui.css`: marcado y estilos.
 - Tests: unitario y E2E nuevos; bloque del último «Siguiente» actualizado en
   `tests/e2e/player-screen.spec.ts`.
@@ -66,6 +67,6 @@ Cubre resumen 1/2, «Atrás», cancelación, arranque, `?test=1` y «Cargar».
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2554 |
-| `report_bytes` | 2538 |
+| `report_bytes` | 2539 |
 | `overflow` | `none` |
 | `criteria_failed` | `0` |
