@@ -4,7 +4,7 @@ id: TASK-0144
 title: "QA/E2E de pausa, guardado y carga"
 description: "Cubrir la pausa global, el menú de cinco botones, el guardado restringido, la descarga `.zip`, la carga `.zip`/`.json`, los límites y el resultado sin guardado."
 status: stable
-task_status: blocked
+task_status: in_progress
 task_type: qa
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, T-010]
@@ -42,12 +42,11 @@ verified:
       de producción; bloqueo externo, no del alcance de esta tarea.
 ---
 
-> **Bloqueada de nuevo (2026-11-15).** Las dependencias están `done` y el intento
-> 2 cerró el criterio 7. Queda el criterio 8: `main` está rojo por una aserción
-> obsoleta de REQ-033 (`qa-visual-revision-ui.spec.ts:396`) que cuenta la región
-> `aria-live` de TASK-0151 como texto visible. Propuesta: que TASK-0154 o una
-> ficha de corrección de TASK-0151 excluya la región viva del HUD visible;
-> después, TASK-0144 se reejecuta.
+> **Intento 3 autorizado (2026-11-15).** El usuario autoriza una corrección
+> mínima en `qa-visual-revision-ui.spec.ts`: excluir `hud-live` del texto visible
+> de `expectHudBase` y comprobar que sigue visualmente oculta. Nada más: sin HUD,
+> sin `src/host/hud.ts`, sin otras aserciones. La suite completa en serie debe
+> quedar verde; si vuelve a fallar, la tarea para en `blocked`.
 
 # Objetivo
 
