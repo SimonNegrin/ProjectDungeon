@@ -4,6 +4,6 @@
 
  Test Files  2 passed (2)
       Tests  75 passed (75)
-   Start at  12:15:07
-   Duration  529ms (tests 79%, transform 11%, import 10%, worker 1%)
+   Start at  12:17:53
+   Duration  661ms (tests 69%, transform 23%, import 8%)
 

@@ -12,8 +12,8 @@ verified:
 
 # Estado
 
-`success`. Modelo, helpers de lectura, snapshot y `F1` según el detalle; sin
-transiciones de turno.
+`success`. Modelo, helpers, snapshot y `F1` según detalle; sin transiciones de
+turno.
 
 # Cambios
 
@@ -29,7 +29,7 @@ transiciones de turno.
 - Tests: literales `state.turn`→`state.round`; suites de 1, 2 y 6 jugadores,
   round-trip, helpers, `Restart`, snapshot y `F1`. E2E: literales con
   `activePlayerId`/`round` y `F1` `Turno`→`Ronda`.
-- Commit SHA: `6747f15dc93e2306315c5e86c2bbdb231f783eee`.
+- Commits: `6747f15` (implementación) y `07af807` (tests 1/2/6).
 
 # Tests
 
@@ -38,18 +38,20 @@ transiciones de turno.
 | `pnpm exec vitest run tests/unit/game/engine.test.ts tests/unit/host/debug.test.ts` | 75 tests, 2 archivos, OK | `test-output.txt` |
 | `pnpm run verify` | 1537 tests, 102 archivos; docs/config, `tsc`, build y bundle OK | `verify-output.txt` |
 
+Snapshot/F1 (`debug.test.ts`) y round-trip/orden (`engine.test.ts`) recorren
+`[1, 2, 6]` jugadores y repiten las aserciones en cada caso.
+
 # Evidencia visual
 
-- No aplica. El texto de `F1` debe coincidir con el snapshot (`activePlayerId`,
-  `round`, `partyOrder`).
+- No aplica (sin UI renderizada nueva).
 
 # Desviaciones
 
 - `actionSuggestion` también usa `activePlayer`; sin cambio con el constructor
   actual (activo = primer jugador).
 - `F1` usa índice 1-based; sin activo muestra `—` y `0/M`, y orden vacía `—`.
-- No se ejecutó `test:e2e` (la ficha lo declara no aplicable); `verify` cubre
-  tipos y build de los E2E actualizados.
+- No se ejecutó `test:e2e` (no aplica según la ficha); `verify` cubre tipos y
+  build.
 
 # Problemas conocidos y preguntas abiertas
 
@@ -65,6 +67,6 @@ Ninguna: sin comportamiento no documentado, fallo repetible ni contradicción.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 1780 |
-| `report_bytes` | 2522 |
+| `report_bytes` | 2558 |
 | `overflow` | `none` |
 | `criteria_failed` | none |
