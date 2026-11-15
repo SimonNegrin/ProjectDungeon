@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0141 — done: cargador único `.zip`/`.json` para menú y pausa con confirmación, validación cruzada manifiesto↔estado, cámara/HUD desde el activo y rechazo sin tocar la partida; corrige el rango de stats inherentes negativos (mago/clérigo); verify 107/1678, E2E 248/248; fusión `9d7e53a` — [informe](../artifacts/TASK-0141/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0140 — done: Guardar en la pausa descarga un único `.zip` con manifiesto y partida desde el estado del motor y nombre UTC con semilla; error visible sin descarga parcial; verify 106/1654, E2E 243/243; fusión `9294f32` — [informe](../artifacts/TASK-0140/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0139 — done: pausa global con `Esc` que congela relojes y feedback, menú de cinco acciones con foco, guardado desactivado con motivo, controles desde `KEY_BINDINGS` y retirada de `R`; regresión de flecha corregida; verify 105/1649 y E2E 241/241; fusión `ff99ae2` — [informe](../artifacts/TASK-0139/attempt-2/report.md)
