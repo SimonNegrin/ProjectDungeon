@@ -49,19 +49,26 @@ T-007 y T-008.
 
 # Desviaciones
 
-- Ninguna. El scroll a 900×700 es el previsto por la ficha; no se cambia layout.
+- Ninguna de alcance. A 900×700 el `player-screen` exige scroll interno
+  (`520 > 488`, `overflow:auto`): se documenta como observación, no como defecto
+  de TASK-0129; las acciones siguen siendo accesibles con teclado y ratón.
 
 # Problemas conocidos y preguntas abiertas
 
 - `experiments/EXP-004-salas-irregulares/src/spawn.test.ts` agotó su timeout de
-  5 s en tres `verify` bajo carga (5004 ms); pasó al reintentar. Es previo y ajeno.
+  5 s en tres `verify` del runner y en dos del lead (5104 ms, load 8-10 de 8
+  CPUs); pasó al bajar la carga. Es previo y ajeno; test dirigido 20/20.
 - `?test=1` sigue saltando el inicio; el spec nuevo usa `/` y `?seed=`.
 
 # Fricción reutilizable
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El barrido de EXP-004 roza el timeout de 5 s y hace fallar `verify` de forma intermitente. | `spawn.test.ts:608`, 5004 ms; 3 fallos y un pase. | Reintentar `verify`. | Afecta a cualquier cierre con verify. | Menos paralelismo para `experiments/**`, sin tocar timeouts. | Bajo. | `pending` |
+| El barrido de EXP-004 roza el timeout de 5 s y hace fallar `verify` de forma intermitente. | `spawn.test.ts:608`, 5004 ms; 3 fallos y un pase. | Reintentar `verify`. | Afecta a cualquier cierre con verify. | Menos paralelismo para `experiments/**`, sin tocar timeouts. | Bajo. | `deferred` |
+
+Disposición del lead: `deferred`; dueño `harness-keeper` para valorar el
+paralelismo de `experiments/**`. Es previo, no lo provoca este diff y no bloquea
+TASK-0129 (el verify del cierre pasó a la primera).
 
 # Métricas de handoff
 

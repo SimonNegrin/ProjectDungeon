@@ -4,14 +4,14 @@ id: TASK-0129
 title: "QA/E2E de la pantalla de inicio"
 description: "Cubrir en navegador el menú principal, la configuración de 1, 2 y 6 jugadores, la semilla, el nombre, la variante, la cancelación y el arranque de partida, con capturas."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: qa
 requirement: REQ-016
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, T-003, T-004, T-005, T-006, T-007, T-008]
 depends_on: [TASK-0123, TASK-0124, TASK-0125, TASK-0126, TASK-0127]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T10:39:35Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0129/
@@ -20,6 +20,19 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T10:39:35Z
+    note: >-
+      Intento 1 verificado (brief fe11407, tests a685ad5, evidencia d12756e).
+      Diff revisado: solo el spec E2E nuevo, capturas, artefactos y cabecera;
+      sin cambios de producto ni tests existentes. `pnpm run verify` reejecutado:
+      99 archivos/1471 tests, tsc, build y bundle OK; E2E completo 235/235,
+      incluidos los 6 nuevos. Capturas a 1280×720 y 900×700 revisadas: menú,
+      paso 1, jugador/ficha, resumen 1/2/6, confirmaciones, partida 1/2 y
+      variante en mapa/HUD. A 900×700 la ficha exige scroll interno: observación
+      documentada, no defecto (contenido accesible y sin cambio de layout). La
+      variante del mapa también queda cubierta por `variant-map-hud-qa`.
+      Fricción del timeout de EXP-004 en `deferred`, dueño `harness-keeper`.
 ---
 
 # Objetivo
