@@ -4,22 +4,31 @@ id: TASK-0156
 title: "Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031"
 description: "Anotar en REQ-022, REQ-024 y REQ-031 las enmiendas de REQ-016 v3 sobre miniatura por variante, «Cargar» en el menú principal y «Nueva partida» al paso 1."
 status: stable
-task_status: backlog
+task_status: done
 task_type: docs
 requirement: REQ-016
 requirement_ids: [T-010]
 depends_on: [TASK-0127]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T10:22:00Z
 assignee: requirements-writer
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0156/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T10:22:00Z
+    note: >-
+      Diff `9127078` revisado contra REQ-016 v3 T-003/T-010 y su R-001/R-002, y
+      contra el estado implementado de TASK-0123 a TASK-0127: las tres notas
+      remiten a REQ-016 v3 y no cambian reglas, versiones ni R-002 de REQ-022,
+      R-019/R-020/T-010/T-015 de REQ-031. Contenido redactado por
+      requirements-writer; el lead lo integró y verificó. `docs:check` 635
+      documentos/159 tareas y `verify` 99 archivos/1471 tests OK.
 ---
 
 # Objetivo
