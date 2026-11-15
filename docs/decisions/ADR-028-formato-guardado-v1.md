@@ -18,7 +18,8 @@ repartió en TASK-0137 (contenedor `.zip`), TASK-0138 (esquema v1 y manifiesto),
 TASK-0140 (guardar) y TASK-0141 (cargar).
 
 Este ADR registra el esquema implementado y sus garantías. No añade reglas ni
-alcance: concreta R-003 a R-009 y T-001 a T-009 de la hoja.
+alcance: concreta R-003 a R-009 y R-015, y T-001 a T-009, T-012 y T-016 de la
+hoja.
 
 # Decisión
 
