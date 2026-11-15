@@ -124,7 +124,7 @@ test('TASK-0061: la espera muestra `...` sobre un enemigo visible', async ({
   await expect(mark).toHaveCount(0);
 });
 
-test('TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final', async ({
+test('TASK-0061: `Ronda 2` con cursor oculto en el cue y visible al final', async ({
   page,
 }, testInfo) => {  await openGame(page, TEST_SEED_URL);
   await loadState(page, waitingState());
@@ -141,15 +141,16 @@ test('TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final', asy
   expect(
     atCue.animation.cues.find((cue) => cue.kind === 'player-turn'),
   ).toBeDefined();
+  // TASK-0151: al volver de la fase enemiga el único aviso es el de ronda.
   await expect(page.getByTestId('feedback-banner')).toBeVisible();
-  await expect(page.getByTestId('feedback-banner')).toHaveText('TU TURNO');
+  await expect(page.getByTestId('feedback-banner')).toHaveText('Ronda 2');
   await expect(page.getByTestId('feedback-banner')).toHaveAttribute(
     'data-banner-kind',
-    'turn',
+    'round',
   );
   // Durante el beat el cursor de presentación sigue oculto.
   await expect(page.getByTestId('cursor')).toBeHidden();
-  await screenshot(page, 'turno-jugador', testInfo);
+  await screenshot(page, 'ronda-jugador', testInfo);
 
   const finished = await page.evaluate(() => {
     const game = window.__game!;
@@ -172,9 +173,9 @@ test('TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final', asy
   expect(finished.state.animation.animating).toBe(false);
   expect(finished.cursorVisible).toBe(true);
   expect(finished.returning).toBe(true);
-  // El banner de 700 ms sigue visible tras el beat de 350 ms.
+  // El aviso de ronda de 2000 ms sigue visible tras el beat de 350 ms.
   expect(finished.bannerVisible).toBe(true);
-  expect(finished.bannerText).toBe('TU TURNO');
+  expect(finished.bannerText).toBe('Ronda 2');
   const beforeKey = await snapshot(page);
   expect(beforeKey.turn).toBe(2);
 
@@ -187,9 +188,16 @@ test('TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final', asy
     y: beforeKey.cursor.y,
   });
   await expect(page.getByTestId('feedback-banner')).toBeVisible();
-  await expect(page.getByTestId('feedback-banner')).toHaveText('TU TURNO');
+  await expect(page.getByTestId('feedback-banner')).toHaveText('Ronda 2');
   expect((await snapshot(page)).animation.animating).toBe(false);
-  await screenshot(page, 'turno-jugador-aviso-no-bloquea', testInfo);
+  await screenshot(page, 'ronda-jugador-aviso-no-bloquea', testInfo);
+
+  // La persistencia la fija la configuración: pasada su duración, se apaga.
+  await page.evaluate(
+    (ms) => window.__game!.advance(ms),
+    FEEDBACK_CONFIG.texts.roundBannerMs,
+  );
+  await expect(page.getByTestId('feedback-banner')).toBeHidden();
 });
 
 test('TASK-0061: advance(ms) consume la marca de huida ya creada', async ({

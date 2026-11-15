@@ -214,6 +214,121 @@ describe('modelo del HUD', () => {
     ).toBe('Boric');
   });
 
+  it('numera al activo como «Jugador N de M» en el orden de la party', () => {
+    const solo = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    expect(buildHudModel(makeState({ players: [solo] })).playerPosition).toBe(
+      'Jugador 1 de 1',
+    );
+
+    const first = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    const second = createPlayerFromArchetype('rogue', {
+      id: 'player-2',
+      position: { x: 5, y: 4 },
+      name: 'Boric',
+    });
+    expect(
+      buildHudModel(
+        makeState({ players: [first, second], activePlayerId: 'player-2' }),
+      ).playerPosition,
+    ).toBe('Jugador 2 de 2');
+
+    // Seis jugadores: N es la posición 1-based y M el total de `players`.
+    const six = Array.from({ length: 6 }, (_, index) =>
+      makeUnit({
+        id: `player-${index + 1}`,
+        nombre: `Jugador ${index + 1}`,
+        faction: 'player',
+        x: 2 + index,
+        y: 4,
+      }),
+    );
+    expect(
+      buildHudModel(
+        makeState({ players: six, activePlayerId: 'player-4' }),
+      ).playerPosition,
+    ).toBe('Jugador 4 de 6');
+  });
+
+  it('cuenta muertos y fantasmas en M y en la posición del activo', () => {
+    const dead = makeUnit({
+      id: 'player-1',
+      nombre: 'Eco',
+      faction: 'player',
+      x: 4,
+      y: 4,
+      hp: 0,
+    });
+    const ghost = makeUnit({
+      id: 'player-2',
+      nombre: 'Bruma',
+      faction: 'player',
+      x: 5,
+      y: 4,
+      hp: 0,
+      ghost: true,
+    });
+    const alive = makeUnit({
+      id: 'player-3',
+      nombre: 'Ada',
+      faction: 'player',
+      x: 6,
+      y: 4,
+    });
+
+    const model = buildHudModel(
+      makeState({ players: [dead, ghost, alive], activePlayerId: 'player-3' }),
+    );
+    expect(model.playerPosition).toBe('Jugador 3 de 3');
+    expect(model.turnAnnouncement).toBe('Turno de Ada. Jugador 3 de 3. Ronda 1.');
+  });
+
+  it('anuncia nombre, posición y ronda, y cambia con el activo', () => {
+    const first = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    const second = createPlayerFromArchetype('rogue', {
+      id: 'player-2',
+      position: { x: 5, y: 4 },
+      name: 'Boric',
+    });
+    const players = [first, second];
+
+    expect(
+      buildHudModel(makeState({ players, round: 3 })).turnAnnouncement,
+    ).toBe('Turno de Ada. Jugador 1 de 2. Ronda 3.');
+    const next = buildHudModel(
+      makeState({ players, round: 3, activePlayerId: 'player-2' }),
+    );
+    expect(next.playerPosition).toBe('Jugador 2 de 2');
+    expect(next.turnAnnouncement).toBe(
+      'Turno de Boric. Jugador 2 de 2. Ronda 3.',
+    );
+  });
+
+  it('sin activo no inventa jugador pero conserva la ronda', () => {
+    const first = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+      name: 'Ada',
+    });
+    const model = buildHudModel(
+      makeState({ players: [first], activePlayerId: null, round: 4 }),
+    );
+
+    expect(model.playerPosition).toBe('—');
+    expect(model.turnAnnouncement).toBe('Sin jugador activo. Ronda 4.');
+  });
+
   it('deriva la miniatura del arquetipo del jugador activo', () => {
     for (const [id, sx, sy] of PORTRAIT_CASES) {
       const player = createPlayerFromArchetype(id, {

@@ -51,8 +51,8 @@ async function screenshot(
 
 /**
  * Un enemigo alerta adyacente ataca (texto) y un bruto dormido visible espera
- * (marca); al cerrar la fase aparece `TU TURNO` (banner). El BSP de referencia
- * mantiene sin LOS al bruto dormido en (5,4).
+ * (marca); al cerrar la fase aparece `Ronda 2` (banner de ronda, TASK-0151). El
+ * BSP de referencia mantiene sin LOS al bruto dormido en (5,4).
  */
 function mixedFeedbackState(): GameState {
   const base = detectionState();
@@ -172,10 +172,11 @@ test('TASK-0061: reducido conserva texto, banner y marca sin tween y con el mism
   expect(textStyle.transform).toContain('- 0px');
 
   await expect(page.getByTestId('feedback-banner')).toBeVisible();
-  await expect(page.getByTestId('feedback-banner')).toHaveText('TU TURNO');
+  // TASK-0151: la vuelta de ronda anuncia `Ronda N`, no `TU TURNO`.
+  await expect(page.getByTestId('feedback-banner')).toHaveText('Ronda 2');
   await expect(page.getByTestId('feedback-banner')).toHaveAttribute(
     'data-banner-kind',
-    'turn',
+    'round',
   );
 
   const mark = page.locator('[data-testid="unit-mark"][data-unit-id="enemy-2"]');

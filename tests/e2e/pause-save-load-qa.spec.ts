@@ -526,6 +526,13 @@ test('TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desd
   expect(fromZip.camera).toMatchObject(expectedCamera(saved));
   expect(fromZip.lastEvents).toEqual([]);
   await expect(page.getByTestId('hud-player-name')).toHaveText('Bru');
+  // TASK-0151: N/M y ronda del estado; cargar no deja aviso pendiente.
+  await expect(page.getByTestId('hud-player-position')).toHaveText(
+    'Jugador 2 de 2',
+  );
+  await expect(page.getByTestId('hud-live')).toHaveText(
+    'Turno de Bru. Jugador 2 de 2. Ronda 2.',
+  );
   await expect(page.getByTestId('feedback-banner')).toBeHidden();
   await expect(page.getByTestId('hud-message')).toBeHidden();
   await screenshot(page, 'carga-zip-menu', testInfo);
@@ -565,6 +572,9 @@ test('TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desd
   expect(fromJson.camera).toMatchObject(expectedCamera(jsonState));
   expect(fromJson.lastEvents).toEqual([]);
   await expect(page.getByTestId('hud-player-name')).toHaveText('Bru');
+  await expect(page.getByTestId('hud-player-position')).toHaveText(
+    'Jugador 1 de 2',
+  );
   await expect(page.getByTestId('feedback-banner')).toBeHidden();
   await expect(page.getByTestId('hud-message')).toBeHidden();
   await screenshot(page, 'carga-json-pausa', testInfo);

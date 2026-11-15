@@ -342,6 +342,33 @@ describe('relieve y elementos de la UI de juego', () => {
     expect(block('.hud-footer')).toMatch(/margin-top:\s*auto/);
   });
 
+  it('declara «Jugador N de M» y la región viva del HUD izquierdo', () => {
+    const left =
+      html.match(/<aside class="hud-left ui-outset"[\s\S]*?<\/aside>/)?.[0] ?? '';
+
+    expect(left).toContain('data-testid="hud-player-position"');
+    expect(left).toMatch(
+      /<p class="hud-player-position" data-testid="hud-player-position">—<\/p>/,
+    );
+    const live = left.match(/<p[^>]*data-testid="hud-live"[^>]*>/)?.[0] ?? '';
+    expect(live, 'Falta la región viva hud-live').not.toBe('');
+    expect(live).toContain('role="status"');
+    expect(live).toContain('aria-live="polite"');
+
+    // Oculta como el título del panel: no ocupa espacio ni se ve, pero se anuncia.
+    expect(block('.hud-live')).toMatch(/position:\s*absolute/);
+    expect(block('.hud-live')).toMatch(/clip-path:\s*inset\(50%\)/);
+    expect(block('.hud-live')).toMatch(/overflow:\s*hidden/);
+    expect(block('.hud-player-position')).toMatch(/var\(--ui-muted\)/);
+    expect(block('.hud-player-position')).toMatch(/var\(--ui-help\)/);
+
+    for (const retired of ['hud-phase', 'hud-enemy-hp', 'hud-turn', 'hud-status']) {
+      expect(left, `El HUD izquierdo no debe declarar ${retired}`).not.toContain(
+        `data-testid="${retired}"`,
+      );
+    }
+  });
+
   it('no deja radios ni sombras en las reglas del HUD', () => {
     const rules = [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)]
       .filter((match) => /\.hud/.test(match[1]))

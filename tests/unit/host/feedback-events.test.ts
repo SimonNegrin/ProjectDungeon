@@ -4,6 +4,7 @@ import { FEEDBACK_CONFIG } from '../../../src/host/feedback-config';
 import {
   bannerForCue,
   frameEffectsAt,
+  roundBanner,
   unitMarkForEvent,
   unitMarkText,
   weaponSlotPulseAt,
@@ -135,6 +136,24 @@ describe('banners de inventario, fase y turno', () => {
       { type: 'AlarmRaised', unitId: 'enemy-1', position: { x: 8, y: 8 } },
     ]);
     expect(bannerForCue(timeline.cues[0])).toBeNull();
+  });
+
+  it('el aviso de ronda dura 2000 ms por configuración y no es un turno', () => {
+    const banner = roundBanner(3);
+
+    expect(banner).toEqual({
+      text: 'Ronda 3',
+      kind: 'round',
+      durationMs: FEEDBACK_CONFIG.texts.roundBannerMs,
+    });
+    expect(FEEDBACK_CONFIG.texts.roundBannerMs).toBe(2000);
+    // El cue de turno que no abre ronda sigue siendo `TU TURNO`.
+    const turn = buildMotionTimeline([{ type: 'PlayerTurnStarted', turn: 2 }]);
+    expect(bannerForCue(turn.cues[0])).toEqual({
+      text: 'TU TURNO',
+      kind: 'turn',
+      durationMs: FEEDBACK_CONFIG.texts.playerTurnBannerMs,
+    });
   });
 });
 
