@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0133 — done: cadáver de enemigo solo con instancias `lootable`, descarte del resto, sin contenedor sin botín, enemigo con 0 PV en `enemies`, casilla compartida y retirada al vaciar solo para cadáveres de enemigo; verify 102/1530; fusión `864ea7a` — [informe](../artifacts/TASK-0133/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0132 — done: fantasma controlable con `ghost`/`lifeState`, casilla compartida y pathfinding sin unidades, MP intrínseco, una acción por ronda, `InspectContainer` sin trampa y allowlist de comandos; puertas fuera por falta de estado y anotadas para requirements; verify 102/1521; fusión `7a683c3` — [informe](../artifacts/TASK-0132/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0131 — done: cadáver de jugador como `Container` en su casilla con todo el equipo y la mochila sin tirada, unidad con `hp: 0` sin objetos e identidad estable, persistente al vaciarse; snapshot con `kind`/`corpseOf`; verify 101/1502; fusión `80229f3` — [informe](../artifacts/TASK-0131/attempt-1/report.md)
