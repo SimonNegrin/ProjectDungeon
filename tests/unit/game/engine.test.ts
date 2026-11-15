@@ -306,18 +306,21 @@ describe('estado de partida: party, activo y ronda (REQ-031 T-001)', () => {
     }
   });
 
-  it('el round-trip JSON conserva activo, ronda y orden', () => {
-    const state = createInitialState({
-      generator: new BspMapGenerator(),
-      players: partyConfig(6),
-    });
-    const restored = JSON.parse(JSON.stringify(state)) as GameState;
+  it('el round-trip JSON conserva activo, ronda y orden con 1, 2 y 6 jugadores', () => {
+    for (const count of [1, 2, 6]) {
+      const state = createInitialState({
+        generator: new BspMapGenerator(),
+        players: partyConfig(count),
+      });
+      const ids = state.players.map((player) => player.id);
+      const restored = JSON.parse(JSON.stringify(state)) as GameState;
 
-    expect(restored).toEqual(state);
-    expect(restored.activePlayerId).toBe('player-1');
-    expect(restored.round).toBe(1);
-    expect(partyOrder(restored)).toEqual(partyOrder(state));
-    expect(activePlayer(restored)?.id).toBe('player-1');
+      expect(restored).toEqual(state);
+      expect(restored.activePlayerId).toBe('player-1');
+      expect(restored.round).toBe(1);
+      expect(partyOrder(restored)).toEqual(ids);
+      expect(activePlayer(restored)?.id).toBe('player-1');
+    }
   });
 
   it('los helpers leen el activo por id y no mutan el estado', () => {

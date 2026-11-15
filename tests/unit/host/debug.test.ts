@@ -1093,8 +1093,8 @@ describe('snapshot de party, activo y ronda (REQ-031 T-001)', () => {
     );
   }
 
-  it('con 2 y 6 jugadores expone activo, ronda, orden y fase', () => {
-    for (const count of [2, 6]) {
+  it('con 1, 2 y 6 jugadores expone activo, ronda, orden y fase', () => {
+    for (const count of [1, 2, 6]) {
       const players = party(count);
       const ids = players.map((unit) => unit.id);
       const api = setup(
