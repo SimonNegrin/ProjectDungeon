@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0142 — done: QA de botín y cadáveres con E2E de muerte real, cadáver oculto en el beat, saqueo solo en el mismo tile a coste 0, retirada al vaciar y round-trip que conserva `lootable` y contenedores sin retirar tirada; verify 107/1678, E2E 251/251; fusión `a8d5ad7` — [informe](../artifacts/TASK-0142/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0141 — done: cargador único `.zip`/`.json` para menú y pausa con confirmación, validación cruzada manifiesto↔estado, cámara/HUD desde el activo y rechazo sin tocar la partida; corrige el rango de stats inherentes negativos (mago/clérigo); verify 107/1678, E2E 248/248; fusión `9d7e53a` — [informe](../artifacts/TASK-0141/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0140 — done: Guardar en la pausa descarga un único `.zip` con manifiesto y partida desde el estado del motor y nombre UTC con semilla; error visible sin descarga parcial; verify 106/1654, E2E 243/243; fusión `9294f32` — [informe](../artifacts/TASK-0140/attempt-1/report.md)
