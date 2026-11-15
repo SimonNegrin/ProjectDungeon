@@ -4,7 +4,7 @@ title: "TASK-0145: propuesta de visión y alcance para requirements-writer"
 description: Correcciones factuales en docs/vision.md, docs/scope.md y el ejemplo de manifiesto de REQ-024; sin cambios de reglas.
 status: stable
 task: TASK-0145
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:50:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:41:00Z }
 ---
 
 # Motivo

@@ -5,11 +5,11 @@ description: ADR-028 y la documentación de diseño del guardado v1 registrados 
 task: TASK-0145
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:52:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:41:00Z }
 artifacts: artifacts/TASK-0145/attempt-1/
 verified:
   - by: task-lead
-    at: 2026-11-15T18:53:00Z
+    at: 2026-11-15T18:42:00Z
 ---
 
 # Estado
@@ -37,7 +37,7 @@ van como propuesta a `requirements-writer`.
 
 | Comando | Resultado | Evidencia |
 |---|---|---|
-| `pnpm run docs:check` | OK; 697 documentos, 160 tareas | `docs-check-output.txt` |
+| `pnpm run docs:check` | OK; 698 documentos, 160 tareas | `lead-verify/docs-check-output.txt` |
 | `pnpm run verify` | 107 archivos/1678 tests, tsc, build y bundle OK | `verify-output.txt` |
 
 # Criterios
@@ -74,6 +74,6 @@ van como propuesta a `requirements-writer`.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 0 (sin runner) |
-| `report_bytes` | 3213 |
+| `report_bytes` | 3225 |
 | `overflow` | `scope-proposal` |
 | `criteria_failed` | 0 |

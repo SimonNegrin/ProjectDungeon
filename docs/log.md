@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0145 — done: ADR-028 del formato v1 (`.zip` con manifiesto, esquema estricto, 5/20 MB y 4 entradas, sin presentación ni nueva tirada de botín), arquitectura y glosario; visión y alcance ya lo reflejaban, correcciones factuales a requirements-writer; verify 107/1678; fusión `2b3578e` — [informe](../artifacts/TASK-0145/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0144 — blocked: QA 1-6 y 8 verde con spec nuevo, ida y vuelta `.zip`/`.json` y siete rechazos de límites; criterio 7 falla porque el resultado aún ofrece «Reiniciar» y `Esc` abre la pausa (REQ-024 R-012), propietario TASK-0153; verify 107/1678 y E2E 258/258; commits `a94f406`/`5d6e330` — [informe](../artifacts/TASK-0144/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0143 — done: ADR-030 del modelo de saqueabilidad y RNG derivado, glosario con «objeto saqueable» y «saqueo de cadáver», y alcance con cadáver condicionado por botín y llaves reservadas (`95b4f23`); docs:check 691/160 y verify 107/1678; fusión `89a703c` — [informe](../artifacts/TASK-0143/attempt-1/report.md)

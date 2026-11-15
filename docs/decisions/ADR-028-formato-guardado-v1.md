@@ -6,7 +6,7 @@ status: stable
 decision_status: accepted
 decided_by: [human:simon]
 decided_at: 2026-11-14T22:19:59Z
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:45:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T18:40:00Z }
 ---
 
 # Contexto
