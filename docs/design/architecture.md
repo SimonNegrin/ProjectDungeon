@@ -424,6 +424,41 @@ la cámara se centra una vez en el activo y los HUD se redibujan desde el estado
 no se restaura presentación. Un archivo inválido muestra un mensaje y deja la
 partida en curso intacta. «Nueva partida» confirma y abre el paso 1 del arranque.
 
+# Guardado local
+
+La persistencia es un archivo local, sin cuentas, nube, base de datos ni guardado
+entre runs ([REQ-024](../requirements/REQ-024-menu-pausa-guardado.md)). El
+formato v1 se registra en [ADR-028](../decisions/ADR-028-formato-guardado-v1.md).
+
+`src/game/save.ts` es el esquema puro y la única fuente del formato. Construye
+`partida.json` —estado completo del motor con su propio `format_version`: semilla,
+RNG, mapa, fase, turno, ronda, activo, party, unidades, fantasmas, contenedores,
+objetos y contadores— y `manifiesto.json` con `format_version: 1`,
+`game_version` informativa, `created_at` ISO UTC, `seed` y `summary` con nombre y
+arquetipo de cada jugador, turno, ronda y fase. La lectura es estricta: claves
+desconocidas, tipos erróneos, números no finitos, referencias rotas y versiones
+desconocidas rechazan el archivo entero antes de tocar el estado; no se usa
+`eval`. La v1 se fija con el `Container` actual (`kind`/`corpseOf` opcionales) y
+sube de versión si REQ-020 cambia el modelo antes de publicar.
+
+`src/host/save-zip.ts` empaqueta y lee un ZIP clásico propio con
+`CompressionStream`/`DecompressionStream`: escribe `deflate` y acepta `store` y
+`deflate`, sin dependencias nuevas. Solo admite `manifiesto.json` y
+`partida.json` en la raíz y aplica los límites de 5 MB comprimido, 20 MB
+descomprimido, 4 entradas y 5 MB por archivo, también durante la descompresión.
+`src/host/save-game.ts` une motor y descarga: comprime antes de entregar el único
+`.zip` y usa el nombre `proyectdungeon-<semilla>-<AAAAMMDD-HHmmss>.zip` con fecha
+UTC.
+
+El archivo no guarda presentación: ni timeline, ni cámara, ni cursor, ni panel.
+Al cargar, `src/host/load-game.ts` —el único cargador de menú principal y
+pausa— valida el `.json` o el `.zip` con el mismo esquema, cruza el manifiesto
+con la semilla, el turno, la ronda, la fase y la party del estado, y solo
+entonces reemplaza la sesión. La carga continúa la secuencia del RNG y conserva
+`lootable` y los contenedores sin repetir la tirada de botín
+([REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)); la
+presentación se reconstruye en el estado final.
+
 # Suelo y decoración
 
 El suelo transitable se pinta con un damero global de 1×1: paridad `(x + y) % 2`
