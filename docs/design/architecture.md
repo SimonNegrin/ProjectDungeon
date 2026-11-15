@@ -61,6 +61,13 @@ resuelve el nombre vacío con el del arquetipo y guarda `state.config`. Host,
 `Unit.variant` viaja al snapshot y no cambia cálculos; el motor sigue puro, sin
 importar `src/host/` ni conocer el DOM ([REQ-016](../requirements/REQ-016-pantalla-inicio-configuracion.md#requisitos-técnicos)).
 
+El host recorre menú principal, paso 1, jugador a jugador y resumen. El resumen
+solo lee `PlayerPartyConfig` (`playerCount`, `seed` y `players`): pinta las filas
+1..N y la semilla sin editarla, «Atrás» devuelve la pantalla de jugador con sus
+valores y «Cancelar» descarta la configuración. «Empezar» crea una `GameSession`
+nueva con `{ seed, players }`; no valida ni construye estado en el host
+([REQ-016](../requirements/REQ-016-pantalla-inicio-configuracion.md#requisitos-creativos-decididos)).
+
 # Combate y azar
 
 El combate vive en `src/game/` y es puro y determinista. El modelo vigente es el
