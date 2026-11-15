@@ -4,7 +4,7 @@ id: TASK-0136
 title: "Host/panel: saqueo en el mismo tile y coste 0"
 description: "Permitir abrir y transferir desde un cadáver en el mismo tile sin acción ni MP, con «coger todo», y mantener los cofres adyacentes con 1 acción."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-034
 requirement_ids: [R-005, R-006, R-007, T-006]
