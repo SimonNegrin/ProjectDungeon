@@ -4,7 +4,7 @@ id: TASK-0150
 title: "Host: relevo por cámara y paneo"
 description: "Al cerrar turno, panoramizar la cámara hasta el siguiente jugador sin confirmación, con bloqueo durante el paneo y soporte de `prefers-reduced-motion`."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-005, R-010, R-021, R-022, T-006]
