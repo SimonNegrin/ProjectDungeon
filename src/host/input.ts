@@ -23,12 +23,15 @@ export type InputIgnoreReason =
   | 'no-active-player'
   | 'no-target'
   | 'animating'
+  | 'panning'
   | 'spell-menu-open'
   | 'panel-open';
 
 export interface TranslateKeyOptions {
   /** Con una animación activa solo responden `F1` y `Esc`; el resto se descarta. */
   readonly animating?: boolean;
+  /** Con un paneo de cámara activo solo responden `F1` y `Esc`; el resto se descarta. */
+  readonly panning?: boolean;
   /** Estado de la lista de hechizos; sin él se comporta como cerrada y vacía. */
   readonly spellMenu?: SpellMenuSelection;
   /** Panel de personaje abierto: bloquea los comandos del mapa (R-015/T-009). */
@@ -84,10 +87,6 @@ function ignored(reason: InputIgnoreReason): InputIntent {
   return { type: 'ignored', reason };
 }
 
-function findActivePlayer(state: GameState): Unit | undefined {
-  return state.players.find((player) => player.hp > 0);
-}
-
 /**
  * El panel pertenece al jugador activo y solo si está vivo (REQ-018 T-009,
  * REQ-034 T-006). Un fantasma activo no lo abre aunque otro jugador siga vivo.
@@ -118,7 +117,8 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * Reglas:
  * - `repeat` y modificadores (ctrl/meta/alt) se ignoran.
  * - Con el panel abierto solo `Escape` e `I` cierran; el resto se bloquea.
- * - Con una animación activa responden `F1` y `Esc`; el resto se descarta.
+ * - Con una animación o un paneo activos responden `F1` y `Esc`; el resto se
+ *   descarta. El aviso de ronda no bloquea.
  * - `I` abre el panel en fase de jugador con un jugador vivo, sin coste.
  * - `F1` y `F2` son acciones del host; `F2` también funciona con la partida
  *   terminada.
@@ -126,12 +126,14 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
  * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
- * - `Q` abre/cierra la lista de hechizos; con la lista abierta `↑/↓` o `W/S`
- *   navegan, `1`-`6` eligen, `Enter` lanza contra el cursor y `Esc` cierra.
+ * - `Q` abre/cierra la lista de hechizos con el activo vivo; con la lista
+ *   abierta `↑/↓` o `W/S` navegan, `1`-`6` eligen, `Enter` lanza contra el
+ *   cursor y `Esc` cierra.
  * - Cerrada, `X` lanza el hechizo seleccionado.
  * - `Esc` abre la pausa salvo que el panel o la lista de hechizos estén
  *   abiertos, en cuyo caso los cierra (REQ-024 R-001/R-002).
- * - Movimiento, acciones y fin de turno exigen fase de jugador.
+ * - Movimiento, acciones y fin de turno exigen fase de jugador y usan al activo.
+ * - `N` termina el turno; `E` y `R` ya no se mapean.
  * - `G` y `1`-`3` ya no gestionan equipo: recoger, equipar y cambiar de arma
  *   viven en el panel.
  */
@@ -162,6 +164,7 @@ export function translateKey(
       : { type: 'pause-toggle' };
   }
   if (options.animating) return ignored('animating');
+  if (options.panning) return ignored('panning');
 
   if (key === 'f2') return { type: 'new-seed' };
 
@@ -179,7 +182,9 @@ export function translateKey(
 
   if (key === 'q') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    if (!findActivePlayer(state)) return ignored('no-active-player');
+    // El motor rechaza lanzar con un muerto: abrir la lista al fantasma sería
+    // una lista inútil. Igual que el panel, exige activo vivo.
+    if (!activePlayerCanOpenPanel(state)) return ignored('no-active-player');
     return { type: 'spell-menu-toggle' };
   }
 
@@ -197,7 +202,7 @@ export function translateKey(
     }
 
     if (key === 'enter') {
-      const player = findActivePlayer(state);
+      const player = activePlayer(state);
       if (!player) return ignored('no-active-player');
       const highlighted = Math.min(
         Math.max(0, menu.index),
@@ -217,7 +222,7 @@ export function translateKey(
 
   if (key === 'x') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    const player = findActivePlayer(state);
+    const player = activePlayer(state);
     if (!player) return ignored('no-active-player');
     if (!menu?.selectedId) {
       return { type: 'notice', notice: 'no-spell-selected' };
@@ -233,19 +238,19 @@ export function translateKey(
   const cursorMove = MOVES.get(key);
   if (cursorMove) {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    if (!findActivePlayer(state)) return ignored('no-active-player');
+    if (!activePlayer(state)) return ignored('no-active-player');
     return { type: 'cursor', dx: cursorMove.dx, dy: cursorMove.dy };
   }
 
-  if (key === 'e') {
+  if (key === 'n') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    if (!findActivePlayer(state)) return ignored('no-active-player');
+    if (!activePlayer(state)) return ignored('no-active-player');
     return command({ type: 'EndTurn' });
   }
 
   if (key === 'enter' || key === ' ' || key === 'spacebar') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    const player = findActivePlayer(state);
+    const player = activePlayer(state);
     if (!player) return ignored('no-active-player');
     return command({
       type: 'MoveTo',
@@ -256,7 +261,7 @@ export function translateKey(
 
   if (key === 'f') {
     if (state.phase !== 'player') return ignored('wrong-phase');
-    const player = findActivePlayer(state);
+    const player = activePlayer(state);
     if (!player) return ignored('no-active-player');
 
     const target = findEnemyAt(state, cursor);

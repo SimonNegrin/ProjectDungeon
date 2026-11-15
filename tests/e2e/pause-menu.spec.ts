@@ -242,7 +242,7 @@ test('TASK-0139: la pausa congela animación y feedback e ignora el input de jue
   // Ni el reloj manual ni las teclas de juego alteran estado o presentación.
   await page.keyboard.press('d');
   await page.keyboard.press('f');
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   const frozen = await page.evaluate(() => window.__game!.advance(5_000));
   expect(frozen.animation.step).toBe(paused.animation.step);
   expect(frozen.animation.position).toEqual(paused.animation.position);

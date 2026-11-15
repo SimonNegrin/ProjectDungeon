@@ -489,12 +489,12 @@ test('enemigo adyacente: marca, ataque directo con F, fin de turno y victoria', 
     ]),
   );
   await screenshot(page, 'cursor-attack', testInfo);
-  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  // El beat del ataque descarta la intención siguiente: se completa antes de N.
   await settle(page);
 
-  // E ejecuta la fase enemiga y devuelve el cursor al jugador.
+  // N ejecuta la fase enemiga y devuelve el cursor al jugador.
   const beforeEndTurn = await snapshot(page);
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const afterEndTurn = await snapshot(page);
   expect(afterEndTurn.phase).toBe('player');
@@ -786,7 +786,7 @@ test('ciclo de vida, snapshot, debug y HUD sin botones nuevos', async ({
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
   await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse');
   await expect(page.getByTestId('hud-keys')).toContainText('F atacar');
-  await expect(page.getByTestId('hud-keys')).toContainText('E terminar turno');
+  await expect(page.getByTestId('hud-keys')).toContainText('N terminar turno');
   await expect(
     page.getByRole('button', { name: /Moverse|Atacar|Terminar/i }),
   ).toHaveCount(0);
@@ -833,9 +833,9 @@ test('ciclo de vida, snapshot, debug y HUD sin botones nuevos', async ({
     state: 'player',
   });
 
-  // E completa la fase enemiga y deja el cursor sobre el jugador.
+  // N completa la fase enemiga y deja el cursor sobre el jugador.
   await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const afterEndTurn = await snapshot(page);
   expect(afterEndTurn.phase).toBe('player');

@@ -1519,6 +1519,8 @@ async function boot(): Promise<void> {
 
     const intent = translateKey(event, session.state, cursor, {
       animating: animation !== null,
+      // El paneo de cámara llega con TASK-0150; hasta entonces no existe.
+      panning: false,
       spellMenu,
     });
     if (intent.type === 'pause-toggle') {

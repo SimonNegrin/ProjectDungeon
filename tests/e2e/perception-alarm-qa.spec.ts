@@ -58,7 +58,7 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
   await screenshot(page, testInfo, 'normal');
 
   // R-003: sin visión, un turno completo no mueve ni despierta a nadie.
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const idle = await snapshot(page);
   expect(idle.turn).toBe(2);
@@ -234,7 +234,7 @@ test('TASK-0039: detección por paso, "!", aviso, F1 y enfriamiento', async ({
   // R-005/R-007: dos fases investigando, la tercera vuelve y la cuarta duerme.
   const phases: string[] = [];
   for (let phase = 1; phase <= 4; phase += 1) {
-    await page.keyboard.press('e');
+    await page.keyboard.press('n');
     await settle(page);
     const snap = await snapshot(page);
     const brute = enemyOf(snap, 'enemy-3');
@@ -325,7 +325,7 @@ test('TASK-0039: el daño despierta, guarda al atacante y alarma 5 sin cadena', 
   expect(await page.locator('[data-testid="spot-marker"]').count()).toBe(0);
   await screenshot(page, testInfo, 'alarma-aviso');
 
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const afterTurn = await snapshot(page);
   const dormantBefore = enemyOf(initial, 'enemy-2');
@@ -439,7 +439,7 @@ test('TASK-0039: semilla de referencia, R-010 y determinismo', async ({
         hasShouted: enemy.hasShouted,
       })),
     };
-    await page.keyboard.press('e');
+    await page.keyboard.press('n');
     await settle(page);
     const afterTurn = await snapshot(page);
     return {

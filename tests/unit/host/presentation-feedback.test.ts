@@ -467,7 +467,7 @@ describe('beat e input durante una acción sin movimiento', () => {
     expect(advanceTimeline(timeline, 0, 10_000)).toBe(timeline.totalMs);
 
     const state = makeState();
-    for (const key of ['d', ' ', 'f', 'g', '1', 'e']) {
+    for (const key of ['d', ' ', 'f', 'g', '1', 'n']) {
       expect(
         translateKey({ key }, state, { x: 6, y: 5 }, { animating: true }),
       ).toEqual({ type: 'ignored', reason: 'animating' });

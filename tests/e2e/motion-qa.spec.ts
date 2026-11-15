@@ -569,7 +569,7 @@ test('input de juego ignorado durante la animación; F1 responde y el reinicio p
     'Space',
     'Enter',
     'f',
-    'e',
+    'n',
   ]) {
     await page.keyboard.press(key);
     const after = await snapshot(page);
@@ -671,8 +671,8 @@ test('input de juego ignorado durante la animación; F1 responde y el reinicio p
   await expect(page.getByTestId('hud-message')).toHaveText('Enemigo fuera de alcance');
   await expect(page.getByTestId('hud-message')).toBeVisible();
 
-  // E vuelve a responder: termina el turno y la fase enemiga se completa.
-  await page.keyboard.press('e');
+  // N vuelve a responder: termina el turno y la fase enemiga se completa.
+  await page.keyboard.press('n');
   const afterEndTurn = await settle(page);
   expect(afterEndTurn).toMatchObject({
     turn: afterSecond.turn + 1,
@@ -734,9 +734,9 @@ test('moverse sobre un enemigo: recorrido, pausa, daño y overlay al terminar', 
   );
   expect(afterAttack.players[0].actions.remaining).toBe(1);
 
-  // El beat del ataque descarta la intención siguiente: se completa antes de E.
+  // El beat del ataque descarta la intención siguiente: se completa antes de N.
   await settle(page);
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   const nextTurn = await settle(page);
   expect(nextTurn.turn).toBe(adjacent.turn + 1);
   expect(nextTurn.players[0].actions.remaining).toBe(2);
@@ -912,7 +912,7 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   );
 
   const beforeEndTurn = await snapshot(page);
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   const frozen = await snapshot(page);
   const moves = frozen.lastEvents.flatMap((event) =>
     event.type === 'UnitMoved' ? [event] : [],

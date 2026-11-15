@@ -352,7 +352,7 @@ for (const viewport of VIEWPORTS) {
       const suggestion = page.getByTestId('hud-suggestion');
       await expect(suggestion).toBeVisible();
       await expect(suggestion).toHaveText(
-        'Sin acciones ni MP: pulsa E para terminar el turno',
+        'Sin acciones ni MP: pulsa N para terminar el turno',
       );
 
       const area = await layout(page);

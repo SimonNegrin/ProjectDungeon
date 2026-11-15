@@ -64,7 +64,7 @@ test('TASK-0039: el cobarde huye tras un golpe de ≥40 %, rompe la visión y se
     hp: cowardMaxHp - attack!.damage,
   });
 
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const fled = await snapshot(page);
   const coward = enemyOf(fled, 'enemy-4');
@@ -139,7 +139,7 @@ test('TASK-0039: el cobarde acorralado ataca en vez de esperar', async ({
     fleeing: true,
   });
 
-  await page.keyboard.press('e');
+  await page.keyboard.press('n');
   await settle(page);
   const after = await snapshot(page);
   const enemyAttacks = after.lastEvents.filter(
