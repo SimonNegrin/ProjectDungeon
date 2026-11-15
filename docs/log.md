@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0146 — done: turno por jugador con `EndTurn` validado, recursos solo al empezar cada turno, comandos de no activos rechazados, una fase enemiga por ronda con `enemyPhase` (actor/objetivo/espera) y fantasma con índice; verify 107/1688; fusión `c21931c` — [informe](../artifacts/TASK-0146/attempt-1/report.md)
+
 * 2026-11-15 — Harness — validador — avisos de tope solo en tareas no cerradas; los topes duros se validan siempre y desaparecen los 129 avisos históricos; verify OK — [documentación](harness/documentacion.md#topes)
 
 * 2026-11-15 — Harness — tareas docs — DoR y prompts exigen un solo dueño de destino y dividen al crear; `artifacts/README` alinea capturas y topes; ADR-016 nota de vigencia por ADR-018; verify OK — [DoR](quality/definition-of-ready-done.md#tarea-lista-para-ejecutar)
