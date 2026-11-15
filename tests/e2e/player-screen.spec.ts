@@ -198,6 +198,14 @@ test('ficha del arquetipo: datos, miniaturas y teclado', async ({ page }, testIn
 
   // Teclado: desde Guerrero, Tab al siguiente arquetipo y Enter actualiza ficha.
   await page.getByTestId('player-archetype-warrior').click();
+  await expect(page.getByTestId('player-sheet-name')).toHaveText('Guerrero');
+  // Cambiar de arquetipo con la variante 2 activa la devuelve a la 1.
+  await expect(page.getByTestId('player-variant-1')).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+  await expect(page.getByTestId('player-variant-selected-1')).toBeVisible();
+  await expect(page.getByTestId('player-variant-selected-2')).toBeHidden();
   await expect(page.getByTestId('player-archetype-warrior')).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByTestId('player-archetype-barbarian')).toBeFocused();
