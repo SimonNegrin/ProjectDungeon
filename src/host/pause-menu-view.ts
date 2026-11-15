@@ -38,6 +38,8 @@ export interface PauseMenuView {
    * error se anuncia sin sacar la selección de las cinco acciones.
    */
   setSaveMessage(message: string | null): void;
+  /** Mensaje visible del rechazo de carga; no mueve el foco. */
+  setLoadMessage(message: string | null): void;
   hide(): void;
   isOpen(): boolean;
 }
@@ -100,6 +102,7 @@ export function createPauseMenuView(
   const controlsBack = requireElement<HTMLButtonElement>(root, 'pause-controls-back');
   const saveReason = requireElement<HTMLElement>(root, 'pause-save-reason');
   const saveMessage = requireElement<HTMLElement>(root, 'pause-save-message');
+  const loadMessage = requireElement<HTMLElement>(root, 'pause-load-message');
 
   const actionButtons = PAUSE_ACTIONS.map((action) => ({
     action,
@@ -316,6 +319,11 @@ export function createPauseMenuView(
     saveMessage.hidden = message === null || message === '';
   };
 
+  const setLoadMessage = (message: string | null): void => {
+    loadMessage.textContent = message ?? '';
+    loadMessage.hidden = message === null || message === '';
+  };
+
   return {
     show(state: PauseState, _context: PauseContext): void {
       previousFocus =
@@ -327,6 +335,7 @@ export function createPauseMenuView(
       renderedScreen = null;
       renderedIndex = -1;
       setSaveMessage(null);
+      setLoadMessage(null);
       render(state);
     },
     update(state: PauseState, _context: PauseContext): void {
@@ -334,11 +343,13 @@ export function createPauseMenuView(
       render(state);
     },
     setSaveMessage,
+    setLoadMessage,
     hide(): void {
       if (!visible) return;
       visible = false;
       section.hidden = true;
       setSaveMessage(null);
+      setLoadMessage(null);
       const target = previousFocus;
       previousFocus = null;
       if (

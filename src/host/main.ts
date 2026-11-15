@@ -39,6 +39,12 @@ import { createDebugView, createHudView, createNoticeView } from './hud';
 import { buildPanelDetail } from './hud-detail';
 import { canOpenCharacterPanel, isManagedKey, translateKey } from './input';
 import {
+  createGameFilePicker,
+  requestGameLoad,
+  type GameFilePicker,
+  type LoadGameOrigin,
+} from './load-game';
+import {
   activatePauseAction,
   closePause,
   createPauseState,
@@ -348,6 +354,16 @@ async function boot(): Promise<void> {
     new URLSearchParams(window.location.search).get('test') === '1';
 
   /**
+   * Un único selector para el menú y la pausa (REQ-024 T-009/T-016): el input
+   * oculto del marco se abre con un clic y ambos orígenes leen de él.
+   */
+  const loadFileInput = frame.querySelector<HTMLInputElement>(
+    '[data-testid="load-file"]',
+  );
+  const loadFilePicker: GameFilePicker | null =
+    loadFileInput === null ? null : createGameFilePicker(loadFileInput);
+
+  /**
    * Primera pantalla en juego normal (REQ-016). Con `?test=1` no se monta y el
    * host arranca como antes. «Continuar» abre la configuración jugador a
    * jugador; «Cargar» sigue siendo no-op hasta TASK-0141 y el último
@@ -403,7 +419,9 @@ async function boot(): Promise<void> {
     : createStartScreenView(frame, {
         search: window.location.search,
         onContinue: openPlayerScreen,
-        onLoadRequested: () => {},
+        onLoadRequested: () => {
+          void loadGameFrom('menu');
+        },
       });
 
   const prefersReducedMotion =
@@ -417,6 +435,12 @@ async function boot(): Promise<void> {
   let world = gridPixelSize(session.state.grid, TILE_SIZE);
   let bounds = cameraBounds(world, viewport);
   let camera = centerCameraOnTile(session.state.players[0], viewport, world, TILE_SIZE);
+  /**
+   * Jugador en el que centrar la próxima cámara sin animación. Solo lo escribe
+   * la carga: el render normal sigue centrando en el primer jugador para no
+   * alterar el resto de la partida (criterio de TASK-0141).
+   */
+  let pendingCameraFocusPlayerId: string | null = null;
   let lastEvents: readonly GameEvent[] = [];
   let assets: SceneAssets | undefined;
   let cursor = cursorAtPlayer(session.state.players[0]);
@@ -510,6 +534,76 @@ async function boot(): Promise<void> {
     },
     onCancel: () => handlePauseEscape(),
   });
+
+  /**
+   * Sustituye la partida por el estado validado y reconstruye solo lo derivable
+   * (cámara y HUD). No restaura presentación: cancela animación, feedback,
+   * avisos y modales, y deja la cámara en el activo una vez.
+   */
+  const applyLoadedState = (state: GameState): void => {
+    pause = createPauseState();
+    pauseMenuView.hide();
+    startScreenView?.hide();
+    cancelAnimation();
+    clearTransientFeedback();
+    spellMenu = { ...INITIAL_SPELL_MENU };
+    panelOpen = false;
+    panelSelection = null;
+    panelMessage = null;
+    inventoryPanelView.close();
+    session.load(state);
+    lastEvents = [];
+    noticeView.clear();
+    debugView.close();
+    spotView.clear();
+    frameEffectView.clear();
+    screenFadeView.clear();
+    spottedUnits = new Set<string>();
+    world = gridPixelSize(state.grid, TILE_SIZE);
+    bounds = cameraBounds(world, viewport);
+    pendingCameraFocusPlayerId = state.activePlayerId;
+    const active =
+      state.players.find((player) => player.id === state.activePlayerId) ??
+      state.players[0];
+    cursor = cursorAtPlayer(active);
+    cursorStatus = deriveCursorStatus(state, cursor);
+    render();
+    // El foco vuelve al marco: el teclado manda sin depender del menú anterior.
+    frame.focus({ preventScroll: true });
+  };
+
+  /**
+   * Carga compartida por menú y pausa (REQ-024 R-005/T-016). La confirmación de
+   * la pausa ya ocurrió en su aviso; aquí solo se elige, se valida y se aplica
+   * o se anuncia el rechazo. Un segundo intento durante la lectura se ignora.
+   */
+  let loading = false;
+  const loadGameFrom = async (origin: LoadGameOrigin): Promise<void> => {
+    if (loading) return;
+    if (loadFilePicker === null) {
+      const message = 'No se pudo abrir el selector de archivos.';
+      if (origin === 'menu') startScreenView?.setLoadMessage(message);
+      else pauseMenuView.setLoadMessage(message);
+      return;
+    }
+    loading = true;
+    if (origin === 'menu') startScreenView?.setLoadMessage(null);
+    else pauseMenuView.setLoadMessage(null);
+    try {
+      await requestGameLoad({
+        origin,
+        pick: () => loadFilePicker.pick(),
+        apply: applyLoadedState,
+        notify: (message) => {
+          console.error(message);
+          if (origin === 'menu') startScreenView?.setLoadMessage(message);
+          else pauseMenuView.setLoadMessage(message);
+        },
+      });
+    } finally {
+      loading = false;
+    }
+  };
 
   const resetCursorToPlayer = (): void => {
     cursor = cursorAtPlayer(session.state.players[0]);
@@ -641,7 +735,15 @@ async function boot(): Promise<void> {
     // Sin animación la poda usa el estado final: el "!" ya no se adelanta a su
     // cue porque durante la animación solo se retira con sus eventos.
     spottedUnits = reconcileSpottedUnits(state, spottedUnits);
-    camera = centerCameraOnTile(state.players[0], viewport, world, TILE_SIZE);
+    // La carga de una partida pide una única vez que la cámara muestre al
+    // activo; después el render normal conserva su comportamiento.
+    const focusPlayer =
+      (pendingCameraFocusPlayerId === null
+        ? undefined
+        : state.players.find((player) => player.id === pendingCameraFocusPlayerId)) ??
+      state.players[0];
+    pendingCameraFocusPlayerId = null;
+    camera = centerCameraOnTile(focusPlayer, viewport, world, TILE_SIZE);
 
     // El cursor nunca mueve la cámara; si la cámara se desplaza al mover al
     // jugador, se recoloca al tile visible más cercano.
@@ -1035,9 +1137,14 @@ async function boot(): Promise<void> {
     else pauseMenuView.hide();
   };
 
-  /** Confirmar «Cargar» cierra el aviso: TASK-0141 añade la lectura real. */
+  /**
+   * Confirmar «Cargar» en la pausa conserva el menú abierto mientras se elige el
+   * archivo; el cargador compartido cierra la pausa solo si la partida es
+   * válida. Cancelar el selector o un archivo inválido no tocan la sesión.
+   */
   const confirmLoadGame = (): void => {
     syncPauseMenu();
+    void loadGameFrom('pause');
   };
 
   /**

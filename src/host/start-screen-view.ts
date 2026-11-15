@@ -32,6 +32,8 @@ export interface StartScreenView {
    * «Nueva partida» de la pausa (REQ-024 R-013) sin reiniciar la sesión.
    */
   showStepOne(): void;
+  /** Mensaje visible de carga (rechazo del archivo); `null` lo oculta. */
+  setLoadMessage(message: string | null): void;
 }
 
 function requireElement<T extends Element>(root: ParentNode, selector: string): T {
@@ -68,6 +70,10 @@ export function createStartScreenView(
   const seed = requireElement<HTMLInputElement>(root, '[data-testid="step1-seed"]');
   const error = requireElement<HTMLElement>(root, '[data-testid="step1-error"]');
   const status = requireElement<HTMLElement>(root, '[data-testid="start-status"]');
+  const loadMessageNode = requireElement<HTMLElement>(
+    root,
+    '[data-testid="start-load-message"]',
+  );
   const continueButton = requireElement<HTMLButtonElement>(
     root,
     '[data-testid="step1-continue"]',
@@ -86,6 +92,7 @@ export function createStartScreenView(
   );
 
   let announcement = '';
+  let loadMessage: string | null = null;
   let visible = true;
   let renderedStep: StartScreenStep | null = null;
   let cancelOrigin: HTMLElement | null = null;
@@ -108,6 +115,8 @@ export function createStartScreenView(
     players.value = String(state.playerCount);
     seed.value = state.seedText;
     renderMessages(state);
+    loadMessageNode.textContent = loadMessage ?? '';
+    loadMessageNode.hidden = loadMessage === null || loadMessage === '';
     status.textContent = state.step === 'menu' ? (state.notice ?? '') : announcement;
 
     if (state.step !== renderedStep) {
@@ -131,6 +140,7 @@ export function createStartScreenView(
 
   const openStepOne = (): void => {
     announcement = '';
+    loadMessage = null;
     model.openStepOne();
     render();
   };
@@ -218,10 +228,12 @@ export function createStartScreenView(
     },
     hide(): void {
       visible = false;
+      loadMessage = null;
       section.hidden = true;
     },
     showMenu(): void {
       announcement = '';
+      loadMessage = null;
       model.returnToMenu();
       visible = true;
       renderedStep = null;
@@ -229,10 +241,16 @@ export function createStartScreenView(
     },
     showStepOne(): void {
       announcement = '';
+      loadMessage = null;
       visible = true;
       model.openStepOne();
       renderedStep = null;
       render();
+    },
+    setLoadMessage(message: string | null): void {
+      loadMessage = message;
+      loadMessageNode.textContent = message ?? '';
+      loadMessageNode.hidden = message === null || message === '';
     },
   };
 }
