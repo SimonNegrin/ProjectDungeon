@@ -8,8 +8,13 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-11T10:05:00Z }
 
 # Alcance vigente
 
-El prototipo actual es un dungeon crawler de un jugador con teclado: mazmorra
-generada, turnos, combate con equipo, percepción y feedback visual. La base está
+El prototipo actual arranca con menú principal, paso 1 de 1-6 jugadores y
+semilla, configuración jugador a jugador y resumen; la partida jugable sigue
+siendo de un jugador hasta el hotseat de la fase 2. El menú principal ofrece
+«Nueva» y «Cargar», y la carga efectiva de `REQ-024` sigue pendiente. La
+configuración no se guarda entre sesiones: cada entrada parte de cero y genera una
+semilla. El dungeon crawler con teclado mantiene mazmorra generada, turnos,
+combate con equipo, percepción y feedback visual. La base está
 cerrada: `REQ-001` a `REQ-015` y `REQ-017` están implementadas o `stable`, con
 `REQ-009` pendiente de playtest. La economía de acciones, la réplica, la magia y
 los tipos de daño están implementadas (`REQ-025`, `REQ-026`, `REQ-027` y
@@ -50,7 +55,7 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
 | 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
-| 2 | Multijugador local hotseat en el mismo teclado | Definida: modo en REQ-031 y configuración en REQ-016 v3; se implementa al cerrar inventario, saqueo, muerte, HUD y guardado |
+| 2 | Multijugador local hotseat en el mismo teclado | En implementación: menú principal, configuración y resumen de `REQ-016` ya implementados (TASK-0122 a TASK-0127); hotseat jugable, pausa y guardado pendientes |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -76,7 +81,10 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   TASK-0093 a TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y
   `REQ-020` (cofres y cadáveres) sigue en borrador.
 - Hotseat: `REQ-031` (modo local), `REQ-016` v3 (menú principal, configuración y
-  semilla) y `REQ-024` v3 (pausa, guardado y carga) están `stable` y sin tareas.
+  semilla) y `REQ-024` v3 (pausa, guardado y carga) están `stable`. El arranque de
+  `REQ-016` está implementado (TASK-0122 a TASK-0127): menú principal, paso 1 con
+  1-6 jugadores y semilla, configuración, resumen y variante de sprite; el hotseat
+  jugable, la pausa y el guardado siguen pendientes.
   Es el último paso del orden actual, tras inventario, saqueo, muerte y HUD.
 - `REQ-022` (HUD izquierdo), `REQ-023` (detalle del cursor) y `REQ-030` (alcance
   visible de hechizos) están en borrador.
@@ -105,7 +113,11 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - El motor será TypeScript y Canvas 2D.
 - La rejilla es cuadrada; movimiento y ataque diagonales.
 - Todos los jugadores actúan y después todos los enemigos.
-- Hasta 6 jugadores en el futuro; el primer prototipo es de 1.
+- El arranque tiene menú principal solo al inicio con «Nueva» y «Cargar», un paso
+  1 que fija 1-6 jugadores y semilla, configuración jugador a jugador con
+  arquetipo, variante y nombre, y un resumen antes de «Empezar»; cancelar pide
+  confirmación y vuelve al menú. La configuración no se guarda entre sesiones y la
+  partida jugable sigue siendo de un jugador hasta el hotseat.
 - Un solo nivel por ahora; habrá varios niveles en el futuro.
 - La cámara sigue al jugador activo.
 - El movimiento se presenta animado tile a tile, con la cámara siguiendo al
@@ -204,9 +216,12 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Servidor, WebSocket, QR y salas (fase 3).
 - Cuentas, base de datos y matchmaking. El guardado local de partida lo define
   `REQ-024`; la progresión entre runs sigue abierta.
-- Hotseat jugable: definido en `REQ-031` v2 y `REQ-016` v3, con implementación
-  pendiente al final del orden actual; sin reinicio rápido, el resultado ofrece
-  «Nueva partida» y «Cargar partida».
+- Hotseat jugable: el arranque de `REQ-016` v3 ya permite configurar 1-6
+  jugadores, pero los turnos, el relevo y la cámara de `REQ-031` siguen
+  pendientes; sin reinicio rápido, el resultado ofrece «Nueva partida» y «Cargar
+  partida».
+- Persistencia de la configuración de partida entre sesiones: cada entrada al paso
+  1 parte de cero; el guardado de una partida iniciada se define en `REQ-024`.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
   muros mágicos: horizonte. La magia básica y la curación están implementadas en
