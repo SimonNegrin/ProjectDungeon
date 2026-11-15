@@ -4,7 +4,7 @@ id: TASK-0126
 title: "Host: resumen, Empezar y estado inicial"
 description: "Añadir el resumen de party y semilla en solo lectura y conectar «Empezar» con el constructor único para arrancar la partida con los N jugadores y la semilla mostrada."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-009, R-010, R-011, T-001, T-002]
