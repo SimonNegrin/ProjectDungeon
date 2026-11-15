@@ -4,22 +4,32 @@ id: TASK-0123
 title: "Host: menú principal y paso 1"
 description: "Añadir la primera pantalla con «Nueva» y «Cargar» y el paso 1 con 1-6 jugadores y semilla editable, incluyendo `?seed=`, validación y cancelación."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-001, R-002, R-003, R-004, R-012, T-004, T-005, T-007]
 depends_on: [TASK-0122]
 unlocks: [TASK-0124, TASK-0125, TASK-0129, TASK-0139, TASK-0141]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T00:35:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0123/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T00:35:00Z
+    note: >-
+      Intento 1 verificado (código 5043e51, 2fe3f67, fd51b00 y b2212c1;
+      artefactos 1889472). Diff revisado: solo host, HTML/CSS, tests y
+      artefactos; `src/game/` y dependencias intactos; único test existente
+      adaptado a `?test=1` sin cambiar aserciones. `pnpm run verify`
+      reejecutado: 96 archivos/1406 tests, tsc, build y bundle OK; E2E 219/219.
+      Aviso de `?seed` inválido corregido antes del cierre. Evidencia en
+      `attempt-1/lead-verify/`. Docs de diseño y glosario quedan en TASK-0128.
 ---
 
 # Objetivo
@@ -39,21 +49,21 @@ selector no debe romper el flujo.
 
 # Criterios de aceptación
 
-- [ ] El menú principal es la primera pantalla; contiene «Nueva» y «Cargar» y
+- [x] El menú principal es la primera pantalla; contiene «Nueva» y «Cargar» y
       `Esc` no lo abandona. «Nueva» abre el paso 1.
-- [ ] El paso 1 permite elegir N entre 1 y 6 y editar la semilla; es el único
+- [x] El paso 1 permite elegir N entre 1 y 6 y editar la semilla; es el único
       punto donde se cambian ambos datos.
-- [ ] Al entrar se genera una semilla aleatoria; un campo vacío genera otra al
+- [x] Al entrar se genera una semilla aleatoria; un campo vacío genera otra al
       continuar; un valor inválido bloquea el avance con mensaje visible y
       anunciado.
-- [ ] `?seed=` válido precarga el campo una sola vez en la carga de página y
+- [x] `?seed=` válido precarga el campo una sola vez en la carga de página y
       sigue siendo editable; `?seed=` inválido se ignora con aviso.
-- [ ] Los valores por defecto son N=1 y semilla generada; no se recupera una
+- [x] Los valores por defecto son N=1 y semilla generada; no se recupera una
       configuración anterior al recargar.
-- [ ] `Esc` o «Cancelar» en el paso 1 piden confirmación y, al confirmar, vuelven
+- [x] `Esc` o «Cancelar» en el paso 1 piden confirmación y, al confirmar, vuelven
       al menú principal sin empezar la partida.
-- [ ] Navegación completa por teclado, foco visible y avisos con `aria-live`.
-- [ ] Tests de primera pantalla, N=1 y N=6, semilla válida/vacía/inválida,
+- [x] Navegación completa por teclado, foco visible y avisos con `aria-live`.
+- [x] Tests de primera pantalla, N=1 y N=6, semilla válida/vacía/inválida,
       `?seed=` y cancelación; `pnpm run verify` pasa.
 
 # Plan de test
@@ -66,9 +76,9 @@ selector no debe romper el flujo.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0123/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0123/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

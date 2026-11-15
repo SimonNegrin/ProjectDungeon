@@ -5,7 +5,7 @@ description: Menú principal y paso 1 con semilla, validación, ?seed y cancelac
 task: TASK-0123
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:29:30Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:34:45Z }
 artifacts: artifacts/TASK-0123/attempt-1/
 verified:
 ---
@@ -17,17 +17,16 @@ verified:
 
 # Cambios
 
-- `src/host/seed.ts`: `parseSeedText` y `readSeedParam` reutilizan el parser
-  existente; `parseSeedParam` conserva su comportamiento.
-- `src/host/start-screen.ts`: modelo puro con `random` inyectable; el aviso de
-  `?seed` inválido dice que se ignora y se genera una semilla nueva.
+- `src/host/seed.ts`: `parseSeedText` y `readSeedParam` reutilizan el parser;
+  `parseSeedParam` conserva su comportamiento.
+- `src/host/start-screen.ts`: modelo puro con `random` inyectable y aviso
+  correcto de `?seed` inválido (se ignora y se genera una nueva).
 - `src/host/start-screen-view.ts`: DOM, foco, `aria-live` y trampa del aviso.
-- `index.html`, `src/host/ui.css`: sección opaca `.start-screen` y estilos con
-  tokens.
-- `src/host/main.ts`: monta la pantalla solo sin `?test=1`, bloquea mapa/F1 y
+- `index.html`, `src/host/ui.css`: sección opaca `.start-screen` con tokens.
+- `src/host/main.ts`: monta la pantalla fuera de `?test=1`, bloquea mapa/F1 y
   deja `onContinue`/`onLoadRequested` como no-op.
-- Tests nuevos: `tests/unit/host/start-screen.test.ts`,
-  `tests/e2e/start-screen.spec.ts` (capturas).
+- Tests: `tests/unit/host/start-screen.test.ts` y
+  `tests/e2e/start-screen.spec.ts`.
 - Commits: `5043e51`, `2fe3f67`, `fd51b00`, `b2212c1` (`commit.txt`).
 
 # Tests
@@ -36,50 +35,44 @@ verified:
 |---|---|---|
 | `pnpm exec vitest run tests/unit/host/start-screen.test.ts tests/unit/host/seed.test.ts` | 46/46 OK | `test-output.txt` |
 | `pnpm run verify` | 1406/1406, tsc, build y bundle OK | `verify-output.txt` |
-| `pnpm run test:e2e` | 219/219 OK (1,3 m) | `e2e-output.txt` |
-| `E2E_ARTIFACTS_DIR=tests/e2e pnpm run test:e2e tests/e2e/start-screen.spec.ts` | 4/4 OK | `tests/e2e/start-screen/screenshots/` |
+| `pnpm run test:e2e` | 219/219 OK | `e2e-output.txt` |
+| `E2E_ARTIFACTS_DIR=tests/e2e … start-screen.spec.ts` | 4/4 OK | `tests/e2e/start-screen/screenshots/` |
 
 # Evidencia visual
 
-- `tests/e2e/start-screen/screenshots/` y copia en
-  `artifacts/TASK-0123/attempt-1/screenshots/`: `menu-1280x720.png`,
-  `paso1-1280x720.png`, `confirmacion-1280x720.png`, `paso1-error-1280x720.png`,
-  `paso1-segunda-entrada-1280x720.png`, `menu-900x700.png`.
-- Mirar: menú con «Nueva» enfocada, N=1 y semilla generada, aviso de
-  cancelación y error de semilla visible; 900×700 conserva el encaje del marco.
+`tests/e2e/start-screen/screenshots/` y copia en `screenshots/`: menú, paso 1,
+confirmación, error y segunda entrada a 1280×720, y menú a 900×700. Mirar: foco
+en «Nueva», N=1, semilla generada, aviso de cancelación y error visible.
 
 # Desviaciones
 
-- `tests/e2e/host-growth-render-qa.spec.ts` es el único spec que abría `/` sin
-  `test=1` y necesitaba jugar. Su helper `open` pasa a abrir con `test=1` por
-  defecto; no se tocaron aserciones, capturas ni el resto de la suite.
-- `?seed=` inválido mantiene el `console.warn` histórico de `seed.ts` además del
-  aviso visible en el menú (no se cambió el parser).
-- Corrección del lead: el aviso visible de `?seed=` inválido reutilizaba el
-  texto del parser («se usa la semilla por defecto»), falso porque el paso 1
-  ignora el parámetro y genera otra. Ahora nombra el valor ignorado y avisa de
-  que se genera una semilla nueva; parser y flujo no cambian.
-- Las capturas E2E viven en `tests/e2e/start-screen/screenshots/` (detalle) y se
-  copian a `artifacts/` para el informe.
+- `host-growth-render-qa.spec.ts` abre con `?test=1` por defecto: el menú ya es
+  la primera pantalla. No se tocaron aserciones ni capturas.
+- `?seed=` inválido conserva el `console.warn` histórico de `seed.ts`.
+- Corrección del lead: el aviso visible reutilizaba «se usa la semilla por
+  defecto», falso porque se genera una nueva; corregido en `b2212c1`.
+- Las capturas se copian a `artifacts/` además de `<spec>/screenshots/`.
 
 # Problemas conocidos y preguntas abiertas
 
-- «Continuar» anuncia la configuración pero no navega ni arranca: es el alcance
-  de TASK-0124. Hasta entonces la pantalla de inicio bloquea las teclas del mapa
-  y `F1` en juego normal; `?test=1` conserva el comportamiento anterior.
-- No hay persistencia: recargar genera semilla nueva y N=1, según R-012.
+- «Continuar» anuncia la configuración pero no navega ni arranca: alcance de
+  TASK-0124. Hasta entonces el menú bloquea mapa/F1 en juego normal.
+- Sin persistencia: recargar genera semilla nueva y N=1, según R-012.
 
 # Fricción reutilizable
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| El destino de las capturas E2E difiere entre el brief (artifacts) y su detalle/otras tareas (tests/e2e) | `brief.md` y `brief-detalle.md` de TASK-0123; TASK-0105 usó `E2E_ARTIFACTS_DIR=artifacts/.../e2e` | Copiar los PNG a artifacts | Cualquier tarea visual repite la duda y puede subir capturas duplicadas | Fijar una sola ruta en la plantilla de brief | Bajo | `pending` |
+| Ruta de capturas E2E entre brief y detalle | brief de TASK-0123; TASK-0105 usó artifacts | Copiar PNG | Posible duplicación futura | Fijar una ruta en la plantilla | Bajo | `rejected` |
+
+Triaje del lead: la plantilla ya fija `<spec>/screenshots/` con
+`E2E_ARTIFACTS_DIR`; la copia a `artifacts/` es local. No hay cambio de arnés.
 
 # Métricas de handoff
 
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2497 |
-| `report_bytes` | 4021 |
+| `report_bytes` | 3276 |
 | `overflow` | `none` |
-| `criteria_failed` | `0` |
+| `criteria_failed` | 0 |
