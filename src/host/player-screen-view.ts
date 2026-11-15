@@ -10,11 +10,23 @@
 import type { ArchetypeId } from '../game/roster';
 import { ROSTER } from '../game/roster';
 import {
+  buildArchetypeSheet,
+  type SheetStatId,
+  type SheetVariant,
+} from './archetype-sheet';
+import {
   createPlayerScreen,
   type PlayerPartyConfig,
   type PlayerScreenConfig,
   type PlayerScreenStep,
 } from './player-screen';
+
+/** Nodo de la ficha que se actualiza en cada render sin rehacer el DOM. */
+interface VariantControl {
+  readonly button: HTMLButtonElement;
+  readonly sprite: HTMLElement;
+  readonly selected: HTMLElement;
+}
 
 export interface PlayerScreenViewOptions extends PlayerScreenConfig {
   /** Punto de extensión del resumen (TASK-0126); aquí solo anuncia. */
@@ -59,14 +71,6 @@ export function createPlayerScreenView(
     '[data-testid="player-archetypes"]',
   );
   const nameInput = requireElement<HTMLInputElement>(root, '[data-testid="player-name"]');
-  const variantOne = requireElement<HTMLButtonElement>(
-    root,
-    '[data-testid="player-variant-1"]',
-  );
-  const variantTwo = requireElement<HTMLButtonElement>(
-    root,
-    '[data-testid="player-variant-2"]',
-  );
   const backButton = requireElement<HTMLButtonElement>(root, '[data-testid="player-back"]');
   const nextButton = requireElement<HTMLButtonElement>(root, '[data-testid="player-next"]');
   const cancelButton = requireElement<HTMLButtonElement>(
@@ -90,6 +94,15 @@ export function createPlayerScreenView(
   // Cada montaje parte de un contenedor vacío: destroy() no se lleva el DOM y
   // reutilizarlo acumularía botones con testids duplicados y listeners muertos.
   archetypes.replaceChildren();
+  archetypes.removeAttribute('role');
+  archetypes.removeAttribute('aria-labelledby');
+
+  const archetypeOptions = document.createElement('div');
+  archetypeOptions.className = 'player-archetype-options';
+  archetypeOptions.dataset.testid = 'player-archetype-options';
+  archetypeOptions.setAttribute('role', 'group');
+  archetypeOptions.setAttribute('aria-labelledby', 'player-archetype-label');
+
   for (const id of Object.keys(ROSTER) as ArchetypeId[]) {
     const button = document.createElement('button');
     button.type = 'button';
@@ -101,9 +114,87 @@ export function createPlayerScreenView(
       model.setArchetype(id);
       render();
     });
-    archetypes.append(button);
+    archetypeOptions.append(button);
     archetypeButtons.set(id, button);
   }
+  archetypes.append(archetypeOptions);
+
+  // Ficha y miniaturas se crean una sola vez por montaje. `render()` solo
+  // actualiza sus nodos: reconstruirlos al cambiar de arquetipo perdería el
+  // foco de las miniaturas.
+  const initial = buildArchetypeSheet(model.state().players[0].archetypeId);
+
+  const sheet = document.createElement('section');
+  sheet.className = 'player-sheet ui-inset';
+  sheet.dataset.testid = 'player-sheet';
+  sheet.setAttribute('aria-labelledby', 'player-sheet-name');
+
+  const sheetName = document.createElement('h3');
+  sheetName.id = 'player-sheet-name';
+  sheetName.className = 'player-sheet-name';
+  sheetName.dataset.testid = 'player-sheet-name';
+
+  const statList = document.createElement('dl');
+  statList.className = 'player-sheet-stats';
+  const statValues = new Map<SheetStatId, HTMLElement>();
+  for (const stat of initial.stats) {
+    const row = document.createElement('div');
+    row.className = 'player-sheet-row';
+    row.dataset.testid = `player-sheet-stat-${stat.id}`;
+    const term = document.createElement('dt');
+    term.textContent = stat.label;
+    const value = document.createElement('dd');
+    value.textContent = stat.value;
+    row.append(term, value);
+    statList.append(row);
+    statValues.set(stat.id, value);
+  }
+
+  const weaponLine = document.createElement('p');
+  weaponLine.className = 'player-sheet-weapon';
+  weaponLine.dataset.testid = 'player-sheet-weapon';
+
+  const variants = document.createElement('div');
+  variants.className = 'player-variants';
+  variants.dataset.testid = 'player-variants';
+  variants.setAttribute('role', 'group');
+  variants.setAttribute('aria-label', 'Variante');
+
+  const variantControls: readonly VariantControl[] = initial.variants.map(
+    (variant: SheetVariant) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'player-variant ui-outset';
+      button.dataset.testid = `player-variant-${variant.variant}`;
+      button.setAttribute('aria-pressed', 'false');
+
+      const sprite = document.createElement('span');
+      sprite.className = 'player-variant-sprite';
+      sprite.setAttribute('aria-hidden', 'true');
+
+      const caption = document.createElement('span');
+      caption.className = 'player-variant-caption';
+      caption.textContent = `Variante ${variant.variant}`;
+
+      const selected = document.createElement('span');
+      selected.className = 'player-variant-selected';
+      selected.dataset.testid = `player-variant-selected-${variant.variant}`;
+      selected.textContent = 'Seleccionada';
+      selected.hidden = true;
+
+      button.append(sprite, caption, selected);
+      button.addEventListener('click', () => {
+        model.setVariant(variant.variant);
+        render();
+      });
+      variants.append(button);
+
+      return { button, sprite, selected };
+    },
+  );
+
+  sheet.append(sheetName, statList, weaponLine, variants);
+  archetypes.append(sheet);
 
   const dialogButtons: readonly HTMLButtonElement[] = [confirmButton, dismissButton];
 
@@ -133,8 +224,29 @@ export function createPlayerScreenView(
     for (const [id, button] of archetypeButtons) {
       button.setAttribute('aria-pressed', String(draft.archetypeId === id));
     }
-    variantOne.setAttribute('aria-pressed', String(draft.variant === 1));
-    variantTwo.setAttribute('aria-pressed', String(draft.variant === 2));
+
+    const sheetModel = buildArchetypeSheet(draft.archetypeId);
+    sheetName.textContent = sheetModel.name;
+    for (const stat of sheetModel.stats) {
+      const value = statValues.get(stat.id);
+      if (value) value.textContent = stat.value;
+    }
+    weaponLine.textContent = `Arma temática: ${sheetModel.weapon}`;
+    for (const [offset, control] of variantControls.entries()) {
+      const variant = sheetModel.variants[offset];
+      const active = draft.variant === variant.variant;
+      control.button.setAttribute('aria-pressed', String(active));
+      control.button.setAttribute('aria-label', variant.accessibleName);
+      control.sprite.style.setProperty(
+        '--variant-sx',
+        String(-variant.rect.sx * 2),
+      );
+      control.sprite.style.setProperty(
+        '--variant-sy',
+        String(-variant.rect.sy * 2),
+      );
+      control.selected.hidden = !active;
+    }
     if (nameInput.value !== draft.name) nameInput.value = draft.name;
     backButton.disabled = state.index === 0;
 
@@ -192,14 +304,6 @@ export function createPlayerScreenView(
     render();
   };
 
-  variantOne.addEventListener('click', () => {
-    model.setVariant(1);
-    render();
-  });
-  variantTwo.addEventListener('click', () => {
-    model.setVariant(2);
-    render();
-  });
   nameInput.addEventListener('input', () => {
     model.setName(nameInput.value);
     const normalized = currentDraft().name;

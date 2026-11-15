@@ -1,0 +1,5 @@
+Código y tests:
+bd1c8c642ac04785eed60592e86820c45f5c9f29 feat(TASK-0125): añade el modelo puro de la ficha de arquetipo
+39fe05015f6677940409b2a14d66303a32b4decd feat(TASK-0125): muestra la ficha y las miniaturas de variante
+bc497b64fb2ca07cc6669d0a057e2626c0f249d3 test(TASK-0125): cubre ficha y miniaturas en E2E
+6e524eb4b9efef7aade6ec443911a37c7393097e test(TASK-0125): cubre el reset de variante al cambiar de arquetipo

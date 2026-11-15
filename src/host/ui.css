@@ -1422,8 +1422,8 @@
         max-width: calc(var(--ui-unit) * 620);
         display: flex;
         flex-direction: column;
-        gap: calc(var(--ui-unit) * 9);
-        padding: calc(var(--ui-unit) * 16) calc(var(--ui-unit) * 18);
+        gap: calc(var(--ui-unit) * 5);
+        padding: calc(var(--ui-unit) * 10) calc(var(--ui-unit) * 16);
         background: var(--ui-panel);
         color: var(--ui-muted);
       }
@@ -1469,17 +1469,107 @@
         font-size: var(--ui-data);
       }
       .player-archetypes {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 6);
+      }
+      .player-archetype-options {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: calc(var(--ui-unit) * 3);
       }
+      /* Ficha del arquetipo: stats inherentes, arma y las dos miniaturas. */
+      .player-sheet {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 3);
+        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 8);
+        background: var(--ui-bg);
+        color: var(--ui-muted);
+      }
+      .player-sheet-name {
+        margin: 0;
+        color: var(--ui-accent);
+        font-size: var(--ui-title);
+      }
+      .player-sheet-stats {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: calc(var(--ui-unit) * 1) calc(var(--ui-unit) * 6);
+        margin: 0;
+      }
+      .player-sheet-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: calc(var(--ui-unit) * 4);
+        min-width: 0;
+      }
+      .player-sheet-row[data-testid="player-sheet-stat-resistencia"] {
+        grid-column: 1 / -1;
+      }
+      .player-sheet-row dt {
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+      }
+      .player-sheet-row dd {
+        margin: 0;
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+        text-align: right;
+      }
+      .player-sheet-weapon {
+        margin: 0;
+        color: var(--ui-text);
+        font-size: var(--ui-data);
+      }
       .player-variants {
         display: flex;
         flex-wrap: wrap;
-        gap: calc(var(--ui-unit) * 3);
+        gap: calc(var(--ui-unit) * 6);
+      }
+      .player-variant {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--ui-unit) * 5);
+        padding: calc(var(--ui-unit) * 3);
+        background: var(--ui-raised);
+        color: var(--ui-text);
+        font: inherit;
+        font-size: var(--ui-body);
+        cursor: pointer;
+      }
+      .player-variant:hover,
+      .player-variant:focus-visible {
+        color: var(--ui-bg);
+        background: var(--ui-accent);
+      }
+      .player-variant[aria-pressed="true"] {
+        outline: calc(var(--ui-line) * 2) solid var(--ui-text);
+        outline-offset: calc(var(--ui-line) * -2);
+        font-weight: 700;
+      }
+      .player-variant-sprite {
+        flex: 0 0 auto;
+        width: calc(var(--ui-unit) * 64);
+        height: calc(var(--ui-unit) * 64);
+        background-image: url("/assets/32rogues/rogues.png");
+        background-repeat: no-repeat;
+        background-size: calc(var(--ui-unit) * 448) calc(var(--ui-unit) * 448);
+        background-position:
+          calc(var(--ui-unit) * var(--variant-sx, 0))
+          calc(var(--ui-unit) * var(--variant-sy, 0));
+        image-rendering: pixelated;
+      }
+      .player-variant-caption,
+      .player-variant-selected {
+        font-size: var(--ui-help);
+      }
+      .player-variant-selected {
+        color: var(--ui-text);
       }
       .player-choice {
-        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 6);
+        padding: calc(var(--ui-unit) * 4) calc(var(--ui-unit) * 6);
         background: var(--ui-raised);
         color: var(--ui-text);
         font: inherit;
@@ -1517,7 +1607,7 @@
         gap: calc(var(--ui-unit) * 6);
       }
       .player-button {
-        padding: calc(var(--ui-unit) * 6) calc(var(--ui-unit) * 14);
+        padding: calc(var(--ui-unit) * 5) calc(var(--ui-unit) * 14);
         background: var(--ui-raised);
         color: var(--ui-text);
         font: inherit;
