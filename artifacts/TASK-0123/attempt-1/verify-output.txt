@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (139):
+Avisos (140):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - docs/tasks/TASK-0070-exp-003-tres-tablas-ui.md: tarea de 663 palabras; objetivo ≤600
@@ -140,7 +140,8 @@ Avisos (139):
 - artifacts/TASK-0119/attempt-1/report.md: handoff de 3947 B; objetivo ≤2560 B
 - artifacts/TASK-0120/attempt-1/report.md: handoff de 3341 B; objetivo ≤2560 B
 - artifacts/TASK-0122/attempt-1/report.md: handoff de 3356 B; objetivo ≤2560 B
-OK: 615 documentos, 159 tareas, 6 experimentos.
+- artifacts/TASK-0123/attempt-1/report.md: handoff de 4021 B; objetivo ≤2560 B
+OK: 616 documentos, 159 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -150,8 +151,8 @@ $ vitest run
 
  Test Files  96 passed (96)
       Tests  1406 passed (1406)
-   Start at  00:22:43
-   Duration  10.97s (tests 89%, import 8%, transform 2%, worker 1%)
+   Start at  00:31:46
+   Duration  11.80s (tests 89%, import 8%, transform 2%, worker 1%)
 
     Isolate  96 workers spawned · ~113ms startup each (spawn + environment, per file)
              at least ~1.44s faster with isolate: false — reuses workers across files instead of one per file
@@ -164,7 +165,7 @@ rendering chunks...
 computing gzip size...
 dist/index.html                 21.32 kB │ gzip:  3.32 kB
 dist/assets/main-CkLsdIN8.css   26.21 kB │ gzip:  4.93 kB
-dist/assets/main-CnT_K5fv.js   202.95 kB │ gzip: 67.11 kB
-✓ built in 468ms
+dist/assets/main-Q7x8-YmL.js   203.05 kB │ gzip: 67.15 kB
+✓ built in 456ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 16 dist files and 73 production modules; no forbidden markers.

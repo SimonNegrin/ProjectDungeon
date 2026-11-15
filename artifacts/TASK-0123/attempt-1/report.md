@@ -5,7 +5,7 @@ description: Menú principal y paso 1 con semilla, validación, ?seed y cancelac
 task: TASK-0123
 attempt: 1
 report_status: success
-generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:24:32Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-15T00:29:30Z }
 artifacts: artifacts/TASK-0123/attempt-1/
 verified:
 ---
@@ -17,9 +17,10 @@ verified:
 
 # Cambios
 
-- `src/host/seed.ts`: `parseSeedText` y `hasSeedParam` reutilizan el parser
+- `src/host/seed.ts`: `parseSeedText` y `readSeedParam` reutilizan el parser
   existente; `parseSeedParam` conserva su comportamiento.
-- `src/host/start-screen.ts`: modelo puro con `random` inyectable.
+- `src/host/start-screen.ts`: modelo puro con `random` inyectable; el aviso de
+  `?seed` inválido dice que se ignora y se genera una semilla nueva.
 - `src/host/start-screen-view.ts`: DOM, foco, `aria-live` y trampa del aviso.
 - `index.html`, `src/host/ui.css`: sección opaca `.start-screen` y estilos con
   tokens.
@@ -27,7 +28,7 @@ verified:
   deja `onContinue`/`onLoadRequested` como no-op.
 - Tests nuevos: `tests/unit/host/start-screen.test.ts`,
   `tests/e2e/start-screen.spec.ts` (capturas).
-- Commits: `5043e51`, `2fe3f67`, `fd51b00` (`commit.txt`).
+- Commits: `5043e51`, `2fe3f67`, `fd51b00`, `b2212c1` (`commit.txt`).
 
 # Tests
 
@@ -54,6 +55,10 @@ verified:
   defecto; no se tocaron aserciones, capturas ni el resto de la suite.
 - `?seed=` inválido mantiene el `console.warn` histórico de `seed.ts` además del
   aviso visible en el menú (no se cambió el parser).
+- Corrección del lead: el aviso visible de `?seed=` inválido reutilizaba el
+  texto del parser («se usa la semilla por defecto»), falso porque el paso 1
+  ignora el parámetro y genera otra. Ahora nombra el valor ignorado y avisa de
+  que se genera una semilla nueva; parser y flujo no cambian.
 - Las capturas E2E viven en `tests/e2e/start-screen/screenshots/` (detalle) y se
   copian a `artifacts/` para el informe.
 
@@ -75,6 +80,6 @@ verified:
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 2497 |
-| `report_bytes` | 3628 |
+| `report_bytes` | 4021 |
 | `overflow` | `none` |
 | `criteria_failed` | `0` |
