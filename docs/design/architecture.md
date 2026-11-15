@@ -185,10 +185,15 @@ Ver [ADR-020](../decisions/ADR-020-economia-acciones.md).
 ## Muerte y fantasma
 
 `hp === 0` sigue siendo la única señal de muerte. `death.ts`
-(`settleUnitDeath`) crea el cadáver contenedor del jugador, vacía equipo y
-mochila y marca `Unit.ghost`; `grid.ts` deriva `isGhost`/`lifeState` sin guardar
-un estado paralelo. El fantasma no bloquea (`isOccupied` solo cuenta vivos),
-planifica con `BlockingOptions.ignoreUnits` —muros y esquinas siguen
+(`settleUnitDeath`) resuelve jugadores y enemigos. Al morir un jugador, crea su
+cadáver contenedor, vacía equipo y mochila y marca `Unit.ghost`. Al morir un
+enemigo, crea cadáver solo si conserva alguna instancia `lootable`; el contenedor
+lleva exactamente esas instancias, el resto se descarta con la unidad y la unidad
+permanece en `enemies` con 0 PV y sin objetos; sin saqueables no hay contenedor
+([REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)).
+`grid.ts` deriva `isGhost`/`lifeState` sin guardar un estado paralelo. El fantasma
+no bloquea (`isOccupied` solo cuenta vivos), planifica con
+`BlockingOptions.ignoreUnits` —muros y esquinas siguen
 bloqueando—, tiene `GHOST_ACTIONS = 1`, usa su `maxMp` intrínseco y solo acepta
 mover, recoger, soltar, inspeccionar contenedores
 (`InspectContainer`/`ContainerInspected`) y cerrar el turno. Los vivos pagan
@@ -236,7 +241,9 @@ exactamente en un sitio.
   atómicos: validan antes de mover, cuestan 1 MP y no gastan acción. `Container`
   es la representación única de cofres y cadáveres; desde TASK-0131 el cadáver
   de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
-  todo su equipo y mochila sin tirada y persiste al vaciarse. La ampliación
+  todo su equipo y mochila sin tirada y persiste al vaciarse. Desde TASK-0133 el
+  cadáver de enemigo contiene solo instancias `lootable`, descarta el resto y se
+  elimina al retirar su último objeto; el de jugador no se elimina. La ampliación
   (`kind`/`corpseOf` opcionales) es aditiva; REQ-020 puede revisar el modelo
   antes de publicar la v1 de guardado. Los cofres jugables llegan con
   [REQ-020](../requirements/REQ-020-cofres-saqueo.md).

@@ -4,22 +4,35 @@ id: TASK-0133
 title: "Motor: cadáver de enemigo y descarte"
 description: "Al morir un enemigo, crear un contenedor solo con sus objetos saqueables, descartar el resto y retirar el contenedor cuando se vacía."
 status: stable
-task_status: backlog
+task_status: done
 task_type: feature
 requirement: REQ-034
 requirement_ids: [R-001, R-004, R-007, R-010, T-004, T-007]
 depends_on: [TASK-0130, TASK-0131]
 unlocks: [TASK-0134, TASK-0135, TASK-0136, TASK-0138, TASK-0142, TASK-0143, TASK-0157]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T12:08:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0133/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T12:08:00Z
+    note: >-
+      Intento 1 verificado (motor `d2993d7`, evidencia `c123023`/`3c08269`).
+      Diff de 12 archivos limitado a `src/game/death.ts`, `src/game/inventory.ts`,
+      tres tests, artefactos, diseño/glosario y la ficha; sin tocar requisitos,
+      arnés, RNG, botín, IA, mapa ni dependencias. `pnpm run verify` reejecutado:
+      102 archivos/1530 tests, `docs:check` y `config:check` con avisos previos,
+      tsc, build y bundle OK; 123/123 en los cinco archivos focalizados.
+      Criterios 1-7 cumplidos: solo saqueables en el cadáver, descarte, sin
+      contenedor sin botín, enemigo con 0 PV en `enemies`, casilla compartida,
+      retirada del cadáver de enemigo al vaciar y persistencia del de jugador.
+      Evidencia en `attempt-1/lead-verify/`.
 ---
 
 # Objetivo
@@ -39,18 +52,18 @@ El render y el panel son TASK-0135 y TASK-0136.
 
 # Criterios de aceptación
 
-- [ ] Al morir un enemigo, se crea un `Container` de cadáver en su casilla solo
+- [x] Al morir un enemigo, se crea un `Container` de cadáver en su casilla solo
       con las instancias `lootable` de su equipo y mochila.
-- [ ] Las instancias no saqueables se descartan con la unidad; no quedan
+- [x] Las instancias no saqueables se descartan con la unidad; no quedan
       visibles, recuperables ni en el contenedor.
-- [ ] Si no hay ninguna instancia saqueable, no se crea contenedor.
-- [ ] La unidad muerta permanece en `enemies` con 0 PV y sin objetos, para
+- [x] Si no hay ninguna instancia saqueable, no se crea contenedor.
+- [x] La unidad muerta permanece en `enemies` con 0 PV y sin objetos, para
       victoria, derrota y estado.
-- [ ] El cadáver no bloquea el paso y puede compartir casilla con otros
+- [x] El cadáver no bloquea el paso y puede compartir casilla con otros
       cadáveres o con un vivo.
-- [ ] Al retirar el último objeto del cadáver de enemigo, el contenedor se
+- [x] Al retirar el último objeto del cadáver de enemigo, el contenedor se
       elimina del estado; el cadáver de jugador no se elimina al vaciarse.
-- [ ] Tests de enemigo con y sin botín, solo saqueables, descarte, retirada del
+- [x] Tests de enemigo con y sin botín, solo saqueables, descarte, retirada del
       vacío y persistencia del cadáver de jugador; `pnpm run verify` pasa.
 
 # Plan de test
@@ -62,9 +75,9 @@ El render y el panel son TASK-0135 y TASK-0136.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0133/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0133/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
