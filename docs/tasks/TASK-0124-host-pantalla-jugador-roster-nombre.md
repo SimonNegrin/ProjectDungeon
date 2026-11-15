@@ -4,22 +4,33 @@ id: TASK-0124
 title: "Host: pantalla de jugador (roster, nombre, navegación)"
 description: "Implementar la configuración jugador a jugador con el roster de nueve arquetipos, dos variantes, nombre de 12 caracteres y navegación «Atrás»/«Siguiente» que conserva valores."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-016
 requirement_ids: [R-005, R-007, R-008, R-011, T-005, T-006, T-007]
 depends_on: [TASK-0122, TASK-0123]
 unlocks: [TASK-0125, TASK-0126, TASK-0127, TASK-0129]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T00:55:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0124/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T00:55:00Z
+    note: >-
+      Intento 1 verificado (código 15251eb, 8849d47 y b999d61; artefactos
+      44a33f6). Diff revisado: solo host, HTML/CSS, tests y artefactos; sin
+      cambios en `src/game/`, dependencias ni docs ajenas. `pnpm run verify`
+      reejecutado: 97 archivos/1426 tests, tsc, build y bundle OK; E2E completo
+      223/223, incluidos el bypass `?test=1` y los casos de reentrada. El lead
+      detectó 18 botones de arquetipo duplicados al reentrar; corregido con
+      `replaceChildren()` y regresión E2E. Evidencia en
+      `attempt-1/lead-verify/`.
 ---
 
 # Objetivo
@@ -38,22 +49,22 @@ es TASK-0126.
 
 # Criterios de aceptación
 
-- [ ] Cada jugador elige uno de los nueve arquetipos y una de sus dos variantes,
+- [x] Cada jugador elige uno de los nueve arquetipos y una de sus dos variantes,
       sin etiqueta de género; se permiten arquetipo y variante repetidos.
-- [ ] Cambiar de arquetipo devuelve la variante a la 1; ir atrás y adelante
+- [x] Cambiar de arquetipo devuelve la variante a la 1; ir atrás y adelante
       conserva arquetipo, variante y nombre.
-- [ ] El nombre se acepta en NFC, con espacios recortados, máximo 12 code points
+- [x] El nombre se acepta en NFC, con espacios recortados, máximo 12 code points
       y solo letras, dígitos y espacio; se trunca en vivo sin mensaje de error.
-- [ ] Un nombre vacío usa el nombre del arquetipo; los duplicados están
+- [x] Un nombre vacío usa el nombre del arquetipo; los duplicados están
       permitidos y no bloquean.
-- [ ] El flujo es jugador a jugador: «Siguiente» configura al siguiente y en el
+- [x] El flujo es jugador a jugador: «Siguiente» configura al siguiente y en el
       último emite la entrada al resumen (TASK-0126); «Atrás» recorre los ya
       configurados sin volver al paso 1.
-- [ ] `Esc` o «Cancelar» piden confirmación y, al confirmar, descartan la
+- [x] `Esc` o «Cancelar» piden confirmación y, al confirmar, descartan la
       configuración y vuelven al menú principal.
-- [ ] Navegación completa por teclado, foco visible y errores anunciados con
+- [x] Navegación completa por teclado, foco visible y errores anunciados con
       `aria-live`.
-- [ ] Tests de variantes, reset al cambiar arquetipo, nombres con acentos,
+- [x] Tests de variantes, reset al cambiar arquetipo, nombres con acentos,
       truncado, vacío, duplicados, avance y retroceso; `pnpm run verify` pasa.
 
 # Plan de test
@@ -65,9 +76,9 @@ es TASK-0126.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0124/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0124/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
