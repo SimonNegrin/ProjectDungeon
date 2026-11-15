@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-Avisos (147):
+Avisos (148):
 - docs/tasks/TASK-0040-exp-004-salas-irregulares.md: tarea de 602 palabras; objetivo ≤600
 - docs/tasks/TASK-0042-exp-004-distribucion-emboscadas-salida.md: tarea de 721 palabras; objetivo ≤600
 - docs/tasks/TASK-0070-exp-003-tres-tablas-ui.md: tarea de 663 palabras; objetivo ≤600
@@ -147,8 +147,9 @@ Avisos (147):
 - artifacts/TASK-0131/attempt-1/report.md: handoff de 3502 B; objetivo ≤2560 B
 - artifacts/TASK-0139/attempt-1/brief.md: handoff de 2621 B; objetivo ≤2560 B
 - artifacts/TASK-0141/attempt-1/brief.md: handoff de 2591 B; objetivo ≤2560 B
+- artifacts/TASK-0141/attempt-1/report.md: handoff de 3408 B; objetivo ≤2560 B
 - artifacts/TASK-0156/attempt-1/report.md: handoff de 2901 B; objetivo ≤2560 B
-OK: 682 documentos, 160 tareas, 6 experimentos.
+OK: 683 documentos, 160 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 4 agentes, 3 skills.
 $ vitest run
@@ -157,12 +158,12 @@ $ vitest run
 
 
  Test Files  107 passed (107)
-      Tests  1671 passed (1671)
-   Start at  17:53:53
-   Duration  11.57s (tests 88%, import 9%, transform 2%, worker 1%)
+      Tests  1678 passed (1678)
+   Start at  17:59:20
+   Duration  12.16s (tests 87%, import 9%, transform 2%, worker 1%)
 
-    Isolate  107 workers spawned · ~113ms startup each (spawn + environment, per file)
-             at least ~1.61s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  107 workers spawned · ~115ms startup each (spawn + environment, per file)
+             at least ~1.64s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -172,7 +173,7 @@ rendering chunks...
 computing gzip size...
 dist/index.html                 33.73 kB │ gzip:  4.56 kB
 dist/assets/main-C2Wzpm8T.css   35.00 kB │ gzip:  5.83 kB
-dist/assets/main-COcQmmde.js   274.10 kB │ gzip: 88.66 kB
-✓ built in 539ms
+dist/assets/main-COcNyei0.js   274.14 kB │ gzip: 88.69 kB
+✓ built in 553ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 16 dist files and 89 production modules; no forbidden markers.

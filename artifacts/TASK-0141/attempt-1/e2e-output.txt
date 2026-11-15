@@ -1,18 +1,19 @@
 $ playwright test tests/e2e/load-game.spec.ts tests/e2e/pause-menu.spec.ts tests/e2e/start-screen.spec.ts
 
-Running 12 tests using 4 workers
+Running 13 tests using 4 workers
 
-  ✓   3 [chromium] › tests/e2e/load-game.spec.ts:165:1 › TASK-0141: el menú principal carga un .json suelto real (1.2s)
-  ✓   1 [chromium] › tests/e2e/load-game.spec.ts:118:1 › TASK-0141: el menú principal carga un .zip real sin confirmación (1.2s)
-  ✓   2 [chromium] › tests/e2e/load-game.spec.ts:199:1 › TASK-0141: la pausa confirma, carga el .zip y deja cámara y HUD en el activo (1.5s)
-  ✓   4 [chromium] › tests/e2e/load-game.spec.ts:243:1 › TASK-0141: cancelar el selector y un archivo inválido no tocan la partida (1.6s)
-  ✓   7 [chromium] › tests/e2e/pause-menu.spec.ts:188:1 › TASK-0139: en fase enemiga Guardar está desactivado con motivo (606ms)
-  ✓   6 [chromium] › tests/e2e/pause-menu.spec.ts:33:1 › TASK-0139: Esc abre la pausa con cinco acciones en orden, foco y ayuda derivada (988ms)
-  ✓   5 [chromium] › tests/e2e/pause-menu.spec.ts:124:1 › TASK-0139: Nueva y Cargar piden confirmación y Esc vuelve a la raíz (1.0s)
-  ✓   8 [chromium] › tests/e2e/pause-menu.spec.ts:223:1 › TASK-0139: la pausa congela animación y feedback e ignora el input de juego (807ms)
-  ✓  12 [chromium] › tests/e2e/start-screen.spec.ts:136:1 › recorrido solo con teclado: foco, aviso y vuelta al menú (450ms)
-  ✓   9 [chromium] › tests/e2e/start-screen.spec.ts:21:1 › el menú es la primera pantalla y «Nueva» abre el paso 1 (748ms)
-  ✓  10 [chromium] › tests/e2e/start-screen.spec.ts:71:1 › ?seed=42 precarga una vez y el campo sigue siendo editable (720ms)
-  ✓  11 [chromium] › tests/e2e/start-screen.spec.ts:97:1 › semilla inválida bloquea; vacía genera otra y N=6 avanza (759ms)
+  ✓   3 [chromium] › tests/e2e/load-game.spec.ts:118:1 › TASK-0141: el menú principal carga un .zip real sin confirmación (1.3s)
+  ✓   2 [chromium] › tests/e2e/load-game.spec.ts:165:1 › TASK-0141: el menú principal carga un .json suelto real (1.3s)
+  ✓   4 [chromium] › tests/e2e/load-game.spec.ts:199:1 › TASK-0141: una party con mago y clérigo se guarda y se carga sin cambios (1.3s)
+  ✓   1 [chromium] › tests/e2e/load-game.spec.ts:270:1 › TASK-0141: la pausa confirma, carga el .zip y deja cámara y HUD en el activo (1.6s)
+  ✓   8 [chromium] › tests/e2e/pause-menu.spec.ts:188:1 › TASK-0139: en fase enemiga Guardar está desactivado con motivo (555ms)
+  ✓   6 [chromium] › tests/e2e/pause-menu.spec.ts:33:1 › TASK-0139: Esc abre la pausa con cinco acciones en orden, foco y ayuda derivada (965ms)
+  ✓   5 [chromium] › tests/e2e/load-game.spec.ts:314:1 › TASK-0141: cancelar el selector y un archivo inválido no tocan la partida (1.0s)
+  ✓   7 [chromium] › tests/e2e/pause-menu.spec.ts:124:1 › TASK-0139: Nueva y Cargar piden confirmación y Esc vuelve a la raíz (1.1s)
+  ✓   9 [chromium] › tests/e2e/pause-menu.spec.ts:223:1 › TASK-0139: la pausa congela animación y feedback e ignora el input de juego (774ms)
+  ✓  11 [chromium] › tests/e2e/start-screen.spec.ts:71:1 › ?seed=42 precarga una vez y el campo sigue siendo editable (748ms)
+  ✓  10 [chromium] › tests/e2e/start-screen.spec.ts:21:1 › el menú es la primera pantalla y «Nueva» abre el paso 1 (891ms)
+  ✓  12 [chromium] › tests/e2e/start-screen.spec.ts:97:1 › semilla inválida bloquea; vacía genera otra y N=6 avanza (900ms)
+  ✓  13 [chromium] › tests/e2e/start-screen.spec.ts:136:1 › recorrido solo con teclado: foco, aviso y vuelta al menú (336ms)
 
-  12 passed (4.4s)
+  13 passed (4.7s)
