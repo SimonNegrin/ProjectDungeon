@@ -1,0 +1,11 @@
+
+Running 6 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/startup-flow-qa.spec.ts:334:1 › un jugador: resumen y partida con la semilla mostrada (1.6s)
+  ✓  3 [chromium] › tests/e2e/startup-flow-qa.spec.ts:444:1 › semilla: ?seed=, inválida bloquea y vacía genera otra (1.8s)
+  ✓  4 [chromium] › tests/e2e/startup-flow-qa.spec.ts:371:1 › seis jugadores a 900x700: party, semilla de solo lectura y scroll interno (2.4s)
+  ✓  1 [chromium] › tests/e2e/startup-flow-qa.spec.ts:186:1 › dos jugadores solo con teclado: variante en mapa y miniatura del HUD (2.5s)
+  ✓  5 [chromium] › tests/e2e/startup-flow-qa.spec.ts:490:1 › nombre: acentos, truncado a 12, vacío y duplicados (1.1s)
+  ✓  6 [chromium] › tests/e2e/startup-flow-qa.spec.ts:537:1 › cancelar o Esc en paso 1, jugador y resumen confirman la vuelta al menú (1.1s)
+
+  6 passed (5.6s)
