@@ -4,7 +4,7 @@ id: TASK-0140
 title: "Host: guardar .zip"
 description: "Construir el `.zip` desde el estado del motor y descargarlo con el nombre `proyectdungeon-<semilla>-<AAAAMMDD-HHmmss>.zip`, solo en fase de personajes y sin animación."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-003, R-004, R-015, T-002, T-009]
