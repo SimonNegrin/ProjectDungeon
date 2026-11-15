@@ -26,13 +26,15 @@ cadáver si al menos uno de sus objetos es saqueable, el cadáver se saquea
 desde el mismo tile sin coste y el guardado conserva la tirada sin repetirla.
 Las llaves y los objetos de progresión quedan reservados a su propia hoja.
 
-El trabajo inmediato es el **inventario y el equipo** (`REQ-018`, tareas
-TASK-0093 a TASK-0098), base del saqueo, del fantasma y de la columna del
-jugador; después el saqueo y los traits (`REQ-020` y `REQ-019`), la muerte
-jugable (`REQ-021`), el HUD lateral (`REQ-022` y `REQ-023`), el cierre
-documental de la pausa y el guardado (`REQ-024`) y, al final, el hotseat de la
-fase 2 (`REQ-016` v3 y `REQ-031`).
-`REQ-030` (alcance visible de hechizos) queda en borrador.
+El inventario y el equipo (`REQ-018`), el cadáver y el fantasma (`REQ-021`), el
+HUD lateral (`REQ-022` y `REQ-023`), el botín de enemigos (`REQ-034`) y la
+pausa, el guardado y la carga (`REQ-024`) están implementados; la QA de pausa y
+guardado espera al resultado de partida (TASK-0144, bloqueada por TASK-0153).
+
+El trabajo inmediato es cerrar los cofres de `REQ-020`, la resurrección de
+`REQ-021` (TASK-0084 aplazada) y los traits de `REQ-019`; después, el hotseat de
+la fase 2 (`REQ-016` v3 y `REQ-031`). `REQ-030` (alcance visible de hechizos)
+queda en borrador.
 
 # Horizonte
 
@@ -78,9 +80,9 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
   pendiente en `REQ-009`.
 - Magia y maná: `REQ-025` implementada en TASK-0081 a TASK-0083; la resurrección
   jugable sigue pendiente de `REQ-021`.
-- Economía de acciones: `REQ-026` implementada en TASK-0076 a TASK-0078. Quedan
-  pendientes soltar objetos y contenedores (R-010/R-011), que dependen de
-  `REQ-018`/`REQ-020`, y el rebalanceo de TASK-0084, aplazado.
+- Economía de acciones: `REQ-026` implementada en TASK-0076 a TASK-0078. Soltar
+  objetos (R-010) está implementado; de los contenedores (R-011) quedan los
+  cofres pendientes de `REQ-020` y el rebalanceo de TASK-0084, aplazado.
 - Réplica cuerpo a cuerpo: `REQ-027` implementada en TASK-0079 y TASK-0080.
 - Tipos de daño: `REQ-029` implementada y verificada en TASK-0085 a TASK-0092;
   perfiles y armas v1 son estimados y el ajuste fino se aplaza a roster y
@@ -88,19 +90,20 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 - Botín de enemigos: `REQ-034` está implementada en TASK-0130 a TASK-0138 y
   verificada en TASK-0142; el cadáver de enemigo solo existe con botín y el
   saqueo no gasta acción ni MP. `REQ-020` sigue en borrador para los cofres.
-- `REQ-018` (inventario y equipo) está `stable` v4 y en implementación con
-  TASK-0093 a TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y
-  `REQ-020` (cofres y cadáveres) sigue en borrador.
+- `REQ-018` (inventario y equipo) está `stable` v8 e implementada en TASK-0093 a
+  TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y `REQ-020` (cofres
+  y cadáveres) sigue en borrador para los cofres.
 - Hotseat: `REQ-031` (modo local), `REQ-016` v3 (menú principal, configuración y
   semilla) y `REQ-024` v3 (pausa, guardado y carga) están `stable`. El arranque de
   `REQ-016` está implementado (TASK-0122 a TASK-0127): menú principal, paso 1 con
   1-6 jugadores y semilla, configuración, resumen y variante de sprite; el hotseat
-  jugable, la pausa y el guardado siguen pendientes.
-  Es el último paso del orden actual, tras inventario, saqueo, muerte y HUD.
-- `REQ-022` (HUD izquierdo), `REQ-023` (detalle del cursor) y `REQ-030` (alcance
-  visible de hechizos) están en borrador.
-- Muerte, fantasma y resurrección: `REQ-021` está `stable`; tareas pendientes de
-  ordenar con `REQ-018`/`REQ-020`.
+  jugable sigue pendiente. Es el último paso del orden actual, tras inventario,
+  saqueo, muerte y HUD.
+- `REQ-022` (HUD izquierdo) y `REQ-023` (detalle del cursor) están `stable` v4 e
+  implementadas; `REQ-030` (alcance visible de hechizos) sigue en borrador.
+- Muerte, fantasma y resurrección: `REQ-021` está `stable`; el cadáver, el
+  fantasma y la muerte están implementados (TASK-0131 a TASK-0133) y la
+  resurrección jugable sigue pendiente (TASK-0084 aplazada).
 
 # Primer hito jugable
 

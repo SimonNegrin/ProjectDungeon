@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Scope — alcance — «trabajo inmediato» actualizado: inventario, HUD, muerte y guardado implementados; pendientes cofres, resurrección, traits y hotseat — [alcance](scope.md)
+
 * 2026-11-15 — Requirement — REQ-034/REQ-024 — correcciones factuales: fase `player` en el ejemplo, R-011/T-005/T-012 alineados con el cadáver sin coste, Q5 de REQ-020 resuelta, carga implementada en alcance y pausa de cinco acciones en visión; `docs:check` OK — [REQ-034](requirements/REQ-034-objetos-saqueables-botin-enemigos.md)
 
 * 2026-11-15 — Task — TASK-0158 — done: notas de REQ-024 v3 en REQ-016 y REQ-031 con cargador único, guardado restringido, carga en el activo y sin reinicio rápido; verificación 107/1678; commits `51e302c` y cierre — [informe](../artifacts/TASK-0158/attempt-1/report.md)
