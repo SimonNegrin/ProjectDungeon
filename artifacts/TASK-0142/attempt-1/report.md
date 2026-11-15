@@ -79,7 +79,7 @@ No se tocó `src/`.
 
 | Síntoma | Evidencia | Workaround | Por qué es reutilizable | Cambio propuesto | Coste/riesgo | Disposición |
 |---|---|---|---|---|---|---|
-| Brief pide `screenshots/` en la raíz y plantilla pide `<spec>/screenshots/` | Brief vs Anexo A/B de `docs/templates/task.md` | Guardar ambas rutas | Afecta a toda tarea visual | Unificar redacción | Bajo | `pending` |
+| Brief pide `screenshots/` en la raíz y plantilla pide `<spec>/screenshots/` | Brief vs Anexo A/B de `docs/templates/task.md` | Guardar ambas rutas | Afecta a toda tarea visual | Unificar redacción | Bajo | `deferred` — lo decide `requirements-writer`/`harness-keeper`; la ruta canónica de `visual-qa.md` es `<spec>/screenshots/` |
 
 # Métricas de handoff
 
