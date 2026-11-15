@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0123 — done: menú principal primero con «Nueva»/«Cargar» y paso 1 (N 1-6, semilla, `?seed`, validación y cancelación confirmada) sin arrancar partida; verify 96 archivos/1406 tests y E2E 219/219; fusión `8e86bdd` — [informe](../artifacts/TASK-0123/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0137 — done: contenedor `.zip` con `deflate-raw` y lector `store`/`deflate`; límites 5/20 MB, 4 entradas y 5 MB por archivo antes de descomprimir, errores tipados y 33 tests (incluye `unzip` y bomba deflate); verify 95 archivos/1377 tests (la pasada del runner falló solo por EXP-004); fusión `5364d44` — [informe](../artifacts/TASK-0137/attempt-1/report.md)
 
 ## 2026-11-14
