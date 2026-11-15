@@ -4,14 +4,14 @@ id: TASK-0135
 title: "Host/render: cadáveres desde contenedores"
 description: "Dibujar y listar cadáveres leyendo contenedores, no unidades muertas; el cadáver aparece al terminar el beat de muerte y el enemigo sin botín no se dibuja."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-034
 requirement_ids: [R-005, R-010, T-005]
 depends_on: [TASK-0127, TASK-0133, TASK-0134]
 unlocks: [TASK-0136, TASK-0142, TASK-0143, TASK-0157]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T12:31:18Z
 assignee: task-runner
 attempts: 1
 artifacts: artifacts/TASK-0135/
@@ -20,6 +20,20 @@ risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T12:31:18Z
+    note: >-
+      Intento 1 verificado con corrección de visibilidad por contenedor (código
+      `0ea6c4d`, evidencia `d049316`/`533499d`). Diff de 14 archivos limitado a
+      `src/host/renderer.ts`, los dos tests unitarios previstos, el spec E2E
+      acotado, la ficha y artefactos; sin tocar motor, panel, arte, dependencias,
+      requisitos ni arnés. `pnpm run verify` reejecutado: 102 archivos/1548
+      tests, docs:check, config:check, tsc, build y bundle OK; focalizados 96/96
+      y E2E 1/1. Criterios 1-6 cumplidos: el render itera contenedores
+      `kind: 'corpse'`, oculta la marca con `dyingUnitIds`/`effects` hasta
+      terminar el beat, dibuja el cadáver de jugador vacío, retira el de enemigo
+      con su contenedor, agrupa por tile con `×N` y reutiliza `corpse-22a/b`.
+      Evidencia en `attempt-1/lead-verify/`.
 ---
 
 # Objetivo
@@ -38,21 +52,22 @@ de muerte y el cadáver de TASK-0121/REQ-017 viven en `src/host/renderer.ts` y
 
 # Criterios de aceptación
 
-- [ ] El render itera contenedores de cadáver; una unidad muerta sin contenedor
+- [x] El render itera contenedores de cadáver; una unidad muerta sin contenedor
       no se dibuja como cadáver.
-- [ ] El cadáver aparece al terminar el beat de muerte, no durante la animación.
-- [ ] El cadáver de jugador se dibuja y persiste aunque se vacíe; el de enemigo
+- [x] El cadáver aparece al terminar el beat de muerte, no durante la animación.
+- [x] El cadáver de jugador se dibuja y persiste aunque se vacíe; el de enemigo
       desaparece con su contenedor.
-- [ ] Varios cadáveres en la misma casilla se representan sin ocultar la
+- [x] Varios cadáveres en la misma casilla se representan sin ocultar la
       información de que hay más de uno.
-- [ ] No se añaden sprites ni se cambia el decal existente; se reutiliza el
+- [x] No se añaden sprites ni se cambia el decal existente; se reutiliza el
       cadáver de presentación.
-- [ ] Tests de mapeo contenedor → marca de render y de retirada; `pnpm run
+- [x] Tests de mapeo contenedor → marca de render y de retirada; `pnpm run
       verify` pasa.
 
 # Plan de test
 
-- Unitario: `tests/unit/host/renderer.test.ts` y `presentation.test.ts`.
+- Unitario: `tests/unit/host/renderer.test.ts` y
+  `presentation-feedback.test.ts`.
 - Integración: muerte de enemigo con botín, sin botín y vaciado posterior.
 - E2E / visual: captura de mapa con dos cadáveres; la suite completa va en
   TASK-0142.
@@ -60,9 +75,9 @@ de muerte y el cadáver de TASK-0121/REQ-017 viven en `src/host/renderer.ts` y
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0135/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0135/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

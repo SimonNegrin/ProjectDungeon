@@ -5,7 +5,7 @@ description: Dibujar cadáveres desde contenedores, tras el beat de muerte y con
 task: TASK-0135
 attempt: 1
 status: stable
-brief_bytes: 2480
+brief_bytes: 2483
 read_detail: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-15T12:22:28Z }
 ---

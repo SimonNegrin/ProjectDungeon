@@ -353,9 +353,12 @@ ha pasado y retrasa el estado visible hasta el cue correspondiente.
   activos.
 - **Accesibilidad**: `prefers-reduced-motion` elimina tween, sacudida y parpadeo,
   pero conserva texto, banner, marca estática y estado final.
-- **Cadáver**: solo presentación sobre la unidad muerta que ya conserva el
-  motor; no bloquea ni se escribe en la rejilla. `corpse-22a/b` se reserva para
-  muertes reales y deja de ser decoración ambiental.
+- **Cadáver**: el render lo dibuja desde los contenedores `kind: 'corpse'`, no
+  desde unidades muertas: sin contenedor no hay decal, aparece al acabar el beat
+  de muerte, varios en la misma casilla comparten decal con contador `×N` y el
+  de jugador persiste vacío. No bloquea ni se escribe en la rejilla.
+  `corpse-22a/b` se reserva para muertes reales y deja de ser decoración
+  ambiental.
 - **Debug**: `window.__game.animation` incluye los cues activos y `advance(ms)`
   avanza el reloj de forma determinista; sin animación activa consume también la
   persistencia de textos, banners y marcas, y `advance(0)` solo congela y repinta.
