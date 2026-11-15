@@ -4,7 +4,7 @@ id: TASK-0151
 title: "Host/HUD: Jugador N de M, ficha activo y Ronda N"
 description: "Mostrar «Jugador N de M» junto al activo, su ficha completa en fase de personajes y el aviso transitorio «Ronda N» no bloqueante."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-006, R-025, T-008]
