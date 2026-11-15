@@ -11,6 +11,7 @@
 import { hasAction, spendAction } from './actions';
 import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
 import { resolvePackets } from './damage';
+import { settleUnitDeath } from './death';
 import { isAlive, isOccupied } from './grid';
 import { hasLineOfSight } from './perception';
 import { rollDie } from './rng';
@@ -270,6 +271,7 @@ function resolveMagicAttack(
 
   if (targetHp === 0) {
     events.push({ type: 'UnitDied', unitId: victim.id });
+    next = settleUnitDeath(next, victim.id);
   } else {
     next = applyEnemyHitReaction(next, events, victim, caster, hit, damage);
   }

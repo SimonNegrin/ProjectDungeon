@@ -4,7 +4,7 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { BspMapGenerator, BESTIARY, ITEMS, ROSTER, createInitialState, reduce } from '../../../src/game/index';
+import { BspMapGenerator, BESTIARY, ITEMS, ROSTER, corpseId, createInitialState, equipmentFromLegacy, reduce, settleUnitDeath } from '../../../src/game/index';
 import type {
   EquipmentSlots,
   GameState,
@@ -813,6 +813,51 @@ describe('snapshot del mapa generado', () => {
         expect(['common', 'progression'], enemy.id).toContain(item.lootPolicy);
       }
     }
+  });
+
+  it('expone el cadáver de jugador y la unidad muerta de forma serializable', () => {
+    const state = settleUnitDeath(
+      makeState({
+        players: [
+          makeUnit({
+            id: 'player-1',
+            faction: 'player',
+            x: 5,
+            y: 5,
+            hp: 0,
+            equipmentSlots: equipmentFromLegacy('player-1', {
+              weaponId: 'sword',
+              armorId: 'armor',
+              shieldId: null,
+            }),
+          }),
+          makeUnit({ id: 'player-2', faction: 'player', x: 4, y: 5 }),
+        ],
+        enemies: [],
+      }),
+      'player-1',
+    );
+
+    const snapshot = setup(state).snapshot();
+
+    expect(snapshot.containers).toHaveLength(1);
+    expect(snapshot.containers[0]).toMatchObject({
+      id: corpseId('player-1'),
+      kind: 'corpse',
+      corpseOf: 'player-1',
+      x: 5,
+      y: 5,
+      capacity: 2,
+    });
+    expect(snapshot.containers[0].items.map((item) => item?.id)).toEqual([
+      'item-player-1-weapon',
+      'item-player-1-armor',
+    ]);
+    expect(snapshot.players[0]).toMatchObject({ id: 'player-1', hp: 0 });
+    expect(Object.values(snapshot.players[0].equipment).every((item) => item === null)).toBe(
+      true,
+    );
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
   });
 
   it('dispatch de reinicio conserva semilla y mapa en el snapshot', () => {

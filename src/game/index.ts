@@ -19,6 +19,7 @@ export * from './bsp';
 export * from './movement';
 export * from './path';
 export * from './combat';
+export * from './death';
 export * from './perception';
 export * from './ai';
 export * from './turn';

@@ -1,0 +1,2 @@
+4329e58 feat(TASK-0131): crea cadáver contenedor al morir un jugador
+42b5e46 test(TASK-0131): cubre transferencia total, casilla compartida y snapshot
