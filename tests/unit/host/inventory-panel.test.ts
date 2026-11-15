@@ -10,6 +10,7 @@ import type { GameState } from '../../../src/game/types';
 import {
   buildInventoryPanelModel,
   buildPanelMenu,
+  containerOpenCost,
   rejectionMessage,
   samePanelMenu,
 } from '../../../src/host/inventory-panel';
@@ -84,7 +85,7 @@ describe('modelo del panel de personaje', () => {
     expect(model.backpackCount).toBe('0/8');
   });
 
-  it('deriva los cadáveres del tile con nombre propio o tipo del bestiario', () => {
+  it('deriva los cadáveres de los contenedores del tile, no de unidades muertas', () => {
     const state = makeState({
       players: [
         makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 }),
@@ -116,6 +117,35 @@ describe('modelo del panel de personaje', () => {
           hp: 0,
         }),
       ],
+      containers: [
+        {
+          id: 'corpse-player-2',
+          x: 4,
+          y: 4,
+          capacity: 1,
+          items: [{ id: 'item-player-2', itemId: 'sword', lootable: true }],
+          kind: 'corpse',
+          corpseOf: 'player-2',
+        },
+        {
+          id: 'corpse-enemy-1',
+          x: 4,
+          y: 4,
+          capacity: 1,
+          items: [{ id: 'item-enemy-1', itemId: 'axe', lootable: true }],
+          kind: 'corpse',
+          corpseOf: 'enemy-1',
+        },
+        {
+          id: 'corpse-enemy-2',
+          x: 9,
+          y: 9,
+          capacity: 1,
+          items: [{ id: 'item-enemy-2', itemId: 'dagger', lootable: true }],
+          kind: 'corpse',
+          corpseOf: 'enemy-2',
+        },
+      ],
     });
 
     const corpses = buildInventoryPanelModel(state).corpses;
@@ -127,7 +157,136 @@ describe('modelo del panel de personaje', () => {
       'rogues',
       'monsters',
     ]);
+    expect(corpses.map((corpse) => corpse.containerId)).toEqual([
+      'corpse-player-2',
+      'corpse-enemy-1',
+    ]);
     expect(corpses.every((corpse) => corpse.sprite.sw === 32)).toBe(true);
+    expect(corpses.every((corpse) => corpse.costLabel === 'sin coste')).toBe(
+      true,
+    );
+  });
+
+  it('los objetos de cadáver son filas navegables con acciones y coste', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, mp: 0 }),
+      ],
+      enemies: [
+        makeUnit({
+          id: 'enemy-1',
+          faction: 'enemy',
+          enemyType: 'sentinel',
+          x: 4,
+          y: 4,
+          hp: 0,
+        }),
+      ],
+      containers: [
+        {
+          id: 'corpse-enemy-1',
+          x: 4,
+          y: 4,
+          capacity: 1,
+          items: [{ id: 'loot-axe', itemId: 'axe', lootable: true }],
+          kind: 'corpse',
+          corpseOf: 'enemy-1',
+        },
+      ],
+    });
+    const model = buildInventoryPanelModel(state);
+    const corpse = model.corpses[0];
+    expect(corpse.items).toHaveLength(1);
+    const row = corpse.items[0];
+    expect(row).toMatchObject({
+      key: 'corpse:corpse-enemy-1:loot-axe',
+      itemId: 'axe',
+      instanceId: 'loot-axe',
+      detail: expect.stringContaining('Centinela'),
+    });
+    expect(row.actions.map((action) => action.kind)).toEqual([
+      'take',
+      'take-all',
+      'equip',
+    ]);
+
+    const menu = buildPanelMenu(state, row.key);
+    expect(menu.map((option) => [option.kind, option.costLabel, option.disabled])).toEqual([
+      ['take', 'sin coste', false],
+      ['take-all', 'sin coste', false],
+      ['equip', '1 MP', true],
+    ]);
+    expect(menu[0].command).toEqual({
+      type: 'TakeItem',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-axe',
+    });
+    expect(menu[1].command).toEqual({
+      type: 'TakeAll',
+      unitId: 'player-1',
+      containerId: 'corpse-enemy-1',
+    });
+    expect(menu[2].command).toEqual({
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'container',
+      containerId: 'corpse-enemy-1',
+      itemId: 'loot-axe',
+    });
+  });
+
+  it('containerOpenCost separa cadáver sin coste de cofre con una acción', () => {
+    expect(containerOpenCost('corpse')).toEqual({
+      actions: 0,
+      mp: 0,
+      label: 'sin coste',
+    });
+    expect(containerOpenCost('chest')).toEqual({
+      actions: 1,
+      mp: 0,
+      label: '1 acción',
+    });
+    expect(containerOpenCost(undefined)).toEqual({
+      actions: 1,
+      mp: 0,
+      label: '1 acción',
+    });
+  });
+
+  it('el modelo usa el activo vivo y no el primer jugador vivo', () => {
+    const activeDead = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 4 }),
+      ],
+      activePlayerId: 'player-1',
+    });
+    expect(buildInventoryPanelModel(activeDead)).toEqual({
+      equipment: expect.any(Array),
+      backpack: [],
+      ground: [],
+      corpses: [],
+      backpackCount: '0',
+      stats: { total: '—', rows: [] },
+    });
+
+    const activeAlive = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4, hp: 0 }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 5,
+          y: 4,
+          weapons: ['axe'],
+        }),
+      ],
+      activePlayerId: 'player-2',
+    });
+    const model = buildInventoryPanelModel(activeAlive);
+    expect(model.backpackCount).toBe('1/8');
+    expect(model.backpack[0].itemId).toBe('axe');
   });
 
   it('el icono de cada fila usa el mismo recorte de items.png que el mundo', () => {
@@ -277,6 +436,9 @@ describe('modelo del panel de personaje', () => {
     );
     expect(rejectionMessage('wrong-slot')).toBe(
       'El objeto no encaja en ese hueco',
+    );
+    expect(rejectionMessage('not-same-tile')).toBe(
+      'Tienes que estar en el mismo tile',
     );
     expect(rejectionMessage('wall')).toBe('Operación rechazada');
   });

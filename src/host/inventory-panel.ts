@@ -16,11 +16,14 @@ import {
   type ItemId,
   type ItemSpriteRect,
 } from '../game/equipment';
+import { hasAction } from '../game/actions';
 import {
   backpackCount,
   INVENTORY_OPERATION_COST,
+  type Container,
   type GroundItem,
 } from '../game/inventory';
+import { activePlayer } from '../game/party';
 import {
   aggregateEffectiveStats,
   effectiveStats,
@@ -57,13 +60,24 @@ const ATTRIBUTES: readonly (readonly [NumericStat, string])[] = [
   ['acciones', 'Acciones'],
 ];
 
-export type PanelActionKind = 'equip' | 'unequip' | 'pickup' | 'drop';
+export type PanelActionKind =
+  | 'equip'
+  | 'unequip'
+  | 'pickup'
+  | 'drop'
+  | 'take'
+  | 'take-all';
+
+/** Recurso que anuncia una acción; `mp` es el valor por defecto histórico. */
+export type PanelActionCost = 'mp' | 'none' | 'action';
 
 /** Acción confirmable de una fila; siempre lleva el comando del motor. */
 export interface PanelAction {
   readonly kind: PanelActionKind;
   readonly label: string;
   readonly command: Command;
+  /** Coste anunciado; omitido equivale a `mp` (REQ-018 R-012). */
+  readonly cost?: PanelActionCost;
 }
 
 /**
@@ -126,14 +140,18 @@ export interface PanelStats {
 }
 
 /**
- * Cadáver de presentación en el tile del jugador (REQ-033 R-014). No tiene
- * acciones ni entra en la navegación: solo aporta sprite y nombre/tipo.
+ * Cadáver-contenedor del tile del activo (REQ-034 R-005/R-006). La tarjeta no
+ * entra en la navegación; sus objetos sí son filas normales del panel.
  */
 export interface PanelCorpse {
   readonly key: string;
+  readonly containerId: string;
   readonly name: string;
   readonly sheet: 'rogues' | 'monsters';
   readonly sprite: SpriteRect;
+  /** «sin coste» para un cadáver (REQ-034 T-006). */
+  readonly costLabel: string;
+  readonly items: readonly PanelItem[];
 }
 
 export interface InventoryPanelModel {
@@ -387,34 +405,158 @@ function groundRow(unit: Unit, item: GroundItem): PanelItem {
   };
 }
 
+/** Coste declarado de abrir un contenedor (REQ-034 R-006/T-006). */
+export interface ContainerOpenCost {
+  /** Acciones que consume abrirlo. */
+  readonly actions: number;
+  /** MP que consume abrirlo. */
+  readonly mp: number;
+  /** Texto estable para la UI. */
+  readonly label: string;
+}
+
+/**
+ * Regla pura del coste de apertura: un cadáver se registra sin coste en el
+ * mismo tile; un cofre cuesta una acción y conserva su adyacencia fuera de este
+ * panel. La ausencia de `kind` se comporta como cofre (REQ-021/REQ-034).
+ */
+export function containerOpenCost(kind: Container['kind']): ContainerOpenCost {
+  return kind === 'corpse'
+    ? { actions: 0, mp: 0, label: 'sin coste' }
+    : { actions: 1, mp: 0, label: '1 acción' };
+}
+
 function unitForPanel(state: GameState, unitId?: string): Unit | undefined {
   if (unitId !== undefined) {
     return state.players.find((player) => player.id === unitId);
   }
-  return state.players.find((player) => player.hp > 0) ?? state.players[0];
+  // El panel pertenece al activo y solo se abre si está vivo (REQ-034 T-006).
+  const active = activePlayer(state);
+  return active !== undefined && active.hp > 0 ? active : undefined;
+}
+
+interface CorpseIdentity {
+  readonly name: string;
+  readonly sheet: 'rogues' | 'monsters';
+  readonly sprite: SpriteRect;
+}
+
+const FALLBACK_CORPSE: CorpseIdentity = {
+  name: 'Cadáver',
+  sheet: 'rogues',
+  sprite: KNIGHT_RECT,
+};
+
+/** Nombre y sprite del cadáver a partir de la unidad referida por `corpseOf`. */
+function corpseIdentity(state: GameState, container: Container): CorpseIdentity {
+  const candidate =
+    container.corpseOf === undefined
+      ? undefined
+      : [...state.players, ...state.enemies].find(
+          (unit) => unit.id === container.corpseOf,
+        );
+  if (!candidate) return FALLBACK_CORPSE;
+
+  if (candidate.faction === 'enemy') {
+    return candidate.enemyType === null
+      ? { ...FALLBACK_CORPSE, name: candidate.nombre }
+      : {
+          name: BESTIARY[candidate.enemyType].name,
+          sheet: 'monsters',
+          sprite: GOBLIN_RECT,
+        };
+  }
+  return {
+    name: candidate.nombre,
+    sheet: 'rogues',
+    sprite: KNIGHT_RECT,
+  };
+}
+
+/** Fila navegable de un objeto dentro de un cadáver-contenedor. */
+function corpseItemRow(
+  unit: Unit,
+  corpseName: string,
+  container: Container,
+  instance: NonNullable<Container['items'][number]>,
+): PanelItem {
+  const definition = ITEMS[instance.itemId];
+  return {
+    key: `corpse:${container.id}:${instance.id}`,
+    empty: false,
+    itemId: instance.itemId,
+    instanceId: instance.id,
+    name: itemName(definition),
+    detail: `${itemDetail(definition)} · ${slotLabel(definition.slot)} · ${corpseName}`,
+    sprite: definition.sprite.rect,
+    traits: itemTraits(definition),
+    comparison: compareEquip(unit, instance.itemId),
+    actions: [
+      {
+        kind: 'take',
+        label: 'Coger',
+        command: {
+          type: 'TakeItem',
+          unitId: unit.id,
+          containerId: container.id,
+          itemId: instance.id,
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'take-all',
+        label: 'Coger todo',
+        command: {
+          type: 'TakeAll',
+          unitId: unit.id,
+          containerId: container.id,
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'equip',
+        label: 'Equipar',
+        command: {
+          type: 'EquipItem',
+          unitId: unit.id,
+          from: 'container',
+          containerId: container.id,
+          itemId: instance.id,
+        },
+        cost: 'mp',
+      },
+    ],
+  };
 }
 
 /**
- * Cadáveres del tile del jugador. Los jugadores conservan su nombre propio y
- * los enemigos muestran el tipo del bestiario; el sprite es el de unidad que
- * ya usa el render, sin arte nuevo. No se ordena por RNG.
+ * Cadáveres-contenedor del tile del activo (REQ-034 R-005). La verdad es
+ * `state.containers`; una unidad muerta sin contenedor no pinta tarjeta. Los
+ * nombres y sprites reutilizan la unidad de `corpseOf`, sin arte nuevo.
  */
 function buildCorpses(state: GameState, unit: Unit): readonly PanelCorpse[] {
-  return [...state.players, ...state.enemies]
+  return (state.containers ?? [])
     .filter(
-      (candidate) =>
-        candidate.hp <= 0 &&
-        candidate.x === unit.x &&
-        candidate.y === unit.y,
+      (container) =>
+        container.kind === 'corpse' &&
+        container.x === unit.x &&
+        container.y === unit.y,
     )
-    .map((candidate) => {
-      const enemyType = candidate.faction === 'enemy' ? candidate.enemyType : null;
-      const enemy = enemyType !== null;
+    .map((container) => {
+      const identity = corpseIdentity(state, container);
       return {
-        key: `corpse:${candidate.id}`,
-        name: enemyType === null ? candidate.nombre : BESTIARY[enemyType].name,
-        sheet: enemy ? 'monsters' : 'rogues',
-        sprite: enemy ? GOBLIN_RECT : KNIGHT_RECT,
+        key: `corpse:${container.id}`,
+        containerId: container.id,
+        ...identity,
+        costLabel: containerOpenCost(container.kind).label,
+        items: container.items
+          .filter(
+            (instance): instance is NonNullable<Container['items'][number]> =>
+              instance !== null,
+          )
+          .map((instance) =>
+            corpseItemRow(unit, identity.name, container, instance),
+          ),
       } satisfies PanelCorpse;
     });
 }
@@ -499,6 +641,7 @@ const REJECTION_MESSAGES: Readonly<Partial<Record<RejectionReason, string>>> = {
   'wrong-slot': 'El objeto no encaja en ese hueco',
   'two-handed': 'El arma a dos manos no admite escudo',
   'unknown-container': 'El contenedor ya no existe',
+  'not-same-tile': 'Tienes que estar en el mismo tile',
   'unknown-unit': 'La unidad ya no existe',
   'dead-unit': 'La unidad no está viva',
   'wrong-phase': 'Solo puedes gestionar el equipo en tu turno',
@@ -510,6 +653,10 @@ export function rejectionMessage(reason: RejectionReason): string {
   return REJECTION_MESSAGES[reason] ?? 'Operación rechazada';
 }
 
+function corpseItems(model: InventoryPanelModel): readonly PanelItem[] {
+  return model.corpses.flatMap((corpse) => corpse.items);
+}
+
 function panelRow(
   model: InventoryPanelModel,
   key: string,
@@ -517,7 +664,8 @@ function panelRow(
   return (
     model.equipment.find((item) => item.key === key) ??
     model.backpack.find((item) => item.key === key) ??
-    model.ground.find((item) => item.key === key)
+    model.ground.find((item) => item.key === key) ??
+    corpseItems(model).find((item) => item.key === key)
   );
 }
 
@@ -545,13 +693,27 @@ export function buildPanelMenu(
   const actions = item.actions.filter(
     (action) => !(action.kind === 'pickup' && full),
   );
-  const disabled = unit.mp < INVENTORY_OPERATION_COST;
-  const costLabel = `${INVENTORY_OPERATION_COST} MP`;
 
-  return actions.map((action) => ({
-    ...action,
-    costLabel,
-    disabled,
-    reason: disabled ? rejectionMessage('no-mp') : null,
-  }));
+  return actions.map((action) => {
+    const cost = action.cost ?? 'mp';
+    if (cost === 'none') {
+      return { ...action, costLabel: 'sin coste', disabled: false, reason: null };
+    }
+    if (cost === 'action') {
+      const disabled = !hasAction(unit);
+      return {
+        ...action,
+        costLabel: '1 acción',
+        disabled,
+        reason: disabled ? rejectionMessage('no-action') : null,
+      };
+    }
+    const disabled = unit.mp < INVENTORY_OPERATION_COST;
+    return {
+      ...action,
+      costLabel: `${INVENTORY_OPERATION_COST} MP`,
+      disabled,
+      reason: disabled ? rejectionMessage('no-mp') : null,
+    };
+  });
 }

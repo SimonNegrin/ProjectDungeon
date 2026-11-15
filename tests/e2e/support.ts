@@ -317,9 +317,9 @@ export function panelRowTestId(key: string): string {
   return key.replace(/[^a-zA-Z0-9-]+/g, '-');
 }
 
-/** Test id de una acción confirmable del panel (`equip`, `pickup`, ...). */
+/** Test id de una acción confirmable del panel (`equip`, `pickup`, `take`, ...). */
 export function panelActionTestId(
-  kind: 'equip' | 'unequip' | 'pickup' | 'drop',
+  kind: 'equip' | 'unequip' | 'pickup' | 'drop' | 'take' | 'take-all',
   key: string,
 ): string {
   return `inventory-submenu-option-${kind}-${panelRowTestId(key)}`;
@@ -447,11 +447,18 @@ export async function selectPanelRow(page: Page, key: string): Promise<void> {
  * con `ArrowUp`/`ArrowDown`. No usa `focus()` ni clics.
  */
 export async function focusPanelAction(page: Page, testId: string): Promise<void> {
-  const match = /^inventory-submenu-option-(equip|unequip|pickup|drop)-(.+)$/.exec(
-    testId,
-  );
+  const match =
+    /^inventory-submenu-option-(equip|unequip|pickup|drop|take-all|take)-(.+)$/.exec(
+      testId,
+    );
   if (!match) throw new Error(`Test id de acción inesperado: ${testId}`);
-  const kind = match[1] as 'equip' | 'unequip' | 'pickup' | 'drop';
+  const kind = match[1] as
+    | 'equip'
+    | 'unequip'
+    | 'pickup'
+    | 'drop'
+    | 'take'
+    | 'take-all';
   const normalized = match[2];
   const rows = await panelRows(page);
   const row = rows.find((candidate) => panelRowTestId(candidate.key) === normalized);

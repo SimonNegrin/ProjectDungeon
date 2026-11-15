@@ -72,6 +72,21 @@ describe('modo del cursor superpuesto (R-030/R-031/T-014)', () => {
     ).toBe('animate');
   });
 
+  it('anima también entre objetos del cadáver y el suelo de la columna derecha', () => {
+    expect(
+      cursorTransition(
+        placement('corpse:corpse-enemy:loot-1', 'right', 100, 100),
+        placement('corpse:corpse-enemy:loot-2', 'right', 134, 100),
+      ),
+    ).toBe('animate');
+    expect(
+      cursorTransition(
+        placement('corpse:corpse-enemy:loot-2', 'right', 134, 100),
+        placement('ground:item-test-ground-0', 'right', 168, 100),
+      ),
+    ).toBe('animate');
+  });
+
   it('salta al instante al reabrir, con scroll, resize o actualizar el modelo', () => {
     const previous = placement('backpack:0', 'backpack', 100, 100);
     const next = placement('backpack:1', 'backpack', 134, 100);

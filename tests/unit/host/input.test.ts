@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { isManagedKey, translateKey, type InputIntent } from '../../../src/host/input';
+import {
+  canOpenCharacterPanel,
+  isManagedKey,
+  translateKey,
+  type InputIntent,
+} from '../../../src/host/input';
 import type { GameState, Position } from '../../../src/game/types';
 import { makeState, makeUnit } from '../game/helpers';
 
@@ -137,6 +142,35 @@ describe('mapeo de teclado a intenciones del host', () => {
       type: 'ignored',
       reason: 'game-over',
     });
+  });
+
+  it('I solo abre el panel para el activo vivo, no para un fantasma activo', () => {
+    const ghostActive = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          hp: 0,
+          ghost: true,
+        }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 4 }),
+      ],
+      activePlayerId: 'player-1',
+    });
+    expect(translate('i', ghostActive)).toEqual({
+      type: 'ignored',
+      reason: 'no-active-player',
+    });
+    expect(canOpenCharacterPanel(ghostActive)).toBe(false);
+
+    const livingActive = {
+      ...ghostActive,
+      activePlayerId: 'player-2',
+    };
+    expect(translate('i', livingActive)).toEqual({ type: 'panel-open' });
+    expect(canOpenCharacterPanel(livingActive)).toBe(true);
   });
 
   it('I no abre el panel con la lista de hechizos abierta', () => {
