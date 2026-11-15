@@ -1,0 +1,14 @@
+
+Running 9 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/party-summary.spec.ts:56:1 › un jugador: fila, semilla de solo lectura y foco en Empezar (1.2s)
+  ✓  4 [chromium] › tests/e2e/party-summary.spec.ts:127:1 › cancelación: aviso, desistimiento, Esc y vuelta al menú (1.3s)
+  ✓  1 [chromium] › tests/e2e/party-summary.spec.ts:87:1 › «Atrás» conserva valores y «Siguiente» vuelve sin duplicar filas (1.3s)
+  ✓  3 [chromium] › tests/e2e/party-summary.spec.ts:160:1 › dos jugadores: Empezar arranca con la party y la semilla mostradas (1.6s)
+  ✓  5 [chromium] › tests/e2e/player-screen.spec.ts:33:1 › dos jugadores: roster, variante, nombre y aviso de party (1.3s)
+  ✓  7 [chromium] › tests/e2e/player-screen.spec.ts:230:1 › reentrada tras cancelar no duplica los arquetipos (1.2s)
+  ✓  6 [chromium] › tests/e2e/player-screen.spec.ts:122:1 › ficha del arquetipo: datos, miniaturas y teclado (1.4s)
+  ✓  8 [chromium] › tests/e2e/player-screen.spec.ts:269:1 › recorrido solo con teclado y cancelación confirmada (1.1s)
+  ✓  9 [chromium] › tests/e2e/player-screen.spec.ts:320:1 › ?test=1 no monta las pantallas de inicio (280ms)
+
+  9 passed (4.3s)
