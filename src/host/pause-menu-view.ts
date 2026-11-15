@@ -225,6 +225,16 @@ export function createPauseMenuView(
     buttons[next]?.focus({ preventScroll: true });
   };
 
+  /**
+   * Consume la tecla en origen. `stopImmediatePropagation` impide que el
+   * listener global del host la reciba después de que la pausa cambie de
+   * estado (por ejemplo, `Esc` que la cierra y no debe reabrirla).
+   */
+  const consume = (event: KeyboardEvent): void => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+
   window.addEventListener('keydown', (event) => {
     if (!visible) return;
     if (event.ctrlKey || event.metaKey || event.altKey || event.repeat) return;
@@ -232,13 +242,13 @@ export function createPauseMenuView(
     const screen = renderedScreen ?? 'root';
 
     if (key === 'escape') {
-      event.preventDefault();
+      consume(event);
       options.onCancel();
       return;
     }
 
     if (key === 'tab') {
-      event.preventDefault();
+      consume(event);
       cycleFocus(event.shiftKey);
       return;
     }
@@ -252,12 +262,12 @@ export function createPauseMenuView(
       ) {
         // El host bloquea Enter/Espacio como teclas gestionadas; aquí se
         // dispara el `click` nativo antes de que ese bloqueo lo cancele.
-        event.preventDefault();
+        consume(event);
         active.click();
         return;
       }
       if (screen !== 'root') return;
-      event.preventDefault();
+      consume(event);
       options.onActivateSelection();
       return;
     }
@@ -265,12 +275,12 @@ export function createPauseMenuView(
     if (screen !== 'root') return;
 
     if (key === 'arrowup' || key === 'w') {
-      event.preventDefault();
+      consume(event);
       options.onMoveSelection(-1);
       return;
     }
     if (key === 'arrowdown' || key === 's') {
-      event.preventDefault();
+      consume(event);
       options.onMoveSelection(1);
     }
   });

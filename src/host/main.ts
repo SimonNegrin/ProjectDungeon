@@ -1331,9 +1331,6 @@ async function boot(): Promise<void> {
   }
 
   window.addEventListener('keydown', (event) => {
-    // La pausa u otra vista ya consumieron la tecla y llamaron a
-    // `preventDefault`; el host no debe reabrir la pausa con el mismo `Esc`.
-    if (event.defaultPrevented) return;
     // La pantalla de inicio, la de jugadores o el resumen consumen sus teclas;
     // el mapa y F1 no se interpretan mientras alguna esté visible.
     if (

@@ -243,6 +243,17 @@ test('stats y traits de ambos HUD son listas verticales sin separadores', async 
     // Atributos del aliado en la ficha bajo el cursor.
     await page.keyboard.press('Escape');
     await expect(page.getByTestId('inventory-panel')).toBeHidden();
+    // TASK-0139: cerrar el panel no debe dejar el foco en una fila oculta que
+    // se coma la primera flecha. El cursor tiene que moverse ya en esa tecla.
+    const cursorAfterClose = await page.evaluate(
+      () => window.__game!.snapshot().cursor,
+    );
+    await page.keyboard.press('ArrowRight');
+    const cursorAfterArrow = await page.evaluate(
+      () => window.__game!.snapshot().cursor,
+    );
+    expect(cursorAfterArrow.x).toBe(cursorAfterClose.x + 1);
+    expect(cursorAfterArrow.y).toBe(cursorAfterClose.y);
     await moveCursorTo(page, ally.x, ally.y);
     await expect(page.getByTestId('hud-cursor-detail')).toHaveAttribute(
       'data-kind',
