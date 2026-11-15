@@ -4,7 +4,7 @@ id: TASK-0148
 title: "Motor: resurrección por índice y recursos"
 description: "Permitir resucitar al fantasma en la casilla del cadáver y devolver el turno en la misma ronda si su índice no ha pasado, con recursos restaurados."
 status: stable
-task_status: backlog
+task_status: blocked
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-014, T-003]
@@ -20,6 +20,16 @@ risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T20:20:45Z
+    note: >-
+      Bloqueada en Definition of Ready antes de in_progress: el criterio 1 y el
+      plan de test exigen un objeto de resurrección, pero no existe en el
+      catálogo, el modelo solo admite arma/escudo/armadura y REQ-018 R-005 y
+      REQ-019 lo excluyen; además «No objetivos» prohíbe un objeto nuevo.
+      Requiere decisión de requirements-writer sobre el objeto y sobre el
+      objetivo unidad/casilla. Detalle en
+      `artifacts/TASK-0148/lead-blocked/blocked.md`.
 ---
 
 # Objetivo
@@ -86,3 +96,14 @@ R-008 a R-013. TASK-0131 crea el cadáver y TASK-0146 el turno.
 - Revivir al jugador sin lanzador u objeto.
 - Cambiar la derrota por wipe.
 - HUD del fantasma o del resucitado.
+
+# Notas de verificación
+
+- Bloqueada antes de `in_progress`: el criterio 1 y el test de objeto piden un
+  objeto de resurrección que el catálogo no admite sin cambiar REQ-018/REQ-019,
+  y «No objetivos» lo excluye. Ver
+  [bloqueo](../../artifacts/TASK-0148/lead-blocked/blocked.md).
+- El motor del hechizo, la limpieza de `ghost` y la restauración de
+  `actions.max` son ejecutables sin esa decisión; quedan pendientes de dividir.
+- REQ-020 ya decidió que la resurrección apunte a una unidad, no a una casilla;
+  la enmienda a REQ-021 sigue pendiente y afecta al comando.

@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0148 — blocked: el criterio y test de objeto de resurrección chocan con REQ-018 R-005/REQ-019 y con «No objetivos»; requiere decisión de requirements-writer sobre objeto y objetivo unidad/casilla — [bloqueo](../artifacts/TASK-0148/lead-blocked/blocked.md)
+
 * 2026-11-15 — Task — TASK-0147 — done: muerte del activo en su turno resuelta antes de cerrar, sin turno muerto, derrota por wipe con fantasmas y resultado expuesto en `status`/`round`; verify 107/1695 y E2E sensible 38/38; fusión `e390ff5` — [informe](../artifacts/TASK-0147/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0146 — done: turno por jugador con `EndTurn` validado, recursos solo al empezar cada turno, comandos de no activos rechazados, una fase enemiga por ronda con `enemyPhase` (actor/objetivo/espera) y fantasma con índice; verify 107/1688; fusión `c21931c` — [informe](../artifacts/TASK-0146/attempt-1/report.md)
