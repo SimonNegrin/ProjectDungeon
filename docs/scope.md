@@ -20,11 +20,17 @@ cerrada: `REQ-001` a `REQ-015` y `REQ-017` están implementadas o `stable`, con
 los tipos de daño están implementadas (`REQ-025`, `REQ-026`, `REQ-027` y
 `REQ-029`).
 
+El botín de enemigos de `REQ-034` está implementado: un enemigo solo deja
+cadáver si al menos uno de sus objetos es saqueable, el cadáver se saquea
+desde el mismo tile sin coste y el guardado conserva la tirada sin repetirla.
+Las llaves y los objetos de progresión quedan reservados a su propia hoja.
+
 El trabajo inmediato es el **inventario y el equipo** (`REQ-018`, tareas
 TASK-0093 a TASK-0098), base del saqueo, del fantasma y de la columna del
 jugador; después el saqueo y los traits (`REQ-020` y `REQ-019`), la muerte
-jugable (`REQ-021`), el HUD lateral y el guardado (`REQ-022`, `REQ-023` y
-`REQ-024`) y, al final, el hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`).
+jugable (`REQ-021`), el HUD lateral (`REQ-022` y `REQ-023`), el cierre
+documental de la pausa y el guardado (`REQ-024`) y, al final, el hotseat de la
+fase 2 (`REQ-016` v3 y `REQ-031`).
 `REQ-030` (alcance visible de hechizos) queda en borrador.
 
 # Horizonte
@@ -55,7 +61,8 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
 | 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
-| 2 | Multijugador local hotseat en el mismo teclado | En implementación: menú principal, configuración y resumen de `REQ-016` ya implementados (TASK-0122 a TASK-0127); hotseat jugable, pausa y guardado pendientes |
+| 1.16 | Botín de enemigos y cadáver condicionado (REQ-034) | Implementada; `lootable` por instancia, 25 %/100 %, cadáver como contenedor, saqueo en el mismo tile sin coste, retirada al vaciar y guardado sin retirada; TASK-0130 a TASK-0138 y QA TASK-0142. Llaves y progresión reservadas |
+| 2 | Multijugador local hotseat en el mismo teclado | En implementación: menú principal, configuración y resumen de `REQ-016` ya implementados (TASK-0122 a TASK-0127); hotseat jugable pendiente |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -77,6 +84,9 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 - Tipos de daño: `REQ-029` implementada y verificada en TASK-0085 a TASK-0092;
   perfiles y armas v1 son estimados y el ajuste fino se aplaza a roster y
   bestiario completos.
+- Botín de enemigos: `REQ-034` está implementada en TASK-0130 a TASK-0138 y
+  verificada en TASK-0142; el cadáver de enemigo solo existe con botín y el
+  saqueo no gasta acción ni MP. `REQ-020` sigue en borrador para los cofres.
 - `REQ-018` (inventario y equipo) está `stable` v4 y en implementación con
   TASK-0093 a TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y
   `REQ-020` (cofres y cadáveres) sigue en borrador.
@@ -181,6 +191,13 @@ Los valores concretos de la economía de turno son provisionales y viven en
   Quien resucita debe estar adyacente a la casilla del cadáver, libre de vivos;
   el personaje vuelve en esa casilla, no en la del fantasma. Sin fuente
   disponible, la muerte es definitiva.
+- Un enemigo solo deja cadáver si al menos uno de sus objetos es saqueable. La
+  saqueabilidad se decide por instancia al crear al enemigo (25 % común, 100 %
+  progresión) con un RNG derivado que no consume el principal; el cadáver se
+  saquea desde el mismo tile sin coste (0 acción y 0 MP; el fantasma paga una
+  acción por objeto) y se retira al vaciarse. El cadáver de jugador conserva
+  todo su equipo y persiste. Cargar no vuelve a tirar. Las llaves y objetos de
+  progresión se reservan para su hoja.
 - Los hechizos usan un recurso de **maná** derivado del nivel de magia (máximo
   nivel × 4), separado del MP de movimiento. El maná se recarga completo cada
   turno. Cada hechizo cuesta maná y una acción; máximo 2 por turno en el primer
@@ -239,8 +256,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   debilidades se diseñará cuando ambos estén cerrados.
 - Estructura de run (roguelike), muerte permanente y encadenado funcional de
   niveles: sin definir.
-- Saqueo de cadáveres: definido como objetivo de la muerte jugable, sin
-  implementar.
+- Llaves, puertas cerradas, cofres cerrados y objetos de progresión: solo se
+  reserva la regla de que los objetos necesarios para avanzar son siempre
+  saqueables; su catálogo, su contenido y su hoja quedan fuera de este corte.
+  Los cofres jugables siguen pendientes de `REQ-020`.
 
 # Restricciones
 

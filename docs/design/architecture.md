@@ -201,6 +201,23 @@ recoger/soltar con 1 MP; el fantasma, con su única acción. La IA, la percepci�
 el ataque filtran por `isAlive`, así que el fantasma no es objetivo ni obstáculo.
 La resurrección y el turno por jugador quedan en TASK-0148/TASK-0146.
 
+## Botín de enemigos
+
+La saqueabilidad se decide al crear al enemigo. `src/game/loot.ts`
+(`rollEnemyLoot`) recorre el equipo y la mochila en orden estable y fija
+`ItemInstance.lootable`; `src/game/equipment.ts` declara `lootPolicy`
+(`common`/`progression`) y `LOOT_CHANCES` como datos (25 %/100 %). Un objeto
+`progression` nace saqueable sin consumir tirada. El RNG de botín se deriva de
+la semilla y del ID estable del enemigo con `deriveLootRng`, no lee ni avanza
+`state.rng` y no usa `Math.random`; `rollPercent` devuelve 0–99. Al morir,
+`death.ts` filtra las instancias saqueables, descarta el resto y crea un
+`Container` `kind: 'corpse'` en el tile; sin saqueables no hay contenedor.
+`takeContainerItem`/`takeAllContainerItems` exigen el mismo tile, no cobran al
+vivo y el fantasma paga una acción por objeto; `withoutEmptyEnemyCorpse` retira
+el cadáver de enemigo vacío. El guardado conserva `lootable` y contenedores sin
+repetir la tirada; el snapshot expone `lootPolicy` y el resultado. Ver
+[ADR-030](../decisions/ADR-030-saqueabilidad-botin-enemigos.md).
+
 ## Réplica
 
 La réplica de [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
