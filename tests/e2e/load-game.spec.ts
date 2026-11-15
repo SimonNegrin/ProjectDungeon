@@ -196,6 +196,77 @@ test('TASK-0141: el menú principal carga un .json suelto real', async ({
   await screenshot(page, 'menu-json-cargado', testInfo);
 });
 
+test('TASK-0141: una party con mago y clérigo se guarda y se carga sin cambios', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+
+  const base = createInitialState({
+    seed: MENU_SEED,
+    players: [
+      { archetypeId: 'mage', variant: 1, name: 'Bru' },
+      { archetypeId: 'cleric', variant: 2, name: 'Cle' },
+    ],
+  });
+  const spot = farthestFloor(base, base.players[0]);
+  const state: GameState = {
+    ...base,
+    players: base.players.map((player, index) =>
+      index === 1
+        ? { ...player, x: spot.x, y: spot.y, home: { ...spot } }
+        : player,
+    ),
+  };
+  expect(state.players[0]?.stats.fuerza).toBe(-1);
+  expect(state.players[1]?.stats.fuerza).toBe(-1);
+
+  const files = buildSaveFiles(state, {
+    gameVersion: GAME_VERSION,
+    createdAt: CREATED_AT,
+  });
+  const zipPath = await writeArtifact(
+    testInfo,
+    'guardado-mago-clerigo.zip',
+    await writeSaveZip(files),
+  );
+
+  await page.goto(`/?seed=${PAGE_SEED}`);
+  await waitForGame(page);
+  const chooserPromise = page.waitForEvent('filechooser');
+  await page.getByTestId('start-load').click();
+  const chooser = await chooserPromise;
+  await chooser.setFiles(zipPath);
+
+  await expect(page.getByTestId('start-screen')).toBeHidden();
+  const loaded = await snapshot(page);
+  expect(loaded.rng.seed).toBe(MENU_SEED);
+  expect(
+    loaded.players.map((player) => ({
+      id: player.id,
+      nombre: player.nombre,
+      archetypeId: player.archetypeId,
+      x: player.x,
+      y: player.y,
+      hp: player.hp,
+      mp: player.mp,
+      stats: player.stats,
+    })),
+  ).toEqual(
+    state.players.map((player) => ({
+      id: player.id,
+      nombre: player.nombre,
+      archetypeId: player.archetypeId,
+      x: player.x,
+      y: player.y,
+      hp: player.hp,
+      mp: player.mp,
+      stats: player.stats,
+    })),
+  );
+  await expect(page.getByTestId('hud-player-name')).toHaveText('Bru');
+  await screenshot(page, 'menu-zip-mago-clerigo', testInfo);
+});
+
 test('TASK-0141: la pausa confirma, carga el .zip y deja cámara y HUD en el activo', async ({
   page,
 }, testInfo) => {

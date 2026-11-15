@@ -120,6 +120,25 @@ describe('cargador único .zip/.json', () => {
     ]);
   });
 
+  it('carga un .zip con mago y clérigo y conserva sus stats negativos', async () => {
+    const state = createInitialState({
+      seed: SEED,
+      players: [
+        { archetypeId: 'mage', variant: 1, name: 'Bru' },
+        { archetypeId: 'cleric', variant: 2, name: 'Cle' },
+      ],
+    });
+    expect(state.players[0]?.stats.fuerza).toBe(-1);
+    expect(state.players[1]?.stats.fuerza).toBe(-1);
+
+    const result = await loadGameFile(await zipHandle(saveFiles(state)));
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.state).toEqual(state);
+    expect(result.state.players[0]?.stats.fuerza).toBe(-1);
+  });
+
   it('carga un .json suelto con el mismo esquema v1', async () => {
     const result = await loadGameFile(jsonHandle(saveFiles().save));
 
