@@ -15,7 +15,7 @@ import {
   type InventorySource,
 } from './inventory';
 import { commitMove, validateMove } from './movement';
-import { applyTerminal, resolveEndTurn } from './turn';
+import { applyTerminal, closeTurnAfterActiveDeath, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
 import { castSpell } from './magic';
 import { planCursorTarget, type CursorBlockedReason } from './path';
@@ -742,25 +742,13 @@ function reduceEndTurn(
   return resolveEndTurn(state);
 }
 
+type PlayCommand = Exclude<Command, { type: 'Restart' }>;
+
 /**
- * Reducción pura: recibe el estado y un comando y devuelve un estado nuevo
- * (o el mismo si se rechaza) más los eventos ocurridos. No muta la entrada.
+ * Aplica el comando al estado sin cerrar el turno. `reduce` envuelve esta
+ * función para añadir el cierre por muerte del activo (REQ-031 R-015).
  */
-export function reduce(state: GameState, command: Command): ReduceResult {
-  if (command.type === 'Restart') {
-    const config = state.config;
-    return {
-      state: config
-        ? createInitialState({ seed: config.seed, players: config.players })
-        : createInitialState(),
-      events: [{ type: 'GameRestarted' }],
-    };
-  }
-
-  if (state.status !== 'playing') {
-    return reject(state, command, 'game-over');
-  }
-
+function dispatchCommand(state: GameState, command: PlayCommand): ReduceResult {
   switch (command.type) {
     case 'Move':
       return reduceMove(state, command);
@@ -789,4 +777,48 @@ export function reduce(state: GameState, command: Command): ReduceResult {
     case 'EndTurn':
       return reduceEndTurn(state, command);
   }
+}
+
+/**
+ * Reducción pura: recibe el estado y un comando y devuelve un estado nuevo
+ * (o el mismo si se rechaza) más los eventos ocurridos. No muta la entrada.
+ *
+ * Si el activo estaba vivo antes del comando y la acción lo deja muerto sin
+ * terminar la partida, cierra su turno después de resolver el comando completo
+ * (REQ-031 R-015). `EndTurn` ya cierra el turno por su propia vía.
+ */
+export function reduce(state: GameState, command: Command): ReduceResult {
+  if (command.type === 'Restart') {
+    const config = state.config;
+    return {
+      state: config
+        ? createInitialState({ seed: config.seed, players: config.players })
+        : createInitialState(),
+      events: [{ type: 'GameRestarted' }],
+    };
+  }
+
+  if (state.status !== 'playing') {
+    return reject(state, command, 'game-over');
+  }
+
+  const activeId = state.activePlayerId;
+  const activeWasAlive =
+    activeId !== null &&
+    state.players.some((unit) => unit.id === activeId && isAlive(unit));
+
+  const result = dispatchCommand(state, command);
+
+  if (command.type === 'EndTurn' || !activeWasAlive || activeId === null) {
+    return result;
+  }
+
+  const closed = closeTurnAfterActiveDeath(result.state, activeId);
+  if (!closed) return result;
+
+  return {
+    state: closed.state,
+    events: [...result.events, ...closed.events],
+    ...(closed.enemyPhase === undefined ? {} : { enemyPhase: closed.enemyPhase }),
+  };
 }

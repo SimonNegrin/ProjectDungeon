@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BESTIARY,
+  closeTurnAfterActiveDeath,
   createRng,
   reduce,
   type Command,
@@ -805,5 +806,162 @@ describe('turno por jugador, validación del activo y fase enemiga (REQ-031 T-00
       'player-2',
       'player-3',
     ]);
+  });
+});
+
+describe('muerte del activo en su turno y wipe (REQ-031 R-015, REQ-021 R-011/T-008)', () => {
+  function types(events: readonly GameEvent[]): string[] {
+    return events.map((event) => event.type);
+  }
+
+  it('closeTurnAfterActiveDeath cierra solo si el activo murió y la partida sigue', () => {
+    const dead = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 0 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 8, y: 5, mp: 0, actions: 0 }),
+      ],
+      activePlayerId: 'player-1',
+    });
+
+    const closed = closeTurnAfterActiveDeath(dead, 'player-1');
+
+    expect(closed && types(closed.events)).toEqual(['TurnEnded', 'PlayerTurnStarted']);
+    expect(closed?.state.activePlayerId).toBe('player-2');
+    expect(closed?.state.round).toBe(1);
+    expect(closed?.state.players[1]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+
+    // No cierra si el activo sigue vivo, cambió, falta o la partida terminó.
+    expect(closeTurnAfterActiveDeath(makeState(), 'player-1')).toBeUndefined();
+    expect(
+      closeTurnAfterActiveDeath({ ...dead, activePlayerId: 'player-2' }, 'player-1'),
+    ).toBeUndefined();
+    expect(
+      closeTurnAfterActiveDeath({ ...dead, activePlayerId: 'player-9' }, 'player-9'),
+    ).toBeUndefined();
+    expect(
+      closeTurnAfterActiveDeath({ ...dead, status: 'defeat' }, 'player-1'),
+    ).toBeUndefined();
+  });
+
+  it('si no queda ningún vivo, la derrota no añade turno y conserva la ronda', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 8, y: 5, hp: 0, ghost: true }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      round: 3,
+      rng: rngForDice([1, 6, 6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    // El fantasma no evita el wipe (la resurrección aún no existe: TASK-0148).
+    expect(types(result.events)).toEqual([
+      'AttackPerformed',
+      'ReplicaPerformed',
+      'UnitDied',
+      'GameEnded',
+    ]);
+    expect(result.events.at(-1)).toEqual({ type: 'GameEnded', status: 'defeat' });
+    expect(result.state.status).toBe('defeat');
+    expect(result.state.round).toBe(3);
+    expect(result.state.players[1].ghost).toBe(true);
+
+    const rejected = reduce(result.state, { type: 'EndTurn' });
+    expect(rejected.events).toEqual([
+      { type: 'CommandRejected', commandType: 'EndTurn', reason: 'game-over' },
+    ]);
+  });
+
+  it('con un vivo y fantasmas la partida sigue y el control pasa al siguiente jugable', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 8, y: 5, hp: 0, ghost: true }),
+        makeUnit({ id: 'player-3', faction: 'player', x: 9, y: 5, mp: 0, actions: 0 }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      rng: rngForDice([1, 6, 6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, {
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+
+    expect(result.state.status).toBe('playing');
+    expect(result.state.round).toBe(1);
+    expect(result.state.activePlayerId).toBe('player-2');
+    expect(types(result.events)).toEqual([
+      'AttackPerformed',
+      'ReplicaPerformed',
+      'UnitDied',
+      'TurnEnded',
+      'PlayerTurnStarted',
+    ]);
+
+    // El fantasma puede cerrar turno; el control llega al vivo siguiente.
+    const passed = reduce(result.state, { type: 'EndTurn', unitId: 'player-2' });
+    expect(passed.state.status).toBe('playing');
+    expect(passed.state.activePlayerId).toBe('player-3');
+    expect(passed.state.players[2]).toMatchObject({ mp: 6, actions: { remaining: 2 } });
+  });
+
+  it('un último vivo que muere en la fase enemiga deja derrota sin PlayerTurnStarted', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-2', faction: 'player', x: 18, y: 18, hp: 0, ghost: true }),
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      activePlayerId: 'player-1',
+      round: 2,
+      rng: rngForDice([6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, { type: 'EndTurn' });
+
+    expect(types(result.events)).toEqual([
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'AttackPerformed',
+      'UnitDied',
+      'GameEnded',
+    ]);
+    expect(result.state.status).toBe('defeat');
+    expect(result.state.round).toBe(2);
+    expect(result.events).not.toContainEqual({ type: 'PlayerTurnStarted', turn: 3 });
+  });
+
+  it('si muere en la fase enemiga con otro vivo, la ronda avanza y el activo se recoloca', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-2', faction: 'player', x: 18, y: 18 }),
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, hp: 1 }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5 })],
+      activePlayerId: 'player-1',
+      rng: rngForDice([6, 1, 3, 3]),
+    });
+
+    const result = reduce(state, { type: 'EndTurn' });
+
+    expect(types(result.events)).toEqual([
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'AttackPerformed',
+      'UnitDied',
+      'PlayerTurnStarted',
+    ]);
+    expect(result.state.status).toBe('playing');
+    expect(result.state.round).toBe(2);
+    expect(result.state.activePlayerId).toBe('player-2');
+    expect(result.state.players[1]).toMatchObject({ hp: 0, ghost: true });
   });
 });

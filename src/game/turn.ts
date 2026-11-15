@@ -252,6 +252,30 @@ function applyEnemyPlan(state: GameState, enemy: Unit): EnemyPlanResult {
 }
 
 /**
+ * Cierra el turno después de que el activo muera durante su propio turno
+ * (REQ-031 R-015). El comando ya se ha resuelto completo; esto solo decide si
+ * toca pasar el control. Devuelve `undefined` si la partida terminó, si el
+ * activo cambió o si la unidad sigue viva o no existe. No emite nada por sí
+ * mismo: delega en `resolveEndTurn` para conservar el orden de turno y la fase
+ * enemiga de TASK-0146.
+ */
+export function closeTurnAfterActiveDeath(
+  state: GameState,
+  previousActiveId: string,
+): TurnResult | undefined {
+  if (state.status !== 'playing' || state.activePlayerId !== previousActiveId) {
+    return undefined;
+  }
+
+  const unit = state.players.find((candidate) => candidate.id === previousActiveId);
+  if (!unit || isAlive(unit)) {
+    return undefined;
+  }
+
+  return resolveEndTurn(state);
+}
+
+/**
  * Cierra el turno del activo. Si queda otro jugador jugable (vivo o fantasma)
  * le pasa el control sin fase enemiga; si era el último, ejecuta una única fase
  * enemiga por ronda y, si la partida sigue, vuelve al primer jugable.
