@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0150 — done: relevo por cámara con paneo de 300 ms, bloqueo de input, ronda 1 directa y vuelta al primer jugador; verify 1712/1712 y E2E 36/36 por specs; arquitectura y glosario actualizados; fusión `2e8ad0d` — [informe](../artifacts/TASK-0150/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0149 — done: `N` cierra turno, `E`/`R` retiradas, `Esc` pausa, comandos del activo y gate solo por paneo/animación; verify 1704/1704 y E2E 61/61 por specs; fusión `63093a6` — [informe](../artifacts/TASK-0149/attempt-2/report.md)
 
 * 2026-11-15 — Planning — TASK-0148 — backlog: desbloqueada y recortada al motor (comando por cadáver, índice de ronda, recursos); no se crea objeto de resurrección — [TASK-0148](tasks/TASK-0148-motor-resurreccion-indice-recursos.md)
