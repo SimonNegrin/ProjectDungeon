@@ -223,7 +223,7 @@ describe('createInitialState con un MapGenerator inyectado', () => {
       { type: 'EndTurn' },
     );
     expect(endTurn.events.map((event) => event.type)).toContain('EnemyPhaseStarted');
-    expect(endTurn.state.turn).toBe(2);
+    expect(endTurn.state.round).toBe(2);
     expect(endTurn.state.players[0]).toMatchObject({
       hp: state.players[0].hp - attackDamage(endTurn.events),
       mp: state.players[0].maxMp,

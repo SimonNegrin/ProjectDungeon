@@ -2,6 +2,7 @@ import { EQUIPMENT_SLOTS, ITEMS, type ItemSpriteRect } from '../game/equipment';
 import { backpackCount, type ItemInstance } from '../game/inventory';
 import type { GameEvent, GameState, GroundItem, Position, Unit } from '../game/types';
 import { alarmRadius, visionRadius } from '../game/perception';
+import { activePlayer, activePlayerIndex, partyOrder } from '../game/party';
 import { effectiveStats } from '../game/stats';
 import {
   pathLength,
@@ -119,7 +120,7 @@ export interface DebugModel {
  * comando. Aparece únicamente cuando el jugador ya no puede actuar ni moverse.
  */
 function actionSuggestion(state: GameState): string | null {
-  const player = state.players[0];
+  const player = activePlayer(state);
   if (!player) return null;
   if (state.phase !== 'player' || state.status !== 'playing') return null;
   if (player.actions.remaining > 0 || player.mp > 0) return null;
@@ -134,6 +135,21 @@ function statusLabel(state: GameState): string {
   if (state.status === 'victory') return 'Victoria';
   if (state.status === 'defeat') return 'Derrota';
   return 'En juego';
+}
+
+/**
+ * Línea de partida de `F1`: fase, ronda, activo y estado. El índice del activo
+ * es 1-based para leerlo como posición en la party; sin activo vale `0`.
+ */
+function partyStateLine(state: GameState): string {
+  const active = activePlayer(state);
+  const index = activePlayerIndex(state) + 1;
+  return `Fase: ${phaseLabel(state)} · Ronda ${state.round} · Activo ${active?.id ?? '—'} (${index}/${state.players.length}) · Estado: ${statusLabel(state)}`;
+}
+
+function partyOrderLine(state: GameState): string {
+  const order = partyOrder(state);
+  return `Orden de party: ${order.length === 0 ? '—' : order.join(', ')}`;
 }
 
 function boolLabel(value: boolean | undefined): string {
@@ -185,7 +201,7 @@ function portraitRect(player: Unit | undefined): SpriteRect | null {
 
 /** Modelo del HUD derivado solo del estado del motor y la posición del cursor. */
 export function buildHudModel(state: GameState, cursor?: Position): HudModel {
-  const player = state.players[0];
+  const player = activePlayer(state);
   const groundItem = itemAtPlayer(state, player);
   const cursorDetail = buildCursorDetail(state, cursor);
   // La compatibilidad del HUD solo publica datos de un enemigo visible; sin
@@ -550,7 +566,8 @@ export function buildDebugModel(
       ...enemyMagicLines(state),
       ...enemyPerceptionLines(state),
       vitalityLine(state),
-      `Fase: ${phaseLabel(state)} · Turno ${state.turn} · Estado: ${statusLabel(state)}`,
+      partyStateLine(state),
+      partyOrderLine(state),
       cursorLabel(cursor),
       cursorEnemyDebugLine(state, cursor),
       lastAttackLine(lastEvents),

@@ -49,7 +49,8 @@ function roomState(unit: Unit): GameState {
     groundItems: [],
     containers: [],
     phase: 'player',
-    turn: 1,
+    activePlayerId: unit.id,
+    round: 1,
     status: 'playing',
     rng: createRng(SEED),
   };

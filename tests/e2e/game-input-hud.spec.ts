@@ -85,7 +85,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     await expect(page.getByTestId(retired)).toHaveCount(0);
   }
   await expectDebug(page, [
-    'Fase: Jugador · Turno 1',
+    'Fase: Jugador · Ronda 1',
     `Enemigo: (${startEnemy.x}, ${startEnemy.y}) · HP ${startEnemy.hp}/${startEnemy.maxHp}`,
   ]);
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
@@ -340,7 +340,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     action: '2/2',
   });
   await expect(page.getByTestId('hud-phase')).toHaveCount(0);
-  await expectDebug(page, [`Fase: Jugador · Turno ${afterEndTurn.turn}`]);
+  await expectDebug(page, [`Fase: Jugador · Ronda ${afterEndTurn.turn}`]);
 
   // Moverse sobre el enemigo adyacente ataca sin moverse: victoria.
   await moveCursorTo(page, afterEndTurn.enemies[0].x, afterEndTurn.enemies[0].y);

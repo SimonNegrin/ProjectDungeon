@@ -598,7 +598,7 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
     );
     // Fase, turno y estado ya no son nodos del HUD: su lectura viva es F1.
     expect(await debugText(page)).toContain(
-      `Fase: ${baseline.phase === 'player' ? 'Jugador' : 'Enemigo'} · Turno ${baseline.turn}`,
+      `Fase: ${baseline.phase === 'player' ? 'Jugador' : 'Enemigo'} · Ronda ${baseline.turn}`,
     );
     await expect(page.getByTestId('hud-phase')).toHaveCount(0);
     await expect(page.getByTestId('hud-turn')).toHaveCount(0);
@@ -687,7 +687,7 @@ test('input de juego ignorado durante la animación; F1 y R responden; R cancela
   await expect(page.getByTestId('hud-phase')).toHaveCount(0);
   await expect(page.getByTestId('hud-turn')).toHaveCount(0);
   expect(await debugText(page)).toContain(
-    `Fase: Jugador · Turno ${afterEndTurn.turn}`,
+    `Fase: Jugador · Ronda ${afterEndTurn.turn}`,
   );
 
   expect(consoleErrors).toEqual([]);
@@ -925,7 +925,7 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   expect(positionOf(frozen)).toMatchObject(tileCenter(moves[0].from, frozen.tileSize));
   // El motor ya terminó la fase; la presentación todavía está en Enemigo.
   expect(await debugText(page)).toContain(
-    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+    `Fase: Enemigo · Ronda ${beforeEndTurn.turn}`,
   );
   await expect(page.getByTestId('hud-phase')).toHaveCount(0);
   await expect(page.getByTestId('hud-turn')).toHaveCount(0);
@@ -944,7 +944,7 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   );
   expectCameraFollows(mid, 'fase enemiga');
   expect(await debugText(page)).toContain(
-    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+    `Fase: Enemigo · Ronda ${beforeEndTurn.turn}`,
   );
   await expect(page.getByTestId('cursor')).toBeHidden();
   await screenshot(page, 'enemy-phase', testInfo);
@@ -953,14 +953,14 @@ test('fase enemiga: cada enemigo anima y después vuelve el turno del jugador', 
   const finalPause = await advance(page, HALF_STEP);
   expect(finalPause.animation).toMatchObject({ animating: true, step: 1 });
   expect(await debugText(page)).toContain(
-    `Fase: Enemigo · Turno ${beforeEndTurn.turn}`,
+    `Fase: Enemigo · Ronda ${beforeEndTurn.turn}`,
   );
   await expect(page.getByTestId('cursor')).toBeHidden();
 
   const finished = await advance(page, 1_000_000);
   expect(finished.animation.animating).toBe(false);
   expect(await debugText(page)).toContain(
-    `Fase: Jugador · Turno ${beforeEndTurn.turn + 1}`,
+    `Fase: Jugador · Ronda ${beforeEndTurn.turn + 1}`,
   );
   await expect(page.getByTestId('cursor')).toBeVisible();
   expect(finished.cursor).toMatchObject({

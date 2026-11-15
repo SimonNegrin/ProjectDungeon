@@ -83,7 +83,7 @@ describe('game loop integration', () => {
     const result = run(state, loopCommands);
 
     expect(result.final.status).toBe('victory');
-    expect(result.final.turn).toBe(2);
+    expect(result.final.round).toBe(2);
     expect(result.final.phase).toBe('player');
     // Turno 1: mueve (6 MP → 5), ataca y termina. Turno 2: se restauran
     // 6 MP, mueve (6 → 5) y remata.

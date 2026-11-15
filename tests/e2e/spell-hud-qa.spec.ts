@@ -96,7 +96,8 @@ function spellScenario(options: ScenarioOptions = {}): GameState {
     players: [mageUnit, ally],
     enemies: [enemy('enemy-1', 6, 5), enemy('enemy-2', 8, 8), enemy('enemy-3', 10, 8)],
     phase: 'player',
-    turn: 1,
+    activePlayerId: mageUnit.id,
+    round: 1,
     status: 'playing',
     rng: createRng(SEED),
   };

@@ -190,6 +190,10 @@ export interface GameState {
   readonly groundItems?: readonly GroundItem[];
   /** Contenedores sintéticos (sin cofres jugables en este corte). */
   readonly containers?: readonly Container[];
+  /**
+   * Única lista de jugadores, en orden de turno 1..N según `config.players`
+   * (REQ-031 T-001). No existe ninguna lista paralela de ids ni copia del activo.
+   */
   readonly players: readonly Unit[];
   readonly enemies: readonly Unit[];
   /**
@@ -198,7 +202,13 @@ export interface GameState {
    */
   readonly config?: GameConfig;
   readonly phase: Phase;
-  readonly turn: number;
+  /**
+   * Id de la unidad activa (referencia estable). El constructor único escribe
+   * `players[0].id`; `null` solo en estados manuales sin jugadores.
+   */
+  readonly activePlayerId: string | null;
+  /** Índice de ronda 1-based; sustituye al antiguo `turn` del estado. */
+  readonly round: number;
   readonly status: GameStatus;
   readonly rng: RngState;
 }

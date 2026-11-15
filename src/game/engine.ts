@@ -172,7 +172,8 @@ function buildInitialState(
       players: config.players.map((player) => ({ ...player })),
     },
     phase: 'player',
-    turn: 1,
+    activePlayerId: players[0]?.id ?? null,
+    round: 1,
     status: 'playing',
     rng: createRng(map.seed),
   };

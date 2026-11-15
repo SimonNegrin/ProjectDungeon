@@ -37,7 +37,7 @@ describe('turn phase', () => {
     const attacks = result.events.filter((event) => event.type === 'AttackPerformed');
 
     expect(result.state.phase).toBe('player');
-    expect(result.state.turn).toBe(2);
+    expect(result.state.round).toBe(2);
     expect(result.state.players[0]).toMatchObject({
       mp: 6,
       actions: { remaining: 2 },
@@ -475,7 +475,7 @@ describe('cola de acciones enemiga', () => {
     const result = reduce(state, { type: 'EndTurn' });
 
     expect(result.state.phase).toBe('player');
-    expect(result.state.turn).toBe(2);
+    expect(result.state.round).toBe(2);
     expect(result.state.enemies.every((enemy) => enemy.actions.remaining === 0)).toBe(true);
     expect(result.events.filter((event) => event.type === 'PlayerTurnStarted')).toHaveLength(1);
     expect(result.events.at(-1)).toEqual({ type: 'PlayerTurnStarted', turn: 2 });

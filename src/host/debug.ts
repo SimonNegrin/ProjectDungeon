@@ -18,6 +18,7 @@ import type {
   UnitEquipment,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
+import { partyOrder } from '../game/party';
 import type { GameConfig } from '../game/config';
 import type {
   Corridor,
@@ -166,6 +167,16 @@ export interface GameSnapshot {
   /** Configuración serializable que originó la partida; `null` sin config. */
   readonly config: GameConfig | null;
   readonly phase: Phase;
+  /** Id de la unidad activa; `null` en estados manuales sin jugadores. */
+  readonly activePlayerId: string | null;
+  /** Índice de ronda 1-based, leído de `state.round`. */
+  readonly round: number;
+  /** Ids de la party en orden de turno, derivados de `state.players`. */
+  readonly partyOrder: readonly string[];
+  /**
+   * Alias obsoleto de `round` para los E2E históricos.
+   * @deprecated Usar `round`.
+   */
   readonly turn: number;
   readonly status: GameStatus;
   readonly camera: {
@@ -438,7 +449,11 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     enemies: source.state.enemies.map(cloneUnit),
     config: cloneConfig(source.state.config),
     phase: source.state.phase,
-    turn: source.state.turn,
+    activePlayerId: source.state.activePlayerId,
+    round: source.state.round,
+    partyOrder: [...partyOrder(source.state)],
+    // Alias obsoleto: se rellena desde `round`, jamás desde otra fuente.
+    turn: source.state.round,
     status: source.state.status,
     camera: {
       x: source.camera.x,

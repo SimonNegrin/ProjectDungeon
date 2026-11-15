@@ -685,7 +685,7 @@ test('el HUD muestra vida, MP, acción y arma; el ataque conserva flash y daño'
   await page.keyboard.press('F1');
   await expect(page.getByTestId('debug-overlay')).toBeVisible();
   const initialDebug = (await page.getByTestId('debug-content').textContent()) ?? '';
-  expect(initialDebug).toContain('Fase: Jugador · Turno 1');
+  expect(initialDebug).toContain('Fase: Jugador · Ronda 1');
   expect(initialDebug).toContain(
     `Enemigo: (${initialEnemy.x}, ${initialEnemy.y}) · HP ${initialEnemy.hp}/${initialEnemy.maxHp}`,
   );
