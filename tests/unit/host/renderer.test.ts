@@ -9,6 +9,10 @@ import {
 import { ITEMS, type ItemId } from '../../../src/game/equipment';
 import type { ArchetypeId } from '../../../src/game/roster';
 import type { GameState } from '../../../src/game/types';
+import {
+  ARCHETYPE_VARIANT_CELLS,
+  variantCellFor,
+} from '../../../src/host/archetype-sheet';
 import { centerCameraOnTile } from '../../../src/host/camera';
 import { buildHudModel } from '../../../src/host/hud';
 import { GameSession } from '../../../src/host/session';
@@ -935,6 +939,21 @@ describe('gesto de defensa', () => {
 });
 
 describe('variante del jugador: mapa, HUD e integración', () => {
+  const ARCHETYPE_IDS: readonly ArchetypeId[] = [
+    'warrior',
+    'barbarian',
+    'rogue',
+    'archer',
+    'mage',
+    'cleric',
+    'spellblade',
+    'cook',
+    'farmer',
+  ];
+  const VARIANT_CASES = ARCHETYPE_IDS.flatMap((archetypeId) =>
+    ([1, 2] as const).map((variant) => [archetypeId, variant] as const),
+  );
+
   function initialState(variant: 1 | 2): GameState {
     return createInitialState({
       seed: 279837264,
@@ -951,6 +970,42 @@ describe('variante del jugador: mapa, HUD e integración', () => {
         call.dy === y * 32,
     );
   }
+
+  it('cubre las 18 celdas: 9 arquetipos por 2 variantes', () => {
+    expect(ARCHETYPE_IDS).toHaveLength(9);
+    expect(VARIANT_CASES).toHaveLength(18);
+  });
+
+  it.each(VARIANT_CASES)(
+    '%s variante %i: tabla, mapa y HUD comparten la misma celda 32×32',
+    (archetypeId, variant) => {
+      const expected = ARCHETYPE_VARIANT_CELLS[archetypeId][variant - 1];
+      expect(expected.sw).toBe(32);
+      expect(expected.sh).toBe(32);
+      expect(variantCellFor(archetypeId, variant)).toEqual(expected);
+
+      const player = createPlayerFromArchetype(archetypeId, {
+        id: 'player-1',
+        position: { x: 4, y: 4 },
+        variant,
+      });
+      const state = makeState({ players: [player] });
+      const fake = draw(state, { x: 0, y: 0 });
+
+      expect(spriteOf(fake, player.x, player.y)).toMatchObject({
+        sx: expected.sx,
+        sy: expected.sy,
+        sw: 32,
+        sh: 32,
+      });
+      expect(buildHudModel(state).portrait).toEqual({
+        sx: expected.sx,
+        sy: expected.sy,
+        sw: 32,
+        sh: 32,
+      });
+    },
+  );
 
   it('createInitialState conserva la variante y mapa/HUD comparten su celda', () => {
     const state = initialState(2);

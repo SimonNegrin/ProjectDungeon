@@ -196,7 +196,7 @@ test('el mapa y la miniatura cambian con la variante del mismo arquetipo', async
     page,
     testInfo,
     'hud-variante-1-1280x720',
-    page.getByTestId('hud'),
+    page.getByTestId('hud-left'),
   );
 
   // Mismo arranque, misma semilla y mismo arquetipo: solo cambia la variante.
@@ -209,7 +209,7 @@ test('el mapa y la miniatura cambian con la variante del mismo arquetipo', async
     page,
     testInfo,
     'hud-variante-2-1280x720',
-    page.getByTestId('hud'),
+    page.getByTestId('hud-left'),
   );
 
   // El mapa es idéntico salvo el sprite: mismo tile y misma cámara.
