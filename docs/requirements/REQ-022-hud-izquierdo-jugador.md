@@ -8,7 +8,7 @@ version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T13:00:00Z
-updated_at: 2026-11-14T14:39:51Z
+updated_at: 2026-11-15T10:19:36Z
 related_tasks: [TASK-0100, TASK-0111]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T13:00:00Z }
 verified:
@@ -54,6 +54,9 @@ atributos y si el inventario del panel es interactivo o solo informativo.
   tres zonas (Personaje, Arma y Stats+Traits); Personaje va en dos columnas con
   el sprite a la izquierda; salen fase, turno, PV del enemigo y estado; teclas y
   sugerencia se mantienen al pie.
+- [REQ-016](REQ-016-pantalla-inicio-configuracion.md) v3, T-003 (anotación):
+  R-002 se lee con la variante elegida, que forma parte del estado; la miniatura
+  usa la celda de esa variante y no un retrato fijo del arquetipo.
 
 # Geometría compartida
 
