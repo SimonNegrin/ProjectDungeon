@@ -329,9 +329,10 @@ eventos de ataque, turno y fin de partida).
   sprite se dibuja con `imageSmoothingEnabled = false` y el recorte del viewport
   existente. La cámara sigue a la unidad animada, redondea a entero y se limita
   al mapa; mover el cursor no la desplaza.
-- **Input**: durante la animación se descartan las intenciones de juego; `F1` y
-  `R` siguen activos y `R` cancela. `window.__game.dispatch` completa la
-  presentación pendiente antes de aplicar un comando de test.
+- **Input**: durante la animación se descartan las intenciones de juego; `F1`
+  sigue activo y `Esc` abre la pausa global, que congela el reloj. `R` ya no
+  existe. `window.__game.dispatch` completa la presentación pendiente antes de
+  aplicar un comando de test.
 - **Debug**: `window.__game` expone `animation` (activa, paso, posición visual,
   cámara) y `advance(ms)` para avanzar el reloj de presentación de forma
   determinista, sin mutadores del estado vivo.
@@ -358,8 +359,8 @@ ha pasado y retrasa el estado visible hasta el cue correspondiente.
 - **Ritmo**: `FEEDBACK_CONFIG` centraliza las duraciones de `REQ-017`; el
   movimiento conserva `MOTION_CONFIG` (125/70). La fase enemiga es secuencial y
   usa un atajo de 150 ms para acciones que empiezan y terminan fuera de pantalla.
-- **Input**: se bloquea y se descarta mientras hay un beat; `F1` y `R` siguen
-  activos.
+- **Input**: se bloquea y se descarta mientras hay un beat; `F1` sigue activo y
+  `Esc` abre la pausa global. `R` ya no existe.
 - **Accesibilidad**: `prefers-reduced-motion` elimina tween, sacudida y parpadeo,
   pero conserva texto, banner, marca estática y estado final.
 - **Cadáver**: el render lo dibuja desde los contenedores `kind: 'corpse'`, no
@@ -374,6 +375,25 @@ ha pasado y retrasa el estado visible hasta el cue correspondiente.
 
 Ver [ADR-017](../decisions/ADR-017-feedback-visual-eventos.md) y
 [REQ-017](../requirements/REQ-017-feedback-visual-eventos.md).
+
+# Pausa y menú
+
+La pausa es global y vive en el host; el motor no conoce menús ni archivos
+([REQ-024](../requirements/REQ-024-menu-pausa-guardado.md#requisitos-técnicos)).
+`src/host/pause-menu.ts` es el modelo puro: cinco acciones en orden fijo
+(Reanudar, Nueva partida, Cargar partida, Guardar partida y Controles), pantalla
+raíz, controles y dos confirmaciones, y disponibilidad de guardado con motivo.
+`src/host/pause-menu-view.ts` pinta ese estado en un diálogo modal, mueve el foco
+y consume las teclas que gestiona; `main.ts` congela `tick` y `textTick` sin
+tocar la sesión y vuelve a engancharlos al reanudar.
+
+`Esc` abre la pausa desde cualquier fase y animación; si el panel o la lista de
+hechizos están abiertos, el primer `Esc` los cierra. `src/host/keymap.ts` es la
+fuente única de teclas: de él salen el traductor de input, la ayuda del HUD y la
+lista de controles de la pausa. Guardar se desactiva fuera de la fase de
+personajes, con animación o con paneo; la descarga y la lectura de archivos se
+conectan en tareas posteriores. «Nueva partida» confirma y abre el paso 1 del
+arranque.
 
 # Suelo y decoración
 

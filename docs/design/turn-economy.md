@@ -119,7 +119,7 @@ atómica y el host reconstruye el recorrido desde los eventos `UnitMoved`.
 | Pausa por tile | 70 ms, también al inicio y en el destino. |
 | Diagonal | Duración constante: mismo tiempo que un paso recto. |
 | Cámara | Sigue al personaje de forma continua, redondeada a píxel entero y limitada al mapa. |
-| Input durante el recorrido | Se ignoran las teclas de juego y se descartan; `F1` y `R` siguen activos. |
+| Input durante el recorrido | Se ignoran las teclas de juego y se descartan; `F1` sigue activo y `Esc` abre la pausa. |
 | Cursor | Oculto mientras se camina; los puntos del camino se apagan al recorrerlos. |
 | MP | Baja paso a paso en el HUD. |
 | Ataque tras acercarse | Se presenta después del último paso y su pausa. |
@@ -363,9 +363,24 @@ Flujo de una fase enemiga:
 | `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
 | `F` | Atacar al enemigo bajo el cursor si está adyacente. |
 | `E` | Terminar turno. |
-| `R` | Reiniciar la sala. |
+| `Esc` | Abrir o cerrar la pausa; con el panel o la lista de hechizos abiertos, cerrarlos primero. |
 | `F1` | Alternar overlay de debug. |
 | `F2` | Generar una semilla nueva en modo debug. |
+
+No existe reinicio rápido ni atajo `R`: «Nueva partida» vive en el menú de
+pausa y pide confirmación.
+
+## Menú de pausa
+
+| Tecla | Acción |
+|---|---|
+| `Esc` | Reanudar desde la raíz; volver a la raíz desde controles o un aviso. |
+| `↑` / `↓`, `W` / `S` | Mover la selección. |
+| `Enter` / `Espacio` | Activar la acción seleccionada. |
+| `Tab` / `Shift+Tab` | Recorrer los botones del diálogo. |
+
+La lista de controles de la pausa se genera desde el mapa único de teclas del
+host y no permite remapeo ([REQ-024](../requirements/REQ-024-menu-pausa-guardado.md#requisitos-técnicos)).
 
 ## Panel de personaje
 

@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0139 — done: pausa global con `Esc` que congela relojes y feedback, menú de cinco acciones con foco, guardado desactivado con motivo, controles desde `KEY_BINDINGS` y retirada de `R`; regresión de flecha corregida; verify 105/1649 y E2E 241/241; fusión `ff99ae2` — [informe](../artifacts/TASK-0139/attempt-2/report.md)
+
 * 2026-11-15 — Task — TASK-0138 — done: esquema v1 con `buildSaveFiles`/`parseSave`/`parseManifest`/`readSaveFiles`, validación estricta de partida y manifiesto, round-trip byte a byte con RNG siguiente idéntico, `lootable` y cadáveres sin recálculo y sin claves de presentación; verify 103/1630; fusión `486a336` — [informe](../artifacts/TASK-0138/attempt-1/report.md)
 
 * 2026-11-15 — Task — TASK-0136 — done: panel de cadáveres desde contenedores del tile con `TakeItem`/`TakeAll` sobre `locateSource`, coste 0 del vivo, una acción por objeto del fantasma, «coger todo» atómico y retirada del enemigo vaciado; cofres intactos; verify 102/1568, E2E 11/11 y visuales 25/25; fusión `756e92a` — [informe](../artifacts/TASK-0136/attempt-1/report.md)

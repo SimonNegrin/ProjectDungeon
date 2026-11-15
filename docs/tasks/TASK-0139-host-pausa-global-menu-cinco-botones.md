@@ -4,22 +4,44 @@ id: TASK-0139
 title: "Host: pausa global y menú de cinco botones"
 description: "Añadir la pausa global con `Esc`, el menú Reanudar/Nueva partida/Cargar/Guardar/Controles y el bloqueo de la timeline y del input."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-024
 requirement_ids: [R-001, R-002, R-003, R-007, R-011, R-013, R-014, T-007, T-008, T-014]
 depends_on: [TASK-0123, TASK-0126, TASK-0134]
 unlocks: [TASK-0140, TASK-0141, TASK-0144, TASK-0149, TASK-0154]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-15T17:33:26Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0139/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: task-lead
+    at: 2026-11-15T17:33:26Z
+    note: >-
+      Intentos 1-2 verificados (código `f0dbe24`, evidencia `9e3329d`; fusión
+      `ff99ae2`). El intento 1 pasó `verify` y los E2E de pausa, pero la suite
+      completa destapó una regresión intermitente: el guard global de
+      `defaultPrevented` en `main.ts` se comía la primera flecha tras cerrar el
+      panel. El intento 2 la corrigió en origen (`pause-menu-view` consume con
+      `stopImmediatePropagation`) y añadió un test determinista; estrés 40/40 y
+      `main` 60/60 como control. Verificación del lead: 130 unitarios
+      focalizados, `pnpm run verify` 105 archivos/1649 tests + docs/config/tsc/
+      build/bundle OK, `pnpm run test:e2e` 241/241 y un E2E adicional en modo
+      normal que confirma que «Nueva partida» desde la pausa abre el paso 1.
+      Criterios 1-9: `Esc` global con prioridad de panel/lista; relojes de
+      animación y feedback congelados; input ignorado y reanudación sin
+      comandos; cinco acciones en orden con teclado y foco; `Esc` raíz reanuda y
+      submenú/aviso vuelve; guardado desactivado con motivo por fase, animación
+      o paneo; confirmaciones de Nueva y Cargar; controles desde `KEY_BINDINGS`
+      sin remapeo; `R` retirada del input y de la ayuda. Resultado y botones
+      «Reiniciar» quedan para TASK-0153. Fricción de frontmatter de anexos
+      diferida a `harness-keeper`; sin cambios de alcance ni tests debilitados.
+      Evidencia en `attempt-1/`, `attempt-2/` y `lead-verify/`.
 ---
 
 # Objetivo
@@ -40,21 +62,21 @@ TASK-0140 y TASK-0141; aquí se deja el menú y el bloqueo.
 
 # Criterios de aceptación
 
-- [ ] `Esc` abre la pausa desde cualquier fase: personajes, enemiga, paneo y
+- [x] `Esc` abre la pausa desde cualquier fase: personajes, enemiga, paneo y
       animación; con el panel abierto, el primer `Esc` cierra el panel.
-- [ ] Con el menú abierto no avanza ningún turno, beat ni animación, y el input
+- [x] Con el menú abierto no avanza ningún turno, beat ni animación, y el input
       de juego se ignora; reanudar continúa exactamente desde el mismo estado.
-- [ ] El menú ofrece en orden Reanudar, Nueva partida, Cargar partida, Guardar
+- [x] El menú ofrece en orden Reanudar, Nueva partida, Cargar partida, Guardar
       partida y Controles, navegable con teclado y foco visible.
-- [ ] `Esc` en el menú raíz reanuda; en un submenú o aviso vuelve al menú.
-- [ ] Guardar queda desactivado con motivo en texto fuera de la fase de
+- [x] `Esc` en el menú raíz reanuda; en un submenú o aviso vuelve al menú.
+- [x] Guardar queda desactivado con motivo en texto fuera de la fase de
       personajes, durante animación o paneo; su ejecución es TASK-0140.
-- [ ] «Nueva partida» y «Cargar partida» piden una confirmación cada una; la
+- [x] «Nueva partida» y «Cargar partida» piden una confirmación cada una; la
       carga funcional es TASK-0141 y «Nueva» abre el paso 1 de TASK-0123.
-- [ ] La lista de controles se genera desde el mapa único de teclas y no permite
+- [x] La lista de controles se genera desde el mapa único de teclas y no permite
       remapeo.
-- [ ] No existe reinicio rápido ni atajo `R`.
-- [ ] Tests de congelación, input ignorado, reanudación, orden, `Esc` y controles
+- [x] No existe reinicio rápido ni atajo `R`.
+- [x] Tests de congelación, input ignorado, reanudación, orden, `Esc` y controles
       sin deriva; `pnpm run verify` pasa.
 
 # Plan de test
@@ -66,9 +88,9 @@ TASK-0140 y TASK-0141; aquí se deja el menú y el bloqueo.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0139/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informes en `artifacts/TASK-0139/attempt-1/report.md` y `attempt-2/report.md`
+- [x] Salida de `pnpm run verify` en `attempt-2/verify-output.txt`
+- [x] Commit SHA `f0dbe24` y fusión `ff99ae2`
 
 # Comandos
 
@@ -76,6 +98,7 @@ TASK-0140 y TASK-0141; aquí se deja el menú y el bloqueo.
 |---|---:|
 | `pnpm exec vitest run tests/unit/host/input.test.ts tests/unit/host/session.test.ts` | 120 s |
 | `pnpm run verify` | 240 s |
+| `pnpm run test:e2e` | 180 s |
 
 # Restricciones
 
