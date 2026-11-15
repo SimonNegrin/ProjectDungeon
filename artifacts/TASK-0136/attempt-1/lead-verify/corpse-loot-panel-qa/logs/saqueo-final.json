@@ -1,0 +1,11 @@
+{
+  "containerIds": [
+    "corpse-player-tile",
+    "corpse-adjacent"
+  ],
+  "mp": 6,
+  "actions": {
+    "max": 2,
+    "remaining": 2
+  }
+}
