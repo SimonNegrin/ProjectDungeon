@@ -29,7 +29,7 @@ interface VariantControl {
 }
 
 export interface PlayerScreenViewOptions extends PlayerScreenConfig {
-  /** Punto de extensión del resumen (TASK-0126); aquí solo anuncia. */
+  /** Party completa; el host la lleva al resumen (TASK-0126). */
   onComplete(config: PlayerPartyConfig): void;
   /** La cancelación se confirmó: el host vuelve al menú principal. */
   onCancelConfirmed(): void;
@@ -40,6 +40,10 @@ export interface PlayerScreenView {
   isActive(): boolean;
   /** Anuncia un mensaje en la región `role="status"` de la pantalla. */
   announce(message: string): void;
+  /** Oculta la sección sin tocar el modelo; `show` la devuelve al mismo jugador. */
+  hide(): void;
+  /** Vuelve a mostrar la pantalla en el jugador actual y enfoca su arquetipo. */
+  show(): void;
   /** Oculta la sección y retira el listener global. */
   destroy(): void;
 }
@@ -51,8 +55,8 @@ function requireElement<T extends Element>(root: ParentNode, selector: string): 
 }
 
 /**
- * Monta la pantalla ya visible con el borrador del jugador 1. `onComplete` no
- * navega: la sección queda como está hasta TASK-0126.
+ * Monta la pantalla ya visible con el borrador del jugador 1. `onComplete`
+ * entrega la party al host cuando el último «Siguiente» la acepta.
  */
 export function createPlayerScreenView(
   root: ParentNode,
@@ -353,6 +357,17 @@ export function createPlayerScreenView(
     announce(message: string): void {
       announcement = message;
       status.textContent = message;
+    },
+    hide(): void {
+      visible = false;
+      section.hidden = true;
+    },
+    show(): void {
+      visible = true;
+      renderedStep = null;
+      renderedIndex = null;
+      announcement = `Jugador ${model.state().index + 1} de ${options.playerCount}.`;
+      render();
     },
     destroy(): void {
       visible = false;

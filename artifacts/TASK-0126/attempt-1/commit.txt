@@ -1,0 +1,3 @@
+TASK-0126 attempt-1
+887deec09bfd2a4c6ee1a2b110233fdac5b9e6c4 feat(TASK-0126): resumen de party y arranque con constructor único
+74dbdeef250d943666b893c53c687a84b4ad0178 test(TASK-0126): cubre resumen, atrás, cancelación y arranque
