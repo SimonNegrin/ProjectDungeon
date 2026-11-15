@@ -133,6 +133,13 @@ Para consultas o cambios de arnés, documentación o flujo, el usuario trabaja c
   reglas de la allowlist empiezan por el subcomando (`git status *`, `git log *`),
   así que `-C` obliga a pedir permiso en cada paso
   ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
+- Separa en llamadas distintas los comandos con redirección (`2>/dev/null`) o
+  con saltos de línea: el escáner autoriza por subcomando y esas formas se
+  evalúan enteras, así que arrastran al resto a pedir permiso
+  ([permisos](../../docs/harness/workflow.md#shell-y-autorización)).
+- No inspecciones puertos ni procesos (`lsof`, `ps`): si necesitas saber si algo
+  se implementó, léelo en la tarea, el artefacto o el commit. El estado de los
+  servidores y el cierre de `4173`/`5173` son de `task-lead` y `task-runner`.
 - Todo comando de shell va con el parámetro `timeout`; macOS no trae el binario
   `timeout`.
 - No dejes procesos en background; si necesitas uno, que sea un servidor con

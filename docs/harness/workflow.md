@@ -263,6 +263,13 @@ comandos para no pedir permiso a cada paso.
   `git ls-files` para lo versionado.
 - E2E: `pnpm run test:e2e` y `pnpm exec playwright test` están permitidos con
   argumentos; `pnpm exec *` sigue pidiendo permiso.
+- Un `ask` no caduca: la sesión espera indefinidamente hasta que alguien
+  responde. No dejes una sesión sola con un permiso pendiente y, al retomarla,
+  deniega y reformula en vez de autorizar el compuesto por comodidad:
+  «Permitir siempre» guarda el comando entero, redirecciones incluidas.
+- Las redirecciones (`2>/dev/null`) y los scripts multilínea no se descomponen
+  por subcomando: se evalúan como una sola unidad y arrastran al resto del
+  comando a pedir permiso. Sepáralos en llamadas distintas.
 
 # Git
 
