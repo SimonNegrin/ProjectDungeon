@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0158 — done: notas de REQ-024 v3 en REQ-016 y REQ-031 con cargador único, guardado restringido, carga en el activo y sin reinicio rápido; verificación 107/1678; commits `51e302c` y cierre — [informe](../artifacts/TASK-0158/attempt-1/report.md)
+
+* 2026-11-15 — Task — TASK-0157 — done: enmiendas de REQ-034 v1 anotadas en REQ-017, REQ-018, REQ-020, REQ-021, REQ-024 y REQ-026 con coste 0 del cadáver y 1 acción del cofre; REQ-020 sigue `draft`; verificación 107/1678; commits `b06ebd8` y cierre — [informe](../artifacts/TASK-0157/attempt-1/report.md)
+
 * 2026-11-15 — Requirement — TASK-0158 — notas de REQ-024 v3 en REQ-016 y REQ-031: cargador único, guardado restringido, carga en el activo y sin reinicio rápido; `docs:check` OK — [TASK-0158](tasks/TASK-0158-requisitos-notas-guardado.md)
 
 * 2026-11-15 — Requirement — TASK-0157 — enmiendas de REQ-034 anotadas en REQ-017, REQ-018, REQ-020, REQ-021, REQ-024 y REQ-026, sin cerrar REQ-020 ni cambiar reglas; `docs:check` OK — [TASK-0157](tasks/TASK-0157-requisitos-enmiendas-botin.md)
