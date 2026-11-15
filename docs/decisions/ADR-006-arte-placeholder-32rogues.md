@@ -1,7 +1,7 @@
 ---
 type: ADR
 title: "ADR-006: 32rogues como arte placeholder"
-description: Uso del pack 32rogues en el primer prototipo, con su licencia y crédito.
+description: Uso del pack 32rogues en el primer prototipo, con su licencia, crédito y tabla de celdas por arquetipo y variante.
 status: stable
 decision_status: accepted
 decided_by: human:simon
@@ -24,6 +24,34 @@ de Seth Boyles, un tileset y conjunto de sprites de 32×32 pensado para roguelik
 - No cargar assets desde itch.io en runtime: el juego funciona sin red.
 - No modificar los sprites en este corte salvo recortes o escalado que no alteren
   el original.
+
+# Sprites por arquetipo y variante
+
+`rogues.png` se recorta en celdas de 32×32 sobre una rejilla de 7×7. Cada
+arquetipo del roster tiene dos celdas asignadas, las variantes `1` y `2`; la
+columna es `sx` y la fila es `sy`. Esta es la tabla de 18 celdas de
+[REQ-016](../requirements/REQ-016-pantalla-inicio-configuracion.md#tabla-de-sprites):
+su fuente en código es `ARCHETYPE_VARIANT_CELLS` en
+`src/host/archetype-sheet.ts`, y `variantCellFor(archetypeId, variant)` la
+resuelve para el mapa y la miniatura del HUD. La UI no muestra etiquetas de
+género: las variantes son 1 y 2.
+
+| Arquetipo | Variante 1 `(sx, sy)` | Variante 2 `(sx, sy)` |
+|---|---|---|
+| Guerrero | `(0, 32)` | `(64, 32)` |
+| Bárbaro | `(0, 96)` | `(160, 96)` |
+| Pícaro | `(96, 0)` | `(128, 0)` |
+| Arquero | `(64, 0)` | `(32, 0)` |
+| Mago | `(32, 128)` | `(0, 128)` |
+| Clérigo | `(96, 64)` | `(32, 64)` |
+| Espadachín | `(96, 96)` | `(128, 96)` |
+| Cocinero | `(96, 160)` | `(128, 160)` |
+| Granjero | `(0, 160)` | `(0, 192)` |
+
+La variante elegida forma parte del estado: viaja en `GameConfig` y
+`Unit.variant`, se expone en el snapshot y se conserva en `Restart` y `load`.
+Mapa y HUD comparten la celda resuelta; una variante ausente o inválida cae en la
+1 del mismo arquetipo, y un arquetipo nulo o desconocido no pinta sprite.
 
 # Licencia
 
