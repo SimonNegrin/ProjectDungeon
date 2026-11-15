@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-15
 
+* 2026-11-15 — Task — TASK-0144 — blocked: QA 1-6 y 8 verde con spec nuevo, ida y vuelta `.zip`/`.json` y siete rechazos de límites; criterio 7 falla porque el resultado aún ofrece «Reiniciar» y `Esc` abre la pausa (REQ-024 R-012), propietario TASK-0153; verify 107/1678 y E2E 258/258; commits `a94f406`/`5d6e330` — [informe](../artifacts/TASK-0144/attempt-1/report.md)
+
 * 2026-11-15 — Task — TASK-0143 — done: ADR-030 del modelo de saqueabilidad y RNG derivado, glosario con «objeto saqueable» y «saqueo de cadáver», y alcance con cadáver condicionado por botín y llaves reservadas (`95b4f23`); docs:check 691/160 y verify 107/1678; fusión `89a703c` — [informe](../artifacts/TASK-0143/attempt-1/report.md)
 
 * 2026-11-15 — Scope — TASK-0143 — alcance actualizado con REQ-034 (fase 1.16, estado de requisitos, decisión confirmada y fuera de alcance) y estado real de pausa y guardado; `docs:check` y `verify` verdes; queda el cierre de TASK-0143 por task-lead — [alcance](scope.md)

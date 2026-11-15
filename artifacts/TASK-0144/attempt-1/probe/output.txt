@@ -1,0 +1,31 @@
+{
+  "baseUrl": "http://127.0.0.1:4174",
+  "seed": 279837264,
+  "defect": true,
+  "victory": {
+    "status": "victory",
+    "overlayVisible": true,
+    "buttons": [
+      "Reiniciar"
+    ],
+    "rRestarts": false,
+    "escOpensPause": true,
+    "pauseSaveEnabled": false,
+    "pauseSaveReason": "No se puede guardar una partida terminada.",
+    "restartClickRestarts": {
+      "event": true,
+      "sameSeed": true,
+      "sameParty": true,
+      "status": "playing"
+    }
+  },
+  "defeat": {
+    "status": "defeat",
+    "overlayVisible": true,
+    "buttons": [
+      "Reiniciar"
+    ]
+  },
+  "pageErrors": []
+}
+DEFECTO CONFIRMADO: el resultado ofrece reinicio rápido y/o pausa (REQ-024 R-012/T-013). Propietario: TASK-0153.
