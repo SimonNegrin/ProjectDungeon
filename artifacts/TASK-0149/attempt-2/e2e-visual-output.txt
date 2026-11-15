@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:62:1 › TASK-0061: el regreso muestra `zzz` durante su cue (936ms)
+  ✓  2 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:101:1 › TASK-0061: la espera muestra `...` sobre un enemigo visible (424ms)
+  ✓  3 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:127:1 › TASK-0061: `TU TURNO` con cursor oculto en el cue y visible al final (556ms)
+  ✓  4 [chromium] › tests/e2e/feedback-turns-marks-qa.spec.ts:195:1 › TASK-0061: advance(ms) consume la marca de huida ya creada (496ms)
+
+  4 passed (4.5s)
