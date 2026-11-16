@@ -46,6 +46,27 @@ permissions:
     resource: "git checkout main"
     effect: allow
   - action: shell
+    resource: "git checkout task/*"
+    effect: allow
+  - action: shell
+    resource: "git checkout harness/*"
+    effect: allow
+  - action: shell
+    resource: "git switch task/*"
+    effect: allow
+  - action: shell
+    resource: "git switch harness/*"
+    effect: allow
+  - action: shell
+    resource: "git switch main"
+    effect: allow
+  - action: shell
+    resource: "git fetch *"
+    effect: allow
+  - action: shell
+    resource: "git pull --ff-only*"
+    effect: allow
+  - action: shell
     resource: "git merge *"
     effect: allow
   - action: shell
@@ -61,10 +82,25 @@ permissions:
     resource: "pnpm run build"
     effect: allow
   - action: shell
+    resource: "pnpm run test"
+    effect: allow
+  - action: shell
+    resource: "pnpm install"
+    effect: allow
+  - action: shell
     resource: "git push --force*"
     effect: deny
   - action: shell
     resource: "git reset --hard *"
+    effect: deny
+  - action: shell
+    resource: "git checkout -- *"
+    effect: deny
+  - action: shell
+    resource: "git restore *"
+    effect: deny
+  - action: shell
+    resource: "git clean *"
     effect: deny
 ---
 
@@ -113,7 +149,9 @@ dupliques en memoria ni en respuestas.
 # Ejecución
 
 1. Comprueba Definition of Ready y que las dependencias están `done`.
-2. Marca la tarea `in_progress` y crea `task/TASK-NNNN` si no existe.
+2. Marca la tarea `in_progress` y crea `task/TASK-NNNN` si no existe, desde la
+   rama base (`harness/2agentes` mientras dure el piloto de ADR-031, `main`
+   después).
 3. Lanza `task-runner` con el ID de la tarea. La ficha es el contrato: no
    escribas un brief salvo en un reintento o si hay que acotar el intento; en ese
    caso, un delta de una página en `artifacts/TASK-NNNN/attempt-N/brief.md`.
@@ -166,7 +204,8 @@ reintentar.
 
 Si todo pasa:
 
-1. Fusiona `task/TASK-NNNN` en `main` solo tras la verificación.
+1. Fusiona `task/TASK-NNNN` en la rama base —`harness/2agentes` mientras dure el
+   piloto de ADR-031, `main` después— solo tras la verificación.
 2. Actualiza la ficha: `task_status: done`, `completed_at`, `attempts`,
    artefactos y `verified` con tu firma y fecha.
 3. Ejecuta `pnpm run tasks:board`.
@@ -174,12 +213,16 @@ Si todo pasa:
    `* YYYY-MM-DD — Task — TASK-NNNN — resultado — enlace al informe`.
 5. Resume al usuario qué puede probar y qué debe mirar. Si hay resultado
    creativo, el playtest va antes de cerrar el hito.
-6. Publica `main` al cerrar una tarea verificada, si el remoto está disponible.
+6. Publica la rama base al cerrar una tarea verificada, si el remoto está
+   disponible. Durante el piloto no se publica `main` con el arnés sin fusionar.
 
 # Herramientas
 
 - Usa `edit`/`write`; no `sed -i`, `mv`, `mkdir`, `touch` ni bucles `for`: la
   allowlist no los cubre.
+- Un comando por llamada de shell: nada de `&&`, `;`, `|` ni saltos de línea. La
+  autorización no descompone multilínea, un tramo no permitido manda el bloque
+  entero a `ask` y «Permitir siempre» no se reutiliza porque el texto cambia.
 - Todo comando de shell va con el parámetro `timeout`; macOS no trae el binario
   `timeout`.
 - Usa pnpm, no npm ni npx.

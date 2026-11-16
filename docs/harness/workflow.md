@@ -241,13 +241,20 @@ comandos para no pedir permiso a cada paso.
 - Un `ask` no caduca: la sesión espera hasta que alguien responde. No dejes una
   sesión sola con un permiso pendiente y, al retomarla, deniega y reformula.
 - Las redirecciones (`2>/dev/null`) y los scripts multilínea no se descomponen
-  por subcomando: sepáralos en llamadas distintas.
+  por subcomando: sepáralos en llamadas distintas. Un tramo no permitido manda el
+  bloque entero a `ask` y «Permitir siempre» no se reutiliza porque el texto
+  cambia; por eso los agentes piden un comando por llamada.
 
 # Git
 
 - Un repositorio desde el primer día; `origin` apunta a GitHub.
 - Una rama por tarea: `task/TASK-XXXX`. `task-runner` trabaja en ella y
   `game-lead` fusiona solo tras verificar.
+- La rama base es `main`, salvo durante el piloto de
+  [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md): entonces es
+  `harness/2agentes`. Las ramas `task/*` se crean desde la base y se fusionan en
+  ella, y `verify:task --base` usa la misma referencia. Así el diff de la tarea
+  no arrastra el cambio de arnés.
 - Commits pequeños con el ID de tarea; el informe incluye el commit SHA.
 - Se trabaja secuencialmente: sin worktrees ni tareas en paralelo hasta que haya
   necesidad real y las tareas sean disjuntas.
