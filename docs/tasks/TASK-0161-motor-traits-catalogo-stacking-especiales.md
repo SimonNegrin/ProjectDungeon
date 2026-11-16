@@ -4,7 +4,7 @@ id: TASK-0161
 title: "Motor: catálogo de traits, stacking y especiales"
 description: "Añadir traits como dato sobre el equipo: modificadores de los nueve atributos, stacking con suelos y topes, ataque circular y robo de vida, con eventos y snapshot."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-019
 requirement_ids: [R-001, R-002, R-003, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-015, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010, T-014]
