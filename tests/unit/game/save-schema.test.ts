@@ -767,6 +767,28 @@ describe('partida v1: validación estricta (REQ-024 T-005)', () => {
     const loaded = requireValue(parseSave(saved.save));
     expect(JSON.stringify(loaded)).toBe(JSON.stringify(initial));
   });
+
+  it('serializa el estado de apertura de un cofre y lo restaura sin regenerar (REQ-020 T-008)', () => {
+    const opened: GameState = {
+      ...STATE,
+      containers: (STATE.containers ?? []).map((container) =>
+        container.id === 'chest-1' ? { ...container, opened: true } : container,
+      ),
+    };
+
+    const first = buildFiles(opened);
+    const rawChest = array(object(JSON.parse(first.save)).containers)
+      .map(object)
+      .find((container) => container.id === 'chest-1');
+    expect(rawChest?.opened).toBe(true);
+
+    const loaded = requireValue(parseSave(first.save));
+    expect(loaded.containers).toEqual(opened.containers);
+    expect(
+      loaded.containers?.find((container) => container.id === 'chest-1')?.opened,
+    ).toBe(true);
+    expect(buildFiles(loaded).save).toBe(first.save);
+  });
 });
 
 describe('readSaveFiles (REQ-024 T-004/T-016)', () => {

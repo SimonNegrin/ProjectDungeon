@@ -192,7 +192,7 @@ export interface GameState {
    * conserva sus armas como dato de generación.
    */
   readonly groundItems?: readonly GroundItem[];
-  /** Contenedores sintéticos (sin cofres jugables en este corte). */
+  /** Contenedores del mundo: cofres (REQ-020) y cadáveres (REQ-034). */
   readonly containers?: readonly Container[];
   /**
    * Única lista de jugadores, en orden de turno 1..N según `config.players`
@@ -232,6 +232,10 @@ export type CommandType =
   | 'CastSpell'
   /** Inspecciona un contenedor sin abrirlo; solo fantasmas (REQ-021 T-005). */
   | 'InspectContainer'
+  /** Abre un cofre adyacente con 1 acción; reabrirlo es gratis (REQ-020 T-005). */
+  | 'OpenContainer'
+  /** Deposita un objeto de la mochila en un cofre abierto (REQ-020 T-006). */
+  | 'DepositItem'
   | 'EndTurn'
   | 'Restart';
 
@@ -252,8 +256,9 @@ export type Command =
   /** Recoge a la mochila el objeto del tile (1 MP, sin gastar acción). */
   | { readonly type: 'PickUp'; readonly unitId: string }
   /**
-   * Saca un objeto de un cadáver del mismo tile a la mochila (REQ-034 T-006):
-   * gratis para el vivo; el fantasma paga una acción.
+   * Saca un objeto de un contenedor a la mochila (REQ-034 T-006, REQ-020
+   * T-006): un cadáver se saquea en su mismo tile; un cofre abierto, desde una
+   * casilla adyacente. Gratis para el vivo; el fantasma paga una acción.
    */
   | {
       readonly type: 'TakeItem';
@@ -261,7 +266,10 @@ export type Command =
       readonly containerId: string;
       readonly itemId: string;
     }
-  /** «Coger todo» de un cadáver del mismo tile: solo vivo, gratis y atómico. */
+  /**
+   * «Coger todo» de un contenedor: solo vivo, gratis y atómico. Un cadáver se
+   * saquea en su mismo tile; un cofre abierto, desde una casilla adyacente.
+   */
   | { readonly type: 'TakeAll'; readonly unitId: string; readonly containerId: string }
   /** Equipa desde la mochila, el suelo del tile o un contenedor abierto. */
   | {
@@ -326,6 +334,26 @@ export type Command =
       readonly unitId: string;
       readonly containerId: string;
     }
+  /**
+   * Abre un cofre adyacente (REQ-020 T-005). Gasta 1 acción; un cofre ya
+   * abierto se reabre gratis. El fantasma no puede abrir.
+   */
+  | {
+      readonly type: 'OpenContainer';
+      readonly unitId: string;
+      readonly containerId: string;
+    }
+  /**
+   * Deposita en un cofre abierto y adyacente el objeto de la mochila en
+   * `index` (REQ-020 T-006). Gratis para el vivo y atómico: si el cofre está
+   * lleno o el hueco no existe, no se mueve nada.
+   */
+  | {
+      readonly type: 'DepositItem';
+      readonly unitId: string;
+      readonly containerId: string;
+      readonly index: number;
+    }
   /** Cierra el turno del activo. `unitId` opcional debe coincidir con él. */
   | { readonly type: 'EndTurn'; readonly unitId?: string }
   | { readonly type: 'Restart' };
@@ -364,6 +392,17 @@ export type RejectionReason =
   | 'unknown-container'
   /** Saquear un cadáver exige estar en su mismo tile (REQ-034 R-006). */
   | 'not-same-tile'
+  /**
+   * `OpenContainer` y las transferencias con cofre exigen adyacencia Chebyshev 1
+   * (REQ-020 R-003/T-005).
+   */
+  | 'not-adjacent'
+  /** Transferir con un cofre exige haberlo abierto antes (REQ-020 R-010). */
+  | 'container-closed'
+  /** `DepositItem`: el cofre no tiene ningún hueco libre (REQ-020 T-006). */
+  | 'container-full'
+  /** `OpenContainer`/`DepositItem`: el contenedor no es un cofre (REQ-020 T-006). */
+  | 'wrong-container'
   /** `Attack`: la unidad no tiene arma equipada. */
   | 'unarmed'
   /** `CastSpell`: el id no existe en el catálogo. */

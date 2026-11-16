@@ -2,11 +2,13 @@ import { createActions, hasAction } from './actions';
 import { isAlive, isGhost } from './grid';
 import {
   createInventory,
+  depositItem,
   dropItem,
   equipItem,
   equipmentFromLegacy,
   inspectContainer,
   itemInstance,
+  openContainer,
   pickUpItem,
   takeAllContainerItems,
   takeContainerItem,
@@ -580,6 +582,14 @@ function inventoryCostFor(unit: Unit): InventoryCost {
   return isGhost(unit) ? 'action' : 'mp';
 }
 
+/**
+ * Coste de transferir con un contenedor: gratis para el vivo y una acción por
+ * objeto para el fantasma (REQ-034 R-006, REQ-021 R-005).
+ */
+function containerCostFor(unit: Unit): 'none' | 'action' {
+  return isGhost(unit) ? 'action' : 'none';
+}
+
 function reducePickUp(
   state: GameState,
   command: Extract<Command, { type: 'PickUp' }>,
@@ -592,8 +602,9 @@ function reducePickUp(
 }
 
 /**
- * `TakeItem` (REQ-034 R-006/T-006): saqueo de un cadáver del mismo tile. Un
- * vivo no paga acción ni MP; el fantasma paga una acción por objeto.
+ * `TakeItem` (REQ-034 R-006, REQ-020 T-006): saqueo de un cadáver del mismo tile
+ * o de un cofre abierto adyacente. Un vivo no paga acción ni MP; el fantasma
+ * paga una acción por objeto.
  */
 function reduceTakeItem(
   state: GameState,
@@ -607,14 +618,14 @@ function reduceTakeItem(
       checked.unit.id,
       command.containerId,
       command.itemId,
-      isGhost(checked.unit) ? 'action' : 'none',
+      containerCostFor(checked.unit),
     ),
   );
 }
 
 /**
- * `TakeAll` (REQ-034 R-006): solo un vivo. El fantasma mueve un objeto por
- * acción y no dispone de «coger todo»; se rechaza sin cambios.
+ * `TakeAll` (REQ-034 R-006, REQ-020 R-010): solo un vivo. El fantasma mueve un
+ * objeto por acción y no dispone de «coger todo»; se rechaza sin cambios.
  */
 function reduceTakeAll(
   state: GameState,
@@ -633,6 +644,45 @@ function reduceTakeAll(
   }
   return reduceInventory(state, command, () =>
     takeAllContainerItems(state, unit.id, command.containerId),
+  );
+}
+
+/**
+ * `OpenContainer` (REQ-020 R-003/T-005): apertura por un vivo en su turno.
+ * Gasta 1 acción si el cofre estaba cerrado; reabrirlo es gratis. El fantasma
+ * no abre y se rechaza sin cambios (REQ-021 R-006).
+ */
+function reduceOpenContainer(
+  state: GameState,
+  command: Extract<Command, { type: 'OpenContainer' }>,
+): ReduceResult {
+  // Sin `allowGhost`: abrir un cofre es acción de un vivo.
+  const checked = inventoryUnit(state, command, command.unitId);
+  if (!checked.ok) return checked.result;
+  return reduceInventory(state, command, () =>
+    openContainer(state, checked.unit.id, command.containerId),
+  );
+}
+
+/**
+ * `DepositItem` (REQ-020 R-010/T-006): mueve un objeto de la mochila a un cofre
+ * abierto y adyacente. Atómico y gratis para el vivo; el fantasma paga una
+ * acción.
+ */
+function reduceDepositItem(
+  state: GameState,
+  command: Extract<Command, { type: 'DepositItem' }>,
+): ReduceResult {
+  const checked = inventoryUnit(state, command, command.unitId, true);
+  if (!checked.ok) return checked.result;
+  return reduceInventory(state, command, () =>
+    depositItem(
+      state,
+      checked.unit.id,
+      command.containerId,
+      command.index,
+      containerCostFor(checked.unit),
+    ),
   );
 }
 
@@ -790,6 +840,10 @@ function dispatchCommand(state: GameState, command: PlayCommand): ReduceResult {
       return reduceTakeItem(state, command);
     case 'TakeAll':
       return reduceTakeAll(state, command);
+    case 'OpenContainer':
+      return reduceOpenContainer(state, command);
+    case 'DepositItem':
+      return reduceDepositItem(state, command);
     case 'EquipItem':
       return reduceEquipItem(state, command);
     case 'UnequipItem':
