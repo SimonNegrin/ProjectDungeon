@@ -1,6 +1,6 @@
 # Verificación determinista de TASK-0172
 
-- Fecha: 2026-11-16T19:07:15.884Z
+- Fecha: 2026-11-16T19:07:48.330Z
 - Intento: 1
 - Base: main
 - Resultado: ok
@@ -14,5 +14,5 @@
 | Informe | ok | report_status: success (2738 B) |
 | Alcance declarado | ok | sin scope: se usa docs |
 | Alcance congelado | ok | scope sin cambios desde main |
-| Alcance | ok | 1 archivos dentro de docs (base main) |
+| Alcance | ok | 10 archivos dentro de docs (base main) |
 | verify | ok | pnpm run verify OK |

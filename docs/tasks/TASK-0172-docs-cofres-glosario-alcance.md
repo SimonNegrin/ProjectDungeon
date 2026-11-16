@@ -3,23 +3,33 @@ type: Task
 id: TASK-0172
 title: "Docs: cofres en glosario, economía de turno y alcance"
 description: "Reflejar los cofres y el botín progresivo en glosario, economía de turno, arquitectura, alcance y la matriz de feedback, sin reescribir requisitos."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: docs
 requirement: REQ-020
 requirement_ids: [T-009]
 depends_on: [TASK-0171]
 unlocks: []
 created_at: 2026-11-16T16:20:04Z
-completed_at:
+completed_at: 2026-11-16T19:07:48Z
 assignee: game-lead
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0172/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T16:20:04Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T19:07:48Z
+    note: >-
+      Intento 1 verificado (`a56bf2c9`). Seis criterios firmados: glosario con
+      cofre, capacidad, poder, mejora y botín especial; economía con apertura,
+      transferencia, depósito y 4 huecos; arquitectura con sección de cofres y
+      separación motor/host; matriz de REQ-017 con sus dos filas; alcance sin
+      cofres pendientes y con traits jugables; índice y log coherentes.
+      `docs:check` y `verify` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
