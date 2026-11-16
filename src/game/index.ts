@@ -9,6 +9,7 @@ export * from './magic';
 export * from './equipment';
 export * from './inventory';
 export * from './loot';
+export * from './chests';
 export * from './stats';
 export * from './roster';
 export * from './bestiary';
