@@ -4,22 +4,30 @@ id: TASK-0155
 title: "Docs: ADR-029 y documentación de hotseat"
 description: "Registrar ADR-029 del modelo de turnos hotseat y actualizar glosario, economía de turno y arquitectura con `N`, ronda, relevo, fase enemiga y resultado."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: docs
 requirement: REQ-031
 requirement_ids: [T-013]
 depends_on: [TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-16T10:28:00Z
 assignee: game-lead
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0155/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T10:28:00Z
+    note: >-
+      Intento 1 verificado (docs `96a8bf1`, evidencia `c11b511`). ADR-029 nuevo,
+      glosario con relevo/ronda/Jugador N de M, economía y arquitectura sin `E` ni
+      `R` y con recursos por jugador y separación motor/host; `docs:check` y
+      `pnpm run verify` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
