@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0173 — done: tests del gate del brief (`briefCheck`): intento 1 sin exigencia, intento 2 sin fichero y con fichero, y sin carpeta o intento; 4/4 en vitest y `verify:task` en verde con los cuatro criterios firmados — [informe](../artifacts/TASK-0173/attempt-1/report.md)
 * 2026-11-16 — Harness — sesiones — una sesión de `task-runner` por intento: cada `attempt-N` arranca en sesión nueva y la anterior no se reabre; el `brief.md` pasa a obligatorio desde el intento 2 y el lanzamiento solo apunta a su ruta; la sesión de producto sigue por tarea — [workflow](harness/workflow.md#handoffs-y-sesiones)
 * 2026-11-16 — Harness — verify:task — exige `attempt-N/brief.md` desde el intento 2; la nota de `--base` deja de citar el piloto cerrado — [verify-task](../scripts/verify-task.mjs)
 * 2026-11-16 — Harness — plantilla — el anexo del brief pasa a obligatorio desde el intento 2, en línea con workflow y runner — [plantilla](templates/task.md)

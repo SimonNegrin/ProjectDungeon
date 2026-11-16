@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0173
+
+- Fecha: 2026-11-16T19:35:01.572Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0173-arnes-test-gate-brief.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 4 marcados |
+| Informe | ok | report_status: success (2048 B) |
+| Alcance declarado | ok | scope: tests/ |
+| Alcance congelado | ok | ficha nueva en la rama; no hay versión en la base |
+| Alcance | ok | 2 archivos dentro de scope (base main) |
+| verify | ok | pnpm run verify OK |

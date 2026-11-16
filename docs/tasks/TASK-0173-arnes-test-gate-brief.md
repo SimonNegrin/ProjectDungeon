@@ -4,7 +4,7 @@ id: TASK-0173
 title: "Arnés: test del gate del brief"
 description: "Cubrir con tests la función briefCheck de scripts/lib/attempt.mjs: sin exigencia en el intento 1, fallo en el intento 2 sin fichero y aceptación con fichero y tamaño."
 status: draft
-task_status: in_progress
+task_status: done
 task_type: test
 scope: [tests/]
 requirement: HARNESS
@@ -12,15 +12,21 @@ requirement_ids: []
 depends_on: []
 unlocks: []
 created_at: 2026-11-16T19:32:06Z
-completed_at:
+completed_at: 2026-11-16T19:35:08Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0173/
 priority: P3
 risk: low
 review_required: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T19:32:06Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T19:35:08Z
+    note: >-
+      Intento 1 verificado (commit `1c987648`). Cuatro casos de `briefCheck` con
+      fixtures temporales; 4/4 en vitest y `verify:task` en verde con los cuatro
+      criterios firmados. Sin cambios fuera de `tests/` y la ficha.
 ---
 
 # Objetivo
@@ -30,15 +36,15 @@ Que el gate del brief en `verify:task` tenga tests que cubran las dos rutas
 
 # Criterios de aceptación
 
-- [ ] `tests/unit/verify-task-brief.test.ts` importa `briefCheck` de
+- [x] `tests/unit/verify-task-brief.test.ts` importa `briefCheck` de
       `scripts/lib/attempt.mjs` y cubre cuatro casos: intento 1 devuelve `null`,
       intento 2 sin `brief.md` devuelve `ok: false` con el detalle
       `falta attempt-2/brief.md en un reintento`, intento 3 con `brief.md`
       devuelve `ok: true` y el tamaño en bytes, y sin carpeta o sin intento
       devuelve `null`.
-- [ ] Los fixtures viven en un directorio temporal y se borran al terminar.
-- [ ] `pnpm exec vitest run tests/unit/verify-task-brief.test.ts` pasa.
-- [ ] `pnpm run verify` pasa sin cambios fuera de `tests/`.
+- [x] Los fixtures viven en un directorio temporal y se borran al terminar.
+- [x] `pnpm exec vitest run tests/unit/verify-task-brief.test.ts` pasa.
+- [x] `pnpm run verify` pasa sin cambios fuera de `tests/`.
 
 # Plan de test
 

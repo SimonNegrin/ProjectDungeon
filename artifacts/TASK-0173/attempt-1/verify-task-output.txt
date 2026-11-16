@@ -1,0 +1,21 @@
+$ node scripts/verify-task.mjs TASK-0173
+# Verificación determinista de TASK-0173
+
+- Fecha: 2026-11-16T19:34:15.602Z
+- Intento: 1
+- Base: main
+- Resultado: fail
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0173-arnes-test-gate-brief.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | fail | 4 de 4 sin marcar |
+| Informe | ok | report_status: success (2082 B) |
+| Alcance declarado | ok | scope: tests/ |
+| Alcance congelado | ok | ficha nueva en la rama; no hay versión en la base |
+| Alcance | ok | 2 archivos dentro de scope (base main) |
+| verify | ok | pnpm run verify OK |
+Fallan 1 comprobaciones. No cierres la tarea.
+[ELIFECYCLE] Command failed with exit code 1.
