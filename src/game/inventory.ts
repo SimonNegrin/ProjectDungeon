@@ -19,6 +19,7 @@ import {
   type ItemId,
 } from './equipment';
 import { hasAction, spendAction } from './actions';
+import { isGhost } from './grid';
 import { withEquipment } from './stats';
 import type { GameState, RejectionReason, Unit } from './types';
 
@@ -60,12 +61,12 @@ export interface GroundItem extends ItemInstance {
 }
 
 /**
- * Contenedor con capacidad e instancias. Los cofres y fixtures sin `kind`
- * siguen siendo válidos: la ampliación de REQ-021/REQ-034 es aditiva.
+ * Contenedor con capacidad e instancias. La verdad de los cofres y cadáveres es
+ * esta estructura única: no hay listas paralelas.
  *
- * Riesgo asumido: REQ-020 puede revisar el modelo de contenedores antes de
- * publicar la v1 de guardado; `kind` y `corpseOf` son opcionales para no atar
- * ese diseño. No hay una segunda estructura de contenedores.
+ * `kind` distingue el cofre del cadáver y `opened` guarda el estado de apertura
+ * del cofre (REQ-020 T-001). Un contenedor sin `kind` es un fixture previo a
+ * REQ-034 y no admite transferencias.
  */
 export interface Container {
   readonly id: string;
@@ -73,11 +74,14 @@ export interface Container {
   readonly y: number;
   readonly capacity: number;
   readonly items: readonly (ItemInstance | null)[];
-  /** Tipo de contenedor; ausente en cofres y fixtures anteriores. */
+  /** Tipo de contenedor; ausente solo en fixtures anteriores. */
   readonly kind?: 'chest' | 'corpse';
   /** ID de la unidad cuyo cadáver es este contenedor (REQ-021 T-001). */
   readonly corpseOf?: string;
-  /** Estado de apertura de un cofre (REQ-020 T-001); ausente en cadáveres. */
+  /**
+   * Estado de apertura de un cofre (REQ-020 T-001): `false`/ausente = cerrado,
+   * `true` = abierto. Un cadáver no lo declara: no tiene estado de apertura.
+   */
   readonly opened?: boolean;
 }
 
@@ -94,8 +98,8 @@ export const INVENTORY_OPERATION_COST = 1;
 export type InventoryCost = 'mp' | 'action';
 
 /**
- * Coste de saquear un cadáver (REQ-034 R-006): gratis para el vivo y una acción
- * por objeto para el fantasma. Nunca gasta MP.
+ * Coste de transferir con un contenedor (REQ-034 R-006, REQ-020 T-006): gratis
+ * para el vivo y una acción por objeto para el fantasma. Nunca gasta MP.
  */
 export type ContainerTakeCost = 'none' | 'action';
 
@@ -283,6 +287,42 @@ function containerById(state: GameState, id: string): Container | undefined {
   return (state.containers ?? []).find((container) => container.id === id);
 }
 
+/** Adyacencia Chebyshev 1: las ocho casillas vecinas, nunca el mismo tile. */
+function isAdjacentTo(
+  unit: Pick<Unit, 'x' | 'y'>,
+  target: Pick<Container, 'x' | 'y'>,
+): boolean {
+  return Math.max(Math.abs(unit.x - target.x), Math.abs(unit.y - target.y)) === 1;
+}
+
+/**
+ * Motivo por el que la unidad no puede transferir con el contenedor, o `null`.
+ *
+ * - Cadáver: mismo tile y sin estado de apertura (REQ-034 R-006).
+ * - Cofre: abierto y adyacente Chebyshev 1 (REQ-020 R-003/T-006).
+ * - Sin `kind`: fixture heredado de REQ-018; no impone reglas de cofre.
+ *
+ * Las operaciones de saqueo y depósito exigen además un `kind` jugable.
+ */
+function containerAccessError(
+  unit: Unit,
+  container: Container,
+): RejectionReason | null {
+  if (container.kind === 'corpse') {
+    return container.x === unit.x && container.y === unit.y ? null : 'not-same-tile';
+  }
+  if (container.kind === 'chest') {
+    if (!isAdjacentTo(unit, container)) return 'not-adjacent';
+    return container.opened === true ? null : 'container-closed';
+  }
+  return null;
+}
+
+/** Un contenedor jugable es un cofre o un cadáver; los fixtures no se saquean. */
+function isPlayableContainer(container: Container): boolean {
+  return container.kind === 'chest' || container.kind === 'corpse';
+}
+
 /**
  * Retira del estado el cadáver de enemigo que se ha quedado sin instancias
  * (REQ-034 T-007). El cadáver de jugador se conserva con huecos `null` como
@@ -415,14 +455,10 @@ function locateSource(
 
   const container = containerById(state, source.containerId);
   if (!container) return { error: 'unknown-container' };
-  // Saquear un cadáver exige estar en su mismo tile (REQ-034 R-006); un cofre
-  // conserva su propia regla de apertura y no pasa por aquí.
-  if (
-    container.kind === 'corpse' &&
-    (container.x !== unit.x || container.y !== unit.y)
-  ) {
-    return { error: 'not-same-tile' };
-  }
+  // Un cadáver exige el mismo tile; un cofre, estar abierto y adyacente
+  // (REQ-034 R-006, REQ-020 R-003/T-006).
+  const access = containerAccessError(unit, container);
+  if (access !== null) return { error: access };
   const index = container.items.findIndex((item) => item?.id === source.itemId);
   const instance = index < 0 ? null : container.items[index];
   if (!instance) return { error: 'no-item' };
@@ -436,7 +472,7 @@ function locateSource(
   };
 }
 
-function payTakeCost(
+function payContainerCost(
   unit: Unit,
   cost: ContainerTakeCost,
 ): { readonly unit: Unit } | { readonly reason: RejectionReason } {
@@ -445,12 +481,13 @@ function payTakeCost(
 }
 
 /**
- * Saca un objeto de un cadáver-contenedor a la mochila (REQ-034 R-006/T-006).
+ * Saca un objeto de un contenedor a la mochila (REQ-034 R-006, REQ-020 T-006).
  *
  * Reutiliza `locateSource`/`withBackpackItem`, la misma maquinaria que equipar:
- * no hay una segunda ruta de saqueo. El contenedor debe ser `kind: 'corpse'` y
- * estar en el tile de la unidad. Un vivo no paga; el fantasma paga una acción.
- * La retirada de la instancia ya aplica `withoutEmptyEnemyCorpse`.
+ * no hay una segunda ruta de saqueo. Un cadáver exige el mismo tile; un cofre,
+ * estar abierto y adyacente. El vivo no paga; el fantasma paga una acción.
+ * La retirada de la instancia ya aplica `withoutEmptyEnemyCorpse`; un cofre
+ * vacío permanece en el mundo (REQ-020 R-003).
  */
 export function takeContainerItem(
   state: GameState,
@@ -463,8 +500,9 @@ export function takeContainerItem(
   if (!unit) return fail('unknown-unit');
 
   const container = containerById(state, containerId);
-  if (!container || container.kind !== 'corpse') return fail('unknown-container');
-  if (container.x !== unit.x || container.y !== unit.y) return fail('not-same-tile');
+  if (!container || !isPlayableContainer(container)) return fail('unknown-container');
+  const access = containerAccessError(unit, container);
+  if (access !== null) return fail(access);
 
   const located = locateSource(state, unit, {
     kind: 'container',
@@ -473,7 +511,7 @@ export function takeContainerItem(
   });
   if ('error' in located) return fail(located.error);
 
-  const paid = payTakeCost(located.unit, cost);
+  const paid = payContainerCost(located.unit, cost);
   if ('reason' in paid) return fail(paid.reason);
 
   const inventory = withBackpackItem(paid.unit.inventory, located.instance);
@@ -486,9 +524,11 @@ export function takeContainerItem(
 }
 
 /**
- * «Coger todo» de un cadáver (REQ-034 R-006, REQ-020 T-003): solo para un vivo,
- * gratis y atómico. Si el contenido no cabe entero en la mochila se rechaza sin
- * mover nada; si cabe, vacía el contenedor y aplica la retirada de cadáver.
+ * «Coger todo» de un contenedor (REQ-034 R-006, REQ-020 R-010/T-006): solo para
+ * un vivo, gratis y atómico. Un cadáver exige el mismo tile; un cofre abierto,
+ * una casilla adyacente. Si el contenido no cabe entero en la mochila se rechaza
+ * sin mover nada; si cabe, vacía el contenedor y aplica la retirada de cadáver.
+ * Un cofre vacío permanece en el mundo.
  */
 export function takeAllContainerItems(
   state: GameState,
@@ -499,8 +539,9 @@ export function takeAllContainerItems(
   if (!unit) return fail('unknown-unit');
 
   const container = containerById(state, containerId);
-  if (!container || container.kind !== 'corpse') return fail('unknown-container');
-  if (container.x !== unit.x || container.y !== unit.y) return fail('not-same-tile');
+  if (!container || !isPlayableContainer(container)) return fail('unknown-container');
+  const access = containerAccessError(unit, container);
+  if (access !== null) return fail(access);
 
   const instances = container.items.filter(
     (item): item is ItemInstance => item !== null,
@@ -521,6 +562,92 @@ export function takeAllContainerItems(
     emptied,
   );
   return { ok: true, state: replaceUnit(nextState, { ...unit, inventory }) };
+}
+
+/**
+ * Abre un cofre (REQ-020 R-003/T-005): exige adyacencia Chebyshev 1 y gasta
+ * exactamente 1 acción. Reabrir un cofre ya abierto es gratis. Un fantasma no
+ * abre: es acción de un vivo, aunque conserve la inspección (REQ-021 R-006).
+ * Cualquier rechazo devuelve el estado original.
+ */
+export function openContainer(
+  state: GameState,
+  unitId: string,
+  containerId: string,
+): InventoryResult {
+  const unit = state.players.find((candidate) => candidate.id === unitId);
+  if (!unit) return fail('unknown-unit');
+  if (isGhost(unit) || unit.hp <= 0) return fail('dead-unit');
+
+  const container = containerById(state, containerId);
+  if (!container) return fail('unknown-container');
+  if (container.kind !== 'chest') return fail('wrong-container');
+  if (!isAdjacentTo(unit, container)) return fail('not-adjacent');
+
+  // Reabrir es gratis: no consume acción ni reescribe el contenedor.
+  if (container.opened === true) return { ok: true, state };
+  if (!hasAction(unit)) return fail('no-action');
+
+  return {
+    ok: true,
+    state: replaceUnit(
+      replaceContainer(state, { ...container, opened: true }),
+      spendAction(unit),
+    ),
+  };
+}
+
+/**
+ * Deposita en un cofre abierto y adyacente el objeto de la mochila en `index`
+ * (REQ-020 R-010/T-006). Valida tipo, localización, índice y capacidad antes de
+ * mover: un rechazo no toca mochila ni cofre. El vivo no paga; el fantasma paga
+ * una acción, como al mover cualquier objeto (REQ-021 R-005). Un cadáver no
+ * acepta depósitos.
+ */
+export function depositItem(
+  state: GameState,
+  unitId: string,
+  containerId: string,
+  index: number,
+  cost: ContainerTakeCost = 'none',
+): InventoryResult {
+  const unit = state.players.find((candidate) => candidate.id === unitId);
+  if (!unit) return fail('unknown-unit');
+
+  const container = containerById(state, containerId);
+  if (!container) return fail('unknown-container');
+  if (container.kind !== 'chest') return fail('wrong-container');
+  const access = containerAccessError(unit, container);
+  if (access !== null) return fail(access);
+
+  if (
+    !Number.isInteger(index) ||
+    index < 0 ||
+    index >= unit.inventory.items.length
+  ) {
+    return fail('invalid-slot');
+  }
+  const instance = unit.inventory.items[index];
+  if (!instance) return fail('no-item');
+
+  const free = container.items.findIndex((item) => item === null);
+  if (free < 0) return fail('container-full');
+
+  const paid = payContainerCost(unit, cost);
+  if ('reason' in paid) return fail(paid.reason);
+
+  const items = [...container.items];
+  items[free] = instance;
+  return {
+    ok: true,
+    state: replaceUnit(
+      replaceContainer(state, { ...container, items }),
+      {
+        ...paid.unit,
+        inventory: withoutBackpackItem(paid.unit.inventory, index),
+      },
+    ),
+  };
 }
 
 /**

@@ -908,6 +908,42 @@ describe('snapshot del mapa generado', () => {
     expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
   });
 
+  it('expone un cofre abierto con su contenido y sin perder el resto del snapshot', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 4 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 6,
+          y: 4,
+          capacity: 4,
+          items: [
+            { id: 'chest-sword', itemId: 'sword', lootable: true },
+            null,
+            null,
+            null,
+          ],
+          kind: 'chest',
+          opened: true,
+        },
+      ],
+    });
+    const snapshot = setup(state).snapshot();
+
+    expect(snapshot.containers[0]).toMatchObject({
+      id: 'chest-1',
+      kind: 'chest',
+      opened: true,
+    });
+    expect(snapshot.containers[0].items.map((item) => item?.itemId ?? null)).toEqual([
+      'sword',
+      null,
+      null,
+      null,
+    ]);
+    expect(JSON.parse(JSON.stringify(snapshot))).toEqual(snapshot);
+  });
+
   it('los enemigos generados exponen marcas booleanas y su política', () => {
     const { api } = combatSetup();
     const snapshot = api.snapshot();

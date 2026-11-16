@@ -1036,16 +1036,20 @@ describe('saqueo de cadáver: mismo tile y coste (REQ-034 R-006/T-006)', () => {
     ).toEqual({ ok: false, reason: 'not-same-tile' });
   });
 
-  it('no saquea cofres con la operación de cadáver', () => {
-    const state = corpseState({ container: { kind: 'chest' } });
+  it('no saquea un cofre cerrado con la operación de transferencia', () => {
+    // Un cofre cerrado no revela ni entrega contenido (REQ-020 R-010/R-011).
+    const state = corpseState({
+      player: { x: 4, y: 5 },
+      container: { kind: 'chest', opened: false },
+    });
     const before = JSON.stringify(state);
 
     expect(
       takeContainerItem(state, 'player-1', 'corpse-enemy-1', 'loot-1', 'none'),
-    ).toEqual({ ok: false, reason: 'unknown-container' });
+    ).toEqual({ ok: false, reason: 'container-closed' });
     expect(
       takeAllContainerItems(state, 'player-1', 'corpse-enemy-1'),
-    ).toEqual({ ok: false, reason: 'unknown-container' });
+    ).toEqual({ ok: false, reason: 'container-closed' });
     expect(JSON.stringify(state)).toBe(before);
   });
 

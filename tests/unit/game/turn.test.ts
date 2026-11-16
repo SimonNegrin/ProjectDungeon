@@ -3,6 +3,7 @@ import {
   BESTIARY,
   closeTurnAfterActiveDeath,
   createRng,
+  itemInstance,
   reduce,
   type Command,
   type GameEvent,
@@ -65,6 +66,38 @@ describe('turn phase', () => {
       'ReplicaPerformed',
       'PlayerTurnStarted',
     ]);
+  });
+
+  it('abrir un cofre gasta una acción del turno y EndTurn la restaura (REQ-020 T-005)', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5, actions: 2 })],
+      enemies: [],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 6,
+          y: 5,
+          capacity: 4,
+          items: [itemInstance('loot-1', 'sword'), null, null, null],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    const opened = reduce(state, {
+      type: 'OpenContainer',
+      unitId: 'player-1',
+      containerId: 'chest-1',
+    });
+    expect(opened.events).toEqual([]);
+    expect(opened.state.players[0].actions.remaining).toBe(1);
+    expect(opened.state.players[0].mp).toBe(state.players[0].mp);
+
+    const ended = reduce(opened.state, { type: 'EndTurn' });
+    expect(ended.state.players[0].actions.remaining).toBe(2);
+    expect(ended.state.players[0].mp).toBe(state.players[0].maxMp);
+    expect(ended.state.containers?.[0].opened).toBe(true);
   });
 
   it('restaura MP y acción del enemigo al empezar su fase', () => {
