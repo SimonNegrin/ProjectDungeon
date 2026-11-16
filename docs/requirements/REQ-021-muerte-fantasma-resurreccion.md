@@ -4,11 +4,11 @@ id: REQ-021
 title: Muerte, fantasma y resurrección
 description: "La muerte no expulsa al jugador: cadáver saqueable, fantasma con turno y acción, resurrección condicionada y derrota por wipe total."
 status: stable
-version: 5
+version: 6
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T11:00:00Z
-updated_at: 2026-11-16T00:12:44Z
+updated_at: 2026-11-16T00:29:48Z
 related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T11:00:00Z }
 verified:
@@ -163,6 +163,14 @@ antes de implementar.
    cofres y cadáveres? Provisional: sí, con la misma limitación de uno a la vez.
 6. **Hotseat.** ¿El turno del fantasma se puede omitir o limitar en tiempo? ¿La
    mesa espera o se resuelve en paralelo?
+7. **Capacidad al resucitar.** Si lo que queda en el cadáver no cabe en la
+   mochila del resucitado, hoy la resurrección se rechaza con `inventory-full`
+   sin gastar maná ni retirar el cadáver. Provisional: se mantiene el rechazo
+   atómico hasta el playtest; alternativa abierta, soltar el exceso al suelo.
+8. **Procedencia de los objetos.** El contenedor del cadáver no guarda de qué
+   hueco venía cada objeto, así que uno que estaba en la mochila del cadáver
+   puede recuperarse equipado si el hueco está libre. Provisional: se acepta
+   mientras el contenedor sea plano (REQ-020).
 
 # Decisiones
 
