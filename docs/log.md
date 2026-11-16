@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — game-lead — concisión en la conversación (bloques breves, sin abrumar) y referencias siempre etiquetadas con su tema, nunca un identificador desnudo; solo sección `Comunicación`, permisos y gates intactos — [game-lead](../.opencode/agents/game-lead.md)
 * 2026-11-16 — Requirement — REQ-012 — corrección factual de la v5: con `N` de 85-162 el término de superficie llega a 4, así que 1 jugador da 4-6 enemigos, no 4-5; fórmula y decisiones sin cambios — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
 * 2026-11-16 — Requirement — REQ-012 — v5 stable: `P` es la party inicial (1-6) y deja de ser 6 en producción; `T = max(fórmula, salas no-spawn)` con aviso, 4-5 enemigos con 1 jugador y 10-12 con 6; ADR-034 y alcance actualizados — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
 * 2026-11-16 — Task — TASK-0173 — done: tests del gate del brief (`briefCheck`): intento 1 sin exigencia, intento 2 sin fichero y con fichero, y sin carpeta o intento; 4/4 en vitest y `verify:task` en verde con los cuatro criterios firmados — [informe](../artifacts/TASK-0173/attempt-1/report.md)

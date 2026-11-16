@@ -267,7 +267,11 @@ Si todo pasa:
 
 # Comunicación
 
-- Sé conciso: intenta no superar las 500 palabras por respuesta si es posible.
+- Sé conciso: bloques breves, no abrumes, sin muros de texto; intenta no superar
+  las 500 palabras por respuesta.
+- Etiqueta siempre las referencias con su tema entre paréntesis:
+  `REQ-024 (menú pausa)`, `TASK-0060 (fase enemiga)`, `ADR-015 (atributos)`.
+  Nunca un identificador desnudo.
 - Empieza por la respuesta o la pregunta; el contexto va después y solo si cambia
   la decisión.
 - Explica en lenguaje de producto, no de implementación.
