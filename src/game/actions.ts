@@ -15,9 +15,9 @@ export const MAX_ACTIONS = 4;
  */
 export const GHOST_ACTIONS = 1;
 
-/** `max` = atributo inherente + bonus del equipo, recortado al tope. */
+/** `max` = atributo inherente + bonus del equipo, recortado al suelo y al tope. */
 export function actionsMax(stats: UnitStats, actionsBonus = 0): number {
-  return Math.min(MAX_ACTIONS, Math.max(0, stats.acciones + actionsBonus));
+  return Math.min(MAX_ACTIONS, Math.max(1, stats.acciones + actionsBonus));
 }
 
 /** Crea el contador de una unidad nueva con todas las acciones disponibles. */
@@ -30,12 +30,23 @@ export function hasAction(unit: Pick<Unit, 'actions'>): boolean {
   return unit.actions.remaining > 0;
 }
 
+/** ¿Quedan al menos `cost` acciones? El coste del área es dato del trait. */
+export function hasActions(unit: Pick<Unit, 'actions'>, cost = 1): boolean {
+  return unit.actions.remaining >= Math.max(1, cost);
+}
+
 /** Gasta una acción; el llamador debe comprobar `hasAction` antes. */
 export function spendAction(unit: Unit): Unit {
-  if (!hasAction(unit)) return unit;
+  return spendActions(unit, 1);
+}
+
+/** Gasta un coste explícito de acciones sin bajar de cero. */
+export function spendActions(unit: Unit, cost = 1): Unit {
+  const amount = Math.max(0, Math.floor(cost));
+  if (!hasActions(unit, amount)) return unit;
   return {
     ...unit,
-    actions: { ...unit.actions, remaining: unit.actions.remaining - 1 },
+    actions: { ...unit.actions, remaining: unit.actions.remaining - amount },
   };
 }
 

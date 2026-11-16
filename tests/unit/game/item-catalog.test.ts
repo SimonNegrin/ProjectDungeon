@@ -8,11 +8,13 @@ import {
   ITEM_SHEET,
   LOOT_CHANCES,
   SHIELDS,
+  TRAITS,
   WEAPONS,
   armorValue,
   shieldValue,
   validateDamagePackets,
   validateItemCatalog,
+  validateTraitCatalog,
   weaponDamage,
   weaponFor,
   type ItemDefinition,
@@ -30,6 +32,10 @@ const ITEM_IDS = [
   'armor',
   'plate',
   'shield',
+  'lifesteal-ring',
+  'mana-necklace',
+  'action-gloves',
+  'circular-mace',
 ] as const;
 
 const WEAPON_IDS = [
@@ -40,6 +46,7 @@ const WEAPON_IDS = [
   'hammer',
   'electric-sword',
   'arcane-dagger',
+  'circular-mace',
 ] as const;
 
 const itemsTxtPath = fileURLToPath(
@@ -83,17 +90,33 @@ function rulesFor(items: readonly ItemDefinition[]): readonly string[] {
 }
 
 describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
-  it('conserva los diez IDs actuales como fuente única', () => {
+  it('conserva los diez IDs históricos y añade las cuatro piezas de REQ-019', () => {
     expect(Object.keys(ITEMS)).toEqual([...ITEM_IDS]);
     for (const [key, item] of Object.entries(ITEMS)) {
       expect(item.id, key).toBe(key);
       expect(item.name.length, key).toBeGreaterThan(0);
       expect(item.description.length, key).toBeGreaterThan(0);
-      expect(item.traits, key).toEqual([]);
-      expect(item.modifiers, key).toEqual({});
-      expect(item.lootPolicy, key).toBe('common');
       expect(ITEM_SHEET.id, key).toBe(item.sprite.sheet);
     }
+    for (const id of [
+      'sword',
+      'axe',
+      'dagger',
+      'knife',
+      'hammer',
+      'electric-sword',
+      'arcane-dagger',
+      'armor',
+      'plate',
+      'shield',
+    ] as const) {
+      expect(ITEMS[id].traits, id).toEqual([]);
+      expect(ITEMS[id].modifiers, id).toEqual({});
+    }
+    expect(ITEMS['lifesteal-ring'].traits.map((trait) => trait.id)).toEqual(['lifesteal']);
+    expect(ITEMS['mana-necklace'].traits.map((trait) => trait.id)).toEqual(['mana-surge']);
+    expect(ITEMS['action-gloves'].traits.map((trait) => trait.id)).toEqual(['action-surge']);
+    expect(ITEMS['circular-mace'].traits.map((trait) => trait.id)).toEqual(['circular-strike']);
   });
 
   it('valida el catálogo completo sin incidencias', () => {
@@ -113,7 +136,7 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
     );
   });
 
-  it('exige categoría y hueco coherentes y deja vacíos los cinco huecos secundarios', () => {
+  it('exige categoría y hueco coherentes y usa los cinco huecos secundarios', () => {
     expect(EQUIPMENT_SLOTS).toEqual([
       'weapon',
       'shield',
@@ -128,17 +151,18 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
     expect(rulesFor([{ ...ITEMS.armor, slot: 'weapon' }])).toContain('category-slot');
 
     const occupied = new Set(Object.values(ITEMS).map((item) => item.slot));
-    expect(occupied).toEqual(new Set(['weapon', 'shield', 'armor']));
-    for (const emptySlot of ['head', 'feet', 'hands', 'neck', 'ring'] as const) {
-      expect(occupied.has(emptySlot), emptySlot).toBe(false);
-    }
+    expect(occupied).toEqual(
+      new Set(['weapon', 'shield', 'armor', 'hands', 'neck', 'ring']),
+    );
+    expect(occupied.has('head')).toBe(false);
+    expect(occupied.has('feet')).toBe(false);
   });
 
-  it('declara una mano en las siete armas actuales y admite dos manos en test', () => {
+  it('declara una mano en las siete armas históricas y dos en la maza circular', () => {
     for (const id of WEAPON_IDS) {
       expect(ITEMS[id].category, id).toBe('weapon');
       expect(ITEMS[id].slot, id).toBe('weapon');
-      expect(ITEMS[id].hands, id).toBe(1);
+      expect(ITEMS[id].hands, id).toBe(id === 'circular-mace' ? 2 : 1);
     }
     for (const id of ['armor', 'plate', 'shield'] as const) {
       expect(ITEMS[id].hands, id).toBeUndefined();
@@ -164,7 +188,13 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
       { type: 'pierce', amount: 2 },
       { type: 'magic', amount: 1 },
     ]);
-    for (const id of ['armor', 'plate', 'shield'] as const) {
+    expect(ITEMS['circular-mace'].damagePackets).toEqual([
+      { type: 'blunt', amount: 3 },
+    ]);
+    expect(weaponDamage(WEAPONS['circular-mace'])).toBeLessThan(
+      weaponDamage(WEAPONS.axe),
+    );
+    for (const id of ['armor', 'plate', 'shield', 'lifesteal-ring', 'mana-necklace', 'action-gloves'] as const) {
       expect(ITEMS[id].damagePackets, id).toEqual([]);
     }
 
@@ -204,6 +234,7 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
       hammer: 2,
       'electric-sword': 3,
       'arcane-dagger': 4,
+      'circular-mace': 2,
     };
     for (const id of WEAPON_IDS) {
       expect(ITEMS[id].accuracy, id).toBe(accuracy[id]);
@@ -283,12 +314,17 @@ describe('catálogo de objetos (REQ-018 T-001, REQ-029 T-002)', () => {
     expect(rulesFor([outOfBounds])).toContain('sprite');
   });
 
-  it('deja traits vacío y rechaza traits con contenido en este corte', () => {
-    for (const id of ITEM_IDS) {
+  it('referencia traits del catálogo y rechaza los desconocidos', () => {
+    for (const id of ['sword', 'axe', 'armor', 'plate', 'shield'] as const) {
       expect(ITEMS[id].traits, id).toEqual([]);
     }
+    expect(validateTraitCatalog(TRAITS)).toEqual([]);
     expect(
-      rulesFor([mutant({ traits: [{ id: 'fuego', description: 'Trait futuro' }] })]),
+      rulesFor([
+        mutant({
+          traits: [{ id: 'fuego', description: 'Trait futuro' }],
+        }),
+      ]),
     ).toContain('traits');
   });
 });

@@ -185,6 +185,10 @@ function itemDetail(item: ItemDefinition): string {
       return `${signed(item.absorption ?? 0)} absorción`;
     case 'shield':
       return `${signed(item.evasion ?? 0)} evasión`;
+    case 'ring':
+    case 'neck':
+    case 'hands':
+      return '';
   }
 }
 

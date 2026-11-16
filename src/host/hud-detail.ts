@@ -232,6 +232,10 @@ export function itemStats(item: ItemDefinition): readonly DetailStat[] {
         value: signed(item.evasion ?? 0),
       });
       break;
+    case 'ring':
+    case 'neck':
+    case 'hands':
+      break;
   }
   return stats;
 }

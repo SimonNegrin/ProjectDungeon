@@ -1,4 +1,9 @@
 import { ITEMS, type EquipmentSlot, type LootPolicy, type WeaponId } from '../game/equipment';
+import {
+  effectiveStats,
+  type ActiveTrait,
+  type TraitModifierTotals,
+} from '../game/stats';
 import type {
   Command,
   Container,
@@ -16,6 +21,7 @@ import type {
   Tile,
   Unit,
   UnitEquipment,
+  UnitStats,
 } from '../game/types';
 import type { CursorTargetKind } from '../game/path';
 import { partyOrder } from '../game/party';
@@ -117,6 +123,8 @@ export type SnapshotContainer = Omit<Container, 'items'> & {
  * Vista de unidad en el snapshot. `slots` e `inventory` son la verdad nueva;
  * `equipment` y `weapons` son derivados de compatibilidad para que los E2E
  * históricos sigan compilando hasta TASK-0098. Nunca se leen como fuente.
+ * `traits` y `effectiveStats` son la lectura única de traits y stats efectivos
+ * (REQ-019 T-009).
  */
 export type SnapshotUnit = Omit<Unit, 'equipment' | 'inventory'> & {
   readonly equipment: SnapshotEquipmentSlots;
@@ -125,7 +133,23 @@ export type SnapshotUnit = Omit<Unit, 'equipment' | 'inventory'> & {
   readonly legacyEquipment: UnitEquipment;
   /** Vista legacy del inventario de tres armas; solo para E2E previos. */
   readonly weapons: readonly WeaponId[];
+  /** Traits activos con fuente y parámetros. */
+  readonly traits: readonly ActiveTrait[];
+  /** Stats efectivos, suelos y topes, y el desglose por atributo. */
+  readonly effectiveStats: SnapshotEffectiveStats;
 };
+
+export interface SnapshotEffectiveStats {
+  readonly stats: UnitStats;
+  readonly baseStats: UnitStats;
+  readonly maxHp: number;
+  readonly maxMp: number;
+  readonly actionsMax: number;
+  readonly modifiers: TraitModifierTotals;
+  readonly accuracy: number;
+  readonly evasion: number;
+  readonly absorption: number;
+}
 
 export interface GameSnapshot {
   readonly grid: {
@@ -295,7 +319,15 @@ function legacyWeapons(unit: Unit): readonly WeaponId[] {
   return weapons;
 }
 
+function cloneTrait(trait: ActiveTrait): ActiveTrait {
+  return {
+    ...trait,
+    parameters: { ...trait.parameters } as ActiveTrait['parameters'],
+  };
+}
+
 function cloneUnit(unit: Unit): SnapshotUnit {
+  const profile = effectiveStats(unit);
   return {
     ...unit,
     stats: { ...unit.stats },
@@ -304,6 +336,18 @@ function cloneUnit(unit: Unit): SnapshotUnit {
     legacyEquipment: legacyEquipment(unit.equipment),
     inventory: cloneInventory(unit.inventory),
     weapons: [...legacyWeapons(unit)],
+    traits: profile.traits.map(cloneTrait),
+    effectiveStats: {
+      stats: { ...profile.stats, resistencia: { ...profile.stats.resistencia } },
+      baseStats: { ...profile.baseStats, resistencia: { ...profile.baseStats.resistencia } },
+      maxHp: profile.maxHp,
+      maxMp: profile.maxMp,
+      actionsMax: profile.actionsMax,
+      modifiers: { ...profile.modifiers },
+      accuracy: profile.accuracy,
+      evasion: profile.evasion,
+      absorption: profile.absorption,
+    },
     actions: { ...unit.actions },
     home: { ...unit.home },
     lastKnown: unit.lastKnown ? { ...unit.lastKnown } : null,

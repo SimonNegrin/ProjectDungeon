@@ -15,10 +15,10 @@ import {
   type InventorySource,
 } from './inventory';
 import { commitMove, validateMove } from './movement';
+import { traitEquipmentEvents } from './stats';
 import { applyTerminal, closeTurnAfterActiveDeath, resolveEndTurn } from './turn';
 import { resolveAttack } from './combat';
-import { castSpell } from './magic';
-import { planCursorTarget, type CursorBlockedReason } from './path';
+import { castSpell } from './magic';import { planCursorTarget, type CursorBlockedReason } from './path';
 import { detectEnemiesAfterStep } from './perception';
 import { GrowthMapGenerator } from './chambers/variants/growth';
 import { createRng } from './rng';
@@ -90,8 +90,10 @@ function createEnemy(
     y: position.y,
     hp: definition.maxHp,
     maxHp: definition.maxHp,
+    baseMaxHp: definition.maxHp,
     mp: definition.maxMp,
     maxMp: definition.maxMp,
+    baseMaxMp: definition.maxMp,
     mana: createMana(definition.stats.magicLevel),
     actions: createActions(definition.stats),
     spellsCast: 0,
@@ -545,7 +547,17 @@ function reduceInventory(
 ): ReduceResult {
   const result = operation();
   if (!result.ok) return reject(state, command, result.reason);
-  return { state: result.state, events: [] };
+
+  const events: GameEvent[] = [];
+  for (const unit of state.players) {
+    const next = result.state.players.find((candidate) => candidate.id === unit.id);
+    if (next) events.push(...traitEquipmentEvents(unit, next));
+  }
+  for (const unit of state.enemies) {
+    const next = result.state.enemies.find((candidate) => candidate.id === unit.id);
+    if (next) events.push(...traitEquipmentEvents(unit, next));
+  }
+  return { state: result.state, events };
 }
 
 /** Los vivos pagan 1 MP; el fantasma paga su única acción (REQ-021/REQ-026). */

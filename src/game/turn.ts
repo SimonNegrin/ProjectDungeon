@@ -49,9 +49,10 @@ export function applyTerminal(state: GameState, events: GameEvent[]): GameState 
 }
 
 /**
- * Restaura MP, maná, acciones y cupo de hechizos al empezar el turno. El
- * fantasma también recibe sus recursos (REQ-021 R-002): su `maxMp` es el
- * intrínseco y su `actions.max` ya vale una.
+ * Restaura MP, maná, acciones y cupo de hechizos al empezar el turno. Los
+ * máximos ya incorporan el equipo y los traits: `equipItem`/`unequipItem`
+ * recalculan `maxMp` y `actions.max` desde el perfil efectivo, así que restaurar
+ * aquí no acumula bonificaciones entre turnos.
  */
 function restoreTurnResources(unit: Unit): Unit {
   return {

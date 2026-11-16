@@ -337,6 +337,12 @@ function beatForEvent(
     case 'ContainerInspected':
       // Sin cue en este corte: la inspección es presentación de TASK-0135+.
       return 0;
+    case 'TraitEquipped':
+    case 'TraitUnequipped':
+    case 'TraitImpact':
+    case 'TraitDamage':
+      // El feedback de traits llega con TASK-0162; el motor ya emite el evento.
+      return 0;
   }
 }
 
@@ -589,6 +595,12 @@ function cueForEvent(
       };
     case 'ContainerInspected':
       // Sin presentación en este corte: el evento existe en el motor, no en la UI.
+      return null;
+    case 'TraitEquipped':
+    case 'TraitUnequipped':
+    case 'TraitImpact':
+    case 'TraitDamage':
+      // Sin cue en TASK-0161: la presentación de traits es TASK-0162.
       return null;
   }
 }

@@ -1,5 +1,5 @@
 import type { EnemyType } from './bestiary';
-import type { ArmorId, EquipmentSlot, ShieldId, WeaponId } from './equipment';
+import type { ArmorId, EquipmentSlot, ShieldId, TraitSource, WeaponId } from './equipment';
 import type {
   Container,
   EquipmentSlots,
@@ -147,6 +147,8 @@ export interface Unit {
   readonly y: number;
   readonly hp: number;
   readonly maxHp: number;
+  /** Base inherente de PV; si falta, se deriva restando el bonus de traits. */
+  readonly baseMaxHp?: number;
   /**
    * Marca aditiva de fantasma controlable (REQ-021 T-002). Solo tiene efecto
    * con `hp === 0`: el estado se deriva con `isGhost`/`lifeState`, nunca se
@@ -155,6 +157,8 @@ export interface Unit {
   readonly ghost?: boolean;
   readonly mp: number;
   readonly maxMp: number;
+  /** Base inherente de MP; si falta, se deriva restando el bonus de traits. */
+  readonly baseMaxMp?: number;
   /** Maná de hechizos, independiente del MP (REQ-025). */
   readonly mana: Mana;
   readonly actions: Actions;
@@ -407,6 +411,49 @@ export type GameEvent =
       readonly rolls: AttackRolls;
       /** Desglose por paquete, en el orden declarado; vacío si falla. */
       readonly damageBreakdown: readonly DamagePacketBreakdown[];
+    }
+  /** Un trait declarado con disparador `equip` entra con el objeto. */
+  | {
+      readonly type: 'TraitEquipped';
+      readonly unitId: string;
+      readonly traitId: string;
+      readonly source: TraitSource;
+      readonly slot: EquipmentSlot;
+      readonly itemId: string;
+    }
+  /** Un trait declarado con disparador `unequip` sale con el objeto. */
+  | {
+      readonly type: 'TraitUnequipped';
+      readonly unitId: string;
+      readonly traitId: string;
+      readonly source: TraitSource;
+      readonly slot: EquipmentSlot;
+      readonly itemId: string;
+    }
+  /** Un trait de área impacta a un objetivo concreto. */
+  | {
+      readonly type: 'TraitImpact';
+      readonly unitId: string;
+      readonly traitId: string;
+      readonly source: TraitSource;
+      readonly slot: EquipmentSlot;
+      readonly itemId: string;
+      readonly targetId: string;
+      readonly damage: number;
+      readonly targetHp: number;
+    }
+  /** Robo de vida: daño infligido y curación efectiva en el portador. */
+  | {
+      readonly type: 'TraitDamage';
+      readonly unitId: string;
+      readonly traitId: string;
+      readonly source: TraitSource;
+      readonly slot: EquipmentSlot;
+      readonly itemId: string;
+      readonly targetId: string;
+      readonly damage: number;
+      readonly healing: number;
+      readonly unitHp: number;
     }
   /**
    * Hechizo de ataque resuelto (REQ-025 R-012). Lleva impacto, daño, PV

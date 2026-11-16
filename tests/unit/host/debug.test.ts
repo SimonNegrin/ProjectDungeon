@@ -4,7 +4,7 @@ import {
   cursorAtPlayer,
   deriveCursorStatus,
 } from '../../../src/host/cursor';
-import { BspMapGenerator, BESTIARY, ITEMS, ROSTER, corpseId, createInitialState, equipmentFromLegacy, reduce, settleUnitDeath } from '../../../src/game/index';
+import { BspMapGenerator, BESTIARY, ITEMS, ROSTER, corpseId, createInitialState, emptyEquipment, equipmentFromLegacy, itemInstance, reduce, settleUnitDeath } from '../../../src/game/index';
 import type {
   EquipmentSlots,
   GameState,
@@ -163,6 +163,63 @@ describe('API de debug window.__game', () => {
       path: [],
     });
     expect(() => JSON.stringify(snapshot)).not.toThrow();
+  });
+
+  it('expone traits activos, fuente, stats efectivos y eventos de trait', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 5,
+          y: 5,
+          hp: 5,
+          maxHp: 20,
+          stats: { habilidad: 20 },
+          equipmentSlots: {
+            ...emptyEquipment(),
+            weapon: itemInstance('mace', 'circular-mace'),
+            ring: itemInstance('ring', 'lifesteal-ring'),
+          },
+        }),
+      ],
+      enemies: [
+        makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 5, hp: 100, maxHp: 100 }),
+        makeUnit({ id: 'enemy-2', faction: 'enemy', x: 4, y: 4, hp: 100, maxHp: 100 }),
+      ],
+    });
+    const api = setup(state);
+
+    const before = api.snapshot().players[0];
+    expect(before.traits.map((trait) => trait.id)).toEqual([
+      'circular-strike',
+      'lifesteal',
+    ]);
+    expect(before.traits[0]).toMatchObject({
+      source: 'equipment',
+      slot: 'weapon',
+      itemId: 'circular-mace',
+    });
+    expect(before.effectiveStats.actionsMax).toBe(2);
+    expect(before.effectiveStats.maxHp).toBe(before.maxHp);
+
+    const result = api.dispatch({
+      type: 'Attack',
+      unitId: 'player-1',
+      targetId: 'enemy-1',
+    });
+    const after = result.snapshot.players[0];
+    expect(after.traits).toEqual(before.traits);
+    expect(after.effectiveStats).toEqual(before.effectiveStats);
+    expect(result.snapshot.lastEvents.map((event) => event.type)).toEqual([
+      'AttackPerformed',
+      'TraitImpact',
+      'TraitDamage',
+      'AttackPerformed',
+      'TraitImpact',
+      'TraitDamage',
+    ]);
+    expect(() => JSON.stringify(result.snapshot)).not.toThrow();
   });
 
   it('expone la percepción y la memoria del enemigo en solo lectura', () => {

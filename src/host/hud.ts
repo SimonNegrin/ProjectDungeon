@@ -400,6 +400,14 @@ function eventLabel(event: GameEvent): string {
       return `${event.unitId} inspecciona ${event.containerId} (${event.items.length} objetos)`;
     case 'CommandRejected':
       return `${event.commandType} rechazado: ${event.reason}`;
+    case 'TraitEquipped':
+      return `${event.unitId} equipa ${event.traitId} (${event.itemId})`;
+    case 'TraitUnequipped':
+      return `${event.unitId} desequipa ${event.traitId} (${event.itemId})`;
+    case 'TraitImpact':
+      return `${event.unitId} impacta ${event.targetId} con ${event.traitId} (-${event.damage})`;
+    case 'TraitDamage':
+      return `${event.unitId} roba ${event.healing} a ${event.targetId} (HP ${event.unitHp})`;
   }
 }
 

@@ -8,7 +8,7 @@
  * La magia nunca abre réplica (REQ-027).
  */
 
-import { actionsMax, hasAction, spendAction } from './actions';
+import { hasAction, spendAction } from './actions';
 import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
 import { resolvePackets } from './damage';
 import { reclaimPlayerCorpse, settleUnitDeath } from './death';
@@ -136,12 +136,15 @@ function spendCast(caster: Unit, cost: number): Unit {
 function revivePlayer(unit: Unit, position: Position, hp: number): Unit {
   const { ghost, ...mortal } = unit;
   void ghost;
+  const profile = effectiveStats(mortal);
   return {
     ...mortal,
     x: position.x,
     y: position.y,
     hp,
-    actions: { max: actionsMax(unit.stats), remaining: 0 },
+    maxHp: profile.maxHp,
+    maxMp: profile.maxMp,
+    actions: { max: profile.actionsMax, remaining: 0 },
   };
 }
 
