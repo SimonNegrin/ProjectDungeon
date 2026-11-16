@@ -39,15 +39,15 @@ están en la skill `visual-qa`.
 
 # Criterios de aceptación
 
-- [ ] E2E desde la pantalla de inicio con la misma semilla: 1 jugador produce
+- [x] E2E desde la pantalla de inicio con la misma semilla: 1 jugador produce
       4-6 enemigos y 6 jugadores producen 10-12; el informe declara semilla y
       totales observados.
-- [ ] Guardar con una party y cargar conserva total, posiciones y tipos de los
+- [x] Guardar con una party y cargar conserva total, posiciones y tipos de los
       enemigos, sin regenerar el mapa.
-- [ ] Capturas con `E2E_ARTIFACTS_DIR` a 1280×720 y 900×700 que muestren el
+- [x] Capturas con `E2E_ARTIFACTS_DIR` a 1280×720 y 900×700 que muestren el
       reparto de las dos partidas (`F1` o el HUD de enemigos).
-- [ ] Sin regresiones en la suite E2E existente.
-- [ ] `pnpm run verify` pasa.
+- [x] Sin regresiones en la suite E2E existente.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 

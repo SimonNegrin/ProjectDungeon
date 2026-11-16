@@ -1,0 +1,20 @@
+# Verificación determinista de TASK-0176
+
+- Fecha: 2026-11-16T20:43:05.974Z
+- Intento: 2
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0176-qa-densidad-party-real.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-2 |
+| Criterios firmados | ok | 5 marcados |
+| Informe | ok | report_status: success (2844 B) |
+| Brief | ok | attempt-2/brief.md (2471 B) |
+| Alcance declarado | ok | scope: tests/ |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 26 archivos dentro de scope (base main) |
+| Capturas | ok | 5 imágenes |
+| verify | ok | pnpm run verify OK |
