@@ -4,22 +4,30 @@ id: TASK-0177
 title: "Motor: recuperación de maná +4 por turno"
 description: "Cada unidad recupera 4 de maná al inicio de su propio turno, hasta el máximo, en vez de rellenar la reserva completa."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-004, T-005]
 depends_on: []
 unlocks: [TASK-0179]
 created_at: 2026-11-16T22:59:36Z
-completed_at:
+completed_at: 2026-11-16T23:11:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0177/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T22:59:36Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T23:11:00Z
+    note: >-
+      Intento 1 verificado (código `c3d044f2`, evidencia `27d45139`). Los cinco
+      criterios firmados: constante única, +4 para jugador y enemigo, tope al
+      máximo, cambio de nivel sin regalar y tests actualizados sin debilitar.
+      `pnpm run verify` en verde con 1907 tests; `verify:task` OK. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo

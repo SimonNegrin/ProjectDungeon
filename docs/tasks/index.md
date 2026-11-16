@@ -152,7 +152,7 @@ Total: **179**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0170](TASK-0170-host-panel-cofre-hud.md) | Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD | `done` | REQ-020 | TASK-0169 | P1 |
 | [TASK-0171](TASK-0171-qa-e2e-playtest-cofres.md) | QA/E2E y playtest de cofres, botín y maza circular | `done` | REQ-020 | TASK-0170 | P1 |
 | [TASK-0174](TASK-0174-motor-densidad-party-real.md) | Motor: densidad por party real y suelo por salas | `done` | REQ-012 | — | P1 |
-| [TASK-0177](TASK-0177-motor-mana-recuperacion-por-turno.md) | Motor: recuperación de maná +4 por turno | `ready` | REQ-025 | — | P1 |
+| [TASK-0177](TASK-0177-motor-mana-recuperacion-por-turno.md) | Motor: recuperación de maná +4 por turno | `done` | REQ-025 | — | P1 |
 | [TASK-0178](TASK-0178-motor-curacion-adyacente-autocuracion.md) | Motor: Curación adyacente, autocuración y costes 8/12 | `ready` | REQ-025 | — | P1 |
 | [TASK-0179](TASK-0179-host-qa-curacion-pv-completo.md) | Host y E2E: aviso de PV completo y curación adyacente | `backlog` | REQ-025 | TASK-0177, TASK-0178 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
@@ -186,7 +186,6 @@ Total: **179**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # ready
 
-* [TASK-0177 — Motor: recuperación de maná +4 por turno](TASK-0177-motor-mana-recuperacion-por-turno.md)
 * [TASK-0178 — Motor: Curación adyacente, autocuración y costes 8/12](TASK-0178-motor-curacion-adyacente-autocuracion.md)
 
 # blocked
@@ -347,6 +346,7 @@ Total: **179**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0170 — Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD](TASK-0170-host-panel-cofre-hud.md)
 * [TASK-0171 — QA/E2E y playtest de cofres, botín y maza circular](TASK-0171-qa-e2e-playtest-cofres.md)
 * [TASK-0174 — Motor: densidad por party real y suelo por salas](TASK-0174-motor-densidad-party-real.md)
+* [TASK-0177 — Motor: recuperación de maná +4 por turno](TASK-0177-motor-mana-recuperacion-por-turno.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
