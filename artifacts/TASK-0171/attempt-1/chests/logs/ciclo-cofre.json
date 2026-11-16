@@ -1,0 +1,72 @@
+{
+  "seed": 295,
+  "chest": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": false,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        {
+          "id": "item-chest-1-1",
+          "itemId": "circular-mace"
+        },
+        null,
+        null
+      ]
+    }
+  ],
+  "approach": {
+    "x": 13,
+    "y": 8
+  },
+  "costs": {
+    "beforeOpen": {
+      "max": 2,
+      "remaining": 2
+    },
+    "opened": {
+      "max": 2,
+      "remaining": 1
+    },
+    "emptied": {
+      "max": 2,
+      "remaining": 1
+    },
+    "deposited": {
+      "max": 2,
+      "remaining": 1
+    },
+    "reopened": {
+      "max": 2,
+      "remaining": 1
+    },
+    "mpBeforeDeposit": 3,
+    "mpAfterDeposit": 3
+  },
+  "shifts": {
+    "open": [
+      {
+        "value": 0.0000016438961029052733,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "strong[hud-action]",
+            "forbidden": false
+          }
+        ]
+      }
+    ],
+    "takeAll": [],
+    "deposit": [],
+    "ground": [],
+    "reopen": []
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "seed": 295,
+  "generated": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": false,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        {
+          "id": "item-chest-1-1",
+          "itemId": "circular-mace"
+        },
+        null,
+        null
+      ]
+    }
+  ],
+  "beforeSave": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": true,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "saved": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": true,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "afterLoad": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": true,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "afterLoadEmpty": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": true,
+      "items": [
+        null,
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "zip": "/Users/simon/proyectdungeon/artifacts/TASK-0171/attempt-1/chests/saves/proyectdungeon-295-20261116-185515.zip"
+}

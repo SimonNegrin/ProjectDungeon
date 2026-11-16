@@ -1,0 +1,31 @@
+{
+  "seed": 295,
+  "generated": [
+    {
+      "id": "chest-1",
+      "x": 13,
+      "y": 9,
+      "capacity": 4,
+      "kind": "chest",
+      "opened": false,
+      "items": [
+        {
+          "id": "item-chest-1-0",
+          "itemId": "arcane-dagger"
+        },
+        {
+          "id": "item-chest-1-1",
+          "itemId": "circular-mace"
+        },
+        null,
+        null
+      ]
+    }
+  ],
+  "spawnRoom": 0,
+  "chestRoom": 1,
+  "approach": {
+    "x": 13,
+    "y": 8
+  }
+}
