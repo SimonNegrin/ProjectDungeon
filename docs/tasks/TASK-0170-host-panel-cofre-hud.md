@@ -3,23 +3,32 @@ type: Task
 id: TASK-0170
 title: "Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD"
 description: "Abrir el cofre desde el cursor adyacente con Espacio/Enter, mostrar su contenido en la columna derecha del panel con una sola fuente, seguir el cofre en el HUD derecho y producir feedback de apertura y transferencia."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-011, R-012, T-007, T-009]
 depends_on: [TASK-0169]
 unlocks: [TASK-0171]
 created_at: 2026-11-16T16:20:04Z
-completed_at:
+completed_at: 2026-11-16T17:42:40Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0170/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T16:20:04Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T17:42:40Z
+    note: >-
+      Intento 1 verificado (`bb01f3f2`, `e0c15305`). Siete criterios firmados:
+      apertura con Espacio/Enter y aviso sin mover, panel Cofre/Suelo exclusivo,
+      HUD sin contenido en cerrado, transferencias con la navegación existente,
+      cue y banner con beat, seis capturas a 1280×720 y 900×700 y 287 E2E. La
+      fila de la matriz de REQ-017 se añadió en `1170a6d` como cierre documental
+      del lead. Detalle en `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -40,21 +49,21 @@ contenido de un contenedor cerrado. La matriz de feedback vive en
 
 # Criterios de aceptación
 
-- [ ] Con el cursor sobre un cofre adyacente, `Espacio`/`Enter` abre el cofre y
+- [x] Con el cursor sobre un cofre adyacente, `Espacio`/`Enter` abre el cofre y
       gasta 1 acción; sin adyacencia o sin acción se rechaza con el aviso actual y
       sin mover al jugador.
-- [ ] Abrir un cofre abre el panel con la columna derecha en «Cofre» y su
+- [x] Abrir un cofre abre el panel con la columna derecha en «Cofre» y su
       contenido; `I` abre «Suelo» con suelo y cadáveres del tile. Nunca se ven dos
       fuentes a la vez en esa columna.
-- [ ] Con el panel cerrado, el HUD derecho muestra el cofre cerrado sin contenido y
+- [x] Con el panel cerrado, el HUD derecho muestra el cofre cerrado sin contenido y
       el contenido cuando está abierto.
-- [ ] Coger, depositar y «coger todo» se manejan con la navegación existente y sin
+- [x] Coger, depositar y «coger todo» se manejan con la navegación existente y sin
       atajos nuevos; el coste anunciado coincide con el motor.
-- [ ] Abrir y cada transferencia producen su fila en la matriz de REQ-017, con beat
+- [x] Abrir y cada transferencia producen su fila en la matriz de REQ-017, con beat
       y sin bloquear más de lo que dura el beat.
-- [ ] Tests de host y E2E de las dos vistas del panel, apertura por teclado,
+- [x] Tests de host y E2E de las dos vistas del panel, apertura por teclado,
       depósito y vuelta a «Suelo»; capturas a 1280×720 y 900×700.
-- [ ] `pnpm run verify` pasa.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 
