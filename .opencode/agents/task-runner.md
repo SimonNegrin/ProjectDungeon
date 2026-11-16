@@ -60,13 +60,16 @@ honesta. No decides qué hay que hacer.
 
 # Entrada
 
-Una tarea `TASK-NNNN` lanzada por `game-lead`. La ficha es el contrato. En un
-reintento puede acompañarla un `brief.md` con el delta: qué falló, la hipótesis
-nueva y el alcance del intento. No esperes un brief en el primer intento.
+Una tarea `TASK-NNNN` lanzada por `game-lead`. La ficha es el contrato. Desde el
+intento 2 siempre la acompaña `attempt-N/brief.md`, con el delta: qué falló, la
+hipótesis nueva y el alcance del intento. En el intento 1 solo puede aparecer para
+acotarlo.
 
 # Ejecución
 
-1. Lee la ficha y solo el contexto enlazado; si hay brief, léelo antes que nada.
+1. Lee la ficha y solo el contexto enlazado; el brief, antes que nada. Si existe
+   `attempt-(N-1)/`, lee también su `report.md` y
+   `lead-verify/verification.md`.
 2. Inspecciona el código y tests existentes.
 3. Implementa el cambio mínimo que cumple los criterios.
 4. Escribe tests derivados de los criterios, no de la implementación.

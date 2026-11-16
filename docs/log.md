@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — sesiones — una sesión de `task-runner` por intento: cada `attempt-N` arranca en sesión nueva y la anterior no se reabre; el `brief.md` pasa a obligatorio desde el intento 2 y el lanzamiento solo apunta a su ruta; la sesión de producto sigue por tarea — [workflow](harness/workflow.md#handoffs-y-sesiones)
+* 2026-11-16 — Harness — permisos — `git switch -c` de `task/*` y `harness/*` en allow; ventana autónoma acotada a la tarea con parada solo por producto; base del arnés pasa a `main` tras el cierre del piloto — [game-lead](../.opencode/agents/game-lead.md), [workflow](harness/workflow.md#ventana-autónoma)
 * 2026-11-16 — Task — TASK-0172 — done: cofres en glosario, economía de turno, arquitectura, alcance e índice; matriz de REQ-017 con apertura y transferencia; `docs:check` y `verify` en verde — [informe](../artifacts/TASK-0172/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0171 — done: E2E del ciclo real de cofres con semilla 295, Cofre/Suelo exclusivos, guardado/carga sin repetir tiradas, curva 1/6 jugadores y QA visual a dos tamaños; banner de feedback corregido sobre el panel; playtest de la maza preparado; 1890 tests, 290 E2E y fusión `04d575f` — [informe](../artifacts/TASK-0171/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0170 — done: apertura con `Espacio`/`Enter`, panel de cofre con columna única, HUD que distingue cerrado y abierto, depósito y coger todo con la navegación existente, feedback con beat y capturas a 1280×720 y 900×700; 1890 tests, 287 E2E y fusión `c743ab1` — [informe](../artifacts/TASK-0170/attempt-1/report.md)

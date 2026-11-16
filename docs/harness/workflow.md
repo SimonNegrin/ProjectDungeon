@@ -103,6 +103,23 @@ Una pregunta por experimento, shell compartido y decisión registrada. Ver
 5. Si falla, relanza con una hipótesis nueva o corrige el alcance.
 6. Si pasa, fusiona y cierra: ficha, tablero, log y push.
 
+## Ventana autónoma
+
+Mientras una tarea está `in_progress` con un intento abierto, `game-lead` y
+`task-runner` operan sin pedir permiso: crear y cambiar de rama, commitear,
+fusionar tras verificar y ejecutar los comandos del proyecto. El objetivo es que
+el intento se pare por producto, no por operativa.
+
+- La ventana no cubre requisitos, diseño, arnés, criterios de la ficha ni `docs/`
+  fuera del `scope:` de la tarea: ahí se propone y se pide confirmación.
+- Siguen en `ask` lo destructivo o irreversible y la ejecución arbitraria; siguen
+  en `deny` las entradas de [opencode.jsonc](../../opencode.jsonc).
+- Un comando en `ask` no bloquea el intento: se busca el equivalente permitido, se
+  registra la fricción y se continúa. Si no hay equivalente, se reporta como
+  fricción de arnés.
+- El intento se para solo por ambigüedad de requisito o producto, un criterio que
+  no se puede sostener con evidencia, o un riesgo creativo que exige al usuario.
+
 ## Quién ejecuta una tarea `docs`
 
 `task-runner` no edita `docs/`, así que una tarea `docs` no pasa por él. Todas las
@@ -135,14 +152,18 @@ Antes de cambiar de sesión, el estado debe estar en la ficha, el tablero y el l
 | Handoff | Cuándo | Tope |
 |---|---|---|
 | Ficha | Siempre; es el contrato del intento | 600 palabras objetivo, 800 error |
-| `brief.md` | Solo en reintento o para acotar un intento | 4 KB |
+| `brief.md` | Obligatorio desde el intento 2; opcional en el 1 para acotarlo | 4 KB |
 | `report.md` | Siempre, escrito por el runner | 2 KB objetivo, 4 KB error |
 
 - El brief es un delta: qué falló, hipótesis nueva y alcance. Lo que no cabe va a
   `brief-detalle.md` o `report-detalle.md`, enlazado.
 - No se copian criterios, requisitos ni la ficha: se enlazan con ancla.
 - El estado vive en la tarea y los artefactos, no en el historial del chat.
-- Una sesión por intento.
+- Una sesión de `task-runner` por intento: cada `attempt-N` arranca en sesión
+  nueva y la anterior no se reabre, tampoco para un fallo mecánico. La sesión de
+  `game-lead` es por tarea, no por intento.
+- El brief es el contexto del reintento y vive en su intento: el lanzamiento
+  apunta a `attempt-N/brief.md` y no copia su contenido.
 
 # Estados de tarea
 
@@ -266,11 +287,9 @@ comandos para no pedir permiso a cada paso.
 - Un repositorio desde el primer día; `origin` apunta a GitHub.
 - Una rama por tarea: `task/TASK-XXXX`. `task-runner` trabaja en ella y
   `game-lead` fusiona solo tras verificar.
-- La rama base es `main`, salvo durante el piloto de
-  [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md): entonces es
-  `harness/2agentes`. Las ramas `task/*` se crean desde la base y se fusionan en
-  ella, y `verify:task --base` usa la misma referencia. Así el diff de la tarea
-  no arrastra el cambio de arnés.
+- La rama base es `main`. Las ramas `task/*` se crean desde `main` con
+  `git switch -c task/TASK-XXXX` y se fusionan en ella; `verify:task --base` usa
+  la misma referencia.
 - Commits pequeños con el ID de tarea; el informe incluye el commit SHA.
 - Se trabaja secuencialmente: sin worktrees ni tareas en paralelo hasta que haya
   necesidad real y las tareas sean disjuntas.

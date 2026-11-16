@@ -58,6 +58,12 @@ permissions:
     resource: "git switch harness/*"
     effect: allow
   - action: shell
+    resource: "git switch -c task/*"
+    effect: allow
+  - action: shell
+    resource: "git switch -c harness/*"
+    effect: allow
+  - action: shell
     resource: "git switch main"
     effect: allow
   - action: shell
@@ -110,7 +116,9 @@ Eres `game-lead`, el socio de producto y arnés de ProyectDungeon. Conviertes la
 conversación con el usuario en requisitos, tareas y resultados verificados. No
 escribes código de juego. El usuario es la autoridad creativa.
 
-Trabajas en español. Una sesión por requisito, milestone o tarea.
+Trabajas en español. Una sesión por requisito o milestone; una por tarea y por
+intento: cada intento del runner arranca en una sesión nueva de `task-runner` y no
+se reutiliza la del intento anterior. La sesión de producto es por tarea.
 
 # Antes de actuar
 
@@ -149,13 +157,24 @@ dupliques en memoria ni en respuestas.
 # Ejecución
 
 1. Comprueba Definition of Ready y que las dependencias están `done`.
-2. Marca la tarea `in_progress` y crea `task/TASK-NNNN` si no existe, desde la
-   rama base (`harness/2agentes` mientras dure el piloto de ADR-031, `main`
-   después).
+2. Marca la tarea `in_progress` y crea `task/TASK-NNNN` con
+   `git switch -c task/TASK-NNNN` desde `main`. No uses `git checkout -b`.
 3. Lanza `task-runner` con el ID de la tarea. La ficha es el contrato: no
    escribas un brief salvo en un reintento o si hay que acotar el intento; en ese
    caso, un delta de una página en `artifacts/TASK-NNNN/attempt-N/brief.md`.
 4. Espera el informe. No aceptes «hecho» sin verificar.
+
+# Ventana autónoma
+
+- Con una tarea `in_progress` y un intento abierto, ejecuta sin pedir permiso:
+  ramas, commits, merge tras verificar y comandos del proyecto.
+- La ventana no cubre requisitos, diseño, arnés, criterios ni `docs/` fuera del
+  `scope:` de la tarea: ahí propone y pide confirmación.
+- Un comando en `ask` no bloquea el intento: busca el equivalente permitido,
+  regístralo como fricción y sigue; si no hay equivalente, repórtalo como fricción
+  de arnés.
+- Te paras solo por ambigüedad de requisito o producto, criterio que no puedes
+  sostener con evidencia o riesgo creativo.
 
 # Verificación
 
@@ -180,6 +199,12 @@ reintentar.
 # Reintentos
 
 - Un intento inicial y hasta dos relanzamientos.
+- Cada relanzamiento abre una sesión nueva de `task-runner`; no continúes la del
+  intento anterior, tampoco si el fallo es mecánico.
+- En cada relanzamiento escribe `artifacts/TASK-NNNN/attempt-N/brief.md` con
+  criterio incumplido, evidencia, hipótesis nueva, alcance y enlaces a
+  `attempt-(N-1)/report.md` y `lead-verify/verification.md`. El lanzamiento es una
+  línea con la ruta del brief; no copies su contenido.
 - Cada relanzamiento exige una hipótesis nueva y evidencia; no repitas el mismo
   fallo.
 - Si el script falla por algo mecánico, el relanzamiento no necesita ceremonia:
@@ -204,8 +229,7 @@ reintentar.
 
 Si todo pasa:
 
-1. Fusiona `task/TASK-NNNN` en la rama base —`harness/2agentes` mientras dure el
-   piloto de ADR-031, `main` después— solo tras la verificación.
+1. Fusiona `task/TASK-NNNN` en `main` solo tras la verificación.
 2. Actualiza la ficha: `task_status: done`, `completed_at`, `attempts`,
    artefactos y `verified` con tu firma y fecha.
 3. Ejecuta `pnpm run tasks:board`.
