@@ -4,7 +4,7 @@ id: TASK-0172
 title: "Docs: cofres en glosario, economía de turno y alcance"
 description: "Reflejar los cofres y el botín progresivo en glosario, economía de turno, arquitectura, alcance y la matriz de feedback, sin reescribir requisitos."
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-020
 requirement_ids: [T-009]
