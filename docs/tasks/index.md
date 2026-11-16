@@ -178,12 +178,8 @@ Total: **176**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0163](TASK-0163-arnes-artefactos-e2e-filtrados.md) | Arnés: artefactos E2E filtrados por spec | `done` | HARNESS | — | P2 |
 | [TASK-0172](TASK-0172-docs-cofres-glosario-alcance.md) | Docs: cofres en glosario, economía de turno y alcance | `done` | REQ-020 | TASK-0171 | P2 |
 | [TASK-0175](TASK-0175-exp-004-densidad-party-real.md) | EXP-004: P real, suelo por salas y total aplicado | `done` | REQ-012 | TASK-0174 | P2 |
-| [TASK-0176](TASK-0176-qa-densidad-party-real.md) | QA: densidad por party real de punta a punta | `in_progress` | REQ-012 | TASK-0174 | P2 |
+| [TASK-0176](TASK-0176-qa-densidad-party-real.md) | QA: densidad por party real de punta a punta | `done` | REQ-012 | TASK-0174 | P2 |
 | [TASK-0173](TASK-0173-arnes-test-gate-brief.md) | Arnés: test del gate del brief | `done` | HARNESS | — | P3 |
-
-# in_progress
-
-* [TASK-0176 — QA: densidad por party real de punta a punta](TASK-0176-qa-densidad-party-real.md)
 
 # blocked
 
@@ -364,5 +360,6 @@ Total: **176**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0163 — Arnés: artefactos E2E filtrados por spec](TASK-0163-arnes-artefactos-e2e-filtrados.md)
 * [TASK-0172 — Docs: cofres en glosario, economía de turno y alcance](TASK-0172-docs-cofres-glosario-alcance.md)
 * [TASK-0175 — EXP-004: P real, suelo por salas y total aplicado](TASK-0175-exp-004-densidad-party-real.md)
+* [TASK-0176 — QA: densidad por party real de punta a punta](TASK-0176-qa-densidad-party-real.md)
 * [TASK-0173 — Arnés: test del gate del brief](TASK-0173-arnes-test-gate-brief.md)
 

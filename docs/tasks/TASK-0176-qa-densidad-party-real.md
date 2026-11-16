@@ -4,7 +4,7 @@ id: TASK-0176
 title: "QA: densidad por party real de punta a punta"
 description: "Prueba en el flujo real de nueva partida, guardado y carga que el total de enemigos cambia con la party y que cargar conserva el reparto."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: qa
 scope: [tests/]
 requirement: REQ-012
@@ -12,15 +12,24 @@ requirement_ids: [R-006, T-014]
 depends_on: [TASK-0174]
 unlocks: []
 created_at: 2026-11-16T20:07:05Z
-completed_at:
+completed_at: 2026-11-16T20:43:17Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0176/
 priority: P2
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T20:07:05Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T20:43:17Z
+    note: >-
+      Intento 2 verificado: 1 jugador 5 enemigos y 6 jugadores 11 con la misma
+      semilla, guardado y carga sin regenerar, capturas a dos viewports y suite
+      E2E 292/292. El intento 1 se rechazó por dos fixtures caducados; se renovó
+      `WIN_GAME_SEED` a 45 por la densidad v5, sin relajar aserciones y sin tocar
+      `src/`. `verify:task` y `verify` en verde. Detalle en
+      `attempt-2/lead-verify/verification.md`.
 ---
 
 # Objetivo
