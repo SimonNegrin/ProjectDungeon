@@ -5,7 +5,7 @@ title: "Arnés: artefactos E2E filtrados por spec"
 description: "Permitir que una corrida de la suite con E2E_ARTIFACTS_DIR limite capturas, JSON y logs a los specs de la tarea, sin escribir los del resto."
 status: draft
 task_status: in_progress
-task_type: harness
+task_type: test
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
@@ -38,20 +38,20 @@ helper es `tests/e2e/artifacts.ts` (`artifactPath`), documentado en
 
 # Criterios de aceptación
 
-- [ ] Nueva variable `E2E_ARTIFACTS_SPECS`: lista separada por comas de nombres de
+- [x] Nueva variable `E2E_ARTIFACTS_SPECS`: lista separada por comas de nombres de
       spec (`inventory`, `hotseat-flow-qa`) que limita los artefactos a esos
       specs; sin la variable, o vacía, el comportamiento actual no cambia.
-- [ ] Los specs fuera de la lista no crean nada bajo `E2E_ARTIFACTS_DIR`: sus
+- [x] Los specs fuera de la lista no crean nada bajo `E2E_ARTIFACTS_DIR`: sus
       rutas caen en `testInfo.outputPath`, que Playwright limpia por ejecución, y
       no dejan carpetas vacías del resto.
-- [ ] La coincidencia usa el mismo nombre normalizado que el subdirectorio
+- [x] La coincidencia usa el mismo nombre normalizado que el subdirectorio
       (`segment(basename(file, '.spec.ts'))`); un nombre desconocido no rompe la
       suite ni hace fallar a los demás.
-- [ ] Hay prueba del helper para: sin variable, lista vacía, un spec, varios y
+- [x] Hay prueba del helper para: sin variable, lista vacía, un spec, varios y
       nombre con guiones; sin depender de estado del módulo.
-- [ ] `docs/harness/visual-qa.md` documenta la variable y su uso por tarea; lo
+- [x] `docs/harness/visual-qa.md` documenta la variable y su uso por tarea; lo
       redacta `game-lead` en el cierre del mismo intento.
-- [ ] `pnpm run test:e2e` y `pnpm run verify` pasan; no se debilitan tests
+- [x] `pnpm run test:e2e` y `pnpm run verify` pasan; no se debilitan tests
       existentes y `src/`, `index.html` y `experiments/` quedan intactos.
 
 # Plan de test
@@ -65,9 +65,9 @@ helper es `tests/e2e/artifacts.ts` (`artifactPath`), documentado en
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0163/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`, `test:e2e` y del listado de rutas del filtro
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0163/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`, `test:e2e` y del listado de rutas del filtro
+- [x] Commit SHA
 
 # Comandos
 
