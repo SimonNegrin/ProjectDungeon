@@ -166,6 +166,12 @@ export interface TraitDefinition {
   readonly source: TraitSource;
   readonly triggers: readonly TraitTrigger[];
   readonly parameters: TraitParameters;
+  /**
+   * Poder declarado con signo para la puntuación de botín (REQ-020 T-002,
+   * ADR-033). Es dato de balance: los negativos restan y la validación rechaza
+   * un trait sin poder entero.
+   */
+  readonly poder: number;
 }
 
 /**
@@ -184,6 +190,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'habilidad', amount: 1 },
+    poder: 3,
   },
   strong: {
     id: 'strong',
@@ -195,6 +202,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'fuerza', amount: 1 },
+    poder: 3,
   },
   guarded: {
     id: 'guarded',
@@ -206,6 +214,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'defensa', amount: 1 },
+    poder: 3,
   },
   'tough-skin': {
     id: 'tough-skin',
@@ -217,6 +226,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'resistencia', amount: 1 },
+    poder: 3,
   },
   'sharp-eye': {
     id: 'sharp-eye',
@@ -228,6 +238,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'punteria', amount: 1 },
+    poder: 3,
   },
   arcane: {
     id: 'arcane',
@@ -239,6 +250,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'magia', amount: 1 },
+    poder: 3,
   },
   vitality: {
     id: 'vitality',
@@ -250,6 +262,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'pvMax', amount: 2 },
+    poder: 2,
   },
   'mana-surge': {
     id: 'mana-surge',
@@ -261,6 +274,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'mpMax', amount: 2 },
+    poder: 2,
   },
   'action-surge': {
     id: 'action-surge',
@@ -272,6 +286,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'acciones', amount: 1 },
+    poder: 6,
   },
   frail: {
     id: 'frail',
@@ -283,6 +298,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'defensa', amount: -1 },
+    poder: -3,
   },
   slow: {
     id: 'slow',
@@ -294,6 +310,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'acciones', amount: -1 },
+    poder: -6,
   },
   'mana-drain': {
     id: 'mana-drain',
@@ -305,6 +322,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'mpMax', amount: -5 },
+    poder: -2,
   },
   brittle: {
     id: 'brittle',
@@ -316,6 +334,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip'],
     parameters: { kind: 'modifier', attribute: 'pvMax', amount: -5 },
+    poder: -3,
   },
   lifesteal: {
     id: 'lifesteal',
@@ -327,6 +346,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip', 'damage'],
     parameters: { kind: 'lifesteal', percent: 50, rounding: 'floor', minimum: 1 },
+    poder: 5,
   },
   'lifesteal-minor': {
     id: 'lifesteal-minor',
@@ -338,6 +358,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip', 'damage'],
     parameters: { kind: 'lifesteal', percent: 25, rounding: 'floor', minimum: 1 },
+    poder: 3,
   },
   'circular-strike': {
     id: 'circular-strike',
@@ -349,6 +370,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip', 'impact'],
     parameters: { kind: 'area', radius: 1, includesCenter: false, actionCost: 1 },
+    poder: 5,
   },
   'wide-circular-strike': {
     id: 'wide-circular-strike',
@@ -360,6 +382,7 @@ export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
     source: 'equipment',
     triggers: ['equip', 'unequip', 'impact'],
     parameters: { kind: 'area', radius: 2, includesCenter: false, actionCost: 2 },
+    poder: 8,
   },
 };
 
@@ -619,6 +642,30 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
 };
 
 /**
+ * Puntuación de poder de un objeto para la curva de botín (REQ-020 T-003,
+ * ADR-033): acierto + daño total + absorción + evasión + Σ poder de sus traits.
+ * Es pura y determinista: solo lee la definición recibida y el catálogo de
+ * traits; no conoce huecos, partidas ni azar.
+ */
+export function powerScore(item: ItemDefinition): number {
+  const damage = item.damagePackets.reduce((total, packet) => total + packet.amount, 0);
+  const traitPower = item.traits.reduce((total, trait) => {
+    const definition = TRAITS[trait.id];
+    if (definition === undefined) {
+      throw new Error(`Trait desconocido en el catálogo: ${trait.id}`);
+    }
+    return total + definition.poder;
+  }, 0);
+  return (
+    (item.accuracy ?? 0) +
+    damage +
+    (item.absorption ?? 0) +
+    (item.evasion ?? 0) +
+    traitPower
+  );
+}
+
+/**
  * Valida un arma para este corte (REQ-029 R-004): como máximo un paquete físico,
  * como máximo un paquete elemental y como máximo dos paquetes en total.
  */
@@ -843,6 +890,7 @@ export function validateItemCatalog(
 export type TraitCatalogRule =
   | 'id'
   | 'text'
+  | 'power'
   | 'type'
   | 'stacking'
   | 'parameters'
@@ -897,6 +945,9 @@ export function validateTraitCatalog(
     if (trait.id !== key) report('id', `La clave ${key} no coincide con el id ${trait.id}`);
     if (trait.name.trim() === '' || trait.description.trim() === '') {
       report('text', 'Nombre y descripción son obligatorios');
+    }
+    if (!Number.isInteger(trait.poder)) {
+      report('power', 'El poder debe ser un entero con signo');
     }
     if (trait.stackingKey.trim() === '') report('stacking', 'Falta la clave de stacking');
     if (!TRAIT_TYPES.includes(trait.type)) report('type', `Tipo desconocido: ${String(trait.type)}`);
