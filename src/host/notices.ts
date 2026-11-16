@@ -16,7 +16,8 @@ export type NoticeCode =
   | 'no-line-of-sight'
   | 'spell-limit'
   | 'unknown-spell'
-  | 'no-spell-selected';
+  | 'no-spell-selected'
+  | 'target-full-hp';
 
 export const NOTICE_MESSAGES: Readonly<Record<NoticeCode, string>> = {
   'invalid-target': 'Destino no válido',
@@ -31,6 +32,7 @@ export const NOTICE_MESSAGES: Readonly<Record<NoticeCode, string>> = {
   'spell-limit': 'Tope de 2 hechizos por turno',
   'unknown-spell': 'Hechizo desconocido',
   'no-spell-selected': 'Sin hechizo seleccionado',
+  'target-full-hp': 'Ya está a PV completo',
 };
 
 /** Traduce un rechazo del motor al aviso del HUD. Devuelve `undefined` cuando no
@@ -54,6 +56,8 @@ export function noticeForRejection(reason: RejectionReason): NoticeCode | undefi
       return 'spell-limit';
     case 'unknown-spell':
       return 'unknown-spell';
+    case 'target-full-hp':
+      return 'target-full-hp';
     case 'target-not-adjacent':
     case 'target-not-found':
     case 'target-dead':

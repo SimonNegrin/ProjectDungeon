@@ -4,6 +4,7 @@ import { expect, test, type Page, type TestInfo } from '@playwright/test';
 import type { PlayerConfig } from '../../src/game/config';
 import { createInitialState } from '../../src/game/engine';
 import { createRoomGrid } from '../../src/game/grid';
+import { MANA_RECOVERY_PER_TURN } from '../../src/game/mana';
 import { buildSaveFiles } from '../../src/game/save';
 import type { GameState, Unit } from '../../src/game/types';
 import { centerCameraOnTile } from '../../src/host/camera';
@@ -239,12 +240,18 @@ test('TASK-0154: dos jugadores con N, relevo por cámara, ronda, recursos y una 
   );
   await screenshot(page, 'relevo-destino', testInfo);
 
-  // Recursos por turno: el activo empieza lleno; el anterior conserva lo gastado.
+  // Recursos por turno: el activo recupera +4 de maná desde lo gastado y
+  // restaura MP, acciones y cupo; el anterior conserva lo gastado.
   const second = await settle(page);
   expect(second.players[1]).toMatchObject({
     mp: second.players[1].maxMp,
     actions: { remaining: second.players[1].actions.max },
-    mana: { current: second.players[1].mana.max },
+    mana: {
+      current: Math.min(
+        second.players[1].mana.max,
+        state.players[1].mana.current + MANA_RECOVERY_PER_TURN,
+      ),
+    },
     spellsCast: 0,
   });
   expect(second.players[0]).toMatchObject({

@@ -21,6 +21,7 @@ describe('avisos de rechazo del HUD', () => {
       'spell-limit': 'Tope de 2 hechizos por turno',
       'unknown-spell': 'Hechizo desconocido',
       'no-spell-selected': 'Sin hechizo seleccionado',
+      'target-full-hp': 'Ya está a PV completo',
     });
   });
 
@@ -33,6 +34,7 @@ describe('avisos de rechazo del HUD', () => {
     ['no-line-of-sight', 'no-line-of-sight'],
     ['spell-limit', 'spell-limit'],
     ['unknown-spell', 'unknown-spell'],
+    ['target-full-hp', 'target-full-hp'],
     ['target-not-adjacent', 'enemy-out-of-range'],
     ['target-not-found', 'enemy-out-of-range'],
     ['target-dead', 'enemy-out-of-range'],
