@@ -39,30 +39,30 @@ y el combate en `combat.ts` y `damage.ts`. Hoy `ItemTrait` solo tiene `id` y
 
 # Criterios de aceptación
 
-- [ ] El catálogo de traits es dato: ID estable, nombre, descripción, tipo,
+- [x] El catálogo de traits es dato: ID estable, nombre, descripción, tipo,
       parámetros, stacking y fuente; el motor no define traits y el catálogo
       cambia el juego sin tocar código.
-- [ ] Los modificadores cubren los nueve atributos, incluidos resistencia, magia,
+- [x] Los modificadores cubren los nueve atributos, incluidos resistencia, magia,
       PV máx, MP máx y acciones; un único punto agrega inherente → equipo por
       hueco → traits y lo consumen combate, movimiento y presentación.
-- [ ] Los numéricos suman por atributo; los especiales son únicos y cuenta el
+- [x] Los numéricos suman por atributo; los especiales son únicos y cuenta el
       mayor; orden estable; PV máx ≥ 1, acciones ≥ 1, MP ≥ 0 y tope 4; ningún
       recorte depende del orden de iteración.
-- [ ] El área es dato: radio 1, `incluyeCentro: false` y coste como parámetro;
+- [x] El área es dato: radio 1, `incluyeCentro: false` y coste como parámetro;
       cambiarlo cambia el comportamiento sin tocar el motor.
-- [ ] El ataque circular golpea las 8 adyacentes, excluye el centro, no daña
+- [x] El ataque circular golpea las 8 adyacentes, excluye el centro, no daña
       aliados ni al atacante, resuelve una tirada por objetivo en orden fijo y
       sustituye al ataque normal del arma, sin camino paralelo.
-- [ ] El robo de vida cura el 50 % del daño efectivo de cada impacto, redondeado
+- [x] El robo de vida cura el 50 % del daño efectivo de cada impacto, redondeado
       a la baja, con mínimo 1 si el golpe entra, sin sobrecurar y una vez por
       objetivo golpeado.
-- [ ] El pipeline emite equipar/desequipar, impacto y daño infligido; cada
+- [x] El pipeline emite equipar/desequipar, impacto y daño infligido; cada
       objetivo del círculo y cada curación producen evento propio; sin trait
       declarado no se emite, y la secuencia se repite con la misma semilla.
-- [ ] Las cuatro piezas existen en `ITEMS` con sprite: anillo de robo, collar +2
+- [x] Las cuatro piezas existen en `ITEMS` con sprite: anillo de robo, collar +2
       MP, guantes +1 acción y maza a dos manos con daño base inferior al hacha;
       ningún arquetipo las recibe ni entran en el botín.
-- [ ] El snapshot expone traits activos, fuente, stats efectivos y eventos de
+- [x] El snapshot expone traits activos, fuente, stats efectivos y eventos de
       trait; los tests cubren stacking, suelos y topes, disparadores, área, robo,
       sinergia, traits negativos, serialización y no regresión de REQ-006, REQ-009,
       REQ-010 y REQ-017; `pnpm run verify` pasa.
@@ -77,9 +77,9 @@ y el combate en `combat.ts` y `damage.ts`. Hoy `ItemTrait` solo tiene `id` y
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0161/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0161/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
