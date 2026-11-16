@@ -205,3 +205,11 @@ antes de implementar.
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [x] El grafo de tareas es posible; el orden de implementación depende de `REQ-018`/`REQ-020` y se decide al abrirlas.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** el fantasma conserva su
+  turno en el orden fijo y lo cierra con `N` sin gastar nada; no abre el panel. La
+  resurrección no crea turno nuevo: el resucitado vuelve a `players` en su índice,
+  así que actúa esa ronda si aún no ha pasado y, si no, en la siguiente.

@@ -253,3 +253,12 @@ sin cambiar las reglas:
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas: `REQ-017` enmienda `REQ-006` y `REQ-008`
       en los puntos indicados.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** el relevo bloquea input
+  durante el paneo de 300 ms; «Ronda N» (2 s) tiene banner propio y **no bloquea**
+  input ni presentación; «El master mueve» (~800 ms) tiene cue propio y solo
+  aparece si algún enemigo actúa. Las duraciones de R-002 para el resto de eventos
+  se mantienen.
