@@ -36,19 +36,19 @@ TASK-0142.
 
 # Criterios de aceptación
 
-- [ ] Partida de 2 jugadores y partida de 6: orden fijo, `N`, relevo por cámara,
+- [x] Partida de 2 jugadores y partida de 6: orden fijo, `N`, relevo por cámara,
       «Ronda N» y «Jugador N de M».
-- [ ] Una sola fase enemiga por ronda; «El master mueve» solo con acciones; el
+- [x] Una sola fase enemiga por ronda; «El master mueve» solo con acciones; el
       HUD muestra actor y objetivo o «Sin objetivo»; los dormidos se saltan.
-- [ ] Recursos por turno; muerte del activo, turno siguiente y derrota por wipe;
+- [x] Recursos por turno; muerte del activo, turno siguiente y derrota por wipe;
       resurrección antes y después del índice.
-- [ ] El fantasma respeta su turno, pasa con `N` y no abre el panel.
-- [ ] Guardar se desactiva en fase enemiga; cargar devuelve el control al activo;
+- [x] El fantasma respeta su turno, pasa con `N` y no abre el panel.
+- [x] Guardar se desactiva en fase enemiga; cargar devuelve el control al activo;
       el resultado ofrece «Nueva partida» y «Cargar partida».
-- [ ] No quedan `E` de fin de turno ni `R` de reinicio; la pausa es global.
-- [ ] Capturas de relevo, ronda, fase enemiga, resultado y carga; `pnpm run
+- [x] No quedan `E` de fin de turno ni `R` de reinicio; la pausa es global.
+- [x] Capturas de relevo, ronda, fase enemiga, resultado y carga; `pnpm run
       test:e2e` y `pnpm run verify` pasan.
-- [ ] No se debilitan, borran ni saltan tests existentes.
+- [x] No se debilitan, borran ni saltan tests existentes.
 
 # Plan de test
 
@@ -59,10 +59,10 @@ TASK-0142.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0154/attempt-1/report.md`
-- [ ] Salida de `pnpm run test:e2e` y `pnpm run verify`
-- [ ] Capturas de relevo, ronda, fase enemiga, resultado y carga
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0154/attempt-1/report.md`
+- [x] Salida de `pnpm run test:e2e` y `pnpm run verify`
+- [x] Capturas de relevo, ronda, fase enemiga, resultado y carga
+- [x] Commit SHA
 
 # Comandos
 
