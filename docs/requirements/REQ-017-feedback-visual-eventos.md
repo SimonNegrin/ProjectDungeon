@@ -8,8 +8,8 @@ version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T00:45:43Z
-updated_at: 2026-11-15T18:53:35Z
-related_tasks: [TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061]
+updated_at: 2026-11-16T17:41:49Z
+related_tasks: [TASK-0057, TASK-0058, TASK-0059, TASK-0060, TASK-0061, TASK-0170]
 amends: [REQ-006, REQ-008]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T00:45:43Z }
 verified:
@@ -135,6 +135,8 @@ más vivo: **más rápido que en 1986, más lento que en 2026**.
 | `UnitDied` | Destello, 3 parpadeos, disolución, sacudida | 900 ms | Cadáver persistente |
 | `PickUp` | Parpadeo del arma, banner `+ <Arma>`, slot pulsado | 350 ms | Banner 800 ms |
 | `SelectWeapon` | Slot pulsado, banner con nombre, cambio de arma en mano | 250 ms | Banner 800 ms |
+| `OpenContainer` (cofre) | Banner `Cofre abierto`; el cofre pasa a abierto en el mismo beat | 300 ms | Banner 800 ms |
+| `TakeItem` / `TakeAll` / `DepositItem` (cofre) | Banner `+ <Objeto>`, `+ N objetos` o `<Objeto> → Cofre`; el objeto cambia de zona al acabar | 250 ms | Banner 800 ms |
 | `EnemySpotted` | `!` con entrada de 3 frames, enemigo parpadea | 200 ms | Mientras haya alerta |
 | `AlarmRaised` | Onda de 2 tiles, destello de borde, banner `¡Alarma!` | 500 ms | Banner 1600 ms |
 | `EnemyFled` | `!!` + marca de dirección | 300 ms | 600 ms |
