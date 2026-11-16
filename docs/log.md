@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0169 — done: apertura con 1 acción y Chebyshev 1, reapertura gratis, fantasma sin abrir e inspección intacta, depósito atómico solo en cofres, coger todo entero, cofre vacío persistente y round-trip estable; 1878 tests y fusión `3ec4e71` — [informe](../artifacts/TASK-0169/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0168 — done: cofres deterministas 50/20 por sala no-spawn con forzado, PRNG propio sin tocar el combate, botín por umbral de hueco, pieza de traits garantizada y snapshot con `opened`; dos correcciones del lead (snapshot y colocación BSP), 1856 tests y fusión `59737b2` — [informe](../artifacts/TASK-0168/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0167 — done: poder declarado por trait con signo y `powerScore` determinista con los valores de ADR-033; catálogo real de 17 traits y 14 objetos cubierto, 1839 tests y fusión `c83c68a` — [informe](../artifacts/TASK-0167/attempt-1/report.md)
 * 2026-11-16 — Requirement — REQ-020 — v5 stable: cofres 50/20 por sala no-spawn, apertura con 1 acción y sin ruido, botín determinista para mejorar el equipo del grupo, pieza de traits garantizada por nivel, 4 huecos con depósito gratis y columna «Cofre» — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
