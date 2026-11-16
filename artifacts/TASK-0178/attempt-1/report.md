@@ -54,6 +54,8 @@ archivos y 1909 tests.
 
 - No se tocaron fixtures de guardado: ninguno fija coste, alcance ni curación;
   el round-trip existente ya conserva maná, cupo y PV.
+- El test de dos resurrecciones usa maná sintético 24 para aislar el cupo: con
+  coste 12 y máximo 16 ya no caben dos en un turno real.
 - Los specs E2E que asumen curación a 2 casillas y 4 PV quedan temporalmente
   rojos; no se editan aquí, según el alcance.
 
@@ -73,6 +75,6 @@ Ninguna.
 | Métrica | Valor |
 |---|---|
 | `brief_bytes` | 0 |
-| `report_bytes` | 2817 |
+| `report_bytes` | 2956 |
 | `overflow` | `none` |
 | `criteria_failed` | 0 |
