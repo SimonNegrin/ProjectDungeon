@@ -165,16 +165,12 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0156](TASK-0156-requisitos-enmiendas-arranque.md) | Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031 | `done` | REQ-016 | TASK-0127 | P2 |
 | [TASK-0157](TASK-0157-requisitos-enmiendas-botin.md) | Requisitos: enmiendas de botín | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
-| [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
+| [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
-
-# backlog
-
-* [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 
 # done
 
@@ -337,4 +333,5 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0156 — Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031](TASK-0156-requisitos-enmiendas-arranque.md)
 * [TASK-0157 — Requisitos: enmiendas de botín](TASK-0157-requisitos-enmiendas-botin.md)
 * [TASK-0158 — Requisitos: notas de guardado en REQ-016 y REQ-031](TASK-0158-requisitos-notas-guardado.md)
+* [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 

@@ -4,22 +4,29 @@ id: TASK-0159
 title: "Requisitos: notas de hotseat en hojas relacionadas"
 description: "Anotar en REQ-005, REQ-017, REQ-018, REQ-021, REQ-022, REQ-023, REQ-024 y REQ-026 las enmiendas de REQ-031 v2 sobre turno, relevo, HUD, panel público y controles."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: docs
 requirement: REQ-031
 requirement_ids: [T-013]
 depends_on: [TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-16T10:36:00Z
 assignee: game-lead
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0159/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T10:36:00Z
+    note: >-
+      Intento 1 verificado (notas `1737169`, evidencia `4708c88`). Ocho hojas con
+      nota de vigencia que remite a REQ-031 v2 y ADR-029, sin reescribir
+      requisitos; `docs:check` y `pnpm run verify` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
