@@ -8,11 +8,115 @@ import {
   isCursorInteractive,
   moveCursor,
 } from '../../../src/host/cursor';
+import { planCursorTarget } from '../../../src/game/path';
 import { makeState, makeUnit } from '../game/helpers';
 
-function playerAt(x: number, y: number, mp?: number) {
-  return makeUnit({ id: 'player-1', faction: 'player', x, y, mp });
+function playerAt(x: number, y: number, mp?: number, id = 'player-1') {
+  return makeUnit({ id, faction: 'player', x, y, mp });
 }
+
+describe('origen del camino en hotseat', () => {
+  it('planifica desde el segundo jugador cuando es el activo', () => {
+    const state = makeState({
+      players: [
+        playerAt(2, 2, 6, 'player-1'),
+        playerAt(10, 10, 2, 'player-2'),
+      ],
+      activePlayerId: 'player-2',
+      enemies: [],
+    });
+    const target = { x: 12, y: 10 };
+
+    const status = deriveCursorStatus(state, target);
+
+    expect(status).toMatchObject({
+      kind: 'floor',
+      state: 'reachable',
+      cost: 2,
+      withinMp: true,
+      strongSteps: 2,
+    });
+    expect(status.path).toEqual([
+      { x: 11, y: 10 },
+      { x: 12, y: 10 },
+    ]);
+    expect(status.path[0]).not.toEqual({ x: 3, y: 2 });
+    expect(status.path).toEqual(
+      planCursorTarget(state, 'player-2', target).path,
+    );
+  });
+
+  it('con el activo primero no invierte el origen', () => {
+    const state = makeState({
+      players: [
+        playerAt(2, 2, 6, 'player-1'),
+        playerAt(10, 10, 1, 'player-2'),
+      ],
+      activePlayerId: 'player-1',
+      enemies: [],
+    });
+
+    const status = deriveCursorStatus(state, { x: 4, y: 2 });
+
+    expect(status).toMatchObject({
+      kind: 'floor',
+      state: 'reachable',
+      cost: 2,
+      withinMp: true,
+      strongSteps: 2,
+    });
+    expect(status.path).toEqual([
+      { x: 3, y: 2 },
+      { x: 4, y: 2 },
+    ]);
+  });
+
+  it('los pasos fuertes usan el MP del activo, no el de otro jugador', () => {
+    const state = makeState({
+      players: [
+        playerAt(2, 2, 6, 'player-1'),
+        playerAt(10, 10, 1, 'player-2'),
+      ],
+      activePlayerId: 'player-2',
+      enemies: [],
+    });
+
+    const status = deriveCursorStatus(state, { x: 13, y: 10 });
+
+    expect(status).toMatchObject({
+      kind: 'floor',
+      state: 'too-far',
+      cost: 3,
+      withinMp: false,
+      strongSteps: 1,
+    });
+    expect(status.path).toEqual([
+      { x: 11, y: 10 },
+      { x: 12, y: 10 },
+      { x: 13, y: 10 },
+    ]);
+  });
+
+  it('sin activo sigue oculto e inválido aunque haya un jugador vivo', () => {
+    const state = makeState({
+      players: [playerAt(2, 2, 4)],
+      activePlayerId: null,
+      enemies: [],
+    });
+
+    const status = deriveCursorStatus(state, { x: 3, y: 2 });
+
+    expect(status).toMatchObject({
+      visible: false,
+      kind: 'blocked',
+      state: 'invalid',
+      path: [],
+      cost: 0,
+      withinMp: false,
+      strongSteps: 0,
+    });
+  });
+});
 
 describe('posición del cursor', () => {
   it('arranca en el tile del jugador activo o en (0,0) sin jugador', () => {

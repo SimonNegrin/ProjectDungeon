@@ -1,3 +1,4 @@
+import { activePlayer } from '../game/party';
 import { planCursorTarget, type CursorTargetKind } from '../game/path';
 import type { GameState, Grid, Position, Unit } from '../game/types';
 import {
@@ -110,7 +111,10 @@ function presentationState(
  * `planCursorTarget`. El host no reclasifica ni calcula caminos por su cuenta.
  */
 export function deriveCursorStatus(state: GameState, cursor: Position): CursorStatus {
-  const player = state.players.find((unit) => unit.hp > 0);
+  // El camino nace del actor del turno (REQ-031 R-012/R-022), no del primer
+  // jugador vivo: en hotseat la lista conserva a todos los jugadores.
+  const active = activePlayer(state);
+  const player = active !== undefined && active.hp > 0 ? active : undefined;
   const visible = isCursorInteractive(state);
 
   if (!player) {
