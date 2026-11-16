@@ -4,7 +4,7 @@ id: TASK-0176
 title: "QA: densidad por party real de punta a punta"
 description: "Prueba en el flujo real de nueva partida, guardado y carga que el total de enemigos cambia con la party y que cargar conserva el reparto."
 status: stable
-task_status: backlog
+task_status: ready
 task_type: qa
 scope: [tests/]
 requirement: REQ-012

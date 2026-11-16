@@ -4,7 +4,7 @@ id: TASK-0175
 title: "EXP-004: P real, suelo por salas y total aplicado"
 description: "El experimento muestra y exporta la fórmula con el suelo por salas, de modo que la densidad aprobada se pueda probar con 1-6 jugadores."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: experiment
 scope: [src/, tests/, experiments/]
 requirement: REQ-012
@@ -12,15 +12,23 @@ requirement_ids: [T-012, T-015]
 depends_on: [TASK-0174]
 unlocks: []
 created_at: 2026-11-16T20:07:05Z
-completed_at:
+completed_at: 2026-11-16T20:24:08Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0175/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T20:07:05Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T20:24:08Z
+    note: >-
+      Intento 1 verificado: `EXP-004` muestra `R`, fórmula y total aplicado, con
+      aviso de suelo y payload con ambos totales; factor 0 reparte una ficha por
+      sala. 6 criterios firmados, `verify` y `build:experiments` en verde.
+      Queda como pregunta abierta alinear los respaldos de `resolveOptions`.
+      Detalle en `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo

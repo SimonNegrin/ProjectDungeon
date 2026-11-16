@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0175 — done: `EXP-004` expone `R`, fórmula y total aplicado, aviso de suelo y payload con ambos totales; factor 0 reparte una ficha por sala, 1904 tests y `build:experiments` OK; fusión `0569e422` — [informe](../artifacts/TASK-0175/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0174 — done: `P` derivado de la party en `createInitialState` (el host no fija `numPlayers`), suelo `max(fórmula, salas no-spawn)` con aviso y snapshot `enemyBudget`; BSP intacto, 1901 tests y una aserción E2E adaptada de 11 a 4-6; fusión `6eb28c1a` — [informe](../artifacts/TASK-0174/attempt-1/report.md)
 * 2026-11-16 — Planning — TASK-0174 a TASK-0176 — densidad por party real: motor y suelo en `ready`; experimento y QA en `backlog` con dependencia de TASK-0174 — [TASK-0174](tasks/TASK-0174-motor-densidad-party-real.md)
 * 2026-11-16 — Harness — game-lead — concisión en la conversación (bloques breves, sin abrumar) y referencias siempre etiquetadas con su tema, nunca un identificador desnudo; solo sección `Comunicación`, permisos y gates intactos — [game-lead](../.opencode/agents/game-lead.md)
