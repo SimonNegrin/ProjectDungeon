@@ -4,7 +4,7 @@ id: TASK-0165
 title: "Bug: la ficha del HUD derecho usa el equipo del jugador activo"
 description: "Con el panel abierto, el bloque «Equipado» del HUD derecho muestra el hueco del primer jugador vivo en vez del jugador activo."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-023
 requirement_ids: [R-009]
