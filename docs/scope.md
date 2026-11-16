@@ -38,8 +38,9 @@ HUD lateral (`REQ-022` y `REQ-023`), el botín de enemigos (`REQ-034`) y la
 pausa, el guardado y la carga (`REQ-024`) están implementados; la QA de pausa y
 guardado se cerró en TASK-0144.
 
-El trabajo inmediato es el playtest del hito de cofres y el ajuste de balance
-aplazado en TASK-0084. El hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`) está
+El hito de cofres y el ataque circular están validados en playtest; el ajuste de
+balance de TASK-0084 sigue aplazado hasta roster y bestiario completos. El
+hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`) está
 implementado en TASK-0146 a TASK-0154. `REQ-030` (alcance visible de hechizos)
 queda en borrador. Cofres y traits ya están en el juego. `REQ-012` v5 está
 implementada en TASK-0174 a TASK-0176 y validada en playtest: el total de

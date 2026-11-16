@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Playtest — cofres y maza circular — `human:simon`: hito de cofres superado sin defectos ni cambios (50/20 %, 2 objetos por cofre, 4 huecos y panel) y ataque circular de 8 casillas sin centro validado con la maza; sin ajuste de valores — [TASK-0171](../artifacts/TASK-0171/attempt-1/report.md)
 * 2026-11-16 — Requirement — REQ-012 — playtest v5 OK: densidad de 1 a 6 jugadores aceptada, sin cambios de factores ni compensación de botín; pregunta 7 resuelta y alcance actualizado — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)
 * 2026-11-16 — Task — TASK-0176 — done: E2E real con 1 jugador (5 enemigos) y 6 (11), guardado y carga sin regenerar y capturas a dos viewports; suite 292/292 tras renovar `WIN_GAME_SEED` a 45 por la densidad v5, 1904 tests y fusión `59408f79`; intento 1 rechazado por dos fixtures caducados — [informe](../artifacts/TASK-0176/attempt-2/report.md)
 * 2026-11-16 — Task — TASK-0175 — done: `EXP-004` expone `R`, fórmula y total aplicado, aviso de suelo y payload con ambos totales; factor 0 reparte una ficha por sala, 1904 tests y `build:experiments` OK; fusión `0569e422` — [informe](../artifacts/TASK-0175/attempt-1/report.md)

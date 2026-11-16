@@ -199,6 +199,7 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 | 2026-11-12 | Traits siempre visibles; sin identificación. | human:simon | aceptada |
 | 2026-11-13 | v3: recibe el E2E de dos manos con escudo diferido desde `REQ-018` v5; sin cambios de reglas. | human:simon | aceptada |
 | 2026-11-16 | La validación creativa en playtest del ataque circular se aplaza al playtest de `REQ-020`: sin cofres ni saqueo no hay fuente jugable de la maza. Las tareas quedan cerradas con sus tests automáticos. | human:simon | aceptada |
+| 2026-11-16 | Playtest de la maza circular superado: el ataque de 8 casillas sin centro, sin daño amigo y con coste de 1 acción se acepta tal cual; sin cambios de valores. | human:simon | aceptada; cierra la validación diferida |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
 
 # Aceptación de la hoja

@@ -162,6 +162,7 @@ reabren la hoja.
 | 2026-11-16 | El poder de cada trait se declara con signo; los objetos malditos entran en el botín con su puntuación neta. | human:simon | aceptada |
 | 2026-11-16 | Los traits de estado quedan fuera de este corte. | human:simon | aceptada |
 | 2026-11-16 | El calendario de implementación queda resuelto: va ahora, sin esperar a nada. | human:simon | aceptada |
+| 2026-11-16 | Playtest del hito de cofres superado sin defectos ni cambios: colocación 50/20, contenido orientado al grupo, apertura, transferencia, 4 huecos y panel se mantienen. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
