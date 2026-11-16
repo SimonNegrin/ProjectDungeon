@@ -139,7 +139,7 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0151](TASK-0151-host-hud-jugador-n-de-m-ronda.md) | Host/HUD: Jugador N de M, ficha activo y Ronda N | `done` | REQ-031 | TASK-0146, TASK-0150 | P1 |
 | [TASK-0152](TASK-0152-host-fase-enemiga-master-mueve.md) | Host: fase enemiga (El master mueve, actor/objetivo) | `done` | REQ-031 | TASK-0146, TASK-0150, TASK-0151 | P1 |
 | [TASK-0153](TASK-0153-host-resultado-victoria-derrota.md) | Host: resultado Victoria/Derrota con Nueva y Cargar | `done` | REQ-031 | TASK-0126, TASK-0141, TASK-0146, TASK-0147 | P1 |
-| [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `backlog` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
+| [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `done` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
 | [TASK-0160](TASK-0160-test-exp-004-barrido-por-variante.md) | Test: dividir el barrido de EXP-004 por variante | `done` | REQ-011 | — | P1 |
 | [TASK-0161](TASK-0161-motor-traits-catalogo-stacking-especiales.md) | Motor: catálogo de traits, stacking y especiales | `done` | REQ-019 | — | P1 |
 | [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `done` | REQ-019 | TASK-0161 | P1 |
@@ -174,7 +174,6 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
 * [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
 * [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 
@@ -314,6 +313,7 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0151 — Host/HUD: Jugador N de M, ficha activo y Ronda N](TASK-0151-host-hud-jugador-n-de-m-ronda.md)
 * [TASK-0152 — Host: fase enemiga (El master mueve, actor/objetivo)](TASK-0152-host-fase-enemiga-master-mueve.md)
 * [TASK-0153 — Host: resultado Victoria/Derrota con Nueva y Cargar](TASK-0153-host-resultado-victoria-derrota.md)
+* [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0161 — Motor: catálogo de traits, stacking y especiales](TASK-0161-motor-traits-catalogo-stacking-especiales.md)
 * [TASK-0162 — Host/UI: traits visibles, desglose y feedback](TASK-0162-host-ui-traits-visibles-desglose-feedback.md)

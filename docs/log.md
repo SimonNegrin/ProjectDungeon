@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0154 — done: QA/E2E del hotseat con 2 y 6 jugadores, relevo, ronda, fase enemiga, fantasma, resultado y carga; 282 E2E y 13 capturas — [informe](../artifacts/TASK-0154/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0162 — done: traits antes de equipar, desglose inherente/equipo/traits en la ficha y feedback por objetivo; 1796 tests y 276 E2E — [informe](../artifacts/TASK-0162/attempt-2/report.md)
 * 2026-11-16 — Task — TASK-0161 — done: catálogo de traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; 1780 tests y verificación con `--base harness/2agentes` — [informe](../artifacts/TASK-0161/attempt-1/report.md)
 * 2026-11-16 — Harness — verify:task — exige capturas solo si la ficha no declara «E2E / visual: no» en el plan de test; corrige el falso positivo de TASK-0161 (motor sin UI) sin cambiar el gate documentado — [workflow](harness/workflow.md#verificación-determinista)
