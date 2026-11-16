@@ -1,0 +1,87 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ❯ tests/unit/host/hud-detail.test.ts (28 tests | 2 failed) 19ms
+   ❯ ficha de dos bloques con el panel abierto (9)
+     × resuelve el equipado del jugador activo, no el primero vivo 7ms
+     × sin activo no cae en el primer jugador y deja el equipado vacío 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/host/hud-detail.test.ts > ficha de dos bloques con el panel abierto > resuelve el equipado del jugador activo, no el primero vivo
+AssertionError: expected { id: 'equipped', …(6) } to match object { id: 'equipped', …(3) }
+(7 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "empty": false,
+    "id": "equipped",
+    "label": "Equipado",
+-   "title": "Hacha",
++   "title": "Espada",
+  }
+
+ ❯ tests/unit/host/hud-detail.test.ts:643:30
+    641|     });
+    642|
+    643|     expect(detail.blocks[1]).toMatchObject({
+       |                              ^
+    644|       id: 'equipped',
+    645|       label: 'Equipado',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/unit/host/hud-detail.test.ts > ficha de dos bloques con el panel abierto > sin activo no cae en el primer jugador y deja el equipado vacío
+AssertionError: expected { id: 'equipped', …(6) } to match object { Object (id, title, ...) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "empty": true,
++   "empty": false,
+    "id": "equipped",
+-   "sprite": null,
+-   "stats": [],
+-   "title": "Vacío",
++   "sprite": {
++     "height": 32,
++     "width": 32,
++     "x": 96,
++     "y": 0,
++   },
++   "stats": [
++     {
++       "id": "acierto",
++       "label": "Acierto",
++       "value": "+3",
++     },
++     {
++       "id": "dano",
++       "label": "Daño",
++       "value": "+3",
++     },
++   ],
++   "title": "Espada",
+    "traits": [],
+  }
+
+ ❯ tests/unit/host/hud-detail.test.ts:709:30
+    707|     });
+    708|
+    709|     expect(detail.blocks[1]).toMatchObject({
+       |                              ^
+    710|       id: 'equipped',
+    711|       title: 'Vacío',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 26 passed (28)
+   Start at  14:34:49
+   Duration  241ms (transform 59%, import 27%, tests 12%, worker 2%)
+
