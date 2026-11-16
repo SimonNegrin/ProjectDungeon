@@ -35,7 +35,7 @@ usuario.
 
 # Consecuencias
 
-- La densidad responde al grupo real: 1 jugador en 22×18 pasa de 10-12 a 4-5
+- La densidad responde al grupo real: 1 jugador en 22×18 pasa de 10-12 a 4-6
   enemigos; 6 jugadores mantiene 10-12.
 - Las expectativas que fijaban `P = 6` en producción y los casos de factor 0 de
   `EXP-004` se adaptan a la hoja; el resto de tests de `REQ-012` no se debilita.

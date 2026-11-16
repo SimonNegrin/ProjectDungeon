@@ -48,7 +48,7 @@ verified:
     at: 2026-11-16T19:50:04Z
     note: >-
       Aprueba la v5: P es el tamaño de la party inicial (1-6), no el valor por
-      defecto de 6; la fórmula no cambia y con 1 jugador el total queda en 4-5.
+      defecto de 6; la fórmula no cambia y con 1 jugador el total queda en 4-6.
       T tiene suelo en el número de salas no-spawn con aviso, para que ninguna
       sala quede vacía. BSP conserva 4 enemigos.
 ---
@@ -119,7 +119,7 @@ mínimo de una ficha por sala no-spawn se convierte en suelo del total.
 | R-003 | La sala de spawn no contiene enemigos. | Ninguna ficha enemiga cae dentro de la máscara de la sala de spawn. |
 | R-004 | Ningún enemigo empieza con línea de visión a ningún hueco de spawn. Se elimina la distancia fija de 12 tiles. | Para cada enemigo y cada hueco de spawn, la comprobación de línea de visión de `REQ-009` devuelve `false`; el test cubre muros y puertas abiertas. |
 | R-005 | En BSP se mantienen **4 enemigos**: 2 centinelas, 1 bruto y 1 cobarde, en salas distintas, ninguno en la sala de spawn y ninguno con visión inicial. Se conservan la pareja de alarma y el aislado de `REQ-009`. | La semilla de referencia cumple las 4 fichas, 4 salas distintas, sin spawn, sin visión inicial, pareja ≤5 y aislado >5; otra semilla también. |
-| R-006 | En el generador denso, el total de enemigos se calcula por **superficie de salas y tamaño real de la party**: `T = max(ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P), R)`, donde `N` es la suma de tiles de suelo de las salas (sin pasillos), `P` es el número de jugadores con el que se crea la partida (1-6) y `R` es el número de salas no-spawn. Los valores por defecto son **0,02** por tile y **1,2** por jugador. Con `N` de 85-162, 1 jugador da **4-5** enemigos y 6 jugadores dan **10-12**. Si `R` supera el total de la fórmula, se aplica `R` y se emite un aviso. BSP conserva 4 enemigos y no usa esta fórmula. | Un validador comprueba el total con varias `N`, `P` y factores; con los valores por defecto, 1 jugador da 4-5 y 6 jugadores 10-12 en un mapa 22×18; cambiar un factor o `P` cambia el término de la fórmula como indica el cálculo; factores a 0 dejan `T` en `R`; con más salas no-spawn que el total de la fórmula, el total es `R` y hay aviso; BSP sigue con 4. |
+| R-006 | En el generador denso, el total de enemigos se calcula por **superficie de salas y tamaño real de la party**: `T = max(ceil(enemySurfaceFactor × N) + ceil(enemyPlayersFactor × P), R)`, donde `N` es la suma de tiles de suelo de las salas (sin pasillos), `P` es el número de jugadores con el que se crea la partida (1-6) y `R` es el número de salas no-spawn. Los valores por defecto son **0,02** por tile y **1,2** por jugador. Con `N` de 85-162, 1 jugador da **4-6** enemigos y 6 jugadores dan **10-12**. Si `R` supera el total de la fórmula, se aplica `R` y se emite un aviso. BSP conserva 4 enemigos y no usa esta fórmula. | Un validador comprueba el total con varias `N`, `P` y factores; con los valores por defecto, 1 jugador da 4-6 y 6 jugadores 10-12 en un mapa 22×18; cambiar un factor o `P` cambia el término de la fórmula como indica el cálculo; factores a 0 dejan `T` en `R`; con más salas no-spawn que el total de la fórmula, el total es `R` y hay aviso; BSP sigue con 4. |
 | R-007 | El total se reparte de forma **proporcional al área** de cada sala no-spawn, con **mínimo 1 por sala**. La sala de spawn no recibe enemigos y no hay salas vacías por defecto. El reparto usa el método del mayor resto con desempate determinista. El tile de salida no recibe ninguna ficha. | La suma de presupuestos es `T`; cada sala no-spawn tiene al menos 1; la de spawn tiene 0; las salas grandes reciben al menos tantas fichas como las pequeñas salvo el mínimo; el reparto es estable por semilla; ninguna ficha cae en la salida. |
 | R-008 | Composición del generador denso: **60 % centinelas, 20 % brutos y 20 % cobardes**. Brutos y cobardes se redondean a la unidad y el resto son centinelas; si `T ≥ 4` hay al menos 1 bruto y 1 cobarde. Los cobardes van a las salas más lejanas del spawn, los brutos a las de mayor área y los centinelas rellenan el resto. | Con 10 enemigos: 6 centinelas, 2 brutos y 2 cobardes; con 4: 2/1/1; con 3: 1/1/1; con 2: 2/0/0; con 0: ninguna ficha. Las posiciones y tipos son deterministas. |
 | R-009 | En el generador denso, los enemigos pueden ser **adyacentes en parejas**, pero ninguna **componente conexa de adyacencia de 8 direcciones** puede superar **2** fichas. Se permiten dos enemigos que se toquen, pero no una cadena o piña de 3 o más. No hay dos fichas en el mismo tile y dos parejas distintas no pueden tocarse. BSP conserva sus 4 enemigos en salas distintas. | Un test con una pareja adyacente la acepta; otro con tres en línea o en triángulo la rechaza; dos parejas separadas por Chebyshev 2 se aceptan; no hay dos fichas en el mismo tile. |
@@ -213,7 +213,7 @@ mínimo de una ficha por sala no-spawn se convierte en suelo del total.
 6. **Sala de spawn no-mayor:** el desempate evita la sala mayor solo cuando hay
    empate de protección. Si el playtest pide evitar la mayor incluso con más
    accesos, se cambiará la jerarquía en una versión posterior.
-7. **Ritmo de botín en solitario:** con 1 jugador `T` baja a 4-5 y hay menos
+7. **Ritmo de botín en solitario:** con 1 jugador `T` baja a 4-6 y hay menos
    tiradas de botín de `REQ-034` (25 %). Los cofres de `REQ-020` no cambian; el
    playtest dirá si el ritmo de mejora se resiente y si conviene compensarlo.
 
@@ -241,7 +241,7 @@ mínimo de una ficha por sala no-spawn se convierte en suelo del total.
 | 2026-11-09 | Valores por defecto del generador denso: 6 jugadores, factor por jugador 1,2 y emboscadas al 0,25; `T` resultante 10-12 en 22×18. | human:simon | aceptada |
 | 2026-11-09 | La colocación de enemigos del generador denso se promociona con `growth`; BSP conserva sus 4 fichas y su propia colocación. | human:simon | aceptada |
 | 2026-11-16 | `P` es el tamaño de la party inicial al crear la partida (1-6); el 6 queda como valor de librería y del experimento. | human:simon | aceptada |
-| 2026-11-16 | La fórmula no cambia: con 1 jugador el total queda en 4-5 y con 6 en 10-12 en un mapa 22×18. | human:simon | aceptada |
+| 2026-11-16 | La fórmula no cambia: con 1 jugador el total queda en 4-6 y con 6 en 10-12 en un mapa 22×18. | human:simon | aceptada |
 | 2026-11-16 | `T` tiene suelo en el número de salas no-spawn, `T = max(T, R)`, con aviso: ninguna sala queda vacía. | human:simon | aceptada |
 | 2026-11-16 | Una partida cargada conserva su reparto; no hay escalado por muertes, resurrecciones ni cambios de party. | human:simon | aceptada |
 
