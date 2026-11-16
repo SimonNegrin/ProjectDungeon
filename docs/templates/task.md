@@ -123,10 +123,10 @@ rendimiento”.
 
 # Anexo A: brief del intento
 
-`game-lead` escribe `artifacts/TASK-NNNN/attempt-N/brief.md` **solo en un
-reintento** o cuando la ficha necesita acotar el intento. En el primer intento la
-ficha es el contrato y no hay brief. Si hay brief y falta un campo obligatorio,
-el runner devuelve `blocked`.
+`game-lead` escribe `artifacts/TASK-NNNN/attempt-N/brief.md` **obligatoriamente
+desde el intento 2**; en el intento 1 solo cuando la ficha necesita acotarlo. Sin
+acotar, en el primer intento la ficha es el contrato y no hay brief. Si hay brief y
+falta un campo obligatorio, el runner devuelve `blocked`.
 
 Objetivo 1,5 KB; aviso 2,5 KB; tope duro 4 KB. No se trunca: el desbordamiento
 va a `brief-detalle.md` y se enlaza.
