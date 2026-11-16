@@ -4,11 +4,11 @@ id: REQ-020
 title: Cofres, cadáveres saqueables y transferencia de objetos
 description: "Contenedores con inventario propio, cofres y cadáveres saqueables, y transferencia de objetos entre inventario y contenedor. Borrador: quedan preguntas abiertas."
 status: draft
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
-updated_at: 2026-11-15T18:53:35Z
+updated_at: 2026-11-16T00:12:44Z
 related_tasks: []
 generated: { by: deepseek/v4.1-flash, at: 2026-11-10T20:00:00Z }
 verified:
@@ -39,7 +39,8 @@ para cerrarla.
   alcance ahora». Esta hoja lo trae al alcance cuando se apruebe.
 - [REQ-021](REQ-021-muerte-fantasma-resurreccion.md) define el cadáver de jugador,
   el fantasma y la resurrección. Esta hoja se limita a cofres y cadáveres de
-  enemigos.
+  enemigos. Su R-014 añade que el cadáver de jugador se consume al resucitar: el
+  contenedor persistente de esta hoja **no** se aplica a ese caso.
 - [REQ-034](REQ-034-objetos-saqueables-botin-enemigos.md) v1: su R-001 y R-004
   limitan esta R-002 a cadáveres de enemigo con al menos un objeto saqueable, y
   sus R-005 y R-006 concretan esta R-008: cofre adyacente con 1 acción y cadáver
@@ -185,7 +186,8 @@ como preguntas para la sesión de cierre.
 | 2026-11-10 | Definir después de `REQ-018` y `REQ-019`; aplicar después de `REQ-018` y antes de `REQ-019`. | human:simon | aceptada |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
 | 2026-11-11 | Abrir/registrar un cofre o cadáver cuesta 1 acción y requiere adyacencia; transferir es gratis y se permite «coger todo». | human:simon | aceptada |
-| 2026-11-13 | Varios cadáveres pueden compartir casilla y no bloquean el paso; la interacción elige uno explícitamente. La resurrección apuntará a una **unidad** y se enmienda en `REQ-021` al cerrar esta hoja. | human:simon | aceptada; pendiente de aplicar a REQ-021 |
+| 2026-11-13 | Varios cadáveres pueden compartir casilla y no bloquean el paso; la interacción elige uno explícitamente. La resurrección apuntará a una **unidad** y se enmienda en `REQ-021` al cerrar esta hoja. | human:simon | aceptada; aplicada a REQ-021 el 2026-11-15 |
+| 2026-11-16 | El cadáver de jugador se consume al resucitar (REQ-021 R-014); la persistencia tras vaciarse solo vale para cadáveres de enemigo. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
