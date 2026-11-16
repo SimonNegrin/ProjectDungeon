@@ -13,6 +13,24 @@ function segment(value: string): string {
 }
 
 /**
+ * Specs permitidos por `E2E_ARTIFACTS_SPECS`, o `null` si no hay filtro.
+ *
+ * La lista es de nombres separados por comas; se recortan los espacios y se
+ * ignoran las entradas vacías. Una lista vacía equivale a no tener filtro.
+ */
+function allowedSpecs(): Set<string> | null {
+  const raw = process.env.E2E_ARTIFACTS_SPECS;
+  if (raw === undefined) return null;
+
+  const names = raw
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+
+  return names.length > 0 ? new Set(names) : null;
+}
+
+/**
  * Ruta de una captura, JSON o log de la suite E2E.
  *
  * - Sin `E2E_ARTIFACTS_DIR`, escribe bajo `testInfo.outputPath(...)`
@@ -20,6 +38,10 @@ function segment(value: string): string {
  * - Con `E2E_ARTIFACTS_DIR`, escribe solo bajo esa carpeta, con un
  *   subdirectorio por spec y, en las repeticiones posteriores a la primera,
  *   otro `repeat-<índice>`. Así dos workers nunca comparten PNG/JSON/log.
+ * - Con `E2E_ARTIFACTS_SPECS`, solo los specs de la lista escriben bajo esa
+ *   carpeta; el resto cae en `testInfo.outputPath(...)` y no deja carpetas
+ *   vacías. El nombre comparado es el mismo del subdirectorio
+ *   (`segment(basename(file, '.spec.ts'))`); un nombre desconocido no falla.
  *
  * `testInfo.repeatEachIndex` es la única señal fiable de la pasada real:
  * `testInfo.project.repeatEach` no refleja el flag `--repeat-each` de CLI. La
@@ -27,8 +49,9 @@ function segment(value: string): string {
  * esquema de una corrida única no cambia; las pasadas 1..N-1 van a
  * `<spec>/repeat-1/...`, `<spec>/repeat-2/...`.
  *
- * `E2E_ARTIFACTS_DIR` se lee en cada llamada para que el helper se pueda
- * probar con y sin la variable sin depender del estado del módulo.
+ * `E2E_ARTIFACTS_DIR` y `E2E_ARTIFACTS_SPECS` se leen en cada llamada para que
+ * el helper se pueda probar con y sin las variables sin depender del estado
+ * del módulo.
  *
  * No cambia el nombre del archivo: `screenshots/frame.png` sigue llamándose
  * `frame.png`.
@@ -37,8 +60,11 @@ export function artifactPath(testInfo: TestInfo, ...parts: string[]): string {
   const explicitRoot = process.env.E2E_ARTIFACTS_DIR;
   if (!explicitRoot) return testInfo.outputPath(...parts);
 
-  const base = resolve(process.cwd(), explicitRoot);
   const spec = segment(basename(testInfo.file, '.spec.ts'));
+  const allowed = allowedSpecs();
+  if (allowed !== null && !allowed.has(spec)) return testInfo.outputPath(...parts);
+
+  const base = resolve(process.cwd(), explicitRoot);
   const repeatEachIndex = testInfo.repeatEachIndex;
   return resolve(
     base,
