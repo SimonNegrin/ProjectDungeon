@@ -2,12 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   BESTIARY,
   BspMapGenerator,
+  buildSaveFiles,
   createInitialState,
   createRoomGrid,
   DEFAULT_MAP_SEED,
   floorDistances,
   isFloorTile,
   MAP_WEAPON_SPECS,
+  parseSave,
   reduce,
   roomAt,
   tileIndex,
@@ -298,7 +300,7 @@ describe('createInitialState con growth por defecto', () => {
     if (!map) throw new Error('El estado inicial debe incluir mapa');
 
     const { weapons: _generatedWeapons, ...expectedMap } =
-      new GrowthMapGenerator().generate(PERF_SEED);
+      new GrowthMapGenerator().generate(PERF_SEED, { numPlayers: 1 });
     expect(map).toEqual(expectedMap);
     expect(state.groundItems).toHaveLength(3);
     expect(state.grid).toMatchObject({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
@@ -447,6 +449,36 @@ describe('createInitialState con growth por defecto', () => {
       y: item.y,
     }));
     expect(validateGrowthMap({ ...result.state.map!, weapons }).ok).toBe(true);
+  });
+
+  it('cargar una partida guardada conserva el reparto y no regenera enemigos', () => {
+    const state = createInitialState({ seed: PERF_SEED });
+    const files = buildSaveFiles(state, {
+      gameVersion: '0.1.0',
+      createdAt: '2026-11-16T20:00:00Z',
+    });
+    const parsed = parseSave(files.save);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    const loaded = parsed.value;
+    expect(loaded.map?.seed).toBe(state.map?.seed);
+    expect(loaded.map?.enemies).toEqual(state.map?.enemies);
+    expect(
+      loaded.enemies.map((enemy) => ({
+        id: enemy.id,
+        type: enemy.enemyType,
+        x: enemy.x,
+        y: enemy.y,
+      })),
+    ).toEqual(
+      state.enemies.map((enemy) => ({
+        id: enemy.id,
+        type: enemy.enemyType,
+        x: enemy.x,
+        y: enemy.y,
+      })),
+    );
   });
 });
 

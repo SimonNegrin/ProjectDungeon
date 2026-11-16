@@ -62,7 +62,7 @@ describe('createInitialState por defecto y BSP inyectado', () => {
     if (!map) throw new Error('El estado inicial debe incluir mapa');
 
     const { weapons: _generatedWeapons, ...expectedMap } =
-      new GrowthMapGenerator().generate(DEFAULT_MAP_SEED);
+      new GrowthMapGenerator().generate(DEFAULT_MAP_SEED, { numPlayers: 1 });
     expect(map).toEqual(expectedMap);
     expect(state.groundItems).toHaveLength(3);
     expect(map.seed).toBe(DEFAULT_MAP_SEED);
@@ -153,7 +153,11 @@ describe('createInitialState con un MapGenerator inyectado', () => {
 
     expect(stub.calls).toHaveLength(1);
     expect(stub.calls[0].seed).toBe(1234);
-    expect(stub.calls[0].options).toEqual({ roomTarget: 8, loopRatio: 10 });
+    expect(stub.calls[0].options).toEqual({
+      roomTarget: 8,
+      loopRatio: 10,
+      numPlayers: 1,
+    });
     expect(state.grid.width).toBe(20);
     expect(state.grid.height).toBe(20);
     expect(state.players[0]).toMatchObject({ x: 5, y: 5 });
@@ -163,13 +167,32 @@ describe('createInitialState con un MapGenerator inyectado', () => {
     expect(state.map?.options.loopRatio).toBe(10);
   });
 
+  it('deriva numPlayers de players.length y no del 6 por defecto', () => {
+    const stub = new StubGenerator();
+    createInitialState({
+      generator: stub,
+      seed: 77,
+      players: [
+        { archetypeId: 'warrior', variant: 1, name: '' },
+        { archetypeId: 'mage', variant: 2, name: '' },
+        { archetypeId: 'rogue', variant: 1, name: '' },
+      ],
+    });
+
+    expect(stub.calls[0]?.options?.numPlayers).toBe(3);
+  });
+
   it('mantiene la compatibilidad con createInitialState(generator, options)', () => {
     const stub = new StubGenerator();
     const state = createInitialState(stub, { mapWidth: 40, mapHeight: 40 });
 
     expect(stub.calls).toHaveLength(1);
     expect(stub.calls[0].seed).toBe(DEFAULT_MAP_SEED);
-    expect(stub.calls[0].options).toEqual({ mapWidth: 40, mapHeight: 40 });
+    expect(stub.calls[0].options).toEqual({
+      mapWidth: 40,
+      mapHeight: 40,
+      numPlayers: 1,
+    });
     expect(state.map?.options.mapWidth).toBe(40);
     expect(state.map?.options.mapHeight).toBe(40);
   });

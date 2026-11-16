@@ -125,6 +125,12 @@ export interface MapOptions {
   readonly roomMax?: number;
   readonly loopRatio?: number;
   /**
+   * Tamaño real de la party para los generadores que ajustan densidad
+   * (`REQ-012` T-014). El motor lo deriva de `players.length`; BSP lo ignora y
+   * el 6 solo queda como valor por defecto de librería y `EXP-004`.
+   */
+  readonly numPlayers?: number;
+  /**
    * Objetivo máximo de pasillos anchos: 0 = automático (1 o 2 según semilla),
    * 1 o 2 fuerzan ese objetivo.
    */

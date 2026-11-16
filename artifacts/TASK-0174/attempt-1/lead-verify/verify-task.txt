@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0174
+
+- Fecha: 2026-11-16T20:18:28.167Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0174-motor-densidad-party-real.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 9 marcados |
+| Informe | ok | report_status: success (2680 B) |
+| Alcance declarado | ok | scope: src/, tests/ |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 15 archivos dentro de scope (base main) |
+| verify | ok | pnpm run verify OK |
