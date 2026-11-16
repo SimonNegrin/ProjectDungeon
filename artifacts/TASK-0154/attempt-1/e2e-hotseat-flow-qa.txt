@@ -1,0 +1,12 @@
+$ playwright test hotseat-flow-qa
+
+Running 6 tests using 4 workers
+
+  ✓  2 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:447:1 › TASK-0154: el fantasma respeta su turno, pasa con N y no abre el panel (1.3s)
+  ✓  4 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:300:1 › TASK-0154: seis jugadores mantienen el orden, «Jugador N de 6» y recursos por turno (1.5s)
+  ✓  3 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:185:1 › TASK-0154: dos jugadores con N, relevo por cámara, ronda, recursos y una fase enemiga (1.6s)
+  ✓  1 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:385:1 › TASK-0154: «El master mueve» solo con acciones, HUD de actor/objetivo y «Sin objetivo» (1.8s)
+  ✓  5 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:505:1 › TASK-0154: guardar se desactiva en fase enemiga y la pausa es global (784ms)
+  ✓  6 [chromium] › tests/e2e/hotseat-flow-qa.spec.ts:551:1 › TASK-0154: el resultado ofrece Nueva y Cargar, y cargar devuelve el control al activo (613ms)
+
+  6 passed (3.8s)
