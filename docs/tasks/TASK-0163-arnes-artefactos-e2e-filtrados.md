@@ -4,22 +4,31 @@ id: TASK-0163
 title: "Arnés: artefactos E2E filtrados por spec"
 description: "Permitir que una corrida de la suite con E2E_ARTIFACTS_DIR limite capturas, JSON y logs a los specs de la tarea, sin escribir los del resto."
 status: draft
-task_status: in_progress
+task_status: done
 task_type: test
 requirement: HARNESS
 requirement_ids: []
 depends_on: []
 unlocks: []
 created_at: 2026-11-16T10:40:00Z
-completed_at:
+completed_at: 2026-11-16T13:10:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0163/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T10:40:00Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T13:10:00Z
+    note: >-
+      Intento 1 verificado (código `3deb76c`, evidencia `e831827`). Filtro por
+      spec con `E2E_ARTIFACTS_SPECS`; la suite completa deja solo `inventory/`
+      bajo el directorio de artefactos y el resto en `test-results/`. 14 pruebas
+      del helper, 282 E2E y 1803 tests en `verify`. La documentación se landó en
+      `harness/2agentes` (`ca7fcc9`) por alcance de tipo de tarea. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
