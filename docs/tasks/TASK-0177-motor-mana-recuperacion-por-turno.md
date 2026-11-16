@@ -4,7 +4,7 @@ id: TASK-0177
 title: "Motor: recuperación de maná +4 por turno"
 description: "Cada unidad recupera 4 de maná al inicio de su propio turno, hasta el máximo, en vez de rellenar la reserva completa."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-004, T-005]
