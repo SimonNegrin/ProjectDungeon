@@ -4,7 +4,7 @@ id: TASK-0166
 title: "Bug: la lista de hechizos usa el nivel del jugador activo"
 description: "La disponibilidad de hechizos se calcula con el primer jugador vivo, no con el lanzador activo."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-001, R-007, R-011]
@@ -59,9 +59,10 @@ R-012.
   `available`/`no-mana`/`level` esperados según catálogo y maná. Caso inverso
   con el activo en el primero y caso sin activo.
 - Integración: `pnpm run verify`.
-- E2E: en hotseat, segundo jugador mago, abrir `Q` en su turno y comprobar que
-  sus hechizos aparecen disponibles; repetir en el turno del primero si es no
-  lanzador.
+- E2E / visual: no aplica captura; el cambio es de disponibilidad calculada y la
+  evidencia va en el modelo y el DOM. En hotseat, segundo jugador mago, abrir
+  `Q` en su turno y comprobar que sus hechizos aparecen disponibles; repetir en
+  el turno del primero si es no lanzador.
 - Manual: opcional; la evidencia funcional va en el modelo y el DOM.
 
 # Evidencia esperada
