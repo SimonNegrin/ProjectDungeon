@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0177
+
+- Fecha: 2026-11-16T23:10:29.747Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0177-motor-mana-recuperacion-por-turno.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 5 marcados |
+| Informe | ok | report_status: success (3024 B) |
+| Alcance declarado | ok | sin scope: se usa feature |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 15 archivos dentro de feature (base main) |
+| verify | ok | pnpm run verify OK |

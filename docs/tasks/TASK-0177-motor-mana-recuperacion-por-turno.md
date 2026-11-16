@@ -41,18 +41,18 @@ cambia.
 
 # Criterios de aceptación
 
-- [ ] `MANA_RECOVERY_PER_TURN = 4` se exporta desde `src/game/mana.ts`; la
+- [x] `MANA_RECOVERY_PER_TURN = 4` se exporta desde `src/game/mana.ts`; la
       recuperación es `min(actual + 4, máximo)` y los tests leen la constante, no
       un 4 duplicado.
-- [ ] Al empezar el turno de un jugador y de un enemigo se aplica +4, sin superar
+- [x] Al empezar el turno de un jugador y de un enemigo se aplica +4, sin superar
       el máximo; una unidad que aún no ha actuado conserva su maná; el estado
       inicial sigue con la reserva llena.
-- [ ] Cambiar el nivel de magia recalcula el máximo y recorta el actual; no
+- [x] Cambiar el nivel de magia recalcula el máximo y recorta el actual; no
       regala maná. Hay test de subida y de bajada.
-- [ ] Los tests existentes de maná, turno, hechizos y experimentos se actualizan
+- [x] Los tests existentes de maná, turno, hechizos y experimentos se actualizan
       a la intención nueva sin debilitarse; costes, efectos y resolución de
       hechizos no cambian.
-- [ ] `pnpm run verify` pasa.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 
