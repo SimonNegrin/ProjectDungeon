@@ -47,6 +47,34 @@ function scenario(options: ScenarioOptions = {}): GameState {
   };
 }
 
+/**
+ * Dos jugadores con armas distintas en el hueco de arma y una daga en la
+ * mochila. El segundo es el activo, como en el relevo de hotseat.
+ */
+function twoPlayerScenario(): GameState {
+  const base = createInitialState({
+    seed: SEED,
+    generator: new BspMapGenerator(),
+    players: [
+      { archetypeId: 'warrior', variant: 1, name: 'Ana' },
+      { archetypeId: 'mage', variant: 2, name: 'Bru' },
+    ],
+  });
+  return {
+    ...base,
+    players: base.players.map((player, index) => ({
+      ...player,
+      equipment: equipmentFromLegacy(player.id, {
+        weaponId: index === 0 ? 'sword' : 'axe',
+        armorId: null,
+        shieldId: null,
+      }),
+      inventory: inventoryFromIds(player.id, ['dagger']),
+    })),
+    activePlayerId: base.players[1].id,
+  };
+}
+
 async function screenshot(
   page: Page,
   name: string,
@@ -270,4 +298,37 @@ test('el bloque vacío dice «Vacío» y no inventa sprite, stats ni traits', as
     await screenshot(page, `ficha-hueco-vacio-${suffix}`, testInfo);
     await page.keyboard.press('Escape');
   }
+});
+
+test('el equipado del panel sigue al jugador activo en hotseat', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await openState(page, twoPlayerScenario());
+  await expect(page.getByTestId('hud-player-name')).toHaveText('Bru');
+
+  const cursorBefore = await page.getByTestId('hud-cursor-detail').innerText();
+  await openPanel(page);
+  await selectPanelRow(page, 'backpack:0');
+  await settle(page);
+
+  await expect(page.getByTestId('hud-panel-selected-title')).toHaveText(
+    ITEMS.dagger.name,
+  );
+  await expect(page.getByTestId('hud-panel-equipped-title')).toHaveText(
+    ITEMS.axe.name,
+  );
+  await expect(page.getByTestId('hud-panel-equipped-title')).not.toHaveText(
+    ITEMS.sword.name,
+  );
+  expect(await statTexts(page, 'hud-panel-equipped-stats')).toEqual([
+    '+2 Acierto',
+    '+5 Daño',
+  ]);
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('inventory-panel')).toBeHidden();
+  expect(await page.getByTestId('hud-cursor-detail').innerText()).toBe(
+    cursorBefore,
+  );
 });

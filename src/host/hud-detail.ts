@@ -6,6 +6,7 @@ import {
   type ItemTrait,
 } from '../game/equipment';
 import { hasLineOfSight } from '../game/perception';
+import { activePlayer } from '../game/party';
 import { ROSTER } from '../game/roster';
 import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
@@ -580,18 +581,27 @@ function equippedBlock(
 }
 
 /**
- * Compone la ficha de dos bloques sin comparar ni restar stats. Resuelve la
- * misma unidad que el panel (`players.find(hp > 0) ?? players[0]`).
+ * Misma resolución que el panel: `unitId` explícito o, sin él, el jugador
+ * activo y vivo. Sin activo válido no hay portador y el panel no se abre.
+ */
+function detailUnit(state: GameState, unitId?: string): Unit | undefined {
+  if (unitId !== undefined) {
+    return state.players.find((player) => player.id === unitId);
+  }
+  const active = activePlayer(state);
+  return active !== undefined && active.hp > 0 ? active : undefined;
+}
+
+/**
+ * Compone la ficha de dos bloques sin comparar ni restar stats. Sin `unitId`
+ * resuelve la misma unidad que el panel: el jugador activo y vivo, o ninguna.
  */
 export function buildPanelDetail(
   state: GameState,
   selection: PanelSelection,
   unitId?: string,
 ): PanelDetail {
-  const unit =
-    unitId !== undefined
-      ? state.players.find((player) => player.id === unitId)
-      : (state.players.find((player) => player.hp > 0) ?? state.players[0]);
+  const unit = detailUnit(state, unitId);
   return {
     kind: 'panel',
     blocks: [selectedBlock(selection), equippedBlock(unit, selection)],

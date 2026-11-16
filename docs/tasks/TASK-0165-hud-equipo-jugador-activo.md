@@ -3,23 +3,32 @@ type: Task
 id: TASK-0165
 title: "Bug: la ficha del HUD derecho usa el equipo del jugador activo"
 description: "Con el panel abierto, el bloque «Equipado» del HUD derecho muestra el hueco del primer jugador vivo en vez del jugador activo."
-status: draft
-task_status: ready
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-023
 requirement_ids: [R-009]
 depends_on: []
 unlocks: []
 created_at: 2026-11-16T14:23:01Z
-completed_at:
+completed_at: 2026-11-16T14:41:17Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0165/
 priority: P1
 risk: low
 review_required: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T14:23:01Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T14:41:17Z
+    note: >-
+      Intento 1 verificado (código `9bb71215`, evidencia en el mismo commit). Los
+      seis criterios firmados: el test previo muestra «Espada» del primero en vez
+      de «Hacha» del activo, pasa 28/28 después, y el E2E de dos jugadores
+      confirma el equipo del segundo y que el detalle del cursor no cambia al
+      cerrar. `verify` completo y 284 E2E en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -42,18 +51,18 @@ R-011.
 
 # Criterios de aceptación
 
-- [ ] Test unitario nuevo con dos jugadores, armas distintas y activo en el
+- [x] Test unitario nuevo con dos jugadores, armas distintas y activo en el
       segundo: `buildPanelDetail` sin `unitId` devuelve en «Equipado» el arma del
       segundo; el test falla antes del arreglo.
-- [ ] El `unitId` explícito sigue teniendo prioridad cuando se pasa.
-- [ ] Sin activo, la ficha no cae en el primer jugador; mantiene un resultado
+- [x] El `unitId` explícito sigue teniendo prioridad cuando se pasa.
+- [x] Sin activo, la ficha no cae en el primer jugador; mantiene un resultado
       vacío coherente con el panel, que no se abre en ese caso.
-- [ ] E2E con dos jugadores de armas distintas: abrir el panel en el turno del
+- [x] E2E con dos jugadores de armas distintas: abrir el panel en el turno del
       segundo y comprobar que `hud-panel-equipped` muestra su arma y no la del
       primero.
-- [ ] Al cerrar el panel, el detalle del cursor sigue igual; navegación,
+- [x] Al cerrar el panel, el detalle del cursor sigue igual; navegación,
       selección, geometría y textos del panel no cambian.
-- [ ] Sin cambios en `src/game/**`, reglas, costes ni catálogo; no se debilitan
+- [x] Sin cambios en `src/game/**`, reglas, costes ni catálogo; no se debilitan
       tests existentes. `pnpm run verify` y `pnpm run test:e2e` pasan.
 
 # Plan de test
@@ -61,8 +70,9 @@ R-011.
 - Unitario: dos jugadores con armas distintas; activo en el segundo; bloque
   equipado y desglose esperados. Caso con `unitId` explícito y caso sin activo.
 - Integración: `pnpm run verify`.
-- E2E: extender el flujo de hotseat o la QA de inventario con dos jugadores;
-  comprobar el texto de `hud-panel-equipped` en el turno del segundo.
+- E2E / visual: no aplica captura; el cambio es de contenido, no de aspecto. El
+  spec de la QA derecha abre el panel en el turno del segundo y comprueba el
+  texto de `hud-panel-equipped` y que el detalle del cursor no cambia al cerrar.
 - Manual: opcional; la evidencia funcional va en el DOM y el snapshot.
 
 # Evidencia esperada
