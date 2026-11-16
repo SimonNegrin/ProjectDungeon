@@ -154,7 +154,9 @@ Antes de cambiar de sesión, el estado debe estar en la ficha, el tablero y el l
 
 - estado `in_progress` e informe del intento con `report_status: success`;
 - que todos los criterios de la ficha están marcados `[x]`;
-- que el diff `main...HEAD` cae dentro del alcance del `task_type`;
+- que el diff `main...HEAD` cae dentro del alcance del `task_type`; `--base REF`
+  mueve la base para medir solo la tarea cuando el arnés vive en una rama sin
+  fusionar (piloto de [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md));
 - capturas cuando la tarea es `qa` o visual;
 - `pnpm run verify` completo.
 

@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — verify:task — añade `--base REF` opcional (por defecto `main`) para medir solo el diff de la tarea cuando el arnés vive en `harness/*`; el piloto usa `--base harness/2agentes` — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
+
 * 2026-11-16 — Harness — Piloto — cinco tareas definidas: TASK-0161 motor de traits y TASK-0162 host/UI, con TASK-0154, TASK-0155 y TASK-0159; TASK-0101/TASK-0057 no se repiten y T-011 y REQ-020 quedan fuera — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md#enmienda-del-piloto-2026-11-16)
 
 * 2026-11-16 — Task — TASK-0161 — ready: traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; sin UI y sin fuente jugable hasta REQ-020 — [ficha](tasks/TASK-0161-motor-traits-catalogo-stacking-especiales.md)

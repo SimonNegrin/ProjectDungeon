@@ -94,6 +94,9 @@ Desviaciones respecto al piloto original, aprobadas por el usuario:
   piloto; se creará como tarea `docs` posterior. `REQ-019` no se cierra entera.
 - `REQ-020` sigue en borrador: las cuatro piezas existen en el catálogo y solo
   se inspeccionan con debug, sin botín ni cofres.
+- El piloto corre sobre `harness/2agentes`, que no se fusiona hasta pasar los
+  umbrales. `verify:task --base harness/2agentes` mide solo el diff de la tarea;
+  la base queda escrita en `lead-verify/verify-task.txt`.
 
 # Consecuencias
 

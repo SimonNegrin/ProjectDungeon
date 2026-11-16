@@ -4,14 +4,17 @@ import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { parseConcept, repoRoot } from './lib/docs.mjs';
 
-const USAGE = `Uso: pnpm run verify:task TASK-NNNN [--attempt N] [--no-run]
+const USAGE = `Uso: pnpm run verify:task TASK-NNNN [--attempt N] [--base REF] [--no-run]
 
 Comprueba de forma determinista la evidencia de una tarea:
   - estado in_progress y criterios de aceptación firmados;
   - informe del intento con report_status success;
-  - alcance del diff frente a main;
+  - alcance del diff frente a la base (main por defecto);
   - capturas cuando la tarea es visual o QA;
   - pnpm run verify (salvo --no-run).
+
+--base permite medir solo el diff de la tarea cuando el arnés vive en una rama
+sin fusionar (p. ej. --base harness/2agentes durante el piloto de ADR-031).
 
 Escribe la salida en artifacts/TASK-NNNN/attempt-N/lead-verify/verify-task.txt.
 No decide si un criterio semántico se cumple: exige que alguien lo haya firmado
@@ -22,11 +25,20 @@ const taskId = args.find((arg) => /^TASK-\d{4}$/.test(arg));
 const noRun = args.includes('--no-run');
 const attemptFlag = args.indexOf('--attempt');
 const requestedAttempt = attemptFlag >= 0 ? Number(args[attemptFlag + 1]) : null;
+const baseFlag = args.indexOf('--base');
+const requestedBase = baseFlag >= 0 ? args[baseFlag + 1] : null;
 
 if (!taskId) {
   console.error(USAGE);
   process.exit(2);
 }
+
+if (baseFlag >= 0 && (!requestedBase || requestedBase.startsWith('--'))) {
+  console.error('--base necesita una referencia, por ejemplo --base harness/2agentes');
+  process.exit(2);
+}
+
+const baseRef = requestedBase ?? 'main';
 
 const checks = [];
 function add(name, ok, detail = '') {
@@ -150,9 +162,9 @@ function inScope(file) {
   return allowed.some((entry) => (entry.endsWith('/') ? file.startsWith(entry) : file === entry));
 }
 
-const base = run('git', ['merge-base', 'main', 'HEAD']);
+const base = run('git', ['merge-base', baseRef, 'HEAD']);
 if (base.status !== 0) {
-  add('Alcance', false, `no se pudo calcular merge-base con main: ${base.stderr.trim()}`);
+  add('Alcance', false, `no se pudo calcular merge-base con ${baseRef}: ${base.stderr.trim()}`);
 } else {
   const diff = run('git', ['diff', '--name-only', `${base.stdout.trim()}...HEAD`]);
   const files = diff.stdout.split('\n').map((line) => line.trim()).filter(Boolean);
@@ -161,8 +173,8 @@ if (base.status !== 0) {
     'Alcance',
     diff.status === 0 && outside.length === 0,
     outside.length === 0
-      ? `${files.length} archivos dentro de ${taskType}`
-      : `fuera de alcance: ${outside.join(', ')}`,
+      ? `${files.length} archivos dentro de ${taskType} (base ${baseRef})`
+      : `fuera de alcance: ${outside.join(', ')} (base ${baseRef})`,
   );
 }
 
@@ -200,6 +212,7 @@ const lines = [
   '',
   `- Fecha: ${new Date().toISOString()}`,
   `- Intento: ${attempt ?? '—'}`,
+  `- Base: ${baseRef}`,
   `- Resultado: ${failed.length === 0 ? 'ok' : 'fail'}`,
   '',
   '| Comprobación | Resultado | Detalle |',
