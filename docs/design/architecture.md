@@ -173,7 +173,7 @@ vive en `src/game/` y es determinista:
   un tope de 4 provisional y `REQ-019` puede exponerlo como trait después.
 - `Moverse` sobre un enemigo se resuelve como movimiento (MP) + un ataque (1
   acción); no encadena ataques.
-- El turno no auto-termina: se cierra con `EndTurn`. El HUD, el snapshot y el
+- El turno no auto-termina: se cierra con `N` (`EndTurn`). El HUD, el snapshot y el
   guardado exponen acciones máximas y restantes (`REQ-022`/`REQ-024`).
 - La IA enemiga encadena acciones: en alerta ataca hasta agotar acciones o matar;
   dormido/regresando no ataca; huyendo usa MP y solo ataca si está acorralado.
@@ -181,6 +181,44 @@ vive en `src/game/` y es determinista:
   mide con `REQ-017`.
 
 Ver [ADR-020](../decisions/ADR-020-economia-acciones.md).
+
+# Hotseat
+
+El modo de [REQ-031](../requirements/REQ-031-hotseat-local.md) v2 admite de 1 a 6
+jugadores en el mismo teclado y la misma pantalla. El modelo vive en `src/game/` y
+la presentación en `src/host/` ([ADR-029](../decisions/ADR-029-hotseat-local.md)).
+
+- **Estado**: `GameState.activePlayerId`, `round` y `phase`, con el orden fijo de
+  `state.players`. Todo es serializable y el guardado lo conserva; cargar reanuda
+  en el activo y la ronda guardados.
+- **Cierre de turno**: `EndTurn` (`N`, `src/host/keymap.ts`) valida que la unidad
+  sea la activa, cierra su turno y elige al siguiente vivo o fantasma con índice
+  mayor (`resolveEndTurn` en `src/game/turn.ts`). Los comandos de otra unidad se
+  rechazan. Sin siguiente jugador se entra en la fase enemiga.
+- **Recursos por jugador**: `restorePlayerTurn` restaura MP, acciones, maná y cupo
+  de hechizos solo al activo al empezar su turno; los que no han actuado conservan
+  lo que tuvieran. La fase enemiga restaura a los enemigos con la misma función.
+- **Una fase enemiga por ronda**: los enemigos actúan en orden de índice y el
+  motor publica por enemigo actor, objetivo y espera (`enemyPhase` del
+  `TurnResult`). Los dormidos esperan sin presentación. El motor no decide cámara
+  ni HUD.
+- **Muerte y resurrección**: si el activo muere, su acción se resuelve, el turno
+  se cierra y pasa al siguiente; el wipe termina la partida. El resucitado vuelve
+  a `players` en su índice, así que actúa esa ronda si aún no ha pasado y, si no,
+  en la siguiente, sin estado adicional.
+- **Presentación**: `src/host/camera-pan.ts` hace el paneo de relevo de 300 ms y
+  publica `panning`; el host anuncia «Ronda N» (2 s, no bloqueante) y «El master
+  mueve» (~800 ms, solo si un enemigo actúa), cambia el HUD izquierdo y derecho por
+  fase, muestra «Jugador N de M» con el activo y pinta el resultado con
+  «Nueva partida» y «Cargar partida». El panel de inventario solo se abre en el
+  turno del activo y el fantasma no lo abre.
+- **Controles**: `N` termina el turno y `Esc` abre la pausa global; `E` y `R` no
+  existen. La pausa y el guardado son los de
+  [REQ-024](../requirements/REQ-024-menu-pausa-guardado.md); no hay temporizadores.
+
+Ver [REQ-031](../requirements/REQ-031-hotseat-local.md),
+[ADR-029](../decisions/ADR-029-hotseat-local.md) y
+[ADR-008](../decisions/ADR-008-presentacion-animada.md).
 
 ## Muerte y fantasma
 
