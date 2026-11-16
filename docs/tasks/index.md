@@ -150,7 +150,7 @@ Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0168](TASK-0168-motor-cofres-botin-progresivo.md) | Motor: cofres por sala y botín progresivo determinista | `done` | REQ-020 | TASK-0167 | P1 |
 | [TASK-0169](TASK-0169-motor-apertura-deposito-guardado.md) | Motor: apertura con acción, depósito y persistencia del cofre | `done` | REQ-020 | TASK-0168 | P1 |
 | [TASK-0170](TASK-0170-host-panel-cofre-hud.md) | Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD | `done` | REQ-020 | TASK-0169 | P1 |
-| [TASK-0171](TASK-0171-qa-e2e-playtest-cofres.md) | QA/E2E y playtest de cofres, botín y maza circular | `backlog` | REQ-020 | TASK-0170 | P1 |
+| [TASK-0171](TASK-0171-qa-e2e-playtest-cofres.md) | QA/E2E y playtest de cofres, botín y maza circular | `done` | REQ-020 | TASK-0170 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -184,7 +184,6 @@ Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 # backlog
 
-* [TASK-0171 — QA/E2E y playtest de cofres, botín y maza circular](TASK-0171-qa-e2e-playtest-cofres.md)
 * [TASK-0172 — Docs: cofres en glosario, economía de turno y alcance](TASK-0172-docs-cofres-glosario-alcance.md)
 
 # done
@@ -334,6 +333,7 @@ Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0168 — Motor: cofres por sala y botín progresivo determinista](TASK-0168-motor-cofres-botin-progresivo.md)
 * [TASK-0169 — Motor: apertura con acción, depósito y persistencia del cofre](TASK-0169-motor-apertura-deposito-guardado.md)
 * [TASK-0170 — Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD](TASK-0170-host-panel-cofre-hud.md)
+* [TASK-0171 — QA/E2E y playtest de cofres, botín y maza circular](TASK-0171-qa-e2e-playtest-cofres.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)

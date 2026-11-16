@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0171 — done: E2E del ciclo real de cofres con semilla 295, Cofre/Suelo exclusivos, guardado/carga sin repetir tiradas, curva 1/6 jugadores y QA visual a dos tamaños; banner de feedback corregido sobre el panel; playtest de la maza preparado; 1890 tests, 290 E2E y fusión `04d575f` — [informe](../artifacts/TASK-0171/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0170 — done: apertura con `Espacio`/`Enter`, panel de cofre con columna única, HUD que distingue cerrado y abierto, depósito y coger todo con la navegación existente, feedback con beat y capturas a 1280×720 y 900×700; 1890 tests, 287 E2E y fusión `c743ab1` — [informe](../artifacts/TASK-0170/attempt-1/report.md)
 * 2026-11-16 — Requirement — REQ-017 — matriz con las filas de apertura y transferencia de cofre (300/250 ms), añadidas en el cierre de TASK-0170 — [REQ-017](requirements/REQ-017-feedback-visual-eventos.md#matriz-evento--feedback)
 * 2026-11-16 — Task — TASK-0169 — done: apertura con 1 acción y Chebyshev 1, reapertura gratis, fantasma sin abrir e inspección intacta, depósito atómico solo en cofres, coger todo entero, cofre vacío persistente y round-trip estable; 1878 tests y fusión `3ec4e71` — [informe](../artifacts/TASK-0169/attempt-1/report.md)
