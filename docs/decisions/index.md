@@ -29,3 +29,4 @@
 * [ADR-027: corrección visual v7 de la UI](ADR-027-correccion-visual-v7.md) - Bisel de 2× que crece hacia fuera, listas verticales, panel arriba sin cabeza, siluetas de slots vacíos y cursor de 4× con 150 ms bajo el submenú.
 * [ADR-028: formato de guardado v1](ADR-028-formato-guardado-v1.md) - `.zip` propio con manifiesto y partida, esquema estricto versionado, límites 5/20 MB y 4 entradas, sin presentación y carga sin repetir la tirada de botín.
 * [ADR-030: saqueabilidad y botín de enemigos](ADR-030-saqueabilidad-botin-enemigos.md) - `lootable` por instancia, política `common`/`progression` en datos, tirada 25 %/100 % con RNG derivado, cadáver como `Container` y retirada al vaciarse.
+* [ADR-031: arnés de dos agentes y verificación determinista](ADR-031-arnes-dos-agentes.md) - `game-lead` absorbe producto, tareas y arnés; `task-runner` conserva el contexto limpio; `verify:task` sustituye al verificador y la firma por criterio mantiene el juicio auditable.
