@@ -199,7 +199,11 @@ mover, recoger, soltar, inspeccionar contenedores
 (`InspectContainer`/`ContainerInspected`) y cerrar el turno. Los vivos pagan
 recoger/soltar con 1 MP; el fantasma, con su única acción. La IA, la percepción y
 el ataque filtran por `isAlive`, así que el fantasma no es objetivo ni obstáculo.
-La resurrección y el turno por jugador quedan en TASK-0148/TASK-0146.
+La resurrección (`magic.ts`, TASK-0148) exige lanzador vivo de nivel 4, 8 de
+maná, adyacencia a la casilla del cadáver y ausencia de vivos; consume el
+contenedor `corpseOf` del jugador y devuelve a su equipo y mochila las instancias
+que aún guardaba, sin duplicar lo saqueado. El turno por jugador queda en
+TASK-0146.
 
 ## Botín de enemigos
 
@@ -262,9 +266,12 @@ exactamente en un sitio.
   «coger todo» es atómico y no toca cofres. No hay una segunda ruta de saqueo.
   `Container` es la representación única de cofres y cadáveres; desde TASK-0131
   el cadáver de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
-  todo su equipo y mochila sin tirada y persiste al vaciarse. Desde TASK-0133 el
+  todo su equipo y mochila sin tirada y permanece como objetivo de resurrección;
+  al resucitar se consume y su contenido vuelve al resucitado (REQ-021
+  R-014/T-014). Desde TASK-0133 el
   cadáver de enemigo contiene solo instancias `lootable`, descarta el resto y se
-  elimina al retirar su último objeto; el de jugador no se elimina. La ampliación
+  elimina al retirar su último objeto; el de jugador solo se retira al resucitar
+  (REQ-020 v4 limita la persistencia tras vaciarse a los enemigos). La ampliación
   (`kind`/`corpseOf` opcionales) es aditiva; REQ-020 puede revisar el modelo
   antes de publicar la v1 de guardado. Los cofres jugables llegan con
   [REQ-020](../requirements/REQ-020-cofres-saqueo.md).
