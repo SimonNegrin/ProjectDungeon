@@ -143,7 +143,7 @@ Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0160](TASK-0160-test-exp-004-barrido-por-variante.md) | Test: dividir el barrido de EXP-004 por variante | `done` | REQ-011 | — | P1 |
 | [TASK-0161](TASK-0161-motor-traits-catalogo-stacking-especiales.md) | Motor: catálogo de traits, stacking y especiales | `done` | REQ-019 | — | P1 |
 | [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `done` | REQ-019 | TASK-0161 | P1 |
-| [TASK-0164](TASK-0164-camino-origen-jugador-activo.md) | Bug: el camino del cursor nace del jugador activo | `in_progress` | REQ-004 | — | P1 |
+| [TASK-0164](TASK-0164-camino-origen-jugador-activo.md) | Bug: el camino del cursor nace del jugador activo | `done` | REQ-004 | — | P1 |
 | [TASK-0165](TASK-0165-hud-equipo-jugador-activo.md) | Bug: la ficha del HUD derecho usa el equipo del jugador activo | `ready` | REQ-023 | — | P1 |
 | [TASK-0166](TASK-0166-hechizos-jugador-activo.md) | Bug: la lista de hechizos usa el nivel del jugador activo | `ready` | REQ-025 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
@@ -175,10 +175,6 @@ Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 * [TASK-0165 — Bug: la ficha del HUD derecho usa el equipo del jugador activo](TASK-0165-hud-equipo-jugador-activo.md)
 * [TASK-0166 — Bug: la lista de hechizos usa el nivel del jugador activo](TASK-0166-hechizos-jugador-activo.md)
-
-# in_progress
-
-* [TASK-0164 — Bug: el camino del cursor nace del jugador activo](TASK-0164-camino-origen-jugador-activo.md)
 
 # blocked
 
@@ -325,6 +321,7 @@ Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0161 — Motor: catálogo de traits, stacking y especiales](TASK-0161-motor-traits-catalogo-stacking-especiales.md)
 * [TASK-0162 — Host/UI: traits visibles, desglose y feedback](TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
+* [TASK-0164 — Bug: el camino del cursor nace del jugador activo](TASK-0164-camino-origen-jugador-activo.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
