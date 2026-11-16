@@ -1,0 +1,112 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+ ❯ tests/unit/host/cursor.test.ts (18 tests | 3 failed) 15ms
+   ❯ origen del camino en hotseat (4)
+     × planifica desde el segundo jugador cuando es el activo 8ms
+     × los pasos fuertes usan el MP del activo, no el de otro jugador 1ms
+     × sin activo sigue oculto e inválido aunque haya un jugador vivo 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/host/cursor.test.ts > origen del camino en hotseat > planifica desde el segundo jugador cuando es el activo
+AssertionError: expected { x: 12, y: 10, visible: true, …(7) } to match object { kind: 'floor', …(4) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "cost": 2,
++   "cost": 10,
+    "kind": "floor",
+-   "state": "reachable",
+-   "strongSteps": 2,
+-   "withinMp": true,
++   "state": "too-far",
++   "strongSteps": 6,
++   "withinMp": false,
+  }
+
+ ❯ tests/unit/host/cursor.test.ts:32:20
+     30|     const status = deriveCursorStatus(state, target);
+     31|
+     32|     expect(status).toMatchObject({
+       |                    ^
+     33|       kind: 'floor',
+     34|       state: 'reachable',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/unit/host/cursor.test.ts > origen del camino en hotseat > los pasos fuertes usan el MP del activo, no el de otro jugador
+AssertionError: expected { x: 13, y: 10, visible: true, …(7) } to match object { kind: 'floor', …(4) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "cost": 3,
++   "cost": 11,
+    "kind": "floor",
+    "state": "too-far",
+-   "strongSteps": 1,
++   "strongSteps": 6,
+    "withinMp": false,
+  }
+
+ ❯ tests/unit/host/cursor.test.ts:86:20
+     84|     const status = deriveCursorStatus(state, { x: 13, y: 10 });
+     85|
+     86|     expect(status).toMatchObject({
+       |                    ^
+     87|       kind: 'floor',
+     88|       state: 'too-far',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/unit/host/cursor.test.ts > origen del camino en hotseat > sin activo sigue oculto e inválido aunque haya un jugador vivo
+AssertionError: expected { x: 3, y: 2, visible: true, …(7) } to match object { visible: false, …(6) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "cost": 0,
+-   "kind": "blocked",
+-   "path": [],
+-   "state": "invalid",
+-   "strongSteps": 0,
+-   "visible": false,
+-   "withinMp": false,
++   "cost": 1,
++   "kind": "floor",
++   "path": [
++     {
++       "x": 3,
++       "y": 2,
++     },
++   ],
++   "state": "reachable",
++   "strongSteps": 1,
++   "visible": true,
++   "withinMp": true,
+  }
+
+ ❯ tests/unit/host/cursor.test.ts:109:20
+    107|     const status = deriveCursorStatus(state, { x: 3, y: 2 });
+    108|
+    109|     expect(status).toMatchObject({
+       |                    ^
+    110|       visible: false,
+    111|       kind: 'blocked',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 15 passed (18)
+   Start at  14:25:42
+   Duration  216ms (transform 54%, import 30%, tests 13%, worker 3%)
+

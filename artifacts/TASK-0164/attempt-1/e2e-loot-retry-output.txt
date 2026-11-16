@@ -1,0 +1,9 @@
+$ playwright test loot-qa
+
+Running 3 tests using 3 workers
+
+  ✓  2 [chromium] › tests/e2e/loot-qa.spec.ts:217:1 › TASK-0142: un enemigo real sin saqueables no deja cadáver (1.1s)
+  ✓  1 [chromium] › tests/e2e/loot-qa.spec.ts:459:1 › TASK-0142: guardar y cargar conserva lootable y contenedores sin retirar tirada (1.2s)
+  ✓  3 [chromium] › tests/e2e/loot-qa.spec.ts:262:1 › TASK-0142: muerte real con botín, cadáver oculto en el beat y saqueo sin coste (7.9s)
+
+  3 passed (9.3s)
