@@ -73,6 +73,12 @@ export interface ChestLootOptions {
   readonly traitPieceCount?: number;
   /** Profundidad reservada para el encadenado; hoy 1 y sin efecto. */
   readonly depth?: number;
+  /**
+   * Celdas ocupadas adicionales que ningún cofre puede pisar. Útil cuando el
+   * generador no declara `map.enemies` y el motor coloca fichas por otra vía
+   * (BSP con `placeMapEnemies`).
+   */
+  readonly blockedCells?: readonly Position[];
 }
 
 function key(x: number, y: number): string {
@@ -215,6 +221,9 @@ export function generateChests(
 
   const rng = mulberry32(normalizeSeed(map.seed) ^ CHEST_SALT);
   const blocked = staticBlockedKeys(map);
+  for (const cell of options.blockedCells ?? []) {
+    blocked.add(key(cell.x, cell.y));
+  }
   const rooms = nonSpawnRooms(map);
 
   const placements: Placement[] = [];

@@ -155,10 +155,15 @@ function buildInitialState(
 
   // Cofres por sala con botín orientado al equipo del grupo (REQ-020/ADR-033).
   // Se genera sobre el mapa completo (con armas) para no pisar ninguna celda
-  // ocupada; usa un PRNG propio y no consume el RNG de combate.
+  // ocupada; usa un PRNG propio y no consume el RNG de combate. Cuando el
+  // generador no declara `map.enemies` (BSP), las fichas colocadas por
+  // `placeMapEnemies` se pasan como celdas bloqueadas.
   const chests = generateChests(
     generated,
     players.map((player) => player.equipment),
+    placement
+      ? { blockedCells: placement.map((enemy) => ({ x: enemy.x, y: enemy.y })) }
+      : {},
   );
 
   return {

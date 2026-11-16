@@ -442,6 +442,7 @@ function cloneContainer(container: Container): SnapshotContainer {
     items: container.items.map(cloneInstance),
     ...(container.kind !== undefined ? { kind: container.kind } : {}),
     ...(container.corpseOf !== undefined ? { corpseOf: container.corpseOf } : {}),
+    ...(container.opened !== undefined ? { opened: container.opened } : {}),
   };
 }
 

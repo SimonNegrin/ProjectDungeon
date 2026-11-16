@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  BspMapGenerator,
   CHEST_CAPACITY,
   DEFAULT_CHEST_CHANCE,
+  DEFAULT_MAP_SEED,
   DEFAULT_SECOND_CHEST_CHANCE,
   DEFAULT_TRAIT_PIECE_COUNT,
   ITEMS,
@@ -253,6 +255,24 @@ describe('colocación válida (REQ-020 R-001/T-004)', () => {
         expect(room, `semilla ${seed}`).toBeDefined();
         expect(room?.id, `semilla ${seed}`).not.toBe(map.spawns.roomId);
       }
+    }
+  });
+
+  it('con el generador BSP ningún cofre pisa un enemigo colocado por placeMapEnemies', () => {
+    const state = createInitialState({
+      generator: new BspMapGenerator(),
+      seed: DEFAULT_MAP_SEED,
+    });
+
+    expect(state.map?.enemies).toBeUndefined();
+    expect(state.enemies).toHaveLength(4);
+
+    const chests = state.containers ?? [];
+    expect(chests.length).toBeGreaterThanOrEqual(1);
+
+    const enemyKeys = new Set(state.enemies.map((enemy) => `${enemy.x},${enemy.y}`));
+    for (const chest of chests) {
+      expect(enemyKeys.has(`${chest.x},${chest.y}`), `cofre ${chest.id}`).toBe(false);
     }
   });
 
