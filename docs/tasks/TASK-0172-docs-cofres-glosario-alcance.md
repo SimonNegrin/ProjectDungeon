@@ -3,23 +3,33 @@ type: Task
 id: TASK-0172
 title: "Docs: cofres en glosario, economía de turno y alcance"
 description: "Reflejar los cofres y el botín progresivo en glosario, economía de turno, arquitectura, alcance y la matriz de feedback, sin reescribir requisitos."
-status: draft
-task_status: backlog
+status: stable
+task_status: done
 task_type: docs
 requirement: REQ-020
 requirement_ids: [T-009]
 depends_on: [TASK-0171]
 unlocks: []
 created_at: 2026-11-16T16:20:04Z
-completed_at:
+completed_at: 2026-11-16T19:07:48Z
 assignee: game-lead
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0172/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T16:20:04Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T19:07:48Z
+    note: >-
+      Intento 1 verificado (`a56bf2c9`). Seis criterios firmados: glosario con
+      cofre, capacidad, poder, mejora y botín especial; economía con apertura,
+      transferencia, depósito y 4 huecos; arquitectura con sección de cofres y
+      separación motor/host; matriz de REQ-017 con sus dos filas; alcance sin
+      cofres pendientes y con traits jugables; índice y log coherentes.
+      `docs:check` y `verify` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -38,16 +48,16 @@ mejora.
 
 # Criterios de aceptación
 
-- [ ] El glosario define cofre, capacidad, poder, mejora y botín especial con los
+- [x] El glosario define cofre, capacidad, poder, mejora y botín especial con los
       términos de REQ-020 y ADR-033.
-- [ ] La economía de turno recoge apertura con 1 acción, transferencia y depósito
+- [x] La economía de turno recoge apertura con 1 acción, transferencia y depósito
       gratis, y el límite de las 4 casillas.
-- [ ] La arquitectura describe contenedores, generación determinista y separación
+- [x] La arquitectura describe contenedores, generación determinista y separación
       motor/host para cofres.
-- [ ] La matriz de REQ-017 gana las filas de apertura y transferencia con beat.
-- [ ] `docs/scope.md` deja de listar cofres como fuera de alcance y refleja que las
+- [x] La matriz de REQ-017 gana las filas de apertura y transferencia con beat.
+- [x] `docs/scope.md` deja de listar cofres como fuera de alcance y refleja que las
       piezas de REQ-019 ya tienen fuente jugable.
-- [ ] `docs/requirements/index.md`, `docs/log.md` y el glosario quedan coherentes;
+- [x] `docs/requirements/index.md`, `docs/log.md` y el glosario quedan coherentes;
       `pnpm run docs:check` y `pnpm run verify` pasan.
 
 # Plan de test

@@ -9,10 +9,10 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-11T10:05:00Z }
 # Alcance vigente
 
 El prototipo actual arranca con menú principal, paso 1 de 1-6 jugadores y
-semilla, configuración jugador a jugador y resumen; la partida jugable sigue
-siendo de un jugador hasta el hotseat de la fase 2. El menú principal ofrece
+semilla, configuración jugador a jugador y resumen; la partida jugable admite
+hotseat local de 1 a 6 jugadores. El menú principal ofrece
 «Nueva» y «Cargar», y la pausa, el guardado y la carga de `REQ-024` están
-implementados (QA pendiente en TASK-0144). La
+implementados (QA en TASK-0144). La
 configuración no se guarda entre sesiones: cada entrada parte de cero y genera una
 semilla. El dungeon crawler con teclado mantiene mazmorra generada, turnos,
 combate con equipo, percepción y feedback visual. La base está
@@ -26,15 +26,22 @@ cadáver si al menos uno de sus objetos es saqueable, el cadáver se saquea
 desde el mismo tile sin coste y el guardado conserva la tirada sin repetirla.
 Las llaves y los objetos de progresión quedan reservados a su propia hoja.
 
+Los cofres de `REQ-020` v5 están implementados: 50 % por sala no-spawn y 20 % de
+un segundo con forzado, apertura adyacente con 1 acción y silenciosa, botín
+determinista orientado a mejorar el equipo del grupo, pieza de traits garantizada
+por nivel, 4 huecos con depósito gratis y «coger todo» atómico, columna «Cofre»
+en el panel y HUD por cursor. Las cuatro piezas de `REQ-019` ya tienen fuente
+jugable en el botín de los cofres.
+
 El inventario y el equipo (`REQ-018`), el cadáver y el fantasma (`REQ-021`), el
 HUD lateral (`REQ-022` y `REQ-023`), el botín de enemigos (`REQ-034`) y la
 pausa, el guardado y la carga (`REQ-024`) están implementados; la QA de pausa y
-guardado espera al resultado de partida (TASK-0144, bloqueada por TASK-0153).
+guardado se cerró en TASK-0144.
 
-El trabajo inmediato es cerrar los cofres de `REQ-020`, la resurrección de
-`REQ-021` (TASK-0084 aplazada) y los traits de `REQ-019`; después, el hotseat de
-la fase 2 (`REQ-016` v3 y `REQ-031`). `REQ-030` (alcance visible de hechizos)
-queda en borrador.
+El trabajo inmediato es el playtest del hito de cofres y el ajuste de balance
+aplazado en TASK-0084. El hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`) está
+implementado en TASK-0146 a TASK-0154. `REQ-030` (alcance visible de hechizos)
+queda en borrador. Cofres y traits ya están en el juego.
 
 # Horizonte
 
@@ -62,10 +69,10 @@ requisitos aceptada y, si hay incertidumbre creativa, su experimento.
 | 1.11 | Percepción, alarma y huida enemiga (REQ-009) | Implementada; bestiario 6/4/5, alarma 5, MP 5/4/6, 4 enemigos y huida determinista; TASK-0034 a TASK-0039 cerradas; pendiente playtest |
 | 1.12 | Generador de mazmorra densa, aparición alrededor del acceso y salida de nivel (REQ-011/REQ-012/REQ-013) | Completada; `growth` por defecto, EXP-004 cerrado y TASK-0043 a TASK-0049 cerradas |
 | 1.13 | Feedback visual de eventos y ritmo pausado (REQ-017) | Completada; TASK-0057 a TASK-0061 cerradas |
-| 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección jugable pendiente de REQ-021; TASK-0084 aplazada y soltar/contenedores pendientes de REQ-018/REQ-020 |
+| 1.14 | Economía de acciones, réplica y magia (REQ-025/REQ-026/REQ-027) | Implementada; TASK-0076 a TASK-0083 cerradas. Resurrección implementada en TASK-0148; TASK-0084 aplazada; soltar y contenedores cerrados con REQ-018 y REQ-020 |
 | 1.15 | Tipos de daño, paquetes y resistencias por bandas (REQ-029) | Implementada y verificada; TASK-0085 a TASK-0092 cerradas; ajuste fino aplazado a roster y bestiario completos |
 | 1.16 | Botín de enemigos y cadáver condicionado (REQ-034) | Implementada; `lootable` por instancia, 25 %/100 %, cadáver como contenedor, saqueo en el mismo tile sin coste, retirada al vaciar y guardado sin retirada; TASK-0130 a TASK-0138 y QA TASK-0142. Llaves y progresión reservadas |
-| 2 | Multijugador local hotseat en el mismo teclado | En implementación: menú principal, configuración y resumen de `REQ-016` ya implementados (TASK-0122 a TASK-0127); hotseat jugable pendiente |
+| 2 | Multijugador local hotseat en el mismo teclado | Implementado: menú principal, configuración y resumen de `REQ-016` (TASK-0122 a TASK-0127) y hotseat jugable (TASK-0146 a TASK-0154) |
 | 3 | Servidor Node autoritativo, salas, QR y móviles | Pendiente |
 | 4 | Contenido: armas, enemigos, magia, objetos, arte y audio | Pendiente |
 
@@ -79,31 +86,30 @@ El detalle vive en el [índice de requisitos](requirements/index.md). Resumen:
 - `REQ-001` a `REQ-015` y `REQ-017`: implementadas o `stable`, con playtest
   pendiente en `REQ-009`.
 - Magia y maná: `REQ-025` implementada en TASK-0081 a TASK-0083; la resurrección
-  jugable sigue pendiente de `REQ-021`.
+  está implementada en TASK-0148.
 - Economía de acciones: `REQ-026` implementada en TASK-0076 a TASK-0078. Soltar
-  objetos (R-010) está implementado; de los contenedores (R-011) quedan los
-  cofres pendientes de `REQ-020` y el rebalanceo de TASK-0084, aplazado.
+  objetos (R-010) y los contenedores (R-011) están implementados, incluidos los
+  cofres de `REQ-020`; el rebalanceo de TASK-0084 sigue aplazado.
 - Réplica cuerpo a cuerpo: `REQ-027` implementada en TASK-0079 y TASK-0080.
 - Tipos de daño: `REQ-029` implementada y verificada en TASK-0085 a TASK-0092;
   perfiles y armas v1 son estimados y el ajuste fino se aplaza a roster y
   bestiario completos.
 - Botín de enemigos: `REQ-034` está implementada en TASK-0130 a TASK-0138 y
   verificada en TASK-0142; el cadáver de enemigo solo existe con botín y el
-  saqueo no gasta acción ni MP. `REQ-020` sigue en borrador para los cofres.
+  saqueo no gasta acción ni MP.
 - `REQ-018` (inventario y equipo) está `stable` v8 e implementada en TASK-0093 a
-  TASK-0098; `REQ-019` (traits) sigue `stable` y sin tareas, y `REQ-020` (cofres
-  y cadáveres) sigue en borrador para los cofres.
+  TASK-0098; `REQ-019` (traits) está `stable` v3 e implementada en TASK-0161 y
+  TASK-0162, con fuente jugable en los cofres de `REQ-020`; `REQ-020` está
+  `stable` v5 e implementada en TASK-0167 a TASK-0171.
 - Hotseat: `REQ-031` (modo local), `REQ-016` v3 (menú principal, configuración y
   semilla) y `REQ-024` v3 (pausa, guardado y carga) están `stable`. El arranque de
-  `REQ-016` está implementado (TASK-0122 a TASK-0127): menú principal, paso 1 con
-  1-6 jugadores y semilla, configuración, resumen y variante de sprite; el hotseat
-  jugable sigue pendiente. Es el último paso del orden actual, tras inventario,
-  saqueo, muerte y HUD.
+  `REQ-016` está implementado (TASK-0122 a TASK-0127) y el hotseat jugable en
+  TASK-0146 a TASK-0154.
 - `REQ-022` (HUD izquierdo) y `REQ-023` (detalle del cursor) están `stable` v4 e
   implementadas; `REQ-030` (alcance visible de hechizos) sigue en borrador.
 - Muerte, fantasma y resurrección: `REQ-021` está `stable`; el cadáver, el
-  fantasma y la muerte están implementados (TASK-0131 a TASK-0133) y la
-  resurrección jugable sigue pendiente (TASK-0084 aplazada).
+  fantasma, la muerte y la resurrección están implementados (TASK-0131 a
+  TASK-0133 y TASK-0148).
 
 # Primer hito jugable
 
@@ -210,9 +216,10 @@ Los valores concretos de la economía de turno son provisionales y viven en
   categorías de hechizo, no niveles. Cualquier lanzador con nivel suficiente usa
   cualquier hechizo.
 - Las acciones por turno son el noveno atributo inherente: 2 por defecto, el
-  Pícaro 3, enemigos 2/1/2 y objetos con tope de 4 provisional. Atacar,
-  interactuar y lanzar hechizos consumen una; moverse, recoger/soltar y esperar
-  no. Abrir contenedores cuesta una acción y transferir es gratis.
+  Pícaro 3, enemigos 2/1/2 y objetos con tope de 4 provisional. Atacar, abrir un
+  cofre, interactuar y lanzar hechizos consumen una; moverse, recoger/soltar y
+  esperar no. Abrir un cofre cuesta una acción y exige adyacencia; transferir y
+  depositar son gratis, y el cofre tiene 4 huecos fijos.
 - Fallar un ataque cuerpo a cuerpo permite al defensor **replicar** de inmediato,
   gratis, con tirada normal y sin cadena. Un impacto no genera réplica; exige
   arma equipada y el dormido no es atacable en melé.
@@ -227,34 +234,32 @@ Los valores concretos de la economía de turno son provisionales y viven en
   actual.
 - La persistencia es local por archivo, sin cuentas ni servidor; no implica
   progresión entre runs.
-- El orden de implementación es inventario y equipo → cofres y saqueo → traits →
-  muerte y resurrección → HUD lateral → guardado → hotseat. El hotseat no se
-  empieza hasta que existan el panel, el saqueo y el fantasma que sus reglas
-  dan por hechos.
+- El orden de implementación se ha cumplido: inventario y equipo → cofres y
+  saqueo → traits → muerte y resurrección → HUD lateral → guardado → hotseat.
+  El siguiente bloque es contenido y ajuste fino.
 
 # Fuera de alcance ahora
 
 - Servidor, WebSocket, QR y salas (fase 3).
 - Cuentas, base de datos y matchmaking. El guardado local de partida lo define
   `REQ-024`; la progresión entre runs sigue abierta.
-- Hotseat jugable: el arranque de `REQ-016` v3 ya permite configurar 1-6
-  jugadores, pero los turnos, el relevo y la cámara de `REQ-031` siguen
-  pendientes; sin reinicio rápido, el resultado ofrece «Nueva partida» y «Cargar
-  partida».
+- Reinicio rápido: no existe. El resultado ofrece «Nueva partida» y «Cargar
+  partida»; el hotseat ya es jugable (TASK-0146 a TASK-0154).
 - Persistencia de la configuración de partida entre sesiones: cada entrada al paso
   1 parte de cero; el guardado de una partida iniciada se define en `REQ-024`.
 - Arte y audio finales; iluminación dinámica y filtros CRT/VHS sin aprobar.
 - Habilidades avanzadas, proyectiles físicos, teletransporte, efectos de estado y
-  muros mágicos: horizonte. La magia básica y la curación están implementadas en
-  `REQ-025`; la resurrección jugable depende de `REQ-021`.
+  muros mágicos: horizonte. La magia básica, la curación y la resurrección están
+  implementadas en `REQ-025` y `REQ-021`.
 - Puntos de habilidad y progresión: horizonte sin hoja aprobada. Las acciones por
   personaje están implementadas en `REQ-026`.
 - Rebalanceo de combate por acciones, magia y réplica: TASK-0084 queda aplazada;
   el ajuste fino espera a roster y bestiario completos, según `REQ-029`.
-- Puertas con llave y cofres: definidos, no implementados; `REQ-020` sigue en
-  borrador.
-- Inventario y equipo: `REQ-018` está en implementación con TASK-0093 a
-  TASK-0098; los traits (`REQ-019`) siguen sin implementar.
+- Puertas con llave y cofres cerrados: definidos, no implementados. Los cofres
+  abiertos de `REQ-020` sí están en el juego.
+- Inventario y equipo: `REQ-018` está implementado en TASK-0093 a TASK-0098; los
+  traits (`REQ-019`) están implementados y sus cuatro piezas tienen fuente
+  jugable en los cofres de `REQ-020`.
 - Ajuste fino de tipos y perfiles con roster y bestiario completos: `REQ-029`
   deja valores estimados para probar; el mecanismo iterable de fortalezas y
   debilidades se diseñará cuando ambos estén cerrados.
@@ -263,7 +268,6 @@ Los valores concretos de la economía de turno son provisionales y viven en
 - Llaves, puertas cerradas, cofres cerrados y objetos de progresión: solo se
   reserva la regla de que los objetos necesarios para avanzar son siempre
   saqueables; su catálogo, su contenido y su hoja quedan fuera de este corte.
-  Los cofres jugables siguen pendientes de `REQ-020`.
 
 # Restricciones
 

@@ -49,21 +49,28 @@ playtests.
 - Cada unidad tiene **2 acciones por turno** por defecto; el Pícaro empieza con
   **3** y los enemigos tienen 2/1/2 (Centinela/Bruto/Cobarde). Los objetos pueden
   sumar +1 hasta un **tope de 4**, provisional.
-- Atacar, abrir o registrar un cofre e interactuar con puertas y lanzar hechizos
-  consumen **1 acción**; atacar se puede repetir. Saquear un cadáver desde su
-  mismo tile, moverse, recoger o soltar del suelo, equipar o desequipar, esperar
-  y terminar el turno **no** consumen acción.
-- Recoger o soltar del suelo, y equipar o desequipar, cuestan **1 MP**. Abrir o
-  registrar un cofre cuesta **1 acción** y requiere adyacencia; un cadáver se
-  registra en su mismo tile **sin coste**. Transferir es gratis, también «coger
-  todo» de un cadáver; equipar desde un contenedor cuesta igualmente 1 MP.
+- Atacar, abrir un cofre e interactuar con puertas y lanzar hechizos consumen
+  **1 acción**; atacar se puede repetir. Saquear un cadáver desde su mismo tile,
+  moverse, recoger o soltar del suelo, equipar o desequipar, esperar y terminar
+  el turno **no** consumen acción.
+- Recoger o soltar del suelo, y equipar o desequipar, cuestan **1 MP**. Abrir un
+  cofre cuesta **1 acción** y requiere adyacencia Chebyshev 1; reabrirlo es gratis.
+  Un cadáver se saquea en su mismo tile **sin coste**. Transferir es gratis,
+  también «coger todo» de un cadáver o de un cofre abierto; depositar en un cofre
+  abierto es gratis y atómico. Equipar desde un contenedor cuesta igualmente 1 MP.
+- El cofre tiene **4 huecos fijos**. El depósito solo se acepta en cofres abiertos
+  y adyacentes; un cadáver no admite depósitos. Si el contenido no cabe entero en
+  la mochila, «coger todo» se rechaza sin mover nada.
 - El **fantasma** es la excepción de REQ-021: tiene **una acción por ronda**, se
   mueve con su MP intrínseco sin bonus de equipo y solo puede mover un objeto
-  por acción (recoger/soltar o saquear un cadáver cuesta 1 acción y 0 MP) e
-  inspeccionar contenedores sin abrirlos ni revelar trampa. No ataca, no equipa,
-  no usa objetos y no abre cofres; no es objetivo ni obstáculo para la IA.
+  por acción (recoger/soltar, saquear un cadáver o transferir con un cofre
+  abierto cuesta 1 acción y 0 MP) e inspeccionar contenedores sin abrirlos ni
+  revelar trampa. No ataca, no equipa, no usa objetos y no abre cofres; no es
+  objetivo ni obstáculo para la IA.
 - Equipo, mochila y objetos del suelo se gestionan en un único panel modal abierto
-  con `I`; ver [REQ-018](../requirements/REQ-018-inventario-equipo.md).
+  con `I`; abrir un cofre abre el mismo panel con la columna derecha en «Cofre».
+  Ver [REQ-018](../requirements/REQ-018-inventario-equipo.md) y
+  [REQ-020](../requirements/REQ-020-cofres-saqueo.md).
 - `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por
   pulsación**; no encadena todos los ataques.
 - El turno **no termina solo** al gastar las acciones: se cierra con `N`. El HUD

@@ -167,8 +167,9 @@ vive en `src/game/` y es determinista:
   junto a MP y maná. La IA y el jugador usan el mismo contador.
 - Cada comando declara cuántas acciones consume (0 o 1): atacar, interactuar y
   lanzar hechizos cuestan 1; moverse, recoger/soltar del suelo, esperar y cerrar
-  el turno cuestan 0. Recoger/soltar cuesta 1 MP; abrir un contenedor cuesta 1
-  acción y transferir es gratis.
+  el turno cuestan 0. Recoger/soltar cuesta 1 MP; abrir un cofre cuesta 1 acción
+  (reabrirlo es gratis) y transferir o depositar es gratis. El cofre tiene 4
+  huecos fijos.
 - El `+1` de los objetos vive en `actionsBonus` del equipo; los bonus acumulan con
   un tope de 4 provisional y `REQ-019` puede exponerlo como trait después.
 - `Moverse` sobre un enemigo se resuelve como movimiento (MP) + un ataque (1
@@ -260,6 +261,40 @@ el cadáver de enemigo vacío. El guardado conserva `lootable` y contenedores si
 repetir la tirada; el snapshot expone `lootPolicy` y el resultado. Ver
 [ADR-030](../decisions/ADR-030-saqueabilidad-botin-enemigos.md).
 
+## Cofres
+
+La generación y el contenido de [REQ-020](../requirements/REQ-020-cofres-saqueo.md)
+viven en `src/game/chests.ts` y se ejecutan en `createInitialState`:
+
+- `generateChests` es pura y determinista. Deriva un `mulberry32` propio de la
+  semilla del mapa con una sal distinta de la del combate, las armas y los
+  enemigos, así que no lee ni avanza `state.rng`. Recibe el grupo para orientar el
+  botín, la profundidad (hoy 1, sin efecto) y opciones de tirada.
+- Cada sala no-spawn tira 50 % de cofre y, si acierta, 20 % de un segundo. Si el
+  nivel no genera ninguno, se fuerza uno. La colocación exige suelo libre y
+  bloquea spawn, entrada, salida, puertas, enemigos, armas y otros cofres; el
+  generador BSP pasa sus fichas de `placeMapEnemies` como celdas bloqueadas.
+- El contenido son dos objetos por cofre. `bestPowerBySlot` toma el mejor
+  `powerScore` equipado por el grupo en cada hueco y `selectUpgrade` elige la
+  mejora de menor margen; sin mejora, el primer objeto cae a relleno común. La
+  pieza de traits garantizada por nivel va fuera de la curva en el segundo hueco
+  de uno de los cofres. `powerScore` vive en `equipment.ts` y suma acierto, daño,
+  absorción, evasión y el poder declarado de los traits.
+- El cofre es un `Container` `kind: 'chest'` con capacidad 4, `opened` y dos
+  instancias. `openContainer` exige adyacencia Chebyshev 1, gasta 1 acción y
+  rechaza al fantasma; reabrirlo es gratis. `takeContainerItem`,
+  `takeAllContainerItems` y `depositItem` son atómicos y no gastan acción ni MP
+  al vivo. Un cofre vacío no se retira.
+- El snapshot del host expone posición, capacidad, `opened` y contenido. El panel
+  usa la columna derecha como fuente exclusiva: «Suelo» con `I` o «Cofre» tras
+  abrirlo; el HUD derecho no revela contenido de un cofre cerrado. El render dibuja
+  un marcador provisional de cofre, no arte definitivo.
+- El guardado v1 conserva cofres, estado y contenido sin repetir tiradas. La
+  presentación añade cues de apertura (300 ms) y transferencia (250 ms) sobre la
+  matriz de [REQ-017](../requirements/REQ-017-feedback-visual-eventos.md#matriz-evento--feedback).
+- El host no decide reglas de cofres: solo interpreta comandos y lee el snapshot.
+  Ver [ADR-033](../decisions/ADR-033-cofres-poder-botin-progresivo.md).
+
 ## Réplica
 
 La réplica de [REQ-027](../requirements/REQ-027-replica-combate-cuerpo-a-cuerpo.md)
@@ -299,9 +334,11 @@ exactamente en un sitio.
   paralelas. `pickUpItem`, `equipItem`, `unequipItem` y `dropItem` son puros y
   atómicos: validan antes de mover, cuestan 1 MP y no gastan acción.
   `takeContainerItem` y `takeAllContainerItems` reutilizan la misma localización
-  y la misma retirada de contenedor: solo aceptan `kind: 'corpse'`, exigen el
-  mismo tile, no cobran al vivo y el fantasma paga una acción por objeto;
-  «coger todo» es atómico y no toca cofres. No hay una segunda ruta de saqueo.
+  y aceptan cadáveres y cofres: un cadáver exige el mismo tile; un cofre, estar
+  abierto y adyacente. No cobran al vivo y el fantasma paga una acción por
+  objeto; «coger todo» es atómico. `depositItem` solo acepta cofres abiertos y
+  adyacentes, valida capacidad y mueve en una sola operación. No hay una segunda
+  ruta de saqueo.
   `Container` es la representación única de cofres y cadáveres; desde TASK-0131
   el cadáver de jugador lo crea `death.ts` con `kind: 'corpse'` y `corpseOf`, transfiere
   todo su equipo y mochila sin tirada y permanece como objetivo de resurrección;
@@ -309,10 +346,10 @@ exactamente en un sitio.
   R-014/T-014). Desde TASK-0133 el
   cadáver de enemigo contiene solo instancias `lootable`, descarta el resto y se
   elimina al retirar su último objeto; el de jugador solo se retira al resucitar
-  (REQ-020 v4 limita la persistencia tras vaciarse a los enemigos). La ampliación
-  (`kind`/`corpseOf` opcionales) es aditiva; REQ-020 puede revisar el modelo
-  antes de publicar la v1 de guardado. Los cofres jugables llegan con
-  [REQ-020](../requirements/REQ-020-cofres-saqueo.md).
+  (REQ-020 v4 limita la persistencia tras vaciarse a los enemigos). Los cofres
+  añaden `kind: 'chest'`, capacidad 4 y `opened`; se generan al crear la partida
+  ([REQ-020](../requirements/REQ-020-cofres-saqueo.md), TASK-0168) y un cofre
+  abierto y vacío permanece como mueble.
 - **Punto único de stats efectivos**: `src/game/stats.ts` agrega atributos
   inherentes, modificadores del equipo y traits con `aggregateEffectiveStats` y
   `effectiveStats`. Combate, hechizos, IA y HUD leen ese perfil; el host no suma
@@ -322,28 +359,31 @@ exactamente en un sitio.
   DOM; `src/host/inventory-panel-view.ts` es la vista DOM del modal, con filas
   estables, foco visible y `Escape`/`I` gestionados por el host. El host solo
   despacha el comando confirmado: costes y rechazos vienen del motor.
-- **Panel de tres columnas**: el modelo expone `equipment`, `backpack`, `ground`
-  y `corpses`, y la vista pinta tres columnas tituladas Equipo, Bolsa y Suelo,
-  con marco outset y slots cuadrados inset de un único tamaño. Equipo conserva
-  la figura humana de ocho huecos (`inventory-figure`), Bolsa es una rejilla 2×4
-  con contador, y Suelo pone los cadáveres-contenedor del tile en rejilla al
-  inicio (solo si existen) y debajo los objetos en dos columnas. Los cadáveres
-  se leen de `state.containers` (`kind: 'corpse'`), no de unidades muertas; la
-  tarjeta muestra nombre, sprite y «sin coste», y sus objetos son filas
-  navegables en `inventory-corpse-items`, con scroll dentro de la columna
-  derecha. Sin cabecera ni ayuda, solo un título accesible y «Cerrar». La columna
-  derecha tiene scroll propio; a 1280×720 el panel completo con mochila llena y
-  cuatro objetos no hace scroll. `src/host/inventory-navigation.ts` resuelve la
-  navegación por proximidad (`findNeighbor`, `nearestTo` y `cycleZone`).
+- **Panel de tres columnas**: el modelo expone `equipment`, `backpack`, `ground`,
+  `corpses`, `chest` y `rightTitle`, y la vista pinta tres columnas tituladas
+  Equipo, Bolsa y Suelo/Cofre, con marco outset y slots cuadrados inset de un
+  único tamaño. Equipo conserva la figura humana de ocho huecos
+  (`inventory-figure`), Bolsa es una rejilla 2×4 con contador, y la columna
+  derecha es una sola fuente: «Suelo» pone los cadáveres-contenedor del tile en
+  rejilla al inicio (solo si existen) y debajo los objetos en dos columnas;
+  «Cofre» muestra solo el contenido del cofre abierto, con su capacidad y el
+  depósito disponible. Los cadáveres se leen de `state.containers`
+  (`kind: 'corpse'`), no de unidades muertas; la tarjeta muestra nombre, sprite y
+  «sin coste», y sus objetos son filas navegables en `inventory-corpse-items`,
+  con scroll dentro de la columna derecha. Sin cabecera ni ayuda, solo un título
+  accesible y «Cerrar». La columna derecha tiene scroll propio; a 1280×720 el
+  panel completo con mochila llena y cuatro objetos no hace scroll.
+  `src/host/inventory-navigation.ts` resuelve la navegación por proximidad
+  (`findNeighbor`, `nearestTo` y `cycleZone`).
 - **Ficha y submenú**: con el panel abierto, `src/host/hud-detail.ts` compone
   `buildPanelDetail` en dos bloques independientes —el objeto seleccionado y el
   equipado en ese hueco, con sprite, stats verticales y traits solo si existen,
   o «Vacío»—, sin descripciones ni delta numérico. `buildPanelMenu` publica las
   opciones del submenú (`PanelMenuOption`) por contexto, con el coste anunciado
-  por acción: «sin coste» para coger o «coger todo» de un cadáver, «1 MP» para
-  equipar y el coste histórico de las operaciones de inventario; la opción queda
-  deshabilitada con su motivo si falta el recurso y no se ofrece «recoger» con la
-  mochila llena. `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este
+  por acción: «sin coste» para coger, «coger todo» o depositar en un cofre,
+  «1 MP» para equipar y el coste histórico de las operaciones de inventario; la
+  opción queda deshabilitada con su motivo si falta el recurso y no se ofrece
+  «recoger» con la mochila llena. `Enter` abre el submenú, `Escape` lo cierra sin ejecutar y este
   es el único camino de acción. El panel solo se abre para el jugador activo vivo
   y es público para la mesa.
 
@@ -489,8 +529,9 @@ objetos y contadores— y `manifiesto.json` con `format_version: 1`,
 arquetipo de cada jugador, turno, ronda y fase. La lectura es estricta: claves
 desconocidas, tipos erróneos, números no finitos, referencias rotas y versiones
 desconocidas rechazan el archivo entero antes de tocar el estado; no se usa
-`eval`. La v1 se fija con el `Container` actual (`kind`/`corpseOf` opcionales) y
-sube de versión si REQ-020 cambia el modelo antes de publicar.
+`eval`. La v1 se fija con el `Container` actual (`kind`/`corpseOf`/`opened`
+opcionales) y conserva cofres, estado de apertura y contenido sin repetir
+tiradas.
 
 `src/host/save-zip.ts` empaqueta y lee un ZIP clásico propio con
 `CompressionStream`/`DecompressionStream`: escribe `deflate` y acepta `store` y
@@ -506,8 +547,10 @@ Al cargar, `src/host/load-game.ts` —el único cargador de menú principal y
 pausa— valida el `.json` o el `.zip` con el mismo esquema, cruza el manifiesto
 con la semilla, el turno, la ronda, la fase y la party del estado, y solo
 entonces reemplaza la sesión. La carga continúa la secuencia del RNG y conserva
-`lootable` y los contenedores sin repetir la tirada de botín
-([REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)); la
+`lootable`, los contenedores y el estado `opened` de los cofres sin repetir la
+tirada de botín
+([REQ-020](../requirements/REQ-020-cofres-saqueo.md),
+[REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)); la
 presentación se reconstruye en el estado final.
 
 # Suelo y decoración
@@ -626,10 +669,12 @@ Pixelify Sans local y tokens `--ui-*`.
   columnas, los títulos ni los slots ya colocados; los cambios ocurren dentro de
   su zona. A 1280×720 el panel no hace scroll global; a 900×700 solo se desplaza
   la columna derecha (cadáveres y suelo) y los slots mantienen el mismo lado en
-  las tres columnas. La medición de CLS de TASK-0108 y TASK-0109 no registra
-  desplazamientos prohibidos. Los contenedores y el inventario de cadáver llegan
-  con [REQ-020](../requirements/REQ-020-cofres-saqueo.md) y
-  [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
+  las tres columnas. La medición de CLS de TASK-0108, TASK-0109 y TASK-0171 no
+  registra desplazamientos prohibidos; el contenido del cofre y el cambio
+  Cofre/Suelo tampoco mueven el marco. Los contenedores de cofre y cadáver están
+  integrados en el panel
+  ([REQ-020](../requirements/REQ-020-cofres-saqueo.md),
+  [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md)).
 
 # Render del host
 

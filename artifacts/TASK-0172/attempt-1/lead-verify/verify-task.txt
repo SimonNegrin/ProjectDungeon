@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0172
+
+- Fecha: 2026-11-16T19:07:48.330Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0172-docs-cofres-glosario-alcance.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 6 marcados |
+| Informe | ok | report_status: success (2738 B) |
+| Alcance declarado | ok | sin scope: se usa docs |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 10 archivos dentro de docs (base main) |
+| verify | ok | pnpm run verify OK |
