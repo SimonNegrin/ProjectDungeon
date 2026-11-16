@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0174 — done: `P` derivado de la party en `createInitialState` (el host no fija `numPlayers`), suelo `max(fórmula, salas no-spawn)` con aviso y snapshot `enemyBudget`; BSP intacto, 1901 tests y una aserción E2E adaptada de 11 a 4-6; fusión `6eb28c1a` — [informe](../artifacts/TASK-0174/attempt-1/report.md)
 * 2026-11-16 — Planning — TASK-0174 a TASK-0176 — densidad por party real: motor y suelo en `ready`; experimento y QA en `backlog` con dependencia de TASK-0174 — [TASK-0174](tasks/TASK-0174-motor-densidad-party-real.md)
 * 2026-11-16 — Harness — game-lead — concisión en la conversación (bloques breves, sin abrumar) y referencias siempre etiquetadas con su tema, nunca un identificador desnudo; solo sección `Comunicación`, permisos y gates intactos — [game-lead](../.opencode/agents/game-lead.md)
 * 2026-11-16 — Requirement — REQ-012 — corrección factual de la v5: con `N` de 85-162 el término de superficie llega a 4, así que 1 jugador da 4-6 enemigos, no 4-5; fórmula y decisiones sin cambios — [REQ-012](requirements/REQ-012-spawn-sala-protegida.md)

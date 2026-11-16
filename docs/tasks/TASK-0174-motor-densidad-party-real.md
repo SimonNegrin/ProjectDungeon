@@ -4,7 +4,7 @@ id: TASK-0174
 title: "Motor: densidad por party real y suelo por salas"
 description: "El mapa de una partida nueva usa el tamaño real de la party como P y nunca deja una sala no-spawn vacía, con aviso cuando el suelo eleva el total."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 scope: [src/, tests/]
 requirement: REQ-012
@@ -12,15 +12,24 @@ requirement_ids: [R-006, T-006, T-014, T-015]
 depends_on: []
 unlocks: [TASK-0175, TASK-0176]
 created_at: 2026-11-16T20:07:05Z
-completed_at:
+completed_at: 2026-11-16T20:18:46Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0174/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T20:07:05Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T20:18:46Z
+    note: >-
+      Intento 1 verificado: `P` derivado de la party en `createInitialState`,
+      suelo `max(fórmula, R)` antes de repartir, aviso con fórmula/R/aplicado y
+      snapshot con `enemyBudget`; BSP intacto. 9 criterios firmados,
+      `verify:task` y `verify` en verde. Se adaptó una aserción E2E de 11 a 4-6
+      como consecuencia de la v5. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
