@@ -10,6 +10,7 @@ import {
   openState,
   settle,
   snapshot,
+  WIN_GAME_SEED,
 } from './support';
 
 /**
@@ -21,8 +22,6 @@ import {
 
 const SEED = 4242;
 const LOAD_SEED = 271828182;
-/** Semilla del flujo normal: el Guerrero gana la mazmorra con comandos reales. */
-const PLAY_SEED = 79;
 
 test.use({ viewport: { width: 1280, height: 720 } });
 
@@ -147,7 +146,7 @@ test('Nueva partida abre el paso 1 en flujo normal sin reiniciar', async ({ page
   await page.goto('/');
   await page.getByTestId('start-new').click();
   await page.getByTestId('step1-players').selectOption('1');
-  await page.getByTestId('step1-seed').fill(String(PLAY_SEED));
+  await page.getByTestId('step1-seed').fill(String(WIN_GAME_SEED));
   await page.getByTestId('step1-continue').click();
   await expect(page.getByTestId('player-screen')).toBeVisible();
   await page.getByTestId('player-next').click();
@@ -158,7 +157,7 @@ test('Nueva partida abre el paso 1 en flujo normal sin reiniciar', async ({ page
   await defeatAllEnemies(page);
   await expect(page.getByTestId('result-screen')).toBeVisible();
   await expect(page.getByTestId('result-title')).toHaveText('Victoria');
-  await expect(page.getByTestId('result-seed')).toHaveText(`Semilla ${PLAY_SEED}`);
+  await expect(page.getByTestId('result-seed')).toHaveText(`Semilla ${WIN_GAME_SEED}`);
   await screenshot(page, testInfo, 'victoria-flujo-normal');
 
   await page.getByTestId('result-new').click();

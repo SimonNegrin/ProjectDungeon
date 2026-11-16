@@ -754,7 +754,7 @@ test('TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1280, height: 720 });
 
-  // Victoria por flujo normal: semilla 79 documentada y comandos reales.
+  // Victoria por flujo normal: semilla compartida documentada y comandos reales.
   const victory = await winGame(page);
   expect(victory.status).toBe('victory');
   expect(victory.rng.seed).toBe(WIN_GAME_SEED);

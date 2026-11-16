@@ -1298,8 +1298,16 @@ export async function defeatAllEnemies(
   return { snapshot: await snapshot(page), events: result.events };
 }
 
-/** Semilla documentada del flujo normal: el Guerrero gana la mazmorra. */
-export const WIN_GAME_SEED = 79;
+/**
+ * Semilla documentada del flujo normal: el Guerrero gana la mazmorra.
+ *
+ * Con la densidad por party real (REQ-012 v5, `P = 1` → 5 enemigos 3/1/1) la
+ * política codiciosa de `defeatAllEnemies` gana con margen máximo (20/20 PG,
+ * ronda 5). La semilla 79, documentada con el reparto antiguo de 11 enemigos,
+ * pierde con el reparto actual; la 45 salió de cribar el motor fuera del
+ * navegador y se confirmó por el flujo E2E real.
+ */
+export const WIN_GAME_SEED = 45;
 
 /**
  * Arranca una partida normal de un jugador desde el menú de inicio (REQ-016),
