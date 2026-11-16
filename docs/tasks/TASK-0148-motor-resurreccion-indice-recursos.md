@@ -55,7 +55,7 @@ fija el índice de resurrección y TASK-003 los recursos por turno. La mecánica
 resurrección —lanzador de nivel 4 con 8 de maná como única fuente, adyacencia,
 casilla sin vivos y 60 % del PV máximo— está en
 [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md#requisitos-creativos-decididos)
-v4, R-008 a R-013, con el objeto de resurrección diferido fuera de este corte.
+v5, R-008 a R-014, con el objeto de resurrección diferido fuera de este corte.
 TASK-0131 crea el cadáver y TASK-0146 el turno.
 
 # Criterios de aceptación
@@ -68,6 +68,9 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
       cadáver con el 60 % de su PV máximo, redondeado hacia arriba y mínimo 1.
 - [x] Con varios cadáveres en la misma casilla, resucita el elegido y los demás
       quedan intactos.
+- [x] Al resucitar se retira el contenedor del cadáver y el resucitado recupera
+      el equipo y la mochila que quedaban dentro; lo ya saqueado no se duplica y
+      una segunda muerte crea cadáver nuevo.
 - [x] Si el índice del jugador aún no ha pasado en la ronda, actúa en la misma
       ronda; si ya pasó, en la siguiente; no hay doble turno.
 - [x] Los recursos del resucitado se restauran al empezar su turno.
@@ -120,6 +123,10 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
 - Desbloqueada el 2026-11-15: REQ-021 v4 elimina el objeto como fuente y fija el
   hechizo como única vía; la tarea se queda con el motor ejecutable (comando,
   índice de ronda, recursos) sin crear contenido.
+- Segundo bloqueo el 2026-11-16: con los criterios 1-8 verdes en `task/TASK-0148`
+  (`8e553eb`), el cadáver quedaba en el mapa con el equipo dentro y una segunda
+  muerte descartaba el equipo nuevo. REQ-021 v5 fija el ciclo con R-014/T-014;
+  el criterio nuevo se implementa sobre esa rama sin repetir lo verificado.
 - REQ-020 ya decidió que la resurrección apunte a una unidad, no a una casilla, y
   la enmienda ya está aplicada en REQ-021 R-009; el comando elige cadáver.
 - Intento 1 verificado y bloqueado el 2026-11-16: los criterios pasan, pero el

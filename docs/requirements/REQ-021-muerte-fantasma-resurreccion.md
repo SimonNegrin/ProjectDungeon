@@ -4,11 +4,11 @@ id: REQ-021
 title: Muerte, fantasma y resurrección
 description: "La muerte no expulsa al jugador: cadáver saqueable, fantasma con turno y acción, resurrección condicionada y derrota por wipe total."
 status: stable
-version: 4
+version: 5
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T11:00:00Z
-updated_at: 2026-11-15T20:26:56Z
+updated_at: 2026-11-16T00:12:44Z
 related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T11:00:00Z }
 verified:
@@ -81,6 +81,7 @@ antes de implementar.
 | R-011 | La partida se pierde por wipe total: cuando no queda ningún jugador vivo, aunque queden fantasmas. | Al morir el último vivo, la partida termina; los fantasmas no la prolongan. |
 | R-012 | El fantasma se representa de forma distinguible y translúcida, desplazado del tile, sin confundirse con un vivo. | El jugador distingue vivo, fantasma, enemigo y cadáver en una captura estática. |
 | R-013 | El personaje resucitado vuelve con el **60 % de su PV máximo, redondeado hacia arriba** (mínimo 1). | Mago 12 → 8, Pícaro/Cocinero/Arquero 14 → 9, Clérigo 18 → 11, Guerrero 20 → 12, Bárbaro 24 → 15; el cálculo usa el PV máximo de la unidad. |
+| R-014 | Al resucitar, el cadáver **se consume** y el personaje recupera el equipo puesto y la mochila que sigan dentro. Lo que el fantasma o los aliados ya sacaron se queda con quien lo tenga. | Tras resucitar no queda contenedor `corpseOf` de esa unidad; el resucitado lleva el arma, el escudo y la armadura que el cadáver aún guardaba; una segunda muerte crea un cadáver nuevo con lo que lleve encima. |
 
 # Requisitos técnicos
 
@@ -99,6 +100,7 @@ antes de implementar.
 | T-011 | Tests nuevos: muerte a fantasma, casilla compartida, pathfinding, acción limitada, inspección sin trampa, resurrección, maná, derrota y E2E de presentación. | `pnpm run verify` pasa; los tests de `REQ-009`, `REQ-010` y `REQ-017` conservan su intención. |
 | T-012 | Se actualizan glosario, [economía de turno](../design/turn-economy.md), arquitectura y `REQ-014`/`REQ-017`/`REQ-020`; se registra un ADR de estado fantasma, ocupación compartida y maná. | `pnpm run docs:check` pasa; no quedan contradicciones sobre el cadáver como solo presentación ni sobre magia sin efecto. |
 | T-013 | Sin dependencias nuevas, sin red y sin arte final. | `package.json` y `pnpm-lock.yaml` no cambian; el motor sigue sin DOM. |
+| T-014 | La resurrección retira el contenedor de cadáver del jugador y devuelve a su equipo y mochila las instancias que ese contenedor aún guardaba; la unidad revive sin marca de fantasma. | Tests: no queda `corpseOf` tras resucitar, el equipo vuelve a sus huecos, lo saqueado no se duplica, huecos vacíos del cadáver no borran el equipo y una segunda muerte genera cadáver nuevo. |
 
 # Requisitos no funcionales
 
@@ -185,6 +187,7 @@ antes de implementar.
 | 2026-11-15 | En este corte la resurrección no usa objeto: solo el hechizo de nivel 4 y 8 de maná. El objeto se difiere a hoja propia. | human:simon | aceptada |
 | 2026-11-15 | El comando apunta a un cadáver concreto, no a la casilla; con varios cadáveres en la misma casilla se elige uno (aplicación de `REQ-020`). | human:simon | aceptada |
 | 2026-11-15 | Sin tope de resurrecciones por ronda: el límite son el nivel 4, los 8 de maná y la acción del lanzador. | human:simon | aceptada |
+| 2026-11-16 | Al resucitar, el cadáver se consume y el personaje recupera el equipo y la mochila que siguieran dentro; lo ya saqueado se queda fuera. Una segunda muerte crea cadáver nuevo. | human:simon | aceptada |
 
 # Aceptación de la hoja
 

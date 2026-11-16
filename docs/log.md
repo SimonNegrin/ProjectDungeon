@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Requirement — REQ-021 — v5: al resucitar el cadáver se consume y el personaje recupera el equipo y la mochila que quedaban dentro; lo saqueado se queda fuera y una segunda muerte crea cadáver nuevo — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
+
+* 2026-11-16 — Requirement — REQ-020 — v4: anota que el cadáver de jugador se consume al resucitar y que la persistencia tras vaciarse solo vale para enemigos; la enmienda de objetivo unidad queda aplicada — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
+
 * 2026-11-16 — Task — TASK-0148 — blocked: criterios 1-8 verificados (130/130 focalizados, verify 1746/1746 y E2E 273/273 en 4,1 min con un worker); no se fusiona porque al resucitar se conserva el cadáver y una segunda muerte descarta el equipo nuevo; falta decisión de REQ-021/REQ-018 sobre el contenedor y sus objetos — [verificación](../artifacts/TASK-0148/attempt-1/lead-verify/verification.md)
 
 ## 2026-11-15
