@@ -57,7 +57,8 @@ Campos por tipo:
   `related_tasks`.
 - **Tarea**: `id`, `task_status`, `task_type`, `requirement`, `requirement_ids`,
   `depends_on`, `unlocks`, `created_at`, `completed_at`, `assignee`, `attempts`,
-  `artifacts`, `priority`, `risk`. `task_type` ∈ `feature`, `experiment`,
+  `artifacts`, `priority`, `risk`; `scope` (opcional) fija el alcance del diff
+  cuando el `task_type` no basta. `task_type` ∈ `feature`, `experiment`,
   `test`, `qa`, `docs`, `harness`, `refactor`; `docs` se asigna a `game-lead` y
   el código a `task-runner`
   ([workflow](workflow.md#quién-ejecuta-una-tarea-docs)).

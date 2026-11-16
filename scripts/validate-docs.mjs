@@ -9,6 +9,7 @@ import {
   repoRoot,
   resolveLocalLink,
 } from './lib/docs.mjs';
+import { normalizeScope, unknownScopeEntries } from './lib/scope.mjs';
 
 const concepts = loadConcepts([
   'docs',
@@ -143,6 +144,20 @@ for (const concept of concepts) {
     if (data.task_type && !TASK_TYPE.has(data.task_type)) {
       error(`${rel}: task_type inválido ${data.task_type}`);
     }
+    if (data.scope !== undefined) {
+      const scope = normalizeScope(data.scope);
+      if (!scope || scope.length === 0) {
+        error(`${rel}: scope debe ser una lista no vacía de raíces`);
+      } else {
+        const unknown = unknownScopeEntries(scope);
+        if (unknown.length > 0) {
+          error(`${rel}: scope fuera del catálogo cerrado: ${unknown.join(', ')}`);
+        }
+        if (new Set(scope).size !== scope.length) {
+          error(`${rel}: scope con entradas duplicadas`);
+        }
+      }
+    }
     if (
       data.task_type === 'docs' &&
       data.task_status !== 'done' &&
@@ -158,6 +173,10 @@ for (const concept of concepts) {
     }
     if (!Array.isArray(data.depends_on)) warn(`${rel}: depends_on debería ser una lista`);
     if (!Array.isArray(data.unlocks)) warn(`${rel}: unlocks debería ser una lista`);
+  }
+
+  if (type !== 'Task' && data.scope !== undefined) {
+    error(`${rel}: scope solo se declara en tareas`);
   }
 
   if (type === 'Task' && isCappedTask(data.id)) {

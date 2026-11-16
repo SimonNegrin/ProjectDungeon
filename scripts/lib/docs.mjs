@@ -36,27 +36,36 @@ export function markdownFiles(dir) {
   return walkFiles(dir, (file) => extname(file) === '.md');
 }
 
-export function parseConcept(file) {
-  const text = readFileSync(file, 'utf8');
+/**
+ * Parsea frontmatter y cuerpo desde texto ya leído. Se usa para leer la versión
+ * de un documento en otro commit (`git show <ref>:<ruta>`) sin escribir un
+ * temporal. `file` queda como la ruta relativa recibida.
+ */
+export function parseConceptText(text, rel = '<texto>') {
   const match = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
   if (!match) {
-    return { file, rel: relative(repoRoot, file), data: {}, body: text, hasFrontmatter: false };
+    return { file: rel, rel, data: {}, body: text, hasFrontmatter: false };
   }
 
   let data;
   try {
     data = parse(match[1]) ?? {};
   } catch (error) {
-    throw new Error(`YAML inválido en ${relative(repoRoot, file)}: ${error.message}`);
+    throw new Error(`YAML inválido en ${rel}: ${error.message}`);
   }
 
   return {
-    file,
-    rel: relative(repoRoot, file),
+    file: rel,
+    rel,
     data,
     body: text.slice(match[0].length),
     hasFrontmatter: true,
   };
+}
+
+export function parseConcept(file) {
+  const rel = relative(repoRoot, file);
+  return { ...parseConceptText(readFileSync(file, 'utf8'), rel), file };
 }
 
 const ISO_DATE =

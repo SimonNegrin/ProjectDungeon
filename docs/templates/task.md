@@ -36,6 +36,7 @@ description: Resultado observable de la tarea.
 status: draft
 task_status: backlog
 task_type: feature
+scope:               # opcional: raíces del diff; si falta, manda task_type
 requirement: REQ-001
 requirement_ids: [R-001]
 depends_on: []
@@ -94,6 +95,12 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 - No se repite la tabla de timeouts: la política es global
   ([workflow](../harness/workflow.md#timeouts-y-procesos)).
 - `depends_on` y `unlocks` usan IDs y son simétricos.
+- `scope` (opcional) declara el alcance del diff cuando el `task_type` no basta
+  —un tipo de código que también documenta, o una tarea de arnés que añade
+  tests—; las entradas salen del catálogo de `scripts/lib/scope.mjs` y se
+  congelan: `verify:task` mide con la versión de la ficha en `merge-base`, así
+  que ampliarla a mitad del intento no amplía el diff
+  ([workflow](../harness/workflow.md#verificación-determinista)).
 - Solo se planifica el milestone actual; las tareas caducan si cambia el
   requisito.
 - `docs` no se asigna a `task-runner`: `assignee` es `game-lead`. El arnés se

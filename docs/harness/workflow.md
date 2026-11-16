@@ -116,6 +116,12 @@ tareas documentales las ejecuta `game-lead`:
 El arnés se pide con `/harness`, fuera del flujo de tareas: no se crea una ficha
 `docs` para auditarlo.
 
+Si una tarea de código necesita documentación, la ficha declara `docs/` en
+`scope:` y el texto lo redacta `game-lead` en el cierre del mismo intento:
+`task-runner` no edita `docs/`. Así la documentación entra en el diff de la
+tarea sin abrir `docs/` a todos los tipos
+([ADR-032](../decisions/ADR-032-alcance-explicito-tarea.md)).
+
 # Traspaso a una sesión de ejecución
 
 La ficha es el traspaso. Si la sesión de producto ha acumulado contexto, abre una
@@ -154,11 +160,21 @@ Antes de cambiar de sesión, el estado debe estar en la ficha, el tablero y el l
 
 - estado `in_progress` e informe del intento con `report_status: success`;
 - que todos los criterios de la ficha están marcados `[x]`;
-- que el diff `main...HEAD` cae dentro del alcance del `task_type`; `--base REF`
-  mueve la base para medir solo la tarea cuando el arnés vive en una rama sin
-  fusionar (piloto de [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md));
+- que el diff `main...HEAD` cae dentro del alcance de la tarea: el campo
+  `scope:` de la ficha o, si falta, el `task_type`; `--base REF` mueve la base
+  para medir solo la tarea cuando el arnés vive en una rama sin fusionar (piloto
+  de [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md));
+- que el alcance no se amplió después de empezar: `verify:task` lee la ficha en
+  `merge-base` y mide con ese alcance, y falla si `scope:` cambió;
 - capturas cuando la tarea es `qa` o visual;
 - `pnpm run verify` completo.
+
+El alcance vive en un solo sitio: `scripts/lib/scope.mjs`. Sin `scope:`, cada
+`task_type` tiene su lista; con `scope:`, la ficha lo declara con entradas del
+catálogo cerrado de ese módulo, y una raíz nueva se añade ahí con revisión
+([ADR-032](../decisions/ADR-032-alcance-explicito-tarea.md)). Solo la ficha
+propia, `docs/tasks/index.md` y `artifacts/` están siempre permitidos: una tarea
+ya no puede reescribir fichas ajenas.
 
 Lo que el script no puede juzgar —si un criterio se cumple de verdad, si la
 evidencia es clara, si hay una regresión de sensación— lo firma `game-lead` al

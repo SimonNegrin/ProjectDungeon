@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — alcance — `scope:` por ficha con catálogo cerrado y congelación en `merge-base`; el `task_type` queda como atajo, la tarea pierde acceso a fichas ajenas y se resuelve la fricción de TASK-0163 y el test del propio gate — [ADR-032](decisions/ADR-032-alcance-explicito-tarea.md)
 * 2026-11-16 — Harness — ADR-031 — piloto cerrado y fusión en `main` (`5def994`, etiqueta `harness-2agentes`): 5 tareas `done`, 0 defectos en playtest (circular aplazado a REQ-020), 1/5 relanzamientos, 0/38 criterios sin firmar, 5,6 commits por tarea y 0 fricciones abiertas — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md#cierre-del-piloto-2026-11-16)
 * 2026-11-16 — Decision — REQ-019 — `human:simon`: la validación creativa del ataque circular se aplaza al playtest de REQ-020; sin cofres no hay fuente jugable de la maza — [REQ-019](requirements/REQ-019-traits-objetos.md#decisiones)
 * 2026-11-16 — Playtest — traits y hotseat — `human:simon`: sin defectos nuevos en hotseat, traits visibles y desglose; el ataque circular queda pendiente de probar porque las piezas no tienen fuente jugable — [TASK-0162](../artifacts/TASK-0162/attempt-2/report.md)
