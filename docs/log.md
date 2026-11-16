@@ -5,6 +5,12 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — Piloto — cinco tareas definidas: TASK-0161 motor de traits y TASK-0162 host/UI, con TASK-0154, TASK-0155 y TASK-0159; TASK-0101/TASK-0057 no se repiten y T-011 y REQ-020 quedan fuera — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md#enmienda-del-piloto-2026-11-16)
+
+* 2026-11-16 — Task — TASK-0161 — ready: traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; sin UI y sin fuente jugable hasta REQ-020 — [ficha](tasks/TASK-0161-motor-traits-catalogo-stacking-especiales.md)
+
+* 2026-11-16 — Task — TASK-0162 — backlog: panel y HUD con traits y desglose, feedback por objetivo y E2E de maza a dos manos; depende de TASK-0161 — [ficha](tasks/TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
+
 * 2026-11-16 — Harness — ADR-031 — dos agentes: game-lead absorbe producto, tareas y arnés; task-runner conserva el contexto limpio; verify:task y criterios firmados sustituyen al verificador; piloto de 5 tareas pendiente — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
 
 * 2026-11-16 — Requirement — REQ-021 — v6: abre la capacidad al resucitar (hoy rechazo atómico `inventory-full`) y la procedencia plana de los objetos del cadáver; ambas provisionales hasta playtest — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)

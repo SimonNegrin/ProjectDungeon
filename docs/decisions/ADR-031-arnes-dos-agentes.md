@@ -75,6 +75,26 @@ Si se cumplen, la estructura pasa a `main`. Si no, se revierte el commit de
 cambio y se recupera `task-lead` desde la etiqueta. El código de las cinco tareas
 no se revierte: es trabajo válido con cualquiera de las dos estructuras.
 
+# Enmienda del piloto (2026-11-16)
+
+El piloto se ejecuta con estas cinco tareas, en este orden:
+
+1. `TASK-0161` — motor de traits, stacking y especiales (riesgo alto).
+2. `TASK-0162` — host/UI de traits visibles y feedback; depende de la anterior.
+3. `TASK-0154` — QA/E2E del hotseat.
+4. `TASK-0155` — ADR-029 y documentación del hotseat.
+5. `TASK-0159` — notas de hotseat en las hojas de requisitos.
+
+Desviaciones respecto al piloto original, aprobadas por el usuario:
+
+- La tarea «que ya falló» no se repite: `TASK-0101` y `TASK-0057` están `done`
+  con tres intentos y criterios firmados. Su hueco lo ocupa `TASK-0161`, de
+  riesgo alto.
+- `T-011` de `REQ-019` (ADR-024 y documentación de traits) queda fuera del
+  piloto; se creará como tarea `docs` posterior. `REQ-019` no se cierra entera.
+- `REQ-020` sigue en borrador: las cuatro piezas existen en el catálogo y solo
+  se inspeccionan con debug, sin botín ni cofres.
+
 # Consecuencias
 
 - Menos recargas de contexto: desaparecen el prompt del lead, el brief y su
