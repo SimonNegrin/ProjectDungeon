@@ -77,6 +77,18 @@ audio, tono y si el experimento resuelve la duda.
   `testInfo.repeatEachIndex`, no `testInfo.project.repeatEach`, que no refleja
   el flag de CLI. No mezclar en la misma carpeta una corrida única y una
   repetida: ambas usan la ruta de la pasada 0.
+- Con la suite completa, limita la evidencia a los specs de la tarea:
+
+  ```bash
+  E2E_ARTIFACTS_DIR=artifacts/TASK-XXXX/attempt-N \
+    E2E_ARTIFACTS_SPECS=inventory,hotseat-flow-qa pnpm run test:e2e
+  ```
+
+  Los specs fuera de la lista escriben en `testInfo.outputPath` (efímero) y no
+  crean carpetas en `$E2E_ARTIFACTS_DIR`; el nombre es el mismo subdirectorio del
+  spec, sin `.spec.ts`. Sin la variable, o vacía, se escribe todo como antes.
+  Sirve para no llenar la evidencia con las capturas de specs ajenos cuando una
+  tarea necesita la suite completa.
 - Los artefactos de tareas cerradas son evidencia histórica inmutable: no se
   reescriben ni se revierten a mano. Si una captura histórica aparece modificada,
   la causa es una ruta fija en un spec: se corrige el spec, no el artefacto.
