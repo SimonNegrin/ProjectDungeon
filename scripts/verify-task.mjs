@@ -10,7 +10,8 @@ Comprueba de forma determinista la evidencia de una tarea:
   - estado in_progress y criterios de aceptación firmados;
   - informe del intento con report_status success;
   - alcance del diff frente a la base (main por defecto);
-  - capturas cuando la tarea es visual o QA;
+  - capturas cuando la tarea es visual o QA; el plan de test puede declarar
+    «E2E / visual: no» para una tarea sin UI, y entonces no se exigen;
   - pnpm run verify (salvo --no-run).
 
 --base permite medir solo el diff de la tarea cuando el arnés vive en una rama
@@ -188,8 +189,13 @@ if (attemptDir && existsSync(attemptDir)) {
     }
   };
   walk(attemptDir);
+  const visualPlan = bodyLines.find((line) => /^-\s*E2E\s*\/\s*visual:/i.test(line));
+  const declaresNoVisual =
+    visualPlan !== undefined && /:\s*no\b/i.test(visualPlan);
   const visual =
-    taskType === 'qa' || /captura|screenshot|hud|canvas|\bui\b/i.test(task.body.slice(0, 4000));
+    taskType === 'qa' ||
+    (!declaresNoVisual &&
+      /captura|screenshot|hud|canvas|\bui\b/i.test(task.body.slice(0, 4000)));
   if (visual) {
     add('Capturas', images.length > 0, `${images.length} imágenes`);
   }
