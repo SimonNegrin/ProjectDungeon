@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **163**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -143,6 +143,9 @@ Total: **163**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0160](TASK-0160-test-exp-004-barrido-por-variante.md) | Test: dividir el barrido de EXP-004 por variante | `done` | REQ-011 | — | P1 |
 | [TASK-0161](TASK-0161-motor-traits-catalogo-stacking-especiales.md) | Motor: catálogo de traits, stacking y especiales | `done` | REQ-019 | — | P1 |
 | [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `done` | REQ-019 | TASK-0161 | P1 |
+| [TASK-0164](TASK-0164-camino-origen-jugador-activo.md) | Bug: el camino del cursor nace del jugador activo | `in_progress` | REQ-004 | — | P1 |
+| [TASK-0165](TASK-0165-hud-equipo-jugador-activo.md) | Bug: la ficha del HUD derecho usa el equipo del jugador activo | `ready` | REQ-023 | — | P1 |
+| [TASK-0166](TASK-0166-hechizos-jugador-activo.md) | Bug: la lista de hechizos usa el nivel del jugador activo | `ready` | REQ-025 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -167,6 +170,15 @@ Total: **163**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 | [TASK-0163](TASK-0163-arnes-artefactos-e2e-filtrados.md) | Arnés: artefactos E2E filtrados por spec | `done` | HARNESS | — | P2 |
+
+# ready
+
+* [TASK-0165 — Bug: la ficha del HUD derecho usa el equipo del jugador activo](TASK-0165-hud-equipo-jugador-activo.md)
+* [TASK-0166 — Bug: la lista de hechizos usa el nivel del jugador activo](TASK-0166-hechizos-jugador-activo.md)
+
+# in_progress
+
+* [TASK-0164 — Bug: el camino del cursor nace del jugador activo](TASK-0164-camino-origen-jugador-activo.md)
 
 # blocked
 
