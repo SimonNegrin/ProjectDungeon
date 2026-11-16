@@ -4,7 +4,7 @@ id: TASK-0159
 title: "Requisitos: notas de hotseat en hojas relacionadas"
 description: "Anotar en REQ-005, REQ-017, REQ-018, REQ-021, REQ-022, REQ-023, REQ-024 y REQ-026 las enmiendas de REQ-031 v2 sobre turno, relevo, HUD, panel público y controles."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-031
 requirement_ids: [T-013]
