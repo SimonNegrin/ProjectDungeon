@@ -1,0 +1,17 @@
+# Verificación determinista de TASK-0154
+
+- Fecha: 2026-11-16T10:08:50.858Z
+- Intento: 1
+- Base: harness/2agentes
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0154-qa-e2e-hotseat.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 8 marcados |
+| Informe | ok | report_status: success (2821 B) |
+| Alcance | ok | 20 archivos dentro de qa (base harness/2agentes) |
+| Capturas | ok | 13 imágenes |
+| verify | ok | pnpm run verify OK |
