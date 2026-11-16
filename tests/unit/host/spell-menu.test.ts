@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { reduce } from '../../../src/game/engine';
 import { SPELLS } from '../../../src/game/spells';
+import type { Unit } from '../../../src/game/types';
+import { translateKey } from '../../../src/host/input';
 import {
   buildSpellMenuModel,
   moveSpellSelection,
@@ -11,15 +14,17 @@ import { makeState, makeUnit } from '../game/helpers';
 import { createPlayerFromArchetype } from '../../../src/game/roster';
 
 function mage(options: {
+  readonly id?: string;
   readonly magicLevel?: 0 | 1 | 2 | 3 | 4;
   readonly mana?: number;
   readonly spellsCast?: number;
 }) {
+  const id = options.id ?? 'player-1';
   const unit =
     options.magicLevel === undefined || options.magicLevel === 4
-      ? createPlayerFromArchetype('mage', { id: 'player-1', position: { x: 4, y: 4 } })
+      ? createPlayerFromArchetype('mage', { id, position: { x: 4, y: 4 } })
       : makeUnit({
-          id: 'player-1',
+          id,
           faction: 'player',
           x: 4,
           y: 4,
@@ -33,6 +38,16 @@ function mage(options: {
     },
     spellsCast: options.spellsCast ?? 0,
   };
+}
+
+/** Disponibilidad esperada derivada del catálogo y de los recursos del lanzador. */
+function availabilityFor(caster: Unit): readonly string[] {
+  return SPELL_ORDER.map((id) => {
+    const spell = SPELLS[id];
+    if (caster.stats.magicLevel < spell.minLevel) return 'level';
+    if (caster.mana.current < spell.cost) return 'mana';
+    return 'available';
+  });
 }
 
 describe('disponibilidad de hechizos', () => {
@@ -142,6 +157,106 @@ describe('disponibilidad de hechizos', () => {
       availability: 'level',
       availabilityLabel: 'nivel',
     });
+  });
+
+  it('usa el nivel y el maná del jugador activo, no los del primer jugador', () => {
+    const first = mage({ id: 'player-1', magicLevel: 0 });
+    const second = mage({ id: 'player-2', magicLevel: 2, mana: 3 });
+    const model = buildSpellMenuModel(
+      makeState({
+        players: [first, second],
+        activePlayerId: 'player-2',
+      }),
+      { open: true, index: 0, selectedId: null },
+    );
+
+    expect(model.items.map((item) => item.availability)).toEqual(
+      availabilityFor(second),
+    );
+    expect(
+      model.items.find((item) => item.id === 'electric-1')?.availability,
+    ).toBe('available');
+    expect(model.items.find((item) => item.id === 'fire-2')?.availability).toBe(
+      'mana',
+    );
+    expect(
+      model.items.find((item) => item.id === 'electric-3')?.availability,
+    ).toBe('level');
+  });
+
+  it('con el activo en el primero usa sus valores, no los del segundo', () => {
+    const first = mage({ id: 'player-1', magicLevel: 2, mana: 3 });
+    const second = mage({ id: 'player-2', magicLevel: 0 });
+    const model = buildSpellMenuModel(
+      makeState({
+        players: [first, second],
+        activePlayerId: 'player-1',
+      }),
+      { open: true, index: 0, selectedId: null },
+    );
+
+    expect(model.items.map((item) => item.availability)).toEqual(
+      availabilityFor(first),
+    );
+  });
+
+  it('sin activo no cae al primer jugador y la lista queda sin lanzador', () => {
+    const first = mage({ id: 'player-1', magicLevel: 1, mana: 4 });
+    const second = mage({ id: 'player-2', magicLevel: 0 });
+    const model = buildSpellMenuModel(
+      makeState({
+        players: [first, second],
+        activePlayerId: null,
+      }),
+      { open: true, index: 0, selectedId: null },
+    );
+
+    expect(model.items.every((item) => item.availability === 'level')).toBe(
+      true,
+    );
+    expect(
+      model.items.every((item) => item.availabilityLabel === 'nivel'),
+    ).toBe(true);
+  });
+
+  it('cambiar de turno con N recalcula la disponibilidad del nuevo activo', () => {
+    const first = mage({ id: 'player-1', magicLevel: 0 });
+    const second = mage({ id: 'player-2', magicLevel: 1, mana: 4 });
+    const state = makeState({
+      players: [first, second],
+      enemies: [],
+      activePlayerId: 'player-1',
+    });
+    const selection = { open: true, index: 0, selectedId: null } as const;
+
+    const before = buildSpellMenuModel(state, selection);
+    expect(before.items.every((item) => item.availability === 'level')).toBe(
+      true,
+    );
+
+    const endTurn = translateKey({ key: 'n' }, state, { x: 4, y: 4 });
+    if (endTurn.type !== 'command') {
+      throw new Error(`N no produjo un comando: ${endTurn.type}`);
+    }
+    const next = reduce(state, endTurn.command).state;
+    expect(next.activePlayerId).toBe('player-2');
+
+    const after = buildSpellMenuModel(next, selection);
+    expect(after.items.map((item) => item.availability)).toEqual(
+      availabilityFor(second),
+    );
+
+    const backTurn = translateKey({ key: 'n' }, next, { x: 4, y: 4 });
+    if (backTurn.type !== 'command') {
+      throw new Error(`N no produjo un comando: ${backTurn.type}`);
+    }
+    const back = reduce(next, backTurn.command).state;
+    expect(back.activePlayerId).toBe('player-1');
+    expect(
+      buildSpellMenuModel(back, selection).items.map(
+        (item) => item.availability,
+      ),
+    ).toEqual(availabilityFor(first));
   });
 
   it('navega con vuelta circular y localiza el índice', () => {

@@ -397,4 +397,76 @@ test.describe('hechizos, HUD y feedback', () => {
     await expect(page.getByTestId('hud-player-magic')).toBeHidden();
     await expect(page.getByTestId('hud-player-mana')).toBeHidden();
   });
+
+  test('hotseat: la lista usa el nivel del activo al relevar con N', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    const warrior = createPlayerFromArchetype('warrior', {
+      id: 'player-1',
+      position: { x: 4, y: 4 },
+    });
+    const mage = createPlayerFromArchetype('mage', {
+      id: 'player-2',
+      position: { x: 8, y: 4 },
+    });
+    const state: GameState = {
+      grid: createRoomGrid(20, 20),
+      players: [warrior, mage],
+      enemies: [],
+      phase: 'player',
+      activePlayerId: warrior.id,
+      round: 1,
+      status: 'playing',
+      rng: createRng(SEED),
+    };
+    await openState(page, state);
+
+    // Turno del primero, sin magia: ningún hechizo está disponible.
+    await expect(page.getByTestId('hud-player-position')).toHaveText(
+      'Jugador 1 de 2',
+    );
+    await openSpellList(page);
+    await expect(page.getByTestId('spell-row-electric-1')).toHaveAttribute(
+      'data-availability',
+      'level',
+    );
+    await expect(page.getByTestId('spell-availability-electric-1')).toHaveText(
+      'nivel',
+    );
+    await page.keyboard.press('Escape');
+    await expect(page.getByTestId('spell-list')).toBeHidden();
+
+    // N releva al segundo, mago: su lista se recalcula para él.
+    await page.keyboard.press('n');
+    await settle(page);
+    await expect(page.getByTestId('hud-player-position')).toHaveText(
+      'Jugador 2 de 2',
+    );
+    await openSpellList(page);
+    await expect(page.getByTestId('spell-row-electric-1')).toHaveAttribute(
+      'data-availability',
+      'available',
+    );
+    await expect(page.getByTestId('spell-availability-electric-1')).toHaveText(
+      'disponible',
+    );
+    await expect(page.getByTestId('spell-row-fire-2')).toHaveAttribute(
+      'data-availability',
+      'available',
+    );
+    await page.keyboard.press('Escape');
+
+    // La ronda vuelve al primero y no conserva la disponibilidad del mago.
+    await page.keyboard.press('n');
+    await settle(page);
+    await expect(page.getByTestId('hud-player-position')).toHaveText(
+      'Jugador 1 de 2',
+    );
+    await openSpellList(page);
+    await expect(page.getByTestId('spell-row-electric-1')).toHaveAttribute(
+      'data-availability',
+      'level',
+    );
+  });
 });

@@ -7,6 +7,7 @@
  */
 
 import { MAX_SPELLS_PER_TURN } from '../game/magic';
+import { activePlayer } from '../game/party';
 import { SPELLS, type SpellDefinition, type SpellId } from '../game/spells';
 import type { GameState, Unit } from '../game/types';
 
@@ -85,10 +86,6 @@ export function moveSpellSelection(
 /** Índice de un hechizo en el orden de la lista; -1 si no existe. */
 export function spellIndex(id: SpellId | null): number {
   return id === null ? -1 : SPELL_ORDER.indexOf(id);
-}
-
-function activePlayer(state: GameState): Unit | undefined {
-  return state.players.find((player) => player.hp > 0) ?? state.players[0];
 }
 
 /** Modelo de la lista para pintar; no muta el estado ni la selección. */
