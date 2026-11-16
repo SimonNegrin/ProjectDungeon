@@ -709,6 +709,23 @@
         white-space: nowrap;
         pointer-events: none;
       }
+      /* El panel abierto tapa el banner en su capa normal. Con el panel
+         visible el banner sube por encima de él (20), sin tocar los títulos:
+         se ancla al borde superior del marco y el submenú contextual (30)
+         sigue por encima. `pointer-events: none` no bloquea el input. */
+      .frame:has(.inventory-panel:not([hidden])) .feedback-banner {
+        top: 0;
+        z-index: 25;
+        /* Menos relleno vertical para no invadir la fila de títulos. */
+        padding-top: calc(var(--ui-unit) * 1.5);
+        padding-bottom: calc(var(--ui-unit) * 1.5);
+      }
+      /* El submenú contextual está dentro del panel (20) y no puede escapar de
+         su contexto de apilado: si se abre con el banner todavía visible, el
+         banner vuelve detrás del panel para no taparlo. */
+      .frame:has(.inventory-submenu:not([hidden])) .feedback-banner {
+        z-index: 5;
+      }
       .feedback-banner[data-banner-kind="pickup"],
       .feedback-banner[data-banner-kind="select-weapon"] {
         color: var(--ui-positive);

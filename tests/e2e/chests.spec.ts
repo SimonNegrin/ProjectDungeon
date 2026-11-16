@@ -203,6 +203,105 @@ function expectRectEqual(actual: Rect, expected: Rect, label: string): void {
   expect(actual, label).toEqual(expected);
 }
 
+function rectsOverlap(a: Rect, b: Rect): boolean {
+  return !(
+    a.x + a.width <= b.x ||
+    b.x + b.width <= a.x ||
+    a.y + a.height <= b.y ||
+    b.y + b.height <= a.y
+  );
+}
+
+interface BannerStack {
+  readonly visible: boolean;
+  readonly banner: Rect;
+  readonly titles: readonly Rect[];
+  readonly bannerZ: number;
+  readonly panelZ: number;
+  readonly submenuZ: number;
+  readonly pointerEvents: string;
+}
+
+/**
+ * Comprueba que el banner se pinta por encima del panel abierto (20), por
+ * debajo del submenú (30), sin cubrir los títulos y sin capturar el input.
+ * La geometría y las capas se leen del DOM real, no de la implementación.
+ */
+async function expectBannerAbovePanel(page: Page, label: string): Promise<void> {
+  const stack = await page.evaluate((): BannerStack => {
+    const banner = document.querySelector<HTMLElement>(
+      '[data-testid="feedback-banner"]',
+    );
+    const panel = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-panel"]',
+    );
+    const submenu = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-submenu"]',
+    );
+    if (!banner || !panel || !submenu) throw new Error('Falta banner o panel');
+    const rect = (element: HTMLElement): Rect => {
+      const box = element.getBoundingClientRect();
+      return { x: box.x, y: box.y, width: box.width, height: box.height };
+    };
+    return {
+      visible: !banner.hidden,
+      banner: rect(banner),
+      titles: [...panel.querySelectorAll<HTMLElement>('.inventory-section-title')].map(
+        rect,
+      ),
+      bannerZ: Number(getComputedStyle(banner).zIndex),
+      panelZ: Number(getComputedStyle(panel).zIndex),
+      submenuZ: Number(getComputedStyle(submenu).zIndex),
+      pointerEvents: getComputedStyle(banner).pointerEvents,
+    };
+  });
+  expect(stack.visible, `${label}: banner visible`).toBe(true);
+  expect(stack.bannerZ, `${label}: banner sobre panel`).toBeGreaterThan(
+    stack.panelZ,
+  );
+  expect(stack.submenuZ, `${label}: submenú sobre banner`).toBeGreaterThan(
+    stack.bannerZ,
+  );
+  expect(stack.pointerEvents, `${label}: banner no bloquea input`).toBe('none');
+  for (const [index, title] of stack.titles.entries()) {
+    expect(
+      rectsOverlap(stack.banner, title),
+      `${label}: el banner no tapa el título ${index + 1}`,
+    ).toBe(false);
+  }
+}
+
+/** Con el submenú abierto, el banner vuelve detrás del panel (contexto 20). */
+async function expectBannerBehindPanelOnSubmenu(
+  page: Page,
+  label: string,
+): Promise<void> {
+  const stack = await page.evaluate(() => {
+    const banner = document.querySelector<HTMLElement>(
+      '[data-testid="feedback-banner"]',
+    );
+    const panel = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-panel"]',
+    );
+    const submenu = document.querySelector<HTMLElement>(
+      '[data-testid="inventory-submenu"]',
+    );
+    if (!banner || !panel || !submenu) throw new Error('Falta banner o panel');
+    return {
+      bannerVisible: !banner.hidden,
+      submenuVisible: !submenu.hidden,
+      bannerZ: Number(getComputedStyle(banner).zIndex),
+      panelZ: Number(getComputedStyle(panel).zIndex),
+    };
+  });
+  expect(stack.bannerVisible, `${label}: banner visible`).toBe(true);
+  expect(stack.submenuVisible, `${label}: submenú visible`).toBe(true);
+  expect(
+    stack.bannerZ,
+    `${label}: banner detrás del panel con submenú`,
+  ).toBeLessThan(stack.panelZ);
+}
+
 function playerConfigs(count: number): PlayerConfig[] {
   return ARCHETYPES.slice(0, count).map((archetypeId, index) => ({
     archetypeId,
@@ -278,7 +377,8 @@ test.describe('cofres generados: E2E y QA visual', () => {
       beforeOpen.players[0].actions.max,
     );
 
-    // Apertura con Espacio: 1 acción, panel en «Cofre» y feedback.
+    // Apertura con Espacio: 1 acción, panel en «Cofre» y feedback visible
+    // con el panel abierto (sin cerrarlo ni adelantar el reloj).
     const frameBefore = await rectOf(page, '[data-testid="frame"]');
     await startLayoutShiftAudit(page);
     await page.keyboard.press(' ');
@@ -286,16 +386,9 @@ test.describe('cofres generados: E2E y QA visual', () => {
     await expect(panel).toBeVisible();
     const banner = page.getByTestId('feedback-banner');
     await expect(banner).toHaveText('Cofre abierto');
-    // El panel (z-index 20) tapa el banner (5) mientras está abierto: se
-    // congela el reloj, se cierra el panel y se captura lo que ve el usuario.
-    await page.evaluate(() => window.__game!.advance(400));
-    await page.keyboard.press('Escape');
-    await expect(panel).toBeHidden();
-    await expect(banner).toBeVisible();
-    await screenshot(page, 'cofre-apertura-feedback-1280x720', testInfo);
     await settle(page);
-    await page.keyboard.press(' ');
-    await expect(panel).toBeVisible();
+    await expect(banner).toBeVisible();
+    await expectBannerAbovePanel(page, 'apertura 1280');
     const opened = await snapshot(page);
     expect(opened.players[0].actions.remaining).toBe(
       beforeOpen.players[0].actions.remaining - 1,
@@ -306,7 +399,7 @@ test.describe('cofres generados: E2E y QA visual', () => {
     );
     expect(opened.players[0].x).toBe(approach.x);
     expect(opened.players[0].y).toBe(approach.y);
-    await settle(page);
+    await screenshot(page, 'cofre-apertura-feedback-1280x720', testInfo);
     const openShifts = await expectNoForbiddenShifts(page, 'apertura');
     expectRectEqual(
       await rectOf(page, '[data-testid="frame"]'),
@@ -322,26 +415,37 @@ test.describe('cofres generados: E2E y QA visual', () => {
     const cofreRect1280 = await rectOf(page, '[data-testid="inventory-panel"]');
     await screenshot(page, 'panel-cofre-1280x720', testInfo);
 
+    // El submenú contextual (dentro del panel) sigue por encima: al abrirlo,
+    // el banner vuelve detrás del panel y no lo tapa.
+    const takeAllKey = firstChestItemKey(opened);
+    await selectPanelRow(page, takeAllKey);
+    await page.keyboard.press('Enter');
+    const submenu = page.getByTestId('inventory-submenu');
+    await expect(submenu).toBeVisible();
+    await expectBannerBehindPanelOnSubmenu(page, 'submenú 1280');
+    await page.keyboard.press('Escape');
+    await expect(submenu).toBeHidden();
+    await expectBannerAbovePanel(page, 'submenú cerrado 1280');
+
     await page.setViewportSize({ width: 900, height: 700 });
     await nextFrame(page);
     await expect(panel).toBeVisible();
+    await expect(banner).toBeVisible();
+    await expectBannerAbovePanel(page, 'apertura 900');
     await expect(page.getByTestId('inventory-chest-count')).toHaveText('2/4');
     const cofreRect900 = await rectOf(page, '[data-testid="inventory-panel"]');
+    await screenshot(page, 'cofre-apertura-feedback-900x700', testInfo);
     await screenshot(page, 'panel-cofre-900x700', testInfo);
 
-    // Coger todo en 900×700: banner y coste cero.
-    const takeAllKey = firstChestItemKey(opened);
+    // Coger todo en 900×700 con el banner visible: el input del panel sigue
+    // operativo (pointer-events: none) y el banner se pinta sobre el panel.
     await resetLayoutShifts(page);
     await pressPanelAction(page, panelActionTestId('take-all', takeAllKey));
     await expect(banner).toHaveText('+ 2 objetos');
-    await page.evaluate(() => window.__game!.advance(400));
-    await page.keyboard.press('Escape');
-    await expect(panel).toBeHidden();
-    await expect(banner).toBeVisible();
-    await screenshot(page, 'transferencia-take-all-900x700', testInfo);
     await settle(page);
-    await page.keyboard.press(' ');
-    await expect(panel).toBeVisible();
+    await expect(banner).toBeVisible();
+    await expectBannerAbovePanel(page, 'coger todo 900');
+    await screenshot(page, 'transferencia-take-all-900x700', testInfo);
     const emptied = await snapshot(page);
     const emptiedChest = chestOf(emptied);
     expect(emptiedChest?.opened).toBe(true);
@@ -362,6 +466,9 @@ test.describe('cofres generados: E2E y QA visual', () => {
     );
     await expect(page.getByTestId('inventory-chest-count')).toHaveText('0/4');
     const takeAllShifts = await expectNoForbiddenShifts(page, 'coger todo');
+    // Consumir el banner ya capturado antes de la siguiente vista.
+    await settle(page);
+    await expect(banner).toBeHidden();
 
     await page.setViewportSize({ width: 1280, height: 720 });
     await nextFrame(page);
@@ -385,15 +492,11 @@ test.describe('cofres generados: E2E y QA visual', () => {
     );
     await page.keyboard.press('Escape');
     await pressPanelAction(page, panelActionTestId('deposit', 'backpack:0'));
-    await expect(page.getByTestId('feedback-banner')).toContainText('→ Cofre');
-    await page.evaluate(() => window.__game!.advance(400));
-    await page.keyboard.press('Escape');
-    await expect(panel).toBeHidden();
-    await expect(page.getByTestId('feedback-banner')).toBeVisible();
-    await screenshot(page, 'transferencia-deposito-1280x720', testInfo);
+    await expect(banner).toContainText('→ Cofre');
     await settle(page);
-    await page.keyboard.press(' ');
-    await expect(panel).toBeVisible();
+    await expect(banner).toBeVisible();
+    await expectBannerAbovePanel(page, 'depósito 1280');
+    await screenshot(page, 'transferencia-deposito-1280x720', testInfo);
     const afterDeposit = await snapshot(page);
     expect(afterDeposit.players[0].actions.remaining).toBe(
       beforeDeposit.players[0].actions.remaining,
@@ -408,6 +511,8 @@ test.describe('cofres generados: E2E y QA visual', () => {
     await expect(page.locator('.inventory-chest-item-row')).toHaveCount(1);
     await expect(page.getByTestId('inventory-chest-count')).toHaveText('1/4');
     const depositShifts = await expectNoForbiddenShifts(page, 'depositar');
+    await settle(page);
+    await expect(banner).toBeHidden();
 
     // Cerrar el panel: el HUD del cursor muestra el contenido real.
     await page.keyboard.press('Escape');
