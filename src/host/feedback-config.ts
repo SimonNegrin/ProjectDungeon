@@ -33,6 +33,10 @@ export const FEEDBACK_CONFIG = {
     death: 900,
     pickup: 350,
     selectWeapon: 250,
+    /** Abrir un cofre: banner de confirmación, sin animación nueva (REQ-020). */
+    containerOpen: 300,
+    /** Transferencia con cofre: coger, coger todo o depositar (REQ-020 T-009). */
+    containerTransfer: 250,
     spotted: 200,
     alarm: 500,
     fled: 300,

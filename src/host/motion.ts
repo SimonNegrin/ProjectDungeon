@@ -91,6 +91,9 @@ export type FeedbackCueKind =
   | 'death'
   | 'pickup'
   | 'select-weapon'
+  | 'container-open'
+  | 'container-take'
+  | 'container-deposit'
   | 'trait-impact'
   | 'trait-heal'
   | 'spotted'
@@ -119,6 +122,10 @@ export interface FeedbackCueData {
   readonly playerId?: string;
   readonly itemId?: ItemId;
   readonly slot?: number;
+  /** Cofre implicado en apertura o transferencia (REQ-020 T-009). */
+  readonly containerId?: string;
+  /** Objetos movidos en una transferencia con cofre. */
+  readonly itemIds?: readonly ItemId[];
   /** Trait del catálogo y su nombre visible, para banner y textos. */
   readonly traitId?: string;
   readonly traitName?: string;
@@ -348,6 +355,13 @@ function beatForEvent(
       return FEEDBACK_CONFIG.beats.pickup;
     case 'SelectWeapon':
       return FEEDBACK_CONFIG.beats.selectWeapon;
+    // Abrir y transferir con cofres tiene beat corto propio (REQ-020 T-009).
+    case 'OpenContainer':
+      return FEEDBACK_CONFIG.beats.containerOpen;
+    case 'TakeItem':
+    case 'TakeAll':
+    case 'DepositItem':
+      return FEEDBACK_CONFIG.beats.containerTransfer;
     // Soltar invierte la recogida y desequipar invierte el cambio de arma; se
     // presentan con los beats existentes de REQ-017.
     case 'DropItem':
@@ -477,6 +491,36 @@ function cueForEvent(
         kind: 'select-weapon',
         anchor: anchorFor(event.unitId, finalState),
         data: { unitId: event.unitId, itemId: event.itemId, slot: event.slot },
+      };
+    case 'OpenContainer':
+      return {
+        ...base,
+        kind: 'container-open',
+        anchor: anchorFor(event.unitId, finalState),
+        data: { unitId: event.unitId, containerId: event.containerId },
+      };
+    case 'TakeItem':
+    case 'TakeAll':
+      return {
+        ...base,
+        kind: 'container-take',
+        anchor: anchorFor(event.unitId, finalState),
+        data: {
+          unitId: event.unitId,
+          containerId: event.containerId,
+          itemIds: event.itemIds,
+        },
+      };
+    case 'DepositItem':
+      return {
+        ...base,
+        kind: 'container-deposit',
+        anchor: anchorFor(event.unitId, finalState),
+        data: {
+          unitId: event.unitId,
+          containerId: event.containerId,
+          itemId: event.itemId,
+        },
       };
     case 'EnemySpotted':
       return {
@@ -1290,6 +1334,7 @@ export function presentationState(
   let enemies = state.enemies;
   let map = state.map;
   let groundItems = state.groundItems;
+  let containers = state.containers;
 
   // Deshacer en orden inverso los ataques y réplicas que aún no han ocurrido
   // restaura la vida previa de cada objetivo, incluso con varios encadenados.
@@ -1349,10 +1394,10 @@ export function presentationState(
     withFutureSpells(withFutureActions(unit, timeline, elapsed), timeline, elapsed),
   );
 
-  // Recoger, soltar, equipar y desequipar se aplican al acabar su beat, no al
-  // empezar el cue. Hasta entonces se conserva el inventario, el equipo, el MP y
-  // el suelo iniciales. Se deshace en orden inverso para encadenar varios
-  // cambios.
+  // Recoger, soltar, equipar, desequipar y transferir con cofres se aplican al
+  // acabar su beat, no al empezar el cue. Hasta entonces se conserva el
+  // inventario, el equipo, el MP, el suelo y los contenedores iniciales. Se
+  // deshace en orden inverso para encadenar varios cambios.
   for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
     const entry = timeline.events[index];
     const event = entry.event;
@@ -1360,7 +1405,10 @@ export function presentationState(
       event.type !== 'PickUp' &&
       event.type !== 'SelectWeapon' &&
       event.type !== 'DropItem' &&
-      event.type !== 'UnequipItem'
+      event.type !== 'UnequipItem' &&
+      event.type !== 'TakeItem' &&
+      event.type !== 'TakeAll' &&
+      event.type !== 'DepositItem'
     ) {
       continue;
     }
@@ -1388,6 +1436,13 @@ export function presentationState(
     }
     if (initialState) {
       groundItems = initialState.groundItems ?? [];
+      if (
+        event.type === 'TakeItem' ||
+        event.type === 'TakeAll' ||
+        event.type === 'DepositItem'
+      ) {
+        containers = initialState.containers;
+      }
     }
   }
 
@@ -1401,7 +1456,10 @@ export function presentationState(
         (entry.event.type !== 'PickUp' &&
           entry.event.type !== 'SelectWeapon' &&
           entry.event.type !== 'DropItem' &&
-          entry.event.type !== 'UnequipItem') ||
+          entry.event.type !== 'UnequipItem' &&
+          entry.event.type !== 'TakeItem' &&
+          entry.event.type !== 'TakeAll' &&
+          entry.event.type !== 'DepositItem') ||
         entry.event.unitId !== player.id
       ) {
         return false;
@@ -1475,5 +1533,15 @@ export function presentationState(
   );
   const status = gameEnded?.data.status ?? 'playing';
 
-  return { ...state, map, groundItems, players, enemies, phase, round, status };
+  return {
+    ...state,
+    map,
+    containers,
+    groundItems,
+    players,
+    enemies,
+    phase,
+    round,
+    status,
+  };
 }

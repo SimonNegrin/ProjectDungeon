@@ -298,9 +298,13 @@
                   <section
                     class="inventory-column inventory-column-right ui-outset"
                     data-zone="right"
+                    data-testid="inventory-right-column"
                     aria-label="Suelo"
                   >
-                    <h3 class="inventory-section-title">Suelo</h3>
+                    <h3 class="inventory-section-title">
+                      <span data-testid="inventory-right-title">Suelo</span>
+                      <span data-testid="inventory-chest-count" hidden></span>
+                    </h3>
                     <div class="inventory-ground-scroll" data-testid="inventory-ground-scroll">
                       <ul
                         class="inventory-list inventory-cadavers"
@@ -314,6 +318,17 @@
                         aria-label="Objetos del cadáver"
                         hidden
                       ></ul>
+                      <ul
+                        class="inventory-list inventory-chest-items"
+                        data-testid="inventory-chest-items"
+                        aria-label="Objetos del cofre"
+                        hidden
+                      ></ul>
+                      <p
+                        class="inventory-chest-empty"
+                        data-testid="inventory-chest-empty"
+                        hidden
+                      ></p>
                       <div
                         class="inventory-ground-section"
                         data-testid="inventory-ground-section"

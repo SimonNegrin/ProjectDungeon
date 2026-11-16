@@ -402,7 +402,10 @@ describe('panel de inventario en tres columnas', () => {
     expect(html).toContain('id="inventory-title"');
     expect(html).toMatch(/>Equipo<\/h3>/);
     expect(html).toMatch(/>\s*Bolsa <span data-testid="inventory-backpack-count"><\/span>/);
-    expect(html).toMatch(/>Suelo<\/h3>/);
+    expect(html).toContain(
+      '<span data-testid="inventory-right-title">Suelo</span>',
+    );
+    expect(html).toContain('data-testid="inventory-chest-items"');
     expect(html).not.toContain('data-testid="inventory-player"');
     expect(html).not.toContain('data-testid="inventory-mp"');
     expect(html).not.toContain('inventory-panel-help');

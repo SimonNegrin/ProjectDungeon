@@ -10,7 +10,7 @@ import { activePlayer } from '../game/party';
 import { ROSTER } from '../game/roster';
 import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
-import type { GameState, Position, Unit } from '../game/types';
+import type { Container, GameState, Position, Unit } from '../game/types';
 import type { PanelSelection } from './inventory-panel';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
 import { profileRows, type BandRow } from './damage-labels';
@@ -423,6 +423,46 @@ function allyDetail(ally: Unit): CursorDetail {
   };
 }
 
+/**
+ * Cofre bajo el cursor (REQ-023 R-004/T-006). Un cofre cerrado declara tipo y
+ * estado sin contenido; uno abierto muestra sus objetos. Nunca se lee ni se
+ * filtra una trampa: el modelo no la tiene.
+ */
+function chestDetail(container: Container): CursorDetail {
+  const opened = container.opened === true;
+  const items = container.items.filter(
+    (item): item is NonNullable<Container['items'][number]> => item !== null,
+  );
+  const rows: CursorDetailRow[] = [
+    row('estado', 'Estado', opened ? 'Abierto' : 'Cerrado'),
+    row('tipo', 'Tipo', 'Cofre'),
+  ];
+  if (opened) {
+    rows.push(
+      row(
+        'contenido',
+        'Contenido',
+        items.length === 0
+          ? 'Vacío'
+          : items.map((item) => ITEMS[item.itemId].name).join(', '),
+      ),
+    );
+  }
+  return {
+    kind: 'container',
+    title: 'Cofre',
+    rows,
+    stats: [],
+    traits: [],
+    sprite: null,
+    vitals: [],
+    notes: opened
+      ? []
+      : ['Se abre con Espacio/Enter desde una casilla adyacente'],
+    bands: null,
+  };
+}
+
 function doorDetail(door: Door): CursorDetail {
   const rows: CursorDetailRow[] = [];
   if (door.style !== undefined) {
@@ -528,8 +568,16 @@ export function buildCursorDetail(state: GameState, cursor?: Position): CursorDe
     };
   }
 
-  // Los contenedores de REQ-023 quedan tipados, pero no se leen de
-  // `state.containers` ni se renderizan en esta tarea.
+  // Los cofres se leen del contenedor del motor: cerrado no revela contenido.
+  const container = (state.containers ?? []).find(
+    (entry) =>
+      entry.kind === 'chest' &&
+      entry.x === cursor.x &&
+      entry.y === cursor.y,
+  );
+  if (container) return chestDetail(container);
+
+  // Las puertas son decorativas; el panel no sugiere que se abran.
   const door = (state.map?.doors ?? []).find(
     (entry) => entry.x === cursor.x && entry.y === cursor.y,
   );

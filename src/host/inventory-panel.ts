@@ -68,7 +68,8 @@ export type PanelActionKind =
   | 'pickup'
   | 'drop'
   | 'take'
-  | 'take-all';
+  | 'take-all'
+  | 'deposit';
 
 /** Recurso que anuncia una acción; `mp` es el valor por defecto histórico. */
 export type PanelActionCost = 'mp' | 'none' | 'action';
@@ -166,6 +167,25 @@ export interface PanelCorpse {
   readonly items: readonly PanelItem[];
 }
 
+/**
+ * Cofre abierto mostrado en la columna derecha (REQ-020 R-011/T-007). Sustituye
+ * al suelo y a los cadáveres del tile: una sola fuente por panel.
+ */
+export interface PanelChest {
+  readonly containerId: string;
+  readonly opened: boolean;
+  readonly capacityLabel: string;
+  readonly items: readonly PanelItem[];
+}
+
+/**
+ * Fuente de la columna derecha. `ground` es la vista de `I`; un cofre solo se
+ * muestra tras abrirlo y nunca convive con cadáveres ni suelo.
+ */
+export type PanelSource =
+  | 'ground'
+  | { readonly kind: 'chest'; readonly containerId: string };
+
 export interface InventoryPanelModel {
   readonly equipment: readonly PanelItem[];
   readonly backpack: readonly PanelItem[];
@@ -173,6 +193,10 @@ export interface InventoryPanelModel {
   readonly ground: readonly PanelItem[];
   /** Cadáveres del tile; vacío no reserva sección ni texto (R-014). */
   readonly corpses: readonly PanelCorpse[];
+  /** Cofre abierto; `null` en la vista de Suelo. Excluye suelo y cadáveres. */
+  readonly chest: PanelChest | null;
+  /** Cabecera de la columna derecha: «Suelo» o «Cofre». */
+  readonly rightTitle: 'Suelo' | 'Cofre';
   readonly backpackCount: string;
   readonly stats: PanelStats;
 }
@@ -312,8 +336,9 @@ export function compareEquip(
 function backpackActions(
   unit: Unit,
   index: number,
+  chestId: string | null,
 ): readonly PanelAction[] {
-  return [
+  const actions: PanelAction[] = [
     {
       kind: 'equip',
       label: 'Equipar',
@@ -325,6 +350,15 @@ function backpackActions(
       command: { type: 'DropItem', unitId: unit.id, from: 'backpack', index },
     },
   ];
+  if (chestId !== null) {
+    actions.push({
+      kind: 'deposit',
+      label: 'Depositar',
+      command: { type: 'DepositItem', unitId: unit.id, containerId: chestId, index },
+      cost: 'none',
+    });
+  }
+  return actions;
 }
 
 function equipmentRow(unit: Unit, slot: EquipmentSlot): PanelItem {
@@ -359,7 +393,11 @@ function equipmentRow(unit: Unit, slot: EquipmentSlot): PanelItem {
   };
 }
 
-function backpackRow(unit: Unit, index: number): PanelItem {
+function backpackRow(
+  unit: Unit,
+  index: number,
+  chestId: string | null = null,
+): PanelItem {
   const instance = unit.inventory.items[index] ?? null;
   if (!instance) {
     return {
@@ -386,7 +424,7 @@ function backpackRow(unit: Unit, index: number): PanelItem {
     sprite: item.sprite.rect,
     traits: itemTraits(item),
     comparison: compareEquip(unit, instance.itemId),
-    actions: backpackActions(unit, index),
+    actions: backpackActions(unit, index, chestId),
   };
 }
 
@@ -578,6 +616,90 @@ function buildCorpses(state: GameState, unit: Unit): readonly PanelCorpse[] {
     });
 }
 
+/** Fila navegable de un objeto dentro de un cofre abierto. */
+function chestItemRow(
+  unit: Unit,
+  container: Container,
+  instance: NonNullable<Container['items'][number]>,
+): PanelItem {
+  const definition = ITEMS[instance.itemId];
+  return {
+    key: `chest:${container.id}:${instance.id}`,
+    empty: false,
+    itemId: instance.itemId,
+    instanceId: instance.id,
+    name: itemName(definition),
+    detail: `${itemDetail(definition)} · ${slotLabel(definition.slot)} · Cofre`,
+    sprite: definition.sprite.rect,
+    traits: itemTraits(definition),
+    comparison: compareEquip(unit, instance.itemId),
+    actions: [
+      {
+        kind: 'take',
+        label: 'Coger',
+        command: {
+          type: 'TakeItem',
+          unitId: unit.id,
+          containerId: container.id,
+          itemId: instance.id,
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'take-all',
+        label: 'Coger todo',
+        command: {
+          type: 'TakeAll',
+          unitId: unit.id,
+          containerId: container.id,
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'equip',
+        label: 'Equipar',
+        command: {
+          type: 'EquipItem',
+          unitId: unit.id,
+          from: 'container',
+          containerId: container.id,
+          itemId: instance.id,
+        },
+        cost: 'mp',
+      },
+    ],
+  };
+}
+
+/**
+ * Cofre de la columna derecha (REQ-020 R-011/T-007). Nunca expone contenido de
+ * un cofre cerrado: la vista de Cofre solo se abre tras pagar la apertura. El
+ * cofre vacío conserva la tarjeta y el estado «abierto».
+ */
+function buildChest(unit: Unit, container: Container): PanelChest {
+  const opened = container.opened === true;
+  const items = opened
+    ? container.items
+        .filter(
+          (instance): instance is NonNullable<Container['items'][number]> =>
+            instance !== null,
+        )
+        .map((instance) => chestItemRow(unit, container, instance))
+    : [];
+  return {
+    containerId: container.id,
+    opened,
+    capacityLabel: `${items.length}/${container.capacity}`,
+    items,
+  };
+}
+
+function chestById(state: GameState, containerId: string): Container | undefined {
+  return (state.containers ?? []).find(
+    (container) => container.id === containerId && container.kind === 'chest',
+  );
+}
+
 /**
  * Dos menús son equivalentes cuando ofrecen las mismas acciones para el mismo
  * objeto, con el mismo coste y disponibilidad. La vista conserva el submenú
@@ -610,6 +732,7 @@ export function samePanelMenu(
 export function buildInventoryPanelModel(
   state: GameState,
   unitId?: string,
+  source: PanelSource = 'ground',
 ): InventoryPanelModel {
   const unit = unitForPanel(state, unitId);
   if (!unit) {
@@ -629,22 +752,32 @@ export function buildInventoryPanelModel(
       backpack: [],
       ground: [],
       corpses: [],
+      chest: null,
+      rightTitle: 'Suelo',
       backpackCount: '0',
       stats: { total: '—', rows: [] },
     };
   }
 
-  const groundItems = (state.groundItems ?? []).filter(
-    (item) => item.x === unit.x && item.y === unit.y,
-  );
+  const chestContainer =
+    source === 'ground' ? undefined : chestById(state, source.containerId);
+  const chest = chestContainer ? buildChest(unit, chestContainer) : null;
+  const groundItems =
+    chest === null
+      ? (state.groundItems ?? []).filter(
+          (item) => item.x === unit.x && item.y === unit.y,
+        )
+      : [];
 
   return {
     equipment: EQUIPMENT_SLOTS.map((slot) => equipmentRow(unit, slot)),
     backpack: Array.from({ length: unit.inventory.capacity }, (_value, index) =>
-      backpackRow(unit, index),
+      backpackRow(unit, index, chest?.containerId ?? null),
     ),
     ground: groundItems.map((item) => groundRow(unit, item)),
-    corpses: buildCorpses(state, unit),
+    corpses: chest === null ? buildCorpses(state, unit) : [],
+    chest,
+    rightTitle: chest === null ? 'Suelo' : 'Cofre',
     backpackCount: `${backpackCount(unit.inventory)}/${unit.inventory.capacity}`,
     stats: buildStats(unit),
   };
@@ -659,6 +792,10 @@ const REJECTION_MESSAGES: Readonly<Partial<Record<RejectionReason, string>>> = {
   'two-handed': 'El arma a dos manos no admite escudo',
   'unknown-container': 'El contenedor ya no existe',
   'not-same-tile': 'Tienes que estar en el mismo tile',
+  'not-adjacent': 'Tienes que estar junto al cofre',
+  'container-closed': 'El cofre está cerrado',
+  'container-full': 'El cofre está lleno',
+  'wrong-container': 'Ese contenedor no admite esta operación',
   'unknown-unit': 'La unidad ya no existe',
   'dead-unit': 'La unidad no está viva',
   'wrong-phase': 'Solo puedes gestionar el equipo en tu turno',
@@ -682,7 +819,8 @@ function panelRow(
     model.equipment.find((item) => item.key === key) ??
     model.backpack.find((item) => item.key === key) ??
     model.ground.find((item) => item.key === key) ??
-    corpseItems(model).find((item) => item.key === key)
+    corpseItems(model).find((item) => item.key === key) ??
+    model.chest?.items.find((item) => item.key === key)
   );
 }
 
@@ -699,10 +837,11 @@ export function buildPanelMenu(
   state: GameState,
   key: string,
   unitId?: string,
+  source: PanelSource = 'ground',
 ): readonly PanelMenuOption[] {
   const unit = unitForPanel(state, unitId);
   if (!unit) return [];
-  const item = panelRow(buildInventoryPanelModel(state, unitId), key);
+  const item = panelRow(buildInventoryPanelModel(state, unitId, source), key);
   if (!item || item.empty) return [];
 
   const full =

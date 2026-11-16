@@ -84,10 +84,11 @@ export function enemyActorContextAt(
 }
 
 /**
- * Eventos de presentación del host. `PickUp`, `SelectWeapon`, `DropItem` y
- * `UnequipItem` no son eventos del motor: el host los crea a partir del comando y
- * del diff entre el estado antes y después de despacharlo. Así la timeline y el
- * estado intermedio los tratan como cualquier otro evento sin añadirlos a
+ * Eventos de presentación del host. `PickUp`, `SelectWeapon`, `DropItem`,
+ * `UnequipItem`, `OpenContainer`, `TakeItem`, `TakeAll` y `DepositItem` no son
+ * eventos del motor: el host los crea a partir del comando y del diff entre el
+ * estado antes y después de despacharlo. Así la timeline y el estado intermedio
+ * los tratan como cualquier otro evento sin añadirlos a
  * `DispatchResult.events`.
  */
 export interface PickUpPresentationEvent {
@@ -121,12 +122,39 @@ export interface UnequipItemPresentationEvent {
   readonly slot: number;
 }
 
+/** Abrir un cofre: banner de confirmación con el beat de REQ-020 T-009. */
+export interface ContainerOpenPresentationEvent {
+  readonly type: 'OpenContainer';
+  readonly unitId: string;
+  readonly containerId: string;
+}
+
+/** Coger uno o todos los objetos de un cofre abierto. */
+export interface ContainerTakePresentationEvent {
+  readonly type: 'TakeItem' | 'TakeAll';
+  readonly unitId: string;
+  readonly containerId: string;
+  /** Objetos movidos; uno en `TakeItem`, varios en `TakeAll`. */
+  readonly itemIds: readonly ItemId[];
+}
+
+/** Depositar un objeto de la mochila en un cofre abierto. */
+export interface ContainerDepositPresentationEvent {
+  readonly type: 'DepositItem';
+  readonly unitId: string;
+  readonly containerId: string;
+  readonly itemId: ItemId;
+}
+
 export type PresentationEvent =
   | GameEvent
   | PickUpPresentationEvent
   | SelectWeaponPresentationEvent
   | DropItemPresentationEvent
-  | UnequipItemPresentationEvent;
+  | UnequipItemPresentationEvent
+  | ContainerOpenPresentationEvent
+  | ContainerTakePresentationEvent
+  | ContainerDepositPresentationEvent;
 
 function additions(before: Unit, after: Unit) {
   const beforeIds = new Set(
@@ -155,8 +183,9 @@ function replacedSlot(before: Unit, after: Unit) {
  * Construye la lista de eventos de presentación de una acción.
  *
  * Los eventos del motor se conservan tal cual. Solo se añade un evento sintético
- * cuando el comando cambia inventario o equipo, el motor no emitió eventos y el
- * estado cambió. Un rechazo emite `CommandRejected`, que ya viene en `events`.
+ * cuando el comando cambia inventario, equipo o un contenedor, el motor no
+ * emitió eventos y el estado cambió. Un rechazo emite `CommandRejected`, que ya
+ * viene en `events`.
  */
 export function buildPresentationEvents(
   command: Command,
@@ -166,6 +195,70 @@ export function buildPresentationEvents(
 ): PresentationEvent[] {
   const presentation: PresentationEvent[] = [...events];
   if (events.length > 0) return presentation;
+
+  const containerById = (id: string) =>
+    (initialState.containers ?? []).find((container) => container.id === id);
+
+  if (command.type === 'OpenContainer') {
+    const before = containerById(command.containerId);
+    const after = (finalState.containers ?? []).find(
+      (container) => container.id === command.containerId,
+    );
+    // Reabrir no es un cambio: no hay cue ni beat que esperar.
+    if (before?.opened === true || after?.opened !== true) return presentation;
+    presentation.push({
+      type: 'OpenContainer',
+      unitId: command.unitId,
+      containerId: command.containerId,
+    });
+    return presentation;
+  }
+
+  if (command.type === 'TakeItem') {
+    const container = containerById(command.containerId);
+    const instance = container?.items.find(
+      (item) => item !== null && item.id === command.itemId,
+    );
+    if (!instance) return presentation;
+    presentation.push({
+      type: 'TakeItem',
+      unitId: command.unitId,
+      containerId: command.containerId,
+      itemIds: [instance.itemId],
+    });
+    return presentation;
+  }
+
+  if (command.type === 'TakeAll') {
+    const container = containerById(command.containerId);
+    const itemIds = (container?.items ?? [])
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .map((item) => item.itemId);
+    if (itemIds.length === 0) return presentation;
+    presentation.push({
+      type: 'TakeAll',
+      unitId: command.unitId,
+      containerId: command.containerId,
+      itemIds,
+    });
+    return presentation;
+  }
+
+  if (command.type === 'DepositItem') {
+    const before = initialState.players.find(
+      (unit) => unit.id === command.unitId,
+    );
+    const instance = before?.inventory.items[command.index] ?? null;
+    if (!instance) return presentation;
+    presentation.push({
+      type: 'DepositItem',
+      unitId: command.unitId,
+      containerId: command.containerId,
+      itemId: instance.itemId,
+    });
+    return presentation;
+  }
+
   if (
     command.type !== 'PickUp' &&
     command.type !== 'EquipItem' &&

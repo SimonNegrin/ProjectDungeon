@@ -73,6 +73,7 @@ import { createResultView } from './result-view';
 import {
   rejectionMessage,
   type PanelSelection,
+  type PanelSource,
 } from './inventory-panel';
 import { createInventoryPanelView } from './inventory-panel-view';
 import {
@@ -1193,19 +1194,34 @@ async function boot(): Promise<void> {
         case 'SelectWeapon':
         case 'DropItem':
         case 'UnequipItem':
+        case 'OpenContainer':
+        case 'TakeItem':
+        case 'TakeAll':
+        case 'DepositItem':
         case 'EnemyPhaseStarted':
         case 'TurnEnded': {
           const kind =
-            entry.event.type === 'PickUp'
+            entry.event.type === 'PickUp' ||
+            entry.event.type === 'TakeItem' ||
+            entry.event.type === 'TakeAll'
               ? 'pickup'
-              : entry.event.type === 'SelectWeapon' ||
-                  entry.event.type === 'DropItem' ||
-                  entry.event.type === 'UnequipItem'
-                ? 'select-weapon'
-                : entry.event.type === 'EnemyPhaseStarted'
-                  ? 'enemy-phase'
-                  : 'turn-ended';
-          const cue = cueFor(active, kind, entry.atMs);
+              : entry.event.type === 'OpenContainer'
+                ? 'container-open'
+                : entry.event.type === 'DepositItem'
+                  ? 'container-deposit'
+                  : entry.event.type === 'SelectWeapon' ||
+                      entry.event.type === 'DropItem' ||
+                      entry.event.type === 'UnequipItem'
+                    ? 'select-weapon'
+                    : entry.event.type === 'EnemyPhaseStarted'
+                      ? 'enemy-phase'
+                      : 'turn-ended';
+          // Recoger y transferir con cofre comparten cue visual; el banner
+          // concreto lo decide el evento (REQ-020 T-009).
+          const cue =
+            entry.event.type === 'TakeItem' || entry.event.type === 'TakeAll'
+              ? cueFor(active, 'container-take', entry.atMs)
+              : cueFor(active, kind, entry.atMs);
           if (!cue) break;
           const feedback = bannerForCue(cue);
           if (feedback) showBanner(feedback);
@@ -1691,14 +1707,15 @@ async function boot(): Promise<void> {
 
   /**
    * Abre el panel fuera del bucle de render. La elegibilidad la decide
-   * `translateKey`/`canOpenCharacterPanel`; aquí solo se evita duplicar el modal.
+   * `translateKey`/`canOpenCharacterPanel`; aquí solo se evita duplicar el
+   * modal. `source` fija la columna derecha: Suelo (`I`) o el cofre abierto.
    */
-  const openPanel = (): void => {
+  const openPanel = (source: PanelSource = 'ground'): void => {
     if (panelOpen || !canOpenCharacterPanel(session.state)) return;
     panelOpen = true;
     panelSelection = null;
     panelMessage = null;
-    inventoryPanelView.open(session.state);
+    inventoryPanelView.open(session.state, source);
     render();
   };
 
@@ -1915,7 +1932,7 @@ async function boot(): Promise<void> {
       return;
     }
     if (intent.type === 'panel-open') {
-      openPanel();
+      openPanel('ground');
       return;
     }
     if (intent.type === 'panel-close') {
@@ -1923,7 +1940,15 @@ async function boot(): Promise<void> {
       return;
     }
     if (intent.type === 'command') {
-      applyCommand(intent.command);
+      const result = applyCommand(intent.command);
+      // Abrir un cofre desde el mapa muestra su contenido en la misma
+      // pulsación; un rechazo (sin adyacencia o sin acción) no abre nada.
+      if (
+        intent.command.type === 'OpenContainer' &&
+        !result.events.some((event) => event.type === 'CommandRejected')
+      ) {
+        openPanel({ kind: 'chest', containerId: intent.command.containerId });
+      }
     }
   });
 

@@ -972,6 +972,12 @@
         line-height: 1.2;
         letter-spacing: 0.04em;
       }
+      .inventory-chest-count {
+        margin-left: calc(var(--ui-unit) * 2);
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+        letter-spacing: 0;
+      }
       .inventory-list {
         margin: 0;
         padding: 0;
@@ -1193,6 +1199,28 @@
         margin-bottom: calc(var(--ui-unit) * 3);
       }
       .inventory-corpse-items[hidden] {
+        display: none;
+      }
+      .inventory-chest-items {
+        display: grid;
+        grid-template-columns: repeat(2, var(--ui-slot));
+        gap: calc(var(--ui-unit) * 2);
+        align-content: start;
+        justify-content: start;
+        padding: var(--ui-line);
+        margin: calc(var(--ui-line) * -1);
+        margin-bottom: calc(var(--ui-unit) * 3);
+      }
+      .inventory-chest-items[hidden] {
+        display: none;
+      }
+      .inventory-chest-empty {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: var(--ui-help);
+        line-height: 1.35;
+      }
+      .inventory-chest-empty[hidden] {
         display: none;
       }
       /* Icono de objeto: mismo recorte de items.png que el mundo, en DOM. */
