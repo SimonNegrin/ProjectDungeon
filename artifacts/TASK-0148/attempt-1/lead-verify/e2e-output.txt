@@ -1,0 +1,5 @@
+$ pnpm run test:e2e --workers=1
+
+Running 273 tests using 1 worker
+
+  273 passed (4.1m)
