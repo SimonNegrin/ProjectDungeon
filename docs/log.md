@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0166 — done: la lista de hechizos calcula nivel y maná del jugador activo; test previo en rojo (seis hechizos `level` con el mago activo), E2E de hotseat y 285 E2E en verde — [informe](../artifacts/TASK-0166/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0165 — done: la ficha del HUD derecho resuelve el equipo del jugador activo; test previo en rojo (Espada del primero en vez de Hacha), E2E de dos jugadores y 284 E2E en verde — [informe](../artifacts/TASK-0165/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0164 — done: el camino del cursor se planifica desde el jugador activo y cambia con `N`; test previo en rojo, E2E de dos jugadores y 283 E2E en verde (timeout de carga en `loot-qa` reintentado) — [informe](../artifacts/TASK-0164/attempt-1/report.md)
 * 2026-11-16 — Harness — alcance — `scope:` por ficha con catálogo cerrado y congelación en `merge-base`; el `task_type` queda como atajo, la tarea pierde acceso a fichas ajenas y se resuelve la fricción de TASK-0163 y el test del propio gate — [ADR-032](decisions/ADR-032-alcance-explicito-tarea.md)
