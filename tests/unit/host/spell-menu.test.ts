@@ -8,6 +8,8 @@ import {
   moveSpellSelection,
   spellAvailability,
   spellIndex,
+  spellMeta,
+  spellRangeLabel,
   SPELL_ORDER,
 } from '../../../src/host/spell-menu';
 import { makeState, makeUnit } from '../game/helpers';
@@ -79,7 +81,7 @@ describe('disponibilidad de hechizos', () => {
     expect(spellAvailability(capped, SPELLS['electric-1'])).toBe('limit');
   });
 
-  it('etiqueta cada fila con nombre, nivel, coste y disponibilidad', () => {
+  it('etiqueta cada fila con nombre, nivel, coste, alcance y disponibilidad', () => {
     const state = makeState({ players: [mage({ magicLevel: 4, mana: 16 })] });
     const model = buildSpellMenuModel(state, {
       open: true,
@@ -102,6 +104,12 @@ describe('disponibilidad de hechizos', () => {
     expect(model.items.map((item) => item.cost)).toEqual(
       SPELL_ORDER.map((id) => SPELLS[id].cost),
     );
+    expect(model.items.map((item) => item.range)).toEqual(
+      SPELL_ORDER.map((id) => SPELLS[id].range),
+    );
+    expect(model.items.map((item) => item.meta)).toEqual(
+      SPELL_ORDER.map((id) => spellMeta(SPELLS[id])),
+    );
     expect(model.items.every((item) => item.availability === 'available')).toBe(
       true,
     );
@@ -110,6 +118,28 @@ describe('disponibilidad de hechizos', () => {
       selected: true,
     });
     expect(model.items.slice(1).every((item) => !item.selected)).toBe(true);
+  });
+
+  it('describe una casilla y un rango con el alcance del catálogo', () => {
+    expect(spellRangeLabel(SPELLS['healing-3'].range)).toBe(
+      `alcance ${SPELLS['healing-3'].range.min}`,
+    );
+    expect(spellRangeLabel(SPELLS['electric-1'].range)).toBe(
+      `alcance ${SPELLS['electric-1'].range.min}–${SPELLS['electric-1'].range.max}`,
+    );
+
+    const model = buildSpellMenuModel(
+      makeState({ players: [mage({ magicLevel: 4, mana: 16 })] }),
+      { open: true, index: 0, selectedId: null },
+    );
+    for (const id of ['healing-3', 'resurrection-4'] as const) {
+      const item = model.items.find((candidate) => candidate.id === id);
+      expect(item, `Falta ${id} en la lista`).toBeDefined();
+      expect(item?.cost).toBe(SPELLS[id].cost);
+      expect(item?.range).toEqual(SPELLS[id].range);
+      expect(item?.meta).toContain(` ${SPELLS[id].cost} maná`);
+      expect(item?.meta).toContain(`alcance ${SPELLS[id].range.max}`);
+    }
   });
 
   it('distingue la fila resaltada al abrir y el hechizo guardado al cerrar', () => {

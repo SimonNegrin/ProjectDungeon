@@ -82,7 +82,7 @@ export function createSpellMenuView(root: ParentNode): SpellMenuView {
         const row = rows.get(item.id);
         if (!row) continue;
         row.name.textContent = item.name;
-        row.meta.textContent = `Nv ${item.minLevel} · ${item.cost} maná`;
+        row.meta.textContent = item.meta;
         row.availability.textContent = item.availabilityLabel;
         row.row.dataset.availability = item.availability;
         row.row.classList.toggle('is-selected', item.selected);

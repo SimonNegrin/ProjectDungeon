@@ -220,8 +220,9 @@ interface MageOptions {
 }
 
 /**
- * Mago, aliado dañado, cadáver opcional y un enemigo a distancia 3. Solo reúne
- * unidades y una rejilla vacía: no cambia reglas ni valores del catálogo.
+ * Mago, aliado dañado adyacente, cadáver opcional y un enemigo a distancia 3.
+ * Solo reúne unidades y una rejilla vacía: no cambia reglas ni valores del
+ * catálogo.
  */
 function mageScenario(options: MageOptions = {}): GameState {
   const level = options.magicLevel ?? 4;
@@ -245,7 +246,7 @@ function mageScenario(options: MageOptions = {}): GameState {
   };
   const ally = createPlayerFromArchetype('warrior', {
     id: 'player-2',
-    position: { x: 7, y: 5 },
+    position: { x: 6, y: 5 },
   });
   const allyUnit: Unit = { ...ally, hp: options.allyHp ?? 8 };
   const corpse = createPlayerFromArchetype('warrior', {
@@ -731,7 +732,7 @@ test('hechizo eléctrico, hechizo de fuego, curación y resurrección sin desglo
     type: 'CastSpell',
     unitId: 'player-1',
     spellId: 'healing-3',
-    target: { x: 7, y: 5 },
+    target: { x: 6, y: 5 },
   });
   await advanceToCue(page, 'spell');
   await page.evaluate(() => window.__game!.advance(40));
@@ -741,6 +742,18 @@ test('hechizo eléctrico, hechizo de fuego, curación y resurrección sin desglo
   await expect(page.getByTestId('damage-feedback-detail')).toBeHidden();
   await settle(page);
 
+  // Con coste 12, tras curar (8) no caben ambas en un máximo de 16: este spec
+  // comprueba el feedback sin desglose, así que recarga el mismo escenario.
+  await openState(
+    page,
+    mageScenario({
+      magicLevel: 4,
+      manaMax: 16,
+      actions: 3,
+      allyHp: 8,
+      withCorpse: true,
+    }),
+  );
   const resurrectResult = await dispatchFrozen(page, {
     type: 'CastSpell',
     unitId: 'player-1',

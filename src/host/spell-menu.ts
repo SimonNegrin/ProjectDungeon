@@ -8,7 +8,12 @@
 
 import { MAX_SPELLS_PER_TURN } from '../game/magic';
 import { activePlayer } from '../game/party';
-import { SPELLS, type SpellDefinition, type SpellId } from '../game/spells';
+import {
+  SPELLS,
+  type SpellDefinition,
+  type SpellId,
+  type SpellRange,
+} from '../game/spells';
 import type { GameState, Unit } from '../game/types';
 
 /** Orden estable del catálogo, usado por la lista y las teclas 1-6. */
@@ -46,6 +51,9 @@ export interface SpellMenuItem {
   readonly name: string;
   readonly minLevel: number;
   readonly cost: number;
+  readonly range: SpellRange;
+  /** Nivel, coste y alcance en una línea, siempre leídos del catálogo. */
+  readonly meta: string;
   readonly availability: SpellAvailability;
   readonly availabilityLabel: string;
   /** Fila resaltada (lista abierta) o hechizo seleccionado (lista cerrada). */
@@ -71,6 +79,18 @@ export function spellAvailability(
   if (caster.mana.current < spell.cost) return 'mana';
   if (caster.spellsCast >= MAX_SPELLS_PER_TURN) return 'limit';
   return 'available';
+}
+
+/** Alcance legible: `alcance 1` para una casilla y `alcance 1–3` para un rango. */
+export function spellRangeLabel(range: SpellRange): string {
+  return range.min === range.max
+    ? `alcance ${range.min}`
+    : `alcance ${range.min}–${range.max}`;
+}
+
+/** Detalle de una fila. No duplica cifras: todo sale de la definición. */
+export function spellMeta(spell: SpellDefinition): string {
+  return `Nv ${spell.minLevel} · ${spell.cost} maná · ${spellRangeLabel(spell.range)}`;
 }
 
 /** Mueve la fila resaltada con vuelta circular; no selecciona por sí sola. */
@@ -107,6 +127,8 @@ export function buildSpellMenuModel(
       name: spell.name,
       minLevel: spell.minLevel,
       cost: spell.cost,
+      range: spell.range,
+      meta: spellMeta(spell),
       availability,
       availabilityLabel: SPELL_AVAILABILITY_LABELS[availability],
       selected: selection.open

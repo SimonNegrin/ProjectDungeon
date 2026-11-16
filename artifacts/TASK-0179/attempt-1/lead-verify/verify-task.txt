@@ -1,0 +1,19 @@
+# Verificación determinista de TASK-0179
+
+- Fecha: 2026-11-16T23:32:21.035Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0179-host-qa-curacion-pv-completo.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 5 marcados |
+| Informe | ok | report_status: success (2993 B) |
+| Alcance declarado | ok | sin scope: se usa qa |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 45 archivos dentro de qa (base main) |
+| Capturas | ok | 33 imágenes |
+| verify | ok | pnpm run verify OK |

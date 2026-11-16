@@ -4,7 +4,7 @@ id: TASK-0179
 title: "Host y E2E: aviso de PV completo y curación adyacente"
 description: "El HUD explica el rechazo por PV completo, la lista muestra el coste y alcance reales y el E2E cubre curación adyacente, autocuración, rechazo y +4 de maná."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-025
 requirement_ids: [R-004, R-013, R-014, T-005, T-008, T-012]
@@ -40,16 +40,16 @@ R-014; el aviso genérico y los textos viven en `src/host/notices.ts` y
 
 # Criterios de aceptación
 
-- [ ] El rechazo por PV completo muestra un aviso legible («Ya está a PV
+- [x] El rechazo por PV completo muestra un aviso legible («Ya está a PV
       completo» o equivalente) y el HUD no pierde maná, acción ni hueco.
-- [ ] La lista de hechizos y el detalle muestran coste 8 y alcance 1 de Curación
+- [x] La lista de hechizos y el detalle muestran coste 8 y alcance 1 de Curación
       III y coste 12 de Resurrección IV desde el catálogo, sin números duplicados.
-- [ ] El E2E cubre: aliado adyacente curado 6 PV; autocuración; rechazo a PV
+- [x] El E2E cubre: aliado adyacente curado 6 PV; autocuración; rechazo a PV
       completo sin gastar; alcance 2 rechazado; maná 12 → 4 tras curar y 8 tras
       terminar y empezar el turno siguiente.
-- [ ] Los specs que asumían curación a 2 casillas y 4 PV se actualizan sin perder
+- [x] Los specs que asumían curación a 2 casillas y 4 PV se actualizan sin perder
       sus aserciones de rechazo, tope, HUD y feedback.
-- [ ] Capturas a 1280×720 y 900×700 con el aviso y la lista; sin errores de
+- [x] Capturas a 1280×720 y 900×700 con el aviso y la lista; sin errores de
       consola. `pnpm run verify` y `pnpm run test:e2e` pasan.
 
 # Plan de test
