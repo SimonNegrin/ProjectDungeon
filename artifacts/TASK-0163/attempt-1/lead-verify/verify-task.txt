@@ -1,0 +1,16 @@
+# Verificación determinista de TASK-0163
+
+- Fecha: 2026-11-16T13:07:42.026Z
+- Intento: 1
+- Base: harness/2agentes
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0163-arnes-artefactos-e2e-filtrados.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 6 marcados |
+| Informe | ok | report_status: success (2933 B) |
+| Alcance | ok | 16 archivos dentro de test (base harness/2agentes) |
+| verify | ok | pnpm run verify OK |
