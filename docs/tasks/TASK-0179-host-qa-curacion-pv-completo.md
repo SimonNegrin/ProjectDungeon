@@ -4,7 +4,7 @@ id: TASK-0179
 title: "Host y E2E: aviso de PV completo y curación adyacente"
 description: "El HUD explica el rechazo por PV completo, la lista muestra el coste y alcance reales y el E2E cubre curación adyacente, autocuración, rechazo y +4 de maná."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-025
 requirement_ids: [R-004, R-013, R-014, T-005, T-008, T-012]
