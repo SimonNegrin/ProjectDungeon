@@ -175,16 +175,12 @@ Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 | [TASK-0163](TASK-0163-arnes-artefactos-e2e-filtrados.md) | Arnés: artefactos E2E filtrados por spec | `done` | HARNESS | — | P2 |
-| [TASK-0172](TASK-0172-docs-cofres-glosario-alcance.md) | Docs: cofres en glosario, economía de turno y alcance | `backlog` | REQ-020 | TASK-0171 | P2 |
+| [TASK-0172](TASK-0172-docs-cofres-glosario-alcance.md) | Docs: cofres en glosario, economía de turno y alcance | `done` | REQ-020 | TASK-0171 | P2 |
 
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
-
-# backlog
-
-* [TASK-0172 — Docs: cofres en glosario, economía de turno y alcance](TASK-0172-docs-cofres-glosario-alcance.md)
 
 # done
 
@@ -357,4 +353,5 @@ Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0158 — Requisitos: notas de guardado en REQ-016 y REQ-031](TASK-0158-requisitos-notas-guardado.md)
 * [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 * [TASK-0163 — Arnés: artefactos E2E filtrados por spec](TASK-0163-arnes-artefactos-e2e-filtrados.md)
+* [TASK-0172 — Docs: cofres en glosario, economía de turno y alcance](TASK-0172-docs-cofres-glosario-alcance.md)
 
