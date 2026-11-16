@@ -4,7 +4,7 @@ id: TASK-0162
 title: "Host/UI: traits visibles, desglose y feedback"
 description: "Mostrar los traits de cada objeto antes de equipar y los activos del portador, desglosar inherente/equipo/traits y emitir feedback por impacto del círculo y por curación."
 status: draft
-task_status: backlog
+task_status: ready
 task_type: feature
 requirement: REQ-019
 requirement_ids: [R-004, R-005, R-006, T-012, T-013]
