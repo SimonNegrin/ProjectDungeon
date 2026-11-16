@@ -45,20 +45,20 @@ snapshot ya declara el desglose (`src/game/chambers/core/enemies.ts`).
 
 # Criterios de aceptación
 
-- [ ] Con la misma semilla, una partida de 1 jugador y otra de 6 generan totales
+- [x] Con la misma semilla, una partida de 1 jugador y otra de 6 generan totales
       distintos y dentro de 4-6 y 10-12 en un mapa 22×18.
-- [ ] `createInitialState` deriva `P` de `players.length`; ningún camino del host
+- [x] `createInitialState` deriva `P` de `players.length`; ningún camino del host
       fija `numPlayers` ni usa el 6 por defecto en producción.
-- [ ] El suelo se aplica antes de repartir: con 6 salas no-spawn y total de
+- [x] El suelo se aplica antes de repartir: con 6 salas no-spawn y total de
       fórmula 4 se colocan 6 fichas, una por sala, y el reparto suma el total
       aplicado.
-- [ ] Cuando el suelo eleva el total se emite un aviso con el total de la fórmula,
+- [x] Cuando el suelo eleva el total se emite un aviso con el total de la fórmula,
       el número de salas no-spawn y el total aplicado.
-- [ ] La función pura con factores a 0 devuelve el número de salas no-spawn.
-- [ ] El snapshot expone el `P` real, el número de salas no-spawn y ambos totales.
-- [ ] Cargar una partida guardada conserva el reparto y no regenera enemigos.
-- [ ] BSP conserva 4 fichas y sus tests pasan sin cambios.
-- [ ] `pnpm run verify` pasa.
+- [x] La función pura con factores a 0 devuelve el número de salas no-spawn.
+- [x] El snapshot expone el `P` real, el número de salas no-spawn y ambos totales.
+- [x] Cargar una partida guardada conserva el reparto y no regenera enemigos.
+- [x] BSP conserva 4 fichas y sus tests pasan sin cambios.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 
