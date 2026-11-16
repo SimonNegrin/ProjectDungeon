@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
   createPlayerFromArchetype,
+  effectiveStats,
   emptyEquipment,
   itemInstance,
   synchronizeUnitResources,
@@ -558,6 +559,57 @@ describe('ficha de dos bloques con el panel abierto', () => {
     } finally {
       definition.traits = original;
     }
+  });
+
+  it('la ficha del portador adjunta el desglose con los totales del motor', () => {
+    const player = synchronizeUnitResources(
+      makeUnit({
+        id: 'player-1',
+        faction: 'player',
+        x: 4,
+        y: 4,
+        equipmentSlots: {
+          ...emptyEquipment(),
+          neck: itemInstance('neck', 'mana-necklace'),
+          hands: itemInstance('hands', 'action-gloves'),
+        },
+      }),
+    );
+    const state = makeState({ players: [player], enemies: [] });
+    const detail = buildPanelDetail(state, {
+      key: 'slot:neck',
+      itemId: 'mana-necklace',
+      instanceId: 'neck',
+      zone: 'equipment',
+    });
+    const profile = effectiveStats(player);
+
+    expect(detail.stats.map((row) => row.id)).toEqual([
+      'habilidad',
+      'fuerza',
+      'defensa',
+      'punteria',
+      'resistencia',
+      'magia',
+      'pvMax',
+      'mpMax',
+      'acciones',
+    ]);
+    expect(detail.stats.find((row) => row.id === 'mpMax')).toMatchObject({
+      inherent: '6',
+      equipment: '+0',
+      traits: '+2',
+      total: String(profile.maxMp),
+    });
+    expect(detail.stats.find((row) => row.id === 'acciones')).toMatchObject({
+      inherent: '2',
+      equipment: '+0',
+      traits: '+1',
+      total: String(profile.actionsMax),
+    });
+    expect(detail.stats.find((row) => row.id === 'resistencia')?.total).toBe(
+      detail.stats.find((row) => row.id === 'resistencia')?.inherent,
+    );
   });
 
   it('no altera el detalle del cursor', () => {

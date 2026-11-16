@@ -13,6 +13,7 @@ import type { GameState, Position, Unit } from '../game/types';
 import type { PanelSelection } from './inventory-panel';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
 import { profileRows, type BandRow } from './damage-labels';
+import { statBreakdown, type StatBreakdownRow } from './stat-breakdown';
 import { traitText } from './trait-labels';
 
 /**
@@ -83,6 +84,8 @@ export interface PanelDetailBlock {
 export interface PanelDetail {
   readonly kind: 'panel';
   readonly blocks: readonly [PanelDetailBlock, PanelDetailBlock];
+  /** Desglose inherente/equipo/traits por atributo, con los totales del motor. */
+  readonly stats: readonly StatBreakdownRow[];
 }
 
 export const DOOR_STYLE_LABELS = {
@@ -592,5 +595,6 @@ export function buildPanelDetail(
   return {
     kind: 'panel',
     blocks: [selectedBlock(selection), equippedBlock(unit, selection)],
+    stats: unit ? statBreakdown(unit) : [],
   };
 }

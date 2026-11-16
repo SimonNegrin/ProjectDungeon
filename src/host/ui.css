@@ -171,6 +171,12 @@
         color: var(--ui-muted);
         overflow-wrap: anywhere;
       }
+      /* La ficha puede crecer con traits largos y el desglose; si no cabe, la
+         columna se desplaza en vez de romper el marco (REQ-033 R-022). */
+      .hud-right {
+        overflow-x: hidden;
+        overflow-y: auto;
+      }
       .hud-left {
         grid-column: 1;
       }
@@ -416,6 +422,78 @@
         padding: 0;
         color: var(--ui-muted);
         font-size: var(--ui-data);
+      }
+      /* Desglose del portador bajo la ficha de objeto (REQ-019 R-006/T-012):
+         una entrada por atributo con sus fuentes y el total del motor. */
+      .hud-breakdown {
+        display: flex;
+        flex-direction: column;
+        gap: calc(var(--ui-unit) * 2);
+        min-width: 0;
+      }
+      .hud-breakdown[hidden] {
+        display: none;
+      }
+      .hud-breakdown-title {
+        margin: 0;
+        color: var(--ui-muted);
+        font-size: calc(var(--ui-unit) * 8.5);
+        line-height: 1.15;
+      }
+      .hud-breakdown-list {
+        display: grid;
+        gap: 0;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        font-size: calc(var(--ui-unit) * 9);
+        line-height: 1.1;
+      }
+      .hud-breakdown-row {
+        display: grid;
+        grid-template-columns:
+          minmax(0, 1fr)
+          repeat(4, minmax(0, calc(var(--ui-unit) * 18)));
+        gap: 0 calc(var(--ui-unit) * 4);
+        align-items: baseline;
+      }
+      .hud-breakdown-stat,
+      .hud-breakdown-value {
+        color: var(--ui-text);
+      }
+      .hud-breakdown-value {
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+      }
+      .hud-breakdown-note {
+        grid-column: 1 / -1;
+        color: var(--ui-muted);
+      }
+      /* Resistencia: niveles de equipo/traits y el perfil de bandas del motor. */
+      .hud-breakdown-row-profile {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 calc(var(--ui-unit) * 4);
+      }
+      .hud-breakdown-levels {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 calc(var(--ui-unit) * 4);
+        color: var(--ui-text);
+      }
+      .hud-breakdown-source,
+      .hud-breakdown-profile-label {
+        color: var(--ui-muted);
+      }
+      .hud-breakdown-profile {
+        display: flex;
+        flex: 1 0 100%;
+        flex-wrap: wrap;
+        gap: 0 calc(var(--ui-unit) * 4);
+        color: var(--ui-text);
+      }
+      .hud-breakdown-band {
+        flex: 0 0 auto;
       }
       .hud-detail-vital {
         white-space: nowrap;
