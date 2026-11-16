@@ -1,0 +1,41 @@
+{
+  "seed": 279837264,
+  "viewports": [
+    "1280x720",
+    "900x700"
+  ],
+  "observed": [
+    {
+      "players": 1,
+      "expected": {
+        "min": 4,
+        "max": 6
+      },
+      "totals": [
+        5,
+        5
+      ],
+      "budgetTotals": [
+        5,
+        5
+      ],
+      "nonSpawnRooms": 4
+    },
+    {
+      "players": 6,
+      "expected": {
+        "min": 10,
+        "max": 12
+      },
+      "totals": [
+        11,
+        11
+      ],
+      "budgetTotals": [
+        11,
+        11
+      ],
+      "nonSpawnRooms": 4
+    }
+  ]
+}

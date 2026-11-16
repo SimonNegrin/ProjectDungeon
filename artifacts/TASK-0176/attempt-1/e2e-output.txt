@@ -1,0 +1,8 @@
+$ playwright test tests/e2e/density-party-real-qa.spec.ts
+
+Running 2 tests using 2 workers
+
+  ✓  1 [chromium] › tests/e2e/density-party-real-qa.spec.ts:319:1 › TASK-0176: guardar con una party y cargar desde el menú conserva el reparto (1.5s)
+  ✓  2 [chromium] › tests/e2e/density-party-real-qa.spec.ts:246:1 › TASK-0176: 1 frente a 6 jugadores con la misma semilla, a 1280×720 y 900×700 (2.5s)
+
+  2 passed (3.8s)

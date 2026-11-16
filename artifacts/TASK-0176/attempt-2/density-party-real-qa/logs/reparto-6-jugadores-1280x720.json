@@ -1,0 +1,172 @@
+{
+  "seed": 279837264,
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "label": "1280x720"
+  },
+  "players": 6,
+  "total": 11,
+  "enemyBudget": {
+    "surfaceN": 133,
+    "playersP": 6,
+    "nonSpawnRooms": 4,
+    "surfaceFactor": 0.02,
+    "playersFactor": 1.2,
+    "surfaceTerm": 3,
+    "playersTerm": 8,
+    "formulaTotal": 11,
+    "total": 11,
+    "floorWarning": null
+  },
+  "composition": {
+    "sentinels": 7,
+    "brutes": 2,
+    "cowards": 2
+  },
+  "enemies": [
+    {
+      "id": "enemy-0-0",
+      "type": "coward",
+      "x": 19,
+      "y": 5,
+      "roomId": 0,
+      "home": {
+        "x": 19,
+        "y": 5
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-0-1",
+      "type": "brute",
+      "x": 18,
+      "y": 4,
+      "roomId": 0,
+      "home": {
+        "x": 18,
+        "y": 4
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-0-2",
+      "type": "sentinel",
+      "x": 16,
+      "y": 4,
+      "roomId": 0,
+      "home": {
+        "x": 16,
+        "y": 4
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-2-0",
+      "type": "sentinel",
+      "x": 1,
+      "y": 14,
+      "roomId": 2,
+      "home": {
+        "x": 1,
+        "y": 14
+      },
+      "hidden": false,
+      "interior": false
+    },
+    {
+      "id": "enemy-2-1",
+      "type": "sentinel",
+      "x": 1,
+      "y": 12,
+      "roomId": 2,
+      "home": {
+        "x": 1,
+        "y": 12
+      },
+      "hidden": false,
+      "interior": false
+    },
+    {
+      "id": "enemy-3-0",
+      "type": "sentinel",
+      "x": 12,
+      "y": 14,
+      "roomId": 3,
+      "home": {
+        "x": 12,
+        "y": 14
+      },
+      "hidden": true,
+      "interior": false
+    },
+    {
+      "id": "enemy-3-1",
+      "type": "sentinel",
+      "x": 8,
+      "y": 14,
+      "roomId": 3,
+      "home": {
+        "x": 8,
+        "y": 14
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-3-2",
+      "type": "sentinel",
+      "x": 10,
+      "y": 12,
+      "roomId": 3,
+      "home": {
+        "x": 10,
+        "y": 12
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-4-0",
+      "type": "coward",
+      "x": 18,
+      "y": 12,
+      "roomId": 4,
+      "home": {
+        "x": 18,
+        "y": 12
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-4-1",
+      "type": "brute",
+      "x": 18,
+      "y": 14,
+      "roomId": 4,
+      "home": {
+        "x": 18,
+        "y": 14
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-4-2",
+      "type": "sentinel",
+      "x": 15,
+      "y": 11,
+      "roomId": 4,
+      "home": {
+        "x": 15,
+        "y": 11
+      },
+      "hidden": false,
+      "interior": true
+    }
+  ]
+}

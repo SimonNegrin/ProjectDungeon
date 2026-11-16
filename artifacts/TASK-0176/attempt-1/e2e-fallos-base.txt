@@ -1,0 +1,65 @@
+$ playwright test tests/e2e/host-result-qa.spec.ts tests/e2e/pause-save-load-qa.spec.ts -g 'Nueva partida abre el paso 1|el resultado no ofrece pausa'
+
+Running 2 tests using 2 workers
+
+  ✘  2 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan (1.2s)
+  ✘  1 [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar (6.2s)
+
+
+  1) [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('result-title')
+    Expected: "Victoria"
+    Received: "Derrota"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('result-title') with timeout 5000ms
+      - waiting for getByTestId('result-title')
+        14 × locator resolved to <h2 id="result-title" class="result-title" data-status="defeat" data-testid="result-title">Derrota</h2>
+           - unexpected value "Derrota"
+
+
+      158 |   await defeatAllEnemies(page);
+      159 |   await expect(page.getByTestId('result-screen')).toBeVisible();
+    > 160 |   await expect(page.getByTestId('result-title')).toHaveText('Victoria');
+          |                                                  ^
+      161 |   await expect(page.getByTestId('result-seed')).toHaveText(`Semilla ${PLAY_SEED}`);
+      162 |   await screenshot(page, testInfo, 'victoria-flujo-normal');
+      163 |
+        at /Users/simon/proyectdungeon/tests/e2e/host-result-qa.spec.ts:160:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/host-result-qa-Nueva-parti-d61a3--flujo-normal-sin-reiniciar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/host-result-qa-Nueva-parti-d61a3--flujo-normal-sin-reiniciar-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan 
+
+    Error: winGame acabó en defeat con la semilla 79
+
+       at support.ts:1329
+
+      1327 |   await expect(page.getByTestId('result-screen')).toBeVisible();
+      1328 |   if (ended.status !== 'victory') {
+    > 1329 |     throw new Error(`winGame acabó en ${ended.status} con la semilla ${seed}`);
+           |           ^
+      1330 |   }
+      1331 |   return ended;
+      1332 | }
+        at winGame (/Users/simon/proyectdungeon/tests/e2e/support.ts:1329:11)
+        at /Users/simon/proyectdungeon/tests/e2e/pause-save-load-qa.spec.ts:758:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/pause-save-load-qa-TASK-01-77182-io-y-las-teclas-no-lo-tocan-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/pause-save-load-qa-TASK-01-77182-io-y-las-teclas-no-lo-tocan-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar 
+    [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan 
+[ELIFECYCLE] Command failed with exit code 1.

@@ -1,0 +1,94 @@
+{
+  "seed": 279837264,
+  "viewport": {
+    "width": 1280,
+    "height": 720,
+    "label": "1280x720"
+  },
+  "players": 1,
+  "total": 5,
+  "enemyBudget": {
+    "surfaceN": 133,
+    "playersP": 1,
+    "nonSpawnRooms": 4,
+    "surfaceFactor": 0.02,
+    "playersFactor": 1.2,
+    "surfaceTerm": 3,
+    "playersTerm": 2,
+    "formulaTotal": 5,
+    "total": 5,
+    "floorWarning": null
+  },
+  "composition": {
+    "sentinels": 3,
+    "brutes": 1,
+    "cowards": 1
+  },
+  "enemies": [
+    {
+      "id": "enemy-0-0",
+      "type": "sentinel",
+      "x": 19,
+      "y": 5,
+      "roomId": 0,
+      "home": {
+        "x": 19,
+        "y": 5
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-2-0",
+      "type": "sentinel",
+      "x": 1,
+      "y": 14,
+      "roomId": 2,
+      "home": {
+        "x": 1,
+        "y": 14
+      },
+      "hidden": false,
+      "interior": false
+    },
+    {
+      "id": "enemy-3-0",
+      "type": "sentinel",
+      "x": 12,
+      "y": 14,
+      "roomId": 3,
+      "home": {
+        "x": 12,
+        "y": 14
+      },
+      "hidden": true,
+      "interior": false
+    },
+    {
+      "id": "enemy-4-0",
+      "type": "coward",
+      "x": 18,
+      "y": 12,
+      "roomId": 4,
+      "home": {
+        "x": 18,
+        "y": 12
+      },
+      "hidden": false,
+      "interior": true
+    },
+    {
+      "id": "enemy-4-1",
+      "type": "brute",
+      "x": 18,
+      "y": 14,
+      "roomId": 4,
+      "home": {
+        "x": 18,
+        "y": 14
+      },
+      "hidden": false,
+      "interior": true
+    }
+  ]
+}
