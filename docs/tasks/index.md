@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **172**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -146,6 +146,11 @@ Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0164](TASK-0164-camino-origen-jugador-activo.md) | Bug: el camino del cursor nace del jugador activo | `done` | REQ-004 | — | P1 |
 | [TASK-0165](TASK-0165-hud-equipo-jugador-activo.md) | Bug: la ficha del HUD derecho usa el equipo del jugador activo | `done` | REQ-023 | — | P1 |
 | [TASK-0166](TASK-0166-hechizos-jugador-activo.md) | Bug: la lista de hechizos usa el nivel del jugador activo | `done` | REQ-025 | — | P1 |
+| [TASK-0167](TASK-0167-motor-poder-traits-puntuacion.md) | Motor: poder declarado por trait y puntuación de objetos | `ready` | REQ-020 | — | P1 |
+| [TASK-0168](TASK-0168-motor-cofres-botin-progresivo.md) | Motor: cofres por sala y botín progresivo determinista | `backlog` | REQ-020 | TASK-0167 | P1 |
+| [TASK-0169](TASK-0169-motor-apertura-deposito-guardado.md) | Motor: apertura con acción, depósito y persistencia del cofre | `backlog` | REQ-020 | TASK-0168 | P1 |
+| [TASK-0170](TASK-0170-host-panel-cofre-hud.md) | Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD | `backlog` | REQ-020 | TASK-0169 | P1 |
+| [TASK-0171](TASK-0171-qa-e2e-playtest-cofres.md) | QA/E2E y playtest de cofres, botín y maza circular | `backlog` | REQ-020 | TASK-0170 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -170,11 +175,24 @@ Total: **166**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 | [TASK-0163](TASK-0163-arnes-artefactos-e2e-filtrados.md) | Arnés: artefactos E2E filtrados por spec | `done` | HARNESS | — | P2 |
+| [TASK-0172](TASK-0172-docs-cofres-glosario-alcance.md) | Docs: cofres en glosario, economía de turno y alcance | `backlog` | REQ-020 | TASK-0171 | P2 |
+
+# ready
+
+* [TASK-0167 — Motor: poder declarado por trait y puntuación de objetos](TASK-0167-motor-poder-traits-puntuacion.md)
 
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
+
+# backlog
+
+* [TASK-0168 — Motor: cofres por sala y botín progresivo determinista](TASK-0168-motor-cofres-botin-progresivo.md)
+* [TASK-0169 — Motor: apertura con acción, depósito y persistencia del cofre](TASK-0169-motor-apertura-deposito-guardado.md)
+* [TASK-0170 — Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD](TASK-0170-host-panel-cofre-hud.md)
+* [TASK-0171 — QA/E2E y playtest de cofres, botín y maza circular](TASK-0171-qa-e2e-playtest-cofres.md)
+* [TASK-0172 — Docs: cofres en glosario, economía de turno y alcance](TASK-0172-docs-cofres-glosario-alcance.md)
 
 # done
 

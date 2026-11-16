@@ -5,6 +5,10 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Requirement — REQ-020 — v5 stable: cofres 50/20 por sala no-spawn, apertura con 1 acción y sin ruido, botín determinista para mejorar el equipo del grupo, pieza de traits garantizada por nivel, 4 huecos con depósito gratis y columna «Cofre» — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
+* 2026-11-16 — Decision — ADR-033 — poder declarado por trait con signo, `powerScore` determinista, comparación por hueco contra el mejor equipo del grupo, profundidad reservada y pieza de traits fuera de la curva — [ADR-033](decisions/ADR-033-cofres-poder-botin-progresivo.md)
+* 2026-11-16 — Planning — TASK-0167 — ready: poder por trait y `powerScore`; TASK-0168 a TASK-0172 en backlog (cofres y botín, apertura y guardado, panel, QA y docs) — [TASK-0167](tasks/TASK-0167-motor-poder-traits-puntuacion.md)
+
 * 2026-11-16 — Task — TASK-0166 — done: la lista de hechizos calcula nivel y maná del jugador activo; test previo en rojo (seis hechizos `level` con el mago activo), E2E de hotseat y 285 E2E en verde — [informe](../artifacts/TASK-0166/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0165 — done: la ficha del HUD derecho resuelve el equipo del jugador activo; test previo en rojo (Espada del primero en vez de Hacha), E2E de dos jugadores y 284 E2E en verde — [informe](../artifacts/TASK-0165/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0164 — done: el camino del cursor se planifica desde el jugador activo y cambia con `N`; test previo en rojo, E2E de dos jugadores y 283 E2E en verde (timeout de carga en `loot-qa` reintentado) — [informe](../artifacts/TASK-0164/attempt-1/report.md)
