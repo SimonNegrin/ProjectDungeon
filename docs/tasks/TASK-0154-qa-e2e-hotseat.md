@@ -4,7 +4,7 @@ id: TASK-0154
 title: "QA/E2E del hotseat"
 description: "Cubrir 2 y 6 jugadores, turno con `N`, relevo, aviso de ronda, recursos por turno, muerte, resurrección, fantasma, fase enemiga, resultado, guardado restringido y carga."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-031
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-017, R-018, R-019, R-020, R-021, R-022, R-023, R-024, R-025, T-012]
