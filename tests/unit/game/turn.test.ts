@@ -656,6 +656,85 @@ describe('turno por jugador, validación del activo y fase enemiga (REQ-031 T-00
     });
   });
 
+  it('un resucitado con el índice por delante recibe su turno en la misma ronda', () => {
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 6,
+          y: 5,
+          hp: 12,
+          mp: 0,
+          actionsMax: 2,
+          actions: 0,
+          magicLevel: 1,
+          mana: { current: 0, max: 4 },
+          spellsCast: 1,
+        }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+    });
+
+    const result = reduce(state, { type: 'EndTurn', unitId: 'player-1' });
+
+    expect(result.state.round).toBe(1);
+    expect(result.state.activePlayerId).toBe('player-2');
+    expect(result.events).toEqual([
+      { type: 'TurnEnded', turn: 1 },
+      { type: 'PlayerTurnStarted', turn: 1 },
+    ]);
+    expect(result.enemyPhase).toBeUndefined();
+    expect(result.state.players[1]).toMatchObject({
+      mp: 6,
+      mana: { current: 4, max: 4 },
+      actions: { max: 2, remaining: 2 },
+      spellsCast: 0,
+    });
+  });
+
+  it('un resucitado con el índice ya pasado espera a la ronda siguiente', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 6,
+          y: 5,
+          hp: 12,
+          mp: 0,
+          actionsMax: 2,
+          actions: 0,
+          magicLevel: 1,
+          mana: { current: 0, max: 4 },
+          spellsCast: 1,
+        }),
+        makeUnit({ id: 'player-2', faction: 'player', x: 5, y: 5 }),
+      ],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+      activePlayerId: 'player-2',
+    });
+
+    const result = reduce(state, { type: 'EndTurn', unitId: 'player-2' });
+
+    expect(result.state.round).toBe(2);
+    expect(result.state.activePlayerId).toBe('player-1');
+    expect(result.events.map((event) => event.type)).toEqual([
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'EnemyWaited',
+      'PlayerTurnStarted',
+    ]);
+    // No actuó en la ronda 1: solo recibe recursos cuando empieza su turno.
+    expect(result.state.players[0]).toMatchObject({
+      mp: 6,
+      mana: { current: 4, max: 4 },
+      actions: { max: 2, remaining: 2 },
+      spellsCast: 0,
+    });
+  });
+
   it('no cierra el turno al agotar recursos; solo lo hace EndTurn', () => {
     const state = makeState({
       players: party(2, { mp: 0, actions: 0 }),

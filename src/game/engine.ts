@@ -504,6 +504,7 @@ function reduceCastSpell(
     caster.id,
     command.spellId,
     command.target,
+    command.targetId,
   );
   if (!result.ok) {
     return reject(state, command, result.reason);

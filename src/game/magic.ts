@@ -8,11 +8,12 @@
  * La magia nunca abre réplica (REQ-027).
  */
 
-import { hasAction, spendAction } from './actions';
+import { actionsMax, hasAction, spendAction } from './actions';
 import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
 import { resolvePackets } from './damage';
 import { settleUnitDeath } from './death';
 import { isAlive, isOccupied } from './grid';
+import type { Container } from './inventory';
 import { hasLineOfSight } from './perception';
 import { rollDie } from './rng';
 import { effectiveStats } from './stats';
@@ -57,15 +58,54 @@ function livingUnitAt(state: GameState, position: Position): Unit | undefined {
   );
 }
 
-function deadPlayerAt(state: GameState, position: Position): Unit | undefined {
-  return state.players.find((unit) => !isAlive(unit) && samePosition(unit, position));
-}
-
 function deadUnitAt(state: GameState, position: Position): Unit | undefined {
   return (
     state.players.find((unit) => !isAlive(unit) && samePosition(unit, position)) ??
     state.enemies.find((unit) => !isAlive(unit) && samePosition(unit, position))
   );
+}
+
+/** Cadáver contenedor de un jugador, si su muerte ya se asentó. */
+function corpseContainer(state: GameState, unitId: string): Container | undefined {
+  return (state.containers ?? []).find((container) => container.corpseOf === unitId);
+}
+
+/**
+ * Casilla del cadáver (REQ-021 R-010): manda el contenedor creado al morir,
+ * porque el fantasma puede haberse movido. Sin contenedor (fixtures) se usa la
+ * posición actual de la unidad muerta.
+ */
+function corpsePosition(state: GameState, unit: Unit): Position {
+  const container = corpseContainer(state, unit.id);
+  return container ? { x: container.x, y: container.y } : { x: unit.x, y: unit.y };
+}
+
+interface CorpseTarget {
+  readonly unit: Unit;
+  readonly position: Position;
+}
+
+/**
+ * Resuelve el cadáver concreto (REQ-021 R-009): con `targetId` manda el id;
+ * sin él se busca por la casilla del cadáver, con compatibilidad para las
+ * llamadas antiguas que solo pasaban la casilla.
+ */
+function resolveCorpse(
+  state: GameState,
+  target: Position,
+  targetId: string | undefined,
+): CorpseTarget | undefined {
+  if (targetId !== undefined) {
+    const unit = state.players.find((candidate) => candidate.id === targetId);
+    if (!unit || isAlive(unit)) return undefined;
+    return { unit, position: corpsePosition(state, unit) };
+  }
+
+  const unit = state.players.find(
+    (candidate) =>
+      !isAlive(candidate) && samePosition(corpsePosition(state, candidate), target),
+  );
+  return unit ? { unit, position: corpsePosition(state, unit) } : undefined;
 }
 
 /** Sustituye unidades por ID en jugadores y enemigos sin mutar la entrada. */
@@ -88,9 +128,30 @@ function spendCast(caster: Unit, cost: number): Unit {
 }
 
 /**
- * Resuelve un lanzamiento sobre una casilla. No comprueba la fase: el motor
- * valida `phase === 'player'` como en el resto de comandos. Es atómico: todas
- * las validaciones ocurren antes de la primera tirada y de cualquier cambio.
+ * Devuelve al jugador a la vida en la casilla del cadáver (REQ-021 R-010):
+ * sin marca de fantasma y con el contador de acciones inherente al personaje
+ * —el del fantasma vale 1 y no debe sobrevivir a la resurrección—. MP, maná y
+ * cupo de hechizos se restauran al empezar su turno (REQ-031 T-003).
+ */
+function revivePlayer(unit: Unit, position: Position, hp: number): Unit {
+  const { ghost, ...mortal } = unit;
+  void ghost;
+  return {
+    ...mortal,
+    x: position.x,
+    y: position.y,
+    hp,
+    actions: { max: actionsMax(unit.stats), remaining: 0 },
+  };
+}
+
+/**
+ * Resuelve un lanzamiento sobre una casilla. `targetId` es el selector
+ * opcional de cadáver concreto (REQ-021 R-009): con él manda el id; sin él se
+ * busca el cadáver por su casilla, como las llamadas anteriores. No comprueba
+ * la fase: el motor valida `phase === 'player'` como en el resto de comandos.
+ * Es atómico: todas las validaciones ocurren antes de la primera tirada y de
+ * cualquier cambio.
  *
  * Orden de validación: lanzador, hechizo, acción, maná, nivel, objetivo,
  * alcance, línea de visión y tope.
@@ -100,6 +161,7 @@ export function castSpell(
   casterId: string,
   spellId: string,
   target: Position,
+  targetId?: string,
 ): SpellCastResult {
   const caster = findUnit(state, casterId);
   if (!caster) return reject('unknown-unit');
@@ -164,23 +226,34 @@ export function castSpell(
     };
   }
 
-  const corpse = deadPlayerAt(state, target);
+  const corpse = resolveCorpse(state, target, targetId);
   if (!corpse) {
+    if (targetId !== undefined) {
+      const unit =
+        state.players.find((candidate) => candidate.id === targetId) ??
+        state.enemies.find((candidate) => candidate.id === targetId);
+      return unit ? reject('invalid-target') : reject('target-not-found');
+    }
     const other = deadUnitAt(state, target) ?? livingUnitAt(state, target);
     return other ? reject('invalid-target') : reject('target-not-found');
   }
-  if (isOccupied(state, target.x, target.y)) return reject('occupied');
-  if (range < spell.range.min || range > spell.range.max) return reject('out-of-range');
-  if (!hasLineOfSight(state.grid, caster, target)) return reject('no-line-of-sight');
+  if (isOccupied(state, corpse.position.x, corpse.position.y)) return reject('occupied');
+  const corpseRange = distance(caster, corpse.position);
+  if (corpseRange < spell.range.min || corpseRange > spell.range.max) {
+    return reject('out-of-range');
+  }
+  if (!hasLineOfSight(state.grid, caster, corpse.position)) {
+    return reject('no-line-of-sight');
+  }
   if (caster.spellsCast >= MAX_SPELLS_PER_TURN) return reject('spell-limit');
 
   const targetHp = Math.max(
     spell.effect.minHp,
-    Math.ceil(spell.effect.hpRatio * corpse.maxHp),
+    Math.ceil(spell.effect.hpRatio * corpse.unit.maxHp),
   );
   const next = withUnits(state, [
     spendCast(caster, spell.cost),
-    { ...corpse, hp: targetHp },
+    revivePlayer(corpse.unit, corpse.position, targetHp),
   ]);
 
   return {
@@ -191,8 +264,8 @@ export function castSpell(
         type: 'SpellCast',
         casterId: caster.id,
         spellId: spell.id,
-        targetId: corpse.id,
-        target: { x: corpse.x, y: corpse.y },
+        targetId: corpse.unit.id,
+        target: { x: corpse.position.x, y: corpse.position.y },
         effect: 'resurrect',
         targetHp,
       },

@@ -36,6 +36,7 @@ import {
   type PlayerVariant,
   type Position,
   type RngState,
+  type Unit,
   type WeaponId,
 } from '../../../src/game/index';
 import {
@@ -1492,5 +1493,168 @@ describe('resultado del motor tras el wipe (REQ-031 R-015)', () => {
     expect(result.state.round).toBe(4);
     expect(result.events.at(-1)).toEqual({ type: 'GameEnded', status: 'defeat' });
     expect(result.events.map((event) => event.type)).not.toContain('TurnEnded');
+  });
+});
+
+describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-031 R-014/T-003)', () => {
+  function casterAt(x: number, y: number): Unit {
+    return makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x,
+      y,
+      magicLevel: 4,
+      mana: { current: 8, max: 16 },
+      actionsMax: 2,
+      actions: 2,
+      equipment: { weaponId: null, armorId: null, shieldId: null },
+    });
+  }
+
+  function fallenAt(x: number, y: number, overrides: Partial<Parameters<typeof makeUnit>[0]> = {}): Unit {
+    return makeUnit({
+      id: 'player-2',
+      faction: 'player',
+      x,
+      y,
+      hp: 0,
+      maxHp: 20,
+      magicLevel: 1,
+      mana: { current: 0, max: 4 },
+      mp: 0,
+      spellsCast: 1,
+      actions: 0,
+      equipment: { weaponId: null, armorId: null, shieldId: null },
+      ...overrides,
+    });
+  }
+
+  function resurrect(state: GameState, target: Position, targetId?: string) {
+    return reduce(state, {
+      type: 'CastSpell',
+      unitId: 'player-1',
+      spellId: 'resurrection-4',
+      target,
+      ...(targetId === undefined ? {} : { targetId }),
+    });
+  }
+
+  it('si el índice aún no ha pasado, actúa en la misma ronda con recursos restaurados', () => {
+    const fallen = fallenAt(6, 5);
+    const state = settleUnitDeath(
+      makeState({
+        players: [casterAt(5, 5), fallen],
+        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+      }),
+      'player-2',
+    );
+
+    const revived = resurrect(state, { x: 6, y: 5 });
+
+    expect(revived.events.map((event) => event.type)).toEqual(['SpellCast']);
+    expect(revived.state.players[1]).toMatchObject({
+      id: 'player-2',
+      x: 6,
+      y: 5,
+      hp: 12,
+      mp: 0,
+      actions: { max: 2, remaining: 0 },
+      spellsCast: 1,
+    });
+    expect(revived.state.players[1].ghost).toBeUndefined();
+    // El turno sigue en el lanzador: no se regala control al resucitado.
+    expect(revived.state.activePlayerId).toBe('player-1');
+    expect(revived.state.round).toBe(1);
+
+    const closed = reduce(revived.state, { type: 'EndTurn', unitId: 'player-1' });
+
+    expect(closed.state.round).toBe(1);
+    expect(closed.state.activePlayerId).toBe('player-2');
+    expect(closed.events).toEqual([
+      { type: 'TurnEnded', turn: 1 },
+      { type: 'PlayerTurnStarted', turn: 1 },
+    ]);
+    expect(closed.state.players[1]).toMatchObject({
+      mp: 6,
+      mana: { current: 4, max: 4 },
+      actions: { max: 2, remaining: 2 },
+      spellsCast: 0,
+    });
+  });
+
+  it('si el índice ya pasó, el resucitado actúa en la ronda siguiente', () => {
+    const fallen = fallenAt(6, 5, { id: 'player-1' });
+    const caster = makeUnit({
+      id: 'player-2',
+      faction: 'player',
+      x: 5,
+      y: 5,
+      magicLevel: 4,
+      mana: { current: 8, max: 16 },
+      actionsMax: 2,
+      actions: 2,
+      equipment: { weaponId: null, armorId: null, shieldId: null },
+    });
+    const state = settleUnitDeath(
+      makeState({
+        players: [fallen, caster],
+        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+        activePlayerId: 'player-2',
+      }),
+      'player-1',
+    );
+
+    const revived = reduce(state, {
+      type: 'CastSpell',
+      unitId: 'player-2',
+      spellId: 'resurrection-4',
+      target: { x: 6, y: 5 },
+    });
+
+    expect(revived.events.map((event) => event.type)).toEqual(['SpellCast']);
+    expect(revived.state.players[0]).toMatchObject({ id: 'player-1', hp: 12 });
+    expect(revived.state.activePlayerId).toBe('player-2');
+    expect(revived.state.round).toBe(1);
+
+    const closed = reduce(revived.state, { type: 'EndTurn', unitId: 'player-2' });
+
+    expect(closed.state.round).toBe(2);
+    expect(closed.state.activePlayerId).toBe('player-1');
+    expect(closed.events.map((event) => event.type)).toEqual([
+      'TurnEnded',
+      'EnemyPhaseStarted',
+      'EnemyWaited',
+      'PlayerTurnStarted',
+    ]);
+    // Los recursos llegan al empezar su turno, no antes.
+    expect(closed.state.players[0]).toMatchObject({
+      mp: 6,
+      mana: { current: 4, max: 4 },
+      actions: { max: 2, remaining: 2 },
+      spellsCast: 0,
+    });
+  });
+
+  it('un intento inválido no cambia estado ni consume maná, acción ni RNG', () => {
+    const fallen = fallenAt(6, 5);
+    const state = settleUnitDeath(
+      makeState({
+        players: [casterAt(5, 5), fallen],
+        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18, awareness: 'dormant' })],
+      }),
+      'player-2',
+    );
+    const before = JSON.parse(JSON.stringify(state));
+    const rngBefore = state.rng;
+
+    const result = resurrect(state, { x: 6, y: 5 }, 'player-9');
+
+    expect(result.state).toBe(state);
+    expect(result.state.rng).toBe(rngBefore);
+    expect(result.events).toEqual([
+      { type: 'CommandRejected', commandType: 'CastSpell', reason: 'target-not-found' },
+    ]);
+    expect(JSON.parse(JSON.stringify(state))).toEqual(before);
+    expect(state.players[0]).toMatchObject({ mana: { current: 8 }, actions: { remaining: 2 } });
   });
 });

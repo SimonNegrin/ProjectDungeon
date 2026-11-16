@@ -4,14 +4,18 @@ import {
   MAX_SPELLS_PER_TURN,
   SPELLS,
   bandFor,
+  corpseId,
   createRng,
   effectiveStats,
   findSpell,
+  isGhost,
+  lifeState,
   manaMaxFor,
   reduce,
   resolveHit,
   resolvePacket,
   type Command,
+  type Container,
   type GameState,
   type RejectionReason,
   type SpellDefinition,
@@ -862,6 +866,207 @@ describe('resurrección', () => {
       ...overrides,
     });
   }
+
+  /** Cadáver contenedor tal como lo deja `settleUnitDeath`. */
+  function corpseOf(
+    unit: Unit,
+    position: { readonly x: number; readonly y: number } = unit,
+  ): Container {
+    return {
+      id: corpseId(unit.id),
+      x: position.x,
+      y: position.y,
+      capacity: 0,
+      items: [],
+      kind: 'corpse',
+      corpseOf: unit.id,
+    };
+  }
+
+  function castResurrect(
+    state: GameState,
+    target: { readonly x: number; readonly y: number },
+    targetId?: string,
+  ): ReturnType<typeof reduce> {
+    return reduce(state, {
+      type: 'CastSpell',
+      unitId: 'player-1',
+      spellId: RESURRECT.id,
+      target,
+      ...(targetId === undefined ? {} : { targetId }),
+    });
+  }
+
+  it('el PV de retorno sigue la tabla de R-013: 60 % del máximo hacia arriba', () => {
+    // Mago 12, Pícaro/Cocinero/Arquero 14, Clérigo 18, Guerrero 20, Bárbaro 24.
+    const expected: readonly (readonly [number, number])[] = [
+      [12, 8],
+      [14, 9],
+      [18, 11],
+      [20, 12],
+      [24, 15],
+    ];
+
+    for (const [maxHp, hp] of expected) {
+      const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+      const corpse = deadPlayer({ maxHp, ghost: true });
+      const state = makeState({
+        players: [caster, corpse],
+        enemies: [dummy({ x: 18, y: 18 })],
+        containers: [corpseOf(corpse)],
+      });
+
+      const result = castResurrect(state, { x: corpse.x, y: corpse.y });
+
+      expect(reasonOf(result), `PV máximo ${maxHp}`).toBeUndefined();
+      expect(result.state.players[1].hp, `PV máximo ${maxHp}`).toBe(hp);
+    }
+  });
+
+  it('el targetId elige el cadáver cuando varios comparten casilla', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const first = deadPlayer({ id: 'player-2', maxHp: 20 });
+    const second = deadPlayer({ id: 'player-3', maxHp: 24, ghost: true });
+    const state = makeState({
+      players: [caster, first, second],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(first), corpseOf(second)],
+    });
+
+    const result = castResurrect(state, { x: 6, y: 5 }, 'player-3');
+
+    expect(reasonOf(result)).toBeUndefined();
+    // El elegido vuelve vivo en la casilla con su 60 % de PV.
+    expect(result.state.players[2]).toMatchObject({ id: 'player-3', x: 6, y: 5, hp: 15 });
+    expect(isGhost(result.state.players[2])).toBe(false);
+    // El otro cadáver queda intacto, sin marca ni cambio de PV.
+    expect(result.state.players[1]).toMatchObject({ id: 'player-2', hp: 0 });
+    expect(result.state.players[1]).toBe(state.players[1]);
+    expect(result.state.players[0].mana.current).toBe(0);
+    expect(result.events[0]).toMatchObject({
+      effect: 'resurrect',
+      targetId: 'player-3',
+      target: { x: 6, y: 5 },
+      targetHp: 15,
+    });
+  });
+
+  it('vuelve a la casilla del cadáver aunque el fantasma se haya movido', () => {
+    const caster = mage();
+    const wanderer = deadPlayer({ x: 9, y: 9, ghost: true, maxHp: 20 });
+    const state = makeState({
+      players: [caster, wanderer],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(wanderer, { x: 6, y: 5 })],
+    });
+
+    const result = castResurrect(state, { x: 9, y: 9 }, 'player-2');
+
+    expect(reasonOf(result)).toBeUndefined();
+    expect(result.state.players[1]).toMatchObject({ x: 6, y: 5, hp: 12 });
+    expect(result.events[0]).toMatchObject({
+      effect: 'resurrect',
+      target: { x: 6, y: 5 },
+    });
+  });
+
+  it('con targetId, la adyacencia se mide a la casilla del cadáver', () => {
+    const caster = mage();
+    const wanderer = deadPlayer({ x: 6, y: 5, ghost: true });
+    const state = makeState({
+      players: [caster, wanderer],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(wanderer, { x: 8, y: 5 })],
+    });
+
+    expectRejected(
+      state,
+      castResurrect(state, { x: 6, y: 5 }, 'player-2'),
+      'out-of-range',
+    );
+  });
+
+  it('el fantasma sobre la casilla no bloquea y pierde la marca al resucitar', () => {
+    const caster = mage();
+    const ghost = deadPlayer({ x: 6, y: 5, ghost: true });
+    const state = makeState({
+      players: [caster, ghost],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(ghost)],
+    });
+
+    const result = castResurrect(state, { x: 6, y: 5 });
+
+    expect(reasonOf(result)).toBeUndefined();
+    const revived = result.state.players[1];
+    expect(lifeState(revived)).toBe('alive');
+    expect(isGhost(revived)).toBe(false);
+    expect('ghost' in revived).toBe(false);
+    expect(revived.actions).toEqual({ max: 2, remaining: 0 });
+  });
+
+  it('un vivo aliado o enemigo sobre el cadáver bloquea la resurrección', () => {
+    const allyOnCorpse = deadPlayer();
+    const blockedByAlly = makeState({
+      players: [mage(), allyOnCorpse, ally({ id: 'player-3', x: 6, y: 5 })],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(allyOnCorpse)],
+    });
+    expectRejected(
+      blockedByAlly,
+      castResurrect(blockedByAlly, { x: 6, y: 5 }, 'player-2'),
+      'occupied',
+    );
+
+    const enemyOnCorpse = deadPlayer();
+    const blockedByEnemy = makeState({
+      players: [mage(), enemyOnCorpse],
+      enemies: [dummy({ x: 6, y: 5 })],
+      containers: [corpseOf(enemyOnCorpse)],
+    });
+    expectRejected(
+      blockedByEnemy,
+      castResurrect(blockedByEnemy, { x: 6, y: 5 }, 'player-2'),
+      'occupied',
+    );
+  });
+
+  it('rechaza un targetId desconocido, de un vivo o de un enemigo sin consumir', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const corpse = deadPlayer();
+    const withCorpse = makeState({
+      players: [caster, corpse],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(corpse)],
+    });
+
+    expectRejected(
+      withCorpse,
+      castResurrect(withCorpse, { x: 6, y: 5 }, 'player-9'),
+      'target-not-found',
+    );
+
+    const livingAlly = ally({ id: 'player-3', x: 7, y: 5 });
+    const withLiving = makeState({
+      players: [mage(), livingAlly],
+      enemies: [dummy({ x: 18, y: 18 })],
+    });
+    expectRejected(
+      withLiving,
+      castResurrect(withLiving, { x: 7, y: 5 }, 'player-3'),
+      'invalid-target',
+    );
+
+    const withDeadEnemy = makeState({
+      players: [mage()],
+      enemies: [dummy({ x: 6, y: 5, hp: 0 })],
+    });
+    expectRejected(
+      withDeadEnemy,
+      castResurrect(withDeadEnemy, { x: 6, y: 5 }, 'enemy-1'),
+      'invalid-target',
+    );
+  });
 
   it('devuelve al jugador con el 60 % del PV máximo, redondeado hacia arriba', () => {
     const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
