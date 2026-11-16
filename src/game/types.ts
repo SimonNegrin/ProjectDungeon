@@ -372,6 +372,8 @@ export type RejectionReason =
   | 'no-action'
   | 'target-not-found'
   | 'target-dead'
+  /** `CastSpell`: la curación no tiene efecto porque el objetivo ya está a PV completo (REQ-025 R-014). */
+  | 'target-full-hp'
   | 'target-not-adjacent'
   | 'same-faction'
   /** `MoveTo`: no existe camino hasta el destino o el tile de ataque. */

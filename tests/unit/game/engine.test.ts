@@ -13,12 +13,14 @@ import {
   DEFAULT_MAP_SEED,
   emptyEquipment,
   equipmentFromLegacy,
+  findSpell,
   GameConfigError,
   inventoryFromIds,
   isOccupied,
   isWallAt,
   itemInstance,
   locateInstance,
+  manaMaxFor,
   normalizeSeed,
   partyOrder,
   PICKUP_COST,
@@ -1497,6 +1499,9 @@ describe('resultado del motor tras el wipe (REQ-031 R-015)', () => {
 });
 
 describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-031 R-014/T-003)', () => {
+  const RESURRECT = findSpell('resurrection-4')!;
+  const MANA_MAX = manaMaxFor(4);
+
   function casterAt(x: number, y: number): Unit {
     return makeUnit({
       id: 'player-1',
@@ -1504,7 +1509,7 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
       x,
       y,
       magicLevel: 4,
-      mana: { current: 8, max: 16 },
+      mana: { current: MANA_MAX, max: MANA_MAX },
       actionsMax: 2,
       actions: 2,
       equipment: { weaponId: null, armorId: null, shieldId: null },
@@ -1533,7 +1538,7 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
     return reduce(state, {
       type: 'CastSpell',
       unitId: 'player-1',
-      spellId: 'resurrection-4',
+      spellId: RESURRECT.id,
       target,
       ...(targetId === undefined ? {} : { targetId }),
     });
@@ -1590,7 +1595,7 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
       x: 5,
       y: 5,
       magicLevel: 4,
-      mana: { current: 8, max: 16 },
+      mana: { current: MANA_MAX, max: MANA_MAX },
       actionsMax: 2,
       actions: 2,
       equipment: { weaponId: null, armorId: null, shieldId: null },
@@ -1607,7 +1612,7 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
     const revived = reduce(state, {
       type: 'CastSpell',
       unitId: 'player-2',
-      spellId: 'resurrection-4',
+      spellId: RESURRECT.id,
       target: { x: 6, y: 5 },
     });
 
@@ -1723,6 +1728,9 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
       { type: 'CommandRejected', commandType: 'CastSpell', reason: 'target-not-found' },
     ]);
     expect(JSON.parse(JSON.stringify(state))).toEqual(before);
-    expect(state.players[0]).toMatchObject({ mana: { current: 8 }, actions: { remaining: 2 } });
+    expect(state.players[0]).toMatchObject({
+      mana: { current: MANA_MAX },
+      actions: { remaining: 2 },
+    });
   });
 });

@@ -198,18 +198,29 @@ export function castSpell(
     if (!ally) {
       return deadUnitAt(state, target) ? reject('target-dead') : reject('target-not-found');
     }
-    if (ally.id === caster.id) return reject('invalid-target');
     if (ally.faction !== caster.faction) return reject('invalid-target');
-    if (range < spell.range.min || range > spell.range.max) return reject('out-of-range');
+    // El lanzador es un objetivo válido a distancia 0 (REQ-025 R-013/T-012).
+    const selfTarget = ally.id === caster.id;
+    if (!selfTarget && (range < spell.range.min || range > spell.range.max)) {
+      return reject('out-of-range');
+    }
     if (!hasLineOfSight(state.grid, caster, target)) return reject('no-line-of-sight');
     if (caster.spellsCast >= MAX_SPELLS_PER_TURN) return reject('spell-limit');
+    // A PV completo no hay cura que aplicar: rechazo atómico con motivo propio
+    // (REQ-025 R-014/T-012).
+    if (ally.hp >= ally.maxHp) return reject('target-full-hp');
 
     const healed = Math.min(spell.effect.amount, ally.maxHp - ally.hp);
     const targetHp = ally.hp + healed;
-    const next = withUnits(state, [
-      spendCast(caster, spell.cost),
-      { ...ally, hp: targetHp },
-    ]);
+    const spent = spendCast(caster, spell.cost);
+    // Con autocuración, lanzador y objetivo son la misma unidad: el gasto y el
+    // PV deben ir en una sola actualización para que no se pisen.
+    const next = withUnits(
+      state,
+      selfTarget
+        ? [{ ...spent, hp: targetHp }]
+        : [spent, { ...ally, hp: targetHp }],
+    );
 
     return {
       ok: true,
