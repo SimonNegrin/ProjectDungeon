@@ -98,7 +98,7 @@ export const KEY_BINDINGS: readonly KeyBinding[] = [
   {
     id: 'move',
     codes: [' ', 'enter'],
-    label: 'moverse',
+    label: 'moverse / abrir',
     group: 'acciones',
   },
   {

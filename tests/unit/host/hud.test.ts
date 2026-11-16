@@ -76,7 +76,7 @@ describe('modelo del HUD', () => {
     });
     expect(model.keys).toBe(KEYS_HELP);
     expect(model.keys).toContain('cursor');
-    expect(model.keys).toContain('Espacio/Enter moverse');
+    expect(model.keys).toContain('Espacio/Enter moverse / abrir');
     expect(model.keys).toContain('F atacar');
     expect(model.keys).toContain('I panel');
     expect(model.keys).toContain('Esc cerrar / pausa');

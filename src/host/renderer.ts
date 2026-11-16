@@ -68,6 +68,19 @@ const DOOR_COLORS: Readonly<Record<DoorStyle, { frame: string; leaf: string }>> 
 };
 
 /**
+ * Marcador provisional de cofre (REQ-020 T-007). No hay arte definitivo ni
+ * recorte en `tiles.png`: se dibuja con la paleta del HUD y se declara en el
+ * informe. El estado abierto levanta la tapa y oscurece el interior.
+ */
+const CHEST_COLORS = {
+  outline: '#2a1a10',
+  body: '#8a5a2b',
+  lid: '#b07a3c',
+  inside: '#170f09',
+  latch: '#f2c14e',
+} as const;
+
+/**
  * Recorte local de las escaleras de 32rogues (`tiles.txt` 17.h y 17.i).
  * Producción aún no lo expone en `assets.ts`, así que se mantiene aquí como en
  * `EXP-004` para no añadir arte ni cambiar el catálogo de tiles.
@@ -293,6 +306,70 @@ export function corpseMarks(
     corpseOf: group.corpseOf,
     rect: group.rect,
   }));
+}
+
+/** Marca de render de un cofre visible; no hay sprite, solo el marcador provisional. */
+export interface ChestMark {
+  readonly x: number;
+  readonly y: number;
+  readonly containerId: string;
+  readonly opened: boolean;
+}
+
+/**
+ * Cofres que el render dibuja. La verdad es `state.containers`; el marcador es
+ * solo presentación y conserva el orden del estado para que sea determinista.
+ */
+export function chestMarks(containers: readonly Container[]): readonly ChestMark[] {
+  return containers
+    .filter((container) => container.kind === 'chest')
+    .map((container) => ({
+      x: container.x,
+      y: container.y,
+      containerId: container.id,
+      opened: container.opened === true,
+    }));
+}
+
+/** Marcador provisional del cofre: cuerpo, tapa y pestillo, sin arte nuevo. */
+function drawChestMark(
+  ctx: CanvasRenderingContext2D,
+  mark: ChestMark,
+  tileSize: number,
+): void {
+  const x = mark.x * tileSize;
+  const y = mark.y * tileSize;
+  const left = x + tileSize * 0.22;
+  const width = tileSize * 0.56;
+  const bodyTop = y + tileSize * 0.46;
+  const bodyHeight = tileSize * 0.34;
+  const lidHeight = tileSize * 0.18;
+  const lidTop = y + tileSize * 0.3;
+
+  // Contorno oscuro y cuerpo de madera.
+  ctx.fillStyle = CHEST_COLORS.outline;
+  ctx.fillRect(left - 1, bodyTop - 1, width + 2, bodyHeight + 2);
+  ctx.fillStyle = CHEST_COLORS.body;
+  ctx.fillRect(left, bodyTop, width, bodyHeight);
+
+  if (mark.opened) {
+    // Interior visible y tapa levantada; el brillo del pestillo se conserva.
+    ctx.fillStyle = CHEST_COLORS.inside;
+    ctx.fillRect(left + 1, bodyTop + 1, width - 2, bodyHeight - 2);
+    ctx.fillStyle = CHEST_COLORS.lid;
+    ctx.fillRect(left - 1, lidTop - tileSize * 0.1, width + 2, lidHeight * 0.6);
+  } else {
+    ctx.fillStyle = CHEST_COLORS.lid;
+    ctx.fillRect(left - 1, lidTop, width + 2, lidHeight);
+  }
+
+  ctx.fillStyle = CHEST_COLORS.latch;
+  ctx.fillRect(
+    x + tileSize * 0.47,
+    mark.opened ? bodyTop - tileSize * 0.02 : lidTop + lidHeight * 0.55,
+    tileSize * 0.06,
+    tileSize * 0.08,
+  );
 }
 
 /** Marca de pila: `×N` sobre fondo oscuro en la esquina del tile. */
@@ -861,6 +938,12 @@ export function renderScene(
     if (mark.count > 1) {
       drawCorpseStack(ctx, mark.count, mark.x, mark.y, tileSize);
     }
+  }
+
+  // Cofres: marcador provisional sobre el suelo y bajo muros/unidades.
+  for (const mark of chestMarks(state.containers ?? [])) {
+    if (!tileVisible(mark.x, mark.y, range)) continue;
+    drawChestMark(ctx, mark, tileSize);
   }
 
   const debug = options.debug ?? false;

@@ -161,6 +161,7 @@ test('cofre: abrir por teclado, Depósito, Cofre y vuelta a Suelo', async ({
   await expect(page.getByTestId('hud-cursor-rows')).toContainText('Cerrado');
   await expect(page.getByTestId('hud-cursor-rows')).not.toContainText('Hacha');
   await expect(page.getByTestId('inventory-panel')).toBeHidden();
+  await screenshot(page, 'mapa-cofre-cerrado-1280x720', testInfo);
 
   const before = await snapshot(page);
   expect(before.players[0].actions.remaining).toBe(2);
@@ -220,6 +221,7 @@ test('cofre: abrir por teclado, Depósito, Cofre y vuelta a Suelo', async ({
   await expect(page.getByTestId('hud-cursor-rows')).toContainText('Abierto');
   await expect(page.getByTestId('hud-cursor-rows')).toContainText('Hacha');
   await expect(page.getByTestId('hud-cursor-rows')).toContainText('Daga');
+  await screenshot(page, 'mapa-cofre-abierto-1280x720', testInfo);
 
   // `I` abre «Suelo»: suelo y cadáveres del tile; nada del cofre.
   await page.keyboard.press('i');
