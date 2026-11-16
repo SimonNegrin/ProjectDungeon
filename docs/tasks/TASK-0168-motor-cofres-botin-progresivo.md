@@ -4,7 +4,7 @@ id: TASK-0168
 title: "Motor: cofres por sala y botín progresivo determinista"
 description: "Generar cofres en las salas no-spawn con tiradas 50/20, contenido de dos objetos orientado a mejorar el equipo del grupo y una pieza de traits garantizada por nivel."
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-001, R-002, R-004, R-005, R-007, R-008, T-001, T-004]
