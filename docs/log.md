@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0167 — done: poder declarado por trait con signo y `powerScore` determinista con los valores de ADR-033; catálogo real de 17 traits y 14 objetos cubierto, 1839 tests y fusión `c83c68a` — [informe](../artifacts/TASK-0167/attempt-1/report.md)
 * 2026-11-16 — Requirement — REQ-020 — v5 stable: cofres 50/20 por sala no-spawn, apertura con 1 acción y sin ruido, botín determinista para mejorar el equipo del grupo, pieza de traits garantizada por nivel, 4 huecos con depósito gratis y columna «Cofre» — [REQ-020](requirements/REQ-020-cofres-saqueo.md)
 * 2026-11-16 — Decision — ADR-033 — poder declarado por trait con signo, `powerScore` determinista, comparación por hueco contra el mejor equipo del grupo, profundidad reservada y pieza de traits fuera de la curva — [ADR-033](decisions/ADR-033-cofres-poder-botin-progresivo.md)
 * 2026-11-16 — Planning — TASK-0167 — ready: poder por trait y `powerScore`; TASK-0168 a TASK-0172 en backlog (cofres y botín, apertura y guardado, panel, QA y docs) — [TASK-0167](tasks/TASK-0167-motor-poder-traits-puntuacion.md)
