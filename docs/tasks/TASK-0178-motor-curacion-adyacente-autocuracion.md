@@ -41,16 +41,16 @@ añadir el motivo de PV completo.
 
 # Criterios de aceptación
 
-- [ ] El catálogo declara Curación III con coste 8, alcance 1–1, efecto 6 PV y
+- [x] El catálogo declara Curación III con coste 8, alcance 1–1, efecto 6 PV y
       objetivo aliado; Resurrección IV con coste 12. Los tests leen el catálogo.
-- [ ] Curar a un aliado adyacente ortogonal o diagonal aplica
+- [x] Curar a un aliado adyacente ortogonal o diagonal aplica
       `min(6, PV máximos − PV actuales)` y consume 8 de maná, 1 acción y 1 hueco
       del tope de 2.
-- [ ] Curarse a uno mismo funciona con las mismas reglas y coste; enemigos y
+- [x] Curarse a uno mismo funciona con las mismas reglas y coste; enemigos y
       cadáveres siguen rechazados; a 2 casillas se rechaza por alcance.
-- [ ] Curar a un objetivo a PV completo devuelve un motivo propio y no consume
+- [x] Curar a un objetivo a PV completo devuelve un motivo propio y no consume
       acción, maná, hueco ni RNG; hay test de estado intacto.
-- [ ] Los tests de `magic`, `damage-matrix` y guardado afectados por los valores
+- [x] Los tests de `magic`, `damage-matrix` y guardado afectados por los valores
       nuevos se actualizan sin perder su intención; `pnpm run verify` pasa.
 
 # Plan de test
