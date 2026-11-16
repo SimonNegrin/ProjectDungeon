@@ -4,7 +4,7 @@ id: TASK-0178
 title: "Motor: Curación adyacente, autocuración y costes 8/12"
 description: "Curación III pasa a alcance 1 con diagonales, admite al lanzador, cuesta 8 y cura 6; Resurrección IV cuesta 12; a PV completo se rechaza sin gastar."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-009, R-013, R-014, T-006, T-012]
