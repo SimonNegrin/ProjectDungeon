@@ -3,23 +3,31 @@ type: Task
 id: TASK-0169
 title: "Motor: apertura con acción, depósito y persistencia del cofre"
 description: "Añadir el comando de apertura de cofre con coste 1 acción y adyacencia, el depósito gratis y atómico solo en cofres, y el estado de apertura en snapshot y guardado v1."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-003, R-010, T-001, T-005, T-006, T-008]
 depends_on: [TASK-0168]
 unlocks: [TASK-0170]
 created_at: 2026-11-16T16:20:04Z
-completed_at:
+completed_at: 2026-11-16T17:19:11Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0169/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T16:20:04Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T17:19:11Z
+    note: >-
+      Intento 1 verificado (`daa36231`). Siete criterios firmados: apertura con
+      1 acción y Chebyshev 1, reapertura gratis, fantasma sin abrir e inspección
+      intacta, depósito atómico solo en cofres, coger todo entero, cofre vacío
+      persistente y round-trip estable. `verify` completo y `verify:task` en
+      verde. Detalle en `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -37,19 +45,19 @@ El guardado v1 aún no está publicado, así que el campo nuevo entra en esa ver
 
 # Criterios de aceptación
 
-- [ ] Un comando de apertura gasta exactamente 1 acción, exige adyacencia
+- [x] Un comando de apertura gasta exactamente 1 acción, exige adyacencia
       Chebyshev 1 y rechaza sin cambios parciales si falta acción, distancia o el
       cofre no existe; reabrir un cofre abierto no cuesta nada.
-- [ ] El fantasma no puede abrir un cofre y conserva la inspección; los vivos
+- [x] El fantasma no puede abrir un cofre y conserva la inspección; los vivos
       abren en su turno.
-- [ ] Depositar es gratis y atómico, solo en cofres: capacidad, localización y
+- [x] Depositar es gratis y atómico, solo en cofres: capacidad, localización y
       tipo se validan antes de mover; un cadáver rechaza depósitos.
-- [ ] «Coger todo» con el cofre abierto se rechaza entero si algo no cabe.
-- [ ] El cofre abierto permanece en el mundo con su estado y su contenido; vacío
+- [x] «Coger todo» con el cofre abierto se rechaza entero si algo no cabe.
+- [x] El cofre abierto permanece en el mundo con su estado y su contenido; vacío
       no se elimina.
-- [ ] Snapshot y guardado v1 exponen y restauran cofres, estado de apertura y
+- [x] Snapshot y guardado v1 exponen y restauran cofres, estado de apertura y
       contenido sin repetir tiradas; cargar y volver a guardar es estable.
-- [ ] Tests de coste, adyacencia, reapertura, fantasma, depósito atómico,
+- [x] Tests de coste, adyacencia, reapertura, fantasma, depósito atómico,
       capacidad, cadáver sin depósito y round-trip de guardado; `pnpm run verify`
       pasa.
 

@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0169
+
+- Fecha: 2026-11-16T17:19:09.183Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0169-motor-apertura-deposito-guardado.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 7 marcados |
+| Informe | ok | report_status: success (2822 B) |
+| Alcance declarado | ok | sin scope: se usa feature |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 9 archivos dentro de feature (base main) |
+| verify | ok | pnpm run verify OK |
