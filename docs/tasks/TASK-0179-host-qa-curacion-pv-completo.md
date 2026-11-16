@@ -4,22 +4,31 @@ id: TASK-0179
 title: "Host y E2E: aviso de PV completo y curación adyacente"
 description: "El HUD explica el rechazo por PV completo, la lista muestra el coste y alcance reales y el E2E cubre curación adyacente, autocuración, rechazo y +4 de maná."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: qa
 requirement: REQ-025
 requirement_ids: [R-004, R-013, R-014, T-005, T-008, T-012]
 depends_on: [TASK-0177, TASK-0178]
 unlocks: []
 created_at: 2026-11-16T22:59:36Z
-completed_at:
+completed_at: 2026-11-16T23:33:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0179/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T22:59:36Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T23:33:00Z
+    note: >-
+      Intento 1 verificado (código `daf59f19`, evidencia `ecadfce6`). Los cinco
+      criterios firmados: aviso «Ya está a PV completo», lista con 8/1 y 12/1
+      desde el catálogo, E2E de adyacente/autocuración/rechazos/maná 12→4→8,
+      specs actualizados sin perder aserciones y 33 capturas a dos viewports.
+      `pnpm run verify` y 294 E2E en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
