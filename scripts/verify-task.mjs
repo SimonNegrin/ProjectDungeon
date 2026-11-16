@@ -2,14 +2,25 @@
 import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
-import { parseConcept, repoRoot } from './lib/docs.mjs';
+import { parseConcept, parseConceptText, repoRoot } from './lib/docs.mjs';
+import {
+  allowedFor,
+  isInScope,
+  normalizeScope,
+  sameScope,
+  unknownScopeEntries,
+} from './lib/scope.mjs';
 
 const USAGE = `Uso: pnpm run verify:task TASK-NNNN [--attempt N] [--base REF] [--no-run]
 
 Comprueba de forma determinista la evidencia de una tarea:
   - estado in_progress y criterios de aceptación firmados;
   - informe del intento con report_status success;
-  - alcance del diff frente a la base (main por defecto);
+  - alcance del diff frente a la base (main por defecto): el declarado en
+    \`scope:\` de la ficha o, si falta, el de su \`task_type\`; el alcance que tenía
+    la ficha en la base es el que se mide, y cambiarlo después hace fallar la
+    verificación; solo la ficha propia, docs/tasks/index.md y artifacts/ están
+    siempre permitidos;
   - capturas cuando la tarea es visual o QA; el plan de test puede declarar
     «E2E / visual: no» para una tarea sin UI, y entonces no se exigen;
   - pnpm run verify (salvo --no-run).
@@ -133,49 +144,55 @@ if (!reportPath || !existsSync(reportPath)) {
 }
 
 const taskType = String(data.task_type ?? 'feature');
-const scopeByType = {
-  docs: ['docs/', 'AGENTS.md', 'README.md', 'opencode.jsonc', '.opencode/', 'scripts/', 'package.json'],
-  harness: ['docs/', 'AGENTS.md', 'README.md', 'opencode.jsonc', '.opencode/', 'scripts/', 'package.json'],
-  experiment: ['src/', 'tests/', 'experiments/', 'package.json', 'pnpm-lock.yaml'],
-  feature: null,
-  test: null,
-  qa: null,
-  refactor: null,
-};
-const codeScope = [
-  'src/',
-  'tests/',
-  'index.html',
-  'public/',
-  'experiments/',
-  'package.json',
-  'pnpm-lock.yaml',
-  'tsconfig.json',
-  'tsconfig.node.json',
-  'vite.config.ts',
-  'vite.config.experiments.ts',
-  'vitest.config.ts',
-  'playwright.config.ts',
-];
-const allowed = ['artifacts/', 'docs/tasks/', ...(scopeByType[taskType] ?? codeScope)];
-
-function inScope(file) {
-  return allowed.some((entry) => (entry.endsWith('/') ? file.startsWith(entry) : file === entry));
+const declaredScope = normalizeScope(data.scope);
+const scopeProblems = [];
+if (declaredScope && declaredScope.length === 0) scopeProblems.push('scope vacío');
+for (const entry of unknownScopeEntries(declaredScope)) {
+  scopeProblems.push(`fuera del catálogo: ${entry}`);
 }
+add(
+  'Alcance declarado',
+  scopeProblems.length === 0,
+  scopeProblems.length === 0
+    ? (declaredScope ? `scope: ${declaredScope.join(', ')}` : `sin scope: se usa ${taskType}`)
+    : scopeProblems.join('; '),
+);
 
 const base = run('git', ['merge-base', baseRef, 'HEAD']);
 if (base.status !== 0) {
   add('Alcance', false, `no se pudo calcular merge-base con ${baseRef}: ${base.stderr.trim()}`);
 } else {
-  const diff = run('git', ['diff', '--name-only', `${base.stdout.trim()}...HEAD`]);
+  const baseSha = base.stdout.trim();
+  // El alcance se congela con la ficha de la base: ampliarla a mitad del
+  // intento no amplía el diff, y el cambio se reporta como fallo.
+  const baseTask = run('git', ['show', `${baseSha}:${task.rel}`]);
+  let measured = data;
+  if (baseTask.status === 0) {
+    const baseScope = normalizeScope(parseConceptText(baseTask.stdout, task.rel).data.scope);
+    const frozen = sameScope(baseScope, declaredScope);
+    add(
+      'Alcance congelado',
+      frozen,
+      frozen
+        ? `scope sin cambios desde ${baseRef}`
+        : `scope editado tras ${baseRef}: base ${baseScope ? baseScope.join(', ') : '—'} → HEAD ${declaredScope ? declaredScope.join(', ') : '—'}`,
+    );
+    if (!frozen) measured = { ...data, scope: baseScope };
+  } else {
+    add('Alcance congelado', true, 'ficha nueva en la rama; no hay versión en la base');
+  }
+
+  const allowed = allowedFor(measured, task.rel);
+  const diff = run('git', ['diff', '--name-only', `${baseSha}...HEAD`]);
   const files = diff.stdout.split('\n').map((line) => line.trim()).filter(Boolean);
-  const outside = files.filter((file) => !inScope(file));
+  const outside = files.filter((file) => !isInScope(file, allowed));
+  const source = normalizeScope(measured.scope) ? 'scope' : taskType;
   add(
     'Alcance',
     diff.status === 0 && outside.length === 0,
     outside.length === 0
-      ? `${files.length} archivos dentro de ${taskType} (base ${baseRef})`
-      : `fuera de alcance: ${outside.join(', ')} (base ${baseRef})`,
+      ? `${files.length} archivos dentro de ${source} (base ${baseRef})`
+      : `fuera de alcance: ${outside.join(', ')} (base ${baseRef}, ${source})`,
   );
 }
 
