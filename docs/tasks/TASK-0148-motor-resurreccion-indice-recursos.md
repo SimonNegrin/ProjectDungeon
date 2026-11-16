@@ -4,7 +4,7 @@ id: TASK-0148
 title: "Motor: resurrección por índice y recursos"
 description: "Permitir resucitar al fantasma en la casilla del cadáver y devolver el turno en la misma ronda si su índice no ha pasado, con recursos restaurados."
 status: stable
-task_status: backlog
+task_status: blocked
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-014, T-003]
@@ -13,7 +13,7 @@ unlocks: [TASK-0154, TASK-0155, TASK-0159]
 created_at: 2026-11-14T23:31:45Z
 completed_at:
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0148/
 priority: P1
 risk: high
@@ -30,6 +30,16 @@ verified:
       Requiere decisión de requirements-writer sobre el objeto y sobre el
       objetivo unidad/casilla. Detalle en
       `artifacts/TASK-0148/lead-blocked/blocked.md`.
+  - by: task-lead
+    at: 2026-11-16T00:10:00Z
+    note: >-
+      Intento 1 verificado (motor `8e553eb`, evidencia `8ad1ba6`). Criterios 1-8
+      cumplidos; focalizados 130/130, `pnpm run verify` 1746 tests y E2E completa
+      273/273 en 4,1 min con un worker. No se fusiona: al resucitar se conserva el
+      cadáver y una segunda muerte descarta el equipo nuevo porque
+      `settlePlayerDeath` ve el contenedor viejo. Requiere decisión de
+      `requirements-writer`/usuario sobre el ciclo del cadáver y sus objetos.
+      Detalle en `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -50,19 +60,19 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
 
 # Criterios de aceptación
 
-- [ ] El comando apunta a un cadáver concreto y valida un lanzador vivo con nivel
+- [x] El comando apunta a un cadáver concreto y valida un lanzador vivo con nivel
       de magia 4 y 8 de maná; no existe fuente por objeto.
-- [ ] Exige lanzador adyacente a la casilla del cadáver y ausencia de vivos en
+- [x] Exige lanzador adyacente a la casilla del cadáver y ausencia de vivos en
       esa casilla; el fantasma no cuenta como ocupante.
-- [ ] Si es válido, consume 8 de maná y sitúa al resucitado en la casilla del
+- [x] Si es válido, consume 8 de maná y sitúa al resucitado en la casilla del
       cadáver con el 60 % de su PV máximo, redondeado hacia arriba y mínimo 1.
-- [ ] Con varios cadáveres en la misma casilla, resucita el elegido y los demás
+- [x] Con varios cadáveres en la misma casilla, resucita el elegido y los demás
       quedan intactos.
-- [ ] Si el índice del jugador aún no ha pasado en la ronda, actúa en la misma
+- [x] Si el índice del jugador aún no ha pasado en la ronda, actúa en la misma
       ronda; si ya pasó, en la siguiente; no hay doble turno.
-- [ ] Los recursos del resucitado se restauran al empezar su turno.
-- [ ] Un intento inválido no cambia el estado y no consume maná.
-- [ ] Tests de antes/después del índice, casilla ocupada por aliado o enemigo,
+- [x] Los recursos del resucitado se restauran al empezar su turno.
+- [x] Un intento inválido no cambia el estado y no consume maná.
+- [x] Tests de antes/después del índice, casilla ocupada por aliado o enemigo,
       fantasma sobre la casilla, varios cadáveres, nivel o maná insuficiente y PV
       de retorno; `pnpm run verify` pasa.
 
@@ -75,9 +85,9 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0148/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0148/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 
@@ -112,3 +122,8 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
   índice de ronda, recursos) sin crear contenido.
 - REQ-020 ya decidió que la resurrección apunte a una unidad, no a una casilla, y
   la enmienda ya está aplicada en REQ-021 R-009; el comando elige cadáver.
+- Intento 1 verificado y bloqueado el 2026-11-16: los criterios pasan, pero el
+  cadáver se conserva tras resucitar y una segunda muerte descarta el equipo
+  nuevo. Falta decidir en REQ-021/REQ-018 qué pasa con el contenedor y sus
+  objetos. Ver
+  [verificación](../../artifacts/TASK-0148/attempt-1/lead-verify/verification.md).
