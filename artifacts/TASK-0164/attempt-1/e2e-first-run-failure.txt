@@ -1,0 +1,26 @@
+$ pnpm run test:e2e (primer intento, extracto del fallo)
+
+  1) [chromium] › tests/e2e/loot-qa.spec.ts:217:1 › TASK-0142: un enemigo real sin saqueables no deja cadáver
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForFunction: Test timeout of 30000ms exceeded.
+
+       at support.ts:176
+
+      174 |   if (!target.searchParams.has('seed')) target.searchParams.set('seed', String(seed));
+      175 |   await page.goto(`${target.pathname}${target.search}`);
+    > 176 |   await page.waitForFunction(
+          |              ^
+      177 |     () => Boolean(window.__game) && window.__game!.snapshot().assetsLoaded,
+      178 |   );
+      179 |   let state = createInitialState({ seed, generator: new BspMapGenerator() });
+
+  1 failed
+    [chromium] › tests/e2e/loot-qa.spec.ts:217:1 › TASK-0142: un enemigo real sin saqueables no deja cadáver
+  282 passed (1.9m)
+[ELIFECYCLE] Command failed with exit code 1.
+
+Nota: el fallo es un timeout de carga en `openBspState`, no toca cursor ni
+hotseat. `pnpm run test:e2e loot-qa` pasó 3/3 y el segundo `pnpm run test:e2e`
+completo pasó 283/283; la salida de esa corrida está en `e2e-output.txt`.
