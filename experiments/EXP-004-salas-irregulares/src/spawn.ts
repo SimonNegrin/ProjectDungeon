@@ -76,7 +76,14 @@ export interface EnemyBreakdownResult {
   readonly playersFactor: number;
   readonly surfaceTerm: number;
   readonly playersTerm: number;
+  /** R: salas no-spawn; suelo del total aplicado. */
+  readonly nonSpawnRooms: number;
+  /** T de la fórmula antes del suelo. */
+  readonly formulaTotal: number;
+  /** T aplicado = max(fórmula, R). */
   readonly total: number;
+  /** Aviso cuando el suelo eleva la fórmula; `null` si no manda. */
+  readonly floorWarning: string | null;
   readonly planned: number;
   readonly perRoom: readonly number[];
   readonly placedPerRoom: readonly number[];
@@ -534,14 +541,22 @@ export function placeSpawns(input: SpawnInput): SpawnResult {
 // Presupuesto y reparto de enemigos
 // ---------------------------------------------------------------------------
 
-/** T = ceil(surfaceFactor × N) + ceil(playersFactor × P). */
+/**
+ * T aplicado = max(ceil(surfaceFactor × N) + ceil(playersFactor × P), R).
+ *
+ * El suelo `R` (salas no-spawn) se aplica al calcular el presupuesto, antes de
+ * repartir; con factores a 0 el resultado es exactamente `R`.
+ */
 export function enemyTotalFor(
   surfaceN: number,
   playersP: number,
   surfaceFactor: number,
   playersFactor: number,
+  nonSpawnRooms = 0,
 ): number {
-  return Math.ceil(surfaceFactor * surfaceN) + Math.ceil(playersFactor * playersP);
+  const formula =
+    Math.ceil(surfaceFactor * surfaceN) + Math.ceil(playersFactor * playersP);
+  return Math.max(formula, nonSpawnRooms);
 }
 
 export interface EnemyTypeCounts {
@@ -995,7 +1010,16 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
   const surfaceN = input.rooms.reduce((sum, room) => sum + room.area, 0);
   const surfaceTerm = Math.ceil(input.enemySurfaceFactor * surfaceN);
   const playersTerm = Math.ceil(input.enemyPlayersFactor * input.numPlayers);
-  const total = surfaceTerm + playersTerm;
+  const formulaTotal = surfaceTerm + playersTerm;
+  const nonSpawnRooms = input.rooms.filter(
+    (room) => room.id !== input.spawns.roomId,
+  ).length;
+  const total = Math.max(formulaTotal, nonSpawnRooms);
+  const floorWarning =
+    total > formulaTotal
+      ? `El suelo de ${nonSpawnRooms} salas no-spawn eleva el total aplicado de ${formulaTotal} a ${total} enemigos.`
+      : null;
+  if (floorWarning) warnings.push(floorWarning);
   const hiddenEnemyChance = Math.min(1, Math.max(0, input.hiddenEnemyChance));
 
   const { budgets, warnings: budgetWarnings } = distributeEnemyBudget(
@@ -1147,7 +1171,10 @@ export function placeEnemies(input: EnemyInput): EnemyResult {
       playersFactor: input.enemyPlayersFactor,
       surfaceTerm,
       playersTerm,
+      nonSpawnRooms,
+      formulaTotal,
       total,
+      floorWarning,
       planned,
       perRoom,
       placedPerRoom,

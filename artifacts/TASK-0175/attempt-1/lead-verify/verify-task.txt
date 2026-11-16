@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0175
+
+- Fecha: 2026-11-16T20:23:54.698Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0175-exp-004-densidad-party-real.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 6 marcados |
+| Informe | ok | report_status: success (2636 B) |
+| Alcance declarado | ok | scope: src/, tests/, experiments/ |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 11 archivos dentro de scope (base main) |
+| verify | ok | pnpm run verify OK |

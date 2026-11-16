@@ -419,21 +419,27 @@ describe('spawn alrededor del acceso y enemigos de la v3', () => {
     }
   });
 
-  it('T sigue la fórmula, incluidos factores a 0 y cambios de P', () => {
+  it('T sigue la fórmula, incluidos factores a 0, suelo y cambios de P', () => {
     for (const variant of VARIANTS) {
       for (const seed of SEEDS) {
         const map = generateMap(variant, seed);
         const { enemy } = map.stats;
+        const nonSpawn = map.rooms.filter(
+          (room) => room.id !== map.spawns.roomId,
+        ).length;
         expect(enemy.surfaceN).toBe(map.stats.roomFloor);
         expect(enemy.playersP).toBe(3);
         expect(enemy.surfaceFactor).toBe(0.02);
         expect(enemy.playersFactor).toBe(1.35);
+        expect(enemy.nonSpawnRooms).toBe(nonSpawn);
         expect(enemy.surfaceTerm).toBe(Math.ceil(0.02 * enemy.surfaceN));
         expect(enemy.playersTerm).toBe(Math.ceil(1.35 * 3));
-        expect(enemy.total).toBe(enemy.surfaceTerm + enemy.playersTerm);
+        expect(enemy.formulaTotal).toBe(enemy.surfaceTerm + enemy.playersTerm);
+        expect(enemy.total).toBe(Math.max(enemy.formulaTotal, nonSpawn));
         expect(enemy.total).toBe(
-          enemyTotalFor(enemy.surfaceN, 3, 0.02, 1.35),
+          enemyTotalFor(enemy.surfaceN, 3, 0.02, 1.35, nonSpawn),
         );
+        expect(enemy.floorWarning === null).toBe(enemy.total === enemy.formulaTotal);
       }
     }
 
@@ -442,8 +448,20 @@ describe('spawn alrededor del acceso y enemigos de la v3', () => {
         enemySurfaceFactor: 0,
         enemyPlayersFactor: 0,
       });
-      expect(zero.stats.enemy.total).toBe(0);
-      expect(zero.enemies).toHaveLength(0);
+      const nonSpawn = zero.rooms.filter(
+        (room) => room.id !== zero.spawns.roomId,
+      );
+      expect(zero.stats.enemy.formulaTotal).toBe(0);
+      expect(zero.stats.enemy.total).toBe(nonSpawn.length);
+      expect(zero.stats.enemy.floorWarning).not.toBeNull();
+      expect(zero.stats.enemy.floorWarning).toContain(
+        `de 0 a ${nonSpawn.length} enemigos`,
+      );
+      expect(zero.enemies).toHaveLength(nonSpawn.length);
+      expect(zero.stats.emptyRooms).toBe(0);
+      for (const room of nonSpawn) {
+        expect(zero.stats.enemy.perRoom[room.id], `${variant} · sala ${room.id}`).toBe(1);
+      }
     }
 
     for (const variant of VARIANTS) {
@@ -452,9 +470,40 @@ describe('spawn alrededor del acceso y enemigos de la v3', () => {
         enemyPlayersFactor: 2,
         numPlayers: 5,
       });
+      const nonSpawn = custom.rooms.filter(
+        (room) => room.id !== custom.spawns.roomId,
+      ).length;
       expect(custom.stats.enemy.total).toBe(
-        Math.ceil(0.05 * custom.stats.roomFloor) + Math.ceil(2 * 5),
+        Math.max(
+          Math.ceil(0.05 * custom.stats.roomFloor) + Math.ceil(2 * 5),
+          nonSpawn,
+        ),
       );
+    }
+  });
+
+  it('P de 1 a 6 mueve el total como la fórmula y el suelo', () => {
+    for (const variant of VARIANTS) {
+      const reference = generateMap(variant, 31);
+      const { surfaceN, nonSpawnRooms } = reference.stats.enemy;
+      const totals: number[] = [];
+      for (let players = 1; players <= 6; players += 1) {
+        const map = generateMap(variant, 31, {
+          enemySurfaceFactor: 0.02,
+          enemyPlayersFactor: 1.2,
+          numPlayers: players,
+        });
+        const { enemy } = map.stats;
+        expect(enemy.playersP).toBe(players);
+        expect(enemy.formulaTotal).toBe(
+          Math.ceil(0.02 * surfaceN) + Math.ceil(1.2 * players),
+        );
+        expect(enemy.total).toBe(
+          Math.max(enemy.formulaTotal, nonSpawnRooms),
+        );
+        totals.push(enemy.total);
+      }
+      expect(totals[5]).toBeGreaterThan(totals[0]);
     }
   });
 

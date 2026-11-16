@@ -4,7 +4,7 @@ id: TASK-0175
 title: "EXP-004: P real, suelo por salas y total aplicado"
 description: "El experimento muestra y exporta la fórmula con el suelo por salas, de modo que la densidad aprobada se pueda probar con 1-6 jugadores."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 scope: [src/, tests/, experiments/]
 requirement: REQ-012
@@ -39,16 +39,16 @@ cambian de 0 enemigos a una ficha por sala no-spawn.
 
 # Criterios de aceptación
 
-- [ ] El panel muestra `N`, `P`, el número de salas no-spawn, el total de la
+- [x] El panel muestra `N`, `P`, el número de salas no-spawn, el total de la
       fórmula y el total aplicado.
-- [ ] Cuando manda el suelo, el panel muestra un aviso con los tres valores.
-- [ ] Con factores a 0 el total aplicado es el número de salas no-spawn y el mapa
+- [x] Cuando manda el suelo, el panel muestra un aviso con los tres valores.
+- [x] Con factores a 0 el total aplicado es el número de salas no-spawn y el mapa
       reparte una ficha por sala.
-- [ ] Cambiar `P` de 1 a 6 cambia el total como la fórmula; el JSON exportado
+- [x] Cambiar `P` de 1 a 6 cambia el total como la fórmula; el JSON exportado
       incluye factores, `P`, salas no-spawn, ambos totales y el desglose.
-- [ ] Determinismo y emboscadas no cambian: misma semilla y parámetros devuelven
+- [x] Determinismo y emboscadas no cambian: misma semilla y parámetros devuelven
       lo mismo, y la probabilidad de emboscada no altera el total.
-- [ ] Solo se adaptan los tests de factor 0 y suelo; `pnpm run verify` pasa.
+- [x] Solo se adaptan los tests de factor 0 y suelo; `pnpm run verify` pasa.
 
 # Plan de test
 

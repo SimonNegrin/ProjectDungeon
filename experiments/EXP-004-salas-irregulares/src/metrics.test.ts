@@ -20,10 +20,22 @@ describe('métricas de la v2', () => {
       expect(access?.value).toBe(`${map.spawns.player.x},${map.spawns.player.y}`);
       expect(String(access?.hint)).toContain(`${map.stats.spawnHoles} huecos`);
 
+      const nonSpawn = byLabel.get('Salas no-spawn');
+      expect(nonSpawn?.value).toBe(map.stats.enemy.nonSpawnRooms);
+
       const enemies = byLabel.get('Enemigos T');
       expect(enemies?.value).toBe(map.stats.enemy.total);
       expect(String(enemies?.hint)).toContain(`N ${map.stats.enemy.surfaceN}`);
       expect(String(enemies?.hint)).toContain(`P ${map.stats.enemy.playersP}`);
+      expect(String(enemies?.hint)).toContain(
+        `fórmula ${map.stats.enemy.formulaTotal}`,
+      );
+      expect(String(enemies?.hint)).toContain(
+        `R ${map.stats.enemy.nonSpawnRooms}`,
+      );
+      expect(String(enemies?.hint)).toContain(
+        `aplicado ${map.stats.enemy.total}`,
+      );
 
       const share = byLabel.get('Reparto');
       expect(String(share?.value)).toBe(map.stats.enemy.perRoom.join('·'));
@@ -32,6 +44,23 @@ describe('métricas de la v2', () => {
       expect(String(types?.value)).toBe(
         `${map.stats.enemy.sentinels}S · ${map.stats.enemy.brutes}B · ${map.stats.enemy.cowards}C`,
       );
+    }
+  });
+
+  it('cuando manda el suelo el panel muestra los tres valores', () => {
+    for (const variant of VARIANTS) {
+      const map = generateMap(variant, 279837264, {
+        enemySurfaceFactor: 0,
+        enemyPlayersFactor: 0,
+      });
+      const { enemy } = map.stats;
+      const metrics = computeMetrics(map);
+      const notice = metrics.find((metric) => metric.label === 'Aviso de suelo');
+      expect(notice).toBeDefined();
+      expect(String(notice?.value)).toBe(
+        `fórmula ${enemy.formulaTotal} · R ${enemy.nonSpawnRooms} · aplicado ${enemy.total}`,
+      );
+      expect(notice?.hint).toBe(enemy.floorWarning);
     }
   });
 });
