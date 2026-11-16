@@ -217,7 +217,10 @@ test('playtest 2738263054: estructura, determinismo, render y salida sin transic
   });
   expect(first.exit).not.toBeNull();
   expect(first.exit!.kind).toBe('door');
-  expect(first.mapEnemies).toHaveLength(11);
+  // `createInitialState` usa la party por defecto de 1 jugador: la densidad ya
+  // responde a `P` real (REQ-012 v5), no al 6 de librería.
+  expect(first.mapEnemies.length).toBeGreaterThanOrEqual(4);
+  expect(first.mapEnemies.length).toBeLessThanOrEqual(6);
 
   // Puertas válidas: suelo, estilo conocido, dos salas distintas y corredor.
   for (const door of first.doors) {

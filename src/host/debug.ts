@@ -38,7 +38,13 @@ import type {
   Spawns,
 } from '../game/map';
 import type { OpenMouth } from '../game/chambers/core/doors';
-import type { Hotspot } from '../game/chambers/core/enemies';
+import {
+  ENEMY_PLAYERS_FACTOR,
+  ENEMY_SURFACE_FACTOR,
+  computeEnemyBudget,
+  type EnemyBudget,
+  type Hotspot,
+} from '../game/chambers/core/enemies';
 import type { Camera, CameraBounds } from './camera';
 import type { CursorState, CursorStatus } from './cursor';
 import {
@@ -175,6 +181,14 @@ export interface GameSnapshot {
   readonly openMouths: readonly OpenMouth[];
   /** Puntos calientes de emboscada; vacío si el generador no los declara. */
   readonly hotspots: readonly Hotspot[];
+  /**
+   * Presupuesto de enemigos del generador denso (`REQ-012` T-014/T-015): `P`
+   * real, salas no-spawn, total de la fórmula, total aplicado y aviso del
+   * suelo. `null` en BSP y estados sin mapa de densidad.
+   */
+  readonly enemyBudget: EnemyBudget | null;
+  /** Avisos del mapa, incluido el del suelo cuando eleva el total. */
+  readonly warnings: readonly string[];
   /** Sala caverna de la variante, o `null`. */
   readonly cavernRoomId: number | null;
   /**
@@ -467,6 +481,25 @@ function cloneCursor(cursor: CursorStatus): CursorSnapshot {
   };
 }
 
+/**
+ * Presupuesto de densidad visible en el snapshot. Solo aplica a generadores
+ * que declaran `map.enemies` (growth); BSP conserva sus 4 fichas fuera de la
+ * fórmula. `P` sale de la party real, no de un valor por defecto. La producción
+ * no configura factores, así que el snapshot usa las constantes documentadas.
+ */
+function snapshotEnemyBudget(state: GameState): EnemyBudget | null {
+  const map = state.map;
+  const spawnRoomId = map?.spawns.roomId;
+  if (!map || map.enemies === undefined || spawnRoomId === undefined) return null;
+  return computeEnemyBudget({
+    rooms: map.rooms,
+    spawnRoomId,
+    numPlayers: state.config?.players.length ?? state.players.length,
+    surfaceFactor: ENEMY_SURFACE_FACTOR,
+    playersFactor: ENEMY_PLAYERS_FACTOR,
+  });
+}
+
 function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
   const map = source.state.map;
   const animation: AnimationSnapshot = source.animation ?? {
@@ -498,6 +531,8 @@ function buildSnapshot(source: DebugSnapshotSource): GameSnapshot {
     mapEnemies: map?.enemies?.map(cloneMapEnemy) ?? [],
     openMouths: map?.openMouths?.map((mouth) => ({ ...mouth })) ?? [],
     hotspots: map?.hotspots?.map((hotspot) => ({ ...hotspot })) ?? [],
+    enemyBudget: snapshotEnemyBudget(source.state),
+    warnings: map?.warnings ? [...map.warnings] : [],
     cavernRoomId: map?.cavernRoomId ?? null,
     weapons: legacyWeaponsFromGround(source.state.groundItems ?? []),
     groundItems: (source.state.groundItems ?? []).map(cloneGroundItem),

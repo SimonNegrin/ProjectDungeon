@@ -129,7 +129,14 @@ function buildInitialState(
   // Validar antes de generar: una configuración inválida no crea mapa ni estado.
   const config = validateGameConfig(gameConfig);
   const seed = normalizeSeed(config.seed);
-  const generated: GeneratedMap = generator.generate(seed, options);
+  // `P` es el tamaño real de la party inicial (`REQ-012` T-014): el motor lo
+  // deriva aquí y ningún camino del host envía `numPlayers`. El 6 solo queda
+  // como valor por defecto de librería y de `EXP-004`.
+  const generationOptions: MapOptions = {
+    ...options,
+    numPlayers: config.players.length,
+  };
+  const generated: GeneratedMap = generator.generate(seed, generationOptions);
   const mapEnemies = generated.enemies;
   // BSP no aporta `map.enemies`; su colocación histórica de 4 fichas sigue
   // viva como fallback. Un generador que sí los aporta (growth) los consume.

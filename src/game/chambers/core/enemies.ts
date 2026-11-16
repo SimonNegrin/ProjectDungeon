@@ -64,14 +64,8 @@ export interface Hotspot {
 }
 
 /** Desglose serializable del presupuesto de enemigos de REQ-012 R-006/R-008. */
-export interface EnemyBreakdownResult {
-  readonly surfaceN: number;
-  readonly playersP: number;
-  readonly surfaceFactor: number;
-  readonly playersFactor: number;
-  readonly surfaceTerm: number;
-  readonly playersTerm: number;
-  readonly total: number;
+export interface EnemyBreakdownResult extends EnemyBudget {
+  /** Fichas planificadas por el reparto; incluye el suelo ya aplicado. */
   readonly planned: number;
   /** Presupuesto por sala, indexado por `roomId`. */
   readonly perRoom: readonly number[];
@@ -101,14 +95,85 @@ function doorKeySet(doors: readonly Door[]): Set<string> {
   return new Set(doors.map((door) => pointKey(door.x, door.y)));
 }
 
-/** T = ceil(surfaceFactor × N) + ceil(playersFactor × P). */
+/**
+ * T aplicado = max(ceil(surfaceFactor × N) + ceil(playersFactor × P), R).
+ *
+ * El suelo `R` (salas no-spawn) se aplica al calcular el presupuesto, antes de
+ * repartir; con factores a 0 el resultado es exactamente `R`.
+ */
 export function enemyTotalFor(
   surfaceN: number,
   playersP: number,
   surfaceFactor: number,
   playersFactor: number,
+  nonSpawnRooms = 0,
 ): number {
-  return Math.ceil(surfaceFactor * surfaceN) + Math.ceil(playersFactor * playersP);
+  const formula =
+    Math.ceil(surfaceFactor * surfaceN) + Math.ceil(playersFactor * playersP);
+  return Math.max(formula, nonSpawnRooms);
+}
+
+export interface EnemyBudgetInput {
+  readonly rooms: readonly Room[];
+  readonly spawnRoomId: number;
+  readonly numPlayers: number;
+  readonly surfaceFactor: number;
+  readonly playersFactor: number;
+}
+
+/** Desglose puro del presupuesto: fórmula, suelo y total aplicado. */
+export interface EnemyBudget {
+  readonly surfaceN: number;
+  readonly playersP: number;
+  /** Número de salas no-spawn (`R`), suelo del total aplicado. */
+  readonly nonSpawnRooms: number;
+  readonly surfaceFactor: number;
+  readonly playersFactor: number;
+  readonly surfaceTerm: number;
+  readonly playersTerm: number;
+  /** Total de la fórmula antes del suelo. */
+  readonly formulaTotal: number;
+  /** Total aplicado tras `max(fórmula, R)`. */
+  readonly total: number;
+  /** Aviso cuando el suelo eleva la fórmula; `null` si no manda. */
+  readonly floorWarning: string | null;
+}
+
+/**
+ * Calcula el presupuesto sin colocar nada: N, P, R, ambos totales y el aviso
+ * del suelo. Es la única fuente de la regla para generación y snapshot.
+ */
+export function computeEnemyBudget(input: EnemyBudgetInput): EnemyBudget {
+  const surfaceN = input.rooms.reduce((sum, room) => sum + roomAreaOf(room), 0);
+  const nonSpawnRooms = input.rooms.filter(
+    (room) => room.id !== input.spawnRoomId,
+  ).length;
+  const surfaceTerm = Math.ceil(input.surfaceFactor * surfaceN);
+  const playersTerm = Math.ceil(input.playersFactor * input.numPlayers);
+  const formulaTotal = surfaceTerm + playersTerm;
+  const total = enemyTotalFor(
+    surfaceN,
+    input.numPlayers,
+    input.surfaceFactor,
+    input.playersFactor,
+    nonSpawnRooms,
+  );
+
+  return {
+    surfaceN,
+    playersP: input.numPlayers,
+    nonSpawnRooms,
+    surfaceFactor: input.surfaceFactor,
+    playersFactor: input.playersFactor,
+    surfaceTerm,
+    playersTerm,
+    formulaTotal,
+    total,
+    floorWarning:
+      total > formulaTotal
+        ? `El suelo de ${nonSpawnRooms} salas no-spawn eleva el total aplicado de ${formulaTotal} a ${total} enemigos.`
+        : null,
+  };
 }
 
 export interface EnemyTypeCounts {
@@ -509,11 +574,16 @@ function roomDistanceToPoint(room: Room, point: Point): number {
 export function placeChamberEnemies(input: ChamberEnemyInput): ChamberEnemyResult {
   const warnings: string[] = [];
   const grid: Grid = { width: input.width, height: input.height, tiles: input.tiles };
-  const surfaceN = input.rooms.reduce((sum, room) => sum + roomAreaOf(room), 0);
-  const surfaceTerm = Math.ceil(input.enemySurfaceFactor * surfaceN);
-  const playersTerm = Math.ceil(input.enemyPlayersFactor * input.numPlayers);
-  const total = surfaceTerm + playersTerm;
   const spawnRoomId = input.spawns.roomId;
+  const budget = computeEnemyBudget({
+    rooms: input.rooms,
+    spawnRoomId,
+    numPlayers: input.numPlayers,
+    surfaceFactor: input.enemySurfaceFactor,
+    playersFactor: input.enemyPlayersFactor,
+  });
+  const total = budget.total;
+  if (budget.floorWarning !== null) warnings.push(budget.floorWarning);
 
   const { budgets, warnings: budgetWarnings } = distributeEnemyBudget(
     input.rooms,
@@ -658,13 +728,7 @@ export function placeChamberEnemies(input: ChamberEnemyInput): ChamberEnemyResul
     hotspots,
     warnings,
     breakdown: {
-      surfaceN,
-      playersP: input.numPlayers,
-      surfaceFactor: input.enemySurfaceFactor,
-      playersFactor: input.enemyPlayersFactor,
-      surfaceTerm,
-      playersTerm,
-      total,
+      ...budget,
       planned,
       perRoom,
       placedPerRoom,

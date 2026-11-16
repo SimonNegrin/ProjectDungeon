@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { classifyRoom, type Room } from '../../../src/game/map';
 import { hasLineOfSight } from '../../../src/game/perception';
+import type { Tile } from '../../../src/game/types';
 import {
   DEFAULT_HIDDEN_ENEMY_CHANCE,
   DEFAULT_PLAYERS,
@@ -11,6 +12,7 @@ import {
   ENEMY_SURFACE_FACTOR,
   assignEnemyTypes,
   componentSizeWith,
+  computeEnemyBudget,
   distributeEnemyBudget,
   enemyTotalFor,
   enemyTypeCounts,
@@ -18,6 +20,7 @@ import {
   interiorCell,
   maxComponentSize,
   placeChamberContents,
+  placeChamberEnemies,
 } from '../../../src/game/chambers/core';
 
 const SEEDS = Array.from({ length: 20 }, (_, index) => index + 1);
@@ -39,6 +42,70 @@ function areaRoom(id: number, area: number): Room {
   };
 }
 
+/**
+ * Siete salas iguales de 4×6: una de spawn y seis no-spawn, separadas por dos
+ * columnas de muro. N = 168 hace que el término de superficie sea 4 con el
+ * factor 0,02; con el factor de jugadores a 0 la fórmula queda en 4 y el suelo
+ * debe elevarla a 6.
+ */
+function floorPlan(): {
+  rooms: Room[];
+  tiles: Tile[];
+  width: number;
+  height: number;
+  spawns: {
+    roomId: number;
+    party: { x: number; y: number }[];
+    player: { x: number; y: number };
+  };
+} {
+  const width = 44;
+  const height = 9;
+  const tiles: Tile[] = new Array(width * height).fill('wall');
+  const rooms: Room[] = [];
+
+  for (let id = 0; id < 7; id += 1) {
+    const x = 1 + id * 6;
+    const y = 1;
+    const roomWidth = 4;
+    const roomHeight = 6;
+    const cells: { x: number; y: number }[] = [];
+    for (let cy = y; cy < y + roomHeight; cy += 1) {
+      for (let cx = x; cx < x + roomWidth; cx += 1) {
+        tiles[cy * width + cx] = 'floor';
+        cells.push({ x: cx, y: cy });
+      }
+    }
+    rooms.push({
+      id,
+      x,
+      y,
+      width: roomWidth,
+      height: roomHeight,
+      role: classifyRoom({ width: roomWidth, height: roomHeight }),
+      cells,
+      area: cells.length,
+    });
+  }
+
+  const party = [
+    { x: 1, y: 1 },
+    { x: 2, y: 1 },
+    { x: 3, y: 1 },
+    { x: 1, y: 2 },
+    { x: 2, y: 2 },
+    { x: 3, y: 2 },
+  ];
+
+  return {
+    rooms,
+    tiles,
+    width,
+    height,
+    spawns: { roomId: 0, party, player: party[0] },
+  };
+}
+
 describe('presupuesto de enemigos de REQ-012', () => {
   it('usa los factores aprobados y la fórmula por superficie y jugadores', () => {
     expect(ENEMY_SURFACE_FACTOR).toBe(0.02);
@@ -54,6 +121,25 @@ describe('presupuesto de enemigos de REQ-012', () => {
     expect(enemyTotalFor(100, 0, 0.02, 1.2)).toBe(2);
     expect(enemyTotalFor(100, 6, 0, 0)).toBe(0);
     expect(enemyTotalFor(100, 6, 0, 1.2)).toBe(8);
+  });
+
+  it('aplica el suelo de salas no-spawn y lo devuelve con factores a 0', () => {
+    expect(enemyTotalFor(168, 6, 0.02, 0, 6)).toBe(6);
+    expect(enemyTotalFor(168, 6, 0, 0, 6)).toBe(6);
+    expect(enemyTotalFor(168, 6, 0, 0, 0)).toBe(0);
+    expect(enemyTotalFor(168, 6, 0.02, 1.2, 2)).toBe(12);
+
+    const budget = computeEnemyBudget({
+      rooms: [areaRoom(0, 24), areaRoom(1, 24), areaRoom(2, 24), areaRoom(3, 24)],
+      spawnRoomId: 0,
+      numPlayers: 6,
+      surfaceFactor: 0,
+      playersFactor: 0,
+    });
+    expect(budget.formulaTotal).toBe(0);
+    expect(budget.nonSpawnRooms).toBe(3);
+    expect(budget.total).toBe(3);
+    expect(budget.floorWarning).toContain('3');
   });
 
   it('reparte 60/20/20 con redondeo y mínimos de T≥4', () => {
@@ -151,6 +237,41 @@ describe('colocación de enemigos del generador denso', () => {
         ).toBeGreaterThanOrEqual(1);
       }
     }
+  });
+
+  it('con 6 salas no-spawn y fórmula 4 aplica el suelo antes de repartir', () => {
+    const plan = floorPlan();
+    const result = placeChamberEnemies({
+      rooms: plan.rooms,
+      doors: [],
+      openMouths: [],
+      exit: null,
+      tiles: plan.tiles,
+      width: plan.width,
+      height: plan.height,
+      spawns: plan.spawns,
+      seed: 42,
+      enemySurfaceFactor: 0.02,
+      enemyPlayersFactor: 0,
+      numPlayers: 6,
+      hiddenEnemyChance: 0,
+    });
+
+    expect(result.breakdown.surfaceN).toBe(168);
+    expect(result.breakdown.formulaTotal).toBe(4);
+    expect(result.breakdown.nonSpawnRooms).toBe(6);
+    expect(result.breakdown.total).toBe(6);
+    expect(result.breakdown.perRoom).toEqual([0, 1, 1, 1, 1, 1, 1]);
+    expect(result.breakdown.placedPerRoom).toEqual([0, 1, 1, 1, 1, 1, 1]);
+    expect(result.breakdown.perRoom.reduce((sum, value) => sum + value, 0)).toBe(6);
+    expect(result.enemies).toHaveLength(6);
+    expect(new Set(result.enemies.map((enemy) => enemy.roomId))).toEqual(
+      new Set([1, 2, 3, 4, 5, 6]),
+    );
+    const warning = result.warnings.find((entry) => /suelo/i.test(entry));
+    expect(warning).toBeDefined();
+    expect(warning).toContain('4');
+    expect(warning).toContain('6');
   });
 
   it('la probabilidad 0/1/0,25 controla emboscadas sin cambiar T', () => {
