@@ -23,6 +23,7 @@ import {
   type PanelItem,
   type PanelMenuOption,
   type PanelSelection,
+  type PanelSource,
 } from './inventory-panel';
 import {
   cycleZone,
@@ -54,7 +55,7 @@ function spritePosition(rect: { readonly x: number; readonly y: number }): strin
 }
 
 export interface InventoryPanelView {
-  open(state: GameState): void;
+  open(state: GameState, source?: PanelSource): void;
   close(): void;
   isOpen(): boolean;
   update(state: GameState): void;
@@ -131,6 +132,7 @@ function stateLabel(key: string): string {
   if (key.startsWith('slot:')) return 'Equipado';
   if (key.startsWith('backpack:')) return 'En mochila';
   if (key.startsWith('corpse:')) return 'En el cadáver';
+  if (key.startsWith('chest:')) return 'En el cofre';
   return 'En el suelo';
 }
 
@@ -283,8 +285,14 @@ export function createInventoryPanelView(
   const backpackList = requireElement(root, 'inventory-backpack');
   const groundList = requireElement(root, 'inventory-ground');
   const groundScroll = requireElement(root, 'inventory-ground-scroll');
+  const groundSection = requireElement(root, 'inventory-ground-section');
   const cadaversList = requireElement(root, 'inventory-cadavers');
   const corpseItemsList = requireElement(root, 'inventory-corpse-items');
+  const chestItemsList = requireElement(root, 'inventory-chest-items');
+  const chestEmpty = requireElement(root, 'inventory-chest-empty');
+  const rightTitle = requireElement(root, 'inventory-right-title');
+  const chestCount = requireElement(root, 'inventory-chest-count');
+  const rightColumn = requireElement(root, 'inventory-right-column');
   const message = requireElement(root, 'inventory-message');
   const submenu = requireElement(root, 'inventory-submenu');
   const closeButton = requireElement<HTMLButtonElement>(root, 'inventory-close');
@@ -306,7 +314,9 @@ export function createInventoryPanelView(
   const backpackCells = new Map<number, CellView>();
   const groundCells = new Map<string, CellView>();
   const corpseCells = new Map<string, CellView>();
+  const chestCells = new Map<string, CellView>();
   const zoneLastKey = new Map<string, string>();
+  let source: PanelSource = 'ground';
   let currentCells: readonly NavigationCell[] = [];
   let model: InventoryPanelModel | null = null;
   let currentState: GameState | null = null;
@@ -329,7 +339,12 @@ export function createInventoryPanelView(
     for (const view of backpackCells.values()) {
       if (view.key === key) return view;
     }
-    return groundCells.get(key) ?? corpseCells.get(key) ?? null;
+    return (
+      groundCells.get(key) ??
+      corpseCells.get(key) ??
+      chestCells.get(key) ??
+      null
+    );
   };
 
   const centerOf = (key: string): NavigationPoint | null => {
@@ -352,6 +367,7 @@ export function createInventoryPanelView(
       ...backpackCells.values(),
       ...groundCells.values(),
       ...corpseCells.values(),
+      ...chestCells.values(),
     ]) {
       if (!view.root.isConnected || view.root.dataset.empty === 'true') continue;
       const center = centerOf(view.key);
@@ -369,6 +385,7 @@ export function createInventoryPanelView(
       model.corpses
         .flatMap((corpse) => corpse.items)
         .find((item) => item.key === key) ??
+      model.chest?.items.find((item) => item.key === key) ??
       null
     );
   };
@@ -495,7 +512,9 @@ export function createInventoryPanelView(
   const revealRow = (view: CellView): boolean => {
     if (
       view.zone !== 'right' ||
-      (!groundList.contains(view.root) && !corpseItemsList.contains(view.root))
+      (!groundList.contains(view.root) &&
+        !corpseItemsList.contains(view.root) &&
+        !chestItemsList.contains(view.root))
     ) {
       return false;
     }
@@ -634,7 +653,7 @@ export function createInventoryPanelView(
 
   function openMenu(): boolean {
     if (currentState === null || selectedKey === null) return false;
-    const options = buildPanelMenu(currentState, selectedKey);
+    const options = buildPanelMenu(currentState, selectedKey, undefined, source);
     if (options.length === 0) return false;
     menuOptions = options;
     menuIndex = 0;
@@ -657,6 +676,7 @@ export function createInventoryPanelView(
       ...backpackCells.values(),
       ...groundCells.values(),
       ...corpseCells.values(),
+      ...chestCells.values(),
     ]) {
       const occupied = view.root.dataset.empty === 'false';
       const selected = occupied && view.key === selectedKey;
@@ -748,7 +768,7 @@ export function createInventoryPanelView(
 
   const renderModel = (state: GameState, mode: 'open' | 'update'): void => {
     currentState = state;
-    const next = buildInventoryPanelModel(state);
+    const next = buildInventoryPanelModel(state, undefined, source);
     // El centro y la identidad anteriores se miden antes de retirar o vaciar
     // filas: son la referencia de N-008 cuando el objeto cambia de zona o
     // desaparece.
@@ -759,6 +779,10 @@ export function createInventoryPanelView(
 
     model = next;
     backpackCount.textContent = next.backpackCount;
+    rightTitle.textContent = next.rightTitle;
+    rightColumn.setAttribute('aria-label', next.rightTitle);
+    chestCount.hidden = next.chest === null;
+    chestCount.textContent = next.chest?.capacityLabel ?? '';
 
     for (const item of next.equipment) {
       const slot = item.key.slice('slot:'.length) as EquipmentSlot;
@@ -802,7 +826,7 @@ export function createInventoryPanelView(
     }
 
     cadaversList.replaceChildren(...next.corpses.map((corpse) => createCorpse(corpse).root));
-    cadaversList.hidden = next.corpses.length === 0;
+    cadaversList.hidden = next.corpses.length === 0 || next.chest !== null;
 
     const corpseItems = next.corpses.flatMap((corpse) => corpse.items);
     const corpseItemKeys = new Set(corpseItems.map((item) => item.key));
@@ -829,13 +853,47 @@ export function createInventoryPanelView(
     );
     corpseItemsList.hidden = corpseItems.length === 0;
 
+    const chestItems = next.chest?.items ?? [];
+    const chestKeys = new Set(chestItems.map((item) => item.key));
+    for (const item of chestItems) {
+      let view = chestCells.get(item.key);
+      if (!view) {
+        view = createCell(
+          chestItemsList,
+          item.key,
+          'right',
+          'inventory-chest-item-row',
+        );
+        chestCells.set(item.key, view);
+      }
+      updateCell(view, item);
+    }
+    for (const [key, view] of chestCells) {
+      if (chestKeys.has(key)) continue;
+      view.root.remove();
+      chestCells.delete(key);
+    }
+    chestItemsList.append(...chestItems.map((item) => chestCells.get(item.key)!.root));
+    chestItemsList.hidden = chestItems.length === 0;
+    chestEmpty.hidden = next.chest === null || chestItems.length > 0;
+    chestEmpty.textContent = next.chest === null ? '' : 'Cofre vacío';
+    groundSection.hidden = next.chest !== null;
+
     currentCells = readCells();
 
     if (mode === 'open') {
+      // Abrir un cofre selecciona su primer objeto para que coger sea una
+      // pulsación; el resto de la navegación sigue igual (REQ-020 R-011).
+      const chestView = currentCells.filter((cell) =>
+        cell.key.startsWith('chest:'),
+      );
+      const firstChest =
+        source === 'ground' ? null : firstInReadingOrder(chestView);
       selectedKey =
-        lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
+        firstChest?.key ??
+        (lastKey !== null && currentCells.some((cell) => cell.key === lastKey)
           ? lastKey
-          : (firstInReadingOrder(currentCells)?.key ?? null);
+          : (firstInReadingOrder(currentCells)?.key ?? null));
     } else if (previousInstanceId !== null) {
       // N-008 por identidad: equipar, desequipar, recoger y soltar pueden mover
       // la instancia a otra zona; el foco la sigue a su nueva clave.
@@ -844,6 +902,7 @@ export function createInventoryPanelView(
         ...next.backpack,
         ...next.ground,
         ...next.corpses.flatMap((corpse) => corpse.items),
+        ...chestItems,
       ].find((item) => item.instanceId === previousInstanceId);
       if (moved && currentCells.some((cell) => cell.key === moved.key)) {
         selectedKey = moved.key;
@@ -884,7 +943,7 @@ export function createInventoryPanelView(
         menuItem.instanceId === menuInstanceId;
       const nextOptions =
         sameSelection && selectedKey !== null
-          ? buildPanelMenu(state, selectedKey)
+          ? buildPanelMenu(state, selectedKey, undefined, source)
           : [];
       if (
         sameSelection &&
@@ -1042,8 +1101,9 @@ export function createInventoryPanelView(
   });
 
   return {
-    open(state: GameState): void {
+    open(state: GameState, nextSource: PanelSource = 'ground'): void {
       previousFocus = focusedElement();
+      source = nextSource;
       panel.hidden = false;
       message.hidden = true;
       message.textContent = '';

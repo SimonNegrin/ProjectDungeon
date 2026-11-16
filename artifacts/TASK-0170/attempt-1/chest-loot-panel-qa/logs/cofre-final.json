@@ -1,0 +1,41 @@
+{
+  "chest": {
+    "id": "chest-1",
+    "x": 27,
+    "y": 24,
+    "capacity": 4,
+    "items": [
+      null,
+      null,
+      null,
+      null
+    ],
+    "kind": "chest",
+    "opened": true
+  },
+  "inventory": [
+    {
+      "id": "loot-axe",
+      "itemId": "axe",
+      "lootable": true,
+      "lootPolicy": "common"
+    },
+    {
+      "id": "loot-ring",
+      "itemId": "lifesteal-ring",
+      "lootable": true,
+      "lootPolicy": "common"
+    },
+    {
+      "id": "item-player-1-backpack-0",
+      "itemId": "dagger",
+      "lootable": true,
+      "lootPolicy": "common"
+    },
+    null,
+    null,
+    null,
+    null,
+    null
+  ]
+}

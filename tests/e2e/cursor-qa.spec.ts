@@ -784,7 +784,7 @@ test('ciclo de vida, snapshot, debug y HUD sin botones nuevos', async ({
 
   const start = await snapshot(page);
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
-  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse');
+  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse / abrir');
   await expect(page.getByTestId('hud-keys')).toContainText('F atacar');
   await expect(page.getByTestId('hud-keys')).toContainText('N terminar turno');
   await expect(

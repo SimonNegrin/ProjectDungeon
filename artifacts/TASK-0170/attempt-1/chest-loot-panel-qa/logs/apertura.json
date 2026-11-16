@@ -1,0 +1,30 @@
+{
+  "actions": {
+    "max": 2,
+    "remaining": 1
+  },
+  "chest": {
+    "id": "chest-1",
+    "x": 27,
+    "y": 24,
+    "capacity": 4,
+    "items": [
+      {
+        "id": "loot-axe",
+        "itemId": "axe",
+        "lootable": true,
+        "lootPolicy": "common"
+      },
+      {
+        "id": "loot-ring",
+        "itemId": "lifesteal-ring",
+        "lootable": true,
+        "lootPolicy": "common"
+      },
+      null,
+      null
+    ],
+    "kind": "chest",
+    "opened": true
+  }
+}

@@ -315,6 +315,60 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(JSON.stringify(detail)).not.toContain('Hacha');
   });
 
+  it('describe el cofre cerrado sin contenido y el abierto con sus objetos', () => {
+    const closed = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 6,
+          y: 5,
+          capacity: 4,
+          items: [{ id: 'item-1', itemId: 'axe', lootable: true }],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    const hidden = buildCursorDetail(closed, { x: 6, y: 5 });
+    expect(hidden.kind).toBe('container');
+    expect(hidden.title).toBe('Cofre');
+    expect(hidden.rows).toEqual([
+      { id: 'estado', label: 'Estado', value: 'Cerrado' },
+      { id: 'tipo', label: 'Tipo', value: 'Cofre' },
+    ]);
+    expect(JSON.stringify(hidden)).not.toContain('Hacha');
+    expect(hidden.sprite).toBeNull();
+
+    const open = {
+      ...closed,
+      containers: closed.containers?.map((container) => ({
+        ...container,
+        opened: true,
+      })),
+    };
+    const shown = buildCursorDetail(open, { x: 6, y: 5 });
+    expect(shown.rows).toEqual([
+      { id: 'estado', label: 'Estado', value: 'Abierto' },
+      { id: 'tipo', label: 'Tipo', value: 'Cofre' },
+      { id: 'contenido', label: 'Contenido', value: 'Hacha' },
+    ]);
+
+    const empty = {
+      ...open,
+      containers: open.containers?.map((container) => ({
+        ...container,
+        items: [],
+      })),
+    };
+    expect(
+      buildCursorDetail(empty, { x: 6, y: 5 }).rows.find(
+        (row) => row.id === 'contenido',
+      )?.value,
+    ).toBe('Vacío');
+  });
+
   it('sin línea de visión devuelve desconocido sin filtrar la unidad oculta', () => {
     const state = makeState({
       grid: makeGridWithWalls([{ x: 6, y: 5 }]),

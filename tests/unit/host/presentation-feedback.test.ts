@@ -7,6 +7,7 @@ import {
   FEEDBACK_CONFIG,
   NOTICE_DURATION_MS,
 } from '../../../src/host/feedback-config';
+import { bannerForCue } from '../../../src/host/feedback-events';
 import { translateKey } from '../../../src/host/input';
 import {
   MOTION_CONFIG,
@@ -647,5 +648,179 @@ describe('fin de partida y reinicio en su cue', () => {
 
     expect(timeline.cues.map((cue) => cue.kind)).toEqual(['game-restarted']);
     expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.durations.gameRestartedMs);
+  });
+});
+
+describe('apertura y transferencia de cofre (REQ-020 T-009)', () => {
+  function chestState(overrides: {
+    readonly opened?: boolean;
+    readonly items?: readonly ({ id: string; itemId: 'axe'; lootable: true } | null)[];
+    readonly weapons?: readonly 'dagger'[];
+  } = {}) {
+    return makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          actions: 2,
+          ...(overrides.weapons === undefined ? {} : { weapons: overrides.weapons }),
+        }),
+      ],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 4,
+          items: overrides.items ?? [
+            { id: 'loot-axe', itemId: 'axe', lootable: true },
+            null,
+            null,
+            null,
+          ],
+          kind: 'chest',
+          opened: overrides.opened ?? true,
+        },
+      ],
+    });
+  }
+
+  it('abrir produce su cue y banner con beat corto', () => {
+    const state = chestState({ opened: false });
+    const command = {
+      type: 'OpenContainer' as const,
+      unitId: 'player-1',
+      containerId: 'chest-1',
+    };
+    const result = reduce(state, command);
+    expect(result.events).toEqual([]);
+
+    const events = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    expect(events).toEqual([
+      { type: 'OpenContainer', unitId: 'player-1', containerId: 'chest-1' },
+    ]);
+
+    const timeline = buildMotionTimeline(events, {
+      initialState: state,
+      finalState: result.state,
+    });
+    const cue = timeline.cues[0];
+    expect(cue).toMatchObject({ kind: 'container-open', eventType: 'OpenContainer' });
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.beats.containerOpen);
+    expect(bannerForCue(cue)).toEqual({
+      text: 'Cofre abierto',
+      kind: 'pickup',
+      durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+    });
+    // El cofre abierto ya se lee como abierto durante su beat.
+    expect(presentationState(result.state, timeline, 0).containers?.[0].opened).toBe(
+      true,
+    );
+  });
+
+  it('coger retrasa el cambio de contenedor hasta acabar el beat', () => {
+    const state = chestState();
+    const command = {
+      type: 'TakeItem' as const,
+      unitId: 'player-1',
+      containerId: 'chest-1',
+      itemId: 'loot-axe',
+    };
+    const result = reduce(state, command);
+    expect(result.events).toEqual([]);
+
+    const events = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    expect(events).toEqual([
+      {
+        type: 'TakeItem',
+        unitId: 'player-1',
+        containerId: 'chest-1',
+        itemIds: ['axe'],
+      },
+    ]);
+    const timeline = buildMotionTimeline(events, {
+      initialState: state,
+      finalState: result.state,
+    });
+    const cue = timeline.cues[0];
+    expect(cue).toMatchObject({ kind: 'container-take', eventType: 'TakeItem' });
+    expect(timeline.totalMs).toBe(FEEDBACK_CONFIG.beats.containerTransfer);
+    expect(bannerForCue(cue)?.text).toBe('+ Hacha');
+
+    const before = presentationState(result.state, timeline, 0, state);
+    expect(before.containers?.[0].items[0]).not.toBeNull();
+    expect(before.players[0].inventory.items[0]).toBeNull();
+    const after = presentationState(
+      result.state,
+      timeline,
+      FEEDBACK_CONFIG.beats.containerTransfer,
+      state,
+    );
+    expect(after.containers?.[0].items[0]).toBeNull();
+    expect(after.players[0].inventory.items[0]?.itemId).toBe('axe');
+  });
+
+  it('depositar anuncia el traslado y mueve el objeto al acabar su beat', () => {
+    const state = chestState({
+      items: [null, null, null, null],
+      weapons: ['dagger'],
+    });
+    const command = {
+      type: 'DepositItem' as const,
+      unitId: 'player-1',
+      containerId: 'chest-1',
+      index: 0,
+    };
+    const result = reduce(state, command);
+    expect(result.events).toEqual([]);
+
+    const events = buildPresentationEvents(
+      command,
+      state,
+      result.state,
+      result.events,
+    );
+    expect(events).toEqual([
+      {
+        type: 'DepositItem',
+        unitId: 'player-1',
+        containerId: 'chest-1',
+        itemId: 'dagger',
+      },
+    ]);
+    const timeline = buildMotionTimeline(events, {
+      initialState: state,
+      finalState: result.state,
+    });
+    const cue = timeline.cues[0];
+    expect(cue).toMatchObject({
+      kind: 'container-deposit',
+      eventType: 'DepositItem',
+    });
+    expect(bannerForCue(cue)?.text).toBe('Daga → Cofre');
+
+    expect(
+      presentationState(result.state, timeline, 0, state).containers?.[0].items[0],
+    ).toBeNull();
+    expect(
+      presentationState(
+        result.state,
+        timeline,
+        FEEDBACK_CONFIG.beats.containerTransfer,
+        state,
+      ).containers?.[0].items[0]?.itemId,
+    ).toBe('dagger');
   });
 });

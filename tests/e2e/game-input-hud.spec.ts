@@ -90,7 +90,7 @@ test('loop completo: teclado, HUD, overlays, feedback, debug y reinicio', async 
     `Enemigo: (${startEnemy.x}, ${startEnemy.y}) · HP ${startEnemy.hp}/${startEnemy.maxHp}`,
   ]);
   await expect(page.getByTestId('hud-keys')).toContainText('cursor');
-  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse');
+  await expect(page.getByTestId('hud-keys')).toContainText('Espacio/Enter moverse / abrir');
   await expect(page.getByTestId('hud-keys')).toContainText('F atacar');
   await screenshot(page, 'hud', testInfo);
 

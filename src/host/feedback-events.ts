@@ -53,6 +53,32 @@ export function bannerForCue(cue: FeedbackCue): BannerFeedback | null {
         durationMs: FEEDBACK_CONFIG.texts.bannerMs,
       };
     }
+    case 'container-open':
+      return {
+        text: 'Cofre abierto',
+        kind: 'pickup',
+        durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+      };
+    case 'container-take': {
+      const itemIds = cue.data.itemIds ?? [];
+      if (itemIds.length === 0) return null;
+      return {
+        text:
+          itemIds.length === 1
+            ? `+ ${ITEMS[itemIds[0]].name}`
+            : `+ ${itemIds.length} objetos`,
+        kind: 'pickup',
+        durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+      };
+    }
+    case 'container-deposit': {
+      if (!cue.data.itemId) return null;
+      return {
+        text: `${ITEMS[cue.data.itemId].name} → Cofre`,
+        kind: 'select-weapon',
+        durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+      };
+    }
     case 'enemy-phase':
       return {
         text: 'El master mueve',

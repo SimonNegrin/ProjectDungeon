@@ -1,6 +1,6 @@
 import { activePlayer } from '../game/party';
 import type { SpellId } from '../game/spells';
-import type { Command, GameState, Position, Unit } from '../game/types';
+import type { Command, Container, GameState, Position, Unit } from '../game/types';
 import { KEY_BINDINGS, MANAGED_KEY_CODES } from './keymap';
 import type { NoticeCode } from './notices';
 import { SPELL_ORDER, type SpellMenuSelection } from './spell-menu';
@@ -111,6 +111,22 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
 }
 
 /**
+ * Cofre exactamente en el tile bajo el cursor. `Espacio`/`Enter` lo abren; la
+ * adyacencia, la acción y el estado del cofre los decide el motor.
+ */
+export function chestAt(
+  state: GameState,
+  cursor: Position,
+): Container | undefined {
+  return (state.containers ?? []).find(
+    (container) =>
+      container.kind === 'chest' &&
+      container.x === cursor.x &&
+      container.y === cursor.y,
+  );
+}
+
+/**
  * Traduce una pulsación a una intención. Es una función pura: no toca el DOM,
  * no despacha comandos y no muta el estado ni el cursor.
  *
@@ -124,7 +140,8 @@ function findEnemyAt(state: GameState, cursor: Position): Unit | undefined {
  *   terminada.
  * - Con la partida terminada solo `F1` y `F2` reaccionan.
  * - Flechas/`WASD` mueven el cursor del host en cuatro direcciones.
- * - `Espacio`/`Enter` envían `MoveTo` al tile del cursor.
+ * - `Espacio`/`Enter` abren el cofre bajo el cursor o envían `MoveTo` al tile
+ *   del cursor si no lo hay; el motor decide adyacencia y coste.
  * - `F` envía `Attack` contra el enemigo bajo el cursor; sin enemigo avisa.
  * - `Q` abre/cierra la lista de hechizos con el activo vivo; con la lista
  *   abierta `↑/↓` o `W/S` navegan, `1`-`6` eligen, `Enter` lanza contra el
@@ -252,6 +269,16 @@ export function translateKey(
     if (state.phase !== 'player') return ignored('wrong-phase');
     const player = activePlayer(state);
     if (!player) return ignored('no-active-player');
+    // Sobre un cofre la tecla abre en vez de moverse; el motor rechaza sin
+    // mover al jugador si falta adyacencia o acción (REQ-020 R-003/T-007).
+    const chest = chestAt(state, cursor);
+    if (chest) {
+      return command({
+        type: 'OpenContainer',
+        unitId: player.id,
+        containerId: chest.id,
+      });
+    }
     return command({
       type: 'MoveTo',
       unitId: player.id,

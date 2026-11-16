@@ -56,6 +56,77 @@ describe('mapeo de teclado a intenciones del host', () => {
     }
   });
 
+  it('Espacio y Enter abren el cofre del cursor en vez de moverse', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 4,
+          items: [{ id: 'loot-axe', itemId: 'axe', lootable: true }],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    for (const key of [' ', 'Enter']) {
+      expectCommand(translate(key, state, { x: 5, y: 4 }), {
+        type: 'OpenContainer',
+        unitId: 'player-1',
+        containerId: 'chest-1',
+      });
+    }
+  });
+
+  it('el cofre lejano también envía OpenContainer: el motor rechaza sin mover', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 9,
+          y: 9,
+          capacity: 4,
+          items: [],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    expectCommand(translate(' ', state, { x: 9, y: 9 }), {
+      type: 'OpenContainer',
+      unitId: 'player-1',
+      containerId: 'chest-1',
+    });
+  });
+
+  it('un cofre no captura la tecla si el cursor está en otro tile', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 4,
+          items: [],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    expectCommand(translate(' ', state, { x: 5, y: 5 }), {
+      type: 'MoveTo',
+      unitId: 'player-1',
+      target: { x: 5, y: 5 },
+    });
+  });
+
   it('F ataca al enemigo vivo bajo el cursor', () => {
     const state = adjacentState();
 

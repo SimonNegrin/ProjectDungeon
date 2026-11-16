@@ -5,7 +5,7 @@ import {
   reduce,
 } from '../../../src/game/index';
 import { ITEMS, type ItemId } from '../../../src/game/equipment';
-import { allInstances } from '../../../src/game/inventory';
+import { allInstances, type Container } from '../../../src/game/inventory';
 import type { GameState } from '../../../src/game/types';
 import {
   buildInventoryPanelModel,
@@ -236,6 +236,182 @@ describe('modelo del panel de personaje', () => {
     });
   });
 
+  it('la vista de Cofre sustituye al suelo y a los cadáveres del tile', () => {
+    const chest: Container = {
+      id: 'chest-1',
+      x: 5,
+      y: 4,
+      capacity: 4,
+      items: [
+        { id: 'loot-axe', itemId: 'axe', lootable: true },
+        null,
+        { id: 'loot-ring', itemId: 'lifesteal-ring', lootable: true },
+        null,
+      ],
+      kind: 'chest',
+      opened: true,
+    };
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['dagger'],
+        }),
+      ],
+      groundItems: [GROUND_ITEM],
+      containers: [
+        chest,
+        {
+          id: 'corpse-1',
+          x: 4,
+          y: 4,
+          capacity: 1,
+          items: [{ id: 'corpse-loot', itemId: 'sword', lootable: true }],
+          kind: 'corpse',
+          corpseOf: 'enemy-1',
+        },
+      ],
+    });
+
+    const model = buildInventoryPanelModel(state, undefined, {
+      kind: 'chest',
+      containerId: 'chest-1',
+    });
+    expect(model.rightTitle).toBe('Cofre');
+    expect(model.chest).toMatchObject({
+      containerId: 'chest-1',
+      opened: true,
+      capacityLabel: '2/4',
+    });
+    expect(model.ground).toEqual([]);
+    expect(model.corpses).toEqual([]);
+    expect(model.chest?.items.map((item) => item.key)).toEqual([
+      'chest:chest-1:loot-axe',
+      'chest:chest-1:loot-ring',
+    ]);
+    expect(model.chest?.items[0].actions).toEqual([
+      {
+        kind: 'take',
+        label: 'Coger',
+        command: {
+          type: 'TakeItem',
+          unitId: 'player-1',
+          containerId: 'chest-1',
+          itemId: 'loot-axe',
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'take-all',
+        label: 'Coger todo',
+        command: {
+          type: 'TakeAll',
+          unitId: 'player-1',
+          containerId: 'chest-1',
+        },
+        cost: 'none',
+      },
+      {
+        kind: 'equip',
+        label: 'Equipar',
+        command: {
+          type: 'EquipItem',
+          unitId: 'player-1',
+          from: 'container',
+          containerId: 'chest-1',
+          itemId: 'loot-axe',
+        },
+        cost: 'mp',
+      },
+    ]);
+
+    // Depositar es una acción más de la mochila, gratis y en el mismo cofre.
+    expect(model.backpack[0].actions).toEqual([
+      expect.objectContaining({ kind: 'equip' }),
+      expect.objectContaining({ kind: 'drop' }),
+      {
+        kind: 'deposit',
+        label: 'Depositar',
+        command: {
+          type: 'DepositItem',
+          unitId: 'player-1',
+          containerId: 'chest-1',
+          index: 0,
+        },
+        cost: 'none',
+      },
+    ]);
+  });
+
+  it('un cofre cerrado no revela contenido ni deja de ser la fuente', () => {
+    const state = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 4, y: 4 })],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 4,
+          items: [{ id: 'loot-axe', itemId: 'axe', lootable: true }],
+          kind: 'chest',
+          opened: false,
+        },
+      ],
+    });
+
+    const model = buildInventoryPanelModel(state, undefined, {
+      kind: 'chest',
+      containerId: 'chest-1',
+    });
+    expect(model.rightTitle).toBe('Cofre');
+    expect(model.chest).toMatchObject({ opened: false, items: [] });
+    expect(JSON.stringify(model.chest)).not.toContain('loot-axe');
+    expect(JSON.stringify(model.chest)).not.toContain('Hacha');
+  });
+
+  it('el submenú anuncia sin coste coger, coger todo y depositar', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['dagger'],
+        }),
+      ],
+      containers: [
+        {
+          id: 'chest-1',
+          x: 5,
+          y: 4,
+          capacity: 4,
+          items: [{ id: 'loot-axe', itemId: 'axe', lootable: true }],
+          kind: 'chest',
+          opened: true,
+        },
+      ],
+    });
+    const source = { kind: 'chest' as const, containerId: 'chest-1' };
+
+    const take = buildPanelMenu(state, 'chest:chest-1:loot-axe', undefined, source);
+    expect(take.map((option) => [option.kind, option.costLabel])).toEqual([
+      ['take', 'sin coste'],
+      ['take-all', 'sin coste'],
+      ['equip', '1 MP'],
+    ]);
+
+    const deposit = buildPanelMenu(state, 'backpack:0', undefined, source);
+    expect(deposit.map((option) => [option.kind, option.costLabel])).toEqual([
+      ['equip', '1 MP'],
+      ['drop', '1 MP'],
+      ['deposit', 'sin coste'],
+    ]);
+  });
+
   it('containerOpenCost separa cadáver sin coste de cofre con una acción', () => {
     expect(containerOpenCost('corpse')).toEqual({
       actions: 0,
@@ -267,6 +443,8 @@ describe('modelo del panel de personaje', () => {
       backpack: [],
       ground: [],
       corpses: [],
+      chest: null,
+      rightTitle: 'Suelo',
       backpackCount: '0',
       stats: { total: '—', rows: [] },
     });

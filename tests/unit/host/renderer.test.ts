@@ -33,6 +33,7 @@ import {
   ALARM_COLOR,
   DEFENSE_GESTURE_COLOR,
   corpseMarks,
+  chestMarks,
   type SceneAssets,
 } from '../../../src/host/renderer';
 import {
@@ -1020,6 +1021,75 @@ describe('cadáveres desde contenedores', () => {
     expect(corpseIndex).toBeGreaterThan(floorIndex);
     expect(knightIndex).toBeGreaterThan(corpseIndex);
     expect(JSON.stringify(state)).toBe(before);
+  });
+});
+
+describe('marcador provisional de cofres', () => {
+  it('deriva posición y estado de apertura sin tocar el estado', () => {
+    const containers: readonly Container[] = [
+      {
+        id: 'chest-1',
+        x: 6,
+        y: 4,
+        capacity: 4,
+        items: [],
+        kind: 'chest',
+        opened: false,
+      },
+      {
+        id: 'chest-2',
+        x: 7,
+        y: 4,
+        capacity: 4,
+        items: [],
+        kind: 'chest',
+        opened: true,
+      },
+      {
+        id: 'corpse-1',
+        x: 8,
+        y: 4,
+        capacity: 1,
+        items: [],
+        kind: 'corpse',
+      },
+    ];
+
+    expect(chestMarks(containers)).toEqual([
+      { x: 6, y: 4, containerId: 'chest-1', opened: false },
+      { x: 7, y: 4, containerId: 'chest-2', opened: true },
+    ]);
+    expect(chestMarks([])).toEqual([]);
+    expect(containers).toHaveLength(3);
+  });
+
+  it('dibuja un cofre con cuerpo, tapa y pestillo sin añadir draws de hoja', () => {
+    const state = deepFreeze(
+      makeState({
+        players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 4 })],
+        containers: [
+          {
+            id: 'chest-1',
+            x: 6,
+            y: 4,
+            capacity: 4,
+            items: [],
+            kind: 'chest',
+            opened: false,
+          },
+        ],
+      }),
+    );
+    const fake = draw(state, { x: 0, y: 0 });
+
+    const styles = fake.ops
+      .filter((op) => op.kind === 'fill')
+      .map((op) => op.style);
+    expect(styles).toContain('#8a5a2b');
+    expect(styles).toContain('#f2c14e');
+    expect(fake.draws.some((call) => call.image === assets.tiles && call.sy === 672)).toBe(
+      false,
+    );
   });
 });
 
