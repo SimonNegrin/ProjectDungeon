@@ -1,0 +1,76 @@
+$ playwright test tests/e2e/host-result-qa.spec.ts tests/e2e/pause-save-load-qa.spec.ts
+
+Running 12 tests using 4 workers
+
+  ✓   2 [chromium] › tests/e2e/host-result-qa.spec.ts:174:1 › seis jugadores: la party y la semilla se leen sin scroll (1.5s)
+  ✓   4 [chromium] › tests/e2e/host-result-qa.spec.ts:74:1 › victoria: ronda, party, semilla y solo Nueva/Cargar (1.6s)
+  ✓   1 [chromium] › tests/e2e/host-result-qa.spec.ts:116:1 › derrota: foco atrapado, anuncio y sin avance automático (2.0s)
+  ✓   5 [chromium] › tests/e2e/host-result-qa.spec.ts:202:1 › Cargar partida reutiliza el cargador sin confirmación (918ms)
+  ✓   8 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:341:1 › TASK-0144: el menú muestra las cinco acciones en orden, navega con teclado y Esc vuelve a jugar (1.0s)
+  ✓   7 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:288:1 › TASK-0144: la pausa congela turnos, beats y animaciones; el input de juego se ignora y reanudar no salta (1.5s)
+  ✓   6 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:237:1 › TASK-0144: Esc abre y cierra la pausa en personajes, enemiga y animación; el panel se cierra primero (2.0s)
+  ✓  10 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:475:1 › TASK-0144: ida y vuelta real de .zip desde el menú principal y .json desde la pausa (1.1s)
+  ✓   9 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:399:1 › TASK-0144: Guardar solo está activo en la fase de personajes sin animación; nombre y manifiesto correctos (1.2s)
+  ✓  11 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:596:1 › TASK-0144: la carga rechaza rutas, entradas extra, exceso de entradas y tamaños sin tocar la partida (1.6s)
+  ✘  12 [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan (680ms)
+  ✘   3 [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar (6.7s)
+
+
+  1) [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  getByTestId('result-title')
+    Expected: "Victoria"
+    Received: "Derrota"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" getByTestId('result-title') with timeout 5000ms
+      - waiting for getByTestId('result-title')
+        14 × locator resolved to <h2 id="result-title" class="result-title" data-status="defeat" data-testid="result-title">Derrota</h2>
+           - unexpected value "Derrota"
+
+
+      158 |   await defeatAllEnemies(page);
+      159 |   await expect(page.getByTestId('result-screen')).toBeVisible();
+    > 160 |   await expect(page.getByTestId('result-title')).toHaveText('Victoria');
+          |                                                  ^
+      161 |   await expect(page.getByTestId('result-seed')).toHaveText(`Semilla ${PLAY_SEED}`);
+      162 |   await screenshot(page, testInfo, 'victoria-flujo-normal');
+      163 |
+        at /Users/simon/proyectdungeon/tests/e2e/host-result-qa.spec.ts:160:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/host-result-qa-Nueva-parti-d61a3--flujo-normal-sin-reiniciar-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/host-result-qa-Nueva-parti-d61a3--flujo-normal-sin-reiniciar-chromium/error-context.md
+
+  2) [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan 
+
+    Error: winGame acabó en defeat con la semilla 79
+
+       at support.ts:1329
+
+      1327 |   await expect(page.getByTestId('result-screen')).toBeVisible();
+      1328 |   if (ended.status !== 'victory') {
+    > 1329 |     throw new Error(`winGame acabó en ${ended.status} con la semilla ${seed}`);
+           |           ^
+      1330 |   }
+      1331 |   return ended;
+      1332 | }
+        at winGame (/Users/simon/proyectdungeon/tests/e2e/support.ts:1329:11)
+        at /Users/simon/proyectdungeon/tests/e2e/pause-save-load-qa.spec.ts:758:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/pause-save-load-qa-TASK-01-77182-io-y-las-teclas-no-lo-tocan-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/pause-save-load-qa-TASK-01-77182-io-y-las-teclas-no-lo-tocan-chromium/error-context.md
+
+  2 failed
+    [chromium] › tests/e2e/host-result-qa.spec.ts:145:1 › Nueva partida abre el paso 1 en flujo normal sin reiniciar 
+    [chromium] › tests/e2e/pause-save-load-qa.spec.ts:751:1 › TASK-0144: el resultado no ofrece pausa, guardado ni reinicio y las teclas no lo tocan 
+  10 passed (8.8s)
+[ELIFECYCLE] Command failed with exit code 1.
