@@ -23,7 +23,7 @@ export type SpellFamily = 'electric' | 'fire' | 'life';
 /**
  * Objetivo válido de un hechizo:
  * - `enemy`: unidad viva de facción contraria.
- * - `ally`: unidad viva de la misma facción, nunca el lanzador.
+ * - `ally`: unidad viva de la misma facción, incluido el propio lanzador.
  * - `corpse`: jugador muerto sobre su casilla.
  */
 export type SpellTarget = 'enemy' | 'ally' | 'corpse';
@@ -139,12 +139,12 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     name: 'Curación III',
     family: 'life',
     minLevel: 3,
-    cost: 6,
-    range: { min: 2, max: 3 },
+    cost: 8,
+    range: { min: 1, max: 1 },
     accuracy: 0,
     damagePacket: null,
     target: 'ally',
-    effect: { kind: 'heal', amount: 4 },
+    effect: { kind: 'heal', amount: 6 },
     presentation: { cue: 'healing', label: 'curación' },
   },
   'resurrection-4': {
@@ -152,7 +152,7 @@ export const SPELLS: Readonly<Record<SpellId, SpellDefinition>> = {
     name: 'Resurrección IV',
     family: 'life',
     minLevel: 4,
-    cost: 8,
+    cost: 12,
     range: { min: 1, max: 1 },
     accuracy: 0,
     damagePacket: null,

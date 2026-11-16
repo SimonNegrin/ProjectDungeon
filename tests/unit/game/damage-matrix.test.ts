@@ -493,7 +493,7 @@ describe('hechizos tipados', () => {
     const ally = makeUnit({
       id: 'player-2',
       faction: 'player',
-      x: 7,
+      x: 6,
       y: 5,
       hp: 10,
       maxHp: 20,
@@ -503,7 +503,7 @@ describe('hechizos tipados', () => {
       enemies: [spellVictim()],
     });
 
-    const result = castSpell(state, 'player-1', heal.id, { x: 7, y: 5 });
+    const result = castSpell(state, 'player-1', heal.id, { x: 6, y: 5 });
     if (!result.ok) throw new Error(result.reason);
     const event = result.events[0];
 

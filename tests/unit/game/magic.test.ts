@@ -208,7 +208,7 @@ describe('catálogo de hechizos', () => {
     );
   });
 
-  it('la curación es aliado a 2–3 y la resurrección exige nivel 4 y coste 8', () => {
+  it('la curación es aliado a 1 casilla con 8/6 y la resurrección exige nivel 4 y coste 12', () => {
     const heals = Object.values(SPELLS).filter(
       (spell) => spell.effect.kind === 'heal',
     );
@@ -218,12 +218,14 @@ describe('catálogo de hechizos', () => {
 
     expect(heals).toHaveLength(1);
     expect(heals[0].target).toBe('ally');
-    expect(heals[0].range).toEqual({ min: 2, max: 3 });
+    expect(heals[0].cost).toBe(8);
+    expect(heals[0].range).toEqual({ min: 1, max: 1 });
+    expect(heals[0].effect).toMatchObject({ kind: 'heal', amount: 6 });
 
     expect(resurrections).toHaveLength(1);
     expect(resurrections[0].target).toBe('corpse');
     expect(resurrections[0].minLevel).toBe(4);
-    expect(resurrections[0].cost).toBe(8);
+    expect(resurrections[0].cost).toBe(12);
     expect(resurrections[0].effect).toMatchObject({
       kind: 'resurrect',
       hpRatio: 0.6,
@@ -766,13 +768,17 @@ describe('ataque mágico', () => {
 });
 
 describe('curación', () => {
-  it('cura al aliado a 2–3 casillas sin tirar dados', () => {
-    const manaMax = manaMaxFor(HEAL.minLevel);
-    const caster = mage({
+  function healer(overrides: UnitOptions = {}): Unit {
+    return mage({
       magicLevel: HEAL.minLevel,
-      mana: { current: manaMax, max: manaMax },
+      mana: { current: 16, max: 16 },
+      ...overrides,
     });
-    const target = ally({ x: 5 + HEAL.range.min, y: 5, hp: 10, maxHp: 20 });
+  }
+
+  it('cura al aliado adyacente sin tirar dados y consume 8, 1 acción y 1 hueco', () => {
+    const caster = healer();
+    const target = ally({ x: 6, y: 5, hp: 10, maxHp: 20 });
     const state = makeState({
       players: [caster, target],
       enemies: [dummy({ x: 18, y: 18 })],
@@ -781,9 +787,10 @@ describe('curación', () => {
 
     const result = cast(state, HEAL, { x: target.x, y: target.y });
 
+    expect(reasonOf(result)).toBeUndefined();
     expect(result.state.rng).toBe(state.rng);
     expect(result.state.players[0]).toMatchObject({
-      mana: { current: manaMax - HEAL.cost, max: manaMax },
+      mana: { current: 16 - HEAL.cost, max: 16 },
       actions: { remaining: caster.actions.max - 1 },
       spellsCast: 1,
     });
@@ -802,63 +809,98 @@ describe('curación', () => {
     ]);
   });
 
-  it('no supera el PV máximo y no cura a sí mismo ni a enemigos', () => {
-    const manaMax = manaMaxFor(HEAL.minLevel);
-    const caster = mage({
-      magicLevel: HEAL.minLevel,
-      mana: { current: manaMax, max: manaMax },
+  it('cura en diagonal y a sí mismo con las mismas reglas y coste', () => {
+    const caster = healer({ hp: 10, maxHp: 20 });
+    const target = ally({ x: 6, y: 6, hp: 8, maxHp: 20 });
+    const state = makeState({
+      players: [caster, target],
+      enemies: [dummy({ x: 18, y: 18 })],
     });
-    const nearMax = ally({ x: 7, y: 5, hp: 18, maxHp: 20 });
+    const amount = healAmount(HEAL);
+
+    const diagonal = cast(state, HEAL, { x: target.x, y: target.y });
+    expect(reasonOf(diagonal)).toBeUndefined();
+    expect(diagonal.state.players[1].hp).toBe(8 + amount);
+
+    const self = cast(diagonal.state, HEAL, { x: caster.x, y: caster.y });
+    expect(reasonOf(self)).toBeUndefined();
+    expect(self.state.players[0]).toMatchObject({
+      hp: 10 + amount,
+      mana: { current: 16 - HEAL.cost * 2, max: 16 },
+      actions: { remaining: caster.actions.max - 2 },
+      spellsCast: 2,
+    });
+    expect(self.events[0]).toMatchObject({
+      effect: 'heal',
+      targetId: caster.id,
+      healing: amount,
+      targetHp: 10 + amount,
+    });
+  });
+
+  it('no supera el PV máximo', () => {
+    const caster = healer();
+    const nearMax = ally({ x: 6, y: 5, hp: 18, maxHp: 20 });
     const state = makeState({
       players: [caster, nearMax],
       enemies: [dummy({ x: 18, y: 18 })],
     });
 
-    const capped = cast(state, HEAL, { x: 7, y: 5 });
+    const capped = cast(state, HEAL, { x: nearMax.x, y: nearMax.y });
     expect(capped.events[0]).toMatchObject({
       effect: 'heal',
       healing: Math.min(healAmount(HEAL), 20 - 18),
       targetHp: 20,
     });
-
-    const self = cast(state, HEAL, { x: 5, y: 5 });
-    expectRejected(state, self, 'invalid-target');
-
-    const enemy = cast(state, HEAL, { x: 18, y: 18 });
-    expectRejected(state, enemy, 'invalid-target');
-
-    const deadAlly = makeState({
-      players: [caster, ally({ x: 7, y: 5, hp: 0 })],
-      enemies: [dummy({ x: 18, y: 18 })],
-    });
-    const dead = cast(deadAlly, HEAL, { x: 7, y: 5 });
-    expectRejected(deadAlly, dead, 'target-dead');
   });
 
-  it('rechaza aliados a 1 o 4 casillas y sin línea de visión', () => {
-    const manaMax = manaMaxFor(HEAL.minLevel);
-    const caster = mage({
-      magicLevel: HEAL.minLevel,
-      mana: { current: manaMax, max: manaMax },
-    });
-    const tooClose = makeState({
-      players: [caster, ally({ x: 6, y: 5 })],
+  it('rechaza a PV completo con motivo propio y estado intacto', () => {
+    const caster = healer();
+    const full = ally({ x: 6, y: 5, hp: 20, maxHp: 20 });
+    const state = makeState({
+      players: [caster, full],
       enemies: [dummy({ x: 18, y: 18 })],
     });
-    expectRejected(tooClose, cast(tooClose, HEAL, { x: 6, y: 5 }), 'out-of-range');
 
-    const tooFar = makeState({
-      players: [caster, ally({ x: 9, y: 5 })],
+    const result = cast(state, HEAL, { x: full.x, y: full.y });
+    expectRejected(state, result, 'target-full-hp');
+    expect(result.state.players[0]).toMatchObject({
+      mana: { current: 16, max: 16 },
+      actions: { remaining: caster.actions.max },
+      spellsCast: 0,
+    });
+
+    const selfState = makeState({
+      players: [healer()],
       enemies: [dummy({ x: 18, y: 18 })],
     });
-    expectRejected(tooFar, cast(tooFar, HEAL, { x: 9, y: 5 }), 'out-of-range');
+    expectRejected(selfState, cast(selfState, HEAL, { x: 5, y: 5 }), 'target-full-hp');
+  });
 
-    const walled = makeState({
-      grid: makeGridWithWalls([{ x: 6, y: 5 }]),
+  it('rechaza enemigos, cadáveres y objetivos a 2 casillas', () => {
+    const caster = healer();
+
+    const enemyState = makeState({
+      players: [caster],
+      enemies: [dummy({ x: 6, y: 5 })],
+    });
+    expectRejected(
+      enemyState,
+      cast(enemyState, HEAL, { x: 6, y: 5 }),
+      'invalid-target',
+    );
+
+    const deadState = makeState({
+      players: [caster, ally({ x: 6, y: 5, hp: 0 })],
+      enemies: [dummy({ x: 18, y: 18 })],
+    });
+    expectRejected(deadState, cast(deadState, HEAL, { x: 6, y: 5 }), 'target-dead');
+
+    const farState = makeState({
       players: [caster, ally({ x: 7, y: 5 })],
       enemies: [dummy({ x: 18, y: 18 })],
     });
-    expectRejected(walled, cast(walled, HEAL, { x: 7, y: 5 }), 'no-line-of-sight');
+    expectRejected(farState, cast(farState, HEAL, { x: 7, y: 5 }), 'out-of-range');
   });
 });
 
@@ -1264,10 +1306,12 @@ describe('resurrección', () => {
   });
 
   it('permite dos resurrecciones en el mismo turno (sin tope propio)', () => {
+    // Maná sintético suficiente para aislar el cupo de hechizos del coste real.
+    const manaMax = RESURRECT.cost * 2;
     const caster = mage({
       actionsMax: 2,
       actions: 2,
-      mana: { current: 16, max: 16 },
+      mana: { current: manaMax, max: manaMax },
     });
     const state = makeState({
       players: [
@@ -1284,7 +1328,7 @@ describe('resurrección', () => {
     expect(reasonOf(first)).toBeUndefined();
     expect(reasonOf(second)).toBeUndefined();
     expect(second.state.players[0]).toMatchObject({
-      mana: { current: 0, max: 16 },
+      mana: { current: 0, max: manaMax },
       actions: { remaining: 0 },
       spellsCast: 2,
     });
@@ -1294,7 +1338,7 @@ describe('resurrección', () => {
   it('rechaza sin nivel, sin maná, sin adyacencia y sin cadáver', () => {
     const lowLevel = mage({
       magicLevel: 3,
-      mana: { current: 8, max: 12 },
+      mana: { current: manaMaxFor(3), max: manaMaxFor(3) },
     });
     const levelState = makeState({
       players: [lowLevel, deadPlayer()],
@@ -1422,29 +1466,26 @@ describe('determinismo y cupo por turno', () => {
     const state = makeState({
       players: [
         mage({ magicLevel: 4, mana: { current: manaMax, max: manaMax } }),
-        ally({ hp: 8 }),
+        ally({ x: 6, y: 5, hp: 8 }),
       ],
       enemies: [dummy({ x: 18, y: 18 })],
     });
 
-    const first = cast(state, HEAL, { x: 7, y: 5 });
+    const first = cast(state, HEAL, { x: 6, y: 5 });
     expect(reasonOf(first)).toBeUndefined();
-
-    const second = cast(first.state, HEAL, { x: 7, y: 5 });
-    expect(reasonOf(second)).toBeUndefined();
-    expect(second.state.players[0]).toMatchObject({
-      mana: { current: manaMax - HEAL.cost * 2, max: manaMax },
-      actions: { remaining: 1 },
-      spellsCast: 2,
+    expect(first.state.players[0]).toMatchObject({
+      mana: { current: manaMax - HEAL.cost, max: manaMax },
+      actions: { remaining: 2 },
+      spellsCast: 1,
     });
 
-    // La maga cede el turno al aliado: la recuperación llega al empezar la ronda.
+    // La lanzadora cede el turno al aliado: la recuperación llega al empezar la ronda.
     const afterTurn = reduce(
-      { ...second.state, activePlayerId: 'player-2' },
+      { ...first.state, activePlayerId: 'player-2' },
       { type: 'EndTurn' },
     );
     const recovered = Math.min(
-      manaMax - HEAL.cost * 2 + MANA_RECOVERY_PER_TURN,
+      manaMax - HEAL.cost + MANA_RECOVERY_PER_TURN,
       manaMax,
     );
     expect(afterTurn.state.players[0]).toMatchObject({
@@ -1453,8 +1494,9 @@ describe('determinismo y cupo por turno', () => {
       spellsCast: 0,
     });
 
-    const nextTurn = cast(afterTurn.state, HEAL, { x: 7, y: 5 });
+    const nextTurn = cast(afterTurn.state, HEAL, { x: 6, y: 5 });
     expect(reasonOf(nextTurn)).toBeUndefined();
+    expect(nextTurn.state.players[0].mana.current).toBe(recovered - HEAL.cost);
   });
 
   it('el resolvedor lee la cantidad del paquete y el coste del catálogo, no de constantes', () => {
