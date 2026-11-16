@@ -98,6 +98,33 @@ Desviaciones respecto al piloto original, aprobadas por el usuario:
   umbrales. `verify:task --base harness/2agentes` mide solo el diff de la tarea;
   la base queda escrita en `lead-verify/verify-task.txt`.
 
+# Cierre del piloto (2026-11-16)
+
+Ejecutado con las cinco tareas, en orden y todas `done`: `TASK-0161`,
+`TASK-0162`, `TASK-0154`, `TASK-0155` y `TASK-0159`. Mediciones al cierre:
+
+| Métrica | Umbral | Medido | Resultado |
+|---|---|---|---|
+| Defectos nuevos en playtest | 0 | 0 detectados en hotseat, traits visibles y desglose; el ataque circular se aplaza al playtest de `REQ-020` por decisión del usuario | Cumple con cobertura parcial declarada |
+| Relanzamientos | ≤1 de 5 | 1 de 5 (20 %), `TASK-0162` por el desglose solo visible en `F1` | Cumple |
+| Criterios sin firmar | <30 % | 0 de 38 | Cumple |
+| Commits por tarea | ≤ mediana ≈10 | 28 en 5 tareas: media 5,6, mediana 5, máximo 8; mediana de las 20 tareas anteriores, 7,5 | Cumple |
+| Fricción de arnés | ≤1 | 2 registradas y corregidas (`verify:task` pedía capturas por palabras clave; `E2E_ARTIFACTS_DIR` escribía capturas de toda la suite). 0 abiertas al cierre | Cumple por fricción abierta |
+
+La fricción se cuenta como *abierta al cierre*: las dos se corrigieron dentro del
+piloto (`bad6a6b` y `TASK-0163`) y tienen prueba. La decisión de lectura la tomó
+el usuario al cerrar. Si se contara cada ocurrencia histórica, el umbral no se
+cumpliría; no fue la lectura elegida.
+
+Fricción nueva detectada al arreglar la segunda, fuera de las cinco tareas:
+ningún `task_type` admite a la vez `tests/` y `docs/`; se resolvió landando la
+documentación en esta rama (`ca7fcc9`). Queda `pending` para `/harness`.
+
+El piloto pasa: la estructura de dos agentes se fusiona en `main` y el código de
+las cinco tareas se conserva. La etiqueta `harness-pre-2agentes` mantiene el
+arnés anterior para revertir; el ensayo de vuelta atrás se hace en un worktree
+desechable antes de publicar.
+
 # Consecuencias
 
 - Menos recargas de contexto: desaparecen el prompt del lead, el brief y su
