@@ -3,23 +3,32 @@ type: Task
 id: TASK-0166
 title: "Bug: la lista de hechizos usa el nivel del jugador activo"
 description: "La disponibilidad de hechizos se calcula con el primer jugador vivo, no con el lanzador activo."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-001, R-007, R-011]
 depends_on: []
 unlocks: []
 created_at: 2026-11-16T14:23:01Z
-completed_at:
+completed_at: 2026-11-16T14:52:28Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0166/
 priority: P1
 risk: low
 review_required: false
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T14:23:01Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T14:52:28Z
+    note: >-
+      Intento 1 verificado (código `d176637d`, evidencia `5f2ddafc`). Los cinco
+      criterios firmados: el test previo muestra los seis hechizos como `level`
+      con el mago activo, pasa 10/10 después, y el E2E de hotseat comprueba la
+      disponibilidad del guerrero, del mago y el retorno sin herencia. `verify`
+      completo y 285 E2E en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -40,23 +49,23 @@ R-012.
 
 # Criterios de aceptación
 
-- [ ] Test unitario nuevo con dos jugadores, primero sin magia y segundo con
+- [x] Test unitario nuevo con dos jugadores, primero sin magia y segundo con
       nivel suficiente, activo en el segundo: `buildSpellMenuModel` marca como
       disponibles los hechizos de su nivel y no los del primero; el test falla
       antes del arreglo.
-- [ ] La resolución usa `activePlayer(state)`; sin activo no se cae al primer
+- [x] La resolución usa `activePlayer(state)`; sin activo no se cae al primer
       jugador y la lista queda sin lanzador, como cuando no hay caster.
-- [ ] Cambiar de turno con `N` recalcula la disponibilidad para el nuevo activo
+- [x] Cambiar de turno con `N` recalcula la disponibilidad para el nuevo activo
       sin conservar la del anterior.
-- [ ] La selección, el orden, el texto de ayuda, el lanzamiento con `X` y el
+- [x] La selección, el orden, el texto de ayuda, el lanzamiento con `X` y el
       coste no cambian.
-- [ ] Sin cambios en `src/game/**`, catálogo, reglas ni maná; no se debilitan
+- [x] Sin cambios en `src/game/**`, catálogo, reglas ni maná; no se debilitan
       tests existentes. `pnpm run verify` y `pnpm run test:e2e` pasan.
 
 # Plan de test
 
 - Unitario: dos jugadores con niveles 0 y ≥1; activo en el segundo; estados
-  `available`/`no-mana`/`level` esperados según catálogo y maná. Caso inverso
+  `available`/`mana`/`level` esperados según catálogo y maná. Caso inverso
   con el activo en el primero y caso sin activo.
 - Integración: `pnpm run verify`.
 - E2E / visual: no aplica captura; el cambio es de disponibilidad calculada y la
