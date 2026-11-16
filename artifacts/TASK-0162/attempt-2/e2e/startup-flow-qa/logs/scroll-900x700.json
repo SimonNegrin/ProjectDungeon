@@ -1,0 +1,47 @@
+{
+  "viewport": "900x700",
+  "player": {
+    "screen": {
+      "clientWidth": 868,
+      "clientHeight": 488,
+      "scrollWidth": 868,
+      "scrollHeight": 520,
+      "overflowX": "auto",
+      "overflowY": "auto"
+    },
+    "panel": {
+      "clientWidth": 726,
+      "clientHeight": 490,
+      "scrollWidth": 726,
+      "scrollHeight": 490,
+      "overflowX": "visible",
+      "overflowY": "visible"
+    },
+    "layout": {
+      "scrollTop": 0,
+      "screenTop": 94.875,
+      "screenBottom": 583.125,
+      "panelTop": 108.953125,
+      "panelBottom": 600.78125,
+      "panelHeight": 491.828125
+    }
+  },
+  "summary": {
+    "screen": {
+      "clientWidth": 868,
+      "clientHeight": 488,
+      "scrollWidth": 868,
+      "scrollHeight": 488,
+      "overflowX": "auto",
+      "overflowY": "auto"
+    },
+    "panel": {
+      "clientWidth": 726,
+      "clientHeight": 311,
+      "scrollWidth": 726,
+      "scrollHeight": 311,
+      "overflowX": "visible",
+      "overflowY": "visible"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+[
+  {
+    "phase": "open",
+    "shifts": []
+  },
+  {
+    "phase": "navigate",
+    "shifts": []
+  },
+  {
+    "phase": "equip",
+    "shifts": [
+      {
+        "value": 0.003994694391886393,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "section[hud-panel-breakdown].hud-breakdown",
+            "forbidden": false
+          },
+          {
+            "label": "unknown",
+            "forbidden": false
+          }
+        ]
+      },
+      {
+        "value": 0.003994694391886393,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "section[hud-panel-breakdown].hud-breakdown",
+            "forbidden": false
+          },
+          {
+            "label": "unknown",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "pickup",
+    "shifts": [
+      {
+        "value": 0.0006391176780064901,
+        "hadRecentInput": true,
+        "forbidden": false,
+        "sources": [
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "unknown",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-1].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-2].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          },
+          {
+            "label": "li[inventory-ground-item-test-ground-3].inventory-slot.ui-inset.inventory-ground-row",
+            "forbidden": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "phase": "reopen",
+    "shifts": []
+  }
+]

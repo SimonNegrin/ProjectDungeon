@@ -1,0 +1,49 @@
+[
+  {
+    "scene": "hud-sin-mana-ni-traits",
+    "viewport": "1280x720",
+    "stats": [
+      "+1 habilidad",
+      "+1 fuerza",
+      "+1 defensa"
+    ],
+    "weapon": [
+      "+3 acierto",
+      "+3 daño"
+    ]
+  },
+  {
+    "scene": "hud-con-traits",
+    "viewport": "1280x720",
+    "traits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "ficha",
+    "viewport": "1280x720",
+    "selected": [
+      "+2 Acierto",
+      "+5 Daño"
+    ],
+    "selectedTraits": [
+      "brutal: Golpea fuerte",
+      "lento: Tarda más"
+    ],
+    "equipped": [
+      "+3 Acierto",
+      "+3 Daño"
+    ],
+    "equippedTraits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "hud-maga",
+    "viewport": "1280x720",
+    "magic": "Magia\n4",
+    "mana": "Maná\n16/16"
+  }
+]
