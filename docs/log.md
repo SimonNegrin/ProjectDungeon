@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Playtest — traits y hotseat — `human:simon`: sin defectos nuevos en hotseat, traits visibles y desglose; el ataque circular queda pendiente de probar porque las piezas no tienen fuente jugable — [TASK-0162](../artifacts/TASK-0162/attempt-2/report.md)
 * 2026-11-16 — Harness — permisos — `game-lead` autónomo en el ciclo de tarea: `checkout`/`switch` de `task/*` y `harness/*`, `fetch`, `pull --ff-only`, `pnpm run test` y `pnpm install` en allow; `checkout --`, `restore` y `clean` en deny; un comando por llamada y rama base del piloto en Ejecución y Cierre — [agente](../.opencode/agents/game-lead.md), [workflow](harness/workflow.md#git)
 * 2026-11-16 — Task — TASK-0163 — done: `E2E_ARTIFACTS_SPECS` limita capturas, JSON y logs a los specs de la tarea; corrige la fricción de artefactos del piloto de ADR-031 — [informe](../artifacts/TASK-0163/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0159 — done: notas de hotseat en REQ-005, 017, 018, 021, 022, 023, 024 y 026; remiten a REQ-031 v2 y ADR-029 sin reescribir requisitos — [informe](../artifacts/TASK-0159/attempt-1/report.md)
