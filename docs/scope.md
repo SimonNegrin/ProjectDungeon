@@ -42,8 +42,8 @@ El trabajo inmediato es el playtest del hito de cofres y el ajuste de balance
 aplazado en TASK-0084. El hotseat de la fase 2 (`REQ-016` v3 y `REQ-031`) está
 implementado en TASK-0146 a TASK-0154. `REQ-030` (alcance visible de hechizos)
 queda en borrador. Cofres y traits ya están en el juego. `REQ-012` v5 está
-aprobada y pendiente de implementación: el total de enemigos pasa a usar la party
-real y a tener suelo por salas no-spawn (ADR-034).
+implementada en TASK-0174 a TASK-0176 y validada en playtest: el total de
+enemigos usa la party real y tiene suelo por salas no-spawn (ADR-034).
 
 # Horizonte
 
@@ -174,7 +174,7 @@ Los valores concretos de la economía de turno son provisionales y viven en
   superficie de salas y tamaño real de la party (factores 0,02 y 1,2), con suelo
   de una ficha por sala no-spawn, y lo reparte por área con mínimo 1, prefiere
   interiores y puede colocar emboscados en puntos calientes al 0,25. `REQ-012` v5
-  está aprobada y pendiente de implementar.
+  está implementada y validada en playtest.
 - La entrada es el acceso de spawn y la salida es única: una sala no-spawn a
   distancia de grafo ≥2, preferiblemente la más lejana. Se representa como puerta
   exterior o escalera (abajo/arriba) en `EXP-004`; el encadenado funcional de

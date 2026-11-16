@@ -213,9 +213,10 @@ mínimo de una ficha por sala no-spawn se convierte en suelo del total.
 6. **Sala de spawn no-mayor:** el desempate evita la sala mayor solo cuando hay
    empate de protección. Si el playtest pide evitar la mayor incluso con más
    accesos, se cambiará la jerarquía en una versión posterior.
-7. **Ritmo de botín en solitario:** con 1 jugador `T` baja a 4-6 y hay menos
-   tiradas de botín de `REQ-034` (25 %). Los cofres de `REQ-020` no cambian; el
-   playtest dirá si el ritmo de mejora se resiente y si conviene compensarlo.
+7. **Ritmo de botín en solitario — resuelta en playtest:** con 1 jugador `T` baja
+   a 4-6 y hay menos tiradas de botín de `REQ-034` (25 %). Los cofres de
+   `REQ-020` no cambian. El playtest del 2026-11-16 acepta el ritmo sin
+   compensación.
 
 # Decisiones
 
@@ -244,6 +245,7 @@ mínimo de una ficha por sala no-spawn se convierte en suelo del total.
 | 2026-11-16 | La fórmula no cambia: con 1 jugador el total queda en 4-6 y con 6 en 10-12 en un mapa 22×18. | human:simon | aceptada |
 | 2026-11-16 | `T` tiene suelo en el número de salas no-spawn, `T = max(T, R)`, con aviso: ninguna sala queda vacía. | human:simon | aceptada |
 | 2026-11-16 | Una partida cargada conserva su reparto; no hay escalado por muertes, resurrecciones ni cambios de party. | human:simon | aceptada |
+| 2026-11-16 | Playtest de la v5 aprobado: densidad de 1 a 6 jugadores aceptada, sin cambios de factores ni compensación de botín. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
