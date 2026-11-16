@@ -40,17 +40,17 @@ Sin TASK-0161 cerrada no se empieza.
 
 # Criterios de aceptación
 
-- [ ] El panel de inventario muestra, antes de equipar, nombre, descripción y
+- [x] El panel de inventario muestra, antes de equipar, nombre, descripción y
       efecto de cada trait de cada objeto; ningún trait se revela al equipar.
-- [ ] La ficha del portador desglosa inherente, equipo y traits por atributo y
+- [x] La ficha del portador desglosa inherente, equipo y traits por atributo y
       muestra el total con el mismo valor que lee el motor.
-- [ ] El HUD o `F1` expone los traits activos del portador y su fuente.
-- [ ] Cada impacto del ataque circular y cada curación del robo de vida generan
+- [x] El HUD o `F1` expone los traits activos del portador y su fuente.
+- [x] Cada impacto del ataque circular y cada curación del robo de vida generan
       un evento de feedback por objetivo con texto propio y su beat; el feedback
       no depende solo de color, icono o animación.
-- [ ] La maza a dos manos y el escudo no coexisten: el rechazo no deja cambios
+- [x] La maza a dos manos y el escudo no coexisten: el rechazo no deja cambios
       parciales y hay E2E con la maza y el escudo en el panel.
-- [ ] `pnpm run verify` pasa y los E2E de inventario y equipo conservan su
+- [x] `pnpm run verify` pasa y los E2E de inventario y equipo conservan su
       intención.
 
 # Plan de test
@@ -65,10 +65,10 @@ Sin TASK-0161 cerrada no se empieza.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0162/attempt-1/report.md`
-- [ ] Salida de `pnpm run verify`
-- [ ] Capturas E2E en `<spec>/screenshots/` con la ficha y el feedback
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0162/attempt-1/report.md`
+- [x] Salida de `pnpm run verify`
+- [x] Capturas E2E en `<spec>/screenshots/` con la ficha y el feedback
+- [x] Commit SHA
 
 # Comandos
 
