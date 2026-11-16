@@ -36,33 +36,34 @@ esta tarea es solo de `docs/requirements/**` para que tenga un único ejecutor.
 
 # Criterios de aceptación
 
-- [ ] REQ-005 anota que la cámara sigue al activo con paneo y al enemigo que
+- [x] REQ-005 anota que la cámara sigue al activo con paneo y al enemigo que
       actúa en la fase enemiga.
-- [ ] REQ-017 anota los beats de relevo, ronda y «El master mueve»; el aviso de
+- [x] REQ-017 anota los beats de relevo, ronda y «El master mueve»; el aviso de
       ronda no bloquea.
-- [ ] REQ-018 anota que el panel solo se abre en el turno activo, es público y el
+- [x] REQ-018 anota que el panel solo se abre en el turno activo, es público y el
       traspaso directo queda fuera también en hotseat.
-- [ ] REQ-021 anota que el fantasma cierra turno con `N` y que la resurrección
+- [x] REQ-021 anota que el fantasma cierra turno con `N` y que la resurrección
       respeta el índice de la ronda.
-- [ ] REQ-022 y REQ-023 anotan «Jugador N de M», la ficha compacta del objetivo y
+- [x] REQ-022 y REQ-023 anotan «Jugador N de M», la ficha compacta del objetivo y
       el actor enemigo en la columna derecha.
-- [ ] REQ-024 y REQ-026 anotan pausa global, guardado en fase de personajes,
+- [x] REQ-024 y REQ-026 anotan pausa global, guardado en fase de personajes,
       carga en el activo, `N` en lugar de `E`, turno por jugador y ronda con una
       fase enemiga; no queda `R`.
-- [ ] Las notas remiten a REQ-031 v2 y no reescriben requisitos vigentes;
+- [x] Las notas remiten a REQ-031 v2 y no reescriben requisitos vigentes;
       `docs/log.md` lo registra.
-- [ ] `pnpm run docs:check` pasa y no hay enlaces rotos.
+- [x] `pnpm run docs:check` pasa y no hay enlaces rotos.
 
 # Plan de test
 
 - Documental: `pnpm run docs:check`.
+- E2E / visual: no; tarea documental sin UI.
 - Manual: revisar que las ocho hojas no se contradicen entre sí ni con REQ-031.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0159/attempt-1/report.md`
-- [ ] Salida de `pnpm run docs:check`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0159/attempt-1/report.md`
+- [x] Salida de `pnpm run docs:check`
+- [x] Commit SHA
 
 # Comandos
 
