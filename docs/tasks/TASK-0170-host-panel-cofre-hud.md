@@ -4,7 +4,7 @@ id: TASK-0170
 title: "Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD"
 description: "Abrir el cofre desde el cursor adyacente con Espacio/Enter, mostrar su contenido en la columna derecha del panel con una sola fuente, seguir el cofre en el HUD derecho y producir feedback de apertura y transferencia."
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-011, R-012, T-007, T-009]
