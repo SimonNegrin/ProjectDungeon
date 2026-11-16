@@ -1,10 +1,10 @@
 ---
 type: Task Report Detail
 title: "TASK-0171: detalle de E2E, QA visual y playtest"
-description: Evidencia ampliada del ciclo de cofres, guardado/carga, curva y guion de playtest de la maza.
+description: Evidencia ampliada del ciclo de cofres, banner sobre el panel, guardado/carga, curva y playtest de la maza.
 task: TASK-0171
 attempt: 1
-generated: { by: deepseek/v4.1-flash, at: 2026-11-16T18:55:00Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-16T19:00:00Z }
 artifacts: artifacts/TASK-0171/attempt-1/
 ---
 
@@ -20,6 +20,27 @@ La semilla 295 genera un solo cofre en `(13,9)`, sala 1, con spawn en sala 0;
 contiene `arcane-dagger` (mejora de arma) y `circular-mace` (pieza de traits
 garantizada). El jugador arranca en `(13,5)`.
 
+# Corrección del banner
+
+El banner de feedback estaba en `z-index: 5` y el panel en `20`; el panel lo
+tapaba y el E2E anterior lo esquivaba con `advance` + `Escape`. Se corrige en
+`src/host/ui.css`:
+
+- Con el panel visible, `.frame:has(.inventory-panel:not([hidden]))` sube el
+  banner a `z-index: 25`, lo ancla a `top: 0` y reduce el relleno vertical a
+  `1.5u` para no invadir la fila de títulos.
+- El submenú contextual vive dentro del panel (contexto de apilado 20). Si está
+  abierto, `.frame:has(.inventory-submenu:not([hidden]))` devuelve el banner a
+  `z-index: 5`: queda detrás del panel y el submenú sigue visible por encima.
+- El banner conserva `pointer-events: none`; no bloquea el input.
+
+El E2E comprueba en el DOM real: banner visible con panel abierto tras abrir,
+coger todo y depositar; `z-index` del banner > panel; submenú > banner cuando
+el submenú está cerrado; banner < panel cuando el submenú está abierto;
+`pointer-events: none`; y que el rectángulo del banner no solapa ningún
+`.inventory-section-title` a 1280×720 ni 900×700. No hay `advance` + `Escape`
+para verlo: las capturas se toman con el panel abierto y el banner visible.
+
 # Tests
 
 | Comando | Resultado | Evidencia |
@@ -27,7 +48,7 @@ garantizada). El jugador arranca en `(13,5)`.
 | `pnpm run verify` | OK: 116 archivos, 1890 tests, docs, config, `tsc`, build y bundle | `verify-output.txt` |
 | `pnpm exec playwright test` (suite completa) | OK: 290 tests | `e2e-output.txt` |
 | `pnpm exec playwright test tests/e2e/chests.spec.ts` | OK: 3/3 | `chests/screenshots/`, `chests/logs/` |
-| `pnpm run verify:task TASK-0171` | fail esperado: 7/7 criterios sin firma; informe y capturas OK | `verify-task-output.txt` |
+| `pnpm run verify:task TASK-0171` | fail esperado: 7/7 criterios sin firma; informe, capturas y verify OK | `verify-task-output.txt` |
 
 `verify:task` no puede pasar mientras `game-lead` no firme los criterios en la
 ficha; `docs/**` no es propiedad de `task-runner` y no se ha editado.
@@ -36,9 +57,10 @@ ficha; `docs/**` no es propiedad de `task-runner` y no se ha editado.
 
 1. **Ciclo real**: partida nueva, comparación con la generación de Node, cofre
    en sala no-spawn, HUD cerrado sin contenido, apertura con `Espacio` (2→1
-   acciones), panel «Cofre 2/4», coger todo (gratis), cofre vacío que permanece,
-   depósito (gratis, MP 3→3), HUD abierto con contenido, «Suelo» sin mezclar
-   fuentes y reapertura gratis. Costes en `chests/logs/ciclo-cofre.json`.
+   acciones), banner visible con el panel abierto, submenú por encima, panel
+   «Cofre 2/4», coger todo (gratis), cofre vacío que permanece, depósito
+   (gratis, MP 3→3), HUD abierto con contenido, «Suelo» sin mezclar fuentes y
+   reapertura gratis. Costes en `chests/logs/ciclo-cofre.json`.
 2. **Guardado/carga**: guardado real desde la pausa a `.zip`, lectura del
    manifiesto y la partida, carga desde el menú y comparación exacta de
    contenedores antes/después. El objeto depositado conserva
@@ -57,16 +79,23 @@ Capturas en `chests/screenshots/`:
 | Captura | Contenido |
 |---|---|
 | `hud-cofre-cerrado-1280x720.png` | Cursor sobre el cofre cerrado; «Cerrado», sin contenido |
-| `cofre-apertura-feedback-1280x720.png` | Banner «Cofre abierto» sobre el mapa |
+| `cofre-apertura-feedback-1280x720.png` | Cofre abierto, panel visible y banner «Cofre abierto» encima |
+| `cofre-apertura-feedback-900x700.png` | Igual a 900×700; banner sin tapar títulos |
 | `panel-cofre-1280x720.png` / `-900x700.png` | «Cofre 2/4» con dos objetos; sin Suelo ni cadáveres |
-| `transferencia-take-all-900x700.png` | Banner «+ 2 objetos»; HUD ya vacío |
+| `transferencia-take-all-900x700.png` | «+ 2 objetos» con el panel abierto; HUD ya vacío |
 | `cofre-vacio-1280x720.png` | «Cofre 0/4» y «Cofre vacío» |
-| `transferencia-deposito-1280x720.png` | Banner «Daga arcana → Cofre»; HUD con el objeto |
+| `transferencia-deposito-1280x720.png` | «Daga arcana → Cofre» con el panel abierto |
 | `hud-cofre-abierto-1280x720.png` | HUD «Abierto» con «Daga arcana» |
 | `panel-suelo-1280x720.png` / `-900x700.png` | «Suelo»; nada del cofre |
 | `cofre-cargado-1280x720.png` | Cofre abierto tras cargar el `.zip` |
 | `cofre-vacio-cargado-1280x720.png` | Cofre cargado y vaciado, sigue en el mundo |
 | `hud-cofre-vacio-cargado-1280x720.png` | HUD «Abierto / Vacío» tras cargar |
+
+Capturas que cambiaron respecto al intento anterior: las tres de feedback
+(`cofre-apertura-feedback-1280x720`, la nueva `cofre-apertura-feedback-900x700`,
+`transferencia-take-all-900x700` y `transferencia-deposito-1280x720`) y las dos
+`panel-cofre-*`, que ahora incluyen el banner sobre el panel. El resto de
+capturas del ciclo se regeneraron sin cambios de contenido.
 
 CLS: `startLayoutShiftAudit` + `expectNoForbiddenShifts` en apertura, coger
 todo, depósito, Suelo y reapertura. Única entrada registrada:
@@ -105,17 +134,13 @@ Qué debe mirar el usuario:
 
 # Desviaciones y problemas
 
-- El banner de feedback (`z-index: 5`) queda oculto tras el panel abierto
-  (`z-index: 20`). El evento existe y se anuncia (`role="status"`), pero el
-  usuario no lo ve hasta cerrar el panel; las capturas de feedback se toman con
-  el panel cerrado. No se cambia la capa porque es una decisión de UI y el
-  alcance prohíbe rediseñar; queda como problema conocido para `game-lead`.
 - «¡Alarma! Te han visto» aparece en las capturas por acercarse al cofre, no
   por abrirlo ni transferir: `lastEvents` no contiene `AlarmRaised` en apertura,
   coger todo ni depósito.
 - El primer intento E2E falló por una aserción del propio test
   (`toContainText` sobre una fila que solo expone `aria-label`); se corrigió a
   `toHaveAttribute`. No fue un fallo de producto.
+- `verify:task` falla solo por la firma de criterios; no se edita la ficha.
 
 # Fricción reutilizable
 

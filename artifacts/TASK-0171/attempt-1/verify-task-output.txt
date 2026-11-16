@@ -1,7 +1,7 @@
 $ node scripts/verify-task.mjs TASK-0171
 # Verificación determinista de TASK-0171
 
-- Fecha: 2026-11-16T18:50:35.165Z
+- Fecha: 2026-11-16T18:59:02.764Z
 - Intento: 1
 - Base: main
 - Resultado: fail
@@ -12,11 +12,11 @@ $ node scripts/verify-task.mjs TASK-0171
 | Estado | ok | task_status: in_progress |
 | Intento | ok | attempt-1 |
 | Criterios firmados | fail | 7 de 7 sin marcar |
-| Informe | ok | report_status: success (2985 B) |
+| Informe | ok | report_status: success (2992 B) |
 | Alcance declarado | ok | sin scope: se usa qa |
 | Alcance congelado | ok | scope sin cambios desde main |
-| Alcance | ok | 2 archivos dentro de qa (base main) |
-| Capturas | ok | 13 imágenes |
+| Alcance | ok | 26 archivos dentro de qa (base main) |
+| Capturas | ok | 14 imágenes |
 | verify | ok | pnpm run verify OK |
 Fallan 1 comprobaciones. No cierres la tarea.
 [ELIFECYCLE] Command failed with exit code 1.

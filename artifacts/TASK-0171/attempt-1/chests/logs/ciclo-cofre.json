@@ -65,19 +65,7 @@
       }
     ],
     "takeAll": [],
-    "deposit": [
-      {
-        "value": 0.0011605769395828247,
-        "hadRecentInput": true,
-        "forbidden": false,
-        "sources": [
-          {
-            "label": "div.hud-footer",
-            "forbidden": false
-          }
-        ]
-      }
-    ],
+    "deposit": [],
     "ground": [],
     "reopen": []
   }
