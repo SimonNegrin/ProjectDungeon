@@ -37,31 +37,32 @@ TASK-0153 implementan el modo. Las notas en hojas de requisitos son TASK-0159.
 
 # Criterios de aceptación
 
-- [ ] ADR-029 registra jugador activo, `EndTurn` con `N`, orden fijo, una fase
+- [x] ADR-029 registra jugador activo, `EndTurn` con `N`, orden fijo, una fase
       enemiga por ronda, relevo por cámara, recursos por turno, muerte en turno,
       resurrección por índice y resultado con Nueva/Cargar.
-- [ ] ADR-029 deja claro que no hay reinicio rápido ni temporizadores y que la
+- [x] ADR-029 deja claro que no hay reinicio rápido ni temporizadores y que la
       pausa es la de REQ-024.
-- [ ] El glosario define «hotseat», «relevo», «ronda», «fase enemiga» y «Jugador
+- [x] El glosario define «hotseat», «relevo», «ronda», «fase enemiga» y «Jugador
       N de M».
-- [ ] La economía de turno y la arquitectura reflejan `N`/`Esc`, la ausencia de
+- [x] La economía de turno y la arquitectura reflejan `N`/`Esc`, la ausencia de
       `E`/`R`, los recursos por jugador y la separación motor/host.
-- [ ] `docs/decisions/index.md` y `docs/log.md` recogen ADR-029 y el cierre.
-- [ ] No se editan hojas de `docs/requirements/**`; eso es TASK-0159.
-- [ ] `pnpm run docs:check` y `pnpm run verify` pasan.
+- [x] `docs/decisions/index.md` y `docs/log.md` recogen ADR-029 y el cierre.
+- [x] No se editan hojas de `docs/requirements/**`; eso es TASK-0159.
+- [x] `pnpm run docs:check` y `pnpm run verify` pasan.
 
 # Plan de test
 
 - Documental: `pnpm run docs:check`.
 - Integración: `pnpm run verify`.
+- E2E / visual: no; tarea documental sin UI.
 - Manual: contrastar ADR-029, glosario, economía de turno y arquitectura con
   REQ-031 v2 y el modo implementado.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0155/attempt-1/report.md`
-- [ ] Salida de `pnpm run docs:check` y `pnpm run verify`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0155/attempt-1/report.md`
+- [x] Salida de `pnpm run docs:check` y `pnpm run verify`
+- [x] Commit SHA
 
 # Comandos
 

@@ -1,0 +1,20 @@
+# pnpm run verify — TASK-0155
+
+```
+$ pnpm run verify
+$ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
+$ node scripts/validate-docs.mjs
+OK: 755 documentos, 162 tareas, 6 experimentos.
+$ node scripts/validate-opencode.mjs
+OK: 2 agentes, 3 skills.
+$ vitest run
+ Test Files  112 passed (112)
+      Tests  1796 passed (1796)
+$ tsc --noEmit && vite build
+dist/index.html                 35.39 kB │ gzip:  4.71 kB
+dist/assets/main-2NrqfXAe.css   37.77 kB │ gzip:  6.10 kB
+dist/assets/main-9NQhYYEW.js   304.84 kB │ gzip: 97.10 kB
+✓ built in 570ms
+$ node scripts/check-bundle.mjs
+check:bundle: OK — scanned 17 dist files and 94 production modules; no forbidden markers.
+```

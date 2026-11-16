@@ -1,0 +1,16 @@
+# Verificación determinista de TASK-0155
+
+- Fecha: 2026-11-16T10:16:37.812Z
+- Intento: 1
+- Base: harness/2agentes
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0155-docs-adr-029-documentacion-hotseat.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 7 marcados |
+| Informe | ok | report_status: success (2668 B) |
+| Alcance | ok | 8 archivos dentro de docs (base harness/2agentes) |
+| verify | ok | pnpm run verify OK |
