@@ -100,6 +100,9 @@ export function createDuelState(
     templateFor(catalog, scenario.enemyId),
     scenario.enemyPos,
   );
+  const metrics = emptyMetrics();
+  metrics.mana.hero.available = hero.maxMana;
+  metrics.mana.enemy.available = enemy.maxMana;
   return {
     scenario,
     catalog,
@@ -111,7 +114,7 @@ export function createDuelState(
     over: false,
     winner: null,
     events: [],
-    metrics: emptyMetrics(),
+    metrics,
   };
 }
 
@@ -350,8 +353,9 @@ export function performMove(
 function heroTurn(state: DuelState): void {
   const { hero, enemy } = state;
   if (state.over || hero.hp <= 0) return;
+  const beforeMana = hero.mana;
   restoreTurn(hero);
-  state.metrics.mana.hero.available += hero.maxMana;
+  state.metrics.mana.hero.available += hero.mana - beforeMana;
   let acted = false;
 
   while (!state.over && hero.actions > 0 && enemy.hp > 0) {
@@ -392,8 +396,9 @@ function heroTurn(state: DuelState): void {
 function enemyTurn(state: DuelState): void {
   const { hero, enemy } = state;
   if (state.over || enemy.hp <= 0) return;
+  const beforeMana = enemy.mana;
   restoreTurn(enemy);
-  state.metrics.mana.enemy.available += enemy.maxMana;
+  state.metrics.mana.enemy.available += enemy.mana - beforeMana;
   if (enemy.fleeing) state.metrics.flee.rounds += 1;
   let acted = false;
 

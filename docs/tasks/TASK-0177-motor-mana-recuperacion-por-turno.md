@@ -4,7 +4,7 @@ id: TASK-0177
 title: "Motor: recuperación de maná +4 por turno"
 description: "Cada unidad recupera 4 de maná al inicio de su propio turno, hasta el máximo, en vez de rellenar la reserva completa."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-004, T-005]
@@ -41,18 +41,18 @@ cambia.
 
 # Criterios de aceptación
 
-- [ ] `MANA_RECOVERY_PER_TURN = 4` se exporta desde `src/game/mana.ts`; la
+- [x] `MANA_RECOVERY_PER_TURN = 4` se exporta desde `src/game/mana.ts`; la
       recuperación es `min(actual + 4, máximo)` y los tests leen la constante, no
       un 4 duplicado.
-- [ ] Al empezar el turno de un jugador y de un enemigo se aplica +4, sin superar
+- [x] Al empezar el turno de un jugador y de un enemigo se aplica +4, sin superar
       el máximo; una unidad que aún no ha actuado conserva su maná; el estado
       inicial sigue con la reserva llena.
-- [ ] Cambiar el nivel de magia recalcula el máximo y recorta el actual; no
+- [x] Cambiar el nivel de magia recalcula el máximo y recorta el actual; no
       regala maná. Hay test de subida y de bajada.
-- [ ] Los tests existentes de maná, turno, hechizos y experimentos se actualizan
+- [x] Los tests existentes de maná, turno, hechizos y experimentos se actualizan
       a la intención nueva sin debilitarse; costes, efectos y resolución de
       hechizos no cambian.
-- [ ] `pnpm run verify` pasa.
+- [x] `pnpm run verify` pasa.
 
 # Plan de test
 

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BESTIARY,
+  MANA_RECOVERY_PER_TURN,
   closeTurnAfterActiveDeath,
   createRng,
   itemInstance,
@@ -662,7 +663,7 @@ describe('turno por jugador, validación del activo y fase enemiga (REQ-031 T-00
     expect(first.state.players[1]).toMatchObject({
       mp: 6,
       actions: { remaining: 2 },
-      mana: { current: 8, max: 8 },
+      mana: { current: Math.min(0 + MANA_RECOVERY_PER_TURN, 8), max: 8 },
       spellsCast: 0,
     });
     expect(first.state.players[0]).toMatchObject({
@@ -684,7 +685,7 @@ describe('turno por jugador, validación del activo y fase enemiga (REQ-031 T-00
     expect(second.state.players[1]).toMatchObject({
       mp: 6,
       actions: { remaining: 2 },
-      mana: { current: 8, max: 8 },
+      mana: { current: MANA_RECOVERY_PER_TURN, max: 8 },
       spellsCast: 0,
     });
   });

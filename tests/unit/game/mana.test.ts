@@ -1,12 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
+  MANA_RECOVERY_PER_TURN,
   ROSTER,
   createInitialState,
   createMana,
   createPlayerFromArchetype,
   createRng,
   manaMaxFor,
+  recoverMana,
   reduce,
   restoreEnemyTurn,
   restorePlayerTurn,
@@ -87,32 +89,55 @@ describe('maná derivado del nivel de magia', () => {
     }
   });
 
-  it('un nivel 0 tiene maná 0 también al recargar', () => {
+  it('un nivel 0 tiene maná 0 también al recuperar', () => {
     const warrior = createPlayerFromArchetype('warrior');
 
     expect(warrior.stats.magicLevel).toBe(0);
     expect(warrior.mana).toEqual({ current: 0, max: 0 });
-    expect(restoreMana(warrior).mana).toEqual({ current: 0, max: 0 });
+    expect(recoverMana(warrior).mana).toEqual({ current: 0, max: 0 });
   });
 
-  it('cambiar el nivel recalcula el máximo desde los stats', () => {
+  it('subir el nivel recalcula el máximo sin regalar maná', () => {
     const warrior = createPlayerFromArchetype('warrior');
+    const spent = { ...warrior, mana: { current: 0, max: 0 } };
     const promoted = {
-      ...warrior,
+      ...spent,
       stats: { ...warrior.stats, magicLevel: 4 as const },
     };
+
+    expect(restoreMana(promoted).mana).toEqual({ current: 0, max: 16 });
+  });
+
+  it('bajar el nivel recalcula el máximo y recorta el actual', () => {
+    const mage = createPlayerFromArchetype('mage');
+    const spent = { ...mage, mana: { current: 12, max: 16 } };
     const downgraded = {
-      ...promoted,
-      stats: { ...promoted.stats, magicLevel: 2 as const },
+      ...spent,
+      stats: { ...mage.stats, magicLevel: 2 as const },
     };
 
-    expect(restoreMana(promoted).mana).toEqual({ current: 16, max: 16 });
     expect(restoreMana(downgraded).mana).toEqual({ current: 8, max: 8 });
+  });
+
+  it('cambiar el nivel conserva el maná actual que cabe en el nuevo máximo', () => {
+    const spellblade = createPlayerFromArchetype('spellblade');
+    const spent = { ...spellblade, mana: { current: 3, max: 8 } };
+    const promoted = {
+      ...spent,
+      stats: { ...spellblade.stats, magicLevel: 4 as const },
+    };
+    const downgraded = {
+      ...spent,
+      stats: { ...spellblade.stats, magicLevel: 1 as const },
+    };
+
+    expect(restoreMana(promoted).mana).toEqual({ current: 3, max: 16 });
+    expect(restoreMana(downgraded).mana).toEqual({ current: 3, max: 4 });
   });
 });
 
-describe('recarga de maná por turno', () => {
-  it('el jugador recupera maná junto a MP y acciones al empezar su turno', () => {
+describe('recuperación de maná por turno', () => {
+  it('el jugador recupera +4 junto a MP y acciones al empezar su turno', () => {
     const mage = mageWithSpentMana();
     const state = makeState({
       players: [mage],
@@ -123,12 +148,15 @@ describe('recarga de maná por turno', () => {
 
     expect(result.state.players[0]).toMatchObject({
       mp: mage.maxMp,
-      mana: { current: 16, max: 16 },
+      mana: {
+        current: Math.min(mage.mana.current + MANA_RECOVERY_PER_TURN, mage.mana.max),
+        max: mage.mana.max,
+      },
       actions: { remaining: mage.actions.max },
     });
   });
 
-  it('el enemigo recupera maná al empezar su fase', () => {
+  it('el enemigo recupera +4 al empezar su fase', () => {
     const enemy = makeUnit({
       id: 'enemy-1',
       faction: 'enemy',
@@ -141,10 +169,34 @@ describe('recarga de maná por turno', () => {
 
     const restored = restoreEnemyTurn(state);
 
-    expect(restored.enemies[0].mana).toEqual({ current: 8, max: 8 });
+    expect(restored.enemies[0].mana).toEqual({
+      current: Math.min(enemy.mana.current + MANA_RECOVERY_PER_TURN, enemy.mana.max),
+      max: enemy.mana.max,
+    });
   });
 
-  it('no recarga el maná de una unidad muerta', () => {
+  it('no supera el máximo aunque quede menos hueco que la recuperación', () => {
+    const nearlyFull = makeUnit({
+      id: 'player-1',
+      faction: 'player',
+      x: 5,
+      y: 5,
+      magicLevel: 4,
+      mana: { current: 15, max: 16 },
+    });
+
+    const result = reduce(
+      makeState({
+        players: [nearlyFull],
+        enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 })],
+      }),
+      { type: 'EndTurn' },
+    );
+
+    expect(result.state.players[0].mana).toEqual({ current: 16, max: 16 });
+  });
+
+  it('no recupera el maná de una unidad muerta', () => {
     const dead = makeUnit({
       id: 'player-1',
       faction: 'player',
@@ -160,13 +212,16 @@ describe('recarga de maná por turno', () => {
     expect(restored.players[0].mana).toEqual({ current: 0, max: 16 });
   });
 
-  it('el gasto no persiste entre turnos consecutivos', () => {
+  it('el gasto persiste entre turnos y cada turno solo suma la recuperación', () => {
     const mage = mageWithSpentMana();
     const enemy = makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 });
     const first = reduce(makeState({ players: [mage], enemies: [enemy] }), {
       type: 'EndTurn',
     });
-    expect(first.state.players[0].mana).toEqual({ current: 16, max: 16 });
+    expect(first.state.players[0].mana).toEqual({
+      current: Math.min(mage.mana.current + MANA_RECOVERY_PER_TURN, mage.mana.max),
+      max: mage.mana.max,
+    });
 
     const spentAgain = {
       ...first.state,
@@ -177,12 +232,16 @@ describe('recarga de maná por turno', () => {
     };
     const second = reduce(spentAgain, { type: 'EndTurn' });
 
-    expect(second.state.players[0].mana).toEqual({ current: 16, max: 16 });
+    expect(second.state.players[0].mana).toEqual({
+      current: Math.min(3 + MANA_RECOVERY_PER_TURN, 16),
+      max: 16,
+    });
   });
 
   it('es determinista: mismo estado de maná y comandos, mismo resultado', () => {
+    const mage = mageWithSpentMana();
     const state = makeState({
-      players: [mageWithSpentMana()],
+      players: [mage],
       enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 18, y: 18 })],
       rng: createRng(4242),
     });
@@ -191,6 +250,9 @@ describe('recarga de maná por turno', () => {
     const second = reduce(state, { type: 'EndTurn' });
 
     expect(JSON.stringify(first.state)).toBe(JSON.stringify(second.state));
-    expect(first.state.players[0].mana).toEqual({ current: 16, max: 16 });
+    expect(first.state.players[0].mana).toEqual({
+      current: Math.min(mage.mana.current + MANA_RECOVERY_PER_TURN, mage.mana.max),
+      max: mage.mana.max,
+    });
   });
 });

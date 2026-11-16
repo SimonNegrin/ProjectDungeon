@@ -14,11 +14,16 @@ import type {
   SpellDefinition,
   Unit,
 } from './types';
+import { MANA_RECOVERY_PER_TURN } from '../../../../src/game/mana';
 
+/**
+ * Restaura MP, acciones y cupo de hechizos y suma la recuperación de maná del
+ * turno (REQ-025 R-004). El maná inicial ya viene lleno de `createUnit`.
+ */
 export function restoreTurn(unit: Unit): void {
   unit.mp = unit.maxMp;
   unit.actions = unit.maxActions;
-  unit.mana = unit.maxMana;
+  unit.mana = Math.min(unit.mana + MANA_RECOVERY_PER_TURN, unit.maxMana);
   unit.spellsCastThisTurn = 0;
 }
 

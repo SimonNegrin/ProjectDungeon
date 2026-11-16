@@ -791,20 +791,20 @@
       "heroId": "mago",
       "enemyId": "centinela",
       "duels": 1000,
-      "heroWins": 998,
-      "enemyWins": 2,
+      "heroWins": 993,
+      "enemyWins": 7,
       "draws": 0,
-      "heroWinRate": 99.8,
-      "enemyWinRate": 0.2,
+      "heroWinRate": 99.3,
+      "enemyWinRate": 0.7,
       "drawRate": 0,
       "insideBand": false,
-      "bandDelta": 39.8,
-      "ttkRounds": 1.027,
+      "bandDelta": 39.3,
+      "ttkRounds": 1.032,
       "rounds": {
-        "mean": 1.027,
+        "mean": 1.032,
         "median": 1,
         "min": 1,
-        "max": 2,
+        "max": 4,
         "distribution": [
           {
             "value": 1,
@@ -812,15 +812,23 @@
           },
           {
             "value": 2,
-            "count": 27
+            "count": 23
+          },
+          {
+            "value": 3,
+            "count": 3
+          },
+          {
+            "value": 4,
+            "count": 1
           }
         ]
       },
       "turns": {
-        "mean": 1.056,
+        "mean": 1.071,
         "median": 1,
         "min": 1,
-        "max": 3,
+        "max": 7,
         "distribution": [
           {
             "value": 1,
@@ -832,19 +840,35 @@
           },
           {
             "value": 3,
-            "count": 27
+            "count": 20
+          },
+          {
+            "value": 4,
+            "count": 3
+          },
+          {
+            "value": 5,
+            "count": 1
+          },
+          {
+            "value": 6,
+            "count": 2
+          },
+          {
+            "value": 7,
+            "count": 1
           }
         ]
       },
       "actions": {
         "hero": {
           "attack": 0,
-          "spell": 1244,
+          "spell": 1249,
           "move": 3000,
           "wait": 0
         },
         "enemy": {
-          "attack": 58,
+          "attack": 75,
           "spell": 0,
           "move": 87,
           "wait": 0
@@ -852,17 +876,23 @@
       },
       "spells": {
         "fuego-iv": {
-          "casts": 1244,
-          "hits": 1150,
+          "casts": 1217,
+          "hits": 1123,
           "misses": 94,
-          "damage": 5995
+          "damage": 5924
+        },
+        "fuego-ii": {
+          "casts": 32,
+          "hits": 26,
+          "misses": 6,
+          "damage": 60
         }
       },
       "mana": {
         "hero": {
-          "available": 16432,
-          "spent": 9952,
-          "unspent": 6480
+          "available": 16128,
+          "spent": 9864,
+          "unspent": 6264
         },
         "enemy": {
           "available": 0,
@@ -871,19 +901,19 @@
         }
       },
       "damage": {
-        "heroDealt": 5995,
-        "enemyDealt": 175,
-        "heroReceived": 175,
-        "enemyReceived": 5995
+        "heroDealt": 5984,
+        "enemyDealt": 201,
+        "heroReceived": 201,
+        "enemyReceived": 5984
       },
       "healing": {
         "hero": 0,
         "enemy": 0
       },
       "hp": {
-        "winnerRemaining": 11.83,
-        "heroRemaining": 11.825,
-        "enemyRemaining": 0.005
+        "winnerRemaining": 11.815,
+        "heroRemaining": 11.799,
+        "enemyRemaining": 0.016
       },
       "replicas": {
         "hero": {
@@ -910,33 +940,17 @@
       "heroId": "mago",
       "enemyId": "bruto",
       "duels": 1000,
-      "heroWins": 999,
-      "enemyWins": 1,
+      "heroWins": 978,
+      "enemyWins": 22,
       "draws": 0,
-      "heroWinRate": 99.9,
-      "enemyWinRate": 0.1,
+      "heroWinRate": 97.8,
+      "enemyWinRate": 2.2,
       "drawRate": 0,
       "insideBand": false,
-      "bandDelta": 39.9,
-      "ttkRounds": 1.154,
+      "bandDelta": 37.8,
+      "ttkRounds": 1.197,
       "rounds": {
-        "mean": 1.154,
-        "median": 1,
-        "min": 1,
-        "max": 2,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 846
-          },
-          {
-            "value": 2,
-            "count": 154
-          }
-        ]
-      },
-      "turns": {
-        "mean": 1.309,
+        "mean": 1.197,
         "median": 1,
         "min": 1,
         "max": 4,
@@ -946,11 +960,51 @@
             "count": 846
           },
           {
+            "value": 2,
+            "count": 117
+          },
+          {
             "value": 3,
-            "count": 153
+            "count": 31
           },
           {
             "value": 4,
+            "count": 6
+          }
+        ]
+      },
+      "turns": {
+        "mean": 1.416,
+        "median": 1,
+        "min": 1,
+        "max": 8,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 846
+          },
+          {
+            "value": 3,
+            "count": 104
+          },
+          {
+            "value": 4,
+            "count": 13
+          },
+          {
+            "value": 5,
+            "count": 23
+          },
+          {
+            "value": 6,
+            "count": 8
+          },
+          {
+            "value": 7,
+            "count": 5
+          },
+          {
+            "value": 8,
             "count": 1
           }
         ]
@@ -958,12 +1012,12 @@
       "actions": {
         "hero": {
           "attack": 0,
-          "spell": 1941,
+          "spell": 1964,
           "move": 3000,
           "wait": 0
         },
         "enemy": {
-          "attack": 155,
+          "attack": 219,
           "spell": 0,
           "move": 462,
           "wait": 0
@@ -971,17 +1025,23 @@
       },
       "spells": {
         "fuego-iv": {
-          "casts": 1941,
-          "hits": 1873,
-          "misses": 68,
-          "damage": 7999
+          "casts": 1767,
+          "hits": 1705,
+          "misses": 62,
+          "damage": 7634
+        },
+        "fuego-ii": {
+          "casts": 197,
+          "hits": 186,
+          "misses": 11,
+          "damage": 322
         }
       },
       "mana": {
         "hero": {
-          "available": 18464,
-          "spent": 15528,
-          "unspent": 2936
+          "available": 16788,
+          "spent": 14924,
+          "unspent": 1864
         },
         "enemy": {
           "available": 0,
@@ -990,18 +1050,678 @@
         }
       },
       "damage": {
-        "heroDealt": 7999,
-        "enemyDealt": 649,
-        "heroReceived": 649,
-        "enemyReceived": 7999
+        "heroDealt": 7956,
+        "enemyDealt": 884,
+        "heroReceived": 884,
+        "enemyReceived": 7956
       },
       "healing": {
         "hero": 0,
         "enemy": 0
       },
       "hp": {
-        "winnerRemaining": 11.352,
-        "heroRemaining": 11.351,
+        "winnerRemaining": 11.16,
+        "heroRemaining": 11.116,
+        "enemyRemaining": 0.044
+      },
+      "replicas": {
+        "hero": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        },
+        "enemy": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        }
+      },
+      "flee": {
+        "triggers": 0,
+        "rounds": 0
+      }
+    },
+    {
+      "heroId": "mago",
+      "enemyId": "cobarde",
+      "duels": 1000,
+      "heroWins": 995,
+      "enemyWins": 5,
+      "draws": 0,
+      "heroWinRate": 99.5,
+      "enemyWinRate": 0.5,
+      "drawRate": 0,
+      "insideBand": false,
+      "bandDelta": 39.5,
+      "ttkRounds": 1.062,
+      "rounds": {
+        "mean": 1.062,
+        "median": 1,
+        "min": 1,
+        "max": 4,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 957
+          },
+          {
+            "value": 2,
+            "count": 28
+          },
+          {
+            "value": 3,
+            "count": 11
+          },
+          {
+            "value": 4,
+            "count": 4
+          }
+        ]
+      },
+      "turns": {
+        "mean": 1.129,
+        "median": 1,
+        "min": 1,
+        "max": 8,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 957
+          },
+          {
+            "value": 3,
+            "count": 25
+          },
+          {
+            "value": 4,
+            "count": 3
+          },
+          {
+            "value": 5,
+            "count": 10
+          },
+          {
+            "value": 6,
+            "count": 1
+          },
+          {
+            "value": 7,
+            "count": 3
+          },
+          {
+            "value": 8,
+            "count": 1
+          }
+        ]
+      },
+      "actions": {
+        "hero": {
+          "attack": 0,
+          "spell": 1305,
+          "move": 3038,
+          "wait": 0
+        },
+        "enemy": {
+          "attack": 80,
+          "spell": 0,
+          "move": 87,
+          "wait": 20
+        }
+      },
+      "spells": {
+        "fuego-iv": {
+          "casts": 1243,
+          "hits": 1044,
+          "misses": 199,
+          "damage": 4858
+        },
+        "fuego-ii": {
+          "casts": 62,
+          "hits": 48,
+          "misses": 14,
+          "damage": 127
+        }
+      },
+      "mana": {
+        "hero": {
+          "available": 16248,
+          "spent": 10192,
+          "unspent": 6056
+        },
+        "enemy": {
+          "available": 0,
+          "spent": 0,
+          "unspent": 0
+        }
+      },
+      "damage": {
+        "heroDealt": 4985,
+        "enemyDealt": 182,
+        "heroReceived": 182,
+        "enemyReceived": 4985
+      },
+      "healing": {
+        "hero": 0,
+        "enemy": 0
+      },
+      "hp": {
+        "winnerRemaining": 11.833,
+        "heroRemaining": 11.818,
+        "enemyRemaining": 0.015
+      },
+      "replicas": {
+        "hero": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        },
+        "enemy": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        }
+      },
+      "flee": {
+        "triggers": 94,
+        "rounds": 35
+      }
+    },
+    {
+      "heroId": "clerigo",
+      "enemyId": "centinela",
+      "duels": 1000,
+      "heroWins": 1000,
+      "enemyWins": 0,
+      "draws": 0,
+      "heroWinRate": 100,
+      "enemyWinRate": 0,
+      "drawRate": 0,
+      "insideBand": false,
+      "bandDelta": 40,
+      "ttkRounds": 1.358,
+      "rounds": {
+        "mean": 1.358,
+        "median": 1,
+        "min": 1,
+        "max": 6,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 762
+          },
+          {
+            "value": 2,
+            "count": 152
+          },
+          {
+            "value": 3,
+            "count": 63
+          },
+          {
+            "value": 4,
+            "count": 15
+          },
+          {
+            "value": 5,
+            "count": 5
+          },
+          {
+            "value": 6,
+            "count": 3
+          }
+        ]
+      },
+      "turns": {
+        "mean": 1.716,
+        "median": 1,
+        "min": 1,
+        "max": 11,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 762
+          },
+          {
+            "value": 3,
+            "count": 152
+          },
+          {
+            "value": 5,
+            "count": 63
+          },
+          {
+            "value": 7,
+            "count": 15
+          },
+          {
+            "value": 9,
+            "count": 5
+          },
+          {
+            "value": 11,
+            "count": 3
+          }
+        ]
+      },
+      "actions": {
+        "hero": {
+          "attack": 0,
+          "spell": 2097,
+          "move": 3000,
+          "wait": 0
+        },
+        "enemy": {
+          "attack": 716,
+          "spell": 0,
+          "move": 714,
+          "wait": 0
+        }
+      },
+      "spells": {
+        "electrico-iii": {
+          "casts": 1739,
+          "hits": 1691,
+          "misses": 48,
+          "damage": 5463
+        },
+        "fuego-ii": {
+          "casts": 358,
+          "hits": 264,
+          "misses": 94,
+          "damage": 537
+        }
+      },
+      "mana": {
+        "hero": {
+          "available": 13432,
+          "spent": 11866,
+          "unspent": 1566
+        },
+        "enemy": {
+          "available": 0,
+          "spent": 0,
+          "unspent": 0
+        }
+      },
+      "damage": {
+        "heroDealt": 6000,
+        "enemyDealt": 324,
+        "heroReceived": 324,
+        "enemyReceived": 6000
+      },
+      "healing": {
+        "hero": 0,
+        "enemy": 0
+      },
+      "hp": {
+        "winnerRemaining": 17.676,
+        "heroRemaining": 17.676,
+        "enemyRemaining": 0
+      },
+      "replicas": {
+        "hero": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        },
+        "enemy": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        }
+      },
+      "flee": {
+        "triggers": 0,
+        "rounds": 0
+      }
+    },
+    {
+      "heroId": "clerigo",
+      "enemyId": "bruto",
+      "duels": 1000,
+      "heroWins": 1000,
+      "enemyWins": 0,
+      "draws": 0,
+      "heroWinRate": 100,
+      "enemyWinRate": 0,
+      "drawRate": 0,
+      "insideBand": false,
+      "bandDelta": 40,
+      "ttkRounds": 2.776,
+      "rounds": {
+        "mean": 2.776,
+        "median": 3,
+        "min": 1,
+        "max": 9,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 165
+          },
+          {
+            "value": 2,
+            "count": 327
+          },
+          {
+            "value": 3,
+            "count": 255
+          },
+          {
+            "value": 4,
+            "count": 143
+          },
+          {
+            "value": 5,
+            "count": 64
+          },
+          {
+            "value": 6,
+            "count": 32
+          },
+          {
+            "value": 7,
+            "count": 7
+          },
+          {
+            "value": 8,
+            "count": 4
+          },
+          {
+            "value": 9,
+            "count": 3
+          }
+        ]
+      },
+      "turns": {
+        "mean": 4.552,
+        "median": 5,
+        "min": 1,
+        "max": 17,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 165
+          },
+          {
+            "value": 3,
+            "count": 327
+          },
+          {
+            "value": 5,
+            "count": 255
+          },
+          {
+            "value": 7,
+            "count": 143
+          },
+          {
+            "value": 9,
+            "count": 64
+          },
+          {
+            "value": 11,
+            "count": 32
+          },
+          {
+            "value": 13,
+            "count": 7
+          },
+          {
+            "value": 15,
+            "count": 4
+          },
+          {
+            "value": 17,
+            "count": 3
+          }
+        ]
+      },
+      "actions": {
+        "hero": {
+          "attack": 0,
+          "spell": 3776,
+          "move": 3000,
+          "wait": 0
+        },
+        "enemy": {
+          "attack": 1776,
+          "spell": 0,
+          "move": 2505,
+          "wait": 0
+        }
+      },
+      "spells": {
+        "electrico-iii": {
+          "casts": 2000,
+          "hits": 2000,
+          "misses": 0,
+          "damage": 4814
+        },
+        "fuego-ii": {
+          "casts": 1776,
+          "hits": 1468,
+          "misses": 308,
+          "damage": 3186
+        }
+      },
+      "mana": {
+        "hero": {
+          "available": 19104,
+          "spent": 19104,
+          "unspent": 0
+        },
+        "enemy": {
+          "available": 0,
+          "spent": 0,
+          "unspent": 0
+        }
+      },
+      "damage": {
+        "heroDealt": 8000,
+        "enemyDealt": 970,
+        "heroReceived": 970,
+        "enemyReceived": 8000
+      },
+      "healing": {
+        "hero": 0,
+        "enemy": 0
+      },
+      "hp": {
+        "winnerRemaining": 17.03,
+        "heroRemaining": 17.03,
+        "enemyRemaining": 0
+      },
+      "replicas": {
+        "hero": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        },
+        "enemy": {
+          "triggered": 0,
+          "hits": 0,
+          "misses": 0,
+          "kills": 0,
+          "damage": 0
+        }
+      },
+      "flee": {
+        "triggers": 0,
+        "rounds": 0
+      }
+    },
+    {
+      "heroId": "clerigo",
+      "enemyId": "cobarde",
+      "duels": 1000,
+      "heroWins": 999,
+      "enemyWins": 1,
+      "draws": 0,
+      "heroWinRate": 99.9,
+      "enemyWinRate": 0.1,
+      "drawRate": 0,
+      "insideBand": false,
+      "bandDelta": 39.9,
+      "ttkRounds": 1.394,
+      "rounds": {
+        "mean": 1.394,
+        "median": 1,
+        "min": 1,
+        "max": 10,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 797
+          },
+          {
+            "value": 2,
+            "count": 103
+          },
+          {
+            "value": 3,
+            "count": 55
+          },
+          {
+            "value": 4,
+            "count": 25
+          },
+          {
+            "value": 5,
+            "count": 7
+          },
+          {
+            "value": 6,
+            "count": 6
+          },
+          {
+            "value": 7,
+            "count": 3
+          },
+          {
+            "value": 8,
+            "count": 3
+          },
+          {
+            "value": 10,
+            "count": 1
+          }
+        ]
+      },
+      "turns": {
+        "mean": 1.789,
+        "median": 1,
+        "min": 1,
+        "max": 19,
+        "distribution": [
+          {
+            "value": 1,
+            "count": 797
+          },
+          {
+            "value": 3,
+            "count": 103
+          },
+          {
+            "value": 5,
+            "count": 55
+          },
+          {
+            "value": 7,
+            "count": 25
+          },
+          {
+            "value": 9,
+            "count": 7
+          },
+          {
+            "value": 11,
+            "count": 6
+          },
+          {
+            "value": 13,
+            "count": 2
+          },
+          {
+            "value": 14,
+            "count": 1
+          },
+          {
+            "value": 15,
+            "count": 3
+          },
+          {
+            "value": 19,
+            "count": 1
+          }
+        ]
+      },
+      "actions": {
+        "hero": {
+          "attack": 0,
+          "spell": 2018,
+          "move": 3305,
+          "wait": 0
+        },
+        "enemy": {
+          "attack": 476,
+          "spell": 0,
+          "move": 180,
+          "wait": 150
+        }
+      },
+      "spells": {
+        "electrico-iii": {
+          "casts": 1624,
+          "hits": 1483,
+          "misses": 141,
+          "damage": 4561
+        },
+        "fuego-ii": {
+          "casts": 394,
+          "hits": 227,
+          "misses": 167,
+          "damage": 438
+        }
+      },
+      "mana": {
+        "hero": {
+          "available": 13576,
+          "spent": 11320,
+          "unspent": 2256
+        },
+        "enemy": {
+          "available": 0,
+          "spent": 0,
+          "unspent": 0
+        }
+      },
+      "damage": {
+        "heroDealt": 4999,
+        "enemyDealt": 394,
+        "heroReceived": 394,
+        "enemyReceived": 4999
+      },
+      "healing": {
+        "hero": 0,
+        "enemy": 0
+      },
+      "hp": {
+        "winnerRemaining": 17.607,
+        "heroRemaining": 17.606,
         "enemyRemaining": 0.001
       },
       "replicas": {
@@ -1021,550 +1741,8 @@
         }
       },
       "flee": {
-        "triggers": 0,
-        "rounds": 0
-      }
-    },
-    {
-      "heroId": "mago",
-      "enemyId": "cobarde",
-      "duels": 1000,
-      "heroWins": 1000,
-      "enemyWins": 0,
-      "draws": 0,
-      "heroWinRate": 100,
-      "enemyWinRate": 0,
-      "drawRate": 0,
-      "insideBand": false,
-      "bandDelta": 40,
-      "ttkRounds": 1.043,
-      "rounds": {
-        "mean": 1.043,
-        "median": 1,
-        "min": 1,
-        "max": 2,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 957
-          },
-          {
-            "value": 2,
-            "count": 43
-          }
-        ]
-      },
-      "turns": {
-        "mean": 1.086,
-        "median": 1,
-        "min": 1,
-        "max": 3,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 957
-          },
-          {
-            "value": 3,
-            "count": 43
-          }
-        ]
-      },
-      "actions": {
-        "hero": {
-          "attack": 0,
-          "spell": 1294,
-          "move": 3000,
-          "wait": 0
-        },
-        "enemy": {
-          "attack": 46,
-          "spell": 0,
-          "move": 69,
-          "wait": 20
-        }
-      },
-      "spells": {
-        "fuego-iv": {
-          "casts": 1294,
-          "hits": 1091,
-          "misses": 203,
-          "damage": 5000
-        }
-      },
-      "mana": {
-        "hero": {
-          "available": 16688,
-          "spent": 10352,
-          "unspent": 6336
-        },
-        "enemy": {
-          "available": 0,
-          "spent": 0,
-          "unspent": 0
-        }
-      },
-      "damage": {
-        "heroDealt": 5000,
-        "enemyDealt": 91,
-        "heroReceived": 91,
-        "enemyReceived": 5000
-      },
-      "healing": {
-        "hero": 0,
-        "enemy": 0
-      },
-      "hp": {
-        "winnerRemaining": 11.909,
-        "heroRemaining": 11.909,
-        "enemyRemaining": 0
-      },
-      "replicas": {
-        "hero": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        },
-        "enemy": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        }
-      },
-      "flee": {
-        "triggers": 91,
-        "rounds": 20
-      }
-    },
-    {
-      "heroId": "clerigo",
-      "enemyId": "centinela",
-      "duels": 1000,
-      "heroWins": 1000,
-      "enemyWins": 0,
-      "draws": 0,
-      "heroWinRate": 100,
-      "enemyWinRate": 0,
-      "drawRate": 0,
-      "insideBand": false,
-      "bandDelta": 40,
-      "ttkRounds": 1.267,
-      "rounds": {
-        "mean": 1.267,
-        "median": 1,
-        "min": 1,
-        "max": 4,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 762
-          },
-          {
-            "value": 2,
-            "count": 212
-          },
-          {
-            "value": 3,
-            "count": 23
-          },
-          {
-            "value": 4,
-            "count": 3
-          }
-        ]
-      },
-      "turns": {
-        "mean": 1.534,
-        "median": 1,
-        "min": 1,
-        "max": 7,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 762
-          },
-          {
-            "value": 3,
-            "count": 212
-          },
-          {
-            "value": 5,
-            "count": 23
-          },
-          {
-            "value": 7,
-            "count": 3
-          }
-        ]
-      },
-      "actions": {
-        "hero": {
-          "attack": 0,
-          "spell": 2100,
-          "move": 3000,
-          "wait": 0
-        },
-        "enemy": {
-          "attack": 534,
-          "spell": 0,
-          "move": 714,
-          "wait": 0
-        }
-      },
-      "spells": {
-        "electrico-iii": {
-          "casts": 1739,
-          "hits": 1691,
-          "misses": 48,
-          "damage": 5463
-        },
-        "fuego-ii": {
-          "casts": 361,
-          "hits": 264,
-          "misses": 97,
-          "damage": 537
-        }
-      },
-      "mana": {
-        "hero": {
-          "available": 15204,
-          "spent": 11878,
-          "unspent": 3326
-        },
-        "enemy": {
-          "available": 0,
-          "spent": 0,
-          "unspent": 0
-        }
-      },
-      "damage": {
-        "heroDealt": 6000,
-        "enemyDealt": 252,
-        "heroReceived": 252,
-        "enemyReceived": 6000
-      },
-      "healing": {
-        "hero": 0,
-        "enemy": 0
-      },
-      "hp": {
-        "winnerRemaining": 17.748,
-        "heroRemaining": 17.748,
-        "enemyRemaining": 0
-      },
-      "replicas": {
-        "hero": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        },
-        "enemy": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        }
-      },
-      "flee": {
-        "triggers": 0,
-        "rounds": 0
-      }
-    },
-    {
-      "heroId": "clerigo",
-      "enemyId": "bruto",
-      "duels": 1000,
-      "heroWins": 1000,
-      "enemyWins": 0,
-      "draws": 0,
-      "heroWinRate": 100,
-      "enemyWinRate": 0,
-      "drawRate": 0,
-      "insideBand": false,
-      "bandDelta": 40,
-      "ttkRounds": 2.135,
-      "rounds": {
-        "mean": 2.135,
-        "median": 2,
-        "min": 1,
-        "max": 5,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 165
-          },
-          {
-            "value": 2,
-            "count": 576
-          },
-          {
-            "value": 3,
-            "count": 221
-          },
-          {
-            "value": 4,
-            "count": 35
-          },
-          {
-            "value": 5,
-            "count": 3
-          }
-        ]
-      },
-      "turns": {
-        "mean": 3.27,
-        "median": 3,
-        "min": 1,
-        "max": 9,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 165
-          },
-          {
-            "value": 3,
-            "count": 576
-          },
-          {
-            "value": 5,
-            "count": 221
-          },
-          {
-            "value": 7,
-            "count": 35
-          },
-          {
-            "value": 9,
-            "count": 3
-          }
-        ]
-      },
-      "actions": {
-        "hero": {
-          "attack": 0,
-          "spell": 3768,
-          "move": 3000,
-          "wait": 0
-        },
-        "enemy": {
-          "attack": 1135,
-          "spell": 0,
-          "move": 2505,
-          "wait": 0
-        }
-      },
-      "spells": {
-        "electrico-iii": {
-          "casts": 2000,
-          "hits": 2000,
-          "misses": 0,
-          "damage": 4814
-        },
-        "fuego-ii": {
-          "casts": 1768,
-          "hits": 1457,
-          "misses": 311,
-          "damage": 3186
-        }
-      },
-      "mana": {
-        "hero": {
-          "available": 25620,
-          "spent": 19072,
-          "unspent": 6548
-        },
-        "enemy": {
-          "available": 0,
-          "spent": 0,
-          "unspent": 0
-        }
-      },
-      "damage": {
-        "heroDealt": 8000,
-        "enemyDealt": 632,
-        "heroReceived": 632,
-        "enemyReceived": 8000
-      },
-      "healing": {
-        "hero": 0,
-        "enemy": 0
-      },
-      "hp": {
-        "winnerRemaining": 17.368,
-        "heroRemaining": 17.368,
-        "enemyRemaining": 0
-      },
-      "replicas": {
-        "hero": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        },
-        "enemy": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        }
-      },
-      "flee": {
-        "triggers": 0,
-        "rounds": 0
-      }
-    },
-    {
-      "heroId": "clerigo",
-      "enemyId": "cobarde",
-      "duels": 1000,
-      "heroWins": 1000,
-      "enemyWins": 0,
-      "draws": 0,
-      "heroWinRate": 100,
-      "enemyWinRate": 0,
-      "drawRate": 0,
-      "insideBand": false,
-      "bandDelta": 40,
-      "ttkRounds": 1.226,
-      "rounds": {
-        "mean": 1.226,
-        "median": 1,
-        "min": 1,
-        "max": 5,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 797
-          },
-          {
-            "value": 2,
-            "count": 184
-          },
-          {
-            "value": 3,
-            "count": 16
-          },
-          {
-            "value": 4,
-            "count": 2
-          },
-          {
-            "value": 5,
-            "count": 1
-          }
-        ]
-      },
-      "turns": {
-        "mean": 1.452,
-        "median": 1,
-        "min": 1,
-        "max": 9,
-        "distribution": [
-          {
-            "value": 1,
-            "count": 797
-          },
-          {
-            "value": 3,
-            "count": 184
-          },
-          {
-            "value": 5,
-            "count": 16
-          },
-          {
-            "value": 7,
-            "count": 2
-          },
-          {
-            "value": 9,
-            "count": 1
-          }
-        ]
-      },
-      "actions": {
-        "hero": {
-          "attack": 0,
-          "spell": 1915,
-          "move": 3000,
-          "wait": 0
-        },
-        "enemy": {
-          "attack": 132,
-          "spell": 0,
-          "move": 174,
-          "wait": 155
-        }
-      },
-      "spells": {
-        "electrico-iii": {
-          "casts": 1814,
-          "hits": 1660,
-          "misses": 154,
-          "damage": 4813
-        },
-        "fuego-ii": {
-          "casts": 101,
-          "hits": 58,
-          "misses": 43,
-          "damage": 187
-        }
-      },
-      "mana": {
-        "hero": {
-          "available": 14712,
-          "spent": 11288,
-          "unspent": 3424
-        },
-        "enemy": {
-          "available": 0,
-          "spent": 0,
-          "unspent": 0
-        }
-      },
-      "damage": {
-        "heroDealt": 5000,
-        "enemyDealt": 116,
-        "heroReceived": 116,
-        "enemyReceived": 5000
-      },
-      "healing": {
-        "hero": 0,
-        "enemy": 0
-      },
-      "hp": {
-        "winnerRemaining": 17.884,
-        "heroRemaining": 17.884,
-        "enemyRemaining": 0
-      },
-      "replicas": {
-        "hero": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        },
-        "enemy": {
-          "triggered": 0,
-          "hits": 0,
-          "misses": 0,
-          "kills": 0,
-          "damage": 0
-        }
-      },
-      "flee": {
         "triggers": 486,
-        "rounds": 160
+        "rounds": 286
       }
     }
   ]
