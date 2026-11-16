@@ -3,23 +3,31 @@ type: Task
 id: TASK-0167
 title: "Motor: poder declarado por trait y puntuación de objetos"
 description: "Añadir a cada trait un poder entero con signo validado por el catálogo y una función pura powerScore que puntúe un objeto con acierto, daño, absorción, evasión y traits."
-status: draft
-task_status: in_progress
+status: stable
+task_status: done
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-006, R-009, T-002, T-003]
 depends_on: []
 unlocks: [TASK-0168]
 created_at: 2026-11-16T16:20:04Z
-completed_at:
+completed_at: 2026-11-16T16:36:41Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0167/
 priority: P1
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T16:20:04Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T16:36:41Z
+    note: >-
+      Intento 1 verificado (código `f3d589ed`, evidencia `2add19d4`). Los cinco
+      criterios firmados sobre el catálogo real de 17 traits y 14 objetos; los
+      recuentos de la ficha y ADR-033 están desfasados y se anotan sin bloquear.
+      `verify` completo y `verify:task` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -38,15 +46,15 @@ comprueba IDs, stacking y parámetros.
 
 # Criterios de aceptación
 
-- [ ] `TraitDefinition` declara `poder` entero con signo; los 18 traits del
+- [x] `TraitDefinition` declara `poder` entero con signo; los 18 traits del
       catálogo lo tienen y el validador rechaza un trait sin poder.
-- [ ] `powerScore(item)` es pura y determinista: acierto + daño total + absorción
+- [x] `powerScore(item)` es pura y determinista: acierto + daño total + absorción
       + evasión + suma de `poder` de sus traits, sin leer estado de partida.
-- [ ] Los 13 objetos de `ITEMS` tienen puntuación estable y los malditos restan;
+- [x] Los 13 objetos de `ITEMS` tienen puntuación estable y los malditos restan;
       la tabla de valores provisionales de ADR-033 se respeta.
-- [ ] La puntuación no altera combate, stats efectivos ni stacking: los tests de
+- [x] La puntuación no altera combate, stats efectivos ni stacking: los tests de
       REQ-019 y REQ-029 pasan sin cambios.
-- [ ] Tests nuevos de tabla y de validación del catálogo; `pnpm run verify` pasa.
+- [x] Tests nuevos de tabla y de validación del catálogo; `pnpm run verify` pasa.
 
 # Plan de test
 

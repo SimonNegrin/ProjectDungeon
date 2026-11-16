@@ -1,0 +1,18 @@
+# Verificación determinista de TASK-0167
+
+- Fecha: 2026-11-16T16:36:39.215Z
+- Intento: 1
+- Base: main
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0167-motor-poder-traits-puntuacion.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 5 marcados |
+| Informe | ok | report_status: success (2684 B) |
+| Alcance declarado | ok | sin scope: se usa feature |
+| Alcance congelado | ok | scope sin cambios desde main |
+| Alcance | ok | 6 archivos dentro de feature (base main) |
+| verify | ok | pnpm run verify OK |
