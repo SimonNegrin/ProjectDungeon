@@ -38,16 +38,16 @@ mejora.
 
 # Criterios de aceptación
 
-- [ ] El glosario define cofre, capacidad, poder, mejora y botín especial con los
+- [x] El glosario define cofre, capacidad, poder, mejora y botín especial con los
       términos de REQ-020 y ADR-033.
-- [ ] La economía de turno recoge apertura con 1 acción, transferencia y depósito
+- [x] La economía de turno recoge apertura con 1 acción, transferencia y depósito
       gratis, y el límite de las 4 casillas.
-- [ ] La arquitectura describe contenedores, generación determinista y separación
+- [x] La arquitectura describe contenedores, generación determinista y separación
       motor/host para cofres.
-- [ ] La matriz de REQ-017 gana las filas de apertura y transferencia con beat.
-- [ ] `docs/scope.md` deja de listar cofres como fuera de alcance y refleja que las
+- [x] La matriz de REQ-017 gana las filas de apertura y transferencia con beat.
+- [x] `docs/scope.md` deja de listar cofres como fuera de alcance y refleja que las
       piezas de REQ-019 ya tienen fuente jugable.
-- [ ] `docs/requirements/index.md`, `docs/log.md` y el glosario quedan coherentes;
+- [x] `docs/requirements/index.md`, `docs/log.md` y el glosario quedan coherentes;
       `pnpm run docs:check` y `pnpm run verify` pasan.
 
 # Plan de test
