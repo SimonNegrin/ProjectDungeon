@@ -11,6 +11,7 @@ import { CATALOG, createUnit, templateFor } from './catalog';
 import { performMeleeAttack, performMove, performSpellCast } from './duel';
 import type { SpellDefinition } from './types';
 import { makeState, patchUnit, scriptedRng } from './test-helpers';
+import { MANA_RECOVERY_PER_TURN } from '../../../../src/game/mana';
 
 function damageSpell(id: string): SpellDefinition {
   return CATALOG.spells[id];
@@ -24,7 +25,7 @@ describe('acciones por turno', () => {
     expect(createUnit(templateFor(CATALOG, 'clerigo'), 0).maxActions).toBe(2);
   });
 
-  it('restaura MP, acciones, maná y contador de hechizos al inicio del turno', () => {
+  it('restaura MP, acciones y cupo de hechizos y suma la recuperación de maná', () => {
     const unit = createUnit(templateFor(CATALOG, 'mago'), 0);
     unit.mp = 0;
     unit.actions = 0;
@@ -33,8 +34,12 @@ describe('acciones por turno', () => {
     restoreTurn(unit);
     expect(unit.mp).toBe(unit.maxMp);
     expect(unit.actions).toBe(unit.maxActions);
-    expect(unit.mana).toBe(unit.maxMana);
+    expect(unit.mana).toBe(Math.min(MANA_RECOVERY_PER_TURN, unit.maxMana));
     expect(unit.spellsCastThisTurn).toBe(0);
+
+    unit.mana = unit.maxMana - 1;
+    restoreTurn(unit);
+    expect(unit.mana).toBe(unit.maxMana);
   });
 
   it('atacar consume una acción y usa 4 tiradas si impacta', () => {

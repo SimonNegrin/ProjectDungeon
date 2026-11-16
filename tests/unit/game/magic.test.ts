@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   BAND_MULTIPLIERS,
+  MANA_RECOVERY_PER_TURN,
   MAX_SPELLS_PER_TURN,
   SPELLS,
   allInstances,
@@ -1416,11 +1417,11 @@ describe('determinismo y cupo por turno', () => {
     });
   });
 
-  it('el turno siguiente recarga el cupo junto a maná y acciones', () => {
-    const manaMax = manaMaxFor(HEAL.minLevel);
+  it('el turno siguiente recupera +4 junto a acciones y cupo de hechizos', () => {
+    const manaMax = manaMaxFor(4);
     const state = makeState({
       players: [
-        mage({ magicLevel: HEAL.minLevel, mana: { current: manaMax, max: manaMax } }),
+        mage({ magicLevel: 4, mana: { current: manaMax, max: manaMax } }),
         ally({ hp: 8 }),
       ],
       enemies: [dummy({ x: 18, y: 18 })],
@@ -1437,13 +1438,17 @@ describe('determinismo y cupo por turno', () => {
       spellsCast: 2,
     });
 
-    // La maga cede el turno al aliado: la recarga llega al empezar la ronda.
+    // La maga cede el turno al aliado: la recuperación llega al empezar la ronda.
     const afterTurn = reduce(
       { ...second.state, activePlayerId: 'player-2' },
       { type: 'EndTurn' },
     );
+    const recovered = Math.min(
+      manaMax - HEAL.cost * 2 + MANA_RECOVERY_PER_TURN,
+      manaMax,
+    );
     expect(afterTurn.state.players[0]).toMatchObject({
-      mana: { current: manaMax, max: manaMax },
+      mana: { current: recovered, max: manaMax },
       actions: { remaining: 3 },
       spellsCast: 0,
     });

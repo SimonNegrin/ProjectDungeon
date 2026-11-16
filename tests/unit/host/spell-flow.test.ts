@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { reduce } from '../../../src/game/engine';
+import { MANA_RECOVERY_PER_TURN } from '../../../src/game/mana';
 import { SPELLS } from '../../../src/game/spells';
 import type { GameState } from '../../../src/game/types';
 import { buildHudModel } from '../../../src/host/hud';
@@ -96,18 +97,20 @@ describe('flujo de hechizos a través del motor y el HUD', () => {
     expect(third.state.enemies[0].hp).toBe(before.enemyHp);
   });
 
-  it('recarga maná y acciones al turno siguiente y el HUD lo refleja', () => {
+  it('recupera +4 de maná y restaura acciones al turno siguiente y el HUD lo refleja', () => {
     const start = mageState();
     const afterFirst = cast(start, 'electric-1').state;
     const afterSecond = cast(afterFirst, 'fire-2').state;
+    const spent = afterSecond.players[0].mana.current;
 
-    expect(buildHudModel(afterSecond).playerMana).toBe('10/16');
+    expect(buildHudModel(afterSecond).playerMana).toBe(`${spent}/16`);
     expect(buildHudModel(afterSecond).action).toBe('0/2');
 
     const ended = reduce(afterSecond, { type: 'EndTurn' });
     const model = buildHudModel(ended.state);
-    expect(ended.state.players[0].mana).toEqual({ current: 16, max: 16 });
-    expect(model.playerMana).toBe('16/16');
+    const recovered = Math.min(spent + MANA_RECOVERY_PER_TURN, 16);
+    expect(ended.state.players[0].mana).toEqual({ current: recovered, max: 16 });
+    expect(model.playerMana).toBe(`${recovered}/16`);
     expect(model.action).toBe('2/2');
   });
 

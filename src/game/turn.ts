@@ -2,7 +2,7 @@ import { hasAction, restoreActions } from './actions';
 import { chooseNearestPlayer, planEnemyAction } from './ai';
 import { resolveAttack } from './combat';
 import { isAlive, isGhost } from './grid';
-import { restoreMana } from './mana';
+import { recoverMana } from './mana';
 import { commitMove, validateMove } from './movement';
 import { refreshEnemyAwareness } from './perception';
 import type {
@@ -56,7 +56,7 @@ export function applyTerminal(state: GameState, events: GameEvent[]): GameState 
  */
 function restoreTurnResources(unit: Unit): Unit {
   return {
-    ...restoreActions(restoreMana({ ...unit, mp: unit.maxMp })),
+    ...restoreActions(recoverMana({ ...unit, mp: unit.maxMp })),
     spellsCast: 0,
   };
 }
