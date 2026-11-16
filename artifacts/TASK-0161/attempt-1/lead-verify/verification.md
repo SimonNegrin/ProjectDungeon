@@ -50,7 +50,7 @@ Ninguno cambia comportamiento fuera de traits.
 `verify:task` exigía capturas a una tarea `feature` sin UI porque el heurístico
 detectaba «HUD» y «capturas» en las restricciones. La ficha declara «E2E /
 visual: no»; el script ahora lo respeta (`bad6a6b`), alineado con la regla
-documentada de [workflow](../../../docs/harness/workflow.md#verificación-determinista).
+documentada de [workflow](../../../../docs/harness/workflow.md#verificación-determinista).
 Clasificación: arnés, aplicado con entrada en `docs/log.md`.
 
 # Qué debe probar el usuario

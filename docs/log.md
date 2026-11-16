@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0161 — done: catálogo de traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; 1780 tests y verificación con `--base harness/2agentes` — [informe](../artifacts/TASK-0161/attempt-1/report.md)
 * 2026-11-16 — Harness — verify:task — exige capturas solo si la ficha no declara «E2E / visual: no» en el plan de test; corrige el falso positivo de TASK-0161 (motor sin UI) sin cambiar el gate documentado — [workflow](harness/workflow.md#verificación-determinista)
 * 2026-11-16 — Harness — verify:task — añade `--base REF` opcional (por defecto `main`) para medir solo el diff de la tarea cuando el arnés vive en `harness/*`; el piloto usa `--base harness/2agentes` — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
 

@@ -4,22 +4,31 @@ id: TASK-0161
 title: "Motor: catálogo de traits, stacking y especiales"
 description: "Añadir traits como dato sobre el equipo: modificadores de los nueve atributos, stacking con suelos y topes, ataque circular y robo de vida, con eventos y snapshot."
 status: draft
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-019
 requirement_ids: [R-001, R-002, R-003, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-015, T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010, T-014]
 depends_on: []
 unlocks: [TASK-0162]
 created_at: 2026-11-16T00:55:00Z
-completed_at:
+completed_at: 2026-11-16T08:57:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0161/
 priority: P1
 risk: high
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T00:55:00Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T08:57:00Z
+    note: >-
+      Intento 1 verificado (motor `9a76d8a`, evidencia `b823159`). Los nueve
+      criterios firmados con `traits.test.ts`, `item-catalog.test.ts` y
+      `debug.test.ts`; `verify:task --base harness/2agentes` en verde y `pnpm
+      run verify` con 1780 tests. Desviaciones declaradas: el ataque circular no
+      abre réplica y `resistencia` desplaza bandas. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
