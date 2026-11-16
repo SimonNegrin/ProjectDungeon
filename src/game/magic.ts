@@ -11,7 +11,7 @@
 import { actionsMax, hasAction, spendAction } from './actions';
 import { applyEnemyHitReaction, findUnit, resolveHit } from './combat';
 import { resolvePackets } from './damage';
-import { settleUnitDeath } from './death';
+import { reclaimPlayerCorpse, settleUnitDeath } from './death';
 import { isAlive, isOccupied } from './grid';
 import type { Container } from './inventory';
 import { hasLineOfSight } from './perception';
@@ -247,13 +247,18 @@ export function castSpell(
   }
   if (caster.spellsCast >= MAX_SPELLS_PER_TURN) return reject('spell-limit');
 
+  // Recupera lo que siga en el cadáver y lo consume antes de mutar
+  // (REQ-021 R-014/T-014). Sin hueco para todo, el intento se rechaza limpio.
+  const reclaimed = reclaimPlayerCorpse(state, corpse.unit);
+  if (!reclaimed) return reject('inventory-full');
+
   const targetHp = Math.max(
     spell.effect.minHp,
     Math.ceil(spell.effect.hpRatio * corpse.unit.maxHp),
   );
-  const next = withUnits(state, [
+  const next = withUnits(reclaimed.state, [
     spendCast(caster, spell.cost),
-    revivePlayer(corpse.unit, corpse.position, targetHp),
+    revivePlayer(reclaimed.unit, corpse.position, targetHp),
   ]);
 
   return {

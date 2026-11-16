@@ -1635,6 +1635,74 @@ describe('muerte, resurrección y turno (REQ-021 R-008/R-009/R-010/R-013, REQ-03
     });
   });
 
+  it('al resucitar retira el cadáver y una segunda muerte crea uno nuevo con el equipo', () => {
+    const fallen = fallenAt(6, 5, {
+      maxHp: 20,
+      equipment: { weaponId: 'sword', armorId: 'armor', shieldId: 'shield' },
+      weapons: ['dagger'],
+    });
+    const state = settleUnitDeath(
+      makeState({
+        players: [casterAt(5, 5), fallen],
+        enemies: [
+          makeUnit({
+            id: 'enemy-1',
+            faction: 'enemy',
+            x: 18,
+            y: 18,
+            awareness: 'dormant',
+          }),
+        ],
+      }),
+      'player-2',
+    );
+    const corpse = state.containers?.find(
+      (container) => container.corpseOf === 'player-2',
+    );
+    expect(corpse?.items.map((item) => item?.itemId)).toEqual([
+      'sword',
+      'shield',
+      'armor',
+      'dagger',
+    ]);
+
+    const revived = resurrect(state, { x: 6, y: 5 });
+
+    expect(
+      revived.state.containers?.some(
+        (container) => container.corpseOf === 'player-2',
+      ),
+    ).toBe(false);
+    expect(revived.state.players[1].equipment.weapon?.itemId).toBe('sword');
+    expect(revived.state.players[1].equipment.shield?.itemId).toBe('shield');
+    expect(revived.state.players[1].equipment.armor?.itemId).toBe('armor');
+    expect(
+      revived.state.players[1].inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item?.itemId),
+    ).toEqual(['dagger']);
+
+    const fallenAgain = {
+      ...revived.state,
+      players: revived.state.players.map((unit) =>
+        unit.id === 'player-2' ? { ...unit, hp: 0 } : unit,
+      ),
+    };
+    const second = settleUnitDeath(fallenAgain, 'player-2');
+    const secondCorpse = second.containers?.find(
+      (container) => container.corpseOf === 'player-2',
+    );
+
+    expect(secondCorpse).toBeDefined();
+    expect(secondCorpse?.id).toBe(corpseId('player-2'));
+    expect(secondCorpse?.items.map((item) => item?.itemId)).toEqual([
+      'sword',
+      'shield',
+      'armor',
+      'dagger',
+    ]);
+  });
+
   it('un intento inválido no cambia estado ni consume maná, acción ni RNG', () => {
     const fallen = fallenAt(6, 5);
     const state = settleUnitDeath(

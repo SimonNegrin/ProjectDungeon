@@ -3,20 +3,27 @@ import {
   BAND_MULTIPLIERS,
   MAX_SPELLS_PER_TURN,
   SPELLS,
+  allInstances,
   bandFor,
   corpseId,
+  createInventory,
   createRng,
   effectiveStats,
+  emptyEquipment,
   findSpell,
   isGhost,
+  itemInstance,
   lifeState,
+  locateInstance,
   manaMaxFor,
   reduce,
   resolveHit,
   resolvePacket,
+  withBackpackItem,
   type Command,
   type Container,
   type GameState,
+  type ItemInstance,
   type RejectionReason,
   type SpellDefinition,
   type SpellId,
@@ -871,13 +878,14 @@ describe('resurrección', () => {
   function corpseOf(
     unit: Unit,
     position: { readonly x: number; readonly y: number } = unit,
+    items: readonly (ItemInstance | null)[] = [],
   ): Container {
     return {
       id: corpseId(unit.id),
       x: position.x,
       y: position.y,
-      capacity: 0,
-      items: [],
+      capacity: items.length,
+      items,
       kind: 'corpse',
       corpseOf: unit.id,
     };
@@ -1003,6 +1011,138 @@ describe('resurrección', () => {
     expect(isGhost(revived)).toBe(false);
     expect('ghost' in revived).toBe(false);
     expect(revived.actions).toEqual({ max: 2, remaining: 0 });
+  });
+
+  it('consume el cadáver y devuelve a sus huecos y mochila lo que aún guardaba', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const fallen = deadPlayer({
+      ghost: true,
+      maxHp: 20,
+      equipmentSlots: emptyEquipment(),
+      inventory: createInventory(8),
+    });
+    const sword = itemInstance('item-corpse-weapon', 'sword');
+    const armor = itemInstance('item-corpse-armor', 'armor');
+    const shield = itemInstance('item-corpse-shield', 'shield');
+    const dagger = itemInstance('item-corpse-dagger', 'dagger');
+    const hammer = itemInstance('item-corpse-hammer', 'hammer');
+    const state = makeState({
+      players: [caster, fallen],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [
+        corpseOf(fallen, fallen, [sword, armor, shield, null, dagger, hammer]),
+      ],
+    });
+    const beforeIds = allInstances(state).map((item) => item.id);
+
+    const result = castResurrect(state, { x: 6, y: 5 });
+
+    expect(reasonOf(result)).toBeUndefined();
+    const revived = result.state.players[1];
+    expect(
+      result.state.containers?.some((container) => container.corpseOf === 'player-2'),
+    ).toBe(false);
+    expect(revived.equipment.weapon).toBe(sword);
+    expect(revived.equipment.armor).toBe(armor);
+    expect(revived.equipment.shield).toBe(shield);
+    expect(
+      revived.inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item?.id),
+    ).toEqual([dagger.id, hammer.id]);
+    expect(isGhost(revived)).toBe(false);
+
+    // No se pierde ni se duplica ninguna instancia al vaciar el contenedor.
+    const afterIds = allInstances(result.state).map((item) => item.id);
+    expect([...afterIds].sort()).toEqual([...beforeIds].sort());
+    expect(new Set(afterIds).size).toBe(afterIds.length);
+  });
+
+  it('no duplica lo saqueado y conserva lo que el fantasma lleva encima', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const looted = itemInstance('item-looted', 'dagger');
+    const carried = withBackpackItem(createInventory(8), looted);
+    if (!carried) throw new Error('la mochila del fantasma debería tener hueco');
+    const fallen = deadPlayer({
+      ghost: true,
+      equipmentSlots: emptyEquipment(),
+      inventory: carried,
+    });
+    const kept = itemInstance('item-kept', 'armor');
+    const state = makeState({
+      players: [caster, fallen],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(fallen, fallen, [null, kept])],
+    });
+
+    const result = castResurrect(state, { x: 6, y: 5 });
+
+    expect(reasonOf(result)).toBeUndefined();
+    const revived = result.state.players[1];
+    expect(revived.equipment.armor).toBe(kept);
+    expect(
+      revived.inventory.items
+        .filter((item) => item !== null)
+        .map((item) => item?.id),
+    ).toEqual([looted.id]);
+    expect(locateInstance(result.state, looted.id)).toEqual({
+      kind: 'backpack',
+      unitId: 'player-2',
+      index: 0,
+    });
+    expect(locateInstance(result.state, kept.id)).toEqual({
+      kind: 'slot',
+      unitId: 'player-2',
+      slot: 'armor',
+    });
+
+    // El hueco `null` era el objeto saqueado: no reaparece duplicado.
+    const ids = allInstances(result.state).map((item) => item.id);
+    expect(ids.filter((id) => id === looted.id)).toHaveLength(1);
+    expect(ids.filter((id) => id === kept.id)).toHaveLength(1);
+    expect(result.state.containers).toEqual([]);
+  });
+
+  it('los huecos vacíos del cadáver no borran el equipo ni la mochila del fantasma', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const ghostSword = itemInstance('item-ghost-sword', 'sword');
+    const ghostDagger = itemInstance('item-ghost-dagger', 'dagger');
+    const inventory = withBackpackItem(createInventory(8), ghostDagger);
+    if (!inventory) throw new Error('la mochila del fantasma debería tener hueco');
+    const fallen = deadPlayer({
+      ghost: true,
+      equipmentSlots: { ...emptyEquipment(), weapon: ghostSword },
+      inventory,
+    });
+    const state = makeState({
+      players: [caster, fallen],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(fallen, fallen, [null, null])],
+    });
+
+    const result = castResurrect(state, { x: 6, y: 5 });
+
+    expect(reasonOf(result)).toBeUndefined();
+    expect(result.state.players[1].equipment.weapon).toBe(ghostSword);
+    expect(result.state.players[1].inventory.items[0]).toBe(ghostDagger);
+    expect(result.state.containers).toEqual([]);
+  });
+
+  it('un intento inválido no retira el cadáver ni mueve sus objetos', () => {
+    const caster = mage({ mana: { current: RESURRECT.cost, max: 16 } });
+    const fallen = deadPlayer({
+      ghost: true,
+      equipmentSlots: emptyEquipment(),
+    });
+    const sword = itemInstance('item-corpse-weapon', 'sword');
+    const state = makeState({
+      players: [caster, fallen, ally({ id: 'player-3', x: 6, y: 5 })],
+      enemies: [dummy({ x: 18, y: 18 })],
+      containers: [corpseOf(fallen, fallen, [sword])],
+    });
+
+    expectRejected(state, castResurrect(state, { x: 6, y: 5 }), 'occupied');
+    expect(state.containers?.[0].items[0]).toBe(sword);
   });
 
   it('un vivo aliado o enemigo sobre el cadáver bloquea la resurrección', () => {
