@@ -4,7 +4,7 @@ id: TASK-0171
 title: "QA/E2E y playtest de cofres, botín y maza circular"
 description: "Cubrir con E2E y QA visual el ciclo completo de cofres y el determinismo del botín, y preparar el playtest que valida por fin el ataque circular de REQ-019."
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: qa
 requirement: REQ-020
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-008, R-010, R-011, R-012, T-009, T-010]
