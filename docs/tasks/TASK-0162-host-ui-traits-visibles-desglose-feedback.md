@@ -4,22 +4,31 @@ id: TASK-0162
 title: "Host/UI: traits visibles, desglose y feedback"
 description: "Mostrar los traits de cada objeto antes de equipar y los activos del portador, desglosar inherente/equipo/traits y emitir feedback por impacto del círculo y por curación."
 status: draft
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-019
 requirement_ids: [R-004, R-005, R-006, T-012, T-013]
 depends_on: [TASK-0161]
 unlocks: []
 created_at: 2026-11-16T00:55:00Z
-completed_at:
+completed_at: 2026-11-16T09:58:00Z
 assignee: task-runner
-attempts: 0
+attempts: 2
 artifacts: artifacts/TASK-0162/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T00:55:00Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T09:58:00Z
+    note: >-
+      Intento 2 verificado (UI `fb31d8a`, evidencia `8011bd7`). Los seis
+      criterios firmados: desglose de nueve atributos visible en la ficha
+      derecha sin `F1`, traits antes de equipar, traits activos con fuente,
+      feedback por objetivo, rechazo maza/escudo sin cambios y 276 E2E. El
+      intento 1 no se firmó porque el desglose solo existía en `F1`. Detalle en
+      `attempt-2/lead-verify/verification.md`.
 ---
 
 # Objetivo

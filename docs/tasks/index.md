@@ -142,7 +142,7 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `backlog` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
 | [TASK-0160](TASK-0160-test-exp-004-barrido-por-variante.md) | Test: dividir el barrido de EXP-004 por variante | `done` | REQ-011 | — | P1 |
 | [TASK-0161](TASK-0161-motor-traits-catalogo-stacking-especiales.md) | Motor: catálogo de traits, stacking y especiales | `done` | REQ-019 | — | P1 |
-| [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `ready` | REQ-019 | TASK-0161 | P1 |
+| [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `done` | REQ-019 | TASK-0161 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -166,10 +166,6 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0157](TASK-0157-requisitos-enmiendas-botin.md) | Requisitos: enmiendas de botín | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
 | [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
-
-# ready
-
-* [TASK-0162 — Host/UI: traits visibles, desglose y feedback](TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
 
 # blocked
 
@@ -320,6 +316,7 @@ Total: **162**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0153 — Host: resultado Victoria/Derrota con Nueva y Cargar](TASK-0153-host-resultado-victoria-derrota.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
 * [TASK-0161 — Motor: catálogo de traits, stacking y especiales](TASK-0161-motor-traits-catalogo-stacking-especiales.md)
+* [TASK-0162 — Host/UI: traits visibles, desglose y feedback](TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
