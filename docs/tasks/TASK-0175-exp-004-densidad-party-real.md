@@ -4,7 +4,7 @@ id: TASK-0175
 title: "EXP-004: P real, suelo por salas y total aplicado"
 description: "El experimento muestra y exporta la fórmula con el suelo por salas, de modo que la densidad aprobada se pueda probar con 1-6 jugadores."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: experiment
 scope: [src/, tests/, experiments/]
 requirement: REQ-012
