@@ -16,6 +16,7 @@ const USAGE = `Uso: pnpm run verify:task TASK-NNNN [--attempt N] [--base REF] [-
 Comprueba de forma determinista la evidencia de una tarea:
   - estado in_progress y criterios de aceptación firmados;
   - informe del intento con report_status success;
+  - brief del intento desde el intento 2 (attempt-N/brief.md);
   - alcance del diff frente a la base (main por defecto): el declarado en
     \`scope:\` de la ficha o, si falta, el de su \`task_type\`; el alcance que tenía
     la ficha en la base es el que se mide, y cambiarlo después hace fallar la
@@ -25,8 +26,7 @@ Comprueba de forma determinista la evidencia de una tarea:
     «E2E / visual: no» para una tarea sin UI, y entonces no se exigen;
   - pnpm run verify (salvo --no-run).
 
---base permite medir solo el diff de la tarea cuando el arnés vive en una rama
-sin fusionar (p. ej. --base harness/2agentes durante el piloto de ADR-031).
+--base permite medir solo el diff de la tarea cuando la rama base no es main.
 
 Escribe la salida en artifacts/TASK-NNNN/attempt-N/lead-verify/verify-task.txt.
 No decide si un criterio semántico se cumple: exige que alguien lo haya firmado
@@ -140,6 +140,17 @@ if (!reportPath || !existsSync(reportPath)) {
     'Informe',
     status === 'success',
     `report_status: ${status ?? '—'} (${statSync(reportPath).size} B)`,
+  );
+}
+
+if (attempt && attempt >= 2) {
+  const briefPath = resolve(attemptDir, 'brief.md');
+  add(
+    'Brief',
+    existsSync(briefPath),
+    existsSync(briefPath)
+      ? `attempt-${attempt}/brief.md (${statSync(briefPath).size} B)`
+      : `falta attempt-${attempt}/brief.md en un reintento`,
   );
 }
 
