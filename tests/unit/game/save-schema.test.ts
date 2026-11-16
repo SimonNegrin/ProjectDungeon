@@ -345,10 +345,11 @@ describe('esquema de guardado v1: ida y vuelta (REQ-024 T-001/T-002)', () => {
     const loaded = requireValue(parseSave(buildFiles(settled).save));
 
     expect(loaded.players[0].ghost).toBe(true);
-    expect(loaded.containers?.map((container) => container.corpseOf)).toEqual([
-      'player-1',
-      'enemy-1',
-    ]);
+    expect(
+      loaded.containers
+        ?.filter((container) => container.corpseOf !== undefined)
+        .map((container) => container.corpseOf),
+    ).toEqual(['player-1', 'enemy-1']);
     expect(JSON.stringify(loaded)).toBe(JSON.stringify(settled));
   });
 
@@ -747,16 +748,23 @@ describe('partida v1: validación estricta (REQ-024 T-005)', () => {
     expectSaveError(malformed, 'save-invalid');
   });
 
-  it('conserva la ausencia de contenedores y de campos opcionales', () => {
+  it('serializa los cofres iniciales y omite los campos opcionales ausentes', () => {
     const initial = createInitialState({ seed: SEED });
     const saved = buildFiles(initial);
     const raw = object(JSON.parse(saved.save));
 
-    expect(Object.prototype.hasOwnProperty.call(raw, 'containers')).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(raw, 'containers')).toBe(true);
     expect(Object.prototype.hasOwnProperty.call(raw, 'groundItems')).toBe(true);
 
+    const rawChests = array(raw.containers).map(object);
+    expect(rawChests.length).toBeGreaterThanOrEqual(1);
+    for (const chest of rawChests) {
+      expect(chest.kind).toBe('chest');
+      expect(chest.opened).toBe(false);
+      expect(Object.prototype.hasOwnProperty.call(chest, 'corpseOf')).toBe(false);
+    }
+
     const loaded = requireValue(parseSave(saved.save));
-    expect(loaded.containers).toBeUndefined();
     expect(JSON.stringify(loaded)).toBe(JSON.stringify(initial));
   });
 });

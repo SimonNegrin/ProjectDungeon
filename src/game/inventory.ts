@@ -77,6 +77,8 @@ export interface Container {
   readonly kind?: 'chest' | 'corpse';
   /** ID de la unidad cuyo cadáver es este contenedor (REQ-021 T-001). */
   readonly corpseOf?: string;
+  /** Estado de apertura de un cofre (REQ-020 T-001); ausente en cadáveres. */
+  readonly opened?: boolean;
 }
 
 /** Capacidad de mochila por defecto (REQ-018 R-010). */

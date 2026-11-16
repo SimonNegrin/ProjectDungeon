@@ -269,7 +269,7 @@ const ACTIONS_KEYS = ['max', 'remaining'] as const;
 const INVENTORY_KEYS = ['capacity', 'items'] as const;
 const INSTANCE_KEYS = ['id', 'itemId', 'lootable'] as const;
 const GROUND_ITEM_KEYS = ['id', 'itemId', 'lootable', 'x', 'y'] as const;
-const CONTAINER_KEYS = ['id', 'x', 'y', 'capacity', 'items', 'kind', 'corpseOf'] as const;
+const CONTAINER_KEYS = ['id', 'x', 'y', 'capacity', 'items', 'kind', 'corpseOf', 'opened'] as const;
 const CONTAINER_REQUIRED = ['id', 'x', 'y', 'capacity', 'items'] as const;
 
 const MAP_KEYS = [
@@ -568,6 +568,7 @@ function serializeContainer(container: Container): Record<string, unknown> {
   };
   if (container.kind !== undefined) values.kind = container.kind;
   if (container.corpseOf !== undefined) values.corpseOf = container.corpseOf;
+  if (container.opened !== undefined) values.opened = container.opened;
   return reorder(
     container as unknown as Record<string, unknown>,
     values,
@@ -575,7 +576,7 @@ function serializeContainer(container: Container): Record<string, unknown> {
   );
 }
 
-const CONTAINER_OPTIONAL = ['kind', 'corpseOf'] as const;
+const CONTAINER_OPTIONAL = ['kind', 'corpseOf', 'opened'] as const;
 
 function serializeInventory(inventory: Inventory): Record<string, unknown> {
   return reorder(inventory as unknown as Record<string, unknown>, {
@@ -1618,6 +1619,9 @@ function readContainer(
       invalid(`${path}.corpseOf`, `unidad desconocida: ${corpseOf}`);
     }
     values.corpseOf = corpseOf;
+  }
+  if (object.opened !== undefined) {
+    values.opened = expectBoolean(object.opened, `${path}.opened`);
   }
   return reorder(object, values, CONTAINER_OPTIONAL) as unknown as Container;
 }

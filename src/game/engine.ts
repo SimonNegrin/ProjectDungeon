@@ -23,6 +23,7 @@ import { detectEnemiesAfterStep } from './perception';
 import { GrowthMapGenerator } from './chambers/variants/growth';
 import { createRng } from './rng';
 import { rollEnemyLoot } from './loot';
+import { generateChests } from './chests';
 import { BESTIARY, type EnemyType } from './bestiary';
 import { placeMapEnemies } from './enemy-placement';
 import { createMana } from './mana';
@@ -152,6 +153,14 @@ function buildInitialState(
     y: weapon.y,
   }));
 
+  // Cofres por sala con botín orientado al equipo del grupo (REQ-020/ADR-033).
+  // Se genera sobre el mapa completo (con armas) para no pisar ninguna celda
+  // ocupada; usa un PRNG propio y no consume el RNG de combate.
+  const chests = generateChests(
+    generated,
+    players.map((player) => player.equipment),
+  );
+
   return {
     grid: { width: map.width, height: map.height, tiles: map.tiles },
     map,
@@ -180,6 +189,7 @@ function buildInitialState(
     round: 1,
     status: 'playing',
     rng: createRng(map.seed),
+    containers: chests,
   };
 }
 
