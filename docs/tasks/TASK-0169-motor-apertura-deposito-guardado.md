@@ -4,7 +4,7 @@ id: TASK-0169
 title: "Motor: apertura con acción, depósito y persistencia del cofre"
 description: "Añadir el comando de apertura de cofre con coste 1 acción y adyacencia, el depósito gratis y atómico solo en cofres, y el estado de apertura en snapshot y guardado v1."
 status: draft
-task_status: backlog
+task_status: in_progress
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-003, R-010, T-001, T-005, T-006, T-008]
