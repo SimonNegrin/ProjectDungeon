@@ -45,10 +45,11 @@ Tipos de `docs/` y `experiments/`: `Vision`, `Scope`, `Glossary`, `Design`,
 `Artifact Guide`, `README` y `Agent Instructions`.
 
 En `artifacts/` los anexos y evidencias añaden `Task Brief Detail`,
-`Task Report Detail`, `Docs Proposal` y `Task Verification`. El validador exige
-`type` no vacío, pero no impone una lista cerrada: la evidencia histórica no se
-reescribe y una lista cerrada la invalidaría. Si aparece un tipo nuevo
-reutilizable, se documenta aquí.
+`Task Report Detail`, `Docs Proposal` y `Verification` (también `Task
+Verification` en la evidencia histórica). El validador exige `type` no vacío,
+pero no impone una lista cerrada: la evidencia histórica no se reescribe y una
+lista cerrada la invalidaría. Si aparece un tipo nuevo reutilizable, se documenta
+aquí.
 
 Campos por tipo:
 
@@ -57,8 +58,9 @@ Campos por tipo:
 - **Tarea**: `id`, `task_status`, `task_type`, `requirement`, `requirement_ids`,
   `depends_on`, `unlocks`, `created_at`, `completed_at`, `assignee`, `attempts`,
   `artifacts`, `priority`, `risk`. `task_type` ∈ `feature`, `experiment`,
-  `test`, `qa`, `docs`, `harness`, `refactor`; `docs` elige `assignee` por
-  destino ([workflow](workflow.md#quién-ejecuta-una-tarea-docs)).
+  `test`, `qa`, `docs`, `harness`, `refactor`; `docs` se asigna a `game-lead` y
+  el código a `task-runner`
+  ([workflow](workflow.md#quién-ejecuta-una-tarea-docs)).
 - **Experimento**: `id`, `question`, `related_requirements`, `parameters`,
   `decision`, `decided_by`, `decided_at`, `experiment_status`.
 
@@ -81,7 +83,7 @@ recorta.
 | Documento | Objetivo | Aviso | Error |
 |---|---:|---:|---:|
 | Tarea (`docs/tasks/`) | 600 palabras | 600 | 800 |
-| Brief | 1,5 KB | 2,5 KB | 4 KB |
+| Brief (solo en reintento) | 1,5 KB | 2,5 KB | 4 KB |
 | Informe | 2 KB | 3 KB | 4 KB |
 | Entrada de log | 1 línea | — | 400 caracteres |
 

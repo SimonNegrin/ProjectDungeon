@@ -159,3 +159,11 @@ Ninguna. El formato es numérico; los cofres y contenedores aparecen cuando
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [x] El grafo de tareas es posible; el orden depende de `REQ-020` para cofres.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** en la fase enemiga la
+  columna muestra al enemigo que actúa; con el panel abierto se mantiene la ficha
+  de dos bloques de R-009. El hotseat no añade información privada: todo lo que se
+  ve es público.

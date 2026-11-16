@@ -31,6 +31,7 @@ import {
   signed,
   statLines,
   statsLabel,
+  unitTraitSummary,
   unitTraits,
   weaponLabel,
   type CursorDetail,
@@ -43,6 +44,7 @@ import type { Viewport } from './geometry';
 import { formatKeyHelp } from './keymap';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
+import { statBreakdown, type StatBreakdownRow } from './stat-breakdown';
 import type { EnemyActorContext } from './presentation';
 
 /** Ayuda del HUD generada desde el mapa único de teclas (REQ-024 T-014). */
@@ -78,7 +80,7 @@ export interface HudModel {
   readonly playerManaVisible: boolean;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
-  /** Traits activos derivados de las definiciones equipadas; vacío sin traits. */
+  /** Traits activos con su hueco de origen; vacío sin traits. */
   readonly traits: readonly string[];
   /** «Fantasma» con `hp <= 0`; no altera la mecánica de REQ-021. */
   readonly condition: string | null;
@@ -274,7 +276,7 @@ export function buildHudModel(
     playerMana: formatMana(player),
     playerManaVisible: (player?.mana.max ?? 0) > 0,
     action: formatActions(player),
-    traits: unitTraits(player),
+    traits: unitTraitSummary(player),
     condition: conditionLabel(player),
     actionSuggestion: actionSuggestion(state),
     weapon: hudWeapon(player),
@@ -400,6 +402,14 @@ function eventLabel(event: GameEvent): string {
       return `${event.unitId} inspecciona ${event.containerId} (${event.items.length} objetos)`;
     case 'CommandRejected':
       return `${event.commandType} rechazado: ${event.reason}`;
+    case 'TraitEquipped':
+      return `${event.unitId} equipa ${event.traitId} (${event.itemId})`;
+    case 'TraitUnequipped':
+      return `${event.unitId} desequipa ${event.traitId} (${event.itemId})`;
+    case 'TraitImpact':
+      return `${event.unitId} impacta ${event.targetId} con ${event.traitId} (-${event.damage})`;
+    case 'TraitDamage':
+      return `${event.unitId} roba ${event.healing} a ${event.targetId} (HP ${event.unitHp})`;
   }
 }
 
@@ -544,6 +554,23 @@ function equipmentDebugLine(unit: Unit | undefined): string {
   return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
+/** Traits activos del portador con su fuente; vacío se dice sin ambigüedad. */
+function activeTraitDebugLines(unit: Unit | undefined): readonly string[] {
+  const traits = unitTraits(unit);
+  return [`Traits activos: ${traits.length === 0 ? 'ninguno' : traits.join(' · ')}`];
+}
+
+/** Desglose por atributo, con el total copiado de `effectiveStats`. */
+function statBreakdownDebugLines(unit: Unit | undefined): readonly string[] {
+  if (!unit) return ['Desglose de stats: —'];
+  return statBreakdown(unit).map(
+    (row) =>
+      `Desglose ${row.label}: inherente ${row.inherent} · equipo ${row.equipment} · traits ${row.traits} = ${row.total}${
+        row.note === undefined ? '' : ` (${row.note})`
+      }`,
+  );
+}
+
 function itemLabel(instance: ItemInstance): string {
   return `${ITEMS[instance.itemId].name} [${instance.id}]`;
 }
@@ -662,6 +689,8 @@ export function buildDebugModel(
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)} · Acciones ${formatActions(enemy)}`,
       equipmentDebugLine(player),
+      ...activeTraitDebugLines(player),
+      ...statBreakdownDebugLines(player),
       ...inventoryDebugLines(player),
       groundDebugLine(state),
       ...enemyEquipmentLines(state),
@@ -811,6 +840,102 @@ function renderPortrait(
   element.style.backgroundPosition = `calc(var(--ui-scale) * ${-x}px) calc(var(--ui-scale) * ${-y}px)`;
 }
 
+/** Perfil de bandas de una fila del desglose, una entrada por línea. */
+function renderBreakdownProfile(
+  label: string,
+  value: string,
+): HTMLElement {
+  const group = document.createElement('span');
+  group.className = 'hud-breakdown-profile';
+
+  const heading = document.createElement('span');
+  heading.className = 'hud-breakdown-profile-label';
+  heading.textContent = label;
+  group.append(heading);
+
+  for (const line of value.split(' · ').filter((entry) => entry !== '')) {
+    const band = document.createElement('span');
+    band.className = 'hud-breakdown-band';
+    band.textContent = line;
+    group.append(band);
+  }
+  return group;
+}
+
+/**
+ * Fila del desglose del portador (REQ-019 R-006/T-012). Los números salen de
+ * `statBreakdown`, que copia los totales de `effectiveStats`; la vista no suma.
+ */
+function createBreakdownRow(row: StatBreakdownRow): HTMLLIElement {
+  const item = document.createElement('li');
+  item.className = 'hud-breakdown-row';
+  item.dataset.stat = row.id;
+  item.setAttribute(
+    'aria-label',
+    `${row.label}: inherente ${row.inherent}, equipo ${row.equipment}, traits ${row.traits}, total ${row.total}`,
+  );
+
+  const label = document.createElement('span');
+  label.className = 'hud-breakdown-stat';
+  label.textContent = row.label;
+  item.append(label);
+
+  const note =
+    row.note === undefined
+      ? null
+      : Object.assign(document.createElement('span'), {
+          className: 'hud-breakdown-note',
+          textContent: row.note,
+        });
+
+  // Resistencia no es numérica: sus fuentes se leen como niveles y el perfil
+  // de bandas ocupa las líneas siguientes, sin usar `·` entre stats (R-026).
+  if (row.inherent.includes(' · ') || row.total.includes(' · ')) {
+    item.classList.add('hud-breakdown-row-profile');
+    const levels = document.createElement('span');
+    levels.className = 'hud-breakdown-levels';
+    const levelsLabel = document.createElement('span');
+    levelsLabel.className = 'hud-breakdown-source';
+    levelsLabel.textContent = 'niveles:';
+    levels.append(levelsLabel);
+    for (const [source, text] of [
+      ['equipment', `equipo ${row.equipment.replace(' niveles', '')}`],
+      ['traits', `traits ${row.traits.replace(' niveles', '')}`],
+    ] as const) {
+      const level = document.createElement('span');
+      level.className = 'hud-breakdown-source';
+      level.dataset.source = source;
+      level.textContent = text;
+      levels.append(level);
+    }
+    item.append(levels);
+
+    if (row.inherent === row.total) {
+      item.append(renderBreakdownProfile('inherente = total', row.total));
+    } else {
+      item.append(renderBreakdownProfile('inherente', row.inherent));
+      item.append(renderBreakdownProfile('total', row.total));
+    }
+    if (note) item.append(note);
+    return item;
+  }
+
+  for (const source of [
+    'inherent',
+    'equipment',
+    'traits',
+    'total',
+  ] as const) {
+    const value = document.createElement('span');
+    value.className = 'hud-breakdown-value';
+    value.dataset.source = source;
+    value.textContent = source === 'total' ? `= ${row.total}` : row[source];
+    item.append(value);
+  }
+  if (note) item.append(note);
+  return item;
+}
+
 /** Vista DOM del HUD. */
 export function createHudView(root: ParentNode): HudView {
   const playerName = requireElement(root, 'hud-player-name');
@@ -860,6 +985,8 @@ export function createHudView(root: ParentNode): HudView {
     selected: requireElement(root, 'hud-panel-selected'),
     equipped: requireElement(root, 'hud-panel-equipped'),
   };
+  const panelBreakdown = requireElement(root, 'hud-panel-breakdown');
+  const panelBreakdownList = requireElement(root, 'hud-panel-breakdown-list');
 
   let lastDetailKey: string | null = null;
   let lastPanelKey: string | null = null;
@@ -931,6 +1058,10 @@ export function createHudView(root: ParentNode): HudView {
     lastPanelKey = key;
     renderPanelBlock(value.blocks[0], panelBlocks.selected);
     renderPanelBlock(value.blocks[1], panelBlocks.equipped);
+    panelBreakdown.hidden = value.stats.length === 0;
+    panelBreakdownList.replaceChildren(
+      ...value.stats.map((row) => createBreakdownRow(row)),
+    );
   };
 
   return {

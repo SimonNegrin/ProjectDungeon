@@ -5,6 +5,27 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Decision — REQ-019 — `human:simon`: la validación creativa del ataque circular se aplaza al playtest de REQ-020; sin cofres no hay fuente jugable de la maza — [REQ-019](requirements/REQ-019-traits-objetos.md#decisiones)
+* 2026-11-16 — Playtest — traits y hotseat — `human:simon`: sin defectos nuevos en hotseat, traits visibles y desglose; el ataque circular queda pendiente de probar porque las piezas no tienen fuente jugable — [TASK-0162](../artifacts/TASK-0162/attempt-2/report.md)
+* 2026-11-16 — Harness — permisos — `game-lead` autónomo en el ciclo de tarea: `checkout`/`switch` de `task/*` y `harness/*`, `fetch`, `pull --ff-only`, `pnpm run test` y `pnpm install` en allow; `checkout --`, `restore` y `clean` en deny; un comando por llamada y rama base del piloto en Ejecución y Cierre — [agente](../.opencode/agents/game-lead.md), [workflow](harness/workflow.md#git)
+* 2026-11-16 — Task — TASK-0163 — done: `E2E_ARTIFACTS_SPECS` limita capturas, JSON y logs a los specs de la tarea; corrige la fricción de artefactos del piloto de ADR-031 — [informe](../artifacts/TASK-0163/attempt-1/report.md)
+* 2026-11-16 — Task — TASK-0159 — done: notas de hotseat en REQ-005, 017, 018, 021, 022, 023, 024 y 026; remiten a REQ-031 v2 y ADR-029 sin reescribir requisitos — [informe](../artifacts/TASK-0159/attempt-1/report.md)
+* 2026-11-16 — Task — TASK-0155 — done: ADR-029 y documentación de hotseat, economía de turno y arquitectura sin `E` ni `R`; glosario con relevo, ronda y «Jugador N de M» — [informe](../artifacts/TASK-0155/attempt-1/report.md)
+* 2026-11-16 — Decision — ADR-029 — hotseat por turnos con `N`, orden fijo, una fase enemiga por ronda, relevo por cámara, recursos y resurrección por índice, resultado con Nueva y Cargar; retira `E` y `R` — [ADR-029](decisions/ADR-029-hotseat-local.md)
+* 2026-11-16 — Task — TASK-0154 — done: QA/E2E del hotseat con 2 y 6 jugadores, relevo, ronda, fase enemiga, fantasma, resultado y carga; 282 E2E y 13 capturas — [informe](../artifacts/TASK-0154/attempt-1/report.md)
+* 2026-11-16 — Task — TASK-0162 — done: traits antes de equipar, desglose inherente/equipo/traits en la ficha y feedback por objetivo; 1796 tests y 276 E2E — [informe](../artifacts/TASK-0162/attempt-2/report.md)
+* 2026-11-16 — Task — TASK-0161 — done: catálogo de traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; 1780 tests y verificación con `--base harness/2agentes` — [informe](../artifacts/TASK-0161/attempt-1/report.md)
+* 2026-11-16 — Harness — verify:task — exige capturas solo si la ficha no declara «E2E / visual: no» en el plan de test; corrige el falso positivo de TASK-0161 (motor sin UI) sin cambiar el gate documentado — [workflow](harness/workflow.md#verificación-determinista)
+* 2026-11-16 — Harness — verify:task — añade `--base REF` opcional (por defecto `main`) para medir solo el diff de la tarea cuando el arnés vive en `harness/*`; el piloto usa `--base harness/2agentes` — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
+
+* 2026-11-16 — Harness — Piloto — cinco tareas definidas: TASK-0161 motor de traits y TASK-0162 host/UI, con TASK-0154, TASK-0155 y TASK-0159; TASK-0101/TASK-0057 no se repiten y T-011 y REQ-020 quedan fuera — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md#enmienda-del-piloto-2026-11-16)
+
+* 2026-11-16 — Task — TASK-0161 — ready: traits como dato, stacking con suelos y topes, ataque circular y robo de vida con eventos y snapshot; sin UI y sin fuente jugable hasta REQ-020 — [ficha](tasks/TASK-0161-motor-traits-catalogo-stacking-especiales.md)
+
+* 2026-11-16 — Task — TASK-0162 — backlog: panel y HUD con traits y desglose, feedback por objetivo y E2E de maza a dos manos; depende de TASK-0161 — [ficha](tasks/TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
+
+* 2026-11-16 — Harness — ADR-031 — dos agentes: game-lead absorbe producto, tareas y arnés; task-runner conserva el contexto limpio; verify:task y criterios firmados sustituyen al verificador; piloto de 5 tareas pendiente — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
+
 * 2026-11-16 — Requirement — REQ-021 — v6: abre la capacidad al resucitar (hoy rechazo atómico `inventory-full`) y la procedencia plana de los objetos del cadáver; ambas provisionales hasta playtest — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
 
 * 2026-11-16 — Task — TASK-0148 — done: resurrección por cadáver concreto, consumo del contenedor y recuperación de equipo/mochila sin duplicar, segunda muerte con cadáver nuevo e índice de ronda; 135/135 focalizados, verify 1751/1751 y E2E 273/273 en serie; riesgo de capacidad registrado; fusión `1b0f277` — [verificación](../artifacts/TASK-0148/attempt-2/lead-verify/verification.md)

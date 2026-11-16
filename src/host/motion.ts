@@ -10,6 +10,7 @@ import type {
   Unit,
 } from '../game/types';
 import type { ItemId } from '../game/equipment';
+import { TRAITS } from '../game/equipment';
 import { findSpell } from '../game/spells';
 import { clampCamera, type Camera } from './camera';
 import { FEEDBACK_CONFIG } from './feedback-config';
@@ -90,6 +91,8 @@ export type FeedbackCueKind =
   | 'death'
   | 'pickup'
   | 'select-weapon'
+  | 'trait-impact'
+  | 'trait-heal'
   | 'spotted'
   | 'alarm'
   | 'fled'
@@ -116,9 +119,17 @@ export interface FeedbackCueData {
   readonly playerId?: string;
   readonly itemId?: ItemId;
   readonly slot?: number;
+  /** Trait del catálogo y su nombre visible, para banner y textos. */
+  readonly traitId?: string;
+  readonly traitName?: string;
+  /** Nombre del portador u objetivo; el banner no necesita el estado vivo. */
+  readonly unitName?: string;
+  readonly targetName?: string;
   readonly hit?: boolean;
   readonly damage?: number;
   readonly targetHp?: number;
+  /** Vida del portador tras la curación de un trait. */
+  readonly unitHp?: number;
   readonly text?: string;
   readonly rolls?: AttackRolls;
   readonly turn?: number;
@@ -262,6 +273,17 @@ function unitTile(state: GameState | undefined, unitId: string | null | undefine
   return unit ? { x: unit.x, y: unit.y } : null;
 }
 
+function unitName(
+  state: GameState | undefined,
+  unitId: string | null | undefined,
+): string | undefined {
+  if (!state || !unitId) return undefined;
+  return (
+    state.players.find((candidate) => candidate.id === unitId) ??
+    state.enemies.find((candidate) => candidate.id === unitId)
+  )?.nombre;
+}
+
 function anchorFor(
   unitId: string | null,
   state: GameState | undefined,
@@ -337,6 +359,14 @@ function beatForEvent(
     case 'ContainerInspected':
       // Sin cue en este corte: la inspección es presentación de TASK-0135+.
       return 0;
+    case 'TraitEquipped':
+    case 'TraitUnequipped':
+      // El cambio de equipo ya tiene su propio cue de inventario.
+      return 0;
+    case 'TraitImpact':
+      return FEEDBACK_CONFIG.beats.traitImpact;
+    case 'TraitDamage':
+      return FEEDBACK_CONFIG.beats.traitHeal;
   }
 }
 
@@ -590,6 +620,59 @@ function cueForEvent(
     case 'ContainerInspected':
       // Sin presentación en este corte: el evento existe en el motor, no en la UI.
       return null;
+    case 'TraitEquipped':
+    case 'TraitUnequipped':
+      // El cambio de equipo ya tiene su propio cue de inventario.
+      return null;
+    case 'TraitImpact': {
+      const state = finalState ?? initialState;
+      const anchor = anchorFor(event.targetId, state);
+      const attacker = unitTile(state, event.unitId);
+      return {
+        ...base,
+        kind: 'trait-impact',
+        anchor,
+        data: {
+          unitId: event.unitId,
+          targetId: event.targetId,
+          traitId: event.traitId,
+          traitName: TRAITS[event.traitId]?.name ?? event.traitId,
+          damage: event.damage,
+          targetHp: event.targetHp,
+          text: `-${event.damage}`,
+          ...(unitName(state, event.targetId) === undefined
+            ? {}
+            : { targetName: unitName(state, event.targetId) }),
+          ...(attacker ? { attacker } : {}),
+          ...(anchor.tile ? { target: anchor.tile } : {}),
+        },
+      };
+    }
+    case 'TraitDamage': {
+      const state = finalState ?? initialState;
+      const anchor = anchorFor(event.unitId, state);
+      const target = unitTile(state, event.targetId);
+      return {
+        ...base,
+        kind: 'trait-heal',
+        anchor,
+        data: {
+          unitId: event.unitId,
+          targetId: event.targetId,
+          traitId: event.traitId,
+          traitName: TRAITS[event.traitId]?.name ?? event.traitId,
+          damage: event.damage,
+          healing: event.healing,
+          unitHp: event.unitHp,
+          text: `+${event.healing}`,
+          ...(unitName(state, event.unitId) === undefined
+            ? {}
+            : { unitName: unitName(state, event.unitId) }),
+          ...(target ? { attacker: target } : {}),
+          ...(anchor.tile ? { target: anchor.tile } : {}),
+        },
+      };
+    }
   }
 }
 
@@ -1239,6 +1322,23 @@ export function presentationState(
     );
     enemies = enemies.map((unit) =>
       unit.id === targetId ? { ...unit, hp: restoredHp } : unit,
+    );
+  }
+
+  // El robo de vida se aplica al acabar su cue; antes de ese instante el
+  // portador conserva los PV previos a la curación.
+  for (let index = timeline.events.length - 1; index >= 0; index -= 1) {
+    const entry = timeline.events[index];
+    const event = entry.event;
+    if (event.type !== 'TraitDamage' || entry.atMs <= elapsed + EPSILON) {
+      continue;
+    }
+    const before = Math.max(0, event.unitHp - event.healing);
+    players = players.map((unit) =>
+      unit.id === event.unitId ? { ...unit, hp: before } : unit,
+    );
+    enemies = enemies.map((unit) =>
+      unit.id === event.unitId ? { ...unit, hp: before } : unit,
     );
   }
 

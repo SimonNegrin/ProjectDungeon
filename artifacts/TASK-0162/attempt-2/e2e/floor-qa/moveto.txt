@@ -1,0 +1,8 @@
+TASK-0022 MoveTo sobre decoración
+seed=279837264
+target=(8,26) type=bones-11e approach=(9,26)
+player_before=(9,26) mp=5
+player_after=(8,26) mp=4
+events=UnitMoved
+decoration_unchanged=true
+grid_unchanged=true

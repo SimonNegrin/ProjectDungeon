@@ -1,0 +1,16 @@
+# Verificación determinista de TASK-0161
+
+- Fecha: 2026-11-16T08:55:57.003Z
+- Intento: 1
+- Base: harness/2agentes
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0161-motor-traits-catalogo-stacking-especiales.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-1 |
+| Criterios firmados | ok | 9 marcados |
+| Informe | ok | report_status: success (2967 B) |
+| Alcance | ok | 24 archivos dentro de feature (base harness/2agentes) |
+| verify | ok | pnpm run verify OK |

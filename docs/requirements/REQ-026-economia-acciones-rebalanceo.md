@@ -173,3 +173,11 @@ completos. R-010/R-011 (soltar y contenedores) dependen de
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [x] El grafo de tareas es posible; el rebalanceo es una tarea del milestone.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** la tecla de fin de turno de
+  R-008 es `N`; `E` deja de existir. Las acciones son por jugador y se restauran
+  al empezar su turno, y cada ronda tiene una única fase enemiga. El resto de R-008
+  sigue vigente.

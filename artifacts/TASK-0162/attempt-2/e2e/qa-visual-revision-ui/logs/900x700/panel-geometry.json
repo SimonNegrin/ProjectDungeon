@@ -1,0 +1,3758 @@
+[
+  {
+    "scene": "mochila-llena",
+    "viewport": "900x700",
+    "metrics": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "rect": {
+            "left": 234.859375,
+            "top": 121.515625,
+            "right": 372.03125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-backpack",
+          "rect": {
+            "left": 381.40625,
+            "top": 121.515625,
+            "right": 518.578125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-right",
+          "rect": {
+            "left": 527.953125,
+            "top": 121.515625,
+            "right": 665.125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "rect": {
+            "left": 240.546875,
+            "top": 127.203125,
+            "right": 366.34375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Bolsa 8/8",
+          "rect": {
+            "left": 387.09375,
+            "top": 127.203125,
+            "right": 512.890625,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Suelo",
+          "rect": {
+            "left": 533.640625,
+            "top": 127.203125,
+            "right": 659.4375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        }
+      ],
+      "slots": [
+        {
+          "key": "slot:weapon",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 147.0625,
+            "right": 322.390625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:feet",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 316,
+            "right": 322.390625,
+            "bottom": 353.890625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:hands",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 273.765625,
+            "right": 322.390625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:neck",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 189.296875,
+            "right": 280.15625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:ring",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 189.296875,
+            "right": 364.625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:0",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:2",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:3",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:4",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:5",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:6",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:7",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-0",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 146.0625,
+            "right": 573.53125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 146.0625,
+            "right": 615.765625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-2",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 188.296875,
+            "right": 573.53125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-3",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 188.296875,
+            "right": 615.765625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        }
+      ],
+      "scroll": {
+        "panel": {
+          "scrollWidth": 488,
+          "clientWidth": 488,
+          "scrollHeight": 488,
+          "clientHeight": 488
+        },
+        "body": {
+          "scrollWidth": 458,
+          "clientWidth": 458,
+          "scrollHeight": 458,
+          "clientHeight": 458
+        },
+        "columns": [
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          }
+        ],
+        "ground": {
+          "scrollWidth": 128,
+          "clientWidth": 128,
+          "scrollHeight": 377,
+          "clientHeight": 377,
+          "scrollTop": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "sin-cadavers",
+    "viewport": "900x700",
+    "metrics": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "rect": {
+            "left": 234.859375,
+            "top": 121.515625,
+            "right": 372.03125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-backpack",
+          "rect": {
+            "left": 381.40625,
+            "top": 121.515625,
+            "right": 518.578125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-right",
+          "rect": {
+            "left": 527.953125,
+            "top": 121.515625,
+            "right": 665.125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "rect": {
+            "left": 240.546875,
+            "top": 127.203125,
+            "right": 366.34375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Bolsa 1/8",
+          "rect": {
+            "left": 387.09375,
+            "top": 127.203125,
+            "right": 512.890625,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Suelo",
+          "rect": {
+            "left": 533.640625,
+            "top": 127.203125,
+            "right": 659.4375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        }
+      ],
+      "slots": [
+        {
+          "key": "slot:weapon",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 147.0625,
+            "right": 322.390625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:feet",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 316,
+            "right": 322.390625,
+            "bottom": 353.890625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:hands",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 273.765625,
+            "right": 322.390625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:neck",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 189.296875,
+            "right": 280.15625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:ring",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 189.296875,
+            "right": 364.625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:0",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:2",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:3",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:4",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:5",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:6",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:7",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "ground:item-test-ground-0",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 146.0625,
+            "right": 573.53125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        }
+      ],
+      "scroll": {
+        "panel": {
+          "scrollWidth": 488,
+          "clientWidth": 488,
+          "scrollHeight": 488,
+          "clientHeight": 488
+        },
+        "body": {
+          "scrollWidth": 458,
+          "clientWidth": 458,
+          "scrollHeight": 458,
+          "clientHeight": 458
+        },
+        "columns": [
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          }
+        ],
+        "ground": {
+          "scrollWidth": 128,
+          "clientWidth": 128,
+          "scrollHeight": 377,
+          "clientHeight": 377,
+          "scrollTop": 0
+        }
+      }
+    },
+    "cadaversHeight": 0,
+    "cadaversText": "",
+    "groundTop": 144.890625,
+    "panelText": "\n              \n                Inventario\n                \n                  \n                    Equipo\n                    \n                      \n                        \n                        \n                        \n                        \n                        \n                      \n                      \n                    \n                  \n                  \n                    \n                      Bolsa 1/8\n                    \n                    \n                  \n                  \n                    Suelo\n                    \n                      \n                      \n                      \n                        \n                      \n                    \n                  \n                \n                \n                \n                \n                  \n                    Cerrar\n                  \n                \n              \n              \n            "
+  },
+  {
+    "scene": "con-cadavers",
+    "viewport": "900x700",
+    "metrics": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "rect": {
+            "left": 234.859375,
+            "top": 121.515625,
+            "right": 372.03125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-backpack",
+          "rect": {
+            "left": 381.40625,
+            "top": 121.515625,
+            "right": 518.578125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-right",
+          "rect": {
+            "left": 527.953125,
+            "top": 121.515625,
+            "right": 665.125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "rect": {
+            "left": 240.546875,
+            "top": 127.203125,
+            "right": 366.34375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Bolsa 8/8",
+          "rect": {
+            "left": 387.09375,
+            "top": 127.203125,
+            "right": 512.890625,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Suelo",
+          "rect": {
+            "left": 533.640625,
+            "top": 127.203125,
+            "right": 659.4375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        }
+      ],
+      "slots": [
+        {
+          "key": "slot:weapon",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 147.0625,
+            "right": 322.390625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:feet",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 316,
+            "right": 322.390625,
+            "bottom": 353.890625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:hands",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 273.765625,
+            "right": 322.390625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:neck",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 189.296875,
+            "right": 280.15625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:ring",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 189.296875,
+            "right": 364.625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:0",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:2",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:3",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:4",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:5",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:6",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:7",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-0",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 293.203125,
+            "right": 573.53125,
+            "bottom": 333.09375,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 294.203125,
+            "right": 572.53125,
+            "bottom": 332.09375,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 294.203125,
+            "right": 572.53125,
+            "bottom": 332.09375,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 293.203125,
+            "right": 615.765625,
+            "bottom": 333.09375,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 294.203125,
+            "right": 614.765625,
+            "bottom": 332.09375,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 294.203125,
+            "right": 614.765625,
+            "bottom": 332.09375,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        }
+      ],
+      "scroll": {
+        "panel": {
+          "scrollWidth": 488,
+          "clientWidth": 488,
+          "scrollHeight": 488,
+          "clientHeight": 488
+        },
+        "body": {
+          "scrollWidth": 458,
+          "clientWidth": 458,
+          "scrollHeight": 458,
+          "clientHeight": 458
+        },
+        "columns": [
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          }
+        ],
+        "ground": {
+          "scrollWidth": 128,
+          "clientWidth": 128,
+          "scrollHeight": 377,
+          "clientHeight": 377,
+          "scrollTop": 0
+        }
+      }
+    },
+    "corpses": {
+      "title": {
+        "top": 127.203125,
+        "bottom": 142.546875,
+        "height": 15.34375
+      },
+      "rows": [
+        {
+          "top": 146.0625,
+          "bottom": 216.703125,
+          "height": 70.640625
+        },
+        {
+          "top": 146.0625,
+          "bottom": 216.703125,
+          "height": 70.640625
+        },
+        {
+          "top": 219.046875,
+          "bottom": 289.6875,
+          "height": 70.640625
+        }
+      ],
+      "ground": {
+        "top": 292.03125,
+        "bottom": 334.265625,
+        "height": 42.234375
+      },
+      "rowKeys": 0,
+      "tabbables": 0
+    }
+  },
+  {
+    "scene": "suelo-objetos",
+    "viewport": "900x700",
+    "metrics": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "rect": {
+            "left": 234.859375,
+            "top": 121.515625,
+            "right": 372.03125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-backpack",
+          "rect": {
+            "left": 381.40625,
+            "top": 121.515625,
+            "right": 518.578125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-right",
+          "rect": {
+            "left": 527.953125,
+            "top": 121.515625,
+            "right": 665.125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "rect": {
+            "left": 240.546875,
+            "top": 127.203125,
+            "right": 366.34375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Bolsa 1/8",
+          "rect": {
+            "left": 387.09375,
+            "top": 127.203125,
+            "right": 512.890625,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Suelo",
+          "rect": {
+            "left": 533.640625,
+            "top": 127.203125,
+            "right": 659.4375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        }
+      ],
+      "slots": [
+        {
+          "key": "slot:weapon",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 147.0625,
+            "right": 322.390625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:feet",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 316,
+            "right": 322.390625,
+            "bottom": 353.890625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:hands",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 273.765625,
+            "right": 322.390625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:neck",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 189.296875,
+            "right": 280.15625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:ring",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 189.296875,
+            "right": 364.625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:0",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:2",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:3",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:4",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:5",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:6",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:7",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "ground:item-test-ground-0",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 146.0625,
+            "right": 573.53125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 146.0625,
+            "right": 615.765625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-2",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 188.296875,
+            "right": 573.53125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-3",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 188.296875,
+            "right": 615.765625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        }
+      ],
+      "scroll": {
+        "panel": {
+          "scrollWidth": 488,
+          "clientWidth": 488,
+          "scrollHeight": 488,
+          "clientHeight": 488
+        },
+        "body": {
+          "scrollWidth": 458,
+          "clientWidth": 458,
+          "scrollHeight": 458,
+          "clientHeight": 458
+        },
+        "columns": [
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          }
+        ],
+        "ground": {
+          "scrollWidth": 128,
+          "clientWidth": 128,
+          "scrollHeight": 377,
+          "clientHeight": 377,
+          "scrollTop": 0
+        }
+      }
+    }
+  },
+  {
+    "scene": "tres-columnas",
+    "viewport": "900x700",
+    "fitSummary": {
+      "viewport": "900x700",
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "width": 137.171875
+        },
+        {
+          "name": "inventory-column-backpack",
+          "width": 137.171875
+        },
+        {
+          "name": "inventory-column-right",
+          "width": 137.171875
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "top": 127.203125
+        },
+        {
+          "text": "Bolsa 8/8",
+          "top": 127.203125
+        },
+        {
+          "text": "Suelo",
+          "top": 127.203125
+        }
+      ],
+      "slotSide": 39.890625,
+      "columnsGap": 9.375
+    },
+    "metrics": {
+      "frame": {
+        "left": 16,
+        "top": 94.875,
+        "right": 884,
+        "bottom": 583.125,
+        "width": 868,
+        "height": 488.25
+      },
+      "panel": {
+        "left": 205.875,
+        "top": 94.875,
+        "right": 694.125,
+        "bottom": 583.125,
+        "width": 488.25,
+        "height": 488.25
+      },
+      "body": {
+        "left": 218.78125,
+        "top": 107.78125,
+        "right": 681.21875,
+        "bottom": 570.21875,
+        "width": 462.4375,
+        "height": 462.4375
+      },
+      "columns": [
+        {
+          "name": "inventory-column-equipment",
+          "rect": {
+            "left": 234.859375,
+            "top": 121.515625,
+            "right": 372.03125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-backpack",
+          "rect": {
+            "left": 381.40625,
+            "top": 121.515625,
+            "right": 518.578125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        },
+        {
+          "name": "inventory-column-right",
+          "rect": {
+            "left": 527.953125,
+            "top": 121.515625,
+            "right": 665.125,
+            "bottom": 529.109375,
+            "width": 137.171875,
+            "height": 407.59375
+          }
+        }
+      ],
+      "titles": [
+        {
+          "text": "Equipo",
+          "rect": {
+            "left": 240.546875,
+            "top": 127.203125,
+            "right": 366.34375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Bolsa 8/8",
+          "rect": {
+            "left": 387.09375,
+            "top": 127.203125,
+            "right": 512.890625,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        },
+        {
+          "text": "Suelo",
+          "rect": {
+            "left": 533.640625,
+            "top": 127.203125,
+            "right": 659.4375,
+            "bottom": 142.546875,
+            "width": 125.796875,
+            "height": 15.34375
+          }
+        }
+      ],
+      "slots": [
+        {
+          "key": "slot:weapon",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 272.765625,
+            "right": 365.625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 326.734375,
+            "top": 273.765625,
+            "right": 364.625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:shield",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 272.765625,
+            "right": 281.15625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 242.265625,
+            "top": 273.765625,
+            "right": 280.15625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:armor",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 230.53125,
+            "right": 323.390625,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 284.5,
+            "top": 231.53125,
+            "right": 322.390625,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "slot:head",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 146.0625,
+            "right": 323.390625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 147.0625,
+            "right": 322.390625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:feet",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 315,
+            "right": 323.390625,
+            "bottom": 354.890625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 316,
+            "right": 322.390625,
+            "bottom": 353.890625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:hands",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 283.5,
+            "top": 272.765625,
+            "right": 323.390625,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 284.5,
+            "top": 273.765625,
+            "right": 322.390625,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:neck",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 241.265625,
+            "top": 188.296875,
+            "right": 281.15625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 242.265625,
+            "top": 189.296875,
+            "right": 280.15625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "slot:ring",
+          "column": "inventory-column-equipment",
+          "rect": {
+            "left": 325.734375,
+            "top": 188.296875,
+            "right": 365.625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 326.734375,
+            "top": 189.296875,
+            "right": 364.625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": null
+        },
+        {
+          "key": "backpack:0",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 146.0625,
+            "right": 448.8125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 147.0625,
+            "right": 447.8125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:1",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 146.0625,
+            "right": 491.046875,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 147.0625,
+            "right": 490.046875,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:2",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 188.296875,
+            "right": 448.8125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 189.296875,
+            "right": 447.8125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:3",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 188.296875,
+            "right": 491.046875,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 189.296875,
+            "right": 490.046875,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:4",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 230.53125,
+            "right": 448.8125,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 231.53125,
+            "right": 447.8125,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:5",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 230.53125,
+            "right": 491.046875,
+            "bottom": 270.421875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 231.53125,
+            "right": 490.046875,
+            "bottom": 269.421875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:6",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 408.921875,
+            "top": 272.765625,
+            "right": 448.8125,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 409.921875,
+            "top": 273.765625,
+            "right": 447.8125,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "backpack:7",
+          "column": "inventory-column-backpack",
+          "rect": {
+            "left": 451.15625,
+            "top": 272.765625,
+            "right": 491.046875,
+            "bottom": 312.65625,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 452.15625,
+            "top": 273.765625,
+            "right": 490.046875,
+            "bottom": 311.65625,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-0",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 146.0625,
+            "right": 573.53125,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 147.0625,
+            "right": 572.53125,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-1",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 146.0625,
+            "right": 615.765625,
+            "bottom": 185.953125,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 147.0625,
+            "right": 614.765625,
+            "bottom": 184.953125,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-2",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 533.640625,
+            "top": 188.296875,
+            "right": 573.53125,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 534.640625,
+            "top": 189.296875,
+            "right": 572.53125,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        },
+        {
+          "key": "ground:item-test-ground-3",
+          "column": "inventory-column-right",
+          "rect": {
+            "left": 575.875,
+            "top": 188.296875,
+            "right": 615.765625,
+            "bottom": 228.1875,
+            "width": 39.890625,
+            "height": 39.890625
+          },
+          "inner": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          },
+          "border": {
+            "top": 1,
+            "right": 1,
+            "bottom": 1,
+            "left": 1
+          },
+          "sprite": {
+            "left": 576.875,
+            "top": 189.296875,
+            "right": 614.765625,
+            "bottom": 227.1875,
+            "width": 37.890625,
+            "height": 37.890625
+          }
+        }
+      ],
+      "scroll": {
+        "panel": {
+          "scrollWidth": 488,
+          "clientWidth": 488,
+          "scrollHeight": 488,
+          "clientHeight": 488
+        },
+        "body": {
+          "scrollWidth": 458,
+          "clientWidth": 458,
+          "scrollHeight": 458,
+          "clientHeight": 458
+        },
+        "columns": [
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          },
+          {
+            "scrollWidth": 135,
+            "clientWidth": 135,
+            "scrollHeight": 406,
+            "clientHeight": 406
+          }
+        ],
+        "ground": {
+          "scrollWidth": 128,
+          "clientWidth": 128,
+          "scrollHeight": 377,
+          "clientHeight": 377,
+          "scrollTop": 0
+        }
+      }
+    }
+  }
+]

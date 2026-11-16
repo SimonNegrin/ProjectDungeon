@@ -1,0 +1,12 @@
+
+ RUN  v5.1.0 /Users/simon/proyectdungeon
+
+
+ Test Files  47 passed (47)
+      Tests  755 passed (755)
+   Start at  09:43:09
+   Duration  2.39s (tests 57%, import 27%, transform 13%, worker 3%)
+
+    Isolate  47 workers spawned · ~116ms startup each (spawn + environment, per file)
+             at least ~662ms faster with isolate: false — reuses workers across files instead of one per file
+

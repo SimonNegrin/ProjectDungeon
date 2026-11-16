@@ -1,0 +1,266 @@
+[
+  {
+    "viewport": "1280x720",
+    "state": "panel-abierto",
+    "width": 666,
+    "height": 666,
+    "panel": {
+      "scrollWidth": 666,
+      "scrollHeight": 666,
+      "clientWidth": 666,
+      "clientHeight": 666
+    },
+    "body": {
+      "scrollWidth": 625,
+      "scrollHeight": 625,
+      "clientWidth": 625,
+      "clientHeight": 625
+    },
+    "columns": [
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 175,
+      "scrollHeight": 517,
+      "clientWidth": 175,
+      "clientHeight": 517
+    }
+  },
+  {
+    "viewport": "1280x720",
+    "state": "mochila-llena-4-objetos",
+    "width": 666,
+    "height": 666,
+    "panel": {
+      "scrollWidth": 666,
+      "scrollHeight": 666,
+      "clientWidth": 666,
+      "clientHeight": 666
+    },
+    "body": {
+      "scrollWidth": 625,
+      "scrollHeight": 625,
+      "clientWidth": 625,
+      "clientHeight": 625
+    },
+    "columns": [
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 175,
+      "scrollHeight": 517,
+      "clientWidth": 175,
+      "clientHeight": 517
+    }
+  },
+  {
+    "viewport": "1280x720",
+    "state": "suelo-vacio",
+    "width": 666,
+    "height": 666,
+    "panel": {
+      "scrollWidth": 666,
+      "scrollHeight": 666,
+      "clientWidth": 666,
+      "clientHeight": 666
+    },
+    "body": {
+      "scrollWidth": 625,
+      "scrollHeight": 625,
+      "clientWidth": 625,
+      "clientHeight": 625
+    },
+    "columns": [
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      },
+      {
+        "scrollWidth": 185,
+        "scrollHeight": 555,
+        "clientWidth": 185,
+        "clientHeight": 555
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 175,
+      "scrollHeight": 517,
+      "clientWidth": 175,
+      "clientHeight": 517
+    }
+  },
+  {
+    "viewport": "900x700",
+    "state": "panel-abierto",
+    "width": 488.25,
+    "height": 488.25,
+    "panel": {
+      "scrollWidth": 488,
+      "scrollHeight": 488,
+      "clientWidth": 488,
+      "clientHeight": 488
+    },
+    "body": {
+      "scrollWidth": 458,
+      "scrollHeight": 458,
+      "clientWidth": 458,
+      "clientHeight": 458
+    },
+    "columns": [
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 128,
+      "scrollHeight": 377,
+      "clientWidth": 128,
+      "clientHeight": 377
+    }
+  },
+  {
+    "viewport": "900x700",
+    "state": "mochila-llena-4-objetos",
+    "width": 488.25,
+    "height": 488.25,
+    "panel": {
+      "scrollWidth": 488,
+      "scrollHeight": 488,
+      "clientWidth": 488,
+      "clientHeight": 488
+    },
+    "body": {
+      "scrollWidth": 458,
+      "scrollHeight": 458,
+      "clientWidth": 458,
+      "clientHeight": 458
+    },
+    "columns": [
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 128,
+      "scrollHeight": 377,
+      "clientWidth": 128,
+      "clientHeight": 377
+    }
+  },
+  {
+    "viewport": "900x700",
+    "state": "suelo-vacio",
+    "width": 488.25,
+    "height": 488.25,
+    "panel": {
+      "scrollWidth": 488,
+      "scrollHeight": 488,
+      "clientWidth": 488,
+      "clientHeight": 488
+    },
+    "body": {
+      "scrollWidth": 458,
+      "scrollHeight": 458,
+      "clientWidth": 458,
+      "clientHeight": 458
+    },
+    "columns": [
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      },
+      {
+        "scrollWidth": 135,
+        "scrollHeight": 406,
+        "clientWidth": 135,
+        "clientHeight": 406
+      }
+    ],
+    "groundScroll": {
+      "scrollWidth": 128,
+      "scrollHeight": 377,
+      "clientWidth": 128,
+      "clientHeight": 377
+    }
+  }
+]

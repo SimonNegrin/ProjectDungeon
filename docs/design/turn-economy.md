@@ -19,6 +19,11 @@ playtests.
 > implementadas; la réplica tiene sección propia. El combate de `REQ-029` se
 > documenta en [Combate](#combate) con paquetes y bandas; el daño único queda como
 > historia.
+>
+> **Aviso de vigencia (2026-11-16).** El orden de turnos y los controles reflejan
+> el hotseat de `REQ-031` v2 y [ADR-029](../decisions/ADR-029-hotseat-local.md):
+> `N` cierra el turno de cada jugador, `E` y `R` ya no existen, y los recursos se
+> restauran por jugador. La partida admite de 1 a 6 jugadores.
 
 # Rejilla y movimiento
 
@@ -61,9 +66,10 @@ playtests.
   con `I`; ver [REQ-018](../requirements/REQ-018-inventario-equipo.md).
 - `Moverse` sobre un enemigo se acerca con MP y ejecuta **un ataque por
   pulsación**; no encadena todos los ataques.
-- El turno **no termina solo** al gastar las acciones: se cierra con `E`. El HUD
+- El turno **no termina solo** al gastar las acciones: se cierra con `N`. El HUD
   sugiere terminar cuando no quedan acciones ni MP útil.
-- Al empezar un turno se restauran MP, acciones y maná.
+- Al empezar el turno de cada jugador se restauran su MP, acciones y maná; el que
+  aún no ha actuado conserva lo que tuviera.
 
 # Réplica
 
@@ -154,7 +160,7 @@ motor tiene una respuesta visual o una excepción declarada. El ritmo es pausado
 | Enemigo fuera de pantalla | 150 ms, sin cámara ni tween por tile. |
 | Movimiento | 125/70 sin cambios. |
 
-- El input se bloquea y se descarta durante el beat; `F1` y `R` siguen activos.
+- El input se bloquea y se descarta durante el beat; `F1` y `Esc` siguen activos.
 - El cadáver-contenedor no bloquea y se saquea desde su mismo tile sin coste;
   el de enemigo desaparece al vaciarse y el de jugador persiste para resucitar
   ([REQ-034](../requirements/REQ-034-objetos-saqueables-botin-enemigos.md)).
@@ -317,13 +323,33 @@ perfil es normal en los cinco tipos.
 
 # Orden de turnos
 
-1. Todos los jugadores actúan en orden fijo, determinado por su índice.
-2. Cuando el último jugador termina, empieza la fase enemiga.
-3. Todos los enemigos actúan en orden de índice.
-4. Al terminar el último enemigo, vuelve la fase de jugadores.
+1. Los jugadores actúan en **orden fijo**, el de su índice en la party. Cada uno
+   tiene su turno con su MP, acciones, maná y cupo de hechizos, que se restauran al
+   empezar ese turno y no al inicio de la fase.
+2. El turno **no auto-termina**: se cierra con `N` (`EndTurn`) en cualquier
+   momento, con recursos gastados o intactos. El último `N` de la ronda inicia la
+   fase enemiga sin aviso ni confirmación.
+3. Entre jugadores no hay aviso ni pulsación extra: el host hace el paneo de
+   relevo de 300 ms y el HUD pasa al activo. Durante el paneo se ignoran los
+   comandos; al llegar, el activo puede actuar.
+4. Al empezar cada ronda de personajes, el host muestra «Ronda N» durante 2 s sin
+   bloquear. La ronda 1 aparece directamente en el primer personaje.
+5. Todos los enemigos actúan en una **única fase enemiga por ronda**, en orden de
+   índice. Si al menos uno va a moverse o atacar, el host avisa «El master mueve»
+   durante unos 800 ms; los dormidos esperan sin presentación.
+6. Al terminar el último enemigo, el host vuelve al primer personaje y anuncia
+   «Ronda N». El ciclo se repite hasta la victoria o la derrota.
 
-En este corte hay un jugador y cuatro enemigos; el estado sigue representando
-listas de jugadores y enemigos.
+En la fase enemiga, el HUD derecho muestra al enemigo que actúa y el izquierdo una
+ficha compacta del objetivo o «Sin objetivo». El panel de inventario solo se abre
+en el turno del activo y es público; el fantasma no lo abre. Si el activo muere en
+su turno, la acción se resuelve, el turno se cierra y pasa al siguiente; un wipe
+termina la partida. Un resucitado vuelve a su índice: actúa esa ronda si aún no ha
+pasado y, si no, en la siguiente. Sin temporizadores de turno.
+
+El motor guarda `activePlayerId`, `round`, `phase` y el orden de `players`; la
+cámara, los avisos y el HUD son presentación del host
+([ADR-029](../decisions/ADR-029-hotseat-local.md)).
 
 # IA enemiga
 
@@ -362,13 +388,14 @@ Flujo de una fase enemiga:
 | `WASD` / flechas | Mover el cursor un tile en 4 direcciones. |
 | `Espacio` / `Enter` | Moverse hasta el cursor; sobre un enemigo, acercarse y atacar. |
 | `F` | Atacar al enemigo bajo el cursor si está adyacente. |
-| `E` | Terminar turno. |
+| `N` | Terminar el turno del jugador activo. |
 | `Esc` | Abrir o cerrar la pausa; con el panel o la lista de hechizos abiertos, cerrarlos primero. |
 | `F1` | Alternar overlay de debug. |
 | `F2` | Generar una semilla nueva en modo debug. |
 
-No existe reinicio rápido ni atajo `R`: «Nueva partida» vive en el menú de
-pausa y pide confirmación.
+`E` ya no cierra el turno y no existe reinicio rápido ni atajo `R`: la pausa usa
+el menú de [REQ-024](../requirements/REQ-024-menu-pausa-guardado.md) y el resultado
+ofrece «Nueva partida» y «Cargar partida».
 
 ## Menú de pausa
 
@@ -392,14 +419,18 @@ host y no permite remapeo ([REQ-024](../requirements/REQ-024-menu-pausa-guardado
 | `Enter` | Abrir el submenú del objeto seleccionado; dentro, ejecutar la opción activa. |
 | `↑` / `↓` | Recorrer las opciones del submenú; `←`/`→` no hacen nada. |
 
-En el futuro hotseat se reutilizarán las mismas teclas para el jugador activo.
-En la fase remota, el móvil enviará comandos equivalentes.
+En el hotseat se reutilizan las mismas teclas para el jugador activo: el panel
+solo se abre en su turno, es público y el fantasma no lo abre. En la fase remota,
+el móvil enviará comandos equivalentes.
 
 # Victoria y derrota
 
 - **Victoria**: no quedan enemigos vivos.
 - **Derrota**: no quedan jugadores vivos.
-- Al terminar, se muestra un overlay con el resultado y la opción de reiniciar.
+- Al terminar, el host muestra la pantalla de resultado con Victoria o Derrota, la
+  ronda, la party, la semilla y las acciones «Nueva partida» (paso 1 de
+  [REQ-016](../requirements/REQ-016-pantalla-inicio-configuracion.md)) y «Cargar
+  partida». No hay reinicio automático ni rápido y el resultado no avanza solo.
 
 # Ajuste futuro
 

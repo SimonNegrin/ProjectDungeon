@@ -1155,6 +1155,40 @@ async function boot(): Promise<void> {
           // REQ-027: la réplica no añade texto propio; conserva el `Fallo` del
           // ataque original y su daño se lee en la barra de PV.
           break;
+        case 'TraitImpact': {
+          const cue = cueFor(active, 'trait-impact', entry.atMs);
+          if (cue?.data.target && cue.data.attacker && cue.data.text) {
+            addDamageText(
+              cue.data.text,
+              'hit',
+              cue.data.target,
+              cue.data.attacker,
+              cue.data.traitName ?? '',
+            );
+          }
+          if (cue) {
+            const feedback = bannerForCue(cue);
+            if (feedback) showBanner(feedback);
+          }
+          break;
+        }
+        case 'TraitDamage': {
+          const cue = cueFor(active, 'trait-heal', entry.atMs);
+          if (cue?.data.target && cue.data.attacker && cue.data.text) {
+            addDamageText(
+              cue.data.text,
+              'heal',
+              cue.data.target,
+              cue.data.attacker,
+              cue.data.traitName ?? '',
+            );
+          }
+          if (cue) {
+            const feedback = bannerForCue(cue);
+            if (feedback) showBanner(feedback);
+          }
+          break;
+        }
         case 'PickUp':
         case 'SelectWeapon':
         case 'DropItem':

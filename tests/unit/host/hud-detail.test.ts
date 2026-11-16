@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import {
   BESTIARY,
   createPlayerFromArchetype,
+  effectiveStats,
+  emptyEquipment,
+  itemInstance,
+  synchronizeUnitResources,
 } from '../../../src/game/index';
 import { ITEMS } from '../../../src/game/equipment';
 import type { GameState } from '../../../src/game/types';
@@ -13,6 +17,7 @@ import {
   itemStats,
   statLines,
   unitStatEntries,
+  unitTraitSummary,
   unitTraits,
 } from '../../../src/host/hud-detail';
 import { makeGridWithWalls, makeState, makeUnit } from '../game/helpers';
@@ -125,8 +130,31 @@ describe('detalle bajo el cursor por tipo', () => {
     expect(JSON.stringify(detail)).not.toContain('"Aliado"');
   });
 
-  it('en fantasma, el aliado muestra estado y MP sin equipo ni inventario', () => {
-    const ally = createPlayerFromArchetype('warrior', {
+  it('la ficha del aliado expone sus traits activos con fuente', () => {
+    const ally = synchronizeUnitResources({
+      ...createPlayerFromArchetype('warrior', {
+        id: 'player-2',
+        position: { x: 6, y: 5 },
+      }),
+      equipment: {
+        ...emptyEquipment(),
+        ring: itemInstance('ring', 'lifesteal-ring'),
+      },
+    });
+    const state = makeState({
+      players: [
+        makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 5 }),
+        ally,
+      ],
+      enemies: [],
+    });
+
+    const detail = buildCursorDetail(state, { x: 6, y: 5 });
+    expect(detail.kind).toBe('ally');
+    expect(detail.traits).toEqual(['Robo de vida (Anillo)']);
+  });
+
+  it('en fantasma, el aliado muestra estado y MP sin equipo ni inventario', () => {    const ally = createPlayerFromArchetype('warrior', {
       id: 'player-2',
       position: { x: 6, y: 5 },
     });
@@ -373,6 +401,31 @@ describe('detalle bajo el cursor por tipo', () => {
     }
   });
 
+  it('los traits activos reales muestran nombre, fuente y efecto del catálogo', () => {
+    const unit = synchronizeUnitResources(
+      makeUnit({
+        id: 'player-1',
+        faction: 'player',
+        x: 5,
+        y: 5,
+        equipmentSlots: {
+          ...emptyEquipment(),
+          weapon: itemInstance('mace', 'circular-mace'),
+          ring: itemInstance('ring', 'lifesteal-ring'),
+        },
+      }),
+    );
+
+    expect(unitTraits(unit)).toEqual([
+      'Ataque circular (Maza circular, Arma): Golpea las 8 casillas adyacentes salvo el centro; cuesta 1 acción. (radio 1, sin centro, 1 acción)',
+      'Robo de vida (Anillo de robo, Anillo): Cura el 50 % del daño efectivo, mínimo 1 y sin sobrecurar. (50 % del daño, mínimo 1)',
+    ]);
+    expect(unitTraitSummary(unit)).toEqual([
+      'Ataque circular (Arma)',
+      'Robo de vida (Anillo)',
+    ]);
+  });
+
   it('compone una fila por stat con el valor delante del nombre', () => {
     expect(itemStats(ITEMS.sword).map((stat) => `${stat.value} ${stat.label}`)).toEqual([
       '+3 Acierto',
@@ -506,6 +559,57 @@ describe('ficha de dos bloques con el panel abierto', () => {
     } finally {
       definition.traits = original;
     }
+  });
+
+  it('la ficha del portador adjunta el desglose con los totales del motor', () => {
+    const player = synchronizeUnitResources(
+      makeUnit({
+        id: 'player-1',
+        faction: 'player',
+        x: 4,
+        y: 4,
+        equipmentSlots: {
+          ...emptyEquipment(),
+          neck: itemInstance('neck', 'mana-necklace'),
+          hands: itemInstance('hands', 'action-gloves'),
+        },
+      }),
+    );
+    const state = makeState({ players: [player], enemies: [] });
+    const detail = buildPanelDetail(state, {
+      key: 'slot:neck',
+      itemId: 'mana-necklace',
+      instanceId: 'neck',
+      zone: 'equipment',
+    });
+    const profile = effectiveStats(player);
+
+    expect(detail.stats.map((row) => row.id)).toEqual([
+      'habilidad',
+      'fuerza',
+      'defensa',
+      'punteria',
+      'resistencia',
+      'magia',
+      'pvMax',
+      'mpMax',
+      'acciones',
+    ]);
+    expect(detail.stats.find((row) => row.id === 'mpMax')).toMatchObject({
+      inherent: '6',
+      equipment: '+0',
+      traits: '+2',
+      total: String(profile.maxMp),
+    });
+    expect(detail.stats.find((row) => row.id === 'acciones')).toMatchObject({
+      inherent: '2',
+      equipment: '+0',
+      traits: '+1',
+      total: String(profile.actionsMax),
+    });
+    expect(detail.stats.find((row) => row.id === 'resistencia')?.total).toBe(
+      detail.stats.find((row) => row.id === 'resistencia')?.inherent,
+    );
   });
 
   it('no altera el detalle del cursor', () => {

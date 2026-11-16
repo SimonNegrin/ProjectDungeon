@@ -4,22 +4,31 @@ id: TASK-0154
 title: "QA/E2E del hotseat"
 description: "Cubrir 2 y 6 jugadores, turno con `N`, relevo, aviso de ronda, recursos por turno, muerte, resurrección, fantasma, fase enemiga, resultado, guardado restringido y carga."
 status: stable
-task_status: backlog
+task_status: done
 task_type: qa
 requirement: REQ-031
 requirement_ids: [R-001, R-002, R-003, R-004, R-005, R-006, R-007, R-008, R-009, R-010, R-011, R-012, R-013, R-014, R-015, R-016, R-017, R-018, R-019, R-020, R-021, R-022, R-023, R-024, R-025, T-012]
 depends_on: [TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-16T10:10:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0154/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T10:10:00Z
+    note: >-
+      Intento 1 verificado (spec `f3226af`, evidencia `2b9ceeb`). Ocho criterios
+      firmados con seis E2E de hotseat, 13 capturas y 282 E2E en total; muerte,
+      wipe y resurrección por índice se sostienen con
+      `tests/unit/game/turn.test.ts`. Sin defectos de producto y sin tests
+      existentes tocados. La validación manual de mesa queda para el playtest.
+      Detalle en `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -36,19 +45,19 @@ TASK-0142.
 
 # Criterios de aceptación
 
-- [ ] Partida de 2 jugadores y partida de 6: orden fijo, `N`, relevo por cámara,
+- [x] Partida de 2 jugadores y partida de 6: orden fijo, `N`, relevo por cámara,
       «Ronda N» y «Jugador N de M».
-- [ ] Una sola fase enemiga por ronda; «El master mueve» solo con acciones; el
+- [x] Una sola fase enemiga por ronda; «El master mueve» solo con acciones; el
       HUD muestra actor y objetivo o «Sin objetivo»; los dormidos se saltan.
-- [ ] Recursos por turno; muerte del activo, turno siguiente y derrota por wipe;
+- [x] Recursos por turno; muerte del activo, turno siguiente y derrota por wipe;
       resurrección antes y después del índice.
-- [ ] El fantasma respeta su turno, pasa con `N` y no abre el panel.
-- [ ] Guardar se desactiva en fase enemiga; cargar devuelve el control al activo;
+- [x] El fantasma respeta su turno, pasa con `N` y no abre el panel.
+- [x] Guardar se desactiva en fase enemiga; cargar devuelve el control al activo;
       el resultado ofrece «Nueva partida» y «Cargar partida».
-- [ ] No quedan `E` de fin de turno ni `R` de reinicio; la pausa es global.
-- [ ] Capturas de relevo, ronda, fase enemiga, resultado y carga; `pnpm run
+- [x] No quedan `E` de fin de turno ni `R` de reinicio; la pausa es global.
+- [x] Capturas de relevo, ronda, fase enemiga, resultado y carga; `pnpm run
       test:e2e` y `pnpm run verify` pasan.
-- [ ] No se debilitan, borran ni saltan tests existentes.
+- [x] No se debilitan, borran ni saltan tests existentes.
 
 # Plan de test
 
@@ -59,10 +68,10 @@ TASK-0142.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0154/attempt-1/report.md`
-- [ ] Salida de `pnpm run test:e2e` y `pnpm run verify`
-- [ ] Capturas de relevo, ronda, fase enemiga, resultado y carga
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0154/attempt-1/report.md`
+- [x] Salida de `pnpm run test:e2e` y `pnpm run verify`
+- [x] Capturas de relevo, ronda, fase enemiga, resultado y carga
+- [x] Commit SHA
 
 # Comandos
 

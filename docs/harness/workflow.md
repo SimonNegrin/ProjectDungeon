@@ -1,9 +1,9 @@
 ---
 type: Workflow
 title: Flujo de trabajo
-description: Requisitos, experimentos, tareas, agentes, handoffs, gates y timeouts.
+description: Requisitos, experimentos, tareas, dos agentes, verificación determinista, handoffs, gates y timeouts.
 status: stable
-generated: { by: deepseek/v4.1-flash, at: 2026-11-12T11:20:14Z }
+generated: { by: deepseek/v4.1-flash, at: 2026-11-16T00:33:37Z }
 ---
 
 # Objetivo
@@ -20,29 +20,25 @@ duplica. El `ask` ancho y la allowlist compartida de lectura están en
 
 | Agente | Modo | Entrada | Salida |
 |---|---|---|---|
-| `requirements-writer` | Primario | Conversación con el usuario | Requisitos, experimentos, tareas |
-| `harness-keeper` | Primario | Consulta o auditoría del usuario | Correcciones de arnés, documentación y flujo |
-| `task-lead` | Subagente | Tarea lista | Brief, verificación, tarea cerrada |
-| `task-runner` | Subagente | Brief del lead | Implementación, tests, artefactos, informe |
+| `game-lead` | Primario | Conversación, `/requirement` o `/harness` | Requisitos, experimentos, tareas, verificación y cierre |
+| `task-runner` | Subagente | Tarea lanzada por el lead | Implementación, tests, artefactos, informe |
 
-`requirements-writer` lanza `task-lead`; `task-lead` lanza `task-runner`
-(`subagent_depth: 2`). `harness-keeper` se invoca manualmente cuando el usuario
-quiere una consulta o una auditoría; no hay auditoría periódica ni al cerrar
-hito. El usuario es la autoridad creativa: ningún agente decide cómo se ve, se
-escucha, se juega o se siente.
+`game-lead` lanza `task-runner` (`subagent_depth: 1`) y verifica su resultado.
+No hay un verificador separado: la verificación es un script más la firma de los
+criterios ([ADR-031](../decisions/ADR-031-arnes-dos-agentes.md)). El usuario es
+la autoridad creativa: ningún agente decide cómo se ve, se escucha, se juega o se
+siente.
 
 Reglas de sesión:
 
 - `default_agent` solo se aplica a sesiones nuevas; OpenCode guarda el agente por
-  sesión. Para cambiar una sesión abierta, ejecuta `/requirement`.
-- Si la sesión no es `requirements-writer` y la petición cambia comportamiento de
-  juego, producto o alcance, el agente para antes de editar `src/`, `tests/`,
+  sesión. Para orientar una sesión abierta, `/requirement` o `/harness`.
+- Si la sesión no es `game-lead` y la petición cambia comportamiento de juego,
+  producto o alcance, el agente para antes de editar `src/`, `tests/`,
   `index.html` o `public/`, comprueba si hay requisito y tarea aceptados, y pide
-  el cambio de agente o `/requirement` cuando falten.
-- Si ya hay una tarea `ready`, el siguiente paso es `task-lead`; no se implementa
+  el cambio de agente cuando falten.
+- Si ya hay una tarea `ready`, el siguiente paso es `game-lead`; no se implementa
   directamente.
-- Para consultas o cambios de arnés, documentación o flujo, usa
-  `harness-keeper`; no los aplica `requirements-writer`.
 - Una sesión por requisito o milestone; una por tarea o intento.
 - Fuera de la creación de tareas o de su ejecución, ningún agente edita archivos
   por iniciativa propia: propone el cambio y pide confirmación. Si el árbol tiene
@@ -50,20 +46,20 @@ Reglas de sesión:
 
 # Skills
 
-Solo hay tres procedimientos y se cargan cuando la tarea los necesita:
+Se cargan cuando la tarea las necesita:
 
 | Skill | Cuándo |
 |---|---|
 | `requirements-interview` | Definir o cambiar una feature o experiencia. |
-| `task-verification` | Verificar el trabajo del runner antes de cerrar. |
 | `visual-qa` | Verificar UI, Canvas, cámara, HUD o experimentos. |
+| `harness-audit` | Revisar enlaces, duplicación, contexto, reglas o permisos. |
 
 La arquitectura, el render y las convenciones de diseño viven en
 [design](../design/index.md), no en skills. No se cargan todas a la vez.
 
 # Loop del usuario
 
-1. Conversa con `requirements-writer` sobre lo que quiere.
+1. Conversa con `game-lead` sobre lo que quiere.
 2. Prueba un experimento si hay una duda de diseño.
 3. Decide con información visual e interactiva.
 4. Recibe una build jugable o una demo.
@@ -73,24 +69,23 @@ La arquitectura, el render y las convenciones de diseño viven en
 # Loop de agentes
 
 ```text
-requirements-writer
+game-lead
   -> requisito aprobado
   -> experimento (si hay incertidumbre)
   -> decisión registrada
   -> tareas atómicas
-  -> task-lead
   -> task-runner
-  -> verificación del lead
+  -> verify:task + criterios firmados
   -> merge
   -> demo / playtest
 ```
 
 # Fase de requisitos
 
-`requirements-writer` mantiene una conversación, no un formulario; separa lo
-creativo de lo técnico, propone opciones, señala contradicciones y no decide
-creatividad. Escribe la hoja solo cuando el usuario la aprueba y genera tareas
-solo de requisitos aceptados.
+`game-lead` mantiene una conversación, no un formulario; separa lo creativo de lo
+técnico, propone opciones, señala contradicciones y no decide creatividad. Escribe
+la hoja solo cuando el usuario la aprueba y genera tareas solo de requisitos
+aceptados.
 
 # Fase de experimentos
 
@@ -100,86 +95,47 @@ Una pregunta por experimento, shell compartido y decisión registrada. Ver
 
 # Fase de tareas
 
-1. `requirements-writer` crea la tarea desde la plantilla.
-2. `task-lead` comprueba Definition of Ready.
-3. `task-lead` reúne contexto, escribe el brief y lanza `task-runner`.
-4. `task-runner` implementa, testea y deja artefactos.
-5. `task-lead` verifica de forma independiente.
-6. Si falla, relanza con una hipótesis nueva.
-7. Si no se resuelve, escala.
-8. Al cerrar, actualiza la tarea, el tablero y el log.
+1. `game-lead` crea la tarea desde la plantilla y comprueba Definition of Ready.
+2. Marca `in_progress`, crea `task/TASK-NNNN` y lanza `task-runner` con la ficha.
+3. `task-runner` implementa, testea y deja artefactos e informe.
+4. `game-lead` revisa el diff, firma los criterios que puede sostener y ejecuta
+   `pnpm run verify:task TASK-NNNN`.
+5. Si falla, relanza con una hipótesis nueva o corrige el alcance.
+6. Si pasa, fusiona y cierra: ficha, tablero, log y push.
 
 ## Quién ejecuta una tarea `docs`
 
-`task-runner` no edita `docs/`, así que una tarea `docs` no pasa por él. El
-ejecutor sale del destino de la edición y el `assignee` de la ficha es ese
-dueño; una tarea `docs` toca un solo dominio. Si un requisito pide ADR o
-glosario y además alcance, visión o requisitos, se crean dos fichas al
-planificar: una para `task-lead` y otra para `requirements-writer`.
+`task-runner` no edita `docs/`, así que una tarea `docs` no pasa por él. Todas las
+tareas documentales las ejecuta `game-lead`:
 
 | Destino | Ejecutor |
 |---|---|
-| `docs/design/**`, `docs/glossary.md`, `docs/decisions/**`, `docs/log.md`, `docs/tasks/**` | `task-lead` ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md)) |
-| `docs/scope.md`, `docs/vision.md`, `docs/requirements/**` | `requirements-writer` |
-| `docs/harness/**`, `docs/templates/**`, `AGENTS.md` | `harness-keeper`, fuera del flujo de tareas: el arnés se pide directamente, no se crea una ficha `docs` |
+| `docs/**`, `AGENTS.md`, `docs/harness/**`, `docs/templates/**` | `game-lead` |
+| `src/**`, `tests/**`, `index.html`, `public/**`, código de `experiments/**` | `task-runner` |
 
-`task-runner` sigue en código, tests, experimentos y artefactos. Escribir un
-documento desde el shell no es una excepción: si el destino no está en su
-allowlist, devuelve `blocked`.
+El arnés se pide con `/harness`, fuera del flujo de tareas: no se crea una ficha
+`docs` para auditarlo.
 
 # Traspaso a una sesión de ejecución
 
-La conversación de requisitos y la ejecución pueden vivir en sesiones distintas.
-Es útil cuando la sesión de requisitos ha acumulado contexto o cuando se van a
-encadenar varias tareas: la conversación queda cerrada y la ejecución no
-arrastra el ida y vuelta de producto.
+La ficha es el traspaso. Si la sesión de producto ha acumulado contexto, abre una
+nueva y escribe solo `Ejecuta TASK-NNNN`; `game-lead` lee la ficha y lanza el
+runner en contexto limpio. No se copian criterios ni requisitos: se enlazan.
 
-`task-lead` y `task-runner` ya arrancan con contexto limpio en sesiones hijas.
-Cambiar de sesión limpia el contexto del orquestador, no el del ejecutor.
-
-Antes de cambiar:
-
-- El requisito está aceptado y las tareas están creadas con criterios, plan de
-  test, dependencias, artefactos y estado.
-- La tarea que se va a ejecutar está `ready` y sus dependencias están `done`.
-- El estado está en la ficha, el tablero y el log; no queda una decisión
-  pendiente solo en el historial del chat.
-
-El traspaso es la ficha de tarea, no un prompt: no se copian criterios ni
-requisitos, se enlazan.
-
-1. Abre una sesión nueva; el agente por defecto sigue siendo
-   `requirements-writer`.
-2. Escribe solo la tarea: `Ejecuta TASK-0049` o `lanza task-lead para
-   TASK-0049`.
-3. La sesión nueva lee la ficha y el requisito enlazado y lanza `task-lead`.
-4. Una tarea por lanzamiento; al cerrar y fusionar, se lanza la siguiente. No se
-   ejecutan tareas en paralelo.
-5. Si la tarea tiene resultado creativo, el playtest va antes de cerrarla.
-
-Si una decisión necesaria no está en la ficha, el traspaso está incompleto: se
-corrige antes de ejecutar, no se reconstruye desde una conversación anterior.
+Antes de cambiar de sesión, el estado debe estar en la ficha, el tablero y el log.
 
 # Handoffs y sesiones
 
-El brief y el informe son **deltas del intento**, no copias de la tarea. El
-esquema completo está en el anexo de la
-[plantilla de tarea](../templates/task.md).
+| Handoff | Cuándo | Tope |
+|---|---|---|
+| Ficha | Siempre; es el contrato del intento | 600 palabras objetivo, 800 error |
+| `brief.md` | Solo en reintento o para acotar un intento | 4 KB |
+| `report.md` | Siempre, escrito por el runner | 2 KB objetivo, 4 KB error |
 
-| Handoff | Objetivo | Aviso | Tope duro |
-|---|---:|---:|---:|
-| `brief.md` | 1,5 KB | 2,5 KB | 4 KB |
-| `report.md` | 2 KB | 3 KB | 4 KB |
-
-- `docs:check` falla si un brief o informe de `TASK-0021` en adelante supera
-  4 KB y avisa al llegar al umbral de su tipo. Los topes son los mismos que en
-  [documentación](documentacion.md#topes). El aviso solo aparece mientras la
-  tarea no está `done`; un handoff cerrado es evidencia y no se recorta.
-- Lo que no cabe va a `brief-detalle.md` o `report-detalle.md`, enlazado. Nada se
-  borra y el detalle no se lee por defecto.
-- No se copian criterios, requisitos ni la tarea: se enlazan con ancla.
+- El brief es un delta: qué falló, hipótesis nueva y alcance. Lo que no cabe va a
+  `brief-detalle.md` o `report-detalle.md`, enlazado.
+- No se copian criterios, requisitos ni la ficha: se enlazan con ancla.
 - El estado vive en la tarea y los artefactos, no en el historial del chat.
-- Antes de compactar o cambiar de sesión, escribe el handoff con el estado actual.
 - Una sesión por intento.
 
 # Estados de tarea
@@ -188,32 +144,49 @@ esquema completo está en el anexo de la
 |---|---|
 | `backlog` | Creada, todavía no lista. |
 | `ready` | Cumple Definition of Ready. |
-| `in_progress` | En ejecución. |
+| `in_progress` | En ejecución o en verificación. |
 | `blocked` | Necesita una decisión o depende de algo. |
-| `review` | Runner terminó; el lead verifica. |
 | `done` | Verificada y cerrada. |
+
+# Verificación determinista
+
+`pnpm run verify:task TASK-NNNN` comprueba:
+
+- estado `in_progress` e informe del intento con `report_status: success`;
+- que todos los criterios de la ficha están marcados `[x]`;
+- que el diff `main...HEAD` cae dentro del alcance del `task_type`; `--base REF`
+  mueve la base para medir solo la tarea cuando el arnés vive en una rama sin
+  fusionar (piloto de [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md));
+- capturas cuando la tarea es `qa` o visual;
+- `pnpm run verify` completo.
+
+Lo que el script no puede juzgar —si un criterio se cumple de verdad, si la
+evidencia es clara, si hay una regresión de sensación— lo firma `game-lead` al
+marcar el criterio y lo resume en `attempt-N/lead-verify/verification.md`. El
+usuario valida lo creativo en el playtest.
 
 # Gates
 
 - **G1. Requisito aprobado**: el usuario acepta lo creativo.
 - **G2. Tarea lista**: cumple Definition of Ready.
-- **G3. Verificación independiente**: el lead re-ejecuta y revisa.
+- **G3. Verificación**: `verify:task` pasa y los criterios están firmados.
 - **G4. Playtest**: el usuario prueba el hito.
 
 # Reintentos y escalado
 
 Un intento inicial y hasta dos relanzamientos. Cada relanzamiento exige una
-hipótesis nueva y evidencia; no se repite el mismo fallo. Tras el segundo fallo
-se escala.
+hipótesis nueva y evidencia; no se repite el mismo fallo. Un fallo mecánico del
+script no necesita ceremonia: se devuelve el fallo concreto. Tras el segundo
+fallo se escala.
 
 | Situación | Quién decide | Acción |
 |---|---|---|
-| Duda técnica rutinaria | `task-lead` | Decidir y registrar. |
-| Duda técnica irreversible o cara | `requirements-writer` + usuario | Consultar antes. |
+| Duda técnica rutinaria | `game-lead` | Decidir y registrar. |
+| Duda técnica irreversible o cara | `game-lead` + usuario | Consultar antes. |
 | Duda creativa | Usuario | Preguntar o experimentar. |
-| Requisito ambiguo o tarea grande | `requirements-writer` | Aclarar, versionar o dividir. |
-| Test roto sin causa clara | `task-lead` | Investigar; si no, escalar. |
-| Fricción de arnés | `harness-keeper` | Triar; corregir lo de bajo riesgo y proponer el resto. El usuario decide si cambia reglas. |
+| Requisito ambiguo o tarea grande | `game-lead` | Aclarar, versionar o dividir. |
+| Test roto sin causa clara | `game-lead` | Investigar; si no, escalar. |
+| Fricción de arnés | `game-lead` | Triar; aplicar lo de bajo riesgo y proponer el resto. El usuario decide si cambia reglas. |
 
 Un bloqueo se devuelve con: tarea, intento, qué se intentó, qué falló, evidencia,
 hipótesis descartadas, opciones, decisión necesaria y riesgo de cada opción.
@@ -237,6 +210,7 @@ es la alternativa; nunca se confía en el corte por defecto.
 | `git status`, `git diff`, `git log`, inspección | 15 s |
 | `pnpm run docs:check`, `pnpm run config:check` | 60 s |
 | `pnpm test`, `pnpm run build` | 120 s |
+| `pnpm run verify`, `pnpm run verify:task` | 300 s |
 | `pnpm run test:e2e` | 180 s |
 | `pnpm install` | 300 s |
 | Playwright install | 600 s |
@@ -261,65 +235,47 @@ comandos para no pedir permiso a cada paso.
 - Para inspeccionar JSON, `cat` o `jq .scripts package.json`; `node -e` no se
   permite porque equivale a ejecución arbitraria.
 - `find` queda fuera a propósito: `-exec` y `-delete` caben en cualquier forma
-  del comando, así que una regla estrecha no sería segura. Sustitutos ya
-  permitidos: `rg --files -g '*patrón*' [ruta]` para cualquier archivo (con
-  `--hidden` si buscas desde la raíz y el directorio empieza por punto) y
-  `git ls-files` para lo versionado.
+  del comando. Sustitutos: `rg --files -g '*patrón*' [ruta]` y `git ls-files`.
 - E2E: `pnpm run test:e2e` y `pnpm exec playwright test` están permitidos con
   argumentos; `pnpm exec *` sigue pidiendo permiso.
-- Un `ask` no caduca: la sesión espera indefinidamente hasta que alguien
-  responde. No dejes una sesión sola con un permiso pendiente y, al retomarla,
-  deniega y reformula en vez de autorizar el compuesto por comodidad:
-  «Permitir siempre» guarda el comando entero, redirecciones incluidas.
+- Un `ask` no caduca: la sesión espera hasta que alguien responde. No dejes una
+  sesión sola con un permiso pendiente y, al retomarla, deniega y reformula.
 - Las redirecciones (`2>/dev/null`) y los scripts multilínea no se descomponen
-  por subcomando: se evalúan como una sola unidad y arrastran al resto del
-  comando a pedir permiso. Sepáralos en llamadas distintas.
+  por subcomando: sepáralos en llamadas distintas. Un tramo no permitido manda el
+  bloque entero a `ask` y «Permitir siempre» no se reutiliza porque el texto
+  cambia; por eso los agentes piden un comando por llamada.
 
 # Git
 
 - Un repositorio desde el primer día; `origin` apunta a GitHub.
 - Una rama por tarea: `task/TASK-XXXX`. `task-runner` trabaja en ella y
-  `task-lead` fusiona solo tras verificar.
+  `game-lead` fusiona solo tras verificar.
+- La rama base es `main`, salvo durante el piloto de
+  [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md): entonces es
+  `harness/2agentes`. Las ramas `task/*` se crean desde la base y se fusionan en
+  ella, y `verify:task --base` usa la misma referencia. Así el diff de la tarea
+  no arrastra el cambio de arnés.
 - Commits pequeños con el ID de tarea; el informe incluye el commit SHA.
 - Se trabaja secuencialmente: sin worktrees ni tareas en paralelo hasta que haya
   necesidad real y las tareas sean disjuntas.
-- `origin/main` se publica al cerrar cada tarea verificada: un push al final del
-  cierre, cuando el merge, la tarea, el tablero y el log ya están en `main`.
-- Las ramas `task/*` no se publican por defecto; son locales y se borran tras el
-  merge. Se publican solo si la tarea debe sobrevivir a un cambio de máquina o
-  de sesión de más de un día, y entonces siguen siendo desechables.
-- Cerrar un requisito o milestone no añade push: basta comprobar
-  `git status -sb` sin `ahead`. Un tag anotado (`req-0XX`, `milestone-N`) es
-  opcional y se publica con `git push --tags` solo si se quiere marcar el punto.
-- Si el push falla, no bloquea el cierre: se anota en la tarea y se reintenta en
-  el cierre siguiente; `main` no acumula más de una tarea sin publicar.
-- Sin force-push a `main`. Las ramas fusionadas se borran con
-  `git branch --merged main`.
+- `origin/main` se publica al cerrar cada tarea verificada.
+- Las ramas `task/*` no se publican por defecto; se borran tras el merge.
+- Sin force-push a `main`.
+- El arnés se cambia en una rama `harness/*` y no se fusiona hasta que el piloto
+  de [ADR-031](../decisions/ADR-031-arnes-dos-agentes.md) pase sus umbrales.
 
 # Fricción y propuestas
 
-El runner observa, el lead tria, `requirements-writer` escribe el producto,
-`harness-keeper` escribe el arnés y el usuario decide las reglas.
+El runner observa, `game-lead` tria y escribe el producto y el arnés, y el usuario
+decide las reglas.
 
 - `task-runner` reporta fricción reutilizable con evidencia y disposición
   `pending`; no edita `docs/` ni la usa para desbloquear.
-- `task-lead` clasifica (local, documental, arnés o creativa), aplica lo que está
-  en su alcance —incluidos `docs/design/**` y `docs/glossary.md` para reflejar
-  requisitos aprobados ([ADR-016](../decisions/ADR-016-permisos-docs-diseno-glosario.md))—
-  y eleva el resto con evidencia.
-- `requirements-writer` aplica correcciones factuales y cambios de bajo riesgo de
-  producto con log; consulta al usuario si cambia reglas o alcance.
-- `harness-keeper` aplica correcciones factuales y cambios de bajo riesgo de
-  arnés y documentación con log; consulta al usuario si cambia reglas, permisos,
-  gates, coste o comportamiento de agentes
-  ([ADR-018](../decisions/ADR-018-harness-keeper.md)).
-- ADR: `task-lead` registra las decisiones técnicas; `requirements-writer`, las
-  reglas de producto y el alcance; si cambian reglas, decide el usuario. En
-  `docs/design/**`, `docs/glossary.md` y `docs/log.md` la ruta compartida la toca
-  quien la tenga en su tarea activa; `docs/log.md` se apendiza arriba de la
-  sección de fecha.
-- Las propuestas no urgentes se revisan en lote cuando el usuario invoca a
-  `harness-keeper`. Ninguna queda abierta sin disposición ni dueño.
+- `game-lead` clasifica (local, documental, arnés o creativa), aplica lo que está
+  en su alcance y eleva lo que cambie reglas, permisos, gates, coste o
+  comportamiento de agentes.
+- Las propuestas no urgentes se revisan en lote con `/harness`. Ninguna queda
+  abierta sin disposición ni dueño.
 
 # Comandos de apoyo
 
@@ -328,6 +284,7 @@ pnpm run tasks:next     # Siguiente tarea lista
 pnpm run tasks:board    # Regenerar el tablero
 pnpm run docs:check     # Validar OKF, enlaces y topes
 pnpm run config:check   # Validar agentes y skills
+pnpm run verify:task TASK-NNNN  # Verificación determinista de una tarea
 pnpm exec vitest run <archivo>  # Un test unitario concreto
 pnpm run verify         # Tests + build
 ```

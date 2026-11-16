@@ -1,0 +1,17 @@
+# Verificación determinista de TASK-0162
+
+- Fecha: 2026-11-16T09:55:49.154Z
+- Intento: 2
+- Base: harness/2agentes
+- Resultado: ok
+
+| Comprobación | Resultado | Detalle |
+|---|---|---|
+| Ficha | ok | docs/tasks/TASK-0162-host-ui-traits-visibles-desglose-feedback.md |
+| Estado | ok | task_status: in_progress |
+| Intento | ok | attempt-2 |
+| Criterios firmados | ok | 6 marcados |
+| Informe | ok | report_status: success (3017 B) |
+| Alcance | ok | 657 archivos dentro de feature (base harness/2agentes) |
+| Capturas | ok | 483 imágenes |
+| verify | ok | pnpm run verify OK |

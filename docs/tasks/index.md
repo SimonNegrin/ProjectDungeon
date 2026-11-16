@@ -1,6 +1,6 @@
 # Tareas
 
-Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
+Total: **163**. Generado desde el frontmatter de `docs/tasks/*.md`.
 
 | ID | Título | Estado | Requisito | Depende de | Prioridad |
 |---|---|---|---|---|---|
@@ -139,8 +139,10 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0151](TASK-0151-host-hud-jugador-n-de-m-ronda.md) | Host/HUD: Jugador N de M, ficha activo y Ronda N | `done` | REQ-031 | TASK-0146, TASK-0150 | P1 |
 | [TASK-0152](TASK-0152-host-fase-enemiga-master-mueve.md) | Host: fase enemiga (El master mueve, actor/objetivo) | `done` | REQ-031 | TASK-0146, TASK-0150, TASK-0151 | P1 |
 | [TASK-0153](TASK-0153-host-resultado-victoria-derrota.md) | Host: resultado Victoria/Derrota con Nueva y Cargar | `done` | REQ-031 | TASK-0126, TASK-0141, TASK-0146, TASK-0147 | P1 |
-| [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `backlog` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
+| [TASK-0154](TASK-0154-qa-e2e-hotseat.md) | QA/E2E del hotseat | `done` | REQ-031 | TASK-0139, TASK-0140, TASK-0141, TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P1 |
 | [TASK-0160](TASK-0160-test-exp-004-barrido-por-variante.md) | Test: dividir el barrido de EXP-004 por variante | `done` | REQ-011 | — | P1 |
+| [TASK-0161](TASK-0161-motor-traits-catalogo-stacking-especiales.md) | Motor: catálogo de traits, stacking y especiales | `done` | REQ-019 | — | P1 |
+| [TASK-0162](TASK-0162-host-ui-traits-visibles-desglose-feedback.md) | Host/UI: traits visibles, desglose y feedback | `done` | REQ-019 | TASK-0161 | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -159,22 +161,17 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0137](TASK-0137-host-contenedor-zip.md) | Host: contenedor .zip | `done` | REQ-024 | — | P2 |
 | [TASK-0143](TASK-0143-docs-adr-030-glosario-botin.md) | Docs: ADR-030 y glosario de botín | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0145](TASK-0145-docs-adr-028-documentacion-guardado.md) | Docs: ADR-028 y documentación de guardado | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
-| [TASK-0155](TASK-0155-docs-adr-029-documentacion-hotseat.md) | Docs: ADR-029 y documentación de hotseat | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
+| [TASK-0155](TASK-0155-docs-adr-029-documentacion-hotseat.md) | Docs: ADR-029 y documentación de hotseat | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
 | [TASK-0156](TASK-0156-requisitos-enmiendas-arranque.md) | Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031 | `done` | REQ-016 | TASK-0127 | P2 |
 | [TASK-0157](TASK-0157-requisitos-enmiendas-botin.md) | Requisitos: enmiendas de botín | `done` | REQ-034 | TASK-0130, TASK-0131, TASK-0132, TASK-0133, TASK-0134, TASK-0135, TASK-0136, TASK-0138 | P2 |
 | [TASK-0158](TASK-0158-requisitos-notas-guardado.md) | Requisitos: notas de guardado en REQ-016 y REQ-031 | `done` | REQ-024 | TASK-0138, TASK-0140, TASK-0141 | P2 |
-| [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `backlog` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
+| [TASK-0159](TASK-0159-requisitos-notas-hotseat.md) | Requisitos: notas de hotseat en hojas relacionadas | `done` | REQ-031 | TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153 | P2 |
+| [TASK-0163](TASK-0163-arnes-artefactos-e2e-filtrados.md) | Arnés: artefactos E2E filtrados por spec | `done` | HARNESS | — | P2 |
 
 # blocked
 
 * [TASK-0084 — Balance: propuesta con acciones, magia y réplica](TASK-0084-balance-acciones-magia-replica.md)
 * [TASK-0052 — EXP-003: preset de balance provisional v1](TASK-0052-exp-003-preset-balance-v1.md)
-
-# backlog
-
-* [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
-* [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
-* [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
 
 # done
 
@@ -312,7 +309,10 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0151 — Host/HUD: Jugador N de M, ficha activo y Ronda N](TASK-0151-host-hud-jugador-n-de-m-ronda.md)
 * [TASK-0152 — Host: fase enemiga (El master mueve, actor/objetivo)](TASK-0152-host-fase-enemiga-master-mueve.md)
 * [TASK-0153 — Host: resultado Victoria/Derrota con Nueva y Cargar](TASK-0153-host-resultado-victoria-derrota.md)
+* [TASK-0154 — QA/E2E del hotseat](TASK-0154-qa-e2e-hotseat.md)
 * [TASK-0160 — Test: dividir el barrido de EXP-004 por variante](TASK-0160-test-exp-004-barrido-por-variante.md)
+* [TASK-0161 — Motor: catálogo de traits, stacking y especiales](TASK-0161-motor-traits-catalogo-stacking-especiales.md)
+* [TASK-0162 — Host/UI: traits visibles, desglose y feedback](TASK-0162-host-ui-traits-visibles-desglose-feedback.md)
 * [TASK-0020 — Arnés: artefactos E2E sin reescribir evidencia histórica](TASK-0020-artefactos-e2e.md)
 * [TASK-0031 — Host: feedback de daño legible junto a las unidades](TASK-0031-host-feedback-dano-legible.md)
 * [TASK-0032 — E2E: espera de MP compartida antes de recoger o actuar](TASK-0032-e2e-helper-mp.md)
@@ -330,7 +330,10 @@ Total: **160**. Generado desde el frontmatter de `docs/tasks/*.md`.
 * [TASK-0137 — Host: contenedor .zip](TASK-0137-host-contenedor-zip.md)
 * [TASK-0143 — Docs: ADR-030 y glosario de botín](TASK-0143-docs-adr-030-glosario-botin.md)
 * [TASK-0145 — Docs: ADR-028 y documentación de guardado](TASK-0145-docs-adr-028-documentacion-guardado.md)
+* [TASK-0155 — Docs: ADR-029 y documentación de hotseat](TASK-0155-docs-adr-029-documentacion-hotseat.md)
 * [TASK-0156 — Requisitos: enmiendas del arranque en REQ-022, REQ-024 y REQ-031](TASK-0156-requisitos-enmiendas-arranque.md)
 * [TASK-0157 — Requisitos: enmiendas de botín](TASK-0157-requisitos-enmiendas-botin.md)
 * [TASK-0158 — Requisitos: notas de guardado en REQ-016 y REQ-031](TASK-0158-requisitos-notas-guardado.md)
+* [TASK-0159 — Requisitos: notas de hotseat en hojas relacionadas](TASK-0159-requisitos-notas-hotseat.md)
+* [TASK-0163 — Arnés: artefactos E2E filtrados por spec](TASK-0163-arnes-artefactos-e2e-filtrados.md)
 

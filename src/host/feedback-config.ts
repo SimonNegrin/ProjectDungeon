@@ -22,12 +22,14 @@ export const FEEDBACK_CONFIG = {
     spellHeal: 360,
     /** Resurrección: beat más largo y `Vuelve N PV` sobre el cadáver. */
     spellResurrect: 500,
-    /**
-     * Réplica (REQ-027): la animación de ataque del defensor hacia el atacante
+    /** Réplica (REQ-027): la animación de ataque del defensor hacia el atacante
      * original, sin texto propio. Excepción declarada al techo de 1,3 s de
-     * REQ-017: fallo (300) + réplica (300) queda por debajo del techo.
-     */
+     * REQ-017: fallo (300) + réplica (300) queda por debajo del techo. */
     replica: 300,
+    /** Impacto de un objetivo del ataque circular (REQ-019 R-005/T-006). */
+    traitImpact: 180,
+    /** Curación del robo de vida por objetivo; sin agrupar (REQ-019 R-005). */
+    traitHeal: 180,
     death: 900,
     pickup: 350,
     selectWeapon: 250,

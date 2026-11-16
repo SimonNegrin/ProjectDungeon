@@ -11,7 +11,10 @@ import { effectiveStats } from '../game/stats';
 import type { Door } from '../game/map';
 import type { GameState, Position, Unit } from '../game/types';
 import type { PanelSelection } from './inventory-panel';
+import { PANEL_SLOT_LABELS } from './inventory-panel';
 import { profileRows, type BandRow } from './damage-labels';
+import { statBreakdown, type StatBreakdownRow } from './stat-breakdown';
+import { traitText } from './trait-labels';
 
 /**
  * Tipos del detalle bajo el cursor. `container` queda reservado para REQ-020:
@@ -81,6 +84,8 @@ export interface PanelDetailBlock {
 export interface PanelDetail {
   readonly kind: 'panel';
   readonly blocks: readonly [PanelDetailBlock, PanelDetailBlock];
+  /** Desglose inherente/equipo/traits por atributo, con los totales del motor. */
+  readonly stats: readonly StatBreakdownRow[];
 }
 
 export const DOOR_STYLE_LABELS = {
@@ -232,27 +237,68 @@ export function itemStats(item: ItemDefinition): readonly DetailStat[] {
         value: signed(item.evasion ?? 0),
       });
       break;
+    case 'ring':
+    case 'neck':
+    case 'hands':
+      break;
   }
   return stats;
 }
 
-/** Traits del catálogo, uno por línea; vacío cuando no existen. */
+/** Traits del catálogo, uno por línea, con nombre, descripción y efecto. */
 export function itemTraits(
   traits: readonly ItemTrait[],
 ): readonly string[] {
-  return traits.map((trait) => `${trait.id}: ${trait.description}`);
+  return traits.map((trait) => traitText(trait.id, trait.description));
 }
 
 /**
- * Traits de las definiciones equipadas como entradas de lista. El catálogo
- * actual no declara ninguno; el HUD oculta la lista vacía sin dejar hueco.
+ * Traits activos del portador con su fuente (objeto y hueco). Usa el perfil del
+ * motor para respetar el stacking único; si un fixture declara un trait fuera
+ * del catálogo, conserva su texto para no ocultar datos de test.
  */
 export function unitTraits(unit: Unit | undefined): readonly string[] {
   if (!unit) return [];
-  const traits = Object.values(unit.equipment)
-    .filter((instance) => instance !== null)
-    .flatMap((instance) => ITEMS[instance.itemId].traits);
-  return traits.map((trait) => `${trait.id}: ${trait.description}`);
+  const profile = effectiveStats(unit);
+  const lines = profile.traits.map((trait) =>
+    traitText(trait.id, trait.description, {
+      itemName: ITEMS[trait.itemId].name,
+      slotLabel: PANEL_SLOT_LABELS[trait.slot],
+    }),
+  );
+  const known = new Set(profile.traits.map((trait) => trait.id));
+  for (const instance of Object.values(unit.equipment)) {
+    if (instance === null) continue;
+    for (const itemTrait of ITEMS[instance.itemId].traits) {
+      if (known.has(itemTrait.id)) continue;
+      known.add(itemTrait.id);
+      lines.push(traitText(itemTrait.id, itemTrait.description));
+    }
+  }
+  return lines;
+}
+
+/**
+ * Resumen compacto para el HUD izquierdo y la ficha del aliado: nombre y hueco
+ * de origen, sin descripción. La descripción completa vive en la ficha del
+ * objeto y en `F1`, donde hay espacio para leerla.
+ */
+export function unitTraitSummary(unit: Unit | undefined): readonly string[] {
+  if (!unit) return [];
+  const profile = effectiveStats(unit);
+  const lines = profile.traits.map(
+    (trait) => `${trait.name} (${PANEL_SLOT_LABELS[trait.slot]})`,
+  );
+  const known = new Set(profile.traits.map((trait) => trait.id));
+  for (const instance of Object.values(unit.equipment)) {
+    if (instance === null) continue;
+    for (const itemTrait of ITEMS[instance.itemId].traits) {
+      if (known.has(itemTrait.id)) continue;
+      known.add(itemTrait.id);
+      lines.push(`${itemTrait.id}: ${itemTrait.description}`);
+    }
+  }
+  return lines;
 }
 
 function row(id: string, label: string, value: string): CursorDetailRow {
@@ -368,7 +414,7 @@ function allyDetail(ally: Unit): CursorDetail {
       ...(ally.mana.max > 0 ? [row('mana', 'Maná', formatMana(ally))] : []),
     ],
     stats: unitStatEntries(ally),
-    traits: [],
+    traits: unitTraitSummary(ally),
     sprite: null,
     vitals: [],
     notes: [],
@@ -549,5 +595,6 @@ export function buildPanelDetail(
   return {
     kind: 'panel',
     blocks: [selectedBlock(selection), equippedBlock(unit, selection)],
+    stats: unit ? statBreakdown(unit) : [],
   };
 }

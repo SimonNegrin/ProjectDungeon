@@ -245,6 +245,11 @@ el resultado (R-012), el manifiesto (R-004) y el audio (R-014).
 
 # Notas de vigencia
 
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** confirma la pausa global y
+  el guardado solo en fase de personajes, y que la carga devuelve el control al
+  activo. `N` es la tecla de fin de turno; `E` y `R` no existen. El turno es por
+  jugador y cada ronda tiene una única fase enemiga.
 - **v3 (2026-11-14):** cierra las preguntas abiertas y fija el menú de pausa con
   Reanudar, Nueva partida, Cargar partida, Guardar partida y Controles; retira
   «Reiniciar partida» de la pausa y del resultado. Añade límites de carga,

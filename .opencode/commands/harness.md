@@ -1,9 +1,9 @@
 ---
-description: Cambia a harness-keeper para consultas o cambios de arnés
-agent: harness-keeper
+description: Cambia a game-lead en modo auditoría de arnés
+agent: game-lead
 ---
 
-Continúa como `harness-keeper`.
+Continúa como `game-lead` en modo arnés. Carga la skill `harness-audit`.
 
 $ARGUMENTS
 

@@ -1,0 +1,45 @@
+{
+  "atAnimationEnd": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": false,
+      "text": "-5",
+      "opacity": "0.818182",
+      "transform": "translate(-50%, calc(-100% - 3px))"
+    },
+    "animating": false
+  },
+  "fading": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": true,
+      "text": "",
+      "opacity": "0",
+      "transform": "translate(-50%, calc(-100% - 4px))"
+    },
+    "animating": false
+  },
+  "idle": {
+    "raf": 0,
+    "mutations": 0
+  },
+  "atTwoSeconds": {
+    "banner": {
+      "hidden": true,
+      "text": ""
+    },
+    "damage": {
+      "hidden": true,
+      "text": "",
+      "opacity": "0",
+      "transform": "translate(-50%, calc(-100% - 4px))"
+    },
+    "animating": false
+  }
+}

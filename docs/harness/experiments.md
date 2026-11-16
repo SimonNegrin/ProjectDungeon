@@ -82,18 +82,18 @@ El usuario elige una opción y añade notas. El shell exporta:
 }
 ```
 
-`requirements-writer` registra `decision`, `decided_by` y `decided_at` en
+`game-lead` registra `decision`, `decided_by` y `decided_at` en
 `experiment.md`, y actualiza el requisito o ADR.
 
 # Flujo y promoción
 
 ```text
 Incertidumbre
-  -> requirements-writer crea el brief
+  -> game-lead crea la tarea del experimento
   -> task-runner construye el experimento
-  -> task-lead verifica que arranca y que los controles funcionan
+  -> game-lead verifica que arranca y que los controles funcionan
   -> el usuario prueba y decide
-  -> requirements-writer registra la decisión
+  -> game-lead registra la decisión
   -> se actualiza el requisito
   -> se generan tareas de producción
 ```

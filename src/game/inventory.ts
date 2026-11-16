@@ -19,6 +19,7 @@ import {
   type ItemId,
 } from './equipment';
 import { hasAction, spendAction } from './actions';
+import { withEquipment } from './stats';
 import type { GameState, RejectionReason, Unit } from './types';
 
 /** Instancia de un objeto del catálogo con ID estable y único. */
@@ -581,7 +582,10 @@ export function equipItem(
 
   return {
     ok: true,
-    state: replaceUnit({ ...located.state }, { ...nextUnit, equipment: finalEquipment, inventory }),
+    state: replaceUnit(
+      { ...located.state },
+      withEquipment({ ...nextUnit, inventory }, finalEquipment, catalog),
+    ),
   };
 }
 
@@ -606,11 +610,13 @@ export function unequipItem(
 
   return {
     ok: true,
-    state: replaceUnit(state, {
-      ...nextUnit,
-      inventory,
-      equipment: { ...nextUnit.equipment, [slot]: null },
-    }),
+    state: replaceUnit(
+      state,
+      withEquipment(
+        { ...nextUnit, inventory },
+        { ...nextUnit.equipment, [slot]: null },
+      ),
+    ),
   };
 }
 
@@ -649,6 +655,11 @@ export function dropItem(
   const nextUnit = payInventoryCost(unit, cost);
   if ('reason' in nextUnit) return fail(nextUnit.reason);
 
+  const droppedUnit =
+    source.kind === 'slot'
+      ? withEquipment({ ...nextUnit.unit, inventory }, equipment)
+      : { ...nextUnit.unit, inventory, equipment };
+
   return {
     ok: true,
     state: replaceUnit(
@@ -663,7 +674,7 @@ export function dropItem(
           },
         ],
       },
-      { ...nextUnit.unit, inventory, equipment },
+      droppedUnit,
     ),
   };
 }

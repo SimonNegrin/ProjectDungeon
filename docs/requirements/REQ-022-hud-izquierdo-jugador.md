@@ -156,3 +156,12 @@ recorte de traits se marca con una nota junto al trait.
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [ ] El grafo de tareas es posible sin cerrar `REQ-018`; el orden se decide al abrirlo.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** la columna muestra
+  «Jugador N de M» junto al nombre del activo, con N su posición en el orden fijo.
+  En la fase enemiga pasa a una ficha compacta del objetivo (miniatura, nombre, PV
+  y stats; sin inventario ni equipo) o «Sin objetivo» si el enemigo no persigue a
+  nadie.

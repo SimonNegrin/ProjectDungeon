@@ -353,6 +353,42 @@ describe('estado derivado para HUD y render', () => {
     expect(after.enemies[0].hp).toBe(0);
   });
 
+  it('la curación del robo de vida se aplica al acabar su cue', () => {
+    const initial = makeState({
+      players: [makeUnit({ id: 'player-1', faction: 'player', x: 5, y: 2, hp: 5 })],
+      enemies: [makeUnit({ id: 'enemy-1', faction: 'enemy', x: 6, y: 2 })],
+    });
+    const healed = {
+      ...initial,
+      players: initial.players.map((unit) =>
+        unit.id === 'player-1' ? { ...unit, hp: 7 } : unit,
+      ),
+    };
+    const timeline = buildMotionTimeline(
+      [
+        { type: 'PlayerTurnStarted', turn: 1 },
+        {
+          type: 'TraitDamage',
+          unitId: 'player-1',
+          traitId: 'lifesteal',
+          source: 'equipment',
+          slot: 'ring',
+          itemId: 'lifesteal-ring',
+          targetId: 'enemy-1',
+          damage: 3,
+          healing: 2,
+          unitHp: 7,
+        },
+      ],
+      { initialState: initial, finalState: healed },
+    );
+    const heal = timeline.events.find((entry) => entry.event.type === 'TraitDamage');
+    if (!heal) throw new Error('La timeline debe contener la curación');
+
+    expect(presentationState(healed, timeline, heal.atMs - 1, initial).players[0].hp).toBe(5);
+    expect(presentationState(healed, timeline, heal.atMs, initial).players[0].hp).toBe(7);
+  });
+
   it('la acción del atacante se consume al ocurrir su ataque', () => {
     const timeline = buildMotionTimeline(events);
     const attack = timeline.events.find(

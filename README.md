@@ -16,9 +16,9 @@ sala y movimiento se recogen en `REQ-002`.
 ## Estado actual
 
 - Documentación base en OKF v0.2.
-- Agentes de OpenCode: `requirements-writer`, `harness-keeper`, `task-lead`,
-  `task-runner`.
-- Skills de OpenCode para requisitos, verificación de tareas y QA visual.
+- Agentes de OpenCode: `game-lead` (producto, tareas y arnés) y `task-runner`
+  (ejecución).
+- Skills de OpenCode para requisitos, auditoría de arnés y QA visual.
 - Motor determinista de rejilla, turnos, combate e IA en `src/game/`.
 - Host Canvas 2D en `src/host/` con la sala de 32×24, sprites de 32rogues y
   cámara limitada a los bordes del mapa.
@@ -59,6 +59,7 @@ en `/experiments/`.
 | `pnpm run config:check` | Valida agentes, skills y `opencode.jsonc`. |
 | `pnpm run tasks:board` | Regenera `docs/tasks/index.md`. |
 | `pnpm run tasks:next` | Muestra la siguiente tarea lista. |
+| `pnpm run verify:task TASK-NNNN` | Verificación determinista de una tarea. |
 | `pnpm run verify` | Validación completa local. |
 
 ## Dónde mirar

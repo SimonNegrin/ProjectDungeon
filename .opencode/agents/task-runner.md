@@ -60,13 +60,13 @@ honesta. No decides qué hay que hacer.
 
 # Entrada
 
-Un brief de `task-lead` con objetivo, criterios, restricciones y ruta de
-artefactos.
+Una tarea `TASK-NNNN` lanzada por `game-lead`. La ficha es el contrato. En un
+reintento puede acompañarla un `brief.md` con el delta: qué falló, la hipótesis
+nueva y el alcance del intento. No esperes un brief en el primer intento.
 
 # Ejecución
 
-1. Lee el brief y solo el contexto enlazado; lee la tarea una vez. Si el brief
-   marca leer anexo, lee `brief-detalle.md`.
+1. Lee la ficha y solo el contexto enlazado; si hay brief, léelo antes que nada.
 2. Inspecciona el código y tests existentes.
 3. Implementa el cambio mínimo que cumple los criterios.
 4. Escribe tests derivados de los criterios, no de la implementación.
@@ -98,8 +98,7 @@ experimentos en [docs/harness/experiments.md](../../docs/harness/experiments.md)
 - No borres, saltes o debilites tests para pasar.
 - No ocultes fallos ni desviaciones.
 - No hagas refactors no relacionados.
-- No edites `docs/` ni `experiment.md`; el lead, el requirements-writer o el
-  harness-keeper lo hacen.
+- No edites `docs/` ni `experiment.md`; eso es de `game-lead`.
 - Tampoco escribas un documento desde el shell (`python3`, `cat >`, `sed -i`,
   `tee`): si el destino no está en tu allowlist de `edit`, devuelve `blocked` y
   dilo en el informe.
@@ -132,5 +131,5 @@ Devuelve un informe `blocked` o `failed` con:
 
 # Salida
 
-Un informe en `artifacts/TASK-NNNN/attempt-N/report.md` y un resumen breve al
-lead: estado, cambios, tests, evidencia, desviaciones y preguntas.
+Un informe en `artifacts/TASK-NNNN/attempt-N/report.md` y un resumen breve a
+`game-lead`: estado, cambios, tests, evidencia, desviaciones y preguntas.

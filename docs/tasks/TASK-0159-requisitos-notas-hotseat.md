@@ -4,22 +4,29 @@ id: TASK-0159
 title: "Requisitos: notas de hotseat en hojas relacionadas"
 description: "Anotar en REQ-005, REQ-017, REQ-018, REQ-021, REQ-022, REQ-023, REQ-024 y REQ-026 las enmiendas de REQ-031 v2 sobre turno, relevo, HUD, panel público y controles."
 status: stable
-task_status: backlog
+task_status: done
 task_type: docs
 requirement: REQ-031
 requirement_ids: [T-013]
 depends_on: [TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, TASK-0152, TASK-0153]
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
-completed_at:
-assignee: requirements-writer
-attempts: 0
+completed_at: 2026-11-16T10:36:00Z
+assignee: game-lead
+attempts: 1
 artifacts: artifacts/TASK-0159/
 priority: P2
 risk: low
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-14T23:31:45Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T10:36:00Z
+    note: >-
+      Intento 1 verificado (notas `1737169`, evidencia `4708c88`). Ocho hojas con
+      nota de vigencia que remite a REQ-031 v2 y ADR-029, sin reescribir
+      requisitos; `docs:check` y `pnpm run verify` en verde. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -36,33 +43,34 @@ esta tarea es solo de `docs/requirements/**` para que tenga un único ejecutor.
 
 # Criterios de aceptación
 
-- [ ] REQ-005 anota que la cámara sigue al activo con paneo y al enemigo que
+- [x] REQ-005 anota que la cámara sigue al activo con paneo y al enemigo que
       actúa en la fase enemiga.
-- [ ] REQ-017 anota los beats de relevo, ronda y «El master mueve»; el aviso de
+- [x] REQ-017 anota los beats de relevo, ronda y «El master mueve»; el aviso de
       ronda no bloquea.
-- [ ] REQ-018 anota que el panel solo se abre en el turno activo, es público y el
+- [x] REQ-018 anota que el panel solo se abre en el turno activo, es público y el
       traspaso directo queda fuera también en hotseat.
-- [ ] REQ-021 anota que el fantasma cierra turno con `N` y que la resurrección
+- [x] REQ-021 anota que el fantasma cierra turno con `N` y que la resurrección
       respeta el índice de la ronda.
-- [ ] REQ-022 y REQ-023 anotan «Jugador N de M», la ficha compacta del objetivo y
+- [x] REQ-022 y REQ-023 anotan «Jugador N de M», la ficha compacta del objetivo y
       el actor enemigo en la columna derecha.
-- [ ] REQ-024 y REQ-026 anotan pausa global, guardado en fase de personajes,
+- [x] REQ-024 y REQ-026 anotan pausa global, guardado en fase de personajes,
       carga en el activo, `N` en lugar de `E`, turno por jugador y ronda con una
       fase enemiga; no queda `R`.
-- [ ] Las notas remiten a REQ-031 v2 y no reescriben requisitos vigentes;
+- [x] Las notas remiten a REQ-031 v2 y no reescriben requisitos vigentes;
       `docs/log.md` lo registra.
-- [ ] `pnpm run docs:check` pasa y no hay enlaces rotos.
+- [x] `pnpm run docs:check` pasa y no hay enlaces rotos.
 
 # Plan de test
 
 - Documental: `pnpm run docs:check`.
+- E2E / visual: no; tarea documental sin UI.
 - Manual: revisar que las ocho hojas no se contradicen entre sí ni con REQ-031.
 
 # Evidencia esperada
 
-- [ ] Informe en `artifacts/TASK-0159/attempt-1/report.md`
-- [ ] Salida de `pnpm run docs:check`
-- [ ] Commit SHA
+- [x] Informe en `artifacts/TASK-0159/attempt-1/report.md`
+- [x] Salida de `pnpm run docs:check`
+- [x] Commit SHA
 
 # Comandos
 

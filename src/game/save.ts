@@ -227,9 +227,11 @@ const UNIT_KEYS = [
   'y',
   'hp',
   'maxHp',
+  'baseMaxHp',
   'ghost',
   'mp',
   'maxMp',
+  'baseMaxMp',
   'mana',
   'actions',
   'spellsCast',
@@ -243,7 +245,7 @@ const UNIT_KEYS = [
   'alertTurns',
   'hasShouted',
 ] as const;
-const UNIT_OPTIONAL_KEYS = ['ghost'] as const;
+const UNIT_OPTIONAL_KEYS = ['ghost', 'baseMaxHp', 'baseMaxMp'] as const;
 const STATS_KEYS = [
   'habilidad',
   'fuerza',
@@ -652,9 +654,11 @@ function serializeUnit(unit: Unit): Record<string, unknown> {
     y: unit.y,
     hp: unit.hp,
     maxHp: unit.maxHp,
+    baseMaxHp: unit.baseMaxHp,
     ghost: unit.ghost,
     mp: unit.mp,
     maxMp: unit.maxMp,
+    baseMaxMp: unit.baseMaxMp,
     mana: serializeMana(unit.mana),
     actions: serializeActions(unit.actions),
     spellsCast: unit.spellsCast,
@@ -1037,10 +1041,18 @@ function readUnit(
   const y = expectInteger(object.y, `${path}.y`, 0, height - 1);
   const maxHp = expectInteger(object.maxHp, `${path}.maxHp`, 1);
   const hp = expectInteger(object.hp, `${path}.hp`, 0, maxHp);
+  const baseMaxHp =
+    object.baseMaxHp === undefined
+      ? undefined
+      : expectInteger(object.baseMaxHp, `${path}.baseMaxHp`, 1);
   const ghost =
     object.ghost === undefined ? undefined : expectBoolean(object.ghost, `${path}.ghost`);
   const maxMp = expectInteger(object.maxMp, `${path}.maxMp`);
   const mp = expectInteger(object.mp, `${path}.mp`, 0, maxMp);
+  const baseMaxMp =
+    object.baseMaxMp === undefined
+      ? undefined
+      : expectInteger(object.baseMaxMp, `${path}.baseMaxMp`);
   const stats = readStats(object.stats, `${path}.stats`);
   const mana = readMana(object.mana, `${path}.mana`, stats.magicLevel);
   const actions = readActions(object.actions, `${path}.actions`);
@@ -1084,6 +1096,8 @@ function readUnit(
     hasShouted,
   };
   if (ghost !== undefined) values.ghost = ghost;
+  if (baseMaxHp !== undefined) values.baseMaxHp = baseMaxHp;
+  if (baseMaxMp !== undefined) values.baseMaxMp = baseMaxMp;
   return reorder(
     object,
     values,

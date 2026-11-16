@@ -45,6 +45,13 @@ valores concretos viven en los catálogos y son provisionales.
 - **Rebalanceo**: Pícaro 3 y la tabla enemiga 2/1/2 son valores iniciales; el
   método de win % de `EXP-003`/`REQ-015` los ajusta con acciones, magia y réplica.
 
+# Vigencia
+
+La tecla de fin de turno pasa de `E` a `N` por
+[REQ-031](../requirements/REQ-031-hotseat-local.md) v2 y
+[ADR-029](ADR-029-hotseat-local.md); `R` desaparece. El resto de la economía de
+acciones de este ADR sigue vigente.
+
 # Consecuencias
 
 - Las acciones pasan a ser el principal eje de poder; `+1` acción es un salto

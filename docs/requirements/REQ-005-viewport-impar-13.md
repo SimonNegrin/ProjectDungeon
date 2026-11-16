@@ -129,3 +129,11 @@ rutinarias del encuadre actual.
 - [x] Está claro el fuera de alcance.
 - [x] No hay contradicciones abiertas.
 - [x] El usuario ha hecho el playtest y ha aprobado el viewport de 13×13.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** la cámara sigue al jugador
+  activo, hace el paneo de relevo de 300 ms al cambiar de turno y, en la fase
+  enemiga, sigue al enemigo que actúa. El viewport de 13×13, el centrado y el
+  clamp de R-001 a R-004 no cambian.

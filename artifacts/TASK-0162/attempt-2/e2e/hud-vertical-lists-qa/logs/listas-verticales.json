@@ -1,0 +1,94 @@
+[
+  {
+    "scene": "hud",
+    "viewport": "900x700",
+    "stats": [
+      "+1 habilidad",
+      "+1 fuerza",
+      "+1 defensa"
+    ],
+    "weapon": [
+      "+3 acierto",
+      "+3 daño"
+    ],
+    "traits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "ficha",
+    "viewport": "900x700",
+    "selected": [
+      "+2 Acierto",
+      "+5 Daño"
+    ],
+    "traits": [
+      "brutal: Golpea fuerte",
+      "lento: Tarda más"
+    ],
+    "equipped": [
+      "+3 Acierto",
+      "+3 Daño"
+    ],
+    "equippedTraits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "aliado",
+    "viewport": "900x700",
+    "stats": [
+      "+3 habilidad",
+      "+0 fuerza",
+      "+1 defensa"
+    ]
+  },
+  {
+    "scene": "hud",
+    "viewport": "1280x720",
+    "stats": [
+      "+1 habilidad",
+      "+1 fuerza",
+      "+1 defensa"
+    ],
+    "weapon": [
+      "+3 acierto",
+      "+3 daño"
+    ],
+    "traits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "ficha",
+    "viewport": "1280x720",
+    "selected": [
+      "+2 Acierto",
+      "+5 Daño"
+    ],
+    "traits": [
+      "brutal: Golpea fuerte",
+      "lento: Tarda más"
+    ],
+    "equipped": [
+      "+3 Acierto",
+      "+3 Daño"
+    ],
+    "equippedTraits": [
+      "filoso: Corta más",
+      "equilibrado: No pesa"
+    ]
+  },
+  {
+    "scene": "aliado",
+    "viewport": "1280x720",
+    "stats": [
+      "+3 habilidad",
+      "+0 fuerza",
+      "+1 defensa"
+    ]
+  }
+]

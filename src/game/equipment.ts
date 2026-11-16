@@ -15,13 +15,15 @@ export type WeaponId =
   | 'knife'
   | 'hammer'
   | 'electric-sword'
-  | 'arcane-dagger';
+  | 'arcane-dagger'
+  | 'circular-mace';
 export type ArmorId = 'armor' | 'plate';
 export type ShieldId = 'shield';
-export type ItemId = WeaponId | ArmorId | ShieldId;
+export type AccessoryId = 'lifesteal-ring' | 'mana-necklace' | 'action-gloves';
+export type ItemId = WeaponId | ArmorId | ShieldId | AccessoryId;
 
-/** Categorías con contenido en este corte (REQ-018 R-004). */
-export type ItemCategory = 'weapon' | 'shield' | 'armor';
+/** Categorías con contenido; los cinco huecos secundarios ya tienen piezas. */
+export type ItemCategory = 'weapon' | 'shield' | 'armor' | 'ring' | 'neck' | 'hands';
 
 /**
  * Política de botín de un objeto (REQ-034 R-002/T-001). `common` se tira al
@@ -35,8 +37,8 @@ export const LOOT_CHANCES: Readonly<Record<LootPolicy, number>> = {
   progression: 100,
 };
 
-/** Los ocho huecos de REQ-018 R-002; los cinco secundarios siguen sin objetos. */
-export type EquipmentSlot = ItemCategory | 'head' | 'feet' | 'hands' | 'neck' | 'ring';
+/** Los ocho huecos de REQ-018 R-002; las cuatro piezas nuevas ocupan ring, neck, hands y weapon. */
+export type EquipmentSlot = ItemCategory | 'head' | 'feet';
 
 export const EQUIPMENT_SLOTS: readonly EquipmentSlot[] = [
   'weapon',
@@ -82,10 +84,292 @@ export type ItemAttribute =
 /** Modificadores pasivos de atributos; vacío en las piezas de este corte. */
 export type ItemAttributeModifiers = Readonly<Partial<Record<ItemAttribute, number>>>;
 
-/** Trait de objeto (REQ-018 T-001); sin efectos en este corte. */
+/**
+ * Traits de objeto (REQ-019 T-001/T-002). El motor no define traits: cada
+ * definición vive en `TRAITS` y los objetos solo guardan la referencia y el
+ * texto visible. `description` se conserva para que la ficha y el panel lean el
+ * objeto sin conocer el catálogo de traits.
+ */
 export interface ItemTrait {
   readonly id: string;
   readonly description: string;
+}
+
+/** Tipo de efecto declarado por el catálogo (REQ-019 T-001). */
+export type TraitType = 'modifier' | 'triggered' | 'continuous';
+
+/** Política de apilamiento explícita (REQ-019 R-008/T-003). */
+export type TraitStacking = 'sum' | 'unique';
+
+/** Fuente del trait; este corte solo usa `equipment` (REQ-019 T-002). */
+export type TraitSource = 'inherent' | 'equipment' | 'temporary';
+
+/** Los nueve atributos que puede tocar un modificador (REQ-014 R-001). */
+export type TraitAttribute =
+  | 'habilidad'
+  | 'fuerza'
+  | 'defensa'
+  | 'resistencia'
+  | 'punteria'
+  | 'magia'
+  | 'pvMax'
+  | 'mpMax'
+  | 'acciones';
+
+/** Disparadores del pipeline (REQ-019 T-004); este corte usa los cuatro primeros. */
+export type TraitTrigger =
+  | 'equip'
+  | 'unequip'
+  | 'impact'
+  | 'damage'
+  | 'death'
+  | 'move'
+  | 'turn-start'
+  | 'turn-end';
+
+export interface TraitModifierParameters {
+  readonly kind: 'modifier';
+  readonly attribute: TraitAttribute;
+  readonly amount: number;
+}
+
+/** Regla de área reutilizable: radio Chebyshev, centro y coste (REQ-019 R-011). */
+export interface TraitAreaParameters {
+  readonly kind: 'area';
+  readonly radius: number;
+  readonly includesCenter: boolean;
+  readonly actionCost: number;
+}
+
+/** Robo de vida: porcentaje, redondeo y mínimo (REQ-019 R-012). */
+export interface TraitLifestealParameters {
+  readonly kind: 'lifesteal';
+  readonly percent: number;
+  readonly rounding: 'floor';
+  readonly minimum: number;
+}
+
+export type TraitParameters =
+  | TraitModifierParameters
+  | TraitAreaParameters
+  | TraitLifestealParameters;
+
+/** Definición completa de un trait como dato (REQ-019 T-001, ADR-024). */
+export interface TraitDefinition {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly type: TraitType;
+  readonly stacking: TraitStacking;
+  /** Clave de apilamiento: atributo para modificadores, efecto para especiales. */
+  readonly stackingKey: string;
+  readonly source: TraitSource;
+  readonly triggers: readonly TraitTrigger[];
+  readonly parameters: TraitParameters;
+}
+
+/**
+ * Catálogo de traits del corte. Los cuatro objetos equipados referencian sus
+ * traits por ID; el resto son datos disponibles para pruebas y contenido
+ * posterior. Ajustar un valor aquí cambia el juego sin tocar el motor.
+ */
+export const TRAITS: Readonly<Record<string, TraitDefinition>> = {
+  precise: {
+    id: 'precise',
+    name: 'Precisión',
+    description: '+1 habilidad.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'habilidad',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'habilidad', amount: 1 },
+  },
+  strong: {
+    id: 'strong',
+    name: 'Fuerza bruta',
+    description: '+1 fuerza.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'fuerza',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'fuerza', amount: 1 },
+  },
+  guarded: {
+    id: 'guarded',
+    name: 'Guardia',
+    description: '+1 defensa.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'defensa',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'defensa', amount: 1 },
+  },
+  'tough-skin': {
+    id: 'tough-skin',
+    name: 'Piel dura',
+    description: '+1 resistencia en todas las bandas.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'resistencia',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'resistencia', amount: 1 },
+  },
+  'sharp-eye': {
+    id: 'sharp-eye',
+    name: 'Ojo fino',
+    description: '+1 puntería.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'punteria',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'punteria', amount: 1 },
+  },
+  arcane: {
+    id: 'arcane',
+    name: 'Foco arcano',
+    description: '+1 nivel de magia.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'magia',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'magia', amount: 1 },
+  },
+  vitality: {
+    id: 'vitality',
+    name: 'Vitalidad',
+    description: '+2 PV máximos.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'pvMax',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'pvMax', amount: 2 },
+  },
+  'mana-surge': {
+    id: 'mana-surge',
+    name: 'Pulso de maná',
+    description: '+2 MP máximos.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'mpMax',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'mpMax', amount: 2 },
+  },
+  'action-surge': {
+    id: 'action-surge',
+    name: 'Impulso',
+    description: '+1 acción por turno.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'acciones',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'acciones', amount: 1 },
+  },
+  frail: {
+    id: 'frail',
+    name: 'Fragilidad',
+    description: '−1 defensa; respeta el suelo del atributo.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'defensa',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'defensa', amount: -1 },
+  },
+  slow: {
+    id: 'slow',
+    name: 'Lentitud',
+    description: '−1 acción por turno, con suelo en 1.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'acciones',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'acciones', amount: -1 },
+  },
+  'mana-drain': {
+    id: 'mana-drain',
+    name: 'Drenaje',
+    description: '−5 MP máximos, con suelo en 0.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'mpMax',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'mpMax', amount: -5 },
+  },
+  brittle: {
+    id: 'brittle',
+    name: 'Fragilidad vital',
+    description: '−5 PV máximos, con suelo en 1.',
+    type: 'modifier',
+    stacking: 'sum',
+    stackingKey: 'pvMax',
+    source: 'equipment',
+    triggers: ['equip', 'unequip'],
+    parameters: { kind: 'modifier', attribute: 'pvMax', amount: -5 },
+  },
+  lifesteal: {
+    id: 'lifesteal',
+    name: 'Robo de vida',
+    description: 'Cura el 50 % del daño efectivo, mínimo 1 y sin sobrecurar.',
+    type: 'triggered',
+    stacking: 'unique',
+    stackingKey: 'lifesteal',
+    source: 'equipment',
+    triggers: ['equip', 'unequip', 'damage'],
+    parameters: { kind: 'lifesteal', percent: 50, rounding: 'floor', minimum: 1 },
+  },
+  'lifesteal-minor': {
+    id: 'lifesteal-minor',
+    name: 'Robo menor',
+    description: 'Cura el 25 % del daño efectivo, mínimo 1.',
+    type: 'triggered',
+    stacking: 'unique',
+    stackingKey: 'lifesteal',
+    source: 'equipment',
+    triggers: ['equip', 'unequip', 'damage'],
+    parameters: { kind: 'lifesteal', percent: 25, rounding: 'floor', minimum: 1 },
+  },
+  'circular-strike': {
+    id: 'circular-strike',
+    name: 'Ataque circular',
+    description: 'Golpea las 8 casillas adyacentes salvo el centro; cuesta 1 acción.',
+    type: 'continuous',
+    stacking: 'unique',
+    stackingKey: 'area',
+    source: 'equipment',
+    triggers: ['equip', 'unequip', 'impact'],
+    parameters: { kind: 'area', radius: 1, includesCenter: false, actionCost: 1 },
+  },
+  'wide-circular-strike': {
+    id: 'wide-circular-strike',
+    name: 'Ataque circular amplio',
+    description: 'Golpea un radio 2 salvo el centro; cuesta 2 acciones.',
+    type: 'continuous',
+    stacking: 'unique',
+    stackingKey: 'area',
+    source: 'equipment',
+    triggers: ['equip', 'unequip', 'impact'],
+    parameters: { kind: 'area', radius: 2, includesCenter: false, actionCost: 2 },
+  },
+};
+
+/** Trait del catálogo con su texto visible, para declararlo en un objeto. */
+export function itemTrait(id: string): ItemTrait {
+  const trait = TRAITS[id];
+  if (trait === undefined) {
+    throw new Error(`Trait desconocido en el catálogo: ${id}`);
+  }
+  return { id, description: trait.description };
 }
 
 /**
@@ -280,6 +564,58 @@ export const ITEMS: Readonly<Record<ItemId, ItemDefinition>> = {
     sprite: { sheet: 'items', label: '12.a. buckler', rect: cellRect(12, 'a') },
     description: 'Escudo ligero que suma evasión a la defensa.',
   },
+  // Cuatro piezas de REQ-019: entran por cofres y saqueo de REQ-020; ningún
+  // arquetipo las recibe y el bestiario no las declara.
+  'lifesteal-ring': {
+    id: 'lifesteal-ring',
+    name: 'Anillo de robo',
+    category: 'ring',
+    slot: 'ring',
+    lootPolicy: 'common',
+    modifiers: {},
+    damagePackets: [],
+    traits: [itemTrait('lifesteal')],
+    sprite: { sheet: 'items', label: '18.b. gold band ring', rect: cellRect(18, 'b') },
+    description: 'Anillo que roba vida con cada impacto.',
+  },
+  'mana-necklace': {
+    id: 'mana-necklace',
+    name: 'Collar de maná',
+    category: 'neck',
+    slot: 'neck',
+    lootPolicy: 'common',
+    modifiers: {},
+    damagePackets: [],
+    traits: [itemTrait('mana-surge')],
+    sprite: { sheet: 'items', label: '17.b. metal pendant', rect: cellRect(17, 'b') },
+    description: 'Collar que eleva el MP máximo en 2.',
+  },
+  'action-gloves': {
+    id: 'action-gloves',
+    name: 'Guantes de impulso',
+    category: 'hands',
+    slot: 'hands',
+    lootPolicy: 'common',
+    modifiers: {},
+    damagePackets: [],
+    traits: [itemTrait('action-surge')],
+    sprite: { sheet: 'items', label: '14.b. leather gloves', rect: cellRect(14, 'b') },
+    description: 'Guantes que conceden una acción extra por turno.',
+  },
+  'circular-mace': {
+    id: 'circular-mace',
+    name: 'Maza circular',
+    category: 'weapon',
+    slot: 'weapon',
+    lootPolicy: 'common',
+    hands: 2,
+    accuracy: 2,
+    modifiers: {},
+    damagePackets: [{ type: 'blunt', amount: 3 }],
+    traits: [itemTrait('circular-strike')],
+    sprite: { sheet: 'items', label: '6.c. great mace', rect: cellRect(6, 'c') },
+    description: 'Maza a dos manos que golpea las ocho casillas adyacentes.',
+  },
 };
 
 /**
@@ -318,6 +654,9 @@ const SLOTS_BY_CATEGORY: Readonly<Record<ItemCategory, readonly EquipmentSlot[]>
   weapon: ['weapon'],
   shield: ['shield'],
   armor: ['armor'],
+  ring: ['ring'],
+  neck: ['neck'],
+  hands: ['hands'],
 };
 
 const LABEL_PATTERN = /^(\d+)\.([a-z])\.\s+(.+)$/;
@@ -379,9 +718,9 @@ export const EQUIPMENT_SILHOUETTES: Readonly<
 
 /**
  * Valida un catálogo de objetos: IDs únicos, categoría y hueco coherentes,
- * manos 1|2, paquetes de daño de REQ-029, traits vacíos, modificadores
- * numéricos, política de botín conocida y sprite dentro de la hoja y coherente
- * con `items.txt`.
+ * manos 1|2, paquetes de daño de REQ-029, traits declarados en el catálogo,
+ * modificadores numéricos, política de botín conocida y sprite dentro de la
+ * hoja y coherente con `items.txt`.
  */
 export function validateItemCatalog(
   items: readonly ItemDefinition[],
@@ -439,9 +778,31 @@ export function validateItemCatalog(
           report('damage-packets', 'Un escudo no declara paquetes');
         }
         break;
+      case 'ring':
+      case 'neck':
+      case 'hands':
+        if (
+          item.accuracy !== undefined ||
+          item.absorption !== undefined ||
+          item.evasion !== undefined ||
+          item.hands !== undefined
+        ) {
+          report('stat', 'Un accesorio no declara acierto, absorción, evasión ni manos');
+        }
+        if (item.damagePackets.length > 0) {
+          report('damage-packets', 'Un accesorio no declara paquetes');
+        }
+        break;
     }
 
-    if (item.traits.length > 0) report('traits', 'Los traits deben estar vacíos en este corte');
+    for (const trait of item.traits) {
+      if (TRAITS[trait.id] === undefined) {
+        report('traits', `Trait desconocido: ${trait.id}`);
+      }
+      if (trait.description.trim() === '') {
+        report('traits', `Trait sin descripción: ${trait.id}`);
+      }
+    }
 
     if (typeof LOOT_CHANCES[item.lootPolicy] !== 'number') {
       report('loot-policy', `Política de botín desconocida: ${String(item.lootPolicy)}`);
@@ -473,6 +834,114 @@ export function validateItemCatalog(
       y + height > ITEM_SHEET.height
     ) {
       report('sprite', 'El recorte se sale de la hoja de 352×832');
+    }
+  }
+
+  return issues;
+}
+
+export type TraitCatalogRule =
+  | 'id'
+  | 'text'
+  | 'type'
+  | 'stacking'
+  | 'parameters'
+  | 'triggers'
+  | 'source';
+
+export interface TraitCatalogIssue {
+  readonly traitId: string;
+  readonly rule: TraitCatalogRule;
+  readonly detail: string;
+}
+
+const TRAIT_TYPES: readonly TraitType[] = ['modifier', 'triggered', 'continuous'];
+const TRAIT_STACKING: readonly TraitStacking[] = ['sum', 'unique'];
+const TRAIT_SOURCES: readonly TraitSource[] = ['inherent', 'equipment', 'temporary'];
+const TRAIT_TRIGGERS: readonly TraitTrigger[] = [
+  'equip',
+  'unequip',
+  'impact',
+  'damage',
+  'death',
+  'move',
+  'turn-start',
+  'turn-end',
+];
+const TRAIT_ATTRIBUTES: readonly TraitAttribute[] = [
+  'habilidad',
+  'fuerza',
+  'defensa',
+  'resistencia',
+  'punteria',
+  'magia',
+  'pvMax',
+  'mpMax',
+  'acciones',
+];
+
+/**
+ * Valida el catálogo de traits como dato: ID estable, textos, tipo,
+ * apilamiento, fuente, disparadores y parámetros coherentes con su clase.
+ */
+export function validateTraitCatalog(
+  traits: Readonly<Record<string, TraitDefinition>>,
+): readonly TraitCatalogIssue[] {
+  const issues: TraitCatalogIssue[] = [];
+
+  for (const [key, trait] of Object.entries(traits)) {
+    const report = (rule: TraitCatalogRule, detail: string): void => {
+      issues.push({ traitId: key, rule, detail });
+    };
+
+    if (trait.id !== key) report('id', `La clave ${key} no coincide con el id ${trait.id}`);
+    if (trait.name.trim() === '' || trait.description.trim() === '') {
+      report('text', 'Nombre y descripción son obligatorios');
+    }
+    if (trait.stackingKey.trim() === '') report('stacking', 'Falta la clave de stacking');
+    if (!TRAIT_TYPES.includes(trait.type)) report('type', `Tipo desconocido: ${String(trait.type)}`);
+    if (!TRAIT_STACKING.includes(trait.stacking)) {
+      report('stacking', `Apilamiento desconocido: ${String(trait.stacking)}`);
+    }
+    if (!TRAIT_SOURCES.includes(trait.source)) {
+      report('source', `Fuente desconocida: ${String(trait.source)}`);
+    }
+    for (const trigger of trait.triggers) {
+      if (!TRAIT_TRIGGERS.includes(trigger)) {
+        report('triggers', `Disparador desconocido: ${String(trigger)}`);
+      }
+    }
+
+    const parameters = trait.parameters;
+    if (parameters.kind === 'modifier') {
+      if (!TRAIT_ATTRIBUTES.includes(parameters.attribute)) {
+        report('parameters', `Atributo desconocido: ${String(parameters.attribute)}`);
+      }
+      if (!isFiniteNumber(parameters.amount)) {
+        report('parameters', 'El modificador debe ser un número finito');
+      }
+    } else if (parameters.kind === 'area') {
+      if (!Number.isInteger(parameters.radius) || parameters.radius < 1) {
+        report('parameters', 'El radio del área debe ser un entero positivo');
+      }
+      if (typeof parameters.includesCenter !== 'boolean') {
+        report('parameters', '`incluyeCentro` debe ser booleano');
+      }
+      if (!Number.isInteger(parameters.actionCost) || parameters.actionCost < 1) {
+        report('parameters', 'El coste de acción debe ser un entero positivo');
+      }
+    } else if (parameters.kind === 'lifesteal') {
+      if (!isFiniteNumber(parameters.percent) || parameters.percent < 0 || parameters.percent > 100) {
+        report('parameters', 'El porcentaje de robo debe estar entre 0 y 100');
+      }
+      if (parameters.rounding !== 'floor') {
+        report('parameters', 'El redondeo del robo debe ser `floor`');
+      }
+      if (!isFiniteNumber(parameters.minimum) || parameters.minimum < 0) {
+        report('parameters', 'El mínimo de robo debe ser no negativo');
+      }
+    } else {
+      report('parameters', `Clase de parámetro desconocida: ${String((parameters as { kind?: unknown }).kind)}`);
     }
   }
 
@@ -544,6 +1013,7 @@ export const WEAPONS: Readonly<Record<WeaponId, WeaponDefinition>> = {
   hammer: weaponView(ITEMS.hammer),
   'electric-sword': weaponView(ITEMS['electric-sword']),
   'arcane-dagger': weaponView(ITEMS['arcane-dagger']),
+  'circular-mace': weaponView(ITEMS['circular-mace']),
 };
 
 /** Vista derivada del catálogo para los consumidores de REQ-010. */

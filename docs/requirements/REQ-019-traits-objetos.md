@@ -9,7 +9,7 @@ decision_owner: human:simon
 review_required: true
 created_at: 2026-11-10T20:00:00Z
 updated_at: 2026-11-13T21:29:30Z
-related_tasks: []
+related_tasks: [TASK-0161, TASK-0162]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-12T12:00:00Z }
 verified:
 ---
@@ -119,6 +119,11 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
   efectos.
 - **Cita corregida (2026-11-13):** el ADR de traits es `ADR-024`; la v2 lo citaba
   como ADR-022, que es la réplica cuerpo a cuerpo. No cambia ninguna regla.
+- **Primer corte troceado (2026-11-16):** `TASK-0161` cubre catálogo, stacking,
+  especiales, eventos y tests de `T-001` a `T-010` y `T-014`; `TASK-0162` cubre
+  `T-012` y `T-013`. `T-011` (ADR-024, glosario, economía de turno y
+  arquitectura) queda como tarea docs posterior. Las cuatro piezas entran en el
+  catálogo sin fuente jugable hasta que `REQ-020` deje de ser borrador.
 
 # Dependencias
 
@@ -193,6 +198,7 @@ especiales, su semántica, el contenido inicial y el reparto. La hoja queda
 | 2026-11-12 | Las piezas llegan solo por cofres y saqueo; el equipo inicial no cambia. | human:simon | aceptada |
 | 2026-11-12 | Traits siempre visibles; sin identificación. | human:simon | aceptada |
 | 2026-11-13 | v3: recibe el E2E de dos manos con escudo diferido desde `REQ-018` v5; sin cambios de reglas. | human:simon | aceptada |
+| 2026-11-16 | La validación creativa en playtest del ataque circular se aplaza al playtest de `REQ-020`: sin cofres ni saqueo no hay fuente jugable de la maza. Las tareas quedan cerradas con sus tests automáticos. | human:simon | aceptada |
 | 2026-11-10 | Implementación después de cerrar hotseat. | human:simon | provisional; hotseat aún no tiene hoja ni tareas |
 
 # Aceptación de la hoja

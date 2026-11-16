@@ -1,7 +1,6 @@
 import {
   BESTIARY,
   BAND_MULTIPLIERS,
-  MAX_ACTIONS,
   bandFor,
   createInventory,
   createMana,
@@ -10,6 +9,7 @@ import {
   effectiveStats,
   equipmentFromLegacy,
   inventoryFromIds,
+  actionsMax,
   PLAYER_MAX_HP,
   PLAYER_MAX_MP,
   resolvePacket,
@@ -130,10 +130,7 @@ export function makeUnit(options: UnitOptions): Unit {
       : createInventory());
   const maxActions =
     options.actionsMax ??
-    Math.min(
-      MAX_ACTIONS,
-      Math.max(0, stats.acciones + (legacyEquipment.actionsBonus ?? 0)),
-    );
+    actionsMax(stats, legacyEquipment.actionsBonus ?? 0);
 
   return {
     id: options.id,
@@ -146,9 +143,11 @@ export function makeUnit(options: UnitOptions): Unit {
     y: options.y,
     hp: options.hp ?? maxHp,
     maxHp,
+    baseMaxHp: maxHp,
     ...(options.ghost === undefined ? {} : { ghost: options.ghost }),
     mp: options.mp ?? maxMp,
     maxMp,
+    baseMaxMp: maxMp,
     mana: options.mana ?? createMana(stats.magicLevel),
     actions: { max: maxActions, remaining: options.actions ?? maxActions },
     spellsCast: options.spellsCast ?? 0,

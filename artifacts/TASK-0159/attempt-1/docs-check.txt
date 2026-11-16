@@ -1,0 +1,7 @@
+# docs:check — TASK-0159
+
+```
+$ pnpm run docs:check
+$ node scripts/validate-docs.mjs
+OK: 756 documentos, 162 tareas, 6 experimentos.
+```

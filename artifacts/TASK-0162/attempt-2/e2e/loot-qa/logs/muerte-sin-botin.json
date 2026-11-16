@@ -1,0 +1,18 @@
+{
+  "target": "enemy-1",
+  "lootableBefore": {
+    "weapon": false,
+    "shield": false
+  },
+  "containers": [],
+  "deadEquipment": {
+    "weapon": null,
+    "shield": null,
+    "armor": null,
+    "head": null,
+    "feet": null,
+    "hands": null,
+    "neck": null,
+    "ring": null
+  }
+}

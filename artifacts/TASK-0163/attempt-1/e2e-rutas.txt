@@ -1,0 +1,17 @@
+# Rutas bajo E2E_ARTIFACTS_DIR (solo directorios, ordenadas)
+artifacts/TASK-0163/attempt-1/e2e
+artifacts/TASK-0163/attempt-1/e2e/inventory
+artifacts/TASK-0163/attempt-1/e2e/inventory/screenshots
+
+# Entradas de primer nivel
+inventory
+
+# Recuento
+dirs=3 files=9
+
+# Fallback de los specs excluidos (test-results/, limpiado por Playwright en cada corrida)
+dirs=245
+action-counter-turn-qa-dos-b4a50-a-y-movimiento-sin-acciones-chromium
+bisel-grueso-geometria-qa--c30d2-ecen-hacia-fuera-a-1280x720-chromium
+bisel-grueso-geometria-qa--eb953-recen-hacia-fuera-a-900x700-chromium
+combat-equipment-qa-derrot-fa88c-ambiar-la-economía-de-turno-chromium

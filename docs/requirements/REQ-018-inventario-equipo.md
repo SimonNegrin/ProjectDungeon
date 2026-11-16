@@ -314,3 +314,11 @@ fantasma y de la columna del jugador. No cambia ninguna regla.
 - [x] Las dependencias están claras.
 - [x] Se puede generar un grafo de tareas.
 - [x] El usuario ha revisado el texto de la v3 y la hoja sigue `stable`.
+
+# Notas de vigencia
+
+- **2026-11-16 — hotseat ([REQ-031](REQ-031-hotseat-local.md) v2,
+  [ADR-029](../decisions/ADR-029-hotseat-local.md)):** el panel solo se abre en el
+  turno del jugador activo, es público para la mesa y se cierra al terminar el
+  turno; el fantasma no lo abre. La entrega directa sigue fuera: los objetos se
+  pasan soltando y recogiendo, también en hotseat.
