@@ -5,6 +5,7 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Task — TASK-0178 — done: Curación III a 1 casilla con diagonales y autocuración por 8/6, rechazo `target-full-hp` sin gastar y Resurrección IV por 12; 1909 tests y `verify:task` OK; E2E pendiente en TASK-0179; fusión `54ef52f0` — [informe](../artifacts/TASK-0178/attempt-1/report.md)
 * 2026-11-16 — Task — TASK-0177 — done: maná +4 por turno con constante única, jugador y enemigo, tope al máximo y cambio de nivel sin regalar; 1907 tests, `verify:task` OK y EXP-003 v2 adaptado; fusión `005ffafc` — [informe](../artifacts/TASK-0177/attempt-1/report.md)
 * 2026-11-16 — Planning — TASK-0177, TASK-0178 y TASK-0179 — preparadas para el arreglo de maná y curación; las dos de motor `ready` y la de host/E2E en `backlog` hasta cerrarlas — [TASK-0177](tasks/TASK-0177-motor-mana-recuperacion-por-turno.md)
 * 2026-11-16 — Requirement — REQ-025 — v4 aprobada: maná +4 por turno, Curación III a 1 casilla con autocuración por 8/6, rechazo a PV completo y Resurrección IV por 12; enmienda REQ-021, REQ-030 y roster — [REQ-025](requirements/REQ-025-magia-hechizos-mana.md)

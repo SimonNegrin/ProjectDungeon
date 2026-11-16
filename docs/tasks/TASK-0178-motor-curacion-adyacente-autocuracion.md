@@ -4,22 +4,31 @@ id: TASK-0178
 title: "Motor: Curación adyacente, autocuración y costes 8/12"
 description: "Curación III pasa a alcance 1 con diagonales, admite al lanzador, cuesta 8 y cura 6; Resurrección IV cuesta 12; a PV completo se rechaza sin gastar."
 status: stable
-task_status: in_progress
+task_status: done
 task_type: feature
 requirement: REQ-025
 requirement_ids: [R-009, R-013, R-014, T-006, T-012]
 depends_on: []
 unlocks: [TASK-0179]
 created_at: 2026-11-16T22:59:36Z
-completed_at:
+completed_at: 2026-11-16T23:18:00Z
 assignee: task-runner
-attempts: 0
+attempts: 1
 artifacts: artifacts/TASK-0178/
 priority: P1
 risk: medium
 review_required: true
 generated: { by: deepseek/v4.1-flash, at: 2026-11-16T22:59:36Z }
 verified:
+  - by: game-lead
+    at: 2026-11-16T23:18:00Z
+    note: >-
+      Intento 1 verificado (código `0954c39b`, evidencia `b1065512`). Los cinco
+      criterios firmados: catálogo 8/1/6 y resurrección 12, curación ortogonal y
+      diagonal, autocuración, rechazo `target-full-hp` atómico y tests sin
+      debilitar. `pnpm run verify` con 1909 tests; `verify:task` OK. Los E2E
+      antiguos quedan para TASK-0179. Detalle en
+      `attempt-1/lead-verify/verification.md`.
 ---
 
 # Objetivo
