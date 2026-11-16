@@ -213,9 +213,9 @@ Los valores concretos de la economía de turno son provisionales y viven en
   todo su equipo y persiste. Cargar no vuelve a tirar. Las llaves y objetos de
   progresión se reservan para su hoja.
 - Los hechizos usan un recurso de **maná** derivado del nivel de magia (máximo
-  nivel × 4), separado del MP de movimiento. El maná se recarga completo cada
-  turno. Cada hechizo cuesta maná y una acción; máximo 2 por turno en el primer
-  corte, provisional hasta los objetos de acción.
+  nivel × 4), separado del MP de movimiento. El maná se recupera +4 al inicio de
+  cada turno de la unidad, hasta el máximo. Cada hechizo cuesta maná y una acción;
+  máximo 2 por turno en el primer corte, provisional hasta los objetos de acción.
 - Cada personaje tiene **un nivel de magia único 0–4**; las familias son
   categorías de hechizo, no niveles. Cualquier lanzador con nivel suficiente usa
   cualquier hechizo.

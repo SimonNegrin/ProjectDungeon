@@ -75,8 +75,8 @@ playtests.
   pulsación**; no encadena todos los ataques.
 - El turno **no termina solo** al gastar las acciones: se cierra con `N`. El HUD
   sugiere terminar cuando no quedan acciones ni MP útil.
-- Al empezar el turno de cada jugador se restauran su MP, acciones y maná; el que
-  aún no ha actuado conserva lo que tuviera.
+- Al empezar el turno de cada jugador se restauran su MP y acciones y su maná
+  sube +4 hasta el máximo; el que aún no ha actuado conserva lo que tuviera.
 
 # Réplica
 
@@ -331,8 +331,8 @@ perfil es normal en los cinco tipos.
 # Orden de turnos
 
 1. Los jugadores actúan en **orden fijo**, el de su índice en la party. Cada uno
-   tiene su turno con su MP, acciones, maná y cupo de hechizos, que se restauran al
-   empezar ese turno y no al inicio de la fase.
+   tiene su turno con su MP, acciones y cupo de hechizos, que se restauran al
+   empezar ese turno y no al inicio de la fase; el maná sube +4 hasta el máximo.
 2. El turno **no auto-termina**: se cierra con `N` (`EndTurn`) en cualquier
    momento, con recursos gastados o intactos. El último `N` de la ronda inicia la
    fase enemiga sin aviso ni confirmación.

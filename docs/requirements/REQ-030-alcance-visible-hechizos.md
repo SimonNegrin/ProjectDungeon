@@ -4,11 +4,11 @@ id: REQ-030
 title: "Alcance visible de los hechizos"
 description: "Contorno de las casillas que marcan el alcance máximo y mínimo de un hechizo, recortado por muros y línea de visión, mientras el jugador elige o apunta; mismas reglas de alcance, solo presentación."
 status: draft
-version: 1
+version: 2
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-13T15:00:00Z
-updated_at: 2026-11-13T15:00:00Z
+updated_at: 2026-11-16T22:59:36Z
 related_tasks: []
 related_requirements: [REQ-004, REQ-023, REQ-025, REQ-029]
 related_decisions: []
@@ -26,11 +26,18 @@ por ensayo, y los seis hechizos no se comportan igual.
 Datos del corte actual:
 
 - Alcance **Chebyshev** (cuadrado), con mínimo y máximo por hechizo: Eléctrico I
-  1–3, Fuego II 1–3, Eléctrico III 1–4, Fuego IV 1–4, **Curación III 2–3** y
-  **Resurrección IV 1–1**.
+  1–3, Fuego II 1–3, Eléctrico III 1–4, Fuego IV 1–4, **Curación III 1** (desde
+  la v4 de `REQ-025`) y **Resurrección IV 1–1**.
 - La línea de visión es Bresenham contra muros; un muro intermedio bloquea.
 - La lista de hechizos es un panel flotante (`Q`) que se superpone al escenario.
 - El HUD de detalle bajo el cursor es REQ-023 y no se rediseña aquí.
+
+> **Nota de vigencia (2026-11-16).** La v4 de
+> [REQ-025](REQ-025-magia-hechizos-mana.md) cambió Curación III a alcance 1 y
+> eliminó el caso que motivaba el hueco interior (un aliado adyacente rechazado
+> por alcance mínimo). La hoja sigue en borrador porque el resto de la utilidad
+> —ver el alcance máximo y lo que recortan muros y LOS antes de gastar— permanece.
+> Hoy ningún hechizo declara mínimo mayor que 1.
 
 La pieza se propone reutilizable para cuando existan **ataques a distancia**. Hoy
 no existen: `ranged` está declarado como tipo de ataque, pero ningún arma declara
@@ -40,8 +47,8 @@ alcance y todo el combate es cuerpo a cuerpo.
 
 - Que el jugador vea **antes de gastar** dónde llega el hechizo que va a lanzar.
 - Que al recorrer la lista distinga hechizos por alcance sin memorizar cifras.
-- Que el contorno explique el hueco del alcance mínimo (curación no alcanza una
-  casilla adyacente).
+- Que el contorno explique el hueco del alcance mínimo si un hechizo futuro lo
+  declara (hoy ninguno lo hace).
 - Que el mecanismo sirva después para los ataques a distancia sin rehacerlo.
 
 # Relación con documentos vigentes
@@ -61,7 +68,7 @@ No enmienda ninguna hoja: solo añade presentación sobre reglas ya aprobadas.
 | ID | Requisito | Cómo se comprueba |
 |---|---|---|
 | R-001 | El contorno se dibuja cuando hay un hechizo **en uso**: con la lista abierta se ve el del hechizo resaltado y cambia al mover la fila; con un hechizo elegido y la lista cerrada se ve mientras se apunta con `X`. | Abrir `Q`, recorrer la lista y ver cambiar el contorno; cerrar y comprobar que sigue el hechizo elegido. |
-| R-002 | Se marca el **borde exterior** del alcance máximo y el **hueco interior** del mínimo; el área intermedia no se rellena. | Con Curación III (2–3) se ve un anillo, no un cuadrado lleno; con Resurrección IV se ve una sola casilla. |
+| R-002 | Se marca el **borde exterior** del alcance máximo y el **hueco interior** del mínimo; el área intermedia no se rellena. | Con Curación III (1) y Resurrección IV (1) se ve una sola casilla; el hueco interior solo aparece si un hechizo futuro declara mínimo mayor que 1. |
 | R-003 | El contorno **respeta muros y línea de visión**: marca lo que el motor aceptaría por distancia y visión, no un cuadrado geométrico abstracto. | Un muro entre el lanzador y una casilla del borde deja esa casilla fuera del contorno. |
 | R-004 | La marca es una **línea por casilla del perímetro**, por encima del suelo y por debajo de unidades, cursor y feedback; color propio de magia y sin animación. | Capturas a 1280×720 y 900×700; el cursor y las unidades se leen por encima. |
 | R-005 | Si el hechizo resaltado **no es lanzable** (nivel, maná o tope), el contorno se atenúa en gris en vez de desaparecer. | Con maná insuficiente el contorno sigue visible, apagado, y la fila muestra su motivo. |
@@ -92,7 +99,9 @@ No enmienda ninguna hoja: solo añade presentación sobre reglas ya aprobadas.
 
 - **Avisos de rechazo con texto propio** (maná, nivel, alcance, LOS, tope,
   objetivo ausente, muerto, aliado): se aplazan. Hoy el motor rechaza sin
-  consumir y el HUD mantiene el aviso genérico.
+  consumir y el HUD mantiene el aviso genérico. Excepción: el rechazo por PV
+  completo de Curación III tiene texto propio en
+  [REQ-025](REQ-025-magia-hechizos-mana.md) R-014.
 - **Sonido** asociado a rechazos o a lanzamientos.
 - **Ataques a distancia jugables** y su previsualización.
 - Cambiar alcance, objetivo, coste, LOS o el tope de hechizos.
@@ -112,7 +121,8 @@ No enmienda ninguna hoja: solo añade presentación sobre reglas ya aprobadas.
   irregular) o cuadrado geométrico del alcance con los muros marcados de otra
   forma? Se propone el recortado.
 - **P-004.** ¿El alcance mínimo se marca como hueco interior en todos los
-  hechizos o solo cuando es mayor que 1?
+  hechizos o solo cuando es mayor que 1? Hoy todos los hechizos tienen mínimo 1,
+  así que el hueco no aparece en el corte actual.
 - **P-005.** ¿El estado no lanzable se atenúa en gris, se dibuja igual que uno
   lanzable o no se dibuja?
 - **P-006.** ¿Un color para todos los hechizos o color por familia (eléctrico,

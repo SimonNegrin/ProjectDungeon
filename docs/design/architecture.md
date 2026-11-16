@@ -149,9 +149,10 @@ La magia de [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md) vive en
   eléctrico, aunque el escudo sí cuenta para el impacto. El nivel de magia solo
   afecta a acceso, maná e impacto; no decide el tipo ni la resistencia.
 - `mana.ts` implementa el recurso de este corte: `UnitStats.magicLevel` (0–4) y
-  `Unit.mana { current, max }`; `max = nivel × 4` y se recarga al inicio del
+  `Unit.mana { current, max }`; `max = nivel × 4` y se recuperan +4 al inicio del
   turno junto a MP y acciones. El maná no altera el MP.
-- La curación y la resurrección son hechizos sin tirada de impacto; la
+- La curación y la resurrección son hechizos sin tirada de impacto; la curación
+  alcanza 1 casilla (diagonales) y puede aplicarse al propio lanzador; la
   resurrección conserva las condiciones de
   [REQ-021](../requirements/REQ-021-muerte-fantasma-resurreccion.md).
 
@@ -196,9 +197,10 @@ la presentación en `src/host/` ([ADR-029](../decisions/ADR-029-hotseat-local.md
   sea la activa, cierra su turno y elige al siguiente vivo o fantasma con índice
   mayor (`resolveEndTurn` en `src/game/turn.ts`). Los comandos de otra unidad se
   rechazan. Sin siguiente jugador se entra en la fase enemiga.
-- **Recursos por jugador**: `restorePlayerTurn` restaura MP, acciones, maná y cupo
-  de hechizos solo al activo al empezar su turno; los que no han actuado conservan
-  lo que tuvieran. La fase enemiga restaura a los enemigos con la misma función.
+- **Recursos por jugador**: `restorePlayerTurn` restaura MP, acciones y cupo de
+  hechizos, y sube el maná +4 hasta el máximo, solo al activo al empezar su turno;
+  los que no han actuado conservan lo que tuvieran. La fase enemiga restaura a los
+  enemigos con la misma función.
 - **Una fase enemiga por ronda**: los enemigos actúan en orden de índice y el
   motor publica por enemigo actor, objetivo y espera (`enemyPhase` del
   `TurnResult`). Los dormidos esperan sin presentación. El motor no decide cámara

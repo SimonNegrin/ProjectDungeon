@@ -61,7 +61,7 @@ experimento.
   familias mágicas con efectos temporales y permanentes, teletransporte mediante
   magia y curación.
 - **Magia simple**: un nivel de magia único 0–4, maná máximo nivel × 4 que se
-  recarga cada turno y hechizos por familia accesibles por nivel. Cada hechizo
+  recupera +4 por turno y hechizos por familia accesibles por nivel. Cada hechizo
   cuesta maná y una acción; máximo dos hechizos por turno en el primer corte.
 - **Acciones**: varias acciones por turno, 2 por defecto, ajustables por arquetipo
   y por objetos. Atacar, interactuar y lanzar hechizos consumen acción; moverse y

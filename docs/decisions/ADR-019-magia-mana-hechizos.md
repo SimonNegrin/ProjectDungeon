@@ -1,11 +1,12 @@
 ---
 type: ADR
 title: "ADR-019: magia de nivel único, maná por turno y catálogo de hechizos"
-description: Nivel de magia 0–4, maná máximo nivel × 4 que se recarga por turno, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos.
+description: Nivel de magia 0–4, maná máximo nivel × 4 que se recupera +4 por turno, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos con curación adyacente.
 status: stable
 decision_status: accepted
 decided_by: [human:simon]
 decided_at: 2026-11-11T15:30:00Z
+amended_at: 2026-11-16T22:59:36Z
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:30:00Z }
 ---
 
@@ -25,7 +26,8 @@ los valores concretos viven en REQ-025 y en el catálogo.
   roster: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el resto 0. No hay
   familias con nivel propio.
 - **Maná separado del MP**: máximo = nivel × 4 (0/4/8/12/16); se recarga completo
-  al inicio del turno de la unidad. No se acumula entre turnos.
+  al inicio del turno de la unidad. No se acumula entre turnos. *(Sustituido el
+  2026-11-16: ver Enmienda; ahora se recupera +4 por turno.)*
 - **Acceso por nivel, sin aprendizaje ni grimorio**: cualquier lanzador con nivel
   suficiente usa cualquier hechizo de ese nivel o inferior.
 - **Coste**: el catálogo guarda el coste final por hechizo; 2 × nivel es una guía
@@ -45,16 +47,48 @@ los valores concretos viven en REQ-025 y en el catálogo.
   se codifican por id. Las fórmulas (maná máximo, tope, capas de combate) son
   reglas compartidas, no números por hechizo.
 - **Curación**: aliado a 2–3 casillas, no a sí mismo; cura 4 PV por 6 de maná.
+  *(Sustituido el 2026-11-16: ver Enmienda; ahora 1 casilla con diagonales, sí
+  mismo, 6 PV por 8 de maná y rechazo a PV completo.)*
 - **Resurrección**: nivel 4, 8 de maná, condiciones de `REQ-021` (adyacencia al
   cadáver y casilla sin vivos). El resucitado vuelve con el 60 % de su PV máximo,
   redondeado hacia arriba (mínimo 1). Hoy solo el Mago; el objeto de resurrección
-  queda como respaldo.
+  queda como respaldo. *(Coste enmendado el 2026-11-16: 12 de maná.)*
 - **Valores provisionales v1**: se ajustan tras playtest; los tests leen del
   catálogo y no duplican números.
+
+# Enmienda (2026-11-16)
+
+El playtest detectó que la party empieza con los personajes adyacentes y que
+Curación III, con alcance 2–3, rechazaba el primer intento natural con «Fuera de
+alcance». El usuario decide priorizar la lectura inmediata y compensar el cambio
+con coste y recuperación de maná:
+
+- **Maná por turno:** cada unidad recupera `+4` al inicio de su propio turno,
+  hasta su máximo. El 4 es una constante global ajustable. El maná inicial sigue
+  lleno; cambiar el nivel de magia solo recalcula el máximo y recorta el actual.
+  Esto sustituye la recarga completa.
+- **Curación III:** alcance 1 (las 8 casillas adyacentes, diagonales incluidas),
+  objetivo aliado vivo **incluido el lanzador**, 8 de maná y 6 PV sin sobrecurar.
+  Se mantiene sin enemigos ni cadáveres. Si el objetivo está a PV completo, se
+  rechaza sin gastar acción, maná ni hueco de hechizo.
+- **Resurrección IV:** 12 de maná; el resto no cambia (nivel 4, adyacencia al
+  cadáver, 60 % del PV máximo con mínimo 1).
+- **Guía de costes:** los costes 8 y 12 quedan fuera de «2 × nivel ±1»; la guía
+  pasa a ser orientativa y no un límite.
+
+El bucle de autocuración que este ADR quería evitar se frena por el coste: con
+12 de maná máximo, el Clérigo cura como mucho una vez por turno y, sostenido con
++4 por turno, una vez cada dos turnos. No se añade un límite extra de
+autocuración. La decisión y sus números viven en
+[REQ-025 v4](../requirements/REQ-025-magia-hechizos-mana.md#catálogo-mínimo-provisional-v1).
 
 # Consecuencias
 
 - El sistema se explica en una línea: nivel, maná y hechizos.
+- El maná deja de rellenarse cada turno: se acumula y obliga a decidir cuándo
+  gastarlo. La resurrección es más escasa y la curación compite con el ataque.
+- La curación adyacente y la autocuración se leen de inmediato; el coste 8 y la
+  recuperación +4 frenan el bucle sin añadir otra regla.
 - El Mago escala en daño porque tiene un ataque de nivel 4; el Cocinero usa el
   eléctrico de nivel 1 como opción fiable.
 - La resurrección concentra la tensión en el Mago; si muere, el objeto es la vía
@@ -83,7 +117,8 @@ los valores concretos viven en REQ-025 y en el catálogo.
 - **Coste fijo por nivel sin datos por hechizo**: impide que fuego y eléctrico se
   diferencien y obliga a tocar código para ajustar.
 - **Curación a sí mismo o a distancia larga**: convierte al Clérigo en un bucle
-  de autocuración y alarga los combates.
+  de autocuración y alarga los combates. *(La autocuración se aceptó el
+  2026-11-16 con coste 8 y recuperación +4; la distancia larga sigue descartada.)*
 
 Ver [REQ-025](../requirements/REQ-025-magia-hechizos-mana.md),
 [REQ-014](../requirements/REQ-014-atributos-inherentes-personajes.md),

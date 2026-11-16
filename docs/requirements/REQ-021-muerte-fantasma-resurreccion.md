@@ -2,18 +2,23 @@
 type: Requirement Sheet
 id: REQ-021
 title: Muerte, fantasma y resurrección
-description: "La muerte no expulsa al jugador: cadáver saqueable, fantasma con turno y acción, resurrección condicionada y derrota por wipe total."
+description: "La muerte no expulsa al jugador: cadáver saqueable, fantasma con turno y acción, resurrección condicionada y derrota por wipe total; maná +4 por turno y resurrección por 12."
 status: stable
-version: 6
+version: 7
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T11:00:00Z
-updated_at: 2026-11-16T00:29:48Z
-related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148]
+updated_at: 2026-11-16T22:59:36Z
+related_tasks: [TASK-0131, TASK-0132, TASK-0147, TASK-0148, TASK-0178]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T11:00:00Z }
 verified:
   - by: human:simon
     at: 2026-11-11T12:00:00Z
+  - by: human:simon
+    at: 2026-11-16T22:59:36Z
+    note: >-
+      Aprueba la enmienda de REQ-025 v4 que afecta a esta hoja: maná +4 por turno
+      (no recarga completa) y resurrección por 12 de maná.
 ---
 
 # Contexto
@@ -75,7 +80,7 @@ antes de implementar.
 | R-005 | La acción del fantasma permite interactuar con puertas, coger y mover **un** objeto a la vez y acercarlo a los vivos. | El fantasma puede abrir puertas, recoger un objeto y soltarlo; no puede llevar dos ni usarlos. |
 | R-006 | El fantasma ve el contenido de cofres abiertos y cerrados e informa de él, pero no sabe si hay trampa ni puede abrir un cofre. | Abrir un cofre sigue siendo acción de un vivo; el fantasma muestra el contenido sin revelar trampa. |
 | R-007 | El fantasma puede saquear el cadáver y entregar sus objetos a los vivos. | Los objetos del cadáver se pueden coger de uno en uno; el cadáver conserva el resto. |
-| R-008 | La resurrección requiere un **lanzador vivo con nivel de magia 4 y 8 de maná** (hechizo de nivel 4 de `REQ-025`). Es la única fuente en este corte; sin lanzador válido, la muerte es definitiva. | El comando exige lanzador vivo, nivel 4 y 8 de maná; el maná se gasta al resucitar y los intentos inválidos no lo consumen. |
+| R-008 | La resurrección requiere un **lanzador vivo con nivel de magia 4 y 12 de maná** (hechizo de nivel 4 de `REQ-025`). Es la única fuente en este corte; sin lanzador válido, la muerte es definitiva. | El comando exige lanzador vivo, nivel 4 y 12 de maná; el maná se gasta al resucitar y los intentos inválidos no lo consumen. |
 | R-009 | El comando apunta a un **cadáver concreto**, elegido explícitamente cuando varios comparten casilla; quien resucita debe estar **adyacente a la casilla de ese cadáver**, y esa casilla no puede estar ocupada por un vivo (aliado o enemigo). Un vivo puede quedarse encima y bloquear la resurrección. | Fuera de adyacencia o con un vivo en la casilla, la resurrección se rechaza; el fantasma no cuenta como ocupante; con varios cadáveres en la casilla, resucita el elegido. |
 | R-010 | El personaje resucitado **vuelve en la casilla del cadáver**, no en la del fantasma. | Tras resucitar, la unidad viva ocupa la casilla del cadáver; el fantasma desaparece de esa posición. |
 | R-011 | La partida se pierde por wipe total: cuando no queda ningún jugador vivo, aunque queden fantasmas. | Al morir el último vivo, la partida termina; los fantasmas no la prolongan. |
@@ -92,8 +97,8 @@ antes de implementar.
 | T-003 | El MP del fantasma se calcula desde el atributo intrínseco del personaje, sin modificadores de equipo; el equipo del cadáver no altera su turno. | Con y sin equipo, el MP del fantasma es el mismo; el del vivo cambia. |
 | T-004 | Existe un comando de interacción del fantasma limitado a puertas, recogida/suelta de un objeto e inspección de contenedores. | Comandos inválidos se rechazan sin cambios de estado; no hay acciones de ataque, uso o equipo. |
 | T-005 | La inspección de contenedores devuelve el contenido a los vivos, pero nunca el estado de trampa; abrir un cofre sigue siendo un comando de unidad viva. | Un cofre con trampa conserva su estado oculto; el fantasma no puede abrirlo. |
-| T-006 | La resurrección es un comando que apunta a un cadáver concreto y valida lanzador vivo con nivel 4 y 8 de maná según `REQ-025`, adyacencia a la casilla del cadáver elegido y ausencia de vivos en ella; si es válido, consume maná y sitúa al resucitado en la casilla del cadáver con el 60 % de su PV máximo, redondeado hacia arriba (mínimo 1). | Tests: fuera de adyacencia, casilla ocupada por aliado, ocupada por enemigo, fantasma sobre la casilla (permitido), varios cadáveres en la casilla, nivel insuficiente, maná insuficiente y PV de retorno; los comandos inválidos no cambian estado y no consumen. |
-| T-007 | El nivel de magia define el maná máximo, que se recarga completo al inicio del turno de la unidad; el maná es serializable, se expone en el snapshot y el host lo muestra en el HUD. | Tests de creación, recarga y gasto; el maná no altera el MP ni el movimiento; la reserva se reconstruye al reiniciar. |
+| T-006 | La resurrección es un comando que apunta a un cadáver concreto y valida lanzador vivo con nivel 4 y 12 de maná según `REQ-025`, adyacencia a la casilla del cadáver elegido y ausencia de vivos en ella; si es válido, consume maná y sitúa al resucitado en la casilla del cadáver con el 60 % de su PV máximo, redondeado hacia arriba (mínimo 1). | Tests: fuera de adyacencia, casilla ocupada por aliado, ocupada por enemigo, fantasma sobre la casilla (permitido), varios cadáveres en la casilla, nivel insuficiente, maná insuficiente y PV de retorno; los comandos inválidos no cambian estado y no consumen. |
+| T-007 | El nivel de magia define el maná máximo; al inicio del turno de cada unidad se recuperan 4 puntos hasta el máximo (constante global ajustable), no la reserva completa. El maná es serializable, se expone en el snapshot y el host lo muestra en el HUD. | Tests de creación, recuperación +4, tope al máximo y gasto; el maná no altera el MP ni el movimiento; la reserva se reconstruye al reiniciar. |
 | T-008 | La comprobación de derrota cuenta solo jugadores vivos; los fantasmas no la evitan. | Al morir el último vivo se emite el fin de partida; con un vivo y fantasmas, no. |
 | T-009 | La IA enemiga ignora al fantasma y no lo selecciona como objetivo ni obstáculo. | La percepción, la persecución y el ataque no reaccionan al fantasma. |
 | T-010 | El host presenta el fantasma, su turno y sus acciones con feedback; el jugador entiende por qué no puede atacar, abrir cofres ni usar objetos. | Avisos de rechazo con texto; el turno del fantasma se distingue del turno vivo. |
@@ -149,8 +154,8 @@ antes de implementar.
 
 1. **Objeto de resurrección (diferido).** Fuera de este corte por decisión de
    2026-11-15. Si vuelve, necesita hoja propia: nivel, consumo, acción, botín y
-   hueco. El hechizo ya está cerrado en `REQ-025`: nivel 4 y 8 de maná; el maná
-   máximo es nivel × 4 y se recarga completo por turno.
+   hueco. El hechizo ya está cerrado en `REQ-025`: nivel 4 y 12 de maná; el maná
+   máximo es nivel × 4 y se recuperan 4 por turno.
 2. **Visión del fantasma.** ¿Respeta línea de visión normal o ve a través de
    muros? Provisional: línea de visión normal.
 3. **Alcance de «informar».** ¿Solo el contenido de cofres y cadáveres, o también
@@ -191,6 +196,8 @@ antes de implementar.
 | 2026-11-11 | El fantasma no cuenta como ocupante de la casilla del cadáver. | human:simon | aceptada |
 | 2026-11-11 | Derrota por wipe total; los fantasmas no la evitan. | human:simon | aceptada |
 | 2026-11-11 | El resucitado vuelve con el 60 % de su PV máximo, redondeado hacia arriba (mínimo 1). | human:simon | aceptada |
+| 2026-11-16 | El maná se recupera +4 al inicio de cada turno, no completo (enmienda de `REQ-025` v4). | human:simon | aceptada; sustituye a la recarga completa |
+| 2026-11-16 | La resurrección cuesta 12 de maná, no 8 (enmienda de `REQ-025` v4). | human:simon | aceptada |
 | 2026-11-11 | La visión del fantasma queda provisional hasta playtest. | human:simon | provisional |
 | 2026-11-15 | En este corte la resurrección no usa objeto: solo el hechizo de nivel 4 y 8 de maná. El objeto se difiere a hoja propia. | human:simon | aceptada |
 | 2026-11-15 | El comando apunta a un cadáver concreto, no a la casilla; con varios cadáveres en la misma casilla se elige uno (aplicación de `REQ-020`). | human:simon | aceptada |

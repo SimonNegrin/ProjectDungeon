@@ -2,14 +2,14 @@
 type: Requirement Sheet
 id: REQ-025
 title: Magia, hechizos y maná
-description: "Nivel de magia único 0–4, maná derivado (nivel × 4) que se recarga cada turno, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos con resurrección de nivel 4."
+description: "Nivel de magia único 0–4, maná derivado (nivel × 4) que se recupera +4 por turno, fórmula mágica con las capas del combate físico y catálogo mínimo de seis hechizos con curación adyacente y resurrección de nivel 4."
 status: stable
-version: 3
+version: 4
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-11T15:00:00Z
-updated_at: 2026-11-13T16:37:46Z
-related_tasks: [TASK-0081, TASK-0082, TASK-0083]
+updated_at: 2026-11-16T22:59:36Z
+related_tasks: [TASK-0081, TASK-0082, TASK-0083, TASK-0177, TASK-0178, TASK-0179]
 generated: { by: deepseek/v4.1-flash, at: 2026-11-11T15:00:00Z }
 verified:
   - by: human:simon
@@ -18,6 +18,13 @@ verified:
       Revisa y aprueba la hoja: nivel 0–4, maná nivel × 4, catálogo mínimo de seis
       hechizos, fórmula mágica con las capas del físico, curación a 2–3 casillas y
       resurrección de nivel 4 con 60 % del PV máximo.
+  - by: human:simon
+    at: 2026-11-16T22:59:36Z
+    note: >-
+      Aprueba la enmienda v4: maná +4 por turno de cada unidad (no recarga
+      completa), Curación III a 1 casilla con diagonales y autocuración por 8 de
+      maná y 6 PV, rechazo sin gastar a PV completo, y Resurrección IV por 12 de
+      maná. Registrada en la tabla de decisiones y en ADR-019.
 ---
 
 > **Estado de implementación (2026-11-13).** Nivel de magia, maná, catálogo,
@@ -35,11 +42,20 @@ verified:
 > los eléctricos causan eléctrico. Lo implementan TASK-0085 a TASK-0090 y lo
 > documenta TASK-0091.
 
+> **Enmienda v4 (2026-11-16).** El maná deja de recargarse completo: cada unidad
+> recupera **+4 al inicio de su turno**, hasta su máximo. Curación III pasa a
+> alcance **1 casilla** (diagonales incluidas), puede curarse a sí misma, cuesta
+> **8 de maná** y cura **6 PV**; si el objetivo está a PV completo se rechaza sin
+> gastar. Resurrección IV sube a **12 de maná** y mantiene el 60 % del PV máximo.
+> Lo implementan TASK-0177 a TASK-0179. El detalle vive en R-004, R-013, el
+> catálogo y [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md); esta nota no
+> sustituye esas reglas.
+
 # Contexto
 
 La visión pedía familias mágicas con niveles separados. El usuario prefiere un
 sistema más simple: **un solo nivel de magia** por personaje y un **maná** que se
-recarga cada turno. Las familias (fuego, eléctrico, veneno, vida…) siguen
+recupera poco a poco. Las familias (fuego, eléctrico, veneno, vida…) siguen
 existiendo como categorías de hechizo, pero no como niveles independientes:
 cualquier lanzador con nivel suficiente puede usar cualquier hechizo.
 
@@ -56,17 +72,18 @@ habilidad.
   nivel único por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el
   resto 0.
 - [REQ-021](REQ-021-muerte-fantasma-resurreccion.md): la resurrección pasa a ser
-  un hechizo de nivel 4 con coste 8 de maná; «mago» pasa a «lanzador con nivel
-  suficiente».
+  un hechizo de nivel 4 con coste 12 de maná (v4); «mago» pasa a «lanzador con
+  nivel suficiente». Su maná también pasa a +4 por turno.
 - [Visión](../vision.md), [alcance](../scope.md), [glosario](../glossary.md) y
   [arquitectura](../design/architecture.md) recogen el cambio.
-- Se registra [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md).
+- Se registra [ADR-019](../decisions/ADR-019-magia-mana-hechizos.md), enmendado
+  por la v4.
 
 # Objetivos de experiencia
 
 - Que la magia se explique en una línea: nivel de magia, maná y hechizos.
-- Que el maná se sienta como presupuesto táctico por turno, no como una barra que
-  hay que administrar durante toda la partida.
+- Que el maná se sienta como un presupuesto que se recupera +4 por turno y obliga
+  a elegir cuándo gastarlo, no como una barra que se rellena sola.
 - Que elegir un hechizo sea una decisión de acción y de coste, no de grimorio.
 - Que el nivel alto se note en el daño: cada nivel tiene un ataque propio.
 - Que el ataque mágico se lea con las mismas capas que el físico.
@@ -80,16 +97,17 @@ habilidad.
 | R-001 | Cada personaje tiene **un nivel de magia entero de 0 a 4**; 0 significa sin magia. No hay niveles por familia. | El estado guarda un único nivel; no existen mapas familia→nivel; el nivel 0 no puede lanzar. |
 | R-002 | Las familias (fuego, eléctrico, veneno, vida…) son categorías de hechizo; no limitan el acceso por sí mismas. | Dos hechizos de familias distintas con el mismo nivel y coste están disponibles para el mismo lanzador. |
 | R-003 | El maná es un recurso separado del MP de movimiento, con un máximo de **nivel × 4**. | El estado expone maná actual y máximo; el máximo es 0/4/8/12/16 y no coincide con MP. |
-| R-004 | El maná se recarga **completo** al inicio de cada turno de la unidad. | Al empezar su turno, una unidad vuelve a maná máximo; el gasto no se acumula entre turnos. |
-| R-005 | Cada hechizo declara nivel mínimo y **coste final de maná**; el 2 × nivel es una guía de diseño (±1 por hechizo); lanzarlo consume **una acción** y el coste. | El coste final vive en el catálogo; un hechizo sin maná o sin acción se rechaza sin consumir nada. |
+| R-004 | Cada unidad recupera **+4 de maná** al inicio de su propio turno, hasta su máximo; la cifra es una constante global ajustable. El maná no se rellena por completo. | Con máximo 12 y 6 gastados, al empezar el turno siguiente queda en 10; nunca supera el máximo; el gasto sí persiste entre turnos. |
+| R-005 | Cada hechizo declara nivel mínimo y **coste final de maná**; el 2 × nivel es una guía de diseño, no un límite (8 y 12 son excepciones aprobadas); lanzarlo consume **una acción** y el coste. | El coste final vive en el catálogo; un hechizo sin maná o sin acción se rechaza sin consumir nada. |
 | R-006 | Un lanzador puede lanzar hasta **2 hechizos por turno**, limitado también por maná y acciones. El tope es provisional hasta los objetos de +1 acción. | Con 2 acciones y maná suficiente se pueden lanzar 2 hechizos; con 3 acciones se mantiene el tope de 2. |
 | R-007 | El acceso a hechizos es **por nivel**: cualquier personaje con nivel suficiente puede lanzar cualquier hechizo de ese nivel o inferior. No hay aprendizaje ni grimorio. | No existe lista de hechizos conocidos; el catálogo y el nivel determinan la disponibilidad. |
 | R-008 | Los proyectiles físicos no gastan maná; los mágicos sí y siguen las reglas de hechizo. | Un arquero dispara sin maná; un proyectil mágico descuenta coste y acción. |
-| R-009 | La **resurrección** es un hechizo de **nivel 4 y coste 8** con las condiciones de `REQ-021`: adyacencia al cadáver y casilla sin vivos. Hoy solo el Mago tiene nivel 4. | Sin nivel 4, sin 8 de maná o sin adyacencia, la resurrección se rechaza; cumple todo, se aplica. |
-| R-010 | La resurrección no tiene un tope propio por turno: solo la limitan acciones, maná, nivel y adyacencia. | Un lanzador de nivel 4 con 16 de maná y 2 acciones puede resucitar dos veces en el mismo turno. |
+| R-009 | La **resurrección** es un hechizo de **nivel 4 y coste 12** con las condiciones de `REQ-021`: adyacencia al cadáver y casilla sin vivos. Hoy solo el Mago tiene nivel 4. | Sin nivel 4, sin 12 de maná o sin adyacencia, la resurrección se rechaza; cumple todo, se aplica. |
+| R-010 | La resurrección no tiene un tope propio por turno: solo la limitan acciones, maná, nivel y adyacencia. | Con 16 de maná y 2 acciones se puede resucitar una vez (12); dos veces exigiría 24, fuera de este corte. |
 | R-011 | El HUD muestra nivel de magia y maná actual/máximo del jugador activo y del enemigo inspeccionado. | `REQ-022` y `REQ-023` reciben los campos; la QA visual los comprueba. |
 | R-012 | El **ataque mágico usa las mismas capas que el físico**: impacto con `nivel de magia + acierto del hechizo + 1d6 > defensa + escudo + 1d6`; daño con `max(1, poder del hechizo + 1d6 − (resistencia + armadura + 1d6))`. El empate falla. El nivel de magia suma al acierto; el daño sale del poder del hechizo. | No hay resistencia mágica separada; un lanzador de nivel alto acierta más con el mismo hechizo, pero el daño depende del poder del hechizo. |
-| R-013 | El primer corte incluye un **catálogo mínimo de seis hechizos**: Eléctrico I (nivel 1), Fuego II (2), Eléctrico III (3), Fuego IV (4), Curación III (3) y Resurrección IV (4). | Cada nivel 1–4 tiene un ataque propio; la curación es a 2–3 casillas y solo a aliados; la resurrección exige nivel 4. |
+| R-013 | El primer corte incluye un **catálogo mínimo de seis hechizos**: Eléctrico I (nivel 1), Fuego II (2), Eléctrico III (3), Fuego IV (4), Curación III (3) y Resurrección IV (4). | Cada nivel 1–4 tiene un ataque propio; la curación es a 1 casilla (diagonales), puede aplicarse a sí mismo y solo a aliados; la resurrección exige nivel 4 y 12 de maná. |
+| R-014 | Si el objetivo de una curación ya está a PV completo, el lanzamiento se rechaza **sin consumir** acción, maná ni hueco de hechizo. | El intento devuelve un rechazo propio y el estado queda intacto; el HUD muestra «Ya está a PV completo». |
 
 # Requisitos técnicos
 
@@ -99,13 +117,14 @@ habilidad.
 | T-002 | El catálogo de hechizos es dato serializable: id, familia, nivel mínimo, **coste final**, alcance, acierto, poder, objetivo, **efecto con parámetros** y presentación. El 2 × nivel es una guía, no una fórmula de runtime. | Añadir o ajustar un hechizo no requiere código nuevo; el efecto se parametriza (cantidad de curación, PV al resucitar) y no se codifica por id. |
 | T-003 | La resolución de hechizos es determinista con el RNG sembrado; no usa `Math.random`. | Misma semilla y comandos producen el mismo resultado. |
 | T-004 | La validación comprueba acción, maná, nivel, alcance, línea de visión y objetivo antes de aplicar; si falla, no consume nada. | Tests de cada rechazo; estado y RNG intactos. |
-| T-005 | La recarga de maná ocurre al inicio del turno de cada unidad, junto a la restauración de MP y acciones. | Tests de recarga por turno y de que el gasto no persiste. |
-| T-006 | El comando de resurrección de `REQ-021` se implementa como hechizo de nivel 4 y coste 8, conservando adyacencia, ocupación, consumo y reaparición en el cadáver. | Los tests de `REQ-021` siguen pasando con el nuevo coste. |
+| T-005 | La recuperación de maná ocurre al inicio del turno de cada unidad, junto a la restauración de MP y acciones: `min(actual + 4, máximo)`. El 4 es una constante global exportada y ajustable. Cambiar el nivel de magia solo recalcula el máximo y recorta el actual; no rellena. | Tests de +4 por turno, tope al máximo, maná inicial lleno, cambio de nivel sin regalo y de que el gasto persiste. |
+| T-006 | El comando de resurrección de `REQ-021` se implementa como hechizo de nivel 4 y coste 12, conservando adyacencia, ocupación, consumo y reaparición en el cadáver. | Los tests de `REQ-021` siguen pasando con el nuevo coste. |
 | T-007 | El límite de 2 hechizos por turno se cuenta por unidad y turno, independiente de las acciones disponibles; es provisional hasta los objetos de +1 acción. | Con 3 acciones, el tercer hechizo se rechaza por tope, no por acción. |
-| T-008 | Tests nuevos: nivel insuficiente, maná insuficiente, sin acción, tope de 2, recarga, proyectil mágico, acierto/poder de fuego y eléctrico, curación con alcance y objetivo, resurrección y determinismo. | `pnpm run verify` pasa; los tests derivan los valores esperados del catálogo y no fijan números duplicados; los de `REQ-014`, `REQ-015` y `REQ-021` conservan su intención. |
+| T-008 | Tests nuevos: nivel insuficiente, maná insuficiente, sin acción, tope de 2, recuperación +4, proyectil mágico, acierto/poder de fuego y eléctrico, curación adyacente y a sí mismo, rechazo a PV completo sin gastar, resurrección y determinismo. | `pnpm run verify` pasa; los tests derivan los valores esperados del catálogo y la constante de maná; los de `REQ-014`, `REQ-015` y `REQ-021` conservan su intención. |
 | T-009 | Se actualizan glosario, arquitectura, `REQ-014`/`REQ-015`/`REQ-021`, visión y alcance; se registra `ADR-019`. | `docs:check` pasa; no quedan referencias a familias con nivel 1–4. |
 | T-010 | Sin dependencias nuevas, sin red y sin arte final. | `package.json` y `pnpm-lock.yaml` no cambian. |
 | T-011 | El resolvedor mágico reutiliza las capas de combate de `REQ-014` y no crea una resistencia mágica paralela. | Fuego y eléctrico se diferencian por acierto y poder; el mismo objetivo recibe el mismo tratamiento de defensa/escudo/resistencia/armadura. |
+| T-012 | La validación de curación comprueba objetivo vivo aliado (incluido el lanzador), alcance 1, PV no completos y LOS antes de gastar; el rechazo por PV completo tiene motivo propio y es atómico. | Tests de autocuración, curación adyacente en diagonal, enemigo, cadáver, fuera de alcance y PV completo; en todos los rechazos el estado y el RNG quedan intactos. |
 
 # Catálogo mínimo (provisional v1)
 
@@ -121,15 +140,19 @@ parámetro del efecto.
 | Fuego II | fuego | 2 | 4 | 3 | +0 | 5 | enemigo |
 | Eléctrico III | eléctrico | 3 | 6 | 4 | +3 | 4 | enemigo |
 | Fuego IV | fuego | 4 | 8 | 4 | +1 | 8 | enemigo |
-| Curación III | vida | 3 | 6 | 2–3 | — | cura 4 PV | aliado, no a sí mismo |
-| Resurrección IV | vida | 4 | 8 | 1 | — | resucita al 60 % del PV máximo | cadáver de jugador |
+| Curación III | vida | 3 | 8 | 1 (diagonales) | — | cura 6 PV | aliado o uno mismo |
+| Resurrección IV | vida | 4 | 12 | 1 | — | resucita al 60 % del PV máximo | cadáver de jugador |
 
+- **Maná:** máximo = nivel × 4 (0/4/8/12/16); al inicio del turno de cada unidad,
+  `min(actual + 4, máximo)`. La cifra +4 es una constante global ajustable.
 - **Ataque:** impacto con `nivel de magia + acierto + 1d6` contra
   `defensa + escudo + 1d6`; daño con `poder + 1d6` menos
   `resistencia + armadura + 1d6`, mínimo 1.
-- **Curación:** no tira impacto; requiere línea de visión y un aliado a 2–3
-  casillas. No puede curarse a sí mismo ni a enemigos.
-- **Resurrección:** no tira impacto; requiere nivel 4, 8 de maná, adyacencia a la
+- **Curación:** no tira impacto; requiere línea de visión y un aliado vivo a 1
+  casilla (las 8 adyacentes, diagonales incluidas). Puede curarse a sí misma; no
+  cura a enemigos ni a cadáveres. Cura 6 PV sin sobrecurar por 8 de maná. Si el
+  objetivo ya está a PV completo, se rechaza sin gastar acción, maná ni hueco.
+- **Resurrección:** no tira impacto; requiere nivel 4, 12 de maná, adyacencia a la
   casilla del cadáver y ausencia de vivos en ella (`REQ-021`). El resucitado
   vuelve con el 60 % de su PV máximo, redondeado hacia arriba (mínimo 1).
 - **Proyectiles mágicos:** usan el alcance del hechizo y la línea de visión de
@@ -143,7 +166,7 @@ parámetro del efecto.
 - **Legibilidad:** el maná y el nivel caben en el HUD lateral; no se muestran como
   barras ilegibles.
 - **Mantenibilidad:** hechizos como datos (coste final y efecto parametrizado);
-  una sola fórmula de maná máximo.
+  una sola fórmula de maná máximo y una sola constante de recuperación por turno.
 - **Balance:** los seis hechizos son provisionales v1 y se ajustan tras playtest;
   los tests leen del catálogo.
 
@@ -164,7 +187,7 @@ parámetro del efecto.
 - Estados alterados, congelación, veneno, miedo, teletransporte, robo de vida y
   muros mágicos; quedan como ideas futuras no normativas.
 - Resistencias por familia y objetos que las aporten.
-- Curación a sí mismo, a enemigos o a más de 3 casillas.
+- Curación a enemigos o a más de 1 casilla.
 - Resurrección de enemigos.
 - Aprendizaje, grimorios y pergaminos.
 - Progresión por puntos de habilidad y subida de nivel de magia.
@@ -191,7 +214,7 @@ propia hoja y, si hay dudas, un experimento.
 Ninguna bloquea la implementación del primer corte. Quedan como provisionales:
 
 - **Objeto de resurrección:** nivel y consumo se deciden en `REQ-021`; el hechizo
-  ya tiene nivel 4 y coste 8.
+  ya tiene nivel 4 y coste 12.
 - **Ajuste de los seis hechizos:** valores provisionales v1; se revisan tras
   playtest.
 - **Tope de 2 hechizos:** se revisa cuando existan objetos de +1 acción
@@ -215,12 +238,19 @@ Ninguna bloquea la implementación del primer corte. Quedan como provisionales:
 | 2026-11-11 | La curación es a 2–3 casillas, solo a aliados, y no puede curarse a sí mismo. | human:simon | aceptada |
 | 2026-11-11 | La resurrección devuelve el 60 % del PV máximo, redondeado hacia arriba (mínimo 1). | human:simon | aceptada |
 | 2026-11-11 | El tope de 2 hechizos se mantiene provisional hasta los objetos de +1 acción. | human:simon | aceptada; provisional |
+| 2026-11-16 | El maná no se recarga completo: cada unidad recupera +4 al inicio de su turno, hasta el máximo. El 4 es global y ajustable. | human:simon | aceptada; sustituye a la recarga completa |
+| 2026-11-16 | Curación III pasa a alcance 1 (diagonales), puede curarse a sí misma, cuesta 8 de maná y cura 6 PV. Sin límite extra de autocuración. | human:simon | aceptada; sustituye a 2–3 y no a sí mismo |
+| 2026-11-16 | Curar a un objetivo a PV completo se rechaza sin gastar acción, maná ni hueco de hechizo. | human:simon | aceptada |
+| 2026-11-16 | Resurrección IV sube a 12 de maná y mantiene el 60 % del PV máximo. | human:simon | aceptada |
+| 2026-11-16 | Los costes 8 y 12 quedan fuera de la guía 2 × nivel ±1; la guía pasa a ser orientativa, no un límite. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
 - [x] El usuario ha aprobado las decisiones creativas.
 - [x] El usuario ha revisado el texto de la hoja.
 - [x] El usuario ha revisado el catálogo mínimo y acepta los valores provisionales v1.
+- [x] El usuario aprueba la enmienda v4: maná +4 por turno, curación adyacente y
+      autocuración por 8/6, rechazo a PV completo y resurrección por 12.
 - [x] Los requisitos son verificables.
 - [x] Las dependencias están claras.
 - [x] El grafo de tareas es posible; el orden depende de `REQ-026`.

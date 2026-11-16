@@ -2,14 +2,14 @@
 type: Requirement Sheet
 id: REQ-015
 title: Roster de arquetipos
-description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas."
+description: "Nueve arquetipos jugables con stats inherentes (incluidas acciones y nivel de magia), arma temática, dos variantes de sprite, nombre editable y el método de balance por porcentaje de victorias esperadas; curación de nivel 3 solo en el Clérigo."
 status: stable
-version: 5
+version: 6
 decision_owner: human:simon
 review_required: true
 created_at: 2026-11-09T14:00:00Z
-updated_at: 2026-11-13T16:37:46Z
-related_tasks: [TASK-0055, TASK-0056]
+updated_at: 2026-11-16T22:59:36Z
+related_tasks: [TASK-0055, TASK-0056, TASK-0178, TASK-0179]
 generated: { by: deepseek/v4-pro, at: 2026-11-09T14:00:00Z }
 verified:
   - by: human:simon
@@ -26,6 +26,12 @@ verified:
       aplazar las cuatro preguntas abiertas (objetivos de win % del bestiario,
       ajuste de magia tras playtest, tercer arquetipo con 3 acciones y arma del
       Clérigo); ninguna bloquea el cierre.
+  - by: human:simon
+    at: 2026-11-16T22:59:36Z
+    note: >-
+      Corrige la identidad mágica tras REQ-025 v4: el Clérigo (nivel 3) lanza
+      Curación III adyacente y a sí mismo; el Cocinero (nivel 1) no tiene hechizo
+      de curación en este corte. Se alinean los textos del roster.
 ---
 
 > **Nota de vigencia (2026-11-13).** Los perfiles de resistencia por arquetipo se
@@ -126,6 +132,11 @@ Todos los lanzadores comparten el catálogo de hechizos: el nivel es el único
 requisito de acceso (`REQ-025`). Las familias (fuego, eléctrico, veneno, vida…)
 son categorías de efecto, no afinidades por arquetipo.
 
+Con el catálogo v4, **Curación III es de nivel 3**: solo el Clérigo (3) puede
+lanzarla; el Cocinero (1) no tiene hechizo de curación en este corte. La
+identidad «curación» del Cocinero es una dirección futura, no una regla vigente.
+El Clérigo cura a 1 casilla, incluidas diagonales, y puede curarse a sí mismo.
+
 # Cómo ajustar el balance (método)
 
 1. **Héroes primero** (esta hoja, cerrada); después el bestiario.
@@ -198,6 +209,7 @@ rebalanceo:
 | 2026-11-11 | Niveles de magia por arquetipo: Mago 4, Clérigo 3, Guerrero mágico 2, Cocinero 1; el resto 0. | human:simon | aceptada |
 | 2026-11-11 | Pícaro con 3 acciones desde el inicio; el resto 2 y el rebalanceo ajusta. | human:simon | aceptada; provisional v1 |
 | 2026-11-11 | Cierre de la hoja: el roster queda `stable` y las cuatro preguntas abiertas se aplazan a hojas futuras o al rebalanceo. | human:simon | aceptada |
+| 2026-11-16 | Curación III (nivel 3) solo la lanza el Clérigo; el Cocinero no cura en este corte. Se corrigen los textos de identidad mágica. | human:simon | aceptada |
 
 # Aceptación de la hoja
 
