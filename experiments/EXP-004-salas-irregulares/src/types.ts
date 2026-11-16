@@ -195,8 +195,14 @@ export interface EnemyBreakdown {
   readonly playersFactor: number;
   readonly surfaceTerm: number;
   readonly playersTerm: number;
-  /** T = ceil(surfaceFactor × N) + ceil(playersFactor × P). */
+  /** R: salas no-spawn; suelo del total aplicado. */
+  readonly nonSpawnRooms: number;
+  /** T de la fórmula = ceil(surfaceFactor × N) + ceil(playersFactor × P). */
+  readonly formulaTotal: number;
+  /** T aplicado = max(fórmula, R). */
   readonly total: number;
+  /** Aviso cuando el suelo eleva la fórmula; `null` si no manda. */
+  readonly floorWarning: string | null;
   /** Fichas que caben con separación ≥2; puede ser menor que `total`. */
   readonly planned: number;
   /** Presupuesto por sala, indexado por `roomId`. */

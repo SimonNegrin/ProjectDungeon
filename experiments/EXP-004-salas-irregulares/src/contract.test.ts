@@ -86,14 +86,49 @@ describe('contrato y determinismo de A/B/C', () => {
       expect(map.stats.openMouths).toBe(map.openMouths.length);
       expect(map.stats.enemy.surfaceN).toBe(map.stats.roomFloor);
       expect(map.stats.enemy.playersP).toBe(map.options.numPlayers);
-      expect(map.stats.enemy.total).toBe(
+      expect(map.stats.enemy.formulaTotal).toBe(
         map.stats.enemy.surfaceTerm + map.stats.enemy.playersTerm,
+      );
+      expect(map.stats.enemy.total).toBe(
+        Math.max(
+          map.stats.enemy.formulaTotal,
+          map.rooms.filter((room) => room.id !== map.spawns.roomId).length,
+        ),
       );
       expect(map.options.enemySurfaceFactor).toBe(0.02);
       expect(map.options.enemyPlayersFactor).toBe(1.35);
       expect(map.options.numPlayers).toBe(3);
       expect(Array.isArray(map.warnings)).toBe(true);
       expect(JSON.parse(JSON.stringify(map))).toEqual(map);
+    }
+  });
+
+  it('el desglose exportable declara factores, P, R, fórmula, aplicado y aviso', () => {
+    for (const variant of VARIANTS) {
+      const map = generateMap(variant, REFERENCE_SEED, {
+        enemySurfaceFactor: 0,
+        enemyPlayersFactor: 0,
+        numPlayers: 1,
+      });
+      const payload = JSON.parse(JSON.stringify(map.stats.enemy)) as Record<
+        string,
+        unknown
+      >;
+      const nonSpawn = map.rooms.filter(
+        (room) => room.id !== map.spawns.roomId,
+      ).length;
+      expect(payload).toMatchObject({
+        surfaceFactor: 0,
+        playersFactor: 0,
+        playersP: 1,
+        nonSpawnRooms: nonSpawn,
+        formulaTotal: 0,
+        total: nonSpawn,
+      });
+      expect(typeof payload.floorWarning).toBe('string');
+      expect(Array.isArray(payload.perRoom)).toBe(true);
+      expect(Array.isArray(payload.placedPerRoom)).toBe(true);
+      expect(payload.planned).toBe(nonSpawn);
     }
   });
 

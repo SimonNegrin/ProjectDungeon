@@ -69,10 +69,24 @@ export function computeMetrics(map: GeneratedMap, generationMs = 0): Metric[] {
       hint: `componente ${stats.spawnComponentsMax} · ${stats.spawnHoles} huecos`,
     },
     {
+      label: 'Salas no-spawn',
+      value: enemy.nonSpawnRooms,
+      hint: `R · suelo mínimo · ${stats.emptyRooms} salas vacías`,
+    },
+    {
       label: 'Enemigos T',
       value: enemy.total,
-      hint: `N ${enemy.surfaceN} × ${enemy.surfaceFactor} → ${enemy.surfaceTerm} · P ${enemy.playersP} × ${enemy.playersFactor} → ${enemy.playersTerm}${enemy.planned === enemy.total ? '' : ` · plan ${enemy.planned}`}`,
+      hint: `N ${enemy.surfaceN} × ${enemy.surfaceFactor} → ${enemy.surfaceTerm} · P ${enemy.playersP} × ${enemy.playersFactor} → ${enemy.playersTerm} · fórmula ${enemy.formulaTotal} · R ${enemy.nonSpawnRooms} → aplicado ${enemy.total}${enemy.planned === enemy.total ? '' : ` · plan ${enemy.planned}`}`,
     },
+    ...(enemy.floorWarning
+      ? [
+          {
+            label: 'Aviso de suelo',
+            value: `fórmula ${enemy.formulaTotal} · R ${enemy.nonSpawnRooms} · aplicado ${enemy.total}`,
+            hint: enemy.floorWarning,
+          },
+        ]
+      : []),
     {
       label: 'Reparto',
       value: enemy.perRoom.join('·'),
