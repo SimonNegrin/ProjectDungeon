@@ -4,7 +4,7 @@ id: TASK-0155
 title: "Docs: ADR-029 y documentación de hotseat"
 description: "Registrar ADR-029 del modelo de turnos hotseat y actualizar glosario, economía de turno y arquitectura con `N`, ronda, relevo, fase enemiga y resultado."
 status: stable
-task_status: backlog
+task_status: in_progress
 task_type: docs
 requirement: REQ-031
 requirement_ids: [T-013]
