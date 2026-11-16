@@ -31,4 +31,4 @@ console.log(`Archivo: ${relative(process.cwd(), task.file)}`);
 console.log(`Requisito: ${task.data.requirement}`);
 console.log(`Artefactos: ${task.data.artifacts}`);
 console.log('');
-console.log('Siguiente paso: lanza `task-lead` con este ID.');
+console.log('Siguiente paso: lanza `game-lead` con este ID.');

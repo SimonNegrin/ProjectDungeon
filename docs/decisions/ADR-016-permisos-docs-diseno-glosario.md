@@ -53,3 +53,8 @@ Ver [workflow](../harness/workflow.md#fricción-y-propuestas) y
 `docs/templates/**` y `AGENTS.md` a `harness-keeper`. La decisión de esta ADR se
 mantiene para diseño, glosario, decisiones y log; su frase original sobre arnés
 y plantillas queda superada.
+
+[ADR-031](ADR-031-arnes-dos-agentes.md) sustituye el reparto entre agentes: un
+solo `game-lead` es dueño de `docs/**`. La propiedad por ruta que describía esta
+ADR queda superada; el principio de que el lead refleja lo implementado se
+mantiene.

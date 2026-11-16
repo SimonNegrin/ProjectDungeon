@@ -60,3 +60,10 @@ se cargan enteros cuando bastaría un ancla.
 Ver [workflow](../harness/workflow.md#agentes),
 [documentación](../harness/documentacion.md) y
 [ADR-016](ADR-016-permisos-docs-diseno-glosario.md).
+
+# Nota de vigencia
+
+[ADR-031](ADR-031-arnes-dos-agentes.md) retira `harness-keeper` como agente: la
+custodia del arnés pasa a la skill `harness-audit` de `game-lead`, y los cambios
+de reglas siguen exigiendo confirmación del usuario. La auditoría bajo demanda y
+la propiedad por ruta que describía esta ADR quedan superadas.

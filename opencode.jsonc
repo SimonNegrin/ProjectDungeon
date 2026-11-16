@@ -1,8 +1,8 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "default_agent": "requirements-writer",
+  "default_agent": "game-lead",
   "experimental": {
-    "subagent_depth": 2
+    "subagent_depth": 1
   },
   "permissions": [
     { "action": "shell", "resource": "*", "effect": "ask" },
@@ -45,7 +45,10 @@
     { "action": "shell", "resource": "pnpm run config:check", "effect": "allow" },
     { "action": "shell", "resource": "pnpm run tasks:*", "effect": "allow" },
     { "action": "shell", "resource": "pnpm run verify", "effect": "allow" },
+    { "action": "shell", "resource": "pnpm run verify:task *", "effect": "allow" },
+    { "action": "shell", "resource": "pnpm run test:e2e", "effect": "allow" },
     { "action": "shell", "resource": "pnpm run test:e2e *", "effect": "allow" },
+    { "action": "shell", "resource": "pnpm exec vitest run *", "effect": "allow" },
     { "action": "shell", "resource": "pnpm exec playwright test *", "effect": "allow" },
     { "action": "shell", "resource": "echo ---", "effect": "allow" },
     { "action": "shell", "resource": "echo \"---\"", "effect": "allow" },

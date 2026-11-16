@@ -25,7 +25,7 @@ const tasks = [];
 const experiments = [];
 
 const OKF_STATUS = new Set(['draft', 'stable', 'deprecated']);
-const TASK_STATUS = new Set(['backlog', 'ready', 'in_progress', 'blocked', 'review', 'done']);
+const TASK_STATUS = new Set(['backlog', 'ready', 'in_progress', 'blocked', 'done']);
 const TASK_TYPE = new Set(['feature', 'experiment', 'test', 'qa', 'docs', 'harness', 'refactor']);
 const EXPERIMENT_STATUS = new Set(['proposed', 'building', 'ready', 'decided', 'archived']);
 

@@ -21,6 +21,7 @@
     "config:check": "node scripts/validate-opencode.mjs",
     "tasks:board": "node scripts/task-board.mjs",
     "tasks:next": "node scripts/next-task.mjs",
+    "verify:task": "node scripts/verify-task.mjs",
     "verify": "pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle"
   },
   "devDependencies": {

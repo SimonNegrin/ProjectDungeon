@@ -14,7 +14,6 @@ const tasks = loadConcepts(['docs/tasks'])
 const groups = new Map([
   ['ready', []],
   ['in_progress', []],
-  ['review', []],
   ['blocked', []],
   ['backlog', []],
   ['done', []],

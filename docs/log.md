@@ -5,6 +5,8 @@ con formato largo, están en [historial detallado](log-detalle.md).
 
 ## 2026-11-16
 
+* 2026-11-16 — Harness — ADR-031 — dos agentes: game-lead absorbe producto, tareas y arnés; task-runner conserva el contexto limpio; verify:task y criterios firmados sustituyen al verificador; piloto de 5 tareas pendiente — [ADR-031](decisions/ADR-031-arnes-dos-agentes.md)
+
 * 2026-11-16 — Requirement — REQ-021 — v6: abre la capacidad al resucitar (hoy rechazo atómico `inventory-full`) y la procedencia plana de los objetos del cadáver; ambas provisionales hasta playtest — [REQ-021](requirements/REQ-021-muerte-fantasma-resurreccion.md)
 
 * 2026-11-16 — Task — TASK-0148 — done: resurrección por cadáver concreto, consumo del contenedor y recuperación de equipo/mochila sin duplicar, segunda muerte con cadáver nuevo e índice de ronda; 135/135 focalizados, verify 1751/1751 y E2E 273/273 en serie; riesgo de capacidad registrado; fusión `1b0f277` — [verificación](../artifacts/TASK-0148/attempt-2/lead-verify/verification.md)

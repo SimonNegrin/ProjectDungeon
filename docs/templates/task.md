@@ -96,12 +96,10 @@ Qué debe existir o funcionar al terminar, en 1–3 frases.
 - `depends_on` y `unlocks` usan IDs y son simétricos.
 - Solo se planifica el milestone actual; las tareas caducan si cambia el
   requisito.
-- `docs` no se asigna a `task-runner`: `assignee` es el dueño del destino
-  (`task-lead` para diseño, glosario, decisiones, log y fichas;
-  `requirements-writer` para alcance, visión y requisitos). El arnés se pide a
-  `harness-keeper` fuera del flujo de tareas, sin ficha `docs`.
-- Una ficha `docs` no mezcla destinos. Si el requisito pide ADR o glosario y
-  además alcance, se crean dos fichas: una por dueño.
+- `docs` no se asigna a `task-runner`: `assignee` es `game-lead`. El arnés se
+  pide con `/harness`, fuera del flujo de tareas, sin ficha `docs`.
+- Una ficha `docs` no mezcla destinos si eso impide revisarla en un diff
+  legible; si ocurre, se parte por resultado esperado.
 
 # Atomicidad
 
@@ -118,8 +116,10 @@ rendimiento”.
 
 # Anexo A: brief del intento
 
-`task-lead` escribe `artifacts/TASK-NNNN/attempt-N/brief.md`. Es el contrato del
-intento: si falta un campo obligatorio, el runner devuelve `blocked`.
+`game-lead` escribe `artifacts/TASK-NNNN/attempt-N/brief.md` **solo en un
+reintento** o cuando la ficha necesita acotar el intento. En el primer intento la
+ficha es el contrato y no hay brief. Si hay brief y falta un campo obligatorio,
+el runner devuelve `blocked`.
 
 Objetivo 1,5 KB; aviso 2,5 KB; tope duro 4 KB. No se trunca: el desbordamiento
 va a `brief-detalle.md` y se enlaza.
@@ -253,11 +253,47 @@ tests. El detalle va a `report-detalle.md`.
 Las métricas existen para vigilar el tope, no para lucir. Si el handoff se acerca
 a 4 KB, la causa suele ser duplicar la tarea: enlaza y recorta.
 
+---
+
+# Anexo C: verificación
+
+`game-lead` marca `[x]` solo los criterios que puede sostener con evidencia y
+ejecuta `pnpm run verify:task TASK-NNNN`. El script deja la salida mecánica en
+`attempt-N/lead-verify/verify-task.txt`; el juicio va en `verification.md`:
+
+```markdown
+---
+type: Verification
+title: "TASK-0001: verificación del intento 1"
+description: Resultado de verify:task y criterios revisados.
+task: TASK-0001
+attempt: 1
+status: stable
+generated: { by: deepseek/v4.1-flash, at: 2026-11-07T00:00:00Z }
+---
+
+# Resultado
+
+`ok` o `fail`, y por qué.
+
+# Criterios
+
+Los que no se pudieron sostener y qué falta.
+
+# Diff revisado
+
+Archivos de `git diff main...HEAD` y riesgos.
+
+# Qué debe probar el usuario
+
+...
+```
+
 # Cómo recortar
 
 - No copies criterios, requisitos, tablas de timeouts ni el brief: enlaza con
   ancla.
-- El mapeo criterio → test va en la verificación del lead. Si el informe lo
+- El mapeo criterio → test va en la verificación de `game-lead`. Si el informe lo
   incluye, una línea por criterio; el detalle, en `report-detalle.md`.
 - Cita la evidencia una vez: nombre de archivo y qué mirar, no la salida.
 - Las preguntas abiertas y la fricción van en su tabla; no las repitas en

@@ -35,19 +35,13 @@ for (const file of agentFiles) {
   agents.set(id, { data, rel });
 }
 
-if (!agents.has('requirements-writer')) {
-  errors.push('Falta el agente requirements-writer');
+if (!agents.has('game-lead')) {
+  errors.push('Falta el agente game-lead');
 }
-if (agents.get('requirements-writer')?.data.mode !== 'primary') {
-  errors.push('requirements-writer debe ser primary');
+if (agents.get('game-lead')?.data.mode !== 'primary') {
+  errors.push('game-lead debe ser primary');
 }
-if (!agents.has('harness-keeper')) {
-  errors.push('Falta el agente harness-keeper');
-}
-if (agents.get('harness-keeper')?.data.mode !== 'primary') {
-  errors.push('harness-keeper debe ser primary');
-}
-for (const id of ['task-lead', 'task-runner']) {
+for (const id of ['task-runner']) {
   if (!agents.has(id)) errors.push(`Falta el agente ${id}`);
   if (agents.get(id)?.data.mode !== 'subagent') {
     errors.push(`${id} debe ser subagent`);
@@ -68,8 +62,8 @@ if (config) {
   } else if (agents.get(config.default_agent)?.data.mode !== 'primary') {
     errors.push('opencode.jsonc: default_agent debe ser primary');
   }
-  if (Number(config.experimental?.subagent_depth ?? 1) < 2) {
-    errors.push('opencode.jsonc: subagent_depth debe ser >= 2 (task-lead -> task-runner)');
+  if (Number(config.experimental?.subagent_depth ?? 1) < 1) {
+    errors.push('opencode.jsonc: subagent_depth debe ser >= 1 (game-lead -> task-runner)');
   }
 }
 

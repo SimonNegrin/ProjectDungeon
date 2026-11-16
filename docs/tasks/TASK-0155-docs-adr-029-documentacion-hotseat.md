@@ -12,7 +12,7 @@ depends_on: [TASK-0146, TASK-0147, TASK-0148, TASK-0149, TASK-0150, TASK-0151, T
 unlocks: []
 created_at: 2026-11-14T23:31:45Z
 completed_at:
-assignee: task-lead
+assignee: game-lead
 attempts: 0
 artifacts: artifacts/TASK-0155/
 priority: P2

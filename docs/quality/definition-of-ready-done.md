@@ -31,8 +31,7 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 - No mezcla dos dominios de cambio (estructura y estilos, navegación y entrada,
   render y canvas, datos y motor): si los mezcla, se parte por resultado
   esperado, no por capas.
-- Una tarea `docs` declara un solo dueño de destino: si pide ADR o glosario y
-  además alcance, visión o requisitos, se divide al crearla
+- Una tarea `docs` la ejecuta `game-lead`; una de código, `task-runner`
   ([workflow](../harness/workflow.md#quién-ejecuta-una-tarea-docs)).
 - Una tarea UI no incluye su QA visual entre sus criterios: va en una tarea
   `qa` posterior.
@@ -48,7 +47,8 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 - Ningún comando ha quedado colgado y los timeouts están registrados.
 - Documentación afectada actualizada.
 - Cabecera de tarea actualizada: estado, `completed_at`, intentos y artefactos.
-- `task-lead` ha verificado de forma independiente.
+- `game-lead` ha ejecutado `pnpm run verify:task TASK-NNNN`, los criterios están
+  firmados `[x]` y el resultado está en `attempt-N/lead-verify/`.
 - Si el runner detectó fricción reutilizable, el informe la registra y el lead
   la ha triado antes de cerrar.
 - El usuario ha aprobado si la tarea tiene resultado creativo.
@@ -76,5 +76,5 @@ generated: { by: deepseek/v4.1-flash, at: 2026-11-07T14:33:11Z }
 
 # Regla de oro
 
-El `task-runner` no declara una tarea terminada. El `task-lead` verifica y cierra.
-El usuario aprueba lo creativo.
+El `task-runner` no declara una tarea terminada. `game-lead` verifica con
+`verify:task`, firma los criterios y cierra. El usuario aprueba lo creativo.
