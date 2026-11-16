@@ -1,6 +1,6 @@
 $ pnpm run docs:check && pnpm run config:check && pnpm run test && pnpm run build && pnpm run check:bundle
 $ node scripts/validate-docs.mjs
-OK: 751 documentos, 162 tareas, 6 experimentos.
+OK: 752 documentos, 162 tareas, 6 experimentos.
 $ node scripts/validate-opencode.mjs
 OK: 2 agentes, 3 skills.
 $ vitest run
@@ -10,11 +10,11 @@ $ vitest run
 
  Test Files  112 passed (112)
       Tests  1796 passed (1796)
-   Start at  10:05:45
-   Duration  12.00s (tests 85%, import 11%, transform 3%, worker 1%)
+   Start at  10:07:28
+   Duration  11.58s (tests 86%, import 10%, transform 3%, worker 1%)
 
-    Isolate  112 workers spawned · ~115ms startup each (spawn + environment, per file)
-             at least ~1.73s faster with isolate: false — reuses workers across files instead of one per file
+    Isolate  112 workers spawned · ~114ms startup each (spawn + environment, per file)
+             at least ~1.71s faster with isolate: false — reuses workers across files instead of one per file
 
 $ tsc --noEmit && vite build
 vite v6.4.5 building for production...
@@ -25,6 +25,6 @@ computing gzip size...
 dist/index.html                 35.39 kB │ gzip:  4.71 kB
 dist/assets/main-2NrqfXAe.css   37.77 kB │ gzip:  6.10 kB
 dist/assets/main-9NQhYYEW.js   304.84 kB │ gzip: 97.10 kB
-✓ built in 644ms
+✓ built in 603ms
 $ node scripts/check-bundle.mjs
 check:bundle: OK — scanned 17 dist files and 94 production modules; no forbidden markers.
