@@ -4,7 +4,7 @@ id: TASK-0167
 title: "Motor: poder declarado por trait y puntuación de objetos"
 description: "Añadir a cada trait un poder entero con signo validado por el catálogo y una función pura powerScore que puntúe un objeto con acierto, daño, absorción, evasión y traits."
 status: draft
-task_status: ready
+task_status: in_progress
 task_type: feature
 requirement: REQ-020
 requirement_ids: [R-006, R-009, T-002, T-003]
