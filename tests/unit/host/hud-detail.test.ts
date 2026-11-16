@@ -612,6 +612,111 @@ describe('ficha de dos bloques con el panel abierto', () => {
     );
   });
 
+  it('resuelve el equipado del jugador activo, no el primero vivo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+        }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 6,
+          y: 4,
+          equipment: { weaponId: 'axe', armorId: null, shieldId: null },
+        }),
+      ],
+      activePlayerId: 'player-2',
+    });
+
+    const detail = buildPanelDetail(state, {
+      key: 'backpack:0',
+      itemId: 'dagger',
+      instanceId: 'item-player-2-backpack-0',
+      zone: 'backpack',
+    });
+
+    expect(detail.blocks[1]).toMatchObject({
+      id: 'equipped',
+      label: 'Equipado',
+      title: ITEMS.axe.name,
+      empty: false,
+    });
+    expect(detail.blocks[1].title).not.toBe(ITEMS.sword.name);
+  });
+
+  it('el unitId explícito manda sobre el activo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+        }),
+        makeUnit({
+          id: 'player-2',
+          faction: 'player',
+          x: 6,
+          y: 4,
+          equipment: { weaponId: 'axe', armorId: null, shieldId: null },
+        }),
+      ],
+      activePlayerId: 'player-2',
+    });
+
+    const detail = buildPanelDetail(
+      state,
+      {
+        key: 'backpack:0',
+        itemId: 'dagger',
+        instanceId: 'item-player-1-backpack-0',
+        zone: 'backpack',
+      },
+      'player-1',
+    );
+
+    expect(detail.blocks[1].title).toBe(ITEMS.sword.name);
+    expect(detail.stats.length).toBeGreaterThan(0);
+  });
+
+  it('sin activo no cae en el primer jugador y deja el equipado vacío', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          equipment: { weaponId: 'sword', armorId: null, shieldId: null },
+        }),
+      ],
+      activePlayerId: null,
+    });
+
+    const detail = buildPanelDetail(state, {
+      key: 'backpack:0',
+      itemId: 'dagger',
+      instanceId: 'item-player-1-backpack-0',
+      zone: 'backpack',
+    });
+
+    expect(detail.blocks[1]).toMatchObject({
+      id: 'equipped',
+      title: 'Vacío',
+      stats: [],
+      traits: [],
+      sprite: null,
+      empty: true,
+    });
+    expect(detail.stats).toEqual([]);
+  });
+
   it('no altera el detalle del cursor', () => {
     const state = panelState();
     const before = buildCursorDetail(state, { x: 4, y: 4 });
