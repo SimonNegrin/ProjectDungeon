@@ -18,12 +18,13 @@
  * Es puro: no conoce DOM, host, red ni relojes.
  */
 
-import { EQUIPMENT_SLOTS } from './equipment';
+import { EQUIPMENT_SLOTS, ITEMS } from './equipment';
 import { GHOST_ACTIONS } from './actions';
 import { isAlive } from './grid';
 import {
   createInventory,
   emptyEquipment,
+  withBackpackItem,
   type Container,
   type ItemInstance,
 } from './inventory';
@@ -91,6 +92,51 @@ function settlePlayerDeath(state: GameState, unit: Unit): GameState {
       candidate.id === unit.id ? ghost : candidate,
     ),
     containers: hasCorpse ? containers : [...containers, corpse],
+  };
+}
+
+/**
+ * Recupera el contenido que aún guarda el cadáver de `unit` y retira su
+ * contenedor (REQ-021 R-014/T-014). El contenedor aplana equipo y mochila, así
+ * que cada instancia vuelve a su hueco por `ITEMS[].slot` si está libre y, si
+ * no, a la mochila. Lo ya saqueado no está en el contenedor y no se duplica;
+ * el equipo y la mochila que el fantasma ya lleva encima se conservan.
+ *
+ * Un hueco vacío del contenedor no toca el estado de la unidad. Devuelve
+ * `null` si una instancia no cabe en el estado resultante: la resurrección se
+ * rechaza sin consumir ni retirar el cadáver (REQ-018 T-005).
+ */
+export function reclaimPlayerCorpse(
+  state: GameState,
+  unit: Unit,
+): { readonly state: GameState; readonly unit: Unit } | null {
+  const containers = state.containers ?? [];
+  const corpses = containers.filter((container) => container.corpseOf === unit.id);
+  if (corpses.length === 0) return { state, unit };
+
+  let equipment = unit.equipment;
+  let inventory = unit.inventory;
+
+  for (const corpse of corpses) {
+    for (const instance of corpse.items) {
+      if (instance === null) continue;
+      const slot = ITEMS[instance.itemId].slot;
+      if (equipment[slot] === null) {
+        equipment = { ...equipment, [slot]: instance };
+        continue;
+      }
+      const next = withBackpackItem(inventory, instance);
+      if (!next) return null;
+      inventory = next;
+    }
+  }
+
+  return {
+    state: {
+      ...state,
+      containers: containers.filter((container) => container.corpseOf !== unit.id),
+    },
+    unit: { ...unit, equipment, inventory },
   };
 }
 

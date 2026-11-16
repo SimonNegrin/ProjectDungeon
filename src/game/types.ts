@@ -302,13 +302,16 @@ export type Command =
   | { readonly type: 'SelectWeapon'; readonly unitId: string; readonly slot: number }
   /**
    * Lanza un hechizo del catálogo contra una casilla (REQ-025). El resolvedor
-   * busca allí el enemigo, aliado o cadáver que exija el hechizo.
+   * busca allí el enemigo, aliado o cadáver que exija el hechizo. `targetId`
+   * elige un cadáver concreto cuando varios comparten casilla (REQ-021 R-009);
+   * sin él se mantiene la resolución por casilla.
    */
   | {
       readonly type: 'CastSpell';
       readonly unitId: string;
       readonly spellId: SpellId;
       readonly target: Position;
+      readonly targetId?: string;
     }
   /**
    * Inspecciona el contenido de un contenedor sin abrirlo (REQ-021 R-006).

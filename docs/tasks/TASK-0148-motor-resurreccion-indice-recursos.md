@@ -4,16 +4,16 @@ id: TASK-0148
 title: "Motor: resurrección por índice y recursos"
 description: "Permitir resucitar al fantasma en la casilla del cadáver y devolver el turno en la misma ronda si su índice no ha pasado, con recursos restaurados."
 status: stable
-task_status: blocked
+task_status: done
 task_type: feature
 requirement: REQ-031
 requirement_ids: [R-014, T-003]
 depends_on: [TASK-0131, TASK-0134, TASK-0146]
 unlocks: [TASK-0154, TASK-0155, TASK-0159]
 created_at: 2026-11-14T23:31:45Z
-completed_at:
+completed_at: 2026-11-16T00:35:00Z
 assignee: task-runner
-attempts: 1
+attempts: 2
 artifacts: artifacts/TASK-0148/
 priority: P1
 risk: high
@@ -40,6 +40,15 @@ verified:
       `settlePlayerDeath` ve el contenedor viejo. Requiere decisión de
       `requirements-writer`/usuario sobre el ciclo del cadáver y sus objetos.
       Detalle en `attempt-1/lead-verify/verification.md`.
+  - by: task-lead
+    at: 2026-11-16T00:35:00Z
+    note: >-
+      Intento 2 verificado (motor `624a30a`, evidencia `26e0c97`). Criterio del
+      cadáver cumplido: se retira el contenedor `corpseOf`, el resucitado
+      recupera equipo y mochila sin duplicar lo saqueado y una segunda muerte
+      crea cadáver nuevo. Focalizados 135/135, `pnpm run verify` 1751 tests y
+      E2E completa 273/273 en 4,3 min con un worker. Detalle en
+      `attempt-2/lead-verify/verification.md`.
 ---
 
 # Objetivo
@@ -68,7 +77,7 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
       cadáver con el 60 % de su PV máximo, redondeado hacia arriba y mínimo 1.
 - [x] Con varios cadáveres en la misma casilla, resucita el elegido y los demás
       quedan intactos.
-- [ ] Al resucitar se retira el contenedor del cadáver y el resucitado recupera
+- [x] Al resucitar se retira el contenedor del cadáver y el resucitado recupera
       el equipo y la mochila que quedaban dentro; lo ya saqueado no se duplica y
       una segunda muerte crea cadáver nuevo.
 - [x] Si el índice del jugador aún no ha pasado en la ronda, actúa en la misma
@@ -88,9 +97,10 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
 
 # Evidencia esperada
 
-- [x] Informe en `artifacts/TASK-0148/attempt-1/report.md`
-- [x] Salida de `pnpm run verify`
+- [x] Informe en `artifacts/TASK-0148/attempt-2/report.md`
+- [x] Salida de `pnpm run verify` y de la E2E completa en serie
 - [x] Commit SHA
+- [x] Verificación independiente en `attempt-2/lead-verify/`
 
 # Comandos
 
@@ -134,3 +144,9 @@ TASK-0131 crea el cadáver y TASK-0146 el turno.
   nuevo. Falta decidir en REQ-021/REQ-018 qué pasa con el contenedor y sus
   objetos. Ver
   [verificación](../../artifacts/TASK-0148/attempt-1/lead-verify/verification.md).
+- Intento 2 verificado y cerrado el 2026-11-16: `reclaimPlayerCorpse` consume el
+  contenedor al resucitar, devuelve equipo y mochila y conserva lo saqueado; una
+  segunda muerte crea cadáver nuevo. Riesgo abierto registrado: si el contenido
+  no cabe, la resurrección se rechaza con `inventory-full` (guard técnico, sin
+  regla específica en REQ-021). Ver
+  [verificación](../../artifacts/TASK-0148/attempt-2/lead-verify/verification.md).
