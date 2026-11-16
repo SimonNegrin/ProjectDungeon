@@ -151,7 +151,7 @@ Total: **176**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0169](TASK-0169-motor-apertura-deposito-guardado.md) | Motor: apertura con acción, depósito y persistencia del cofre | `done` | REQ-020 | TASK-0168 | P1 |
 | [TASK-0170](TASK-0170-host-panel-cofre-hud.md) | Host/UI: abrir cofre con Espacio/Enter, columna «Cofre» y HUD | `done` | REQ-020 | TASK-0169 | P1 |
 | [TASK-0171](TASK-0171-qa-e2e-playtest-cofres.md) | QA/E2E y playtest de cofres, botín y maza circular | `done` | REQ-020 | TASK-0170 | P1 |
-| [TASK-0174](TASK-0174-motor-densidad-party-real.md) | Motor: densidad por party real y suelo por salas | `ready` | REQ-012 | — | P1 |
+| [TASK-0174](TASK-0174-motor-densidad-party-real.md) | Motor: densidad por party real y suelo por salas | `in_progress` | REQ-012 | — | P1 |
 | [TASK-0020](TASK-0020-artefactos-e2e.md) | Arnés: artefactos E2E sin reescribir evidencia histórica | `done` | HARNESS | — | P2 |
 | [TASK-0031](TASK-0031-host-feedback-dano-legible.md) | Host: feedback de daño legible junto a las unidades | `done` | REQ-010 | TASK-0029 | P2 |
 | [TASK-0032](TASK-0032-e2e-helper-mp.md) | E2E: espera de MP compartida antes de recoger o actuar | `done` | HARNESS | TASK-0020 | P2 |
@@ -181,7 +181,7 @@ Total: **176**. Generado desde el frontmatter de `docs/tasks/*.md`.
 | [TASK-0176](TASK-0176-qa-densidad-party-real.md) | QA: densidad por party real de punta a punta | `backlog` | REQ-012 | TASK-0174 | P2 |
 | [TASK-0173](TASK-0173-arnes-test-gate-brief.md) | Arnés: test del gate del brief | `done` | HARNESS | — | P3 |
 
-# ready
+# in_progress
 
 * [TASK-0174 — Motor: densidad por party real y suelo por salas](TASK-0174-motor-densidad-party-real.md)
 

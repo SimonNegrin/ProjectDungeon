@@ -4,7 +4,7 @@ id: TASK-0174
 title: "Motor: densidad por party real y suelo por salas"
 description: "El mapa de una partida nueva usa el tamaño real de la party como P y nunca deja una sala no-spawn vacía, con aviso cuando el suelo eleva el total."
 status: stable
-task_status: ready
+task_status: in_progress
 task_type: feature
 scope: [src/, tests/]
 requirement: REQ-012
