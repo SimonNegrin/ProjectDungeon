@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'nod
 import { spawnSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { parseConcept, parseConceptText, repoRoot } from './lib/docs.mjs';
+import { briefCheck } from './lib/attempt.mjs';
 import {
   allowedFor,
   isInScope,
@@ -143,16 +144,8 @@ if (!reportPath || !existsSync(reportPath)) {
   );
 }
 
-if (attempt && attempt >= 2) {
-  const briefPath = resolve(attemptDir, 'brief.md');
-  add(
-    'Brief',
-    existsSync(briefPath),
-    existsSync(briefPath)
-      ? `attempt-${attempt}/brief.md (${statSync(briefPath).size} B)`
-      : `falta attempt-${attempt}/brief.md en un reintento`,
-  );
-}
+const brief = briefCheck(attemptDir, attempt);
+if (brief) add('Brief', brief.ok, brief.detail);
 
 const taskType = String(data.task_type ?? 'feature');
 const declaredScope = normalizeScope(data.scope);
