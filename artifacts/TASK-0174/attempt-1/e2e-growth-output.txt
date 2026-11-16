@@ -1,0 +1,12 @@
+
+Running 5 tests using 4 workers
+
+  ✓  1 [chromium] › tests/e2e/host-growth-render-qa.spec.ts:134:1 › caverna growth: máscara irregular y F1 (1.5s)
+  ✓  3 [chromium] › tests/e2e/host-growth-render-qa.spec.ts:183:1 › entrada y salida: escalera y puerta de borde con F1 (2.0s)
+  ✓  4 [chromium] › tests/e2e/host-growth-render-qa.spec.ts:95:1 › juego growth normal, F1 on/off y mismo render determinista (2.0s)
+  ✓  2 [chromium] › tests/e2e/host-growth-render-qa.spec.ts:157:1 › pasillo ancho, spawn y 13×13 con F1 (2.0s)
+  ✓  5 [chromium] › tests/e2e/host-growth-render-qa.spec.ts:204:1 › playtest 2738263054: estructura, determinismo, render y salida sin transición (1.5s)
+
+  5 passed (5.0s)
+
+EXIT=0
