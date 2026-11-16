@@ -31,6 +31,7 @@ import {
   signed,
   statLines,
   statsLabel,
+  unitTraitSummary,
   unitTraits,
   weaponLabel,
   type CursorDetail,
@@ -43,6 +44,7 @@ import type { Viewport } from './geometry';
 import { formatKeyHelp } from './keymap';
 import { NOTICE_DURATION_MS, NOTICE_MESSAGES, type NoticeCode } from './notices';
 import { PANEL_SLOT_LABELS } from './inventory-panel';
+import { statBreakdown } from './stat-breakdown';
 import type { EnemyActorContext } from './presentation';
 
 /** Ayuda del HUD generada desde el mapa único de teclas (REQ-024 T-014). */
@@ -78,7 +80,7 @@ export interface HudModel {
   readonly playerManaVisible: boolean;
   /** Acciones restantes/máximas del jugador activo, p. ej. `2/2`. */
   readonly action: string;
-  /** Traits activos derivados de las definiciones equipadas; vacío sin traits. */
+  /** Traits activos con su hueco de origen; vacío sin traits. */
   readonly traits: readonly string[];
   /** «Fantasma» con `hp <= 0`; no altera la mecánica de REQ-021. */
   readonly condition: string | null;
@@ -274,7 +276,7 @@ export function buildHudModel(
     playerMana: formatMana(player),
     playerManaVisible: (player?.mana.max ?? 0) > 0,
     action: formatActions(player),
-    traits: unitTraits(player),
+    traits: unitTraitSummary(player),
     condition: conditionLabel(player),
     actionSuggestion: actionSuggestion(state),
     weapon: hudWeapon(player),
@@ -552,6 +554,23 @@ function equipmentDebugLine(unit: Unit | undefined): string {
   return `Equipo: ${weaponLabel(unit)} · ${shieldLabel(unit)} · ${armorLabel(unit)} · Atributos ${statsLabel(unit)}`;
 }
 
+/** Traits activos del portador con su fuente; vacío se dice sin ambigüedad. */
+function activeTraitDebugLines(unit: Unit | undefined): readonly string[] {
+  const traits = unitTraits(unit);
+  return [`Traits activos: ${traits.length === 0 ? 'ninguno' : traits.join(' · ')}`];
+}
+
+/** Desglose por atributo, con el total copiado de `effectiveStats`. */
+function statBreakdownDebugLines(unit: Unit | undefined): readonly string[] {
+  if (!unit) return ['Desglose de stats: —'];
+  return statBreakdown(unit).map(
+    (row) =>
+      `Desglose ${row.label}: inherente ${row.inherent} · equipo ${row.equipment} · traits ${row.traits} = ${row.total}${
+        row.note === undefined ? '' : ` (${row.note})`
+      }`,
+  );
+}
+
 function itemLabel(instance: ItemInstance): string {
   return `${ITEMS[instance.itemId].name} [${instance.id}]`;
 }
@@ -670,6 +689,8 @@ export function buildDebugModel(
       `Identidad: ${player?.nombre ?? '—'} · Arquetipo ${archetypeLabel(player)}`,
       `Enemigo: ${positions(enemy)} · HP ${formatHp(enemy)} · Acciones ${formatActions(enemy)}`,
       equipmentDebugLine(player),
+      ...activeTraitDebugLines(player),
+      ...statBreakdownDebugLines(player),
       ...inventoryDebugLines(player),
       groundDebugLine(state),
       ...enemyEquipmentLines(state),

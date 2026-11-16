@@ -12,6 +12,7 @@ export interface BannerFeedback {
     | 'phase'
     | 'turn'
     | 'round'
+    | 'trait'
     | 'separator';
   readonly durationMs: number;
 }
@@ -70,6 +71,24 @@ export function bannerForCue(cue: FeedbackCue): BannerFeedback | null {
         kind: 'separator',
         durationMs: FEEDBACK_CONFIG.durations.turnEndedMs,
       };
+    case 'trait-impact': {
+      const trait = cue.data.traitName ?? cue.data.traitId ?? 'Trait';
+      const target = cue.data.targetName ? ` a ${cue.data.targetName}` : '';
+      return {
+        text: `${trait}: ${cue.data.text ?? ''}${target}`.trim(),
+        kind: 'trait',
+        durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+      };
+    }
+    case 'trait-heal': {
+      const trait = cue.data.traitName ?? cue.data.traitId ?? 'Trait';
+      const unit = cue.data.unitName ? ` (${cue.data.unitName})` : '';
+      return {
+        text: `${trait}: ${cue.data.text ?? ''}${unit}`.trim(),
+        kind: 'trait',
+        durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+      };
+    }
     default:
       return null;
   }

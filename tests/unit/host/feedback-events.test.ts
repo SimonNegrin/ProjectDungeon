@@ -316,3 +316,73 @@ describe('marcas de huida, regreso y espera', () => {
     }
   });
 });
+
+describe('feedback de traits especiales', () => {
+  it('cada impacto del círculo y cada curación tienen cue, texto y beat propios', () => {
+    const state = stateWithEnemy();
+    const timeline = buildMotionTimeline(
+      [
+        {
+          type: 'TraitImpact',
+          unitId: 'player-1',
+          traitId: 'circular-strike',
+          source: 'equipment',
+          slot: 'weapon',
+          itemId: 'circular-mace',
+          targetId: 'enemy-1',
+          damage: 3,
+          targetHp: 7,
+        },
+        {
+          type: 'TraitImpact',
+          unitId: 'player-1',
+          traitId: 'circular-strike',
+          source: 'equipment',
+          slot: 'weapon',
+          itemId: 'circular-mace',
+          targetId: 'enemy-2',
+          damage: 2,
+          targetHp: 8,
+        },
+        {
+          type: 'TraitDamage',
+          unitId: 'player-1',
+          traitId: 'lifesteal',
+          source: 'equipment',
+          slot: 'ring',
+          itemId: 'lifesteal-ring',
+          targetId: 'enemy-1',
+          damage: 3,
+          healing: 1,
+          unitHp: 11,
+        },
+      ],
+      { finalState: state },
+    );
+
+    const impacts = timeline.cues.filter((cue) => cue.kind === 'trait-impact');
+    const heals = timeline.cues.filter((cue) => cue.kind === 'trait-heal');
+    expect(impacts).toHaveLength(2);
+    expect(heals).toHaveLength(1);
+    expect(impacts.map((cue) => cue.data.targetId)).toEqual([
+      'enemy-1',
+      'enemy-2',
+    ]);
+    expect(impacts.map((cue) => cue.data.text)).toEqual(['-3', '-2']);
+    expect(heals[0].data.text).toBe('+1');
+    expect(impacts[0].beatMs).toBe(FEEDBACK_CONFIG.beats.traitImpact);
+    expect(heals[0].beatMs).toBe(FEEDBACK_CONFIG.beats.traitHeal);
+    expect(impacts[1].atMs).toBe(impacts[0].atMs + impacts[0].beatMs);
+
+    expect(bannerForCue(impacts[0])).toEqual({
+      text: 'Ataque circular: -3 a enemy-1',
+      kind: 'trait',
+      durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+    });
+    expect(bannerForCue(heals[0])).toEqual({
+      text: 'Robo de vida: +1 (player-1)',
+      kind: 'trait',
+      durationMs: FEEDBACK_CONFIG.texts.bannerMs,
+    });
+  });
+});

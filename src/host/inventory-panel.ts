@@ -37,6 +37,8 @@ import type {
   Unit,
 } from '../game/types';
 import { GOBLIN_RECT, KNIGHT_RECT, type SpriteRect } from './assets';
+import { statBreakdown } from './stat-breakdown';
+import { traitText } from './trait-labels';
 
 export const PANEL_SLOT_LABELS: Readonly<Record<EquipmentSlot, string>> = {
   weapon: 'Arma',
@@ -128,14 +130,24 @@ export interface PanelItem {
 }
 
 export interface PanelStatsRow {
+  readonly id: string;
   readonly label: string;
-  readonly value: string;
+  /** Valor inherente del portador, sin equipo. */
+  readonly inherent: string;
+  /** Aporte de los modificadores de los objetos equipados. */
+  readonly equipment: string;
+  /** Aporte de los traits de los objetos equipados. */
+  readonly traits: string;
+  /** Total efectivo que también lee el motor. */
+  readonly total: string;
+  /** Nota cuando un suelo o tope recorta el total. */
+  readonly note?: string;
 }
 
 export interface PanelStats {
   /** Totales efectivos en una línea. */
   readonly total: string;
-  /** Base inherente y aporte de cada objeto equipado. */
+  /** Desglose inherente/equipo/traits por atributo. */
   readonly rows: readonly PanelStatsRow[];
 }
 
@@ -193,7 +205,7 @@ function itemDetail(item: ItemDefinition): string {
 }
 
 function itemTraits(item: ItemDefinition): readonly string[] {
-  return item.traits.map((trait) => trait.description);
+  return item.traits.map((trait) => traitText(trait.id, trait.description));
 }
 
 function itemName(item: ItemDefinition): string {
@@ -227,19 +239,20 @@ function profileTotal(unit: Unit): string {
   ].join(' · ');
 }
 
-/** Base inherente y aporte individual de cada objeto equipado. */
+/** Desglose inherente/equipo/traits y total efectivo del portador. */
 function buildStats(unit: Unit): PanelStats {
-  const base = ATTRIBUTES.map(
-    ([attribute, label]) => `${label} ${signed(unit.stats[attribute])}`,
-  ).join(' · ');
-  const rows: PanelStatsRow[] = [{ label: 'Base', value: base }];
-  for (const item of equippedDefinitions(unit)) {
-    rows.push({
-      label: `${itemName(item)} (${slotLabel(item.slot)})`,
-      value: itemStatsText(item),
-    });
-  }
-  return { total: profileTotal(unit), rows };
+  return {
+    total: profileTotal(unit),
+    rows: statBreakdown(unit).map((row) => ({
+      id: row.id,
+      label: row.label,
+      inherent: row.inherent,
+      equipment: row.equipment,
+      traits: row.traits,
+      total: row.total,
+      ...(row.note === undefined ? {} : { note: row.note }),
+    })),
+  };
 }
 
 /**

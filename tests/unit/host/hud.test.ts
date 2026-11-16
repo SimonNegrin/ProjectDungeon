@@ -13,7 +13,10 @@ import {
   ROSTER,
   createInitialState,
   createPlayerFromArchetype,
+  emptyEquipment,
+  itemInstance,
   reduce,
+  synchronizeUnitResources,
   type GameEvent,
 } from '../../../src/game/index';
 import type { GameState, Unit } from '../../../src/game/types';
@@ -158,6 +161,28 @@ describe('modelo del HUD', () => {
       `${mage.mana.current}/${mage.mana.max}`,
     );
     expect(withMana.weapon).toBeNull();
+  });
+
+  it('expone los traits activos con su fuente y sin duplicar especiales', () => {
+    const player = synchronizeUnitResources(
+      makeUnit({
+        id: 'player-1',
+        faction: 'player',
+        x: 4,
+        y: 4,
+        equipmentSlots: {
+          ...emptyEquipment(),
+          weapon: itemInstance('mace', 'circular-mace'),
+          ring: itemInstance('ring', 'lifesteal-ring'),
+        },
+      }),
+    );
+    const model = buildHudModel(makeState({ players: [player] }));
+
+    expect(model.traits).toEqual([
+      'Ataque circular (Arma)',
+      'Robo de vida (Anillo)',
+    ]);
   });
 
   it('mantiene la ficha izquierda en el jugador fantasma con su MP', () => {
@@ -840,6 +865,36 @@ describe('modelo del overlay de debug', () => {
     expect(text).toContain('Semilla: n/a (determinista)');
     expect(text).toContain('Fase enemiga: actor — · objetivo —');
     expect(text).toContain('Últimos eventos: ninguno');
+  });
+
+  it('F1 desglosa inherente, equipo y traits y lista los traits activos', () => {
+    const player = synchronizeUnitResources(
+      makeUnit({
+        id: 'player-1',
+        faction: 'player',
+        x: 4,
+        y: 4,
+        equipmentSlots: {
+          ...emptyEquipment(),
+          neck: itemInstance('neck', 'mana-necklace'),
+          hands: itemInstance('hands', 'action-gloves'),
+          ring: itemInstance('ring', 'lifesteal-ring'),
+        },
+      }),
+    );
+    const text = buildDebugModel(
+      makeState({ players: [player] }),
+      { x: 0, y: 0 },
+      { maxX: 224, maxY: 224 },
+      { width: 416, height: 416 },
+      [],
+      PLAYER_CURSOR,
+    ).lines.join('\n');
+
+    expect(text).toContain('Pulso de maná (Collar de maná, Collar)');
+    expect(text).toContain('Robo de vida (Anillo de robo, Anillo)');
+    expect(text).toContain('Desglose MP máximos: inherente 6 · equipo +0 · traits +2 = 8');
+    expect(text).toContain('Desglose Acciones: inherente 2 · equipo +0 · traits +1 = 3');
   });
 
   it('F1 expone el actor enemigo y su objetivo actual', () => {

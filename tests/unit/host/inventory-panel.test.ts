@@ -338,7 +338,7 @@ describe('modelo del panel de personaje', () => {
     expect(model.equipment[0].comparison).toEqual([]);
   });
 
-  it('desglosa base y equipo, y el total efectivo cambia al equipar', () => {
+  it('desglosa base, equipo y traits por atributo, y el total cambia al equipar', () => {
     const state = makeState({
       players: [
         makeUnit({
@@ -354,9 +354,33 @@ describe('modelo del panel de personaje', () => {
 
     expect(before.stats.total).toContain('Acierto +3');
     expect(before.stats.total).toContain('Absorción +1');
-    expect(before.stats.rows[0].label).toBe('Base');
-    expect(before.stats.rows.map((row) => row.label)).toContain('Espada (Arma)');
-    expect(before.stats.rows.map((row) => row.label)).toContain('Escudo (Escudo)');
+    expect(before.stats.rows.map((row) => row.id)).toEqual([
+      'habilidad',
+      'fuerza',
+      'defensa',
+      'punteria',
+      'resistencia',
+      'magia',
+      'pvMax',
+      'mpMax',
+      'acciones',
+    ]);
+    expect(before.stats.rows[0]).toMatchObject({
+      id: 'habilidad',
+      label: 'Habilidad',
+      inherent: '1',
+      equipment: '+0',
+      traits: '+0',
+      total: '1',
+    });
+    // Los modificadores del catálogo están vacíos: el desglose sigue mostrando
+    // las tres fuentes y el total del motor.
+    expect(before.stats.rows.find((row) => row.id === 'acciones')).toMatchObject({
+      inherent: '2',
+      equipment: '+0',
+      traits: '+0',
+      total: '2',
+    });
 
     const equipped = reduce(state, {
       type: 'EquipItem',
@@ -370,6 +394,69 @@ describe('modelo del panel de personaje', () => {
     expect(after.stats.total).toContain('Daño');
     expect(after.equipment[0].name).toBe(ITEMS.hammer.name);
     expect(after.backpack[0].name).toBe(ITEMS.sword.name);
+  });
+
+  it('expone los traits de un objeto antes de equiparlo', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['circular-mace'],
+        }),
+      ],
+    });
+    const item = buildInventoryPanelModel(state).backpack[0];
+
+    expect(item.name).toBe(ITEMS['circular-mace'].name);
+    expect(item.traits).toHaveLength(1);
+    expect(item.traits[0]).toContain('Ataque circular:');
+    expect(item.traits[0]).toContain(
+      'Golpea las 8 casillas adyacentes salvo el centro',
+    );
+    expect(item.traits[0]).toContain('radio 1');
+    expect(item.traits[0]).toContain('1 acción');
+  });
+
+  it('equipar y desequipar actualiza el desglose sin recargar el estado', () => {
+    const state = makeState({
+      players: [
+        makeUnit({
+          id: 'player-1',
+          faction: 'player',
+          x: 4,
+          y: 4,
+          weapons: ['mana-necklace'],
+        }),
+      ],
+    });
+    const before = buildInventoryPanelModel(state).stats.rows.find(
+      (row) => row.id === 'mpMax',
+    );
+    expect(before).toMatchObject({ traits: '+0', total: '6' });
+
+    const equipped = reduce(state, {
+      type: 'EquipItem',
+      unitId: 'player-1',
+      from: 'backpack',
+      index: 0,
+    }).state;
+    const after = buildInventoryPanelModel(equipped).stats.rows.find(
+      (row) => row.id === 'mpMax',
+    );
+    expect(after).toMatchObject({ traits: '+2', total: '8' });
+
+    const unequipped = reduce(equipped, {
+      type: 'UnequipItem',
+      unitId: 'player-1',
+      slot: 'neck',
+    }).state;
+    const back = buildInventoryPanelModel(unequipped).stats.rows.find(
+      (row) => row.id === 'mpMax',
+    );
+    expect(back).toMatchObject({ traits: '+0', total: '6' });
   });
 
   it('las acciones del panel llevan el comando del motor', () => {
